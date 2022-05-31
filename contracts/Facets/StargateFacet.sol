@@ -62,17 +62,14 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
     nonReentrant
     {
         LibAsset.depositAsset(_StargateData.token, _StargateData.amountLD);
-        _startBridge(_StargateData, msg.value);
+        _startBridge(_StargateData);
 
         emit SoTransferStarted(
             _soData.transactionId,
             "Stargate",
-            "",
-            _soData.integrator,
-            _soData.referrer,
-            _StargateData.token,
+            _soData.sendingAssetId,
             _soData.receivingAssetId,
-            _StargateData.receiver,
+            msg.sender,
             _StargateData.amountLD,
             _StargateData.dstChainId,
             false,
@@ -80,39 +77,89 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
         );
     }
 
-//    /// @notice Performs a swap before bridging via Stargate
-//    /// @param _soData data used purely for tracking and analytics
-//    /// @param _swapData an array of swap related data for performing swaps before bridging
-//    /// @param _StargateData data specific to Stargate
-//    function swapAndStartBridgeTokensViaStargate(
-//        SoData calldata _soData,
-//        LibSwap.SwapData[] calldata _swapData,
-//        StargateData memory _StargateData
-//    ) external payable nonReentrant {
-//        _StargateData.amount = _executeAndCheckSwaps(_soData, _swapData);
-//        _startBridge(_StargateData);
-//
-//        emit SoTransferStarted(
-//            _soData.transactionId,
-//            "Stargate",
-//            "",
-//            _soData.integrator,
-//            _soData.referrer,
-//            _swapData[0].sendingAssetId,
-//            _soData.receivingAssetId,
-//            _StargateData.receiver,
-//            _swapData[0].fromAmount,
-//            _StargateData.dstChainId,
-//            true,
-//            false
-//        );
-//    }
+    /// @notice Performs a swap after bridging via Stargate
+    /// @param _soData data used purely for tracking and analytics
+    /// @param _swapDataSrc an array of swap related data for performing swaps before bridging
+    /// @param _StargateData data specific to Stargate
+    function startSwapAndBridgeTokensViaStargate(
+        SoData calldata _soData,
+        LibSwap.SwapData[] calldata _swapDataSrc,
+        StargateData memory _StargateData
+    ) external payable nonReentrant {
+        _StargateData.amountLD = _executeAndCheckSwaps(_soData, _swapDataSrc);
+        _startBridge(_StargateData);
+
+        emit SoTransferStarted(
+            _soData.transactionId,
+            "Stargate",
+            _soData.sendingAssetId,
+            _soData.receivingAssetId,
+            msg.sender,
+            _swapDataSrc[0].fromAmount,
+            _StargateData.dstChainId,
+            true,
+            false
+        );
+    }
+
+    /// @notice Performs a swap before bridging via Stargate
+    /// @param _soData data used purely for tracking and analytics
+    /// @param _StargateData data specific to Stargate
+    /// @param _swapDataDst an array of swap related data for performing swaps before bridging
+    function startBridgeTokensAndSwapViaStargate(
+        SoData calldata _soData,
+        StargateData memory _StargateData,
+        LibSwap.SwapData[] calldata _swapDataDst
+    ) external payable nonReentrant {
+        // todo! move into sgReceive for _swapDataDst
+        _startBridge(_StargateData);
+
+        emit SoTransferStarted(
+            _soData.transactionId,
+            "Stargate",
+            _soData.sendingAssetId,
+            _soData.receivingAssetId,
+            msg.sender,
+            _StargateData.amountLD,
+            _StargateData.dstChainId,
+            false,
+            true
+        );
+    }
+
+    /// @notice Performs a swap before and after bridging via Stargate
+    /// @param _soData data used purely for tracking and analytics
+    /// @param _swapDataSrc an array of swap related data for performing swaps before bridging
+    /// @param _StargateData data specific to Stargate
+    /// @param _swapDataDst an array of swap related data for performing swaps before bridging
+    function startSwapAndSwapViaStargate(
+        SoData calldata _soData,
+        LibSwap.SwapData[] calldata _swapDataSrc,
+        StargateData memory _StargateData,
+        LibSwap.SwapData[] calldata _swapDataDst
+    ) external payable nonReentrant {
+        _StargateData.amountLD = _executeAndCheckSwaps(_soData, _swapDataSrc);
+        _startBridge(_StargateData);
+        // todo! move into sgReceive for _swapDataDst
+
+        emit SoTransferStarted(
+            _soData.transactionId,
+            "Stargate",
+            _soData.sendingAssetId,
+            _soData.receivingAssetId,
+            msg.sender,
+            _StargateData.amountLD,
+            _StargateData.dstChainId,
+            true,
+            true
+        );
+    }
 
     /// Private Methods ///
 
     /// @dev Conatains the business logic for the bridge via Stargate
     /// @param _StargateData data specific to Stargate
-    function _startBridge(StargateData memory _StargateData, uint256 gas) private {
+    function _startBridge(StargateData memory _StargateData) private {
         Storage storage s = getStorage();
         address bridge = s.Stargate;
 
@@ -125,7 +172,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
             // Give Stargate approval to bridge tokens
             LibAsset.maxApproveERC20(IERC20(_StargateData.token), bridge, _StargateData.amountLD);
             // solhint-disable check-send-result
-            IStargate(bridge).swap{value : gas}(
+            IStargate(bridge).swap{value : msg.value}(
                 _StargateData.dstChainId,
                 _StargateData.srcPoolId,
                 _StargateData.dstPoolId,

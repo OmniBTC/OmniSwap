@@ -7,9 +7,7 @@ interface ISo {
     /// Structs ///
 
     struct SoData {
-        bytes32 transactionId;
-        string integrator;
-        address referrer;
+        bytes32 transactionId;  //
         address sendingAssetId;
         address receivingAssetId;
         address receiver;
@@ -22,16 +20,13 @@ interface ISo {
     event SoTransferStarted(
         bytes32 indexed transactionId,
         string bridge,
-        string bridgeData,
-        string integrator,
-        address referrer,
         address sendingAssetId,
         address receivingAssetId,
         address receiver,
         uint256 amount,
         uint256 destinationChainId,
         bool hasSourceSwap,
-        bool hasDestinationCall
+        bool hasDestinationSwap
     );
 
     event SoTransferCompleted(
