@@ -10,13 +10,12 @@ import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidCon
 import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
 
 /// @title Stargate Facet
-/// @author LI.FI (https://li.fi)
+/// @author SoSwap 
 /// @notice Provides functionality for bridging through Stargate
 contract StargateFacet is ISo, Swapper, ReentrancyGuard {
     /// Storage ///
 
-    // todo! need to recompute for stargate
-    bytes32 internal constant NAMESPACE = hex"86b79a219228d788dd4fea892f48eec79167ea6d19d7f61e274652b2797c5b12"; //keccak256("com.so.facets.Stargate2");
+    bytes32 internal constant NAMESPACE = hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
     struct Storage {
         address Stargate;
         uint16 StargateChainId;
