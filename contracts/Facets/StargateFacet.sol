@@ -10,7 +10,7 @@ import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidCon
 import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
 
 /// @title Stargate Facet
-/// @author SoSwap 
+/// @author SoSwap
 /// @notice Provides functionality for bridging through Stargate
 contract StargateFacet is ISo, Swapper, ReentrancyGuard {
     /// Storage ///
@@ -77,7 +77,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
         );
     }
 
-    /// @notice Performs a swap after bridging via Stargate
+    /// @notice Performs a swap before bridging via Stargate
     /// @param _soData data used purely for tracking and analytics
     /// @param _swapDataSrc an array of swap related data for performing swaps before bridging
     /// @param _StargateData data specific to Stargate
@@ -102,7 +102,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
         );
     }
 
-    /// @notice Performs a swap before bridging via Stargate
+    /// @notice Performs a swap after bridging via Stargate
     /// @param _soData data used purely for tracking and analytics
     /// @param _StargateData data specific to Stargate
     /// @param _swapDataDst an array of swap related data for performing swaps before bridging
