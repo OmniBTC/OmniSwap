@@ -16,8 +16,6 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
 
     event SoSwappedGeneric(
         bytes32 indexed transactionId,
-        string integrator,
-        address referrer,
         address fromAssetId,
         address toAssetId,
         uint256 fromAmount,
@@ -40,8 +38,6 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
 
         emit SoSwappedGeneric(
             _soData.transactionId,
-            _soData.integrator,
-            _soData.referrer,
             _swapData[0].sendingAssetId,
             receivingAssetId,
             _swapData[0].fromAmount,

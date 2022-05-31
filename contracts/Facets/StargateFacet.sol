@@ -4,6 +4,7 @@ pragma solidity 0.8.13;
 import {LibAsset, IERC20} from "../Libraries/LibAsset.sol";
 import {ISo} from "../Interfaces/ISo.sol";
 import {IStargate} from "../Interfaces/IStargate.sol";
+import {IStargateReceiver} from "../Interfaces/IStargateReceiver.sol";
 import {LibDiamond} from "../Libraries/LibDiamond.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidConfig} from "../Errors/GenericErrors.sol";
@@ -12,7 +13,7 @@ import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
 /// @title Stargate Facet
 /// @author SoSwap
 /// @notice Provides functionality for bridging through Stargate
-contract StargateFacet is ISo, Swapper, ReentrancyGuard {
+contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE = hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
@@ -31,6 +32,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
         uint256 minAmountLD;
         address payable receiver;
         address token;
+        bytes payload;
     }
 
     /// Events ///
@@ -111,7 +113,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
         StargateData memory _StargateData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable nonReentrant {
-        // todo! move into sgReceive for _swapDataDst
+        _StargateData.payload = abi.encode(_swapDataDst);
         _startBridge(_StargateData);
 
         emit SoTransferStarted(
@@ -140,7 +142,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
     ) external payable nonReentrant {
         _StargateData.amountLD = _executeAndCheckSwaps(_soData, _swapDataSrc);
         _startBridge(_StargateData);
-        // todo! move into sgReceive for _swapDataDst
+        _StargateData.payload = abi.encode(_swapDataDst);
 
         emit SoTransferStarted(
             _soData.transactionId,
@@ -153,6 +155,17 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
             true,
             true
         );
+    }
+
+    function sgReceive(
+        uint16 _chainId,
+        bytes memory _srcAddress,
+        uint256 _nonce,
+        address _token,
+        uint256 amountLD,
+        bytes memory payload
+    ) external {
+        // todo! impl sg receive
     }
 
     /// Private Methods ///
@@ -172,7 +185,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
             // Give Stargate approval to bridge tokens
             LibAsset.maxApproveERC20(IERC20(_StargateData.token), bridge, _StargateData.amountLD);
             // solhint-disable check-send-result
-            IStargate(bridge).swap{value : msg.value}(
+            IStargate(bridge).swap{ value: msg.value }(
                 _StargateData.dstChainId,
                 _StargateData.srcPoolId,
                 _StargateData.dstPoolId,
@@ -180,8 +193,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard {
                 _StargateData.amountLD,
                 _StargateData.minAmountLD,
                 IStargate.lzTxObj(0, 0, "0x"),
-                abi.encodePacked(msg.sender),
-                bytes("")
+                abi.encodePacked(_StargateData.receiver),
+                _StargateData.payload
             );
         }
     }
