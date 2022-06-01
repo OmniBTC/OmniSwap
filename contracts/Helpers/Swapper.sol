@@ -42,8 +42,8 @@ contract Swapper is ISo {
     /// @dev Validates input before executing swaps
     /// @param _soData So tracking data
     /// @param _swapData Array of data used to execute swaps
-    function _executeAndCheckSwaps(SoData memory _soData, LibSwap.SwapData[] calldata _swapData)
-        internal
+    function executeAndCheckSwaps(SoData memory _soData, LibSwap.SwapData[] calldata _swapData)
+        external
         returns (uint256)
     {
         uint256 nSwaps = _swapData.length;

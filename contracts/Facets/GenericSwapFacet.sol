@@ -32,7 +32,7 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
         payable
         nonReentrant
     {
-        uint256 postSwapBalance = _executeAndCheckSwaps(_soData, _swapData);
+        uint256 postSwapBalance = this.executeAndCheckSwaps(_soData, _swapData);
         address receivingAssetId = _swapData[_swapData.length - 1].receivingAssetId;
         LibAsset.transferAsset(receivingAssetId, payable(msg.sender), postSwapBalance);
 
