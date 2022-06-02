@@ -9,6 +9,7 @@ import {LibDiamond} from "../Libraries/LibDiamond.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidConfig} from "../Errors/GenericErrors.sol";
 import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
+import {ILibSoFee} from "../interfaces/ILibSoFee.sol";
 
 /// @title Stargate Facet
 /// @author SoSwap
@@ -17,7 +18,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-        hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
+    hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
     struct Storage {
         address Stargate;
         uint16 StargateChainId;
@@ -188,11 +189,15 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             LibAsset.transferAsset(_token, receiver, amountLD);
         } else {
             (
-                SoData memory _soData,
-                LibSwap.SwapData[] memory _swapDataDst
+            SoData memory _soData,
+            LibSwap.SwapData[] memory _swapDataDst
             ) = abi.decode(swapPayload, (SoData, LibSwap.SwapData[]));
-            // todo! reduce swap fee
-            _swapDataDst[0].fromAmount = amountLD;
+            uint256 _soFee = _getSoFee(amountLD);
+            if (_soFee < amountLD) {
+                _swapDataDst[0].fromAmount = amountLD - _soFee;
+            } else {
+                _swapDataDst[0].fromAmount = 0;
+            }
             uint256 amountFinal = this.executeAndCheckSwaps(
                 _soData,
                 _swapDataDst
@@ -203,6 +208,16 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 amountFinal
             );
         }
+    }
+
+    function _getSoFee(uint256 _amountLD) private returns (uint256){
+        address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
+        if (_soFee == address(0x0)) {
+            return 0;
+        } else {
+            return ILibSoFee(_soFee).getFees(_amountLD);
+        }
+
     }
 
     /// Private Methods ///
@@ -230,7 +245,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _StargateData.amountLD
             );
             // solhint-disable check-send-result
-            IStargate(bridge).swap{value: msg.value}(
+            IStargate(bridge).swap{value : msg.value}(
                 _StargateData.dstChainId,
                 _StargateData.srcPoolId,
                 _StargateData.dstPoolId,

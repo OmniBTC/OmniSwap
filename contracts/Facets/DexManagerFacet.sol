@@ -14,12 +14,23 @@ contract DexManagerFacet {
     event DexAdded(address indexed dexAddress);
     event DexRemoved(address indexed dexAddress);
     event FunctionSignatureApprovalChanged(bytes32 indexed functionSignature, bool indexed approved);
+    event GatewaySoFeeSelectorsChanged(address indexed gatewayAddress, address indexed soFeeAddress);
 
     /// Storage ///
 
     LibStorage internal appStorage;
 
     /// External Methods ///
+
+    /// @notice  Register the soFee address for facet.
+    /// @param _gateway The address of the gateway facet address.
+    /// @param _soFee The address of soFee address.
+    function addFee(address _gateway,  address _soFee) external {
+        LibDiamond.enforceIsContractOwner();
+        mapping(address => address) storage gatewaySoFeeSelectors = appStorage.gatewaySoFeeSelectors;
+        gatewaySoFeeSelectors[_gateway] = _soFee;
+        emit GatewaySoFeeSelectorsChanged(_gateway, _soFee);
+    }
 
     /// @notice Register the address of a DEX contract to be approved for swapping.
     /// @param _dex The address of the DEX contract to be approved.

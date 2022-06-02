@@ -122,3 +122,5 @@ artifacts
 deployments/localhost/
 
 transactions.md
+
+.vscode/
