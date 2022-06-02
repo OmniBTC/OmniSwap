@@ -18,7 +18,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-    hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
+        hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
     struct Storage {
         address Stargate;
         uint16 StargateChainId;
@@ -120,6 +120,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         StargateData memory _StargateData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable nonReentrant {
+        LibAsset.depositAsset(_StargateData.token, _StargateData.amountLD);
+
         bytes memory payload = abi.encode(
             _soData.receiver,
             abi.encode(_soData, _swapDataDst)
@@ -189,8 +191,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             LibAsset.transferAsset(_token, receiver, amountLD);
         } else {
             (
-            SoData memory _soData,
-            LibSwap.SwapData[] memory _swapDataDst
+                SoData memory _soData,
+                LibSwap.SwapData[] memory _swapDataDst
             ) = abi.decode(swapPayload, (SoData, LibSwap.SwapData[]));
             uint256 _soFee = _getSoFee(amountLD);
             if (_soFee < amountLD) {
@@ -210,14 +212,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
     }
 
-    function _getSoFee(uint256 _amountLD) private returns (uint256){
+    function _getSoFee(uint256 _amountLD) private returns (uint256) {
         address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
         if (_soFee == address(0x0)) {
             return 0;
         } else {
             return ILibSoFee(_soFee).getFees(_amountLD);
         }
-
     }
 
     /// Private Methods ///
@@ -245,7 +246,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _StargateData.amountLD
             );
             // solhint-disable check-send-result
-            IStargate(bridge).swap{value : msg.value}(
+            IStargate(bridge).swap{value: msg.value}(
                 _StargateData.dstChainId,
                 _StargateData.srcPoolId,
                 _StargateData.dstPoolId,
