@@ -1,6 +1,3 @@
-# @Time    : 2022/6/6 10:51
-# @Author  : WeiDai
-# @FileName: initialize.py
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, config
 

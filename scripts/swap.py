@@ -1,6 +1,3 @@
-# @Time    : 2022/6/6 13:55
-# @Author  : WeiDai
-# @FileName: swap.py
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, interface, Contract, network, config
 
