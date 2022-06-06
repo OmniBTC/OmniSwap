@@ -29,6 +29,7 @@ def main():
                          1,
                          usdc_amount,
                          int(usdc_amount * 0.9),
+                         100000000000000000,
                          [0, 0, b""],
                          account,
                          usdc.address]
@@ -36,6 +37,6 @@ def main():
         proxy_stargate.startBridgeTokensViaStargate(
             so_data,
             stargate_data,
-            {'from': account, 'value': 10000000000000000}
+            {'from': account, 'value': 100000000000000000}
         )
 
