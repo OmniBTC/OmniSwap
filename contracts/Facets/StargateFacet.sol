@@ -251,7 +251,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _StargateData.dstChainId,
                 _StargateData.srcPoolId,
                 _StargateData.dstPoolId,
-                msg.sender,
+                payable(msg.sender),
                 _StargateData.amountLD,
                 _StargateData.minAmountLD,
                 _StargateData.lzTxParams,

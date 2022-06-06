@@ -1,0 +1,101 @@
+# exclude SafeMath when calculating test coverage
+# https://eth-brownie.readthedocs.io/en/v1.10.3/config.html#exclude_paths
+reports:
+  exclude_contracts:
+    - SafeMath
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.6.0
+compiler:
+  solc:
+    remappings:
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.6.0"
+# automatically fetch contract sources from Etherscan
+autofetch_sources: True
+dotenv: .env
+signatures:
+  DiamondLoupeFacet:
+    facets: "0x7a0ed627"
+    facetFunctionSelectors: "0xadfca15e"
+    facetAddresses: "0x52ef6b2c"
+    facetAddress: "0xcdffacc6"
+    pizza_mandate_apology: "0x01ffc9a7"
+  DexManagerFacet:
+    addFee: "0xdf41d729"
+    addDex: "0x536db266"
+    batchAddDex: "0xfcd8e49e"
+    removeDex: "0x124f1ead"
+    batchRemoveDex: "0x9afc19c7"
+    setFunctionApprovalBySignature: "0xc6bd579d"
+    batchSetFunctionApprovalBySignature: "0x4363b848"
+    isFunctionApproved: "0xba1a5bdd"
+    approvedDexs: "0xfbb2d381"
+  OwnershipFacet:
+    transferOwnership: "0xf2fde38b"
+    cancelOnwershipTransfer: "0x0f4efb90"
+    confirmOwnershipTransfer: "0x7200b829"
+    ideal_warn_timed: "0x8da5cb5b"
+  GenericSwapFacet:
+    swapTokensGeneric: "0xcfb61b92"
+  StargateFacet:
+    initStargate: "0xaf66a6d8"
+    startBridgeTokensViaStargate: "0x2b9de4d4"
+    startSwapAndBridgeTokensViaStargate: "0xfdcf7bb5"
+    startBridgeTokensAndSwapViaStargate: "0xa2a2d74c"
+    startSwapAndSwapViaStargate: "0xb9377f19"
+    sgReceive: "0xab8236f3"
+  WithdrawFacet:
+    withdraw: "0xd9caed12"
+networks:
+  default: avax-test
+  rinkeby:
+    stargate_router: "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561"
+    stargate_chainid: 10001
+    usdc: "0x1717A0D5C8705EE89A8aD6E808268D6A826C97A4"
+  bsc-test:
+    stargate_router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
+    stargate_chainid: 10002
+    usdc: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
+  avax-test:
+    stargate_router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
+    stargate_chainid: 10006
+    usdc: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
+  polygon-test:
+    stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
+    stargate_chainid: 10009
+    usdc: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
+  optimism-test:
+    stargate_router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
+    stargate_chainid: 10011
+    usdc: "0x567f39d9e6d02078F357658f498F80eF087059aa"
+  ftm-test:
+    stargate_router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
+    stargate_chainid: 10012
+    usdc: "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e"
+  mainnet:
+    stargate_router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
+    stargate_chainid: 1
+  bsc-main:
+    stargate_router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
+    stargate_chainid: 2
+  avax-main:
+    stargate_router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+    stargate_chainid: 6
+  polygon-main:
+    stargate_router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+    stargate_chainid: 9
+  arbitrum-main:
+    stargate_router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
+    stargate_chainid: 10
+  optimism-main:
+    stargate_router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
+    stargate_chainid: 11
+  ftm-main:
+    stargate_router: "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6"
+    stargate_chainid: 12
+wallets:
+  from_key: ${PRIVATE_KEY}
+  from_mnemonic: ${MNEMONIC}
+
+
+
+

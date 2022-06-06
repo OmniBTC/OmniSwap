@@ -124,3 +124,9 @@ deployments/localhost/
 transactions.md
 
 .vscode/
+
+__pycache__
+.history
+.hypothesis/
+build/
+reports/
