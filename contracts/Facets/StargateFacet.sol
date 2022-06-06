@@ -32,6 +32,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 dstPoolId;
         uint256 amountLD;
         uint256 minAmountLD;
+        uint256 fee;
         IStargate.lzTxObj lzTxParams;
         address payable receiver;
         address token;
@@ -246,11 +247,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _StargateData.amountLD
             );
             // solhint-disable check-send-result
-            IStargate(bridge).swap{value: msg.value}(
+            IStargate(bridge).swap{value: _StargateData.fee}(
                 _StargateData.dstChainId,
                 _StargateData.srcPoolId,
                 _StargateData.dstPoolId,
-                _StargateData.receiver,
+                msg.sender,
                 _StargateData.amountLD,
                 _StargateData.minAmountLD,
                 _StargateData.lzTxParams,
