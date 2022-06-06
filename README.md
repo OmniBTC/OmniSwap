@@ -33,9 +33,9 @@ brownie run --network {network} scripts/deploy.py
 brownie run --network {network} scripts/initialize.py
 ~~~
 
-# swap
+# Swap
 
-~~~
+~~~shell
 brownie run --network {network} scripts/swap.py
 ~~~
 

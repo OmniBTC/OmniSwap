@@ -4,7 +4,7 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, config
 
-from scripts.helpful_scripts import get_account
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi
 
 
 def main():
@@ -18,60 +18,27 @@ def main():
 def initialize_cut(account, so_diamond):
     proxy_cut = Contract.from_abi("DiamondCutFacet", so_diamond.address, DiamondCutFacet.abi)
     zero_addr = "0x0000000000000000000000000000000000000000"
-
-    print("init loupe...")
-    loupe = DiamondLoupeFacet[-1]
-    loupe_funcs = list(config["signatures"][loupe._name].values())
-    proxy_cut.diamondCut([[loupe, 0, loupe_funcs]],
-                         zero_addr,
-                         b'',
-                         {'from': account}
-                         )
-
-    print("init dex manager...")
-    dex_manager = DexManagerFacet[-1]
-    dex_manager_funcs = list(config["signatures"][dex_manager._name].values())
-    proxy_cut.diamondCut([[dex_manager, 0, dex_manager_funcs]],
-                         zero_addr,
-                         b'',
-                         {'from': account}
-                         )
-
-    print("init ownership...")
-    ownership = OwnershipFacet[-1]
-    ownership_funcs = list(config["signatures"][ownership._name].values())
-    proxy_cut.diamondCut([[ownership, 0, ownership_funcs]],
-                         zero_addr,
-                         b'',
-                         {'from': account}
-                         )
-
-    print("init generic swap...")
-    generic_swap = GenericSwapFacet[-1]
-    generic_swap_funcs = list(config["signatures"][generic_swap._name].values())
-    proxy_cut.diamondCut([[generic_swap, 0, generic_swap_funcs]],
-                         zero_addr,
-                         b'',
-                         {'from': account}
-                         )
-
-    print("init stargate...")
-    stargate = StargateFacet[-1]
-    stargate_funcs = list(config["signatures"][stargate._name].values())
-    proxy_cut.diamondCut([[stargate, 0, stargate_funcs]],
-                         zero_addr,
-                         b'',
-                         {'from': account}
-                         )
-
-    print("init withdraw...")
-    withdraw = WithdrawFacet[-1]
-    withdraw_funcs = list(config["signatures"][withdraw._name].values())
-    proxy_cut.diamondCut([[withdraw, 0, withdraw_funcs]],
-                         zero_addr,
-                         b'',
-                         {'from': account}
-                         )
+    register_funcs = {}
+    register_contract = [DiamondLoupeFacet, DexManagerFacet, OwnershipFacet,
+                         GenericSwapFacet, StargateFacet, WithdrawFacet]
+    for reg in register_contract:
+        print(f"Initalize {reg._name}...")
+        reg_facet = reg[-1]
+        reg_funcs = get_method_signature_by_abi(reg.abi)
+        for func_name in list(reg_funcs.keys()):
+            if func_name in register_funcs:
+                if reg_funcs[func_name] in register_funcs[func_name]:
+                    print(f"function:{func_name} has been register!")
+                    del reg_funcs[func_name]
+                else:
+                    register_funcs[func_name].append(reg_funcs[func_name])
+            else:
+                register_funcs[func_name] = [reg_funcs[func_name]]
+        proxy_cut.diamondCut([[reg_facet, 0, list(reg_funcs.values())]],
+                             zero_addr,
+                             b'',
+                             {'from': account}
+                             )
 
 
 def initialize_stargate(account, so_diamond):

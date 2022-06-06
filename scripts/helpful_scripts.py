@@ -4,16 +4,9 @@ from brownie import (
     config,
     Contract,
     interface,
-    DiamondCutFacet,
-    SoDiamond,
-    DiamondLoupeFacet,
-    DexManagerFacet,
-    StargateFacet,
-    WithdrawFacet,
-    OwnershipFacet,
-    GenericSwapFacet,
     web3
 )
+from brownie.network.web3 import Web3
 
 NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["hardhat", "development", "ganache"]
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
@@ -72,3 +65,32 @@ def get_contract(contract_name):
         print(
             f"brownie run scripts/deploy_mocks.py --network {network.show_active()}"
         )
+
+
+def get_func_prototype(data):
+    func_prototype = ""
+    for index1, params in enumerate(data):
+        if index1 > 0:
+            func_prototype += ','
+        if params['type'] in ['tuple', 'tuple[]']:
+            func_prototype += '('
+            func_prototype += get_func_prototype(params['components'])
+            func_prototype += ')'
+            if params['type'] == 'tuple[]':
+                func_prototype += "[]"
+        else:
+            func_prototype += params['type']
+    return func_prototype
+
+
+def get_method_signature_by_abi(abi):
+    result = {}
+    for d in abi:
+        if d["type"] != "function":
+            continue
+        func_name = d["name"]
+        func_prototype = get_func_prototype(d["inputs"])
+        func_prototype = f"{func_name}({func_prototype})"
+        result[func_name] = Web3.sha3(text=func_prototype)[0:4]
+    return result
+

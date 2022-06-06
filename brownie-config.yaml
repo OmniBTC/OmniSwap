@@ -12,39 +12,6 @@ compiler:
 # automatically fetch contract sources from Etherscan
 autofetch_sources: True
 dotenv: .env
-signatures:
-  DiamondLoupeFacet:
-    facets: "0x7a0ed627"
-    facetFunctionSelectors: "0xadfca15e"
-    facetAddresses: "0x52ef6b2c"
-    facetAddress: "0xcdffacc6"
-    pizza_mandate_apology: "0x01ffc9a7"
-  DexManagerFacet:
-    addFee: "0xdf41d729"
-    addDex: "0x536db266"
-    batchAddDex: "0xfcd8e49e"
-    removeDex: "0x124f1ead"
-    batchRemoveDex: "0x9afc19c7"
-    setFunctionApprovalBySignature: "0xc6bd579d"
-    batchSetFunctionApprovalBySignature: "0x4363b848"
-    isFunctionApproved: "0xba1a5bdd"
-    approvedDexs: "0xfbb2d381"
-  OwnershipFacet:
-    transferOwnership: "0xf2fde38b"
-    cancelOnwershipTransfer: "0x0f4efb90"
-    confirmOwnershipTransfer: "0x7200b829"
-    ideal_warn_timed: "0x8da5cb5b"
-  GenericSwapFacet:
-    swapTokensGeneric: "0xcfb61b92"
-  StargateFacet:
-    initStargate: "0xaf66a6d8"
-    startBridgeTokensViaStargate: "0x2b9de4d4"
-    startSwapAndBridgeTokensViaStargate: "0xfdcf7bb5"
-    startBridgeTokensAndSwapViaStargate: "0xa2a2d74c"
-    startSwapAndSwapViaStargate: "0xb9377f19"
-    sgReceive: "0xab8236f3"
-  WithdrawFacet:
-    withdraw: "0xd9caed12"
 networks:
   default: avax-test
   rinkeby:

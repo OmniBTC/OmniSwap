@@ -10,28 +10,14 @@ def main():
 
 
 def deploy_contracts(account):
-    print("deploy DiamondCutFacet.sol...")
-    cut = DiamondCutFacet.deploy({'from': account})
+    deploy_facets = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet,
+                     WithdrawFacet, OwnershipFacet, GenericSwapFacet
+                     ]
+    for facet in deploy_facets:
+        print(f"deploy {facet._name}.sol...")
+        facet.deploy({'from': account})
 
     print("deploy SoDiamond.sol...")
-    so_diamond = SoDiamond.deploy(account, cut, {'from': account})
-
-    print("deploy DiamondLoupeFacet.sol...")
-    loupe = DiamondLoupeFacet.deploy({'from': account})
-
-    print("deploy DexManagerFacet.sol...")
-    dex_manager = DexManagerFacet.deploy({'from': account})
-
-    print("deploy StargateFacet.sol...")
-    stargate = StargateFacet.deploy({'from': account})
-
-    print("deploy WithdrawFacet.sol...")
-    withdraw = WithdrawFacet.deploy({'from': account})
-
-    print("deploy OwnershipFacet.sol...")
-    ownership = OwnershipFacet.deploy({'from': account})
-
-    print("deploy GenericSwapFacet.sol...")
-    swap = GenericSwapFacet.deploy({'from': account})
+    SoDiamond.deploy(account, DiamondCutFacet[-1], {'from': account})
 
     print("deploy end!")
