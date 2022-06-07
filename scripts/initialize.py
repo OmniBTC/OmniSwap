@@ -1,5 +1,5 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, Contract, network, config
+    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi
 
@@ -10,6 +10,7 @@ def main():
     print(f"SoDiamond:{so_diamond}")
     initialize_cut(account, so_diamond)
     initialize_stargate(account, so_diamond)
+    initialize_dex_manager(account, so_diamond)
 
 
 def initialize_cut(account, so_diamond):
@@ -47,3 +48,15 @@ def initialize_stargate(account, so_diamond):
         config["networks"][net]["stargate_chainid"],
         {'from': account}
     )
+
+
+def initialize_dex_manager(account, so_diamond):
+    proxy_dex = Contract.from_abi("DexManagerFacet", so_diamond.address, DexManagerFacet.abi)
+    net = network.show_active()
+    print(f"network:{net}, init dex manager...")
+    for pair in config["networks"][net]["swap"]:
+        proxy_dex.addDex(pair[0], {'from': account})
+        reg_funcs = get_method_signature_by_abi(getattr(interface, pair[1]).abi)
+        for sig in reg_funcs.values():
+            proxy_dex.setFunctionApprovalBySignature(sig.hex()+"0"*56, True, {'from': account})
+
