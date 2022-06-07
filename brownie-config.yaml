@@ -18,6 +18,7 @@ networks:
     stargate_router: "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561"
     stargate_chainid: 10001
     usdc: "0x1717A0D5C8705EE89A8aD6E808268D6A826C97A4"
+    weth: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
     swap: [["0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02]]
   bsc-test:
     stargate_router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
@@ -27,6 +28,7 @@ networks:
     stargate_router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
     stargate_chainid: 10006
     usdc: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
+    weth: "0x9B5828d46A43176F07656e162cCbDc787624468c"
     swap: [["0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02AVAX]]
   polygon-test:
     stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
@@ -39,7 +41,9 @@ networks:
   ftm-test:
     stargate_router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
     stargate_chainid: 10012
+    weth: "0x9B5828d46A43176F07656e162cCbDc787624468c"
     usdc: "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e"
+    swap: [["0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02]]
   mainnet:
     stargate_router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
     stargate_chainid: 1

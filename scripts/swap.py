@@ -12,8 +12,8 @@ def main():
     proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
 
     usdc = get_contract("usdc")
-    # 1 usdc
-    usdc_amount = 1
+    # 100 usdc
+    usdc_amount = 100 * 10 ** 6
 
     dst_nets = ["ftm-test", "avax-test"]
     for dst_net in dst_nets:
