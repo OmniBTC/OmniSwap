@@ -5,7 +5,7 @@ pragma solidity 0.8.13;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ILibSoFee} from "../interfaces/ILibSoFee.sol";
+import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 
 contract StargateFeeLibraryV02 is ILibSoFee, Ownable, ReentrancyGuard {
@@ -25,9 +25,12 @@ contract StargateFeeLibraryV02 is ILibSoFee, Ownable, ReentrancyGuard {
         soFee = _soFee;
     }
 
-    function getFees(
-        uint256 _amount
-    ) external view override returns (uint256 s) {
+    function getFees(uint256 _amount)
+        external
+        view
+        override
+        returns (uint256 s)
+    {
         // calculate the so fee
         s = _amount.mul(soFee).div(DENOMINATOR);
         return s;

@@ -9,7 +9,7 @@ import {LibDiamond} from "../Libraries/LibDiamond.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidConfig} from "../Errors/GenericErrors.sol";
 import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
-import {ILibSoFee} from "../interfaces/ILibSoFee.sol";
+import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 
 /// @title Stargate Facet
 /// @author SoSwap
