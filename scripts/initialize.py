@@ -19,6 +19,7 @@ def initialize_cut(account, so_diamond):
     register_funcs = {}
     register_contract = [DiamondLoupeFacet, DexManagerFacet, OwnershipFacet,
                          GenericSwapFacet, StargateFacet, WithdrawFacet]
+    register_data = []
     for reg in register_contract:
         print(f"Initalize {reg._name}...")
         reg_facet = reg[-1]
@@ -32,11 +33,12 @@ def initialize_cut(account, so_diamond):
                     register_funcs[func_name].append(reg_funcs[func_name])
             else:
                 register_funcs[func_name] = [reg_funcs[func_name]]
-        proxy_cut.diamondCut([[reg_facet, 0, list(reg_funcs.values())]],
-                             zero_addr,
-                             b'',
-                             {'from': account}
-                             )
+        register_data.append([reg_facet, 0, list(reg_funcs.values())])
+    proxy_cut.diamondCut(register_data,
+                         zero_addr,
+                         b'',
+                         {'from': account}
+                         )
 
 
 def initialize_stargate(account, so_diamond):
@@ -54,9 +56,14 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex = Contract.from_abi("DexManagerFacet", so_diamond.address, DexManagerFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init dex manager...")
+    dexs = []
+    sigs = []
     for pair in config["networks"][net]["swap"]:
-        proxy_dex.addDex(pair[0], {'from': account})
+        dexs.append(pair[0])
         reg_funcs = get_method_signature_by_abi(getattr(interface, pair[1]).abi)
         for sig in reg_funcs.values():
-            proxy_dex.setFunctionApprovalBySignature(sig.hex()+"0"*56, True, {'from': account})
+            sigs.append(sig.hex()+"0"*56)
+    proxy_dex.batchAddDex(dexs, {'from': account})
+    proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
+
 
