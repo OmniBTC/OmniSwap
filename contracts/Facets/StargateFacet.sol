@@ -42,6 +42,12 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     event StargateInitialized(address Stargate, uint256 chainId);
 
+    event RemoteSwapFailed(
+        SoData sodata,
+        LibSwap.SwapData swapdata,
+        bytes reason
+    );
+
     //---------------------------------------------------------------------------
     // MODIFIERS
     modifier onlyStargate() {
@@ -204,7 +210,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 LibSwap.SwapData[] memory _swapDataDst
             ) = abi.decode(swapPayload, (SoData, LibSwap.SwapData[]));
             uint256 _soFee = _getSoFee(amountLD);
-            uint256 amountIn;
             if (_soFee < amountLD) {
                 _swapDataDst[0].fromAmount = amountLD - _soFee;
             } else {
@@ -212,7 +217,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             }
             _swapDataDst[0].callData = this.correctSwap(
                 _swapDataDst[0].callData,
-                amountIn
+                _swapDataDst[0].fromAmount
             );
 
             try this.executeAndCheckSwaps(_soData, _swapDataDst) returns (
@@ -223,8 +228,16 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                     receiver,
                     amountFinal
                 );
-            } catch {
+                emit SoTransferCompleted(
+                    _soData.transactionId,
+                    _soData.receivingAssetId,
+                    _soData.receiver,
+                    amountFinal,
+                    block.timestamp
+                );
+            } catch (bytes memory reason) {
                 LibAsset.transferAsset(_token, receiver, amountLD);
+                emit RemoteSwapFailed(_soData, _swapDataDst[0], reason);
             }
         }
     }

@@ -192,3 +192,5 @@ def swap(src_net: str, dst_net: str):
     #     {'from': account, 'value': int(src_fee + from_amount)}
     # )
 
+def main():
+    swap("rinkeby", "avax-test")
