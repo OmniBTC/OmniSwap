@@ -56,7 +56,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// @param _Stargate address of the canonical Stargate router contract
     /// @param _chainId chainId of this deployed contract
     function initStargate(address _Stargate, uint16 _chainId) external {
-        // LibDiamond.enforceIsContractOwner();
+        LibDiamond.enforceIsContractOwner();
         if (_Stargate == address(0)) revert InvalidConfig();
         Storage storage s = getStorage();
         s.Stargate = _Stargate;
