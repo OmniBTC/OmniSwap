@@ -18,7 +18,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-        hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
+    hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
     struct Storage {
         address Stargate;
         uint16 StargateChainId;
@@ -41,6 +41,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Events ///
 
     event StargateInitialized(address Stargate, uint256 chainId);
+    event P1(bytes);
+    event P2();
+    event P3();
+    event P4();
 
     /// Init ///
 
@@ -192,15 +196,19 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             LibAsset.transferAsset(_token, receiver, amountLD);
         } else {
             (
-                SoData memory _soData,
-                LibSwap.SwapData[] memory _swapDataDst
+            SoData memory _soData,
+            LibSwap.SwapData[] memory _swapDataDst
             ) = abi.decode(swapPayload, (SoData, LibSwap.SwapData[]));
             uint256 _soFee = _getSoFee(amountLD);
+            uint amountIn;
             if (_soFee < amountLD) {
-                _swapDataDst[0].fromAmount = amountLD - _soFee;
+                amountIn = amountLD - _soFee;
             } else {
-                _swapDataDst[0].fromAmount = 0;
+                amountIn = amountLD;
             }
+            _swapDataDst[0].callData = this.correctSwap(_swapDataDst[0].callData, amountIn);
+            emit P1(_swapDataDst[0].callData);
+
             uint256 amountFinal = this.executeAndCheckSwaps(
                 _soData,
                 _swapDataDst
@@ -211,6 +219,19 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 amountFinal
             );
         }
+    }
+
+    function correctSwap(bytes calldata data, uint256 amount)
+    external view returns (bytes memory){
+        bytes4 sig = bytes4(data[: 4]);
+        (
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] memory path,
+        address to,
+        uint256 deadline
+        ) = abi.decode(data[4 :], (uint256, uint256, address[], address, uint256));
+        return abi.encodeWithSelector(sig, amount, amountOutMin, path, to, deadline);
     }
 
     function _getSoFee(uint256 _amountLD) private returns (uint256) {
@@ -247,7 +268,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _StargateData.amountLD
             );
             // solhint-disable check-send-result
-            IStargate(bridge).swap{value: _StargateData.fee}(
+            IStargate(bridge).swap{value : _StargateData.fee}(
                 _StargateData.dstChainId,
                 _StargateData.srcPoolId,
                 _StargateData.dstPoolId,

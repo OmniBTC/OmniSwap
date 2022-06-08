@@ -83,52 +83,52 @@ def generate_stargate_data(src_net: str,
 def swap(src_net: str, dst_net: str):
     account = get_account()
 
-    # 1. startBridgeTokensViaStargate
-    print(f"from:{src_net}->to:{dst_net}, startBridgeTokensViaStargate...")
-    # # generate data
-    so_data = generate_so_data(dst_net, account)
-    usdc_amount = int(100 * 1e6)
-    src_fee = int(0.01 * 1e18)
-    dst_gas = 100000
-    stargate_data = generate_stargate_data(src_net, dst_net, usdc_amount, src_fee, dst_gas)
-    # # call
-    change_network(src_net)
-
-    usdc = get_contract("usdc")
-    so_diamond = SoDiamond[-1]
-    usdc.approve(so_diamond.address, usdc_amount, {'from': account})
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    proxy_stargate.startBridgeTokensViaStargate(
-        so_data,
-        stargate_data,
-        {'from': account, 'value': src_fee}
-    )
-
-    # 2. startSwapAndBridgeTokensViaStargate
-    print(f"from:{src_net}->to:{dst_net}, startSwapAndBridgeTokensViaStargate...")
-    # # generate data
-    so_data = generate_so_data(dst_net, account)
-    usdc_amount = int(100 * 1e6)
-    src_fee = int(0.01 * 1e18)
-    dst_gas = 100000
-    stargate_data = generate_stargate_data(src_net, dst_net, usdc_amount, src_fee, dst_gas)
-    if src_net == "rinkeby":
-        func_name = "swapExactETHForTokens"
-    elif src_net == "avax-test":
-        func_name = "swapExactAVAXForTokens"
-    else:
-        raise ValueError
-    src_swap_data, from_amount = generate_src_swap_data(src_net, func_name, int(2 * 1e-10 * 1e18), zero_address())
-    # # call
-    change_network(src_net)
-    so_diamond = SoDiamond[-1]
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    proxy_stargate.startSwapAndBridgeTokensViaStargate(
-        so_data,
-        src_swap_data,
-        stargate_data,
-        {'from': account, 'value': int(from_amount + src_fee)}
-    )
+    # # 1. startBridgeTokensViaStargate
+    # print(f"from:{src_net}->to:{dst_net}, startBridgeTokensViaStargate...")
+    # # # generate data
+    # so_data = generate_so_data(dst_net, account)
+    # usdc_amount = int(100 * 1e6)
+    # src_fee = int(0.01 * 1e18)
+    # dst_gas = 100000
+    # stargate_data = generate_stargate_data(src_net, dst_net, usdc_amount, src_fee, dst_gas)
+    # # # call
+    # change_network(src_net)
+    #
+    # usdc = get_contract("usdc")
+    # so_diamond = SoDiamond[-1]
+    # usdc.approve(so_diamond.address, usdc_amount, {'from': account})
+    # proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    # proxy_stargate.startBridgeTokensViaStargate(
+    #     so_data,
+    #     stargate_data,
+    #     {'from': account, 'value': src_fee}
+    # )
+    #
+    # # 2. startSwapAndBridgeTokensViaStargate
+    # print(f"from:{src_net}->to:{dst_net}, startSwapAndBridgeTokensViaStargate...")
+    # # # generate data
+    # so_data = generate_so_data(dst_net, account)
+    # usdc_amount = int(100 * 1e6)
+    # src_fee = int(0.01 * 1e18)
+    # dst_gas = 100000
+    # stargate_data = generate_stargate_data(src_net, dst_net, usdc_amount, src_fee, dst_gas)
+    # if src_net == "rinkeby":
+    #     func_name = "swapExactETHForTokens"
+    # elif src_net == "avax-test":
+    #     func_name = "swapExactAVAXForTokens"
+    # else:
+    #     raise ValueError
+    # src_swap_data, from_amount = generate_src_swap_data(src_net, func_name, int(2 * 1e-10 * 1e18), zero_address())
+    # # # call
+    # change_network(src_net)
+    # so_diamond = SoDiamond[-1]
+    # proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    # proxy_stargate.startSwapAndBridgeTokensViaStargate(
+    #     so_data,
+    #     src_swap_data,
+    #     stargate_data,
+    #     {'from': account, 'value': int(from_amount + src_fee)}
+    # )
 
     # 3. startBridgeTokensAndSwapViaStargate
     print(f"from:{src_net}->to:{dst_net}, startBridgeTokensAndSwapViaStargate...")
@@ -136,7 +136,7 @@ def swap(src_net: str, dst_net: str):
     so_data = generate_so_data(dst_net, account)
     usdc_amount = int(100 * 1e6)
     src_fee = int(0.01 * 1e18)
-    dst_gas = 300000
+    dst_gas = 600000
     stargate_data = generate_stargate_data(src_net, dst_net, usdc_amount, src_fee, dst_gas)
     if dst_net == "rinkeby":
         func_name = "swapExactTokensForETH"
@@ -158,21 +158,43 @@ def swap(src_net: str, dst_net: str):
         {'from': account, 'value': src_fee}
     )
 
-    # 4. startSwapAndSwapViaStargate
-    print(f"from:{src_net}->to:{dst_net}, startSwapAndSwapViaStargate...")
-    # # generate data
-    so_data = generate_so_data(dst_net, account)
-    usdc_amount = int(100 * 1e6)
-    src_fee = int(0.01 * 1e18)
-    dst_gas = 300000
-    stargate_data = generate_stargate_data(src_net, dst_net, usdc_amount, src_fee, dst_gas)
-    if src_net == "rinkeby":
-        func_name = "swapExactETHForTokens"
-    elif src_net == "avax-test":
-        func_name = "swapExactAVAXForTokens"
-    else:
-        raise ValueError
-    src_swap_data, from_amount = generate_src_swap_data(src_net, func_name, int(2 * 1e-10 * 1e18), zero_address())
+    # # 4. startSwapAndSwapViaStargate
+    # print(f"from:{src_net}->to:{dst_net}, startSwapAndSwapViaStargate...")
+    # # # generate data
+    # so_data = generate_so_data(dst_net, account)
+    # usdc_amount = int(100 * 1e6)
+    # src_fee = int(0.01 * 1e18)
+    # dst_gas = 300000
+    # stargate_data = generate_stargate_data(src_net, dst_net, usdc_amount, src_fee, dst_gas)
+    # if src_net == "rinkeby":
+    #     func_name = "swapExactETHForTokens"
+    # elif src_net == "avax-test":
+    #     func_name = "swapExactAVAXForTokens"
+    # else:
+    #     raise ValueError
+    # src_swap_data, from_amount = generate_src_swap_data(src_net, func_name, int(2 * 1e-10 * 1e18), zero_address())
+    # if dst_net == "rinkeby":
+    #     func_name = "swapExactTokensForETH"
+    # elif dst_net == "avax-test":
+    #     func_name = "swapExactTokensForAVAX"
+    # else:
+    #     raise ValueError
+    # dst_swap_data = generate_dst_swap_data(dst_net, func_name, int(99 * 1e6), zero_address())
+    # # # call
+    # change_network(src_net)
+    # so_diamond = SoDiamond[-1]
+    # proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    # proxy_stargate.startSwapAndSwapViaStargate(
+    #     so_data,
+    #     src_swap_data,
+    #     stargate_data,
+    #     dst_swap_data,
+    #     {'from': account, 'value': int(src_fee + from_amount)}
+    # )
+
+
+def change_calldata():
+    dst_net = network.show_active()
     if dst_net == "rinkeby":
         func_name = "swapExactTokensForETH"
     elif dst_net == "avax-test":
@@ -180,14 +202,6 @@ def swap(src_net: str, dst_net: str):
     else:
         raise ValueError
     dst_swap_data = generate_dst_swap_data(dst_net, func_name, int(99 * 1e6), zero_address())
-    # # call
-    change_network(src_net)
-    so_diamond = SoDiamond[-1]
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    proxy_stargate.startSwapAndSwapViaStargate(
-        so_data,
-        src_swap_data,
-        stargate_data,
-        dst_swap_data,
-        {'from': account, 'value': int(src_fee + from_amount)}
-    )
+    print(dst_swap_data[0][-1])
+    print(StargateFacet[-1].correctSwap(dst_swap_data[0][-1], int(100 * 1e6)))
+
