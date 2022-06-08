@@ -17,7 +17,7 @@ def initialize_cut(account, so_diamond):
     proxy_cut = Contract.from_abi("DiamondCutFacet", so_diamond.address, DiamondCutFacet.abi)
     register_funcs = {}
     register_contract = [DiamondLoupeFacet, DexManagerFacet, OwnershipFacet,
-                         GenericSwapFacet, StargateFacet, WithdrawFacet]
+                         StargateFacet, WithdrawFacet, GenericSwapFacet]
     register_data = []
     for reg in register_contract:
         print(f"Initalize {reg._name}...")
@@ -61,8 +61,6 @@ def initialize_dex_manager(account, so_diamond):
         dexs.append(pair[0])
         reg_funcs = get_method_signature_by_abi(getattr(interface, pair[1]).abi)
         for sig in reg_funcs.values():
-            sigs.append(sig.hex()+"0"*56)
+            sigs.append(sig.hex() + "0" * 56)
     proxy_dex.batchAddDex(dexs, {'from': account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
-
-

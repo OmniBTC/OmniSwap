@@ -192,16 +192,3 @@ def swap(src_net: str, dst_net: str):
     #     {'from': account, 'value': int(src_fee + from_amount)}
     # )
 
-
-def change_calldata():
-    dst_net = network.show_active()
-    if dst_net == "rinkeby":
-        func_name = "swapExactTokensForETH"
-    elif dst_net == "avax-test":
-        func_name = "swapExactTokensForAVAX"
-    else:
-        raise ValueError
-    dst_swap_data = generate_dst_swap_data(dst_net, func_name, int(99 * 1e6), zero_address())
-    print(dst_swap_data[0][-1])
-    print(StargateFacet[-1].correctSwap(dst_swap_data[0][-1], int(100 * 1e6)))
-

@@ -41,10 +41,14 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Events ///
 
     event StargateInitialized(address Stargate, uint256 chainId);
-    event P1(bytes);
-    event P2();
-    event P3();
-    event P4();
+
+    //---------------------------------------------------------------------------
+    // MODIFIERS
+    modifier onlyStargate() {
+        Storage storage s = getStorage();
+        require(msg.sender == s.Stargate, "Caller must be Stargate.");
+        _;
+    }
 
     /// Init ///
 
@@ -187,7 +191,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         address _token,
         uint256 amountLD,
         bytes memory payload
-    ) external {
+    ) external onlyStargate {
         (address payable receiver, bytes memory swapPayload) = abi.decode(
             payload,
             (address, bytes)
@@ -202,12 +206,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             uint256 _soFee = _getSoFee(amountLD);
             uint amountIn;
             if (_soFee < amountLD) {
-                amountIn = amountLD - _soFee;
+                _swapDataDst[0].fromAmount = amountLD - _soFee;
             } else {
-                amountIn = amountLD;
+                _swapDataDst[0].fromAmount = amountLD;
             }
             _swapDataDst[0].callData = this.correctSwap(_swapDataDst[0].callData, amountIn);
-            emit P1(_swapDataDst[0].callData);
 
             uint256 amountFinal = this.executeAndCheckSwaps(
                 _soData,
