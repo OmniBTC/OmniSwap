@@ -13,7 +13,7 @@ compiler:
 autofetch_sources: True
 dotenv: .env
 networks:
-  default: avax-test
+  default: rinkeby
   rinkeby:
     stargate_router: "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561"
     stargate_chainid: 10001

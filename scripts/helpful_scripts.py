@@ -94,3 +94,14 @@ def get_method_signature_by_abi(abi):
         result[func_name] = Web3.sha3(text=func_prototype)[0:4]
     return result
 
+
+def change_network(dst_net):
+    if network.show_active() == dst_net:
+        return
+    if network.is_connected():
+        network.disconnect()
+    network.connect(dst_net)
+
+
+def zero_address():
+    return "0x0000000000000000000000000000000000000000"

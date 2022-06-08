@@ -1,7 +1,7 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, config, interface
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address
 
 
 def main():
@@ -15,7 +15,6 @@ def main():
 
 def initialize_cut(account, so_diamond):
     proxy_cut = Contract.from_abi("DiamondCutFacet", so_diamond.address, DiamondCutFacet.abi)
-    zero_addr = "0x0000000000000000000000000000000000000000"
     register_funcs = {}
     register_contract = [DiamondLoupeFacet, DexManagerFacet, OwnershipFacet,
                          GenericSwapFacet, StargateFacet, WithdrawFacet]
@@ -35,7 +34,7 @@ def initialize_cut(account, so_diamond):
                 register_funcs[func_name] = [reg_funcs[func_name]]
         register_data.append([reg_facet, 0, list(reg_funcs.values())])
     proxy_cut.diamondCut(register_data,
-                         zero_addr,
+                         zero_address(),
                          b'',
                          {'from': account}
                          )

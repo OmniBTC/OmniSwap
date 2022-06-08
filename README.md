@@ -36,7 +36,7 @@ brownie run --network {network} scripts/initialize.py
 # Swap
 
 ~~~shell
-brownie run --network {network} scripts/swap.py
+brownie run scripts/swap.py swap {src-network} {dst-network}
 ~~~
 
 
