@@ -9,12 +9,12 @@ library LibSwap {
     error NoSwapFromZeroBalance();
 
     struct SwapData {
-        address callTo;
-        address approveTo;
-        address sendingAssetId;
-        address receivingAssetId;
-        uint256 fromAmount;
-        bytes callData;
+        address callTo; // The swap address
+        address approveTo; // The swap address
+        address sendingAssetId; // The swap start token address
+        address receivingAssetId; // The swap final token address
+        uint256 fromAmount; // The swap start token amount
+        bytes callData;  // The swap callData
     }
 
     event AssetSwapped(

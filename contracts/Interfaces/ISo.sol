@@ -7,12 +7,13 @@ interface ISo {
     /// Structs ///
 
     struct SoData {
-        bytes32 transactionId;  //
-        address sendingAssetId;
-        address receivingAssetId;
-        address receiver;
-        uint256 destinationChainId;
-        uint256 amount;
+        bytes32 transactionId;  // unique identification id
+        address payable receiver;  // token receiving account
+        uint256 sourceChainId; // source chain id
+        address sendingAssetId; // The starting token address of the source chain
+        uint256 destinationChainId; // destination chain id
+        address receivingAssetId; // The final token address of the destination chain
+        uint256 amount; // User enters amount
     }
 
     /// Events ///
@@ -20,20 +21,23 @@ interface ISo {
     event SoTransferStarted(
         bytes32 indexed transactionId,
         string bridge,
-        address sendingAssetId,
-        address receivingAssetId,
-        address receiver,
-        uint256 amount,
-        uint256 destinationChainId,
         bool hasSourceSwap,
-        bool hasDestinationSwap
+        bool hasDestinationSwap,
+        SoData soData
+    );
+
+    event SoTransferFailed(
+        bytes32 indexed transactionId,
+        bytes reason,
+        SoData soData
     );
 
     event SoTransferCompleted(
         bytes32 indexed transactionId,
         address receivingAssetId,
         address receiver,
-        uint256 amount,
-        uint256 timestamp
+        uint256 receiveAmount,
+        uint256 timestamp,
+        SoData soData
     );
 }
