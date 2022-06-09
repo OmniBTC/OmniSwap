@@ -41,14 +41,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     event StargateInitialized(address stargate, uint256 chainId);
 
-    //---------------------------------------------------------------------------
-    // MODIFIERS
-    modifier onlyStargate() {
-        Storage storage s = getStorage();
-        require(msg.sender == s.stargate, "Caller must be Stargate.");
-        _;
-    }
-
     /// Init ///
 
     /// @notice Initializes local variables for the Stargate facet
@@ -121,9 +113,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         );
 
         if (gasleft() < 10000) revert("Not enough gas");
-        uint256 swapGas = gasleft() - 10000;
+        uint256 _swapGas = gasleft() - 10000;
         try
-            this.remoteSwap{gas: swapGas}(
+            this.remoteSwap{gas: _swapGas}(
                 _chainId,
                 _srcAddress,
                 _nonce,
