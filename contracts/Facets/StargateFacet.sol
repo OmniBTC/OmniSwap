@@ -29,7 +29,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     struct StargateData {
         uint256 srcStargatePoolId; // The stargate pool id of the source chain
-        address srcStargateToken; // The stargate pool id of the source chain
+        address srcStargateToken; // The usdc/usdt/stargate token address of the source chain
         uint16 dstStargateChainId; // The stargate chain id of the destination chain
         uint256 dstStargatePoolId; // The stargate pool id of the destination chain
         uint256 minAmount; // The stargate min amount
