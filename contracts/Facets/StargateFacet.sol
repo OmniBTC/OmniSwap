@@ -66,107 +66,40 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// External Methods ///
 
     /// @notice Bridges tokens via Stargate
-    /// @param _soData data used purely for tracking and analytics
-    /// @param _stargateData data specific to Stargate
-    function startBridgeTokensViaStargate(
-        SoData calldata _soData,
-        StargateData calldata _stargateData
-    ) external payable nonReentrant {
-        LibAsset.depositAsset(_stargateData.srcStargateToken, _soData.amount);
-
-        bytes memory _payload = abi.encode(_soData, bytes(""));
-        uint256 _stargateValue = _getStargateValue(_soData);
-        _startBridge(_stargateData, _stargateValue, _soData.amount, _payload);
-
-        emit SoTransferStarted(
-            _soData.transactionId,
-            "Stargate",
-            false,
-            false,
-            _soData
-        );
-    }
-
-    /// @notice Performs a swap before bridging via Stargate
-    /// @param _soData data used purely for tracking and analytics
-    /// @param _swapDataSrc an array of swap related data for performing swaps before bridging
-    /// @param _stargateData data specific to Stargate
-    function startSwapAndBridgeTokensViaStargate(
-        SoData calldata _soData,
-        LibSwap.SwapData[] calldata _swapDataSrc,
-        StargateData calldata _stargateData
-    ) external payable nonReentrant {
-        uint256 _bridgeAmount = this.executeAndCheckSwaps(
-            _soData,
-            _swapDataSrc
-        );
-        bytes memory _payload = abi.encode(_soData, bytes(""));
-        uint256 _stargateValue = _getStargateValue(_soData);
-        _startBridge(_stargateData, _stargateValue, _bridgeAmount, _payload);
-
-        emit SoTransferStarted(
-            _soData.transactionId,
-            "Stargate",
-            true,
-            false,
-            _soData
-        );
-    }
-
-    /// @notice Performs a swap after bridging via Stargate
-    /// @param _soData data used purely for tracking and analytics
-    /// @param _stargateData data specific to Stargate
-    /// @param _swapDataDst an array of swap related data for performing swaps before bridging
-    function startBridgeTokensAndSwapViaStargate(
-        SoData calldata _soData,
-        StargateData calldata _stargateData,
-        LibSwap.SwapData[] calldata _swapDataDst
-    ) external payable nonReentrant {
-        LibAsset.depositAsset(_stargateData.srcStargateToken, _soData.amount);
-
-        bytes memory _payload = abi.encode(
-            _soData,
-            abi.encode(_swapDataDst)
-        );
-        uint256 _stargateValue = _getStargateValue(_soData);
-        _startBridge(_stargateData, _stargateValue, _soData.amount, _payload);
-
-        emit SoTransferStarted(
-            _soData.transactionId,
-            "Stargate",
-            false,
-            true,
-            _soData
-        );
-    }
-
-    /// @notice Performs a swap before and after bridging via Stargate
-    /// @param _soData data used purely for tracking and analytics
-    /// @param _swapDataSrc an array of swap related data for performing swaps before bridging
-    /// @param _stargateData data specific to Stargate
-    /// @param _swapDataDst an array of swap related data for performing swaps before bridging
-    function startSwapAndSwapViaStargate(
+    function soSwapViaStargate(
         SoData calldata _soData,
         LibSwap.SwapData[] calldata _swapDataSrc,
         StargateData calldata _stargateData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable nonReentrant {
-        uint256 _bridgeAmount = this.executeAndCheckSwaps(
-            _soData,
-            _swapDataSrc
-        );
-        bytes memory _payload = abi.encode(
-            _soData,
-            abi.encode(_swapDataDst)
-        );
+        bool hasSourceSwap;
+        bool hasDestinationSwap;
+        uint256 _bridgeAmount;
+        if (_swapDataSrc.length == 0) {
+            LibAsset.depositAsset(_stargateData.srcStargateToken, _soData.amount);
+            _bridgeAmount = _soData.amount;
+            hasSourceSwap = false;
+        } else {
+            _bridgeAmount = this.executeAndCheckSwaps(_soData, _swapDataSrc);
+            hasSourceSwap = true;
+        }
         uint256 _stargateValue = _getStargateValue(_soData);
+        bytes memory _payload;
+        if (_swapDataDst.length == 0) {
+            _payload = abi.encode(_soData, bytes(""));
+            hasDestinationSwap = false;
+        } else {
+            _payload = abi.encode(_soData, abi.encode(_swapDataDst));
+            hasDestinationSwap = true;
+        }
+
         _startBridge(_stargateData, _stargateValue, _bridgeAmount, _payload);
 
         emit SoTransferStarted(
             _soData.transactionId,
             "Stargate",
-            true,
-            true,
+            hasSourceSwap,
+            hasDestinationSwap,
             _soData
         );
     }
@@ -186,6 +119,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 _soFee = _getSoFee(_amount);
         if (_soFee < _amount) {
             _amount = _amount - _soFee;
+        }
+        if (_soFee > 0) {
+            LibAsset.transferAsset(_token, payable(LibDiamond.contractOwner()), _soFee);
         }
         if (swapPayload.length == 0) {
             LibAsset.transferAsset(_token, _soData.receiver, _amount);
@@ -256,6 +192,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         );
     }
 
+    /// Private Methods ///
+
     function _getSoFee(uint256 _amount) private returns (uint256) {
         address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
         if (_soFee == address(0x0)) {
@@ -264,8 +202,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             return ILibSoFee(_soFee).getFees(_amount);
         }
     }
-
-    /// Private Methods ///
 
     /// @dev Conatains the business logic for the bridge via Stargate
     function _startBridge(

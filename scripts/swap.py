@@ -1,7 +1,7 @@
 import time
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, interface, Contract, network, config
+    OwnershipFacet, GenericSwapFacet, interface, Contract, config, web3
 
 from scripts.helpful_scripts import get_account, change_network, zero_address, get_contract
 
@@ -66,7 +66,7 @@ def generate_src_swap_data(src_net: str, func_name: str, amount_in: int, sending
 def generate_so_data(dst_net: str, receiver: str, amount_in: int):
     return ["0x0000000000000000000000000000000000000000000000000000000000000000", receiver, 1,
             "0x0000000000000000000000000000000000000000", 2, "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e",
-             amount_in]
+            amount_in]
 
 
 def generate_stargate_data(src_net: str,
@@ -103,9 +103,11 @@ def swap(src_net: str, dst_net: str):
     so_diamond = SoDiamond[-1]
     usdc.approve(so_diamond.address, usdc_amount, {'from': account})
     proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    proxy_stargate.startBridgeTokensViaStargate(
+    proxy_stargate.soSwapViaStargate(
         so_data,
+        [],
         stargate_data,
+        [],
         {'from': account, 'value': src_fee}
     )
 
@@ -128,10 +130,11 @@ def swap(src_net: str, dst_net: str):
     change_network(src_net)
     so_diamond = SoDiamond[-1]
     proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    proxy_stargate.startSwapAndBridgeTokensViaStargate(
+    proxy_stargate.soSwapViaStargate(
         so_data,
         src_swap_data,
         stargate_data,
+        [],
         {'from': account, 'value': int(from_amount + src_fee)}
     )
 
@@ -156,8 +159,9 @@ def swap(src_net: str, dst_net: str):
     usdc = get_contract("usdc")
     usdc.approve(so_diamond.address, usdc_amount, {'from': account})
     proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    proxy_stargate.startBridgeTokensAndSwapViaStargate(
+    proxy_stargate.soSwapViaStargate(
         so_data,
+        [],
         stargate_data,
         dst_swap_data,
         {'from': account, 'value': src_fee}
@@ -189,7 +193,7 @@ def swap(src_net: str, dst_net: str):
     change_network(src_net)
     so_diamond = SoDiamond[-1]
     proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    proxy_stargate.startSwapAndSwapViaStargate(
+    proxy_stargate.soSwapViaStargate(
         so_data,
         src_swap_data,
         stargate_data,
