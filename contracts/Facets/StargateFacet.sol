@@ -112,8 +112,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             (SoData, bytes)
         );
 
-        if (gasleft() < 10000) revert("Not enough gas");
-        uint256 _swapGas = gasleft() - 10000;
+        if (gasleft() < 20000) revert("Not enough gas");
+        uint256 _swapGas = gasleft() - 20000;
         try
             this.remoteSwap{gas: _swapGas}(
                 _chainId,
