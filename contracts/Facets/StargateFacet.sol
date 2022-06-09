@@ -21,8 +21,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
 
     struct Storage {
-        address Stargate;
-        uint16 StargateChainId;
+        address stargate;  // stargate route address
+        uint16 srcStargateChainId;  // The stargate chain id of the source/current chain
     }
 
     /// Types ///
@@ -39,13 +39,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     /// Events ///
 
-    event StargateInitialized(address Stargate, uint256 chainId);
+    event StargateInitialized(address stargate, uint256 chainId);
 
     //---------------------------------------------------------------------------
     // MODIFIERS
     modifier onlyStargate() {
         Storage storage s = getStorage();
-        require(msg.sender == s.Stargate, "Caller must be Stargate.");
+        require(msg.sender == s.stargate, "Caller must be Stargate.");
         _;
     }
 
@@ -58,8 +58,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         LibDiamond.enforceIsContractOwner();
         if (_stargate == address(0)) revert InvalidConfig();
         Storage storage s = getStorage();
-        s.Stargate = _stargate;
-        s.StargateChainId = _chainId;
+        s.stargate = _stargate;
+        s.srcStargateChainId = _chainId;
         emit StargateInitialized(_stargate, _chainId);
     }
 
@@ -208,18 +208,18 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             );
 
             try this.executeAndCheckSwaps(_soData, _swapDataDst) returns (
-                uint256 amountFinal
+                uint256 _amountFinal
             ) {
                 LibAsset.transferAsset(
                     _swapDataDst[_swapDataDst.length - 1].receivingAssetId,
                     _soData.receiver,
-                    amountFinal
+                    _amountFinal
                 );
                 emit SoTransferCompleted(
                     _soData.transactionId,
                     _soData.receivingAssetId,
                     _soData.receiver,
-                    amountFinal,
+                    _amountFinal,
                     block.timestamp,
                     _soData
                 );
@@ -231,28 +231,28 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     }
 
     function correctSwap(
-        bytes calldata data,
-        uint256 amount
+        bytes calldata _data,
+        uint256 _amount
     ) external view returns (bytes memory){
-        bytes4 sig = bytes4(data[: 4]);
+        bytes4 sig = bytes4(_data[: 4]);
         (
-        uint256 amountIn,
-        uint256 amountOutMin,
-        address[] memory path,
-        address to,
-        uint256 deadline
+        uint256 _amountIn,
+        uint256 _amountOutMin,
+        address[] memory _path,
+        address _to,
+        uint256 _deadline
         ) = abi.decode(
-            data[4 :],
+            _data[4 :],
             (uint256, uint256, address[], address, uint256)
         );
         return
         abi.encodeWithSelector(
             sig,
-            amount,
-            amountOutMin,
-            path,
-            to,
-            deadline
+            _amount,
+            _amountOutMin,
+            _path,
+            _to,
+            _deadline
         );
     }
 
@@ -275,10 +275,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         bytes memory _payload
     ) private {
         Storage storage s = getStorage();
-        address bridge = s.Stargate;
+        address bridge = s.stargate;
 
         // Do Stargate stuff
-        if (s.StargateChainId == _stargateData.dstStargateChainId)
+        if (s.srcStargateChainId == _stargateData.dstStargateChainId)
             revert CannotBridgeToSameNetwork();
 
         if (LibAsset.isNativeAsset(_stargateData.srcStargateToken)) {
