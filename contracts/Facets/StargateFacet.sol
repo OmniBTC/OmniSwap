@@ -72,25 +72,25 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         StargateData calldata _stargateData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable nonReentrant {
-        bool hasSourceSwap;
-        bool hasDestinationSwap;
+        bool _hasSourceSwap;
+        bool _hasDestinationSwap;
         uint256 _bridgeAmount;
         if (_swapDataSrc.length == 0) {
             LibAsset.depositAsset(_stargateData.srcStargateToken, _soData.amount);
             _bridgeAmount = _soData.amount;
-            hasSourceSwap = false;
+            _hasSourceSwap = false;
         } else {
             _bridgeAmount = this.executeAndCheckSwaps(_soData, _swapDataSrc);
-            hasSourceSwap = true;
+            _hasSourceSwap = true;
         }
         uint256 _stargateValue = _getStargateValue(_soData);
         bytes memory _payload;
         if (_swapDataDst.length == 0) {
             _payload = abi.encode(_soData, bytes(""));
-            hasDestinationSwap = false;
+            _hasDestinationSwap = false;
         } else {
             _payload = abi.encode(_soData, abi.encode(_swapDataDst));
-            hasDestinationSwap = true;
+            _hasDestinationSwap = true;
         }
 
         _startBridge(_stargateData, _stargateValue, _bridgeAmount, _payload);
@@ -98,8 +98,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         emit SoTransferStarted(
             _soData.transactionId,
             "Stargate",
-            hasSourceSwap,
-            hasDestinationSwap,
+            _hasSourceSwap,
+            _hasDestinationSwap,
             _soData
         );
     }
