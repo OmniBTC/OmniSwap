@@ -4,21 +4,26 @@ pragma solidity 0.8.13;
 import {LibAsset, IERC20} from "../Libraries/LibAsset.sol";
 import {ISo} from "../Interfaces/ISo.sol";
 import {IStargate} from "../Interfaces/IStargate.sol";
+import {IStargateFactory} from "../Interfaces/IStargateFactory.sol";
+import {IStargatePool} from "../Interfaces/IStargatePool.sol";
+import {IStargateFeeLibrary} from "../Interfaces/IStargateFeeLibrary.sol";
 import {IStargateReceiver} from "../Interfaces/IStargateReceiver.sol";
 import {LibDiamond} from "../Libraries/LibDiamond.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidConfig} from "../Errors/GenericErrors.sol";
 import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /// @title Stargate Facet
 /// @author SoSwap
 /// @notice Provides functionality for bridging through Stargate
 contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
+    using SafeMath for uint256;
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-        hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
+    hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
 
     struct Storage {
         address stargate; // stargate route address
@@ -29,7 +34,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     struct StargateData {
         uint256 srcStargatePoolId; // The stargate pool id of the source chain
-        address srcStargateToken; // The usdc/usdt/stargate token address of the source chain
         uint16 dstStargateChainId; // The stargate chain id of the destination chain
         uint256 dstStargatePoolId; // The stargate pool id of the destination chain
         uint256 minAmount; // The stargate min amount
@@ -68,13 +72,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         bool _hasDestinationSwap;
         uint256 _bridgeAmount;
         if (_swapDataSrc.length == 0) {
-            LibAsset.depositAsset(
-                _stargateData.srcStargateToken,
-                _soData.amount
-            );
+            require(_soData.sendingAssetId == _getStargateTokenByPoolId(_stargateData.srcStargatePoolId), "soData and swapDataSrc address not match");
+            LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
             _bridgeAmount = _soData.amount;
             _hasSourceSwap = false;
         } else {
+            require(_soData.amount == _swapDataSrc[0].fromAmount, "soData and swapDataSrc amount not match!");
+            require(_swapDataSrc[_swapDataSrc.length - 1].receivingAssetId == _getStargateTokenByPoolId(_stargateData.srcStargatePoolId), "soData and swapDataSrc address not match");
             _bridgeAmount = this.executeAndCheckSwaps(_soData, _swapDataSrc);
             _hasSourceSwap = true;
         }
@@ -107,37 +111,36 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 _amount,
         bytes memory _payload
     ) external {
-        (SoData memory _soData, bytes memory swapPayload) = abi.decode(
+        (SoData memory _soData, bytes memory _swapPayload) = abi.decode(
             _payload,
             (SoData, bytes)
         );
 
-        if (gasleft() < 20000) revert("Not enough gas");
-        uint256 _swapGas = gasleft() - 20000;
-        try
-            this.remoteSwap{gas: _swapGas}(
-                _chainId,
-                _srcAddress,
-                _nonce,
-                _token,
-                _amount,
-                _soData,
-                swapPayload
-            )
+        if (gasleft() < _getTransferGas()) revert("Not enough gas!");
+        uint256 _swapGas = gasleft() - _getTransferGas();
+        try this.remoteSoSwap{gas : _swapGas}(
+            _chainId,
+            _srcAddress,
+            _nonce,
+            _token,
+            _amount,
+            _soData,
+            _swapPayload
+        )
         {} catch (bytes memory reason) {
             LibAsset.transferAsset(_token, _soData.receiver, _amount);
             emit SoTransferFailed(_soData.transactionId, reason, _soData);
         }
     }
 
-    function remoteSwap(
+    function remoteSoSwap(
         uint16 _chainId,
         bytes calldata _srcAddress,
         uint256 _nonce,
         address _token,
         uint256 _amount,
         SoData calldata _soData,
-        bytes calldata swapPayload
+        bytes calldata _swapPayload
     ) external {
         uint256 _soFee = _getSoFee(_amount);
         if (_soFee < _amount) {
@@ -150,7 +153,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _soFee
             );
         }
-        if (swapPayload.length == 0) {
+        if (_swapPayload.length == 0) {
             LibAsset.transferAsset(_token, _soData.receiver, _amount);
             emit SoTransferCompleted(
                 _soData.transactionId,
@@ -162,7 +165,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             );
         } else {
             LibSwap.SwapData[] memory _swapDataDst = abi.decode(
-                swapPayload,
+                _swapPayload,
                 (LibSwap.SwapData[])
             );
             _swapDataDst[0].fromAmount = _amount;
@@ -201,35 +204,68 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         return abi.encode(_soData, abi.encode(_swapDataDst));
     }
 
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        view
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
+    function correctSwap(bytes calldata _data, uint256 _amount) external view returns (bytes memory){
+        bytes4 sig = bytes4(_data[: 4]);
         (
-            uint256 _amountIn,
-            uint256 _amountOutMin,
-            address[] memory _path,
-            address _to,
-            uint256 _deadline
+        uint256 _amountIn,
+        uint256 _amountOutMin,
+        address[] memory _path,
+        address _to,
+        uint256 _deadline
         ) = abi.decode(
-                _data[4:],
-                (uint256, uint256, address[], address, uint256)
-            );
-        return
-            abi.encodeWithSelector(
-                sig,
-                _amount,
-                _amountOutMin,
-                _path,
-                _to,
-                _deadline
-            );
+            _data[4 :],
+            (uint256, uint256, address[], address, uint256)
+        );
+        return abi.encodeWithSelector(
+            sig,
+            _amount,
+            _amountOutMin,
+            _path,
+            _to,
+            _deadline
+        );
+    }
+
+    function getStargateFee(
+        SoData calldata _soData,
+        LibSwap.SwapData[] calldata _swapDataSrc,
+        StargateData calldata _stargateData,
+        LibSwap.SwapData[] calldata _swapDataDst
+    ) external view returns (uint256){
+        bytes memory _payload;
+        if (_swapDataDst.length == 0) {
+            _payload = abi.encode(_soData, bytes(""));
+        } else {
+            _payload = abi.encode(_soData, abi.encode(_swapDataDst));
+        }
+        Storage storage s = getStorage();
+        (uint256 _stargateFee, uint256 _zroFee) = IStargate(s.stargate).quoteLayerZeroFee(
+            _stargateData.dstStargateChainId,
+            1,
+            abi.encodePacked(_stargateData.dstSoDiamond),
+            _payload,
+            _stargateData.lzTxParams
+        );
+        return _stargateFee;
+    }
+
+    function estimateStargateFinalAmount(StargateData calldata _stargateData, uint256 _amount) external view returns (uint256){
+        uint256 _amountSD = _convertStargateLDToSDByPoolId(_stargateData.srcStargatePoolId, _amount);
+        IStargatePool.SwapObj memory _swapObj = IStargateFeeLibrary(_getStargateFeeLibraryByPoolId(_stargateData.srcStargatePoolId)).
+        getFees(
+            _stargateData.srcStargatePoolId,
+            _stargateData.dstStargatePoolId,
+            _stargateData.dstStargateChainId,
+            address(0x0),
+            _amountSD
+        );
+        uint256 _estimateAmountSD = _amountSD.sub(_swapObj.eqFee).sub(_swapObj.protocolFee).sub(_swapObj.lpFee).add(_swapObj.eqReward);
+        return _convertStargateSDToLDByPoolId(_stargateData.srcStargatePoolId, _estimateAmountSD);
     }
 
     /// Private Methods ///
 
+    /// @dev Get so fee
     function _getSoFee(uint256 _amount) private returns (uint256) {
         address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
         if (_soFee == address(0x0)) {
@@ -237,6 +273,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         } else {
             return ILibSoFee(_soFee).getFees(_amount);
         }
+    }
+
+    /// @dev Get remain gas for transfer
+    function _getTransferGas() private returns (uint256) {
+        return 20000;
     }
 
     /// @dev Conatains the business logic for the bridge via Stargate
@@ -253,43 +294,67 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         if (s.srcStargateChainId == _stargateData.dstStargateChainId)
             revert CannotBridgeToSameNetwork();
 
-        if (LibAsset.isNativeAsset(_stargateData.srcStargateToken)) {
-            revert("Stargate: not supported native asset!");
-        } else {
-            // Give Stargate approval to bridge tokens
-            LibAsset.maxApproveERC20(
-                IERC20(_stargateData.srcStargateToken),
-                bridge,
-                _bridgeAmount
-            );
+        // Give Stargate approval to bridge tokens
+        LibAsset.maxApproveERC20(
+            IERC20(_getStargateTokenByPoolId(_stargateData.srcStargatePoolId)),
+            bridge,
+            _bridgeAmount
+        );
 
-            IStargate(bridge).swap{value: _stargateValue}(
-                _stargateData.dstStargateChainId,
-                _stargateData.srcStargatePoolId,
-                _stargateData.dstStargatePoolId,
-                payable(msg.sender),
-                _bridgeAmount,
-                _stargateData.minAmount,
-                _stargateData.lzTxParams,
-                abi.encodePacked(_stargateData.dstSoDiamond),
-                _payload
-            );
-        }
+        IStargate(bridge).swap{value : _stargateValue}(
+            _stargateData.dstStargateChainId,
+            _stargateData.srcStargatePoolId,
+            _stargateData.dstStargatePoolId,
+            payable(msg.sender),
+            _bridgeAmount,
+            _stargateData.minAmount,
+            _stargateData.lzTxParams,
+            abi.encodePacked(_stargateData.dstSoDiamond),
+            _payload
+        );
+
     }
 
-    function _getStargateValue(SoData calldata _soData)
-        private
-        returns (uint256)
-    {
+    /// @dev Calculate the fee for paying the stargate bridge
+    function _getStargateValue(SoData calldata _soData) private returns (uint256){
         if (LibAsset.isNativeAsset(_soData.sendingAssetId)) {
-            require(
-                msg.value > _soData.amount,
-                "Stargate value is not enough!"
-            );
+            require(msg.value > _soData.amount, "Stargate value is not enough!");
             return msg.value - _soData.amount;
         } else {
             return msg.value;
         }
+    }
+
+    /// @dev Get stargate pool address by poolId
+    function _getStargatePoolByPoolId(uint256 _poolId) private view returns (address){
+        Storage storage s = getStorage();
+        address _factory = IStargate(s.stargate).factory();
+        return IStargateFactory(_factory).getPool(_poolId);
+    }
+
+    /// @dev Get stargate bridge token address by poolId
+    function _getStargateTokenByPoolId(uint256 _poolId) private view returns (address){
+        return IStargatePool(_getStargatePoolByPoolId(_poolId)).token();
+    }
+
+    /// @dev Get stargate bridge fee library address by poolId
+    function _getStargateFeeLibraryByPoolId(uint256 _poolId) private view returns (address){
+        return IStargatePool(_getStargatePoolByPoolId(_poolId)).feeLibrary();
+    }
+
+    /// @dev Get stargate convert rate by poolId
+    function _getStargateConvertRateByPoolId(uint256 _poolId) private view returns (uint256){
+        return IStargatePool(_getStargatePoolByPoolId(_poolId)).convertRate();
+    }
+
+    /// @dev Get stargate convert LD to SD poolId
+    function _convertStargateLDToSDByPoolId(uint256 _poolId, uint256 _amount) private view returns (uint256){
+        return _amount.div(_getStargateConvertRateByPoolId(_poolId));
+    }
+
+    /// @dev Get stargate convert SD to LD poolId
+    function _convertStargateSDToLDByPoolId(uint256 _poolId, uint256 _amount) private view returns (uint256){
+        return _amount.mul(_getStargateConvertRateByPoolId(_poolId));
     }
 
     /// @dev fetch local storage

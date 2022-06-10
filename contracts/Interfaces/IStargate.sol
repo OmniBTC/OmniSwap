@@ -69,4 +69,6 @@ interface IStargate {
         bytes calldata _transferAndCallPayload,
         lzTxObj memory _lzTxParams
     ) external view returns (uint256, uint256);
+
+    function factory() external view returns (address);
 }
