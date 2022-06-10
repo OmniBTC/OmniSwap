@@ -37,7 +37,7 @@ contract Swapper is ISo {
         } else _;
     }
 
-    /// Internal Methods ///
+    /// External Methods ///
 
     /// @dev Validates input before executing swaps
     /// @param _soData So tracking data
