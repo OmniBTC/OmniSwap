@@ -20,10 +20,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 /// @notice Provides functionality for bridging through Stargate
 contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     using SafeMath for uint256;
+
     /// Storage ///
 
-    bytes32 internal constant NAMESPACE =
-    hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
+    bytes32 internal constant NAMESPACE = hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
 
     struct Storage {
         address stargate; // stargate route address
@@ -229,14 +229,14 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     function sgReceiveForGas(
         SoData calldata _soData,
-        StargateData calldata _stargateData,
+        uint256 _dstStargatePoolId,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external {
-        address _token = _getStargateTokenByPoolId(_stargateData.dstStargatePoolId);
+        address _token = _getStargateTokenByPoolId(_dstStargatePoolId);
         uint256 _amount = LibAsset.getOwnBalance(_token);
         require(_amount > 0, "sgReceiveForGas need a little amount token!");
         this.sgReceive(
-            _stargateData.dstStargateChainId,
+            0,
             bytes(""),
             0,
             _token,
