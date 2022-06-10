@@ -37,7 +37,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint16 dstStargateChainId; // The stargate chain id of the destination chain
         uint256 dstStargatePoolId; // The stargate pool id of the destination chain
         uint256 minAmount; // The stargate min amount
-        IStargate.lzTxObj lzTxParams; // destination gas for sgReceive
+        uint256 dstGasForSgReceive; // destination gas for sgReceive
         address payable dstSoDiamond; // destination SoDiamond address
     }
 
@@ -226,9 +226,27 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         );
     }
 
+
+    function sgReceiveForGas(
+        SoData calldata _soData,
+        StargateData calldata _stargateData,
+        LibSwap.SwapData[] calldata _swapDataDst
+    ) external {
+        address _token = _getStargateTokenByPoolId(_stargateData.dstStargatePoolId);
+        uint256 _amount = LibAsset.getOwnBalance(_token);
+        require(_amount > 0, "sgReceiveForGas need a little amount token!");
+        this.sgReceive(
+            _stargateData.dstStargateChainId,
+            bytes(""),
+            0,
+            _token,
+            _amount,
+            _getSgReceiveForGasPayload(_soData, _swapDataDst, _amount)
+        );
+    }
+
     function getStargateFee(
         SoData calldata _soData,
-        LibSwap.SwapData[] calldata _swapDataSrc,
         StargateData calldata _stargateData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external view returns (uint256){
@@ -239,12 +257,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             _payload = abi.encode(_soData, abi.encode(_swapDataDst));
         }
         Storage storage s = getStorage();
+        IStargate.lzTxObj memory _lzTxParams = IStargate.lzTxObj(_stargateData.dstGasForSgReceive, 0, bytes(""));
         (uint256 _stargateFee, uint256 _zroFee) = IStargate(s.stargate).quoteLayerZeroFee(
             _stargateData.dstStargateChainId,
             1,
             abi.encodePacked(_stargateData.dstSoDiamond),
             _payload,
-            _stargateData.lzTxParams
+            _lzTxParams
         );
         return _stargateFee;
     }
@@ -300,7 +319,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             bridge,
             _bridgeAmount
         );
-
+        IStargate.lzTxObj memory _lzTxParams = IStargate.lzTxObj(_stargateData.dstGasForSgReceive, 0, bytes(""));
+        bytes memory _to = abi.encodePacked(_stargateData.dstSoDiamond);
         IStargate(bridge).swap{value : _stargateValue}(
             _stargateData.dstStargateChainId,
             _stargateData.srcStargatePoolId,
@@ -308,18 +328,31 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             payable(msg.sender),
             _bridgeAmount,
             _stargateData.minAmount,
-            _stargateData.lzTxParams,
-            abi.encodePacked(_stargateData.dstSoDiamond),
+            _lzTxParams,
+            _to,
             _payload
         );
 
     }
 
+    /// @dev Get SgReceive for gas payload
+    function _getSgReceiveForGasPayload(SoData calldata _soData, LibSwap.SwapData[] memory _swapDataDst, uint256 _amount) private view returns (bytes memory){
+        bytes memory _payload;
+        if (_swapDataDst.length == 0) {
+            _payload = abi.encode(_soData, bytes(""));
+        } else {
+            _payload = abi.encode(_soData, abi.encode(_swapDataDst));
+            _swapDataDst[0].fromAmount = _amount;
+            _swapDataDst[0].callData = this.correctSwap(_swapDataDst[0].callData, _swapDataDst[0].fromAmount);
+        }
+        return _payload;
+    }
+
     /// @dev Calculate the fee for paying the stargate bridge
-    function _getStargateValue(SoData calldata _soData) private returns (uint256){
+    function _getStargateValue(SoData calldata _soData) private view returns (uint256){
         if (LibAsset.isNativeAsset(_soData.sendingAssetId)) {
             require(msg.value > _soData.amount, "Stargate value is not enough!");
-            return msg.value - _soData.amount;
+            return msg.value.sub(_soData.amount);
         } else {
             return msg.value;
         }
