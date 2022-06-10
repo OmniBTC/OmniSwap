@@ -285,7 +285,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Private Methods ///
 
     /// @dev Get so fee
-    function _getSoFee(uint256 _amount) private returns (uint256) {
+    function _getSoFee(uint256 _amount) private view returns (uint256) {
         address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
         if (_soFee == address(0x0)) {
             return 0;
@@ -295,8 +295,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     }
 
     /// @dev Get remain gas for transfer
-    function _getTransferGas() private returns (uint256) {
-        return 20000;
+    function _getTransferGas() private view returns (uint256) {
+        address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
+        if (_soFee == address(0x0)) {
+            return 20000;
+        } else {
+            return ILibSoFee(_soFee).getTransferForGas();
+        }
     }
 
     /// @dev Conatains the business logic for the bridge via Stargate

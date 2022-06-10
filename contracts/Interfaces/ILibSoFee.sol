@@ -5,7 +5,9 @@ pragma solidity 0.8.13;
 interface ILibSoFee {
     function getFees(
         uint256 _amount
-    ) external returns (uint256 s);
+    ) external view returns (uint256 s);
+
+    function getTransferForGas() external view returns (uint256);
 
     function getVersion() external view returns (string memory);
 }
