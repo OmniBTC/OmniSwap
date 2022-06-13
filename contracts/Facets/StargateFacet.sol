@@ -73,7 +73,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 _bridgeAmount;
         if (_swapDataSrc.length == 0) {
             require(_soData.sendingAssetId ==
-                _getStargateTokenByPoolId(_stargateData.srcStargatePoolId), "soData and swapDataSrc address not match");
+                _getStargateTokenByPoolId(_stargateData.srcStargatePoolId), "soData and _stargateData address not match");
             LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
             _bridgeAmount = _soData.amount;
             _hasSourceSwap = false;
