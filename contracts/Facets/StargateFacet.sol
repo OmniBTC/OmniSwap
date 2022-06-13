@@ -185,14 +185,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
     }
 
-    /// @dev Encode soData and swapDataDst to facilitate the gas evaluation of sgReceive
-    function encodePayload(
-        SoData calldata _soData,
-        LibSwap.SwapData[] calldata _swapDataDst
-    ) external view returns (bytes memory) {
-        return abi.encode(_soData, abi.encode(_swapDataDst));
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount) external view returns (bytes memory){
         bytes4 sig = bytes4(_data[: 4]);
@@ -215,14 +207,22 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         address _token = _getStargateTokenByPoolId(_dstStargatePoolId);
         uint256 _amount = LibAsset.getOwnBalance(_token);
         require(_amount > 0, "sgReceiveForGas need a little amount token!");
-        this.sgReceive(
+        bytes memory _payload = _getSgReceiveForGasPayload(_soData, _swapDataDst, _amount);
+        // monitor sgReceive
+        (SoData memory _soData, bytes memory _swapPayload) = abi.decode(_payload, (SoData, bytes));
+
+        if (gasleft() < _getTransferGas()) revert("Not enough gas!");
+
+        uint256 _swapGas = gasleft().sub(_getTransferGas());
+
+        this.remoteSoSwap{gas : _swapGas}(
             0,
             bytes(""),
             0,
             _token,
             _amount,
-            _getSgReceiveForGasPayload(_soData, _swapDataDst, _amount)
-        );
+            _soData,
+            _swapPayload);
     }
 
     // @dev Used to obtain stargate cross-chain fee
@@ -347,8 +347,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             _payload = abi.encode(_soData, bytes(""));
         } else {
             _payload = abi.encode(_soData, abi.encode(_swapDataDst));
-            _swapDataDst[0].fromAmount = _amount;
-            _swapDataDst[0].callData = this.correctSwap(_swapDataDst[0].callData, _swapDataDst[0].fromAmount);
         }
         return _payload;
     }

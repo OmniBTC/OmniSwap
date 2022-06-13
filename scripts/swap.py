@@ -57,7 +57,8 @@ class SoData:
             return config["networks"][net]["usdc"]
 
     @classmethod
-    def create(cls, receiver: str, src_net: str, dst_net: str, amount: int, sendingTokenName: str):
+    def create(cls, receiver: str, src_net: str, dst_net: str, amount: int,
+               sendingTokenName: str, receiveTokenName: str):
         transactionId = cls.generate_random_bytes32()
         return SoData(
             transactionId=transactionId,
@@ -65,7 +66,7 @@ class SoData:
             sourceChainId=config["networks"][src_net]["chainid"],
             sendingAssetId=cls.get_token_address(src_net, sendingTokenName),
             destinationChainId=config["networks"][dst_net]["chainid"],
-            receivingAssetId=config["networks"][dst_net]["usdc"],
+            receivingAssetId=cls.get_token_address(dst_net, receiveTokenName),
             amount=amount
         )
 
@@ -199,25 +200,32 @@ class SwapData:
         return SwapData(callTo, approveTo, sendingAssetId, receivingAssetId, fromAmount, callData)
 
 
-def estimate_dst_gas(src_net: str,
-                     dst_net: str,
-                     so_data: list,
-                     dst_swap: list,
-                     ):
-    change_network(dst_net)
+def estimate_test():
     account = get_account()
+    src_net = "rinkeby"
+
+    usdc_amount = int(100 * 1e6)
+    dst_net = "avax-test"
+    if dst_net == "rinkeby":
+        func_name = "swapExactTokensForETH"
+    elif dst_net == "avax-test":
+        func_name = "swapExactTokensForAVAX"
+    else:
+        raise ValueError
+    dst_swap_data = [SwapData.create(dst_net, func_name, 0, "usdc", "eth").format_to_contract()]
+    so_data = SoData. \
+        create(account, src_net, dst_net, usdc_amount, "usdc", "eth"). \
+        format_to_contract()
+    dstStargatePoolId = 1
+    change_network(dst_net)
     so_diamond = SoDiamond[-1]
-    proxy_stargate = Contract.from_abi(
-        "StargateFacet", so_diamond.address, StargateFacet.abi)
-    payload = proxy_stargate.encodePayload(so_data, dst_swap)
-    calldata = proxy_stargate.sgReceive.encode_input(
-        config["networks"][src_net]["stargate_chainid"],
-        so_diamond.address,
-        0,
-        config["networks"][dst_net]["usdc"],
-        10 * 10 ** 6,
-        payload)
-    return account.estimate_gas(so_diamond.address, 0, data=calldata)
+    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    print(proxy_stargate.sgReceiveForGas.estimate_gas(
+        so_data,
+        dstStargatePoolId,
+        dst_swap_data,
+        {"from": account}
+    ))
 
 
 def swap(src_net: str, dst_net: str):
@@ -228,7 +236,7 @@ def swap(src_net: str, dst_net: str):
     # generate data
     usdc_amount = int(100 * 1e6)
     so_data = SoData. \
-        create(account, src_net, dst_net, usdc_amount, "usdc"). \
+        create(account, src_net, dst_net, usdc_amount, "usdc", "usdc"). \
         format_to_contract()
     src_fee = int(0.01 * 1e18)
     dst_gas = 100000
@@ -253,7 +261,7 @@ def swap(src_net: str, dst_net: str):
     # generate data
     eth_amount = int(2 * 1e-10 * 1e18)
     so_data = SoData. \
-        create(account, src_net, dst_net, eth_amount, "eth"). \
+        create(account, src_net, dst_net, eth_amount, "eth", "usdc"). \
         format_to_contract()
     src_fee = int(0.02 * 1e18)
     dst_gas = 600000
@@ -283,7 +291,7 @@ def swap(src_net: str, dst_net: str):
     # # generate data
     usdc_amount = int(100 * 1e6)
     so_data = SoData. \
-        create(account, src_net, dst_net, usdc_amount, "usdc"). \
+        create(account, src_net, dst_net, usdc_amount, "usdc", "eth"). \
         format_to_contract()
     src_fee = int(0.01 * 1e18)
 
@@ -297,8 +305,6 @@ def swap(src_net: str, dst_net: str):
     dst_swap_data = [SwapData.create(dst_net, func_name, 0, "usdc", "eth").format_to_contract()]
     dst_gas = 600000
 
-    # dst_gas = estimate_dst_gas(src_net, dst_net, so_data, dst_swap_data)
-    # print(f"Estimated dst_gas:{dst_gas}")
     stargate_data = StargateData.create(src_net, dst_net, dst_gas).format_to_contract()
 
     # # call
@@ -320,7 +326,7 @@ def swap(src_net: str, dst_net: str):
     # generate so data
     eth_amount = int(2 * 1e-10 * 1e18)
     so_data = SoData. \
-        create(account, src_net, dst_net, eth_amount, "eth"). \
+        create(account, src_net, dst_net, eth_amount, "eth", "eth"). \
         format_to_contract()
 
     # generate destination swap data
