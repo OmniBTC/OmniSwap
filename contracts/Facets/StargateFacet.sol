@@ -116,9 +116,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     ) external {
         (SoData memory _soData, bytes memory _swapPayload) = abi.decode(_payload, (SoData, bytes));
 
-        if (gasleft() < _getTransferGas()) revert("Not enough gas!");
+        if (gasleft() < getTransferGas()) revert("Not enough gas!");
 
-        uint256 _swapGas = gasleft().sub(_getTransferGas());
+        uint256 _swapGas = gasleft().sub(getTransferGas());
         try this.remoteSoSwap{gas : _swapGas}(
             _chainId,
             _srcAddress,
@@ -143,7 +143,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         SoData calldata _soData,
         bytes calldata _swapPayload
     ) external {
-        uint256 _soFee = _getSoFee(_amount);
+        uint256 _soFee = getSoFee(_amount);
         if (_soFee < _amount) {
             _amount = _amount.sub(_soFee);
         }
@@ -211,9 +211,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         // monitor sgReceive
         (SoData memory _soData, bytes memory _swapPayload) = abi.decode(_payload, (SoData, bytes));
 
-        if (gasleft() < _getTransferGas()) revert("Not enough gas!");
+        if (gasleft() < getTransferGas()) revert("Not enough gas!");
 
-        uint256 _swapGas = gasleft().sub(_getTransferGas());
+        uint256 _swapGas = gasleft().sub(getTransferGas());
 
         this.remoteSoSwap{gas : _swapGas}(
             0,
@@ -277,11 +277,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
         return _pools;
     }
-
-    /// Private Methods ///
+    /// Public Methods ///
 
     /// @dev Get so fee
-    function _getSoFee(uint256 _amount) private view returns (uint256) {
+    function getSoFee(uint256 _amount) public view returns (uint256) {
         address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
         if (_soFee == address(0x0)) {
             return 0;
@@ -291,14 +290,17 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     }
 
     /// @dev Get remain gas for transfer
-    function _getTransferGas() private view returns (uint256) {
-        address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
+    function getTransferGas() public view returns (uint256) {
+        Storage storage s = getStorage();
+        address _soFee = appStorage.gatewaySoFeeSelectors[s.stargate];
         if (_soFee == address(0x0)) {
             return 20000;
         } else {
             return ILibSoFee(_soFee).getTransferForGas();
         }
     }
+
+    /// Private Methods ///
 
     /// @dev Conatains the business logic for the bridge via Stargate
     function _startBridge(

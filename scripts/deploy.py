@@ -1,5 +1,5 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet
+    OwnershipFacet, GenericSwapFacet, LibSoFeeV01
 
 from scripts.helpful_scripts import get_account
 
@@ -19,5 +19,10 @@ def deploy_contracts(account):
 
     print("deploy SoDiamond.sol...")
     SoDiamond.deploy(account, DiamondCutFacet[-1], {'from': account})
+
+    print("deploy LibSoFeeV01.sol...")
+    so_fee = 1e-2
+    transfer_for_gas = 20000
+    LibSoFeeV01.deploy(int(so_fee*1e18), transfer_for_gas, {'from': account})
 
     print("deploy end!")

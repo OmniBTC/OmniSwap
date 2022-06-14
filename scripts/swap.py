@@ -242,9 +242,15 @@ def estimate_final_token_amount(
     so_diamond = SoDiamond[-1]
     proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
     amount = proxy_stargate.estimateStargateFinalAmount(stargate_data, amount)
+    change_network(dst_net)
+    so_diamond = SoDiamond[-1]
+    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    # compute so fee
+    so_fee = proxy_stargate.getSoFee(amount)
+    print(f"so fee:{so_fee} for amount:{amount}.")
+    amount = amount - so_fee
     # Estimate dst swap output
     if len(dst_path):
-        change_network(dst_net)
         dst_swap_info = config["networks"][dst_net]["swap"][0]
         dst_swap_contract = Contract.from_abi(dst_swap_info[1], dst_swap_info[0],
                                               getattr(interface, dst_swap_info[1]).abi)

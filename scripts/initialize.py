@@ -1,5 +1,5 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface
+    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address
 
@@ -64,3 +64,4 @@ def initialize_dex_manager(account, so_diamond):
             sigs.append(sig.hex() + "0" * 56)
     proxy_dex.batchAddDex(dexs, {'from': account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
+    proxy_dex.addFee(config["networks"][net]["stargate_router"], LibSoFeeV01[-1].address)
