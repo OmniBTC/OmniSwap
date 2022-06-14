@@ -51,18 +51,25 @@ def export(*arg):
             weth = ""
         swap_router = []
         try:
-            swap_router_address = config["networks"][net]["swap"][0][0]
-            swap_router_type = config["networks"][net]["swap"][0][1]
-            swap_router.append({
-                "address": swap_router_address,
-                "type": swap_router_type
-            })
-            if swap_router_type not in swap_router_types:
-                write_file(os.path.join(os.path.dirname(cur_path), f"export/abi/{swap_router_type}.json"),
-                           getattr(interface, swap_router_type).abi)
-            swap_router_types[swap_router_type] = True
+            for k in config["networks"][net]["swap"]:
+                swap_router_address = config["networks"][net]["swap"][k][0]
+                swap_router_type = config["networks"][net]["swap"][k][1]
+                if len(config["networks"][net]["swap"][k]) > 2:
+                    swap_token_list = config["networks"][net]["swap"][k][2]
+                else:
+                    swap_token_list = ""
+                swap_router.append({
+                    "Address": swap_router_address,
+                    "Type": swap_router_type,
+                    "TokenList": swap_token_list
+                })
+                if swap_router_type not in swap_router_types:
+                    write_file(os.path.join(os.path.dirname(cur_path), f"export/abi/{swap_router_type}.json"),
+                               getattr(interface, swap_router_type).abi)
+                swap_router_types[swap_router_type] = True
         except:
             pass
+
         output[net] = {
             "SoDiamond": so_diamond.address,
             "ChainId": network.chain.id,
