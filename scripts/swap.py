@@ -6,6 +6,9 @@ from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFac
 from scripts.helpful_scripts import get_account, change_network, zero_address, get_contract
 from random import choice
 
+usdc_decimal = 1e6
+eth_decimal = 1e18
+
 
 class SoData:
     def __init__(self,
@@ -247,7 +250,7 @@ def estimate_final_token_amount(
     proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
     # compute so fee
     so_fee = proxy_stargate.getSoFee(amount)
-    print(f"so fee:{so_fee} for amount:{amount}.")
+    print(f"so fee:{so_fee / usdc_decimal} for amount:{amount / usdc_decimal}.")
     amount = amount - so_fee
     # Estimate dst swap output
     if len(dst_path):
@@ -265,7 +268,7 @@ def swap(src_net: str, dst_net: str):
     # 1. src_net:usdc --> dst_net:usdc
     print(f"from:{src_net}:usdc -> to:{dst_net}:usdc...")
     # generate so data
-    usdc_amount = int(100 * 1e6)
+    usdc_amount = int(100 * usdc_decimal)
     so_data = SoData. \
         create(account, src_net, dst_net, usdc_amount, "usdc", "usdc"). \
         format_to_contract()
@@ -287,7 +290,7 @@ def swap(src_net: str, dst_net: str):
         stargate_data,
         []
     )
-    print("stargate cross fee:", src_fee / 1e18)
+    print("stargate cross fee:", src_fee / eth_decimal)
     proxy_stargate.soSwapViaStargate(
         so_data,
         [],
@@ -296,13 +299,13 @@ def swap(src_net: str, dst_net: str):
         {'from': account, 'value': src_fee}
     )
     print("esimate final token:",
-          estimate_final_token_amount(src_net, usdc_amount, [], stargate_data, dst_net, []) / 1e6,
+          estimate_final_token_amount(src_net, usdc_amount, [], stargate_data, dst_net, []) / usdc_decimal,
           "\n")
 
     # 2. src_net:native_token --> dst_net:usdc
     print(f"from:{src_net}:native_token -> to:{dst_net}:usdc...")
     # generate so data
-    eth_amount = int(2 * 1e-10 * 1e18)
+    eth_amount = int(2 * 1e-10 * eth_decimal)
     so_data = SoData. \
         create(account, src_net, dst_net, eth_amount, "eth", "usdc"). \
         format_to_contract()
@@ -330,7 +333,7 @@ def swap(src_net: str, dst_net: str):
         stargate_data,
         []
     )
-    print("stargate cross fee:", src_fee / 1e18)
+    print("stargate cross fee:", src_fee / eth_decimal)
     proxy_stargate.soSwapViaStargate(
         so_data,
         src_swap_data,
@@ -339,13 +342,13 @@ def swap(src_net: str, dst_net: str):
         {'from': account, 'value': int(eth_amount + src_fee)}
     )
     print("esimate final token:",
-          estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net, []) / 1e6,
+          estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net, []) / usdc_decimal,
           "\n")
 
     # 3. src_net:usdc --> dst_net:native_token
     print(f"from:{src_net}:usdc -> to:{dst_net}:native_token...")
     # generate so data
-    usdc_amount = int(100 * 1e6)
+    usdc_amount = int(100 * usdc_decimal)
     so_data = SoData. \
         create(account, src_net, dst_net, usdc_amount, "usdc", "eth"). \
         format_to_contract()
@@ -379,7 +382,7 @@ def swap(src_net: str, dst_net: str):
         stargate_data,
         dst_swap_data
     )
-    print("stargate cross fee:", src_fee / 1e18)
+    print("stargate cross fee:", src_fee / eth_decimal)
     proxy_stargate.soSwapViaStargate(
         so_data,
         [],
@@ -388,13 +391,13 @@ def swap(src_net: str, dst_net: str):
         {'from': account, 'value': src_fee}
     )
     print("esimate final token:",
-          estimate_final_token_amount(src_net, usdc_amount, [], stargate_data, dst_net, dst_swap.path) / 1e18,
+          estimate_final_token_amount(src_net, usdc_amount, [], stargate_data, dst_net, dst_swap.path) / eth_decimal,
           "\n")
 
     # 4. src_net:native_token --> dst_net:native_token
     print(f"from:{src_net}:native_token -> to:{dst_net}:native_token...")
     # generate so data
-    eth_amount = int(2 * 1e-10 * 1e18)
+    eth_amount = int(2 * 1e-10 * eth_decimal)
     so_data = SoData. \
         create(account, src_net, dst_net, eth_amount, "eth", "eth"). \
         format_to_contract()
@@ -436,7 +439,7 @@ def swap(src_net: str, dst_net: str):
         stargate_data,
         dst_swap_data
     )
-    print("stargate cross fee:", src_fee / 1e18)
+    print("stargate cross fee:", src_fee / eth_decimal)
     proxy_stargate.soSwapViaStargate(
         so_data,
         src_swap_data,
@@ -446,5 +449,5 @@ def swap(src_net: str, dst_net: str):
     )
     print("esimate final token:",
           estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net,
-                                      dst_swap.path) / 1e18,
+                                      dst_swap.path) / eth_decimal,
           "\n")

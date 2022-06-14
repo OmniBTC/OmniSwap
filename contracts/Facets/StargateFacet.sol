@@ -271,7 +271,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     function getStargateAllPools() external view returns (address[] memory){
         Storage storage s = getStorage();
         address _factory = IStargate(s.stargate).factory();
-        address[] memory _pools;
+        address[] memory _pools = new address[](IStargateFactory(_factory).allPoolsLength());
         for (uint256 i = 1; i <= IStargateFactory(_factory).allPoolsLength(); i++) {
             _pools[i - 1] = IStargateFactory(_factory).getPool(i);
         }
