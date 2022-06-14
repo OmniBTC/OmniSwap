@@ -64,4 +64,4 @@ def initialize_dex_manager(account, so_diamond):
             sigs.append(sig.hex() + "0" * 56)
     proxy_dex.batchAddDex(dexs, {'from': account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
-    proxy_dex.addFee(config["networks"][net]["stargate_router"], LibSoFeeV01[-1].address)
+    proxy_dex.addFee(config["networks"][net]["stargate_router"], LibSoFeeV01[-1].address, {'from': account})
