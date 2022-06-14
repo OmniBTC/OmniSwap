@@ -281,7 +281,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     /// @dev Get so fee
     function getSoFee(uint256 _amount) public view returns (uint256) {
-        address _soFee = appStorage.gatewaySoFeeSelectors[address(this)];
+        Storage storage s = getStorage();
+        address _soFee = appStorage.gatewaySoFeeSelectors[s.stargate];
         if (_soFee == address(0x0)) {
             return 0;
         } else {
