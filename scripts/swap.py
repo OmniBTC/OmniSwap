@@ -1,7 +1,7 @@
 import time
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, interface, Contract, config
+    OwnershipFacet, GenericSwapFacet, interface, Contract, config, network
 
 from scripts.helpful_scripts import get_account, change_network, zero_address, get_contract
 from random import choice
@@ -217,8 +217,8 @@ def estimate_for_gas(dst_net: str, so_data, dst_swap_data: list):
     account = get_account()
     change_network(dst_net)
     so_diamond = SoDiamond[-1]
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    return proxy_stargate.sgReceiveForGas.estimate_gas(
+    proxy_diamond = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    return proxy_diamond.sgReceiveForGas.estimate_gas(
         so_data,
         config["networks"][dst_net]["stargate_poolid"],
         dst_swap_data,
@@ -243,13 +243,13 @@ def estimate_final_token_amount(
         amount = src_amount_outs[-1]
     # Estimate stargate cross output
     so_diamond = SoDiamond[-1]
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-    amount = proxy_stargate.estimateStargateFinalAmount(stargate_data, amount)
+    proxy_diamond = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    amount = proxy_diamond.estimateStargateFinalAmount(stargate_data, amount)
     change_network(dst_net)
     so_diamond = SoDiamond[-1]
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    proxy_diamond = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
     # compute so fee
-    so_fee = proxy_stargate.getSoFee(amount)
+    so_fee = proxy_diamond.getSoFee(amount)
     print(f"so fee:{so_fee / usdc_decimal} for amount:{amount / usdc_decimal}.")
     amount = amount - so_fee
     # Estimate dst swap output
@@ -263,6 +263,7 @@ def estimate_final_token_amount(
 
 
 def swap(src_net: str, dst_net: str):
+    """The source chain and destination chain are the diffrent"""
     account = get_account()
 
     # 1. src_net:usdc --> dst_net:usdc
@@ -283,15 +284,15 @@ def swap(src_net: str, dst_net: str):
     usdc = get_contract("usdc")
     so_diamond = SoDiamond[-1]
     usdc.approve(so_diamond.address, usdc_amount, {'from': account})
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    proxy_diamond = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
     # get stargate cross fee
-    src_fee = proxy_stargate.getStargateFee(
+    src_fee = proxy_diamond.getStargateFee(
         so_data,
         stargate_data,
         []
     )
     print("stargate cross fee:", src_fee / eth_decimal)
-    proxy_stargate.soSwapViaStargate(
+    proxy_diamond.soSwapViaStargate(
         so_data,
         [],
         stargate_data,
@@ -326,15 +327,15 @@ def swap(src_net: str, dst_net: str):
     # call
     change_network(src_net)
     so_diamond = SoDiamond[-1]
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    proxy_diamond = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
     # get stargate cross fee
-    src_fee = proxy_stargate.getStargateFee(
+    src_fee = proxy_diamond.getStargateFee(
         so_data,
         stargate_data,
         []
     )
     print("stargate cross fee:", src_fee / eth_decimal)
-    proxy_stargate.soSwapViaStargate(
+    proxy_diamond.soSwapViaStargate(
         so_data,
         src_swap_data,
         stargate_data,
@@ -375,15 +376,15 @@ def swap(src_net: str, dst_net: str):
     so_diamond = SoDiamond[-1]
     usdc = get_contract("usdc")
     usdc.approve(so_diamond.address, usdc_amount, {'from': account})
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    proxy_diamond = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
     # get stargate cross fee
-    src_fee = proxy_stargate.getStargateFee(
+    src_fee = proxy_diamond.getStargateFee(
         so_data,
         stargate_data,
         dst_swap_data
     )
     print("stargate cross fee:", src_fee / eth_decimal)
-    proxy_stargate.soSwapViaStargate(
+    proxy_diamond.soSwapViaStargate(
         so_data,
         [],
         stargate_data,
@@ -432,15 +433,15 @@ def swap(src_net: str, dst_net: str):
     # # call
     change_network(src_net)
     so_diamond = SoDiamond[-1]
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    proxy_diamond = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
     # get stargate cross fee
-    src_fee = proxy_stargate.getStargateFee(
+    src_fee = proxy_diamond.getStargateFee(
         so_data,
         stargate_data,
         dst_swap_data
     )
     print("stargate cross fee:", src_fee / eth_decimal)
-    proxy_stargate.soSwapViaStargate(
+    proxy_diamond.soSwapViaStargate(
         so_data,
         src_swap_data,
         stargate_data,
@@ -451,3 +452,32 @@ def swap(src_net: str, dst_net: str):
           estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net,
                                       dst_swap.path) / eth_decimal,
           "\n")
+
+
+def single_swap():
+    """The source chain and destination chain are the same"""
+    account = get_account()
+    src_net = network.show_active()
+    dst_net = src_net
+    eth_amount = int(2 * 1e-10 * eth_decimal)
+    so_data = SoData. \
+        create(account, src_net, dst_net, eth_amount, "eth", "usdc"). \
+        format_to_contract()
+
+    if src_net == "rinkeby":
+        func_name = "swapExactETHForTokens"
+    elif src_net == "avax-test":
+        func_name = "swapExactAVAXForTokens"
+    else:
+        raise ValueError
+    src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
+    src_swap_data = [src_swap.format_to_contract()]
+
+    so_diamond = SoDiamond[-1]
+    proxy_diamond = Contract.from_abi("GenericSwapFacet", so_diamond.address, GenericSwapFacet.abi)
+    proxy_diamond.swapTokensGeneric(
+        so_data,
+        src_swap_data,
+        {'from': account, 'value': int(eth_amount)}
+    )
+
