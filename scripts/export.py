@@ -20,17 +20,24 @@ def write_file(file: str, data):
 
 def export(*arg):
     if len(arg) == 0:
-        networks = copy.deepcopy(config["networks"])
-        del networks["default"]
         arg = list(config["networks"].keys())
+        del arg[arg.index("default")]
+        del arg[arg.index("live")]
+        del arg[arg.index("development")]
     output = {}
     swap_router_types = {}
     for net in arg:
         print(f"current net: {net}")
         change_network(net)
-        so_diamond = SoDiamond[-1]
+        try:
+            so_diamond = SoDiamond[-1]
+        except:
+            continue
         proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-        stargate_pools = proxy_stargate.getStargateAllPools()
+        try:
+            stargate_pools = proxy_stargate.getStargateAllPools()
+        except:
+            stargate_pools = [[], [], []]
         pool_info = []
         for i in range(len(stargate_pools[0])):
             pool_info.append({

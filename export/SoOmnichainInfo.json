@@ -1,6 +1,6 @@
 {
     "avax-test": {
-        "ChainId": 43113,
+        "ChainId": 4,
         "SoDiamond": "0xd660fFe65bC32f34053d011dfbb6B74AaD415Bd0",
         "StargateChainId": 10006,
         "StargatePool": [
@@ -23,5 +23,33 @@
             }
         ],
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
+    },
+    "ftm-test": {
+        "ChainId": 4,
+        "SoDiamond": "0xa4C264f16Dc2973532e7161eEBCB02cEEBD7D210",
+        "StargateChainId": 10012,
+        "StargatePool": [],
+        "StargateRouter": "0xa73b0a56B29aD790595763e71505FCa2c1abb77f",
+        "UniswapRouter": [
+            {
+                "address": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
+                "type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
+    },
+    "rinkeby": {
+        "ChainId": 4,
+        "SoDiamond": "0x09c667878332f8139b6A930fbc8dF73e03482C8B",
+        "StargateChainId": 10001,
+        "StargatePool": [],
+        "StargateRouter": "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561",
+        "UniswapRouter": [
+            {
+                "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+                "type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0xc778417E063141139Fce010982780140Aa0cD5Ab"
     }
 }
