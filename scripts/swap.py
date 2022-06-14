@@ -309,7 +309,7 @@ def swap(src_net: str, dst_net: str):
     dst_swap_data = [SwapData.create(dst_net, func_name, 0, "usdc", "eth").format_to_contract()]
 
     # estimate gas for sgReceive
-    dst_gas = estimate_for_gas(dst_net, so_data, [])
+    dst_gas = estimate_for_gas(dst_net, so_data, dst_swap_data)
     print("dst gas for sgReceive:", dst_gas)
     # generate stargate data
     stargate_data = StargateData.create(src_net, dst_net, dst_gas).format_to_contract()
@@ -355,7 +355,7 @@ def swap(src_net: str, dst_net: str):
     dst_swap_data = [SwapData.create(dst_net, func_name, 0, "usdc", "eth").format_to_contract()]
 
     # estimate gas for sgReceive
-    dst_gas = estimate_for_gas(dst_net, so_data, [])
+    dst_gas = estimate_for_gas(dst_net, so_data, dst_swap_data)
     print("dst gas for sgReceive:", dst_gas)
     # generate stargate data
     stargate_data = StargateData.create(src_net, dst_net, dst_gas).format_to_contract()
