@@ -1,0 +1,27 @@
+{
+    "avax-test": {
+        "ChainId": 43113,
+        "SoDiamond": "0xd660fFe65bC32f34053d011dfbb6B74AaD415Bd0",
+        "StargateChainId": 10006,
+        "StargatePool": [
+            {
+                "PoolId": 1,
+                "TokenAddress": "0x4A0D1092E9df255cf95D72834Ea9255132782318",
+                "TokenName": "USDC"
+            },
+            {
+                "PoolId": 2,
+                "TokenAddress": "0x134Dc38AE8C853D1aa2103d5047591acDAA16682",
+                "TokenName": "USDT"
+            }
+        ],
+        "StargateRouter": "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1",
+        "UniswapRouter": [
+            {
+                "address": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
+                "type": "IUniswapV2Router02AVAX"
+            }
+        ],
+        "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
+    }
+}

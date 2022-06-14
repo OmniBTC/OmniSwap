@@ -14,6 +14,7 @@ import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidCon
 import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title Stargate Facet
 /// @author SoSwap
@@ -268,14 +269,18 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         return _convertStargateSDToLDByPoolId(_stargateData.srcStargatePoolId, _estimateAmountSD);
     }
 
-    function getStargateAllPools() external view returns (address[] memory){
+    function getStargateAllPools() external view returns (address[] memory, address[] memory, string[] memory){
         Storage storage s = getStorage();
         address _factory = IStargate(s.stargate).factory();
         address[] memory _pools = new address[](IStargateFactory(_factory).allPoolsLength());
+        address[] memory _tokens = new address[](IStargateFactory(_factory).allPoolsLength());
+        string[] memory _symbols = new string[](IStargateFactory(_factory).allPoolsLength());
         for (uint256 i = 1; i <= IStargateFactory(_factory).allPoolsLength(); i++) {
             _pools[i - 1] = IStargateFactory(_factory).getPool(i);
+            _tokens[i - 1] = IStargatePool(_pools[i - 1]).token();
+            _symbols[i - 1] = ERC20(_tokens[i - 1]).symbol();
         }
-        return _pools;
+        return (_pools, _tokens, _symbols);
     }
     /// Public Methods ///
 
