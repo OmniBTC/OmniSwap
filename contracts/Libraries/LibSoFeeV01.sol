@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 
-contract StargateFeeLibraryV02 is ILibSoFee, Ownable, ReentrancyGuard {
+contract LibSoFeeV01 is ILibSoFee, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     //---------------------------------------------------------------------------
