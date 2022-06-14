@@ -333,7 +333,7 @@ def swap(src_net: str, dst_net: str):
         {'from': account, 'value': int(eth_amount + src_fee)}
     )
     print("esimate final token:",
-          estimate_final_token_amount(src_net, usdc_amount, src_swap.path, stargate_data, dst_net, []) / 1e6,
+          estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net, []) / 1e6,
           "\n")
 
     # 3. src_net:usdc --> dst_net:native_token
@@ -439,6 +439,6 @@ def swap(src_net: str, dst_net: str):
         {'from': account, 'value': int(src_fee + eth_amount)}
     )
     print("esimate final token:",
-          estimate_final_token_amount(src_net, usdc_amount, src_swap.path, stargate_data, dst_net,
+          estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net,
                                       dst_swap.path) / 1e18,
           "\n")
