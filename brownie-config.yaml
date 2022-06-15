@@ -23,8 +23,10 @@ networks:
     weth: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
     swap: [ [ "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02 ] ]
   bsc-test:
+    chainid: 97
     stargate_router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
     stargate_chainid: 10002
+    stargate_poolid: 2
     usdc: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
     weth: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
     swap: [ [ "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3", IUniswapV2Router02 ] ]
@@ -37,20 +39,30 @@ networks:
     weth: "0x9B5828d46A43176F07656e162cCbDc787624468c"
     swap: [ [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02AVAX ] ]
   polygon-test:
+    chainid: 80001
     stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
     stargate_chainid: 10009
+    stargate_poolid: 1
     usdc: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
+    weth: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
+    swap: [ [ "0x8954AfA98594b838bda56FE4C12a09D7739D179b", IUniswapV2Router02 ] ]
   mumbai:
+    chainid: 80001
     stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
     stargate_chainid: 10009
+    stargate_poolid: 1
     usdc: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
+    weth: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
+    swap: [ [ "0x8954AfA98594b838bda56FE4C12a09D7739D179b", IUniswapV2Router02 ] ]
   optimism-test:
     stargate_router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
     stargate_chainid: 10011
     usdc: "0x567f39d9e6d02078F357658f498F80eF087059aa"
   ftm-test:
+    chainid: 4002
     stargate_router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
     stargate_chainid: 10012
+    stargate_poolid: 1
     weth: "0x9B5828d46A43176F07656e162cCbDc787624468c"
     usdc: "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e"
     swap: [ [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02 ] ]
