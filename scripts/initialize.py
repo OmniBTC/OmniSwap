@@ -1,10 +1,13 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01
+from brownie.network import priority_fee
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address
 
 
 def main():
+    if network.show_active() in ["rinkeby"]:
+        priority_fee("2 gwei")
     account = get_account()
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond:{so_diamond}")

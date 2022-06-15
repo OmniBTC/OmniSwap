@@ -1,7 +1,7 @@
 {
     "avax-test": {
         "ChainId": 4,
-        "SoDiamond": "0xd660fFe65bC32f34053d011dfbb6B74AaD415Bd0",
+        "SoDiamond": "0xd26E3147D6720D161bf6Ec3d0b42C3051E7a03A6",
         "StargateChainId": 10006,
         "StargatePool": [
             {
@@ -46,9 +46,35 @@
         ],
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
+    "polygon-test": {
+        "ChainId": 4,
+        "SoDiamond": "0x92113298552f99271cb0b9545C40096eE7B0a351",
+        "StargateChainId": 10009,
+        "StargatePool": [
+            {
+                "PoolId": 1,
+                "TokenAddress": "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7",
+                "TokenName": "USDC"
+            },
+            {
+                "PoolId": 2,
+                "TokenAddress": "0x6Fc340be8e378c2fF56476409eF48dA9a3B781a0",
+                "TokenName": "USDT"
+            }
+        ],
+        "StargateRouter": "0x817436a076060D158204d955E5403b6Ed0A5fac0",
+        "UniswapRouter": [
+            {
+                "Address": "0x8954AfA98594b838bda56FE4C12a09D7739D179b",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
+    },
     "rinkeby": {
         "ChainId": 4,
-        "SoDiamond": "0x613c73b3b3686dD24e742fD101d80fa4551712Df",
+        "SoDiamond": "0x34812A697F4AD4420fB43694444DB8795830A815",
         "StargateChainId": 10001,
         "StargatePool": [
             {

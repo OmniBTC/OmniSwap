@@ -23,6 +23,8 @@ export PRIVATE_KEY=<PRIVATE_KEY>
 
 # Deploy
 
+After deployment, all deployed contract addresses can be found in `build/deployments/map.json`
+
 ~~~shell
 brownie run --network {network} scripts/deploy.py
 ~~~
