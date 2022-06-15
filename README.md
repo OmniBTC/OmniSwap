@@ -35,6 +35,8 @@ brownie run --network {network} scripts/initialize.py
 
 # Swap
 
+Note that you need to Deploy and Initialize src-network and dst-network respectively before calling swap.py.
+
 ~~~shell
 brownie run scripts/swap.py swap {src-network} {dst-network}
 ~~~

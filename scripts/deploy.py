@@ -1,5 +1,6 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, LibSoFeeV01
+    OwnershipFacet, GenericSwapFacet, LibSoFeeV01, network
+from brownie.network import priority_fee
 
 from scripts.helpful_scripts import get_account
 
@@ -10,6 +11,8 @@ def main():
 
 
 def deploy_contracts(account):
+    if network.show_active() in ["rinkeby"]:
+        priority_fee("2 gwei")
     deploy_facets = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet,
                      WithdrawFacet, OwnershipFacet, GenericSwapFacet
                      ]
