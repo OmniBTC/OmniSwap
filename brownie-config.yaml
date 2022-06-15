@@ -40,6 +40,10 @@ networks:
     stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
     stargate_chainid: 10009
     usdc: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
+  mumbai:
+    stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
+    stargate_chainid: 10009
+    usdc: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
   optimism-test:
     stargate_router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
     stargate_chainid: 10011

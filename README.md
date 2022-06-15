@@ -39,5 +39,12 @@ brownie run --network {network} scripts/initialize.py
 brownie run scripts/swap.py swap {src-network} {dst-network}
 ~~~
 
+# Network
+
+~~~shell
+# mub
+brownie networks add "Ethereum Classic" "mumbai" host=https://matic-mumbai.chainstacklabs.com chainid=80001
+~~~
+
 
 

@@ -71,4 +71,6 @@ interface IStargate {
     ) external view returns (uint256, uint256);
 
     function factory() external view returns (address);
+
+    function bridge() external view returns (address);
 }
