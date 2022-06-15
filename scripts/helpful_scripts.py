@@ -95,6 +95,18 @@ def get_method_signature_by_abi(abi):
     return result
 
 
+def get_event_signature_by_abi(abi):
+    result = {}
+    for d in abi:
+        if d["type"] != "event":
+            continue
+        func_name = d["name"]
+        func_prototype = get_func_prototype(d["inputs"])
+        func_prototype = f"{func_name}({func_prototype})"
+        result[func_name] = Web3.sha3(text=func_prototype)
+    return result
+
+
 def change_network(dst_net):
     if network.show_active() == dst_net:
         return

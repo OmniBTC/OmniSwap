@@ -4,8 +4,12 @@
 from brownie import network, config, Contract, interface, web3
 import pandas as pd
 
+from scripts.helpful_scripts import get_event_signature_by_abi
 
-# def UltraLightNodeEvents()
+
+def UltraLightNodeEvents():
+    result = get_event_signature_by_abi(interface.ILayerZeroUltraLightNodeV1.abi)
+    print(result)
 
 
 def main(file):
