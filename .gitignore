@@ -130,3 +130,4 @@ __pycache__
 .hypothesis/
 build/
 reports/
+.deps/

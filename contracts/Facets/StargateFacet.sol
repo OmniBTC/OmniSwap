@@ -135,9 +135,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 _swapGas = gasleft().sub(getTransferGas());
         try
             this.remoteSoSwap{gas: _swapGas}(
-                _chainId,
-                _srcAddress,
-                _nonce,
                 _token,
                 _amount,
                 _soData,
@@ -151,9 +148,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     /// @dev convenient for sgReceive to catch exceptions
     function remoteSoSwap(
-        uint16 _chainId,
-        bytes calldata _srcAddress,
-        uint256 _nonce,
         address _token,
         uint256 _amount,
         SoData calldata _soData,
@@ -217,12 +211,12 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
-        view
+        pure
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
         (
-            uint256 _amountIn,
+            ,
             uint256 _amountOutMin,
             address[] memory _path,
             address _to,
@@ -254,11 +248,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         require(_amount > 0, "sgReceiveForGas need a little amount token!");
         bytes memory _payload = _getSgReceiveForGasPayload(
             _soData,
-            _swapDataDst,
-            _amount
+            _swapDataDst
         );
         // monitor sgReceive
-        (SoData memory _soData, bytes memory _swapPayload) = abi.decode(
+        (SoData memory __soData, bytes memory _swapPayload) = abi.decode(
             _payload,
             (SoData, bytes)
         );
@@ -268,12 +261,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 _swapGas = gasleft().sub(getTransferGas());
 
         this.remoteSoSwap{gas: _swapGas}(
-            0,
-            bytes(""),
-            0,
             _token,
             _amount,
-            _soData,
+            __soData,
             _swapPayload
         );
     }
@@ -296,7 +286,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             0,
             bytes("")
         );
-        (uint256 _stargateFee, uint256 _zroFee) = IStargate(s.stargate)
+        (uint256 _stargateFee, ) = IStargate(s.stargate)
             .quoteLayerZeroFee(
                 _stargateData.dstStargateChainId,
                 1,
@@ -335,41 +325,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _stargateData.srcStargatePoolId,
                 _estimateAmountSD
             );
-    }
-
-    function getStargateAllPools()
-        external
-        view
-        returns (
-            address[] memory,
-            address[] memory,
-            string[] memory
-        )
-    {
-        Storage storage s = getStorage();
-        address _factory = IStargate(s.stargate).factory();
-        address[] memory _pools = new address[](
-            IStargateFactory(_factory).allPoolsLength()
-        );
-        address[] memory _tokens = new address[](
-            IStargateFactory(_factory).allPoolsLength()
-        );
-        string[] memory _symbols = new string[](
-            IStargateFactory(_factory).allPoolsLength()
-        );
-        for (
-            uint256 i = 1;
-            i <= IStargateFactory(_factory).allPoolsLength();
-            i++
-        ) {
-            address _pool = IStargateFactory(_factory).getPool(i);
-            if (_pool != address(0)) {
-                _pools[i - 1] = _pool;
-                _tokens[i - 1] = IStargatePool(_pools[i - 1]).token();
-                _symbols[i - 1] = ERC20(_tokens[i - 1]).symbol();
-            }
-        }
-        return (_pools, _tokens, _symbols);
     }
 
     /// Public Methods ///
@@ -440,9 +395,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// @dev Get SgReceive for gas payload
     function _getSgReceiveForGasPayload(
         SoData calldata _soData,
-        LibSwap.SwapData[] memory _swapDataDst,
-        uint256 _amount
-    ) private view returns (bytes memory) {
+        LibSwap.SwapData[] memory _swapDataDst
+    ) private pure returns (bytes memory) {
         bytes memory _payload;
         if (_swapDataDst.length == 0) {
             _payload = abi.encode(_soData, bytes(""));
