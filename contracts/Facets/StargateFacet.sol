@@ -14,7 +14,6 @@ import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidCon
 import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title Stargate Facet
 /// @author SoSwap
@@ -124,7 +123,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         address _token,
         uint256 _amount,
         bytes memory _payload
-    ) external {
+    ) external nonReentrant {
         (SoData memory _soData, bytes memory _swapPayload) = abi.decode(
             _payload,
             (SoData, bytes)
@@ -152,7 +151,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 _amount,
         SoData calldata _soData,
         bytes calldata _swapPayload
-    ) external {
+    ) external nonReentrant {
         uint256 _soFee = getSoFee(_amount);
         if (_soFee < _amount) {
             _amount = _amount.sub(_soFee);

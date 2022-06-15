@@ -18,36 +18,56 @@
         "StargateRouter": "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1",
         "UniswapRouter": [
             {
-                "address": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
-                "type": "IUniswapV2Router02AVAX"
+                "Address": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02AVAX"
             }
         ],
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
     "ftm-test": {
         "ChainId": 4,
-        "SoDiamond": "0xa4C264f16Dc2973532e7161eEBCB02cEEBD7D210",
+        "SoDiamond": "0x19370bE0D726A88d3e6861301418f3daAe3d798E",
         "StargateChainId": 10012,
-        "StargatePool": [],
+        "StargatePool": [
+            {
+                "PoolId": 1,
+                "TokenAddress": "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e",
+                "TokenName": "USDC"
+            }
+        ],
         "StargateRouter": "0xa73b0a56B29aD790595763e71505FCa2c1abb77f",
         "UniswapRouter": [
             {
-                "address": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
-                "type": "IUniswapV2Router02"
+                "Address": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
             }
         ],
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
     "rinkeby": {
         "ChainId": 4,
-        "SoDiamond": "0x09c667878332f8139b6A930fbc8dF73e03482C8B",
+        "SoDiamond": "0x613c73b3b3686dD24e742fD101d80fa4551712Df",
         "StargateChainId": 10001,
-        "StargatePool": [],
+        "StargatePool": [
+            {
+                "PoolId": 1,
+                "TokenAddress": "0x1717A0D5C8705EE89A8aD6E808268D6A826C97A4",
+                "TokenName": "USDC"
+            },
+            {
+                "PoolId": 2,
+                "TokenAddress": "0x5c165DF844Fe7f4a950cCd2113ea877A0E1D0818",
+                "TokenName": "USDT"
+            }
+        ],
         "StargateRouter": "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561",
         "UniswapRouter": [
             {
-                "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-                "type": "IUniswapV2Router02"
+                "Address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
             }
         ],
         "WETH": "0xc778417E063141139Fce010982780140Aa0cD5Ab"

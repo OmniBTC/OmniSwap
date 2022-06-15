@@ -315,7 +315,7 @@
                 "type": "bytes"
             }
         ],
-        "stateMutability": "view",
+        "stateMutability": "pure",
         "type": "function"
     },
     {
@@ -487,29 +487,6 @@
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "getStargateAllPools",
-        "outputs": [
-            {
-                "internalType": "address[]",
-                "name": "",
-                "type": "address[]"
-            },
-            {
-                "internalType": "address[]",
-                "name": "",
-                "type": "address[]"
-            },
-            {
-                "internalType": "string[]",
-                "name": "",
-                "type": "string[]"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [
             {
                 "components": [
@@ -672,21 +649,6 @@
     },
     {
         "inputs": [
-            {
-                "internalType": "uint16",
-                "name": "_chainId",
-                "type": "uint16"
-            },
-            {
-                "internalType": "bytes",
-                "name": "_srcAddress",
-                "type": "bytes"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_nonce",
-                "type": "uint256"
-            },
             {
                 "internalType": "address",
                 "name": "_token",

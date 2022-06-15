@@ -1,14 +1,13 @@
 # @Time    : 2022/6/14 13:57
 # @Author  : WeiDai
 # @FileName: export.py
-import copy
 import json
 import os
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, interface, Contract, config, network
+    OwnershipFacet, GenericSwapFacet, interface, Contract, config, network, ERC20
 
-from scripts.helpful_scripts import change_network
+from scripts.helpful_scripts import change_network, zero_address
 
 cur_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -18,12 +17,38 @@ def write_file(file: str, data):
         json.dump(data, f, indent=4, sort_keys=True)
 
 
+def get_stragate_pool_infos(net):
+    try:
+        stargate_router = config["networks"][net]["stargate_router"]
+    except:
+        return []
+    stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
+    factory_address = stragate.factory()
+    factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
+    pools_length = factory.allPoolsLength()
+    pool_info = []
+    for i in range(1, pools_length + 1):
+        pool_address = factory.getPool(i)
+        if pool_address == zero_address():
+            continue
+        pool = Contract.from_abi("IStargatePool", pool_address, interface.IStargatePool.abi)
+        token_address = pool.token()
+        token = Contract.from_abi("ERC20", token_address, ERC20.abi)
+        pool_info.append({
+            "TokenAddress": token_address,
+            "TokenName": token.symbol(),
+            "PoolId": i
+        })
+    return pool_info
+
+
 def export(*arg):
     if len(arg) == 0:
         arg = list(config["networks"].keys())
         del arg[arg.index("default")]
         del arg[arg.index("live")]
         del arg[arg.index("development")]
+        del arg[arg.index("bsc-test")]
     output = {}
     swap_router_types = {}
     for net in arg:
@@ -33,25 +58,14 @@ def export(*arg):
             so_diamond = SoDiamond[-1]
         except:
             continue
-        proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
-        try:
-            stargate_pools = proxy_stargate.getStargateAllPools()
-        except:
-            stargate_pools = [[], [], []]
-        pool_info = []
-        for i in range(len(stargate_pools[0])):
-            pool_info.append({
-                "TokenAddress": stargate_pools[1][i],
-                "TokenName": stargate_pools[2][i],
-                "PoolId": i + 1
-            })
+        pool_info = get_stragate_pool_infos(net)
         try:
             weth = config["networks"][net]["weth"]
         except:
             weth = ""
         swap_router = []
         try:
-            for k in config["networks"][net]["swap"]:
+            for k in range(len(config["networks"][net]["swap"])):
                 swap_router_address = config["networks"][net]["swap"][k][0]
                 swap_router_type = config["networks"][net]["swap"][k][1]
                 if len(config["networks"][net]["swap"][k]) > 2:
