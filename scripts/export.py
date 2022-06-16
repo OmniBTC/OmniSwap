@@ -5,7 +5,7 @@ import json
 import os
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, interface, Contract, config, network, ERC20
+    OwnershipFacet, GenericSwapFacet, interface, Contract, config, network, ERC20, LibSwap
 
 from scripts.helpful_scripts import change_network, zero_address
 
@@ -93,6 +93,12 @@ def export(*arg):
             "WETH": weth,
             "UniswapRouter": swap_router
         }
+    facets = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet,
+              WithdrawFacet, OwnershipFacet, GenericSwapFacet
+              ]
+    libs = [LibSwap]
+    so_diamond_abi = []
+    for f in facets + libs:
+        so_diamond_abi += f.abi
     write_file(os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json"), output)
-    write_file(os.path.join(os.path.dirname(cur_path), "export/abi/SoDiamond.json"),
-               StargateFacet.abi + GenericSwapFacet.abi)
+    write_file(os.path.join(os.path.dirname(cur_path), "export/abi/SoDiamond.json"), so_diamond_abi)

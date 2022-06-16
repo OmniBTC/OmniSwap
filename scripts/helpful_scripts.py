@@ -1,3 +1,5 @@
+import json
+
 from brownie import (
     network,
     accounts,
@@ -120,3 +122,11 @@ def change_network(dst_net):
 
 def zero_address():
     return "0x0000000000000000000000000000000000000000"
+
+
+def read_abi(file):
+    try:
+        with open(file) as f:
+            return json.load(f)
+    except:
+        return []

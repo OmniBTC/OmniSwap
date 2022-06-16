@@ -1,7 +1,7 @@
 {
     "avax-test": {
         "ChainId": 4,
-        "SoDiamond": "0xd26E3147D6720D161bf6Ec3d0b42C3051E7a03A6",
+        "SoDiamond": "0x9C79ad9a02490c3E149F8322F9A4A8f004b65496",
         "StargateChainId": 10006,
         "StargatePool": [
             {
@@ -48,7 +48,7 @@
     },
     "polygon-test": {
         "ChainId": 4,
-        "SoDiamond": "0x92113298552f99271cb0b9545C40096eE7B0a351",
+        "SoDiamond": "0xF1783f15a94020AD8F3988d434F7ef3968bF303c",
         "StargateChainId": 10009,
         "StargatePool": [
             {
@@ -74,7 +74,7 @@
     },
     "rinkeby": {
         "ChainId": 4,
-        "SoDiamond": "0x34812A697F4AD4420fB43694444DB8795830A815",
+        "SoDiamond": "0xA82045cD4b251b4e8f99aD92E52254c25c9d7e1C",
         "StargateChainId": 10001,
         "StargatePool": [
             {
