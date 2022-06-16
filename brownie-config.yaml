@@ -45,7 +45,7 @@ networks:
     stargate_poolid: 1
     usdc: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
     weth: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
-    swap: [ [ "0x8954AfA98594b838bda56FE4C12a09D7739D179b", IUniswapV2Router02 ] ]
+    swap: [ [ "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", IUniswapV2Router02 ] ]
   optimism-test:
     stargate_router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
     stargate_chainid: 10011
