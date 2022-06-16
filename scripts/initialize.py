@@ -1,8 +1,8 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01
+    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01, MockToken
 from brownie.network import priority_fee
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address, get_contract
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address
 
 
 def main():
@@ -26,7 +26,11 @@ def main():
     # Transfer a little to SoDiamond as a handling fee
     if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test"]:
         so_diamond = SoDiamond[-1]
-        usdc = get_contract("usdc")
+        usdc = Contract.from_abi("MockToken", config["networks"][network.show_active()]["usdc"], MockToken.abi)
+        try:
+            usdc.mint(account, 100*1e4*1e6, {"from": account})
+        except Exception as e:
+            print(f"usdc mint fail:{e}")
         usdc.transfer(so_diamond.address, int(0.01*1e6), {"from": account})
 
 
