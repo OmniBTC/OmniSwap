@@ -358,6 +358,8 @@ def swap(src_net: str, dst_net: str):
         func_name = "swapExactTokensForETH"
     elif dst_net == "avax-test":
         func_name = "swapExactTokensForAVAX"
+    elif dst_net == "polygon-test":
+        func_name = "swapExactTokensForETH"
     else:
         raise ValueError
     # generate dst swap data
@@ -408,6 +410,8 @@ def swap(src_net: str, dst_net: str):
         func_name = "swapExactTokensForETH"
     elif dst_net == "avax-test":
         func_name = "swapExactTokensForAVAX"
+    elif dst_net == "polygon-test":
+        func_name = "swapExactTokensForETH"
     else:
         raise ValueError
     # generate dst swap data

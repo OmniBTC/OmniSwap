@@ -7,6 +7,7 @@ from brownie import (
     web3
 )
 from brownie.network.web3 import Web3
+from brownie.network import priority_fee
 
 NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["hardhat", "development", "ganache"]
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
@@ -113,6 +114,8 @@ def change_network(dst_net):
     if network.is_connected():
         network.disconnect()
     network.connect(dst_net)
+    if dst_net in ["rinkeby"]:
+        priority_fee("2 gwei")
 
 
 def zero_address():
