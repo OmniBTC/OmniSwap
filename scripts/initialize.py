@@ -2,7 +2,7 @@ from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFac
     OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01
 from brownie.network import priority_fee
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address, get_contract
 
 
 def main():
@@ -11,9 +11,23 @@ def main():
     account = get_account()
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond:{so_diamond}")
-    initialize_cut(account, so_diamond)
-    initialize_stargate(account, so_diamond)
-    initialize_dex_manager(account, so_diamond)
+    try:
+        initialize_cut(account, so_diamond)
+    except:
+        pass
+    try:
+        initialize_stargate(account, so_diamond)
+    except:
+        pass
+    try:
+        initialize_dex_manager(account, so_diamond)
+    except:
+        pass
+    # Transfer a little to SoDiamond as a handling fee
+    if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test"]:
+        so_diamond = SoDiamond[-1]
+        usdc = get_contract("usdc")
+        usdc.transfer(so_diamond.address, int(0.01*1e6), {"from": account})
 
 
 def initialize_cut(account, so_diamond):

@@ -28,7 +28,8 @@ interface ISo {
 
     event SoTransferFailed(
         bytes32 indexed transactionId,
-        bytes reason,
+        string revertReason,
+        bytes otherReason,
         SoData soData
     );
 

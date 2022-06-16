@@ -319,6 +319,8 @@ def swap(src_net: str, dst_net: str):
         func_name = "swapExactETHForTokens"
     elif src_net == "avax-test":
         func_name = "swapExactAVAXForTokens"
+    elif src_net == "polygon-test":
+        func_name = "swapExactETHForTokens"
     else:
         raise ValueError
     src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
@@ -430,6 +432,8 @@ def swap(src_net: str, dst_net: str):
         func_name = "swapExactETHForTokens"
     elif src_net == "avax-test":
         func_name = "swapExactAVAXForTokens"
+    elif src_net == "polygon-test":
+        func_name = "swapExactETHForTokens"
     else:
         raise ValueError
     src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
@@ -472,6 +476,8 @@ def single_swap():
         func_name = "swapExactETHForTokens"
     elif src_net == "avax-test":
         func_name = "swapExactAVAXForTokens"
+    elif src_net == "polygon-test":
+        func_name = "swapExactETHForTokens"
     else:
         raise ValueError
     src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
@@ -484,4 +490,3 @@ def single_swap():
         src_swap_data,
         {'from': account, 'value': int(eth_amount)}
     )
-
