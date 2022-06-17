@@ -1,18 +1,8 @@
-# @Time    : 2022/6/15 15:32
-# @Author  : WeiDai
-# @FileName: layzero.py
-from brownie import network, config, Contract, interface, web3
-import pandas as pd
 
-from scripts.helpful_scripts import get_event_signature_by_abi
+from brownie import network, config, Contract, interface
 
 
-def UltraLightNodeEvents():
-    result = get_event_signature_by_abi(interface.ILayerZeroUltraLightNodeV1.abi)
-    print(result)
-
-
-def main(file):
+def main():
     net = network.show_active()
     stargate_router = config["networks"][net]["stargate_router"]
     stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
@@ -20,13 +10,7 @@ def main(file):
     bridge = Contract.from_abi("IStargateBridge", bridge_address, interface.IStargateBridge.abi)
     endpoint_address = bridge.layerZeroEndpoint()
     endpoint = Contract.from_abi("ILayerZeroEndpoint", endpoint_address, interface.ILayerZeroEndpoint.abi)
-    print(endpoint.defaultSendLibrary())
-    data = pd.read_csv(file)
-    for tx in data['Txhash']:
-        data = web3.eth.getTransactionReceipt(tx)
-        logs = data["logs"]
-
-
-
-
-
+    ultra_light_node_address = endpoint.defaultSendLibrary()
+    print("ultra_light_node_address", ultra_light_node_address)
+    Contract.from_abi("ILayerZeroUltraLightNodeV1", ultra_light_node_address,
+                      interface.ILayerZeroUltraLightNodeV1.abi)

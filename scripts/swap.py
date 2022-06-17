@@ -283,10 +283,10 @@ def estimate_final_token_amount(
     return amount
 
 
-def estimate_stargate_min_amount(dst_net: str, final_amount: int, slippage: float, dst_path: list):
+def estimate_min_amount(dst_net: str, final_amount: int, slippage: float, dst_path: list):
     change_network(dst_net)
-    print(f"slippage:{slippage*100}%")
-    dst_token = int(final_amount * (1 - slippage))
+    print(f"slippage:{slippage * 100}%")
+    dst_token_min_amount = int(final_amount * (1 - slippage))
 
     so_diamond = SoDiamond[-1]
     proxy_diamond = Contract.from_abi(
@@ -295,13 +295,13 @@ def estimate_stargate_min_amount(dst_net: str, final_amount: int, slippage: floa
         dst_swap_info = config["networks"][dst_net]["swap"][0]
         dst_swap_contract = Contract.from_abi(dst_swap_info[1], dst_swap_info[0],
                                               getattr(interface, dst_swap_info[1]).abi)
-        dst_amount_ins = dst_swap_contract.getAmountsIn(dst_token, dst_path)
+        dst_amount_ins = dst_swap_contract.getAmountsIn(dst_token_min_amount, dst_path)
 
-        min_amount = proxy_diamond.getAmountBeforeSoFee(dst_amount_ins[0])
+        stargate_min_amount = proxy_diamond.getAmountBeforeSoFee(dst_amount_ins[0])
     else:
-        min_amount = proxy_diamond.getAmountBeforeSoFee(dst_token)
+        stargate_min_amount = proxy_diamond.getAmountBeforeSoFee(dst_token_min_amount)
 
-    return dst_token, min_amount
+    return dst_token_min_amount, stargate_min_amount
 
 
 def swap(src_net: str, dst_net: str):
@@ -319,8 +319,19 @@ def swap(src_net: str, dst_net: str):
     dst_gas = estimate_for_gas(dst_net, so_data, [])
     print("dst gas for sgReceive:", dst_gas)
     # generate stargate data
-    stargate_data = StargateData.create(
-        src_net, dst_net, dst_gas).format_to_contract()
+    stargate = StargateData.create(src_net, dst_net, dst_gas)
+    stargate_data = stargate.format_to_contract()
+
+    final_amount = estimate_final_token_amount(src_net, usdc_amount, [], stargate_data, dst_net, [])
+    print("esimate final token:", final_amount / usdc_decimal, "\n")
+
+    # set dst swap slippage
+    (_, starget_min_amount) = estimate_min_amount(dst_net, final_amount, 0.005, [])
+    # set stargate min amount
+    stargate.minAmount = starget_min_amount
+    stargate_data = stargate.format_to_contract()
+    print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
+
     # # call
     change_network(src_net)
 
@@ -343,10 +354,6 @@ def swap(src_net: str, dst_net: str):
         [],
         {'from': account, 'value': src_fee}
     )
-    print("esimate final token:",
-          estimate_final_token_amount(
-              src_net, usdc_amount, [], stargate_data, dst_net, []) / usdc_decimal,
-          "\n")
 
     # 2. src_net:native_token --> dst_net:usdc
     print(f"from:{src_net}:native_token -> to:{dst_net}:usdc...")
@@ -359,8 +366,9 @@ def swap(src_net: str, dst_net: str):
     dst_gas = estimate_for_gas(dst_net, so_data, [])
     print("dst gas for sgReceive:", dst_gas)
     # generate stargate data
-    stargate_data = StargateData.create(
-        src_net, dst_net, dst_gas).format_to_contract()
+    stargate = StargateData.create(src_net, dst_net, dst_gas)
+    stargate_data = stargate.format_to_contract()
+
     if src_net == "rinkeby":
         func_name = "swapExactETHForTokens"
     elif src_net == "avax-test":
@@ -371,6 +379,17 @@ def swap(src_net: str, dst_net: str):
         raise ValueError
     src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
     src_swap_data = [src_swap.format_to_contract()]
+
+    final_amount = estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net, [])
+    print("esimate final token:", final_amount / usdc_decimal, "\n")
+
+    # set dst swap slippage
+    (_, starget_min_amount) = estimate_min_amount(
+        dst_net, final_amount, 0.005, [])
+    # set stargate min amount
+    stargate.minAmount = starget_min_amount
+    stargate_data = stargate.format_to_contract()
+    print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
 
     # call
     change_network(src_net)
@@ -391,10 +410,6 @@ def swap(src_net: str, dst_net: str):
         [],
         {'from': account, 'value': int(eth_amount + src_fee)}
     )
-    print("esimate final token:",
-          estimate_final_token_amount(
-              src_net, eth_amount, src_swap.path, stargate_data, dst_net, []) / usdc_decimal,
-          "\n")
 
     # 3. src_net:usdc --> dst_net:native_token
     print(f"from:{src_net}:usdc -> to:{dst_net}:native_token...")
@@ -421,26 +436,25 @@ def swap(src_net: str, dst_net: str):
     dst_gas = estimate_for_gas(dst_net, so_data, dst_swap_data)
     print("dst gas for sgReceive:", dst_gas)
     # generate stargate data
-    stargate_data = StargateData.create(
-        src_net, dst_net, dst_gas).format_to_contract()
+    stargate = StargateData.create(src_net, dst_net, dst_gas)
+    stargate_data = stargate.format_to_contract()
 
     final_amount = estimate_final_token_amount(src_net, usdc_amount, [], stargate_data, dst_net,
                                                dst_swap.path)
-    print("esimate final token:",
-          final_amount / eth_decimal,
-          "\n")
+    print("esimate final token:", final_amount / eth_decimal, "\n")
 
     # set dst swap slippage
-    (dst_swap_min_amount, starget_min_amount) = estimate_stargate_min_amount(
+    (dst_swap_min_amount, starget_min_amount) = estimate_min_amount(
         dst_net, final_amount, 0.005, dst_swap.path)
     # set stargate min amount
-    stargate_data[-3] = starget_min_amount
+    stargate.minAmount = starget_min_amount
+    stargate_data = stargate.format_to_contract()
     print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
     # set dst swap min amount
     dst_swap.set_dst_min_amount(dst_net, func_name, dst_swap_min_amount)
     dst_swap_data = [dst_swap.format_to_contract()]
     print(
-        f"dst swap min amount(min final token): {dst_swap_min_amount/ eth_decimal}")
+        f"dst swap min amount(min final token): {dst_swap_min_amount / eth_decimal}")
 
     # # call
     change_network(src_net)
@@ -492,8 +506,8 @@ def swap(src_net: str, dst_net: str):
     dst_gas = estimate_for_gas(dst_net, so_data, dst_swap_data)
     print("dst gas for sgReceive:", dst_gas)
     # generate stargate data
-    stargate_data = StargateData.create(
-        src_net, dst_net, dst_gas).format_to_contract()
+    stargate = StargateData.create(src_net, dst_net, dst_gas)
+    stargate_data = stargate.format_to_contract()
 
     # generate srouce swap data
     if src_net == "rinkeby":
@@ -510,21 +524,20 @@ def swap(src_net: str, dst_net: str):
 
     final_amount = estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net,
                                                dst_swap.path)
-    print("esimate final token:",
-          final_amount / eth_decimal,
-          "\n")
+    print("esimate final token:", final_amount / eth_decimal, "\n")
 
     # set dst swap slippage
-    (dst_swap_min_amount, starget_min_amount) = estimate_stargate_min_amount(
+    (dst_swap_min_amount, starget_min_amount) = estimate_min_amount(
         dst_net, final_amount, 0.005, dst_swap.path)
     # set stargate min amount
-    stargate_data[-3] = starget_min_amount
+    stargate.minAmount = starget_min_amount
+    stargate_data = stargate.format_to_contract()
     print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
     # set dst swap min amount
     dst_swap.set_dst_min_amount(dst_net, dst_func_name, dst_swap_min_amount)
     dst_swap_data = [dst_swap.format_to_contract()]
     print(
-        f"dst swap min amount(min final token): {dst_swap_min_amount/ eth_decimal}")
+        f"dst swap min amount(min final token): {dst_swap_min_amount / eth_decimal}")
 
     # # call
     change_network(src_net)
