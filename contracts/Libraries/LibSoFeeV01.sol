@@ -27,6 +27,17 @@ contract LibSoFeeV01 is ILibSoFee, Ownable, ReentrancyGuard {
         soFee = _soFee;
     }
 
+    function getRestoredAmount(uint256 _amount)
+        external
+        view
+        override
+        returns (uint256 r)
+    {
+        // calculate the amount to be restored
+        r = _amount.mul(DENOMINATOR).div((DENOMINATOR - soFee));
+        return r;
+    }
+
     function getFees(uint256 _amount)
         external
         view
@@ -42,12 +53,7 @@ contract LibSoFeeV01 is ILibSoFee, Ownable, ReentrancyGuard {
         transferForGas = _transferForGas;
     }
 
-    function getTransferForGas()
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function getTransferForGas() external view override returns (uint256) {
         return transferForGas;
     }
 
