@@ -1,7 +1,33 @@
 {
+    "arbitrum-test": {
+        "ChainId": 4,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 10010,
+        "StargatePool": [
+            {
+                "PoolId": 1,
+                "TokenAddress": "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d",
+                "TokenName": "USDC"
+            },
+            {
+                "PoolId": 2,
+                "TokenAddress": "0x385182a81b05Be437416e100F4b7fAB2C2e9a8Ed",
+                "TokenName": "USDT"
+            }
+        ],
+        "StargateRouter": "0x6701D9802aDF674E524053bd44AA83ef253efc41",
+        "UniswapRouter": [
+            {
+                "Address": "0xb5a35165047fed7440D3a75909c0949bf1943696",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
+    },
     "avax-test": {
         "ChainId": 4,
-        "SoDiamond": "0x9C79ad9a02490c3E149F8322F9A4A8f004b65496",
+        "SoDiamond": "0xdf801c55d21e3a6A90AA600f4eC646c4A048590F",
         "StargateChainId": 10006,
         "StargatePool": [
             {
@@ -25,9 +51,30 @@
         ],
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
+    "bsc-test": {
+        "ChainId": 4,
+        "SoDiamond": "0x92113298552f99271cb0b9545C40096eE7B0a351",
+        "StargateChainId": 10002,
+        "StargatePool": [
+            {
+                "PoolId": 2,
+                "TokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
+                "TokenName": "USDT"
+            }
+        ],
+        "StargateRouter": "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176",
+        "UniswapRouter": [
+            {
+                "Address": "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0xae13d989dac2f0debff460ac112a837c89baa7cd"
+    },
     "ftm-test": {
         "ChainId": 4,
-        "SoDiamond": "0x19370bE0D726A88d3e6861301418f3daAe3d798E",
+        "SoDiamond": "0x4293c37140Be04430709cA52790334F56731c166",
         "StargateChainId": 10012,
         "StargatePool": [
             {
@@ -74,7 +121,7 @@
     },
     "rinkeby": {
         "ChainId": 4,
-        "SoDiamond": "0xA82045cD4b251b4e8f99aD92E52254c25c9d7e1C",
+        "SoDiamond": "0xC9A07844A7D309FD597df15709befB6B4d98602D",
         "StargateChainId": 10001,
         "StargatePool": [
             {

@@ -311,7 +311,7 @@ def estimate_min_amount(dst_net: str, final_amount: int, slippage: float, dst_pa
 
 
 def support_src_swap(net: str) -> str:
-    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test"]:
+    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test", "arbitrum-test"]:
         func_name = "swapExactETHForTokens"
     elif net == "avax-test":
         func_name = "swapExactAVAXForTokens"
@@ -321,7 +321,7 @@ def support_src_swap(net: str) -> str:
 
 
 def support_dst_swap(net: str) -> str:
-    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test"]:
+    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test", "arbitrum-test"]:
         func_name = "swapExactTokensForETH"
     elif net == "avax-test":
         func_name = "swapExactTokensForAVAX"

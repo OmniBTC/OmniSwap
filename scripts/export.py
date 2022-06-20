@@ -48,7 +48,6 @@ def export(*arg):
         del arg[arg.index("default")]
         del arg[arg.index("live")]
         del arg[arg.index("development")]
-        del arg[arg.index("bsc-test")]
     output = {}
     swap_router_types = {}
     for net in arg:
