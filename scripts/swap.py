@@ -278,7 +278,8 @@ def estimate_final_token_amount(
         dst_swap_info = config["networks"][dst_net]["swap"][0]
         dst_swap_contract = Contract.from_abi(dst_swap_info[1], dst_swap_info[0],
                                               getattr(interface, dst_swap_info[1]).abi)
-        dst_amount_outs = dst_swap_contract.getAmountsOut(amount, dst_path)
+        # bsc-test usdt precision 1e18 requires special handling
+        dst_amount_outs = dst_swap_contract.getAmountsOut(int(amount / 1e6 * 1e18), dst_path)
         amount = dst_amount_outs[-1]
     return amount
 
