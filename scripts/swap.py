@@ -279,7 +279,9 @@ def estimate_final_token_amount(
         dst_swap_contract = Contract.from_abi(dst_swap_info[1], dst_swap_info[0],
                                               getattr(interface, dst_swap_info[1]).abi)
         # bsc-test usdt precision 1e18 requires special handling
-        dst_amount_outs = dst_swap_contract.getAmountsOut(int(amount / 1e6 * 1e18), dst_path)
+        if dst_net == "bsc-test":
+            amount = int(amount / 1e6 * 1e18)
+        dst_amount_outs = dst_swap_contract.getAmountsOut(int(amount), dst_path)
         amount = dst_amount_outs[-1]
     return amount
 
@@ -299,6 +301,9 @@ def estimate_min_amount(dst_net: str, final_amount: int, slippage: float, dst_pa
         dst_amount_ins = dst_swap_contract.getAmountsIn(dst_token_min_amount, dst_path)
 
         stargate_min_amount = proxy_diamond.getAmountBeforeSoFee(dst_amount_ins[0])
+        # bsc-test usdt precision 1e18 requires special handling
+        if dst_net == "bsc-test":
+            stargate_min_amount = int(stargate_min_amount / 1e18 * 1e6)
     else:
         stargate_min_amount = proxy_diamond.getAmountBeforeSoFee(dst_token_min_amount)
 
@@ -330,7 +335,7 @@ def swap(src_net: str, dst_net: str):
     account = get_account()
 
     # 1. src_net:usdc --> dst_net:usdc
-    print(f"from:{src_net}:usdc -> to:{dst_net}:usdc...")
+    print(f"1.from:{src_net}:usdc -> to:{dst_net}:usdc...")
     # generate so data
     usdc_amount = int(100 * usdc_decimal)
     so_data = SoData. \
@@ -377,7 +382,7 @@ def swap(src_net: str, dst_net: str):
     )
 
     # 2. src_net:native_token --> dst_net:usdc
-    print(f"from:{src_net}:native_token -> to:{dst_net}:usdc...")
+    print(f"2.from:{src_net}:native_token -> to:{dst_net}:usdc...")
     # generate so data
     eth_amount = int(2 * 1e-10 * eth_decimal)
     so_data = SoData. \
@@ -427,7 +432,7 @@ def swap(src_net: str, dst_net: str):
     )
 
     # 3. src_net:usdc --> dst_net:native_token
-    print(f"from:{src_net}:usdc -> to:{dst_net}:native_token...")
+    print(f"3.from:{src_net}:usdc -> to:{dst_net}:native_token...")
     # generate so data
     usdc_amount = int(100 * usdc_decimal)
     so_data = SoData. \
@@ -490,7 +495,7 @@ def swap(src_net: str, dst_net: str):
     )
 
     # 4. src_net:native_token --> dst_net:native_token
-    print(f"from:{src_net}:native_token -> to:{dst_net}:native_token...")
+    print(f"4.from:{src_net}:native_token -> to:{dst_net}:native_token...")
     # generate so data
     eth_amount = int(2 * 1e-10 * eth_decimal)
     so_data = SoData. \
