@@ -304,6 +304,26 @@ def estimate_min_amount(dst_net: str, final_amount: int, slippage: float, dst_pa
     return dst_token_min_amount, stargate_min_amount
 
 
+def support_src_swap(net: str) -> str:
+    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test"]:
+        func_name = "swapExactETHForTokens"
+    elif net == "avax-test":
+        func_name = "swapExactAVAXForTokens"
+    else:
+        raise ValueError
+    return func_name
+
+
+def support_dst_swap(net: str) -> str:
+    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test"]:
+        func_name = "swapExactTokensForETH"
+    elif net == "avax-test":
+        func_name = "swapExactTokensForAVAX"
+    else:
+        raise ValueError
+    return func_name
+
+
 def swap(src_net: str, dst_net: str):
     """The source chain and destination chain are the diffrent"""
     account = get_account()
@@ -369,14 +389,8 @@ def swap(src_net: str, dst_net: str):
     stargate = StargateData.create(src_net, dst_net, dst_gas)
     stargate_data = stargate.format_to_contract()
 
-    if src_net == "rinkeby":
-        func_name = "swapExactETHForTokens"
-    elif src_net == "avax-test":
-        func_name = "swapExactAVAXForTokens"
-    elif src_net == "polygon-test":
-        func_name = "swapExactETHForTokens"
-    else:
-        raise ValueError
+    func_name = support_src_swap(src_net)
+
     src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
     src_swap_data = [src_swap.format_to_contract()]
 
@@ -419,14 +433,8 @@ def swap(src_net: str, dst_net: str):
         create(account, src_net, dst_net, usdc_amount, "usdc", "eth"). \
         format_to_contract()
 
-    if dst_net == "rinkeby":
-        func_name = "swapExactTokensForETH"
-    elif dst_net == "avax-test":
-        func_name = "swapExactTokensForAVAX"
-    elif dst_net == "polygon-test":
-        func_name = "swapExactTokensForETH"
-    else:
-        raise ValueError
+    func_name = support_dst_swap(dst_net)
+
     # generate dst swap data
     # The fromAmount of dst swap fill in casually
     dst_swap = SwapData.create(dst_net, func_name, 0, "usdc", "eth")
@@ -489,14 +497,8 @@ def swap(src_net: str, dst_net: str):
         format_to_contract()
 
     # generate destination swap data
-    if dst_net == "rinkeby":
-        dst_func_name = "swapExactTokensForETH"
-    elif dst_net == "avax-test":
-        dst_func_name = "swapExactTokensForAVAX"
-    elif dst_net == "polygon-test":
-        dst_func_name = "swapExactTokensForETH"
-    else:
-        raise ValueError
+    dst_func_name = support_dst_swap(dst_net)
+
     # generate dst swap data
     # The fromAmount of dst swap fill in casually
     dst_swap = SwapData.create(dst_net, dst_func_name, 0, "usdc", "eth")
@@ -510,14 +512,8 @@ def swap(src_net: str, dst_net: str):
     stargate_data = stargate.format_to_contract()
 
     # generate srouce swap data
-    if src_net == "rinkeby":
-        src_func_name = "swapExactETHForTokens"
-    elif src_net == "avax-test":
-        src_func_name = "swapExactAVAXForTokens"
-    elif src_net == "polygon-test":
-        src_func_name = "swapExactETHForTokens"
-    else:
-        raise ValueError
+    src_func_name = support_src_swap(src_net)
+
     src_swap = SwapData.create(
         src_net, src_func_name, eth_amount, "eth", "usdc")
     src_swap_data = [src_swap.format_to_contract()]
@@ -570,14 +566,8 @@ def single_swap():
         create(account, src_net, dst_net, eth_amount, "eth", "usdc"). \
         format_to_contract()
 
-    if src_net == "rinkeby":
-        func_name = "swapExactETHForTokens"
-    elif src_net == "avax-test":
-        func_name = "swapExactAVAXForTokens"
-    elif src_net == "polygon-test":
-        func_name = "swapExactETHForTokens"
-    else:
-        raise ValueError
+    func_name = support_src_swap(src_net)
+
     src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
     src_swap_data = [src_swap.format_to_contract()]
 
