@@ -46,6 +46,17 @@ networks:
     usdc: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
     weth: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
     swap: [ [ "0x8954AfA98594b838bda56FE4C12a09D7739D179b", IUniswapV2Router02 ] ]
+  arbitrum-test:
+    chainid: 421611
+    stargate_router: "0x6701D9802aDF674E524053bd44AA83ef253efc41"
+    stargate_chainid: 10010
+    stargate_poolid: 1
+    usdc: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
+    weth: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
+    swap: [ 
+      # Swapr https://swapr.eth.limo/
+      [ "0xb5a35165047fed7440D3a75909c0949bf1943696", IUniswapV2Router02 ] 
+    ]
   optimism-test:
     stargate_router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
     stargate_chainid: 10011

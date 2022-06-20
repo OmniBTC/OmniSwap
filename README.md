@@ -45,10 +45,15 @@ brownie run scripts/swap.py swap {src-network} {dst-network}
 
 # Network
 
+## set polygon-test host
 ~~~shell
 # modify polygon-test
 brownie networks modify polygon-test host=https://matic-mumbai.chainstacklabs.com chainid=80001
 ~~~
 
+## add arbitrum-test network
+~~~shell
+brownie networks add Arbitrum arbitrum-test host=https://rinkeby.arbitrum.io/rpc name=Testnet chainid=421611
+~~~
 
 
