@@ -50,7 +50,7 @@ contract DexManagerFacet {
         external
     {
         LibDiamond.enforceIsContractOwner();
-        appStorage.gatewaySoFeeSelectors[_swapRouter] = _correctSwap;
+        appStorage.correctSwapRouterSelectors[_swapRouter] = _correctSwap;
         emit CorrectSwapRouterSelectorsChanged(_swapRouter, _correctSwap);
     }
 
