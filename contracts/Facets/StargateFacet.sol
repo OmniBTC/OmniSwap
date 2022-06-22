@@ -3,6 +3,7 @@ pragma solidity 0.8.13;
 
 import {LibAsset, IERC20} from "../Libraries/LibAsset.sol";
 import {ISo} from "../Interfaces/ISo.sol";
+import {ICorrectSwap} from "../Interfaces/ICorrectSwap.sol";
 import {IStargate} from "../Interfaces/IStargate.sol";
 import {IStargateFactory} from "../Interfaces/IStargateFactory.sol";
 import {IStargatePool} from "../Interfaces/IStargatePool.sol";
@@ -191,8 +192,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _swapPayload,
                 (LibSwap.SwapData[])
             );
+
             _swapDataDst[0].fromAmount = _amount;
-            _swapDataDst[0].callData = this.correctSwap(
+
+            address _correctSwap = appStorage.correctSwapRouterSelectors[
+                _swapDataDst[0].callTo
+            ];
+            _swapDataDst[0].callData = ICorrectSwap(_correctSwap).correctSwap(
                 _swapDataDst[0].callData,
                 _swapDataDst[0].fromAmount
             );
@@ -231,35 +237,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 );
             }
         }
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        (
-            ,
-            uint256 _amountOutMin,
-            address[] memory _path,
-            address _to,
-            uint256 _deadline
-        ) = abi.decode(
-                _data[4:],
-                (uint256, uint256, address[], address, uint256)
-            );
-
-        return
-            abi.encodeWithSelector(
-                sig,
-                _amount,
-                _amountOutMin,
-                _path,
-                _to,
-                _deadline
-            );
     }
 
     // @dev Simplify the gas evaluation of the destination chain sgReceive

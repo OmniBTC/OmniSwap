@@ -7,4 +7,6 @@ struct LibStorage {
     address[] dexs;
     // maps gateway facet addresses to sofee address
     mapping(address => address) gatewaySoFeeSelectors;
+    // map swap router addresses to correct swap address
+    mapping(address => address) correctSwapRouterSelectors;
 }

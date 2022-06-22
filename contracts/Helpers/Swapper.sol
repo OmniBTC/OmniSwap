@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import { ISo } from "../Interfaces/ISo.sol";
-import { LibSwap } from "../Libraries/LibSwap.sol";
-import { LibAsset } from "../Libraries/LibAsset.sol";
-import { LibStorage } from "../Libraries/LibStorage.sol";
-import { LibAsset } from "../Libraries/LibAsset.sol";
-import { InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided } from "../Errors/GenericErrors.sol";
+import {ISo} from "../Interfaces/ISo.sol";
+import {ICorrectSwap} from "../Interfaces/ICorrectSwap.sol";
+import {LibSwap} from "../Libraries/LibSwap.sol";
+import {LibAsset} from "../Libraries/LibAsset.sol";
+import {LibStorage} from "../Libraries/LibStorage.sol";
+import {LibAsset} from "../Libraries/LibAsset.sol";
+import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided} from "../Errors/GenericErrors.sol";
 
 /// @title Swapper
 /// @author LI.FI (https://li.fi)
@@ -31,8 +32,15 @@ contract Swapper is ISo {
             for (uint256 i = 0; i < nSwaps - 1; i++) {
                 address curAsset = _swapData[i].receivingAssetId;
                 if (curAsset == finalAsset) continue; // Handle multi-to-one swaps
-                curBalance = LibAsset.getOwnBalance(curAsset) - initialBalances[i];
-                if (curBalance > 0) LibAsset.transferAsset(curAsset, payable(msg.sender), curBalance);
+                curBalance =
+                    LibAsset.getOwnBalance(curAsset) -
+                    initialBalances[i];
+                if (curBalance > 0)
+                    LibAsset.transferAsset(
+                        curAsset,
+                        payable(msg.sender),
+                        curBalance
+                    );
             }
         } else _;
     }
@@ -42,10 +50,10 @@ contract Swapper is ISo {
     /// @dev Validates input before executing swaps
     /// @param _soData So tracking data
     /// @param _swapData Array of data used to execute swaps
-    function executeAndCheckSwaps(SoData memory _soData, LibSwap.SwapData[] calldata _swapData)
-        external
-        returns (uint256)
-    {
+    function executeAndCheckSwaps(
+        SoData memory _soData,
+        LibSwap.SwapData[] calldata _swapData
+    ) external returns (uint256) {
         uint256 nSwaps = _swapData.length;
         if (nSwaps == 0) revert NoSwapDataProvided();
         address finalTokenId = _swapData[_swapData.length - 1].receivingAssetId;
@@ -61,28 +69,58 @@ contract Swapper is ISo {
     /// @dev Executes swaps and checks that DEXs used are in the allowList
     /// @param _soData So tracking data
     /// @param _swapData Array of data used to execute swaps
-    function _executeSwaps(SoData memory _soData, LibSwap.SwapData[] calldata _swapData)
-        private
-        noLeftovers(_swapData)
-    {
+    function _executeSwaps(
+        SoData memory _soData,
+        LibSwap.SwapData[] calldata _swapData
+    ) private noLeftovers(_swapData) {
+        LibSwap.SwapData memory nextSwapData;
         for (uint256 i = 0; i < _swapData.length; i++) {
             LibSwap.SwapData calldata currentSwapData = _swapData[i];
+            address receivedToken = currentSwapData.receivingAssetId;
+            uint256 swapBalance = LibAsset.getOwnBalance(receivedToken);
+
             if (
                 !(appStorage.dexAllowlist[currentSwapData.approveTo] &&
                     appStorage.dexAllowlist[currentSwapData.callTo] &&
-                    appStorage.dexFuncSignatureAllowList[bytes32(currentSwapData.callData[:8])])
+                    appStorage.dexFuncSignatureAllowList[
+                        bytes32(currentSwapData.callData[:4])
+                    ])
             ) revert ContractCallNotAllowed();
-            LibSwap.swap(_soData.transactionId, currentSwapData);
+
+            if (i > 0) {
+                // the modified swap based on the results of the first swap
+                LibSwap.swap(_soData.transactionId, nextSwapData);
+            } else {
+                LibSwap.swap(_soData.transactionId, currentSwapData);
+            }
+
+            swapBalance = LibAsset.getOwnBalance(receivedToken) - swapBalance;
+
+            if (i + 1 < _swapData.length) {
+                nextSwapData = _swapData[i + 1];
+                address correctSwap = appStorage.correctSwapRouterSelectors[
+                    nextSwapData.callTo
+                ];
+                nextSwapData.callData = ICorrectSwap(correctSwap).correctSwap(
+                    nextSwapData.callData,
+                    swapBalance
+                );
+            }
         }
     }
 
     /// @dev Fetches balances of tokens to be swapped before swapping.
     /// @param _swapData Array of data used to execute swaps
     /// @return uint256[] Array of token balances.
-    function _fetchBalances(LibSwap.SwapData[] calldata _swapData) private view returns (uint256[] memory) {
+    function _fetchBalances(LibSwap.SwapData[] calldata _swapData)
+        private
+        view
+        returns (uint256[] memory)
+    {
         uint256 length = _swapData.length;
         uint256[] memory balances = new uint256[](length);
-        for (uint256 i = 0; i < length; i++) balances[i] = LibAsset.getOwnBalance(_swapData[i].receivingAssetId);
+        for (uint256 i = 0; i < length; i++)
+            balances[i] = LibAsset.getOwnBalance(_swapData[i].receivingAssetId);
         return balances;
     }
 }

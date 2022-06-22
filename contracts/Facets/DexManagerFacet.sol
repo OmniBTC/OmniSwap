@@ -3,7 +3,7 @@ pragma solidity 0.8.13;
 
 import "../Libraries/LibStorage.sol";
 import "../Libraries/LibDiamond.sol";
-import { InvalidConfig } from "../Errors/GenericErrors.sol";
+import {InvalidConfig} from "../Errors/GenericErrors.sol";
 
 /// @title Dex Manager Facet
 /// @author LI.FI (https://li.fi)
@@ -13,8 +13,18 @@ contract DexManagerFacet {
 
     event DexAdded(address indexed dexAddress);
     event DexRemoved(address indexed dexAddress);
-    event FunctionSignatureApprovalChanged(bytes32 indexed functionSignature, bool indexed approved);
-    event GatewaySoFeeSelectorsChanged(address indexed gatewayAddress, address indexed soFeeAddress);
+    event FunctionSignatureApprovalChanged(
+        bytes32 indexed functionSignature,
+        bool indexed approved
+    );
+    event GatewaySoFeeSelectorsChanged(
+        address indexed gatewayAddress,
+        address indexed soFeeAddress
+    );
+    event CorrectSwapRouterSelectorsChanged(
+        address indexed swapRouter,
+        address indexed correctSwap
+    );
 
     /// Storage ///
 
@@ -25,11 +35,23 @@ contract DexManagerFacet {
     /// @notice  Register the soFee address for facet.
     /// @param _gateway The address of the gateway facet address.
     /// @param _soFee The address of soFee address.
-    function addFee(address _gateway,  address _soFee) external {
+    function addFee(address _gateway, address _soFee) external {
         LibDiamond.enforceIsContractOwner();
-        mapping(address => address) storage gatewaySoFeeSelectors = appStorage.gatewaySoFeeSelectors;
+        mapping(address => address) storage gatewaySoFeeSelectors = appStorage
+            .gatewaySoFeeSelectors;
         gatewaySoFeeSelectors[_gateway] = _soFee;
         emit GatewaySoFeeSelectorsChanged(_gateway, _soFee);
+    }
+
+    /// @notice Register the correct swap impl address for different swap router
+    /// @param _swapRouter swap router address
+    /// @param _correctSwap address that implement the modification of this swap
+    function addCorrectSwap(address _swapRouter, address _correctSwap)
+        external
+    {
+        LibDiamond.enforceIsContractOwner();
+        appStorage.gatewaySoFeeSelectors[_swapRouter] = _correctSwap;
+        emit CorrectSwapRouterSelectorsChanged(_swapRouter, _correctSwap);
     }
 
     /// @notice Register the address of a DEX contract to be approved for swapping.
@@ -113,7 +135,9 @@ contract DexManagerFacet {
     /// @notice Adds/removes a specific function signature to/from the allowlist
     /// @param _signature the function signature to allow/disallow
     /// @param _approval whether the function signature should be allowed
-    function setFunctionApprovalBySignature(bytes32 _signature, bool _approval) external {
+    function setFunctionApprovalBySignature(bytes32 _signature, bool _approval)
+        external
+    {
         LibDiamond.enforceIsContractOwner();
         appStorage.dexFuncSignatureAllowList[_signature] = _approval;
         emit FunctionSignatureApprovalChanged(_signature, _approval);
@@ -122,9 +146,13 @@ contract DexManagerFacet {
     /// @notice Batch Adds/removes a specific function signature to/from the allowlist
     /// @param _signatures the function signatures to allow/disallow
     /// @param _approval whether the function signatures should be allowed
-    function batchSetFunctionApprovalBySignature(bytes32[] calldata _signatures, bool _approval) external {
+    function batchSetFunctionApprovalBySignature(
+        bytes32[] calldata _signatures,
+        bool _approval
+    ) external {
         LibDiamond.enforceIsContractOwner();
-        mapping(bytes32 => bool) storage dexFuncSignatureAllowList = appStorage.dexFuncSignatureAllowList;
+        mapping(bytes32 => bool) storage dexFuncSignatureAllowList = appStorage
+            .dexFuncSignatureAllowList;
         uint256 length = _signatures.length;
         for (uint256 i = 0; i < length; i++) {
             bytes32 _signature = _signatures[i];
@@ -136,7 +164,11 @@ contract DexManagerFacet {
     /// @notice Returns whether a function signature is approved
     /// @param _signature the function signature to query
     /// @return approved Approved or not
-    function isFunctionApproved(bytes32 _signature) public view returns (bool approved) {
+    function isFunctionApproved(bytes32 _signature)
+        public
+        view
+        returns (bool approved)
+    {
         return appStorage.dexFuncSignatureAllowList[_signature];
     }
 
