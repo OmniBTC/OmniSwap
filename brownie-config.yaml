@@ -36,7 +36,10 @@ networks:
     stargate_chainid: 10006
     stargate_poolid: 1
     usdc: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
-    weth: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
+    # DexLot used weth
+    weth: "0x9B5828d46A43176F07656e162cCbDc787624468c"
+    # Hurricaneswap used weth
+    # weth: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
     hct: "0xEdDEB2ff49830f3aa30Fee2F7FaBC5136845304a"
     swap: [
        # DexLot Uniswap V2 https://test-swap.dexlot.app/swap
