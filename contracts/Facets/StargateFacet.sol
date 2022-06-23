@@ -197,9 +197,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
             _swapDataDst[0].fromAmount = _amount;
 
-            address _correctSwap = appStorage.correctSwapRouterSelectors[
-                _swapDataDst[0].callTo
-            ];
+            address _correctSwap = appStorage.correctSwapRouterSelectors;
 
             if (_correctSwap != address(0)) {
                 _swapDataDst[0].callData = ICorrectSwap(_correctSwap)

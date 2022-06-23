@@ -1,5 +1,5 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01, MockToken, LibCorrectUniswapV2
+    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1
 from brownie.network import priority_fee
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address
@@ -80,14 +80,13 @@ def initialize_dex_manager(account, so_diamond):
     print(f"network:{net}, init dex manager...")
     dexs = []
     sigs = []
+    proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {'from': account})
     for pair in config["networks"][net]["swap"]:
         dexs.append(pair[0])
-        proxy_dex.addCorrectSwap(
-            pair[0], LibCorrectUniswapV2[-1].address, {'from': account})
         reg_funcs = get_method_signature_by_abi(getattr(interface, pair[1]).abi)
         for sig in reg_funcs.values():
             sigs.append(sig.hex() + "0" * 56)
     proxy_dex.batchAddDex(dexs, {'from': account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
     proxy_dex.addFee(config["networks"][net]["stargate_router"], LibSoFeeV01[-1].address, {'from': account})
-    
+

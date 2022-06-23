@@ -22,7 +22,6 @@ contract DexManagerFacet {
         address indexed soFeeAddress
     );
     event CorrectSwapRouterSelectorsChanged(
-        address indexed swapRouter,
         address indexed correctSwap
     );
 
@@ -44,14 +43,13 @@ contract DexManagerFacet {
     }
 
     /// @notice Register the correct swap impl address for different swap router
-    /// @param _swapRouter swap router address
     /// @param _correctSwap address that implement the modification of this swap
-    function addCorrectSwap(address _swapRouter, address _correctSwap)
+    function addCorrectSwap(address _correctSwap)
         external
     {
         LibDiamond.enforceIsContractOwner();
-        appStorage.correctSwapRouterSelectors[_swapRouter] = _correctSwap;
-        emit CorrectSwapRouterSelectorsChanged(_swapRouter, _correctSwap);
+        appStorage.correctSwapRouterSelectors = _correctSwap;
+        emit CorrectSwapRouterSelectorsChanged(_correctSwap);
     }
 
     /// @notice Register the address of a DEX contract to be approved for swapping.

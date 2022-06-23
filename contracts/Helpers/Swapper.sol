@@ -5,6 +5,7 @@ import {ISo} from "../Interfaces/ISo.sol";
 import {ICorrectSwap} from "../Interfaces/ICorrectSwap.sol";
 import {LibSwap} from "../Libraries/LibSwap.sol";
 import {LibAsset} from "../Libraries/LibAsset.sol";
+import {LibUtil} from "../Libraries/LibUtil.sol";
 import {LibStorage} from "../Libraries/LibStorage.sol";
 import {LibAsset} from "../Libraries/LibAsset.sol";
 import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided, NotSupportedSwapRouter} from "../Errors/GenericErrors.sol";
@@ -73,9 +74,8 @@ contract Swapper is ISo {
         SoData memory _soData,
         LibSwap.SwapData[] calldata _swapData
     ) private {
-        LibSwap.SwapData memory nextSwapData;
+        LibSwap.SwapData memory currentSwapData = _swapData[0];
         for (uint256 i = 0; i < _swapData.length; i++) {
-            LibSwap.SwapData calldata currentSwapData = _swapData[i];
             address receivedToken = currentSwapData.receivingAssetId;
             uint256 swapBalance = LibAsset.getOwnBalance(receivedToken);
 
@@ -83,29 +83,22 @@ contract Swapper is ISo {
                 !(appStorage.dexAllowlist[currentSwapData.approveTo] &&
                     appStorage.dexAllowlist[currentSwapData.callTo] &&
                     appStorage.dexFuncSignatureAllowList[
-                        bytes32(currentSwapData.callData[:4])
+                        bytes32(LibUtil.getSlice(currentSwapData.callData, 0, 4))
                     ])
             ) revert ContractCallNotAllowed();
 
-            if (i > 0) {
-                // the modified swap based on the results of the first swap
-                LibSwap.swap(_soData.transactionId, nextSwapData);
-            } else {
-                LibSwap.swap(_soData.transactionId, currentSwapData);
-            }
+            LibSwap.swap(_soData.transactionId, currentSwapData);
 
             swapBalance = LibAsset.getOwnBalance(receivedToken) - swapBalance;
 
             if (i + 1 < _swapData.length) {
-                nextSwapData = _swapData[i + 1];
-                address correctSwap = appStorage.correctSwapRouterSelectors[
-                    nextSwapData.callTo
-                ];
+                currentSwapData = _swapData[i + 1];
+                address correctSwap = appStorage.correctSwapRouterSelectors;
                 if (correctSwap == address(0)) revert NotSupportedSwapRouter();
-                nextSwapData.fromAmount = swapBalance;
-                nextSwapData.callData = ICorrectSwap(correctSwap).correctSwap(
-                    nextSwapData.callData,
-                    nextSwapData.fromAmount
+                currentSwapData.fromAmount = swapBalance;
+                currentSwapData.callData = ICorrectSwap(correctSwap).correctSwap(
+                    currentSwapData.callData,
+                    currentSwapData.fromAmount
                 );
             }
         }
