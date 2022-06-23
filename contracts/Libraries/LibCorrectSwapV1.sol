@@ -8,6 +8,7 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC2 = bytes4(keccak256('swapExactAVAXForTokens(uint,address[],address,uint)'));
     bytes4 private constant _FUNC3 = bytes4(keccak256('swapExactTokensForETH(uint,uint,address[],address,uint)'));
     bytes4 private constant _FUNC4 = bytes4(keccak256('swapExactTokensForAVAX(uint,uint,address[],address,uint)'));
+    bytes4 private constant _FUNC5 = bytes4(keccak256('swapExactTokensForTokens(uint,uint,address[],address,uint)'));
 
     //---------------------------------------------------------------------------
     // External Method
@@ -26,6 +27,8 @@ contract LibCorrectSwapV1 {
         } else if (sig == _FUNC3) {
             return tryBasicCorrectSwap(_data, _amount);
         } else if (sig == _FUNC4) {
+            return tryBasicCorrectSwap(_data, _amount);
+        } else if (sig == _FUNC5) {
             return tryBasicCorrectSwap(_data, _amount);
         }
         // fuzzy matching
