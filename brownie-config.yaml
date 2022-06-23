@@ -36,8 +36,14 @@ networks:
     stargate_chainid: 10006
     stargate_poolid: 1
     usdc: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
-    weth: "0x9B5828d46A43176F07656e162cCbDc787624468c"
-    swap: [ [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02AVAX ] ]
+    weth: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
+    hct: "0xEdDEB2ff49830f3aa30Fee2F7FaBC5136845304a"
+    swap: [
+       # DexLot Uniswap V2 https://test-swap.dexlot.app/swap
+       [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02AVAX ],
+       # Hurricaneswap Uniswap V2 https://test.hurricaneswap.com/#/swap
+       [ "0x7E3411B04766089cFaa52DB688855356A12f05D1",  IUniswapV2Router02AVAX ]
+     ]
   polygon-test:
     chainid: 80001
     stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"

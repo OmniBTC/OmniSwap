@@ -7,7 +7,7 @@ import {LibSwap} from "../Libraries/LibSwap.sol";
 import {LibAsset} from "../Libraries/LibAsset.sol";
 import {LibStorage} from "../Libraries/LibStorage.sol";
 import {LibAsset} from "../Libraries/LibAsset.sol";
-import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided} from "../Errors/GenericErrors.sol";
+import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided, NotSupportedSwapRouter} from "../Errors/GenericErrors.sol";
 
 /// @title Swapper
 /// @author LI.FI (https://li.fi)
@@ -72,7 +72,7 @@ contract Swapper is ISo {
     function _executeSwaps(
         SoData memory _soData,
         LibSwap.SwapData[] calldata _swapData
-    ) private noLeftovers(_swapData) {
+    ) private {
         LibSwap.SwapData memory nextSwapData;
         for (uint256 i = 0; i < _swapData.length; i++) {
             LibSwap.SwapData calldata currentSwapData = _swapData[i];
@@ -101,9 +101,11 @@ contract Swapper is ISo {
                 address correctSwap = appStorage.correctSwapRouterSelectors[
                     nextSwapData.callTo
                 ];
+                if (correctSwap == address(0)) revert NotSupportedSwapRouter();
+                nextSwapData.fromAmount = swapBalance;
                 nextSwapData.callData = ICorrectSwap(correctSwap).correctSwap(
                     nextSwapData.callData,
-                    swapBalance
+                    nextSwapData.fromAmount
                 );
             }
         }

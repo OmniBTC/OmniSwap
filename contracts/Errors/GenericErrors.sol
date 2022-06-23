@@ -7,6 +7,7 @@ error CannotBridgeToSameNetwork();  // 0x4ac09ad3
 error ZeroPostSwapBalance(); // 0xf74e8909
 error InvalidBridgeConfigLength(); // 0x10502ef9
 error NoSwapDataProvided(); // 0x0503c3ed
+error NotSupportedSwapRouter(); // 0xe986f686
 error NativeValueWithERC(); // 0x003f45b5
 error ContractCallNotAllowed(); // 0x94539804
 error NullAddrIsNotAValidSpender(); // 0x63ba9bff
