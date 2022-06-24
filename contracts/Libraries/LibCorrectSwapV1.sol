@@ -4,11 +4,11 @@ pragma solidity 0.8.13;
 
 contract LibCorrectSwapV1 {
     // Exact search for supported function signatures
-    bytes4 private constant _FUNC1 = bytes4(keccak256('swapExactETHForTokens(uint,address[],address,uint)'));
-    bytes4 private constant _FUNC2 = bytes4(keccak256('swapExactAVAXForTokens(uint,address[],address,uint)'));
-    bytes4 private constant _FUNC3 = bytes4(keccak256('swapExactTokensForETH(uint,uint,address[],address,uint)'));
-    bytes4 private constant _FUNC4 = bytes4(keccak256('swapExactTokensForAVAX(uint,uint,address[],address,uint)'));
-    bytes4 private constant _FUNC5 = bytes4(keccak256('swapExactTokensForTokens(uint,uint,address[],address,uint)'));
+    bytes4 private constant _FUNC1 = bytes4(keccak256('swapExactETHForTokens(uint256,address[],address,uint256)'));
+    bytes4 private constant _FUNC2 = bytes4(keccak256('swapExactAVAXForTokens(uint256,address[],address,uint256)'));
+    bytes4 private constant _FUNC3 = bytes4(keccak256('swapExactTokensForETH(uint256,uint256,address[],address,uint256)'));
+    bytes4 private constant _FUNC4 = bytes4(keccak256('swapExactTokensForAVAX(uint256,uint256,address[],address,uint256)'));
+    bytes4 private constant _FUNC5 = bytes4(keccak256('swapExactTokensForTokens(uint256,uint256,address[],address,uint256)'));
 
     //---------------------------------------------------------------------------
     // External Method
