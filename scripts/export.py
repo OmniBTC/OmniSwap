@@ -7,7 +7,7 @@ import os
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, interface, Contract, config, network, ERC20, LibSwap
 
-from scripts.helpful_scripts import change_network, zero_address
+from scripts.helpful_scripts import change_network, zero_address, read_abi
 
 cur_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -40,6 +40,42 @@ def get_stragate_pool_infos(net):
             "PoolId": i
         })
     return pool_info
+
+
+# check stargate pool
+def check_stargate_pool(
+        so_omnichain_info: str = os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json")):
+    output = read_abi(so_omnichain_info)
+    nets = list(output.keys())
+    for net1 in nets:
+        change_network(net1)
+        for net2 in nets:
+            if net1 == net2:
+                continue
+            try:
+                stargate_router = config["networks"][net1]["stargate_router"]
+            except:
+                return
+            stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
+            factory_address = stragate.factory()
+            factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
+            for src_pool_info in output[net1]["StargatePool"]:
+                pool_address = factory.getPool(src_pool_info["PoolId"])
+                pool = Contract.from_abi("IStargatePool", pool_address, interface.IStargatePool.abi)
+                for dst_pool_info in output[net2]["StargatePool"]:
+                    flag = False
+                    try:
+                        result = pool.getChainPath(output[net2]["StargateChainId"],
+                                                   dst_pool_info["PoolId"]
+                                                   )
+                        flag = result[0]
+                    except:
+                        pass
+                    if flag:
+                        if "ChainPath" not in src_pool_info:
+                            src_pool_info["ChainPath"] = []
+                        src_pool_info["ChainPath"].append((output[net2]["StargateChainId"], dst_pool_info["PoolId"]))
+    write_file(os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json"), output)
 
 
 def export(*arg):
