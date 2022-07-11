@@ -48,14 +48,16 @@ def check_stargate_pool(
     output = read_abi(so_omnichain_info)
     nets = list(output.keys())
     for net1 in nets:
-        change_network(net1)
         for net2 in nets:
             if net1 == net2:
+                continue
+            if ("main" in net1 and "main" not in net2) or ("main" not in net1 and "main" in net2):
                 continue
             try:
                 stargate_router = config["networks"][net1]["stargate_router"]
             except:
                 return
+            change_network(net1)
             stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
             factory_address = stragate.factory()
             factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)

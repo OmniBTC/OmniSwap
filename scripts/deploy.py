@@ -24,7 +24,7 @@ def deploy_contracts(account):
     SoDiamond.deploy(account, DiamondCutFacet[-1], {'from': account})
 
     print("deploy LibSoFeeV01.sol...")
-    so_fee = 1e-2
+    so_fee = 1e-3
     transfer_for_gas = 20000
     LibSoFeeV01.deploy(int(so_fee*1e18), transfer_for_gas, {'from': account})
 

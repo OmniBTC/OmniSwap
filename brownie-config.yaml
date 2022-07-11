@@ -114,9 +114,14 @@ networks:
     chainid: 42161
     stargate_router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
     stargate_chainid: 10
+    stargate_poolid: 1
+    weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+    usdc: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+    # sushiswap no liquidity for usdt
+    #usdt: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
     swap: [
-      # uniswap v2
-      [ "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064", IUniswapV2Router02, "https://bridge.arbitrum.io/token-list-42161.json" ]
+      # sushiswap v2
+      [ "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", IUniswapV2Router02]
     ]
   optimism-main:
     stargate_router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"

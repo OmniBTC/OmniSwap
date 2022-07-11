@@ -93,6 +93,17 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.addFee(config["networks"][net]["stargate_router"], LibSoFeeV01[-1].address, {'from': account})
 
 
+def reinitialize_dex(old_dex):
+    account = get_account()
+    net = network.show_active()
+    proxy_dex = Contract.from_abi("DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
+    proxy_dex.removeDex(old_dex, {'from': account})
+    dexs = []
+    for pair in config["networks"][net]["swap"]:
+        dexs.append(pair[0])
+    proxy_dex.batchAddDex(dexs, {'from': account})
+
+
 def initialize_main_for_dstforgas(token: str):
     if token == "usdt":
         decimal = 18
@@ -122,3 +133,10 @@ def initialize_main_for_dstforgas(token: str):
     token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
     print(f"initialize_main_for_dstforgas finish, "
           f"{token} amount in sodiamond is {token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
+
+
+def reset_so_fee():
+    account = get_account()
+    so_fee_contract = Contract.from_abi("LibSoFeeV01", LibSoFeeV01[-1].address, LibSoFeeV01.abi)
+    so_fee = int(1e-3 * 1e18)
+    so_fee_contract.setFee(so_fee, {"from": account})

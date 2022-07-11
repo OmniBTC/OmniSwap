@@ -1,4 +1,31 @@
 {
+    "arbitrum-main": {
+        "ChainId": 42161,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 10,
+        "StargatePool": [
+            {
+                "ChainPath": [
+                    [
+                        2,
+                        2
+                    ]
+                ],
+                "PoolId": 1,
+                "TokenAddress": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+                "TokenName": "USDC"
+            }
+        ],
+        "StargateRouter": "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614",
+        "UniswapRouter": [
+            {
+                "Address": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+    },
     "arbitrum-test": {
         "ChainId": 4,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
@@ -193,6 +220,12 @@
         "StargateChainId": 2,
         "StargatePool": [
             {
+                "ChainPath": [
+                    [
+                        10,
+                        1
+                    ]
+                ],
                 "PoolId": 2,
                 "TokenAddress": "0x55d398326f99059fF775485246999027B3197955",
                 "TokenName": "USDT"
