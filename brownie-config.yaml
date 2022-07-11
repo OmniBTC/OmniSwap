@@ -5,10 +5,12 @@ reports:
     - SafeMath
 dependencies:
   - OpenZeppelin/openzeppelin-contracts@4.6.0
+  - Uniswap/v3-core@1.0.0
 compiler:
   solc:
     remappings:
       - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.6.0"
+      - "@uniswap/v3-core=Uniswap/v3-core@1.0.0"
 # automatically fetch contract sources from Etherscan
 autofetch_sources: True
 dotenv: .env
@@ -128,7 +130,7 @@ networks:
     stargate_chainid: 11
     swap: [
 #      # uniswap v3
-#      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", IUniswapV2Router02, "https://static.optimism.io/optimism.swap_tokenlist.json" ],
+      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "https://static.optimism.io/optimism.swap_tokenlist.json" ],
       # ZipSwap
       [ "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6", IUniswapV2Router02 ]
     ]

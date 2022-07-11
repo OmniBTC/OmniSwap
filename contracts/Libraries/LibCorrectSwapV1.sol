@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 
 pragma solidity 0.8.13;
+import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
 
 contract LibCorrectSwapV1 {
     // Exact search for supported function signatures
@@ -9,6 +10,7 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC3 = bytes4(keccak256('swapExactTokensForETH(uint256,uint256,address[],address,uint256)'));
     bytes4 private constant _FUNC4 = bytes4(keccak256('swapExactTokensForAVAX(uint256,uint256,address[],address,uint256)'));
     bytes4 private constant _FUNC5 = bytes4(keccak256('swapExactTokensForTokens(uint256,uint256,address[],address,uint256)'));
+    bytes4 private constant _FUNC6 = ISwapRouter.exactInput.selector;
 
     //---------------------------------------------------------------------------
     // External Method
@@ -30,6 +32,8 @@ contract LibCorrectSwapV1 {
             return tryBasicCorrectSwap(_data, _amount);
         } else if (sig == _FUNC5) {
             return tryBasicCorrectSwap(_data, _amount);
+        } else if (sig == _FUNC6) {
+            return tryExactInput(_data, _amount);
         }
         // fuzzy matching
         return tryBasicCorrectSwap(_data, _amount);
@@ -43,7 +47,7 @@ contract LibCorrectSwapV1 {
         try this.basicCorrectSwap(_data, _amount) returns (bytes memory _result){
             return _result;
         }catch{
-            revert("Correctswap fail!");
+            revert("basicCorrectSwap fail!");
         }
     }
 
@@ -67,6 +71,32 @@ contract LibCorrectSwapV1 {
             _path,
             _to,
             _deadline
+        );
+    }
+
+    function tryExactInput(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.exactInput(_data, _amount) returns (bytes memory _result){
+            return _result;
+        }catch{
+            revert("exactInput fail!");
+        }
+    }
+
+    function exactInput(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        ISwapRouter.ExactInputParams memory params = abi.decode(_data[4 :], (ISwapRouter.ExactInputParams));
+        params.amountIn = _amount;
+
+        return abi.encodeWithSelector(
+            bytes4(_data[:4]),
+            params
         );
     }
 }
