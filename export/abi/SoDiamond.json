@@ -187,6 +187,19 @@
             {
                 "indexed": true,
                 "internalType": "address",
+                "name": "correctSwap",
+                "type": "address"
+            }
+        ],
+        "name": "CorrectSwapRouterSelectorsChanged",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
                 "name": "dexAddress",
                 "type": "address"
             }
@@ -244,6 +257,19 @@
         ],
         "name": "GatewaySoFeeSelectorsChanged",
         "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_correctSwap",
+                "type": "address"
+            }
+        ],
+        "name": "addCorrectSwap",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
         "inputs": [
@@ -426,6 +452,11 @@
     {
         "inputs": [],
         "name": "NoTransferToNullAddress",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotSupportedSwapRouter",
         "type": "error"
     },
     {
@@ -683,30 +714,6 @@
         ],
         "name": "StargateInitialized",
         "type": "event"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "_data",
-                "type": "bytes"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "correctSwap",
-        "outputs": [
-            {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
-        ],
-        "stateMutability": "pure",
-        "type": "function"
     },
     {
         "inputs": [
@@ -1612,6 +1619,11 @@
     {
         "inputs": [],
         "name": "NoTransferToNullAddress",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotSupportedSwapRouter",
         "type": "error"
     },
     {

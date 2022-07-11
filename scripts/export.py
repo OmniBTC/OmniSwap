@@ -84,7 +84,8 @@ def export(*arg):
         del arg[arg.index("default")]
         del arg[arg.index("live")]
         del arg[arg.index("development")]
-    output = {}
+    so_omnichain_info = os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json")
+    output = read_abi(so_omnichain_info)
     swap_router_types = {}
     for net in arg:
         print(f"current net: {net}")
@@ -135,5 +136,5 @@ def export(*arg):
     so_diamond_abi = []
     for f in facets + libs:
         so_diamond_abi += f.abi
-    write_file(os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json"), output)
+    write_file(so_omnichain_info, output)
     write_file(os.path.join(os.path.dirname(cur_path), "export/abi/SoDiamond.json"), so_diamond_abi)

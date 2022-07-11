@@ -1,3 +1,5 @@
+import time
+
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1
 from brownie.network import priority_fee
@@ -28,11 +30,11 @@ def main():
         so_diamond = SoDiamond[-1]
         usdc = Contract.from_abi("MockToken", config["networks"][network.show_active()]["usdc"], MockToken.abi)
         try:
-            usdc.mint(account, 100*1e4*1e6, {"from": account})
+            usdc.mint(account, 100 * 1e4 * 1e6, {"from": account})
             print("mint 1000000 usdc success!\n")
         except Exception as e:
             print(f"usdc mint fail:{e}")
-        usdc.transfer(so_diamond.address, int(0.01*1e6), {"from": account})
+        usdc.transfer(so_diamond.address, int(0.01 * 1e6), {"from": account})
         print("transfer 0.01 usdc success!")
 
 
@@ -90,3 +92,33 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
     proxy_dex.addFee(config["networks"][net]["stargate_router"], LibSoFeeV01[-1].address, {'from': account})
 
+
+def initialize_main_for_dstforgas(token: str):
+    if token == "usdt":
+        decimal = 18
+    elif token == "usdc":
+        decimal = 6
+    else:
+        raise "TOKEN FAIL"
+    account = get_account()
+    net = network.show_active()
+    token_address = config["networks"][net][token]
+    weth = config["networks"][net]["weth"]
+    swap_router = Contract.from_abi(
+        "ROUTER",
+        config["networks"][net]["swap"][0][0],
+        getattr(interface, config["networks"][net]["swap"][0][1]).abi)
+    amount = 0.01 * (10 ** decimal)
+    swap_router.swapETHForExactTokens(
+        amount,
+        [weth, token_address],
+        SoDiamond[-1].address,
+        int(time.time() + 3000),
+        {
+            "from": account,
+            "value": 0.01 * (10 ** 18)
+        }
+    )
+    token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
+    print(f"initialize_main_for_dstforgas finish, "
+          f"{token} amount in sodiamond is {token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")

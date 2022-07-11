@@ -89,6 +89,9 @@ networks:
     chainid: 56
     stargate_router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
     stargate_chainid: 2
+    stargate_poolid: 2
+    weth: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+    usdt: "0x55d398326f99059fF775485246999027B3197955"
     swap: [
       # pancakeswap
       [ "0x10ED43C718714eb63d5aA57B78B54704E256024E", IUniswapV2Router02, "https://tokens.pancakeswap.finance/pancakeswap-top-100.json" ]

@@ -187,6 +187,27 @@
         ],
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
+    "bsc-main": {
+        "ChainId": 56,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 2,
+        "StargatePool": [
+            {
+                "PoolId": 2,
+                "TokenAddress": "0x55d398326f99059fF775485246999027B3197955",
+                "TokenName": "USDT"
+            }
+        ],
+        "StargateRouter": "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8",
+        "UniswapRouter": [
+            {
+                "Address": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+                "TokenList": "https://tokens.pancakeswap.finance/pancakeswap-top-100.json",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+    },
     "bsc-test": {
         "ChainId": 4,
         "SoDiamond": "0x92113298552f99271cb0b9545C40096eE7B0a351",
