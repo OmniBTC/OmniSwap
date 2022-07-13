@@ -718,6 +718,29 @@
     {
         "inputs": [
             {
+                "internalType": "address",
+                "name": "_currentAssetId",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_expectAssetId",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "deposit",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "components": [
                     {
                         "internalType": "uint256",
@@ -1417,6 +1440,34 @@
         "name": "soSwapViaStargate",
         "outputs": [],
         "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_currentAssetId",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_expectAssetId",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "_receiver",
+                "type": "address"
+            }
+        ],
+        "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
