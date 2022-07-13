@@ -130,3 +130,20 @@ def read_abi(file):
             return json.load(f)
     except:
         return []
+
+
+def padding_to_bytes(data: str, padding="right", length=32):
+    if data[:2] == "0x":
+        data = data[2:]
+    padding_length = length * 2 - len(data)
+    if padding == "right":
+        return "0x" + data + "0" * padding_length
+    else:
+        return "0x" + "0" * padding_length + data
+
+
+def combine_bytes(bs: list):
+    output = "0x"
+    for b in bs:
+        output += b.replace("0x", "")
+    return output

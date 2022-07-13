@@ -1,13 +1,15 @@
 import time
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, interface, Contract, config, network
+    OwnershipFacet, GenericSwapFacet, interface, Contract, config, network, web3
 
-from scripts.helpful_scripts import get_account, change_network, zero_address, get_contract
+from scripts.helpful_scripts import get_account, change_network, zero_address, get_contract, combine_bytes, \
+    padding_to_bytes
 from random import choice
 
 usdc_decimal = 1e6
 eth_decimal = 1e18
+uniswap_v3_fee_decimal = 1e6
 
 
 class SoData:
@@ -181,7 +183,7 @@ class SwapData:
     def create(cls, net: str, swapFuncName: str, fromAmount: int, sendingTokenName: str,
                receiveTokenName: str):
         support_swap_funcs = ["swapExactETHForTokens", "swapExactAVAXForTokens", "swapExactTokensForETH",
-                              "swapExactTokensForAVAX", "swapExactTokensForTokens"]
+                              "swapExactTokensForAVAX", "swapExactTokensForTokens", "exactInput"]
         support_token_name = ["eth", "usdc"]
         if swapFuncName not in support_swap_funcs:
             raise ValueError("swapFuncName not support!")
@@ -217,6 +219,14 @@ class SwapData:
                 so_diamond.address,
                 int(time.time() + 3000)
             )
+        elif swapFuncName == "exactInput":
+            callData = getattr(swap_contract, swapFuncName).encode_input([
+                cls.encode_path_for_uniswap_v3(path[0], path[1], 0.3/100),
+                so_diamond.address,
+                int(time.time() + 3000),
+                fromAmount,
+                minAmount]
+            )
         else:
             callData = getattr(swap_contract, swapFuncName).encode_input(
                 minAmount,
@@ -228,6 +238,12 @@ class SwapData:
                              receivingAssetId, fromAmount, callData)
         setattr(swap_data, "_path", path)
         return swap_data
+
+    @staticmethod
+    def encode_path_for_uniswap_v3(p1: str, p2: str, fee: float):
+        return combine_bytes([p1,
+                              padding_to_bytes(web3.toHex(int(fee * uniswap_v3_fee_decimal)), padding="left", length=3),
+                              p2])
 
 
 def estimate_for_gas(dst_net: str, so_data, dst_swap_data: list):
@@ -253,13 +269,21 @@ def estimate_final_token_amount(
         dst_net: str,
         dst_path: list):
     change_network(src_net)
+    account = get_account()
     # Estimate source swap output
     if len(src_path):
         src_swap_info = config["networks"][src_net]["swap"][0]
-        src_swap_contract = Contract.from_abi(src_swap_info[1], src_swap_info[0],
-                                              getattr(interface, src_swap_info[1]).abi)
-        src_amount_outs = src_swap_contract.getAmountsOut(amount, src_path)
-        amount = src_amount_outs[-1]
+        if src_swap_info[1] == "ISwapRouter":
+            src_swap_contract = Contract.from_abi("IQuoter", src_swap_info[3],
+                                                  getattr(interface, "IQuoter").abi)
+            amount = src_swap_contract.quoteExactInput.call(
+                SwapData.encode_path_for_uniswap_v3(src_path[0], src_path[1], 0.003),
+                amount, {"from": account})
+        else:
+            src_swap_contract = Contract.from_abi(src_swap_info[1], src_swap_info[0],
+                                                  getattr(interface, src_swap_info[1]).abi)
+            src_amount_outs = src_swap_contract.getAmountsOut(amount, src_path)
+            amount = src_amount_outs[-1]
     # Estimate stargate cross output
     so_diamond = SoDiamond[-1]
     proxy_diamond = Contract.from_abi(
@@ -276,13 +300,20 @@ def estimate_final_token_amount(
     # Estimate dst swap output
     if len(dst_path):
         dst_swap_info = config["networks"][dst_net]["swap"][0]
-        dst_swap_contract = Contract.from_abi(dst_swap_info[1], dst_swap_info[0],
-                                              getattr(interface, dst_swap_info[1]).abi)
         # bsc-test usdt precision 1e18 requires special handling
         if dst_net == "bsc-test":
             amount = int(amount / 1e6 * 1e18)
-        dst_amount_outs = dst_swap_contract.getAmountsOut(int(amount), dst_path)
-        amount = dst_amount_outs[-1]
+        if dst_swap_info[1] == "ISwapRouter":
+            dst_swap_contract = Contract.from_abi("IQuoter", dst_swap_info[3],
+                                                  getattr(interface, "IQuoter").abi)
+            amount = dst_swap_contract.quoteExactInput.call(
+                SwapData.encode_path_for_uniswap_v3(dst_path[0], dst_path[1], 0.003),
+                amount, {"from": account})
+        else:
+            dst_swap_contract = Contract.from_abi(dst_swap_info[1], dst_swap_info[0],
+                                                  getattr(interface, dst_swap_info[1]).abi)
+            dst_amount_outs = dst_swap_contract.getAmountsOut(int(amount), dst_path)
+            amount = dst_amount_outs[-1]
     return amount
 
 
@@ -311,20 +342,24 @@ def estimate_min_amount(dst_net: str, final_amount: int, slippage: float, dst_pa
 
 
 def support_src_swap(net: str) -> str:
-    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test", "arbitrum-test"]:
+    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test"]:
         func_name = "swapExactETHForTokens"
     elif net == "avax-test":
         func_name = "swapExactAVAXForTokens"
+    elif net == "arbitrum-test":
+        func_name = "exactInput"
     else:
         raise ValueError
     return func_name
 
 
 def support_dst_swap(net: str) -> str:
-    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test", "arbitrum-test"]:
+    if net in ["rinkeby", "bsc-test", "polygon-test", "ftm-test"]:
         func_name = "swapExactTokensForETH"
     elif net == "avax-test":
         func_name = "swapExactTokensForAVAX"
+    elif net == "arbitrum-test":
+        func_name = "exactInput"
     else:
         raise ValueError
     return func_name

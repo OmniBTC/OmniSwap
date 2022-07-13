@@ -1,10 +1,12 @@
 import time
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1
+    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1, \
+    web3
 from brownie.network import priority_fee
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address, combine_bytes, \
+    padding_to_bytes
 
 
 def main():
@@ -132,6 +134,41 @@ def initialize_main_for_dstforgas(token: str):
     )
     token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
     print(f"initialize_main_for_dstforgas finish, "
+          f"{token} amount in sodiamond is {token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
+
+
+def initialize_main_for_dstforgas_from_v3(token: str):
+    if token == "usdt":
+        decimal = 18
+    elif token == "usdc":
+        decimal = 6
+    else:
+        raise "TOKEN FAIL"
+    account = get_account()
+    net = network.show_active()
+    token_address = config["networks"][net][token]
+    weth = config["networks"][net]["weth"]
+    swap_router = Contract.from_abi(
+        "ROUTER",
+        config["networks"][net]["swap"][0][0],
+        getattr(interface, config["networks"][net]["swap"][0][1]).abi)
+    amount = 0.01 * (10 ** decimal)
+    path = combine_bytes([weth,
+                          padding_to_bytes(web3.toHex(int(0.003 * 1e6)), padding="left", length=3),
+                          token_address])
+    swap_router.exactInput([
+        path,
+        SoDiamond[-1].address,
+        int(time.time() + 3000),
+        amount,
+        0],
+        {
+            "from": account,
+            "value": int(0.01 * (10 ** 18))
+        }
+    )
+    token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
+    print(f"initialize_main_for_dstforgas_from_v3 finish, "
           f"{token} amount in sodiamond is {token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
 
 
