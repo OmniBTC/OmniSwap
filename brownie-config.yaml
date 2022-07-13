@@ -44,11 +44,11 @@ networks:
     # weth: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
     hct: "0xEdDEB2ff49830f3aa30Fee2F7FaBC5136845304a"
     swap: [
-       # DexLot Uniswap V2 https://test-swap.dexlot.app/swap
-       [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02AVAX ],
-       # Hurricaneswap Uniswap V2 https://test.hurricaneswap.com/#/swap
-       [ "0x7E3411B04766089cFaa52DB688855356A12f05D1",  IUniswapV2Router02AVAX ]
-     ]
+      # DexLot Uniswap V2 https://test-swap.dexlot.app/swap
+      [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02AVAX ],
+      # Hurricaneswap Uniswap V2 https://test.hurricaneswap.com/#/swap
+      [ "0x7E3411B04766089cFaa52DB688855356A12f05D1",  IUniswapV2Router02AVAX ]
+    ]
   polygon-test:
     chainid: 80001
     stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
@@ -66,12 +66,21 @@ networks:
     weth: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
     swap: [
       # Swapr https://swapr.eth.limo/
-      [ "0xb5a35165047fed7440D3a75909c0949bf1943696", IUniswapV2Router02 ]
+      [ "0xb5a35165047fed7440D3a75909c0949bf1943696", IUniswapV2Router02 ],
+      # uniswap v3
+      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter ]
     ]
   optimism-test:
+    chainid: 69
     stargate_router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
     stargate_chainid: 10011
+    stargate_poolid: 1
     usdc: "0x567f39d9e6d02078F357658f498F80eF087059aa"
+    weth: "0x4200000000000000000000000000000000000006"
+    swap: [
+      # uniswap v3
+      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter ]
+    ]
   ftm-test:
     chainid: 4002
     stargate_router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
@@ -81,11 +90,14 @@ networks:
     usdc: "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e"
     swap: [ [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02 ] ]
   mainnet:
+    chainid: 1
     stargate_router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
     stargate_chainid: 1
     swap: [
-      # uniswap
-      [ "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02, "https://tokens.uniswap.org/" ]
+      # uniswap v2
+      [ "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02, "https://tokens.uniswap.org/" ],
+      # uniswap v3
+      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter ]
     ]
   bsc-main:
     chainid: 56
@@ -99,6 +111,7 @@ networks:
       [ "0x10ED43C718714eb63d5aA57B78B54704E256024E", IUniswapV2Router02, "https://tokens.pancakeswap.finance/pancakeswap-top-100.json" ]
     ]
   avax-main:
+    chainid: 43114
     stargate_router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
     stargate_chainid: 6
     swap: [
@@ -106,6 +119,7 @@ networks:
       [ "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106", IUniswapV2Router02AVAX, "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json" ]
     ]
   polygon-main:
+    chainid: 137
     stargate_router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
     stargate_chainid: 9
     swap: [
@@ -123,18 +137,20 @@ networks:
     #usdt: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
     swap: [
       # sushiswap v2
-      [ "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", IUniswapV2Router02]
+      [ "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", IUniswapV2Router02 ]
     ]
   optimism-main:
+    chainid: 10
     stargate_router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
     stargate_chainid: 11
     swap: [
-#      # uniswap v3
+      #      # uniswap v3
       [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "https://static.optimism.io/optimism.swap_tokenlist.json" ],
       # ZipSwap
       [ "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6", IUniswapV2Router02 ]
     ]
   ftm-main:
+    chainid: 250
     stargate_router: "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6"
     stargate_chainid: 12
     swap: [
