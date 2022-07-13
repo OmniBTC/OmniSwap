@@ -27,17 +27,18 @@ def get_stragate_pool_infos(net):
     factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
     pools_length = factory.allPoolsLength()
     pool_info = []
-    for i in range(1, pools_length + 1):
-        pool_address = factory.getPool(i)
+    for i in range(0, pools_length):
+        pool_address = factory.allPools(i)
         if pool_address == zero_address():
             continue
         pool = Contract.from_abi("IStargatePool", pool_address, interface.IStargatePool.abi)
+        pool_id = pool.poolId()
         token_address = pool.token()
         token = Contract.from_abi("ERC20", token_address, ERC20.abi)
         pool_info.append({
             "TokenAddress": token_address,
             "TokenName": token.symbol(),
-            "PoolId": i
+            "PoolId": pool_id
         })
     return pool_info
 

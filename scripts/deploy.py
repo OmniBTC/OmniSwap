@@ -25,7 +25,7 @@ def deploy_contracts(account):
 
     print("deploy LibSoFeeV01.sol...")
     so_fee = 1e-3
-    transfer_for_gas = 20000
+    transfer_for_gas = 30000
     LibSoFeeV01.deploy(int(so_fee*1e18), transfer_for_gas, {'from': account})
 
     print("deploy LibCorrectUniswapV2...")

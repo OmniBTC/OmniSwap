@@ -21,6 +21,7 @@ networks:
     stargate_router: "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561"
     stargate_chainid: 10001
     stargate_poolid: 1
+    stargate_poolid_eth: 13
     usdc: "0x1717A0D5C8705EE89A8aD6E808268D6A826C97A4"
     weth: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
     swap: [ [ "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02 ] ]
@@ -62,6 +63,7 @@ networks:
     stargate_router: "0x6701D9802aDF674E524053bd44AA83ef253efc41"
     stargate_chainid: 10010
     stargate_poolid: 1
+    stargate_poolid_eth: 13
     usdc: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
     weth: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
     swap: [
@@ -75,6 +77,7 @@ networks:
     stargate_router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
     stargate_chainid: 10011
     stargate_poolid: 1
+    stargate_poolid_eth: 13
     usdc: "0x567f39d9e6d02078F357658f498F80eF087059aa"
     weth: "0x4200000000000000000000000000000000000006"
     swap: [

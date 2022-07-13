@@ -11,7 +11,6 @@ import {LibAsset} from "../Libraries/LibAsset.sol";
 import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided, NotSupportedSwapRouter} from "../Errors/GenericErrors.sol";
 
 /// @title Swapper
-/// @author LI.FI (https://li.fi)
 /// @notice Abstract contract to provide swap functionality
 contract Swapper is ISo {
     /// Storage ///

@@ -68,4 +68,6 @@ interface IStargatePool {
 
     function feeLibrary() external view returns (address);
 
+    function poolId() external view returns (uint256);
+
 }

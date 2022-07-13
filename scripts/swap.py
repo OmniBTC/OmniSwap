@@ -107,12 +107,14 @@ class StargateData:
                 self.dstSoDiamond]
 
     @classmethod
-    def create(cls, src_net: str, dst_net: str, dstGasForSgReceive: int):
+    def create(cls, src_net: str, dst_net: str, dstGasForSgReceive: int, if_eth: bool = False):
         change_network(dst_net)
         return StargateData(
-            srcStargatePoolId=config["networks"][src_net]["stargate_poolid"],
+            srcStargatePoolId=config["networks"][src_net]["stargate_poolid"] if not if_eth else
+            config["networks"][src_net]["stargate_poolid_eth"],
             dstStargateChainId=config["networks"][dst_net]["stargate_chainid"],
-            dstStargatePoolId=config["networks"][dst_net]["stargate_poolid"],
+            dstStargatePoolId=config["networks"][dst_net]["stargate_poolid"] if not if_eth else
+            config["networks"][dst_net]["stargate_poolid_eth"],
             minAmount=0,
             dstGasForSgReceive=dstGasForSgReceive,
             dstSoDiamond=SoDiamond[-1].address
@@ -258,7 +260,7 @@ class SwapData:
                               p2])
 
 
-def estimate_for_gas(dst_net: str, so_data, dst_swap_data: list):
+def estimate_for_gas(dst_net: str, so_data, dst_swap_data: list, if_eth=False):
     """estimate gas for sgReceive"""
     account = get_account()
     change_network(dst_net)
@@ -267,7 +269,8 @@ def estimate_for_gas(dst_net: str, so_data, dst_swap_data: list):
         "StargateFacet", so_diamond.address, StargateFacet.abi)
     return proxy_diamond.sgReceiveForGas.estimate_gas(
         so_data,
-        config["networks"][dst_net]["stargate_poolid"],
+        config["networks"][dst_net]["stargate_poolid"] if not if_eth else
+            config["networks"][dst_net]["stargate_poolid_eth"],
         dst_swap_data,
         {"from": account}
     )
@@ -395,101 +398,101 @@ def swap(src_net: str, dst_net: str):
     account = get_account()
 
     # 1. src_net:usdc --> dst_net:usdc
-    # print(f"1.from:{src_net}:usdc -> to:{dst_net}:usdc...")
-    # # generate so data
-    # usdc_amount = int(100 * usdc_decimal)
-    # so_data = SoData. \
-    #     create(account, src_net, dst_net, usdc_amount, "usdc", "usdc"). \
-    #     format_to_contract()
-    # # estimate gas for sgReceive
-    # dst_gas = estimate_for_gas(dst_net, so_data, [])
-    # print("dst gas for sgReceive:", dst_gas)
-    # # generate stargate data
-    # stargate = StargateData.create(src_net, dst_net, dst_gas)
-    # stargate_data = stargate.format_to_contract()
-    #
-    # final_amount = estimate_final_token_amount(src_net, usdc_amount, [], stargate_data, dst_net, [])
-    # print("esimate final token:", final_amount / usdc_decimal, "\n")
-    #
-    # # set dst swap slippage
-    # (_, starget_min_amount) = estimate_min_amount(dst_net, final_amount, 0.005, [])
-    # # set stargate min amount
-    # stargate.minAmount = starget_min_amount
-    # stargate_data = stargate.format_to_contract()
-    # print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
-    #
-    # # # call
-    # change_network(src_net)
-    #
-    # usdc = get_contract("usdc")
-    # so_diamond = SoDiamond[-1]
-    # usdc.approve(so_diamond.address, usdc_amount, {'from': account})
-    # proxy_diamond = Contract.from_abi(
-    #     "StargateFacet", so_diamond.address, StargateFacet.abi)
-    # # get stargate cross fee
-    # src_fee = proxy_diamond.getStargateFee(
-    #     so_data,
-    #     stargate_data,
-    #     []
-    # )
-    # print("stargate cross fee:", src_fee / eth_decimal)
-    # proxy_diamond.soSwapViaStargate(
-    #     so_data,
-    #     [],
-    #     stargate_data,
-    #     [],
-    #     {'from': account, 'value': src_fee}
-    # )
+    print(f"1.from:{src_net}:usdc -> to:{dst_net}:usdc...")
+    # generate so data
+    usdc_amount = int(100 * usdc_decimal)
+    so_data = SoData. \
+        create(account, src_net, dst_net, usdc_amount, "usdc", "usdc"). \
+        format_to_contract()
+    # estimate gas for sgReceive
+    dst_gas = estimate_for_gas(dst_net, so_data, [])
+    print("dst gas for sgReceive:", dst_gas)
+    # generate stargate data
+    stargate = StargateData.create(src_net, dst_net, dst_gas)
+    stargate_data = stargate.format_to_contract()
 
-    # # 2. src_net:native_token --> dst_net:usdc
-    # print(f"2.from:{src_net}:native_token -> to:{dst_net}:usdc...")
-    # # generate so data
-    # eth_amount = int(2 * 1e-10 * eth_decimal)
-    # so_data = SoData. \
-    #     create(account, src_net, dst_net, eth_amount, "eth", "usdc"). \
-    #     format_to_contract()
-    # # estimate gas for sgReceive
-    # dst_gas = estimate_for_gas(dst_net, so_data, [])
-    # print("dst gas for sgReceive:", dst_gas)
-    # # generate stargate data
-    # stargate = StargateData.create(src_net, dst_net, dst_gas)
-    # stargate_data = stargate.format_to_contract()
-    #
-    # func_name = support_src_swap(src_net)
-    #
-    # src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
-    # src_swap_data = [src_swap.format_to_contract()]
-    #
-    # final_amount = estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net, [])
-    # print("esimate final token:", final_amount / usdc_decimal, "\n")
-    #
-    # # set dst swap slippage
-    # (_, starget_min_amount) = estimate_min_amount(
-    #     dst_net, final_amount, 0.005, [])
-    # # set stargate min amount
-    # stargate.minAmount = starget_min_amount
-    # stargate_data = stargate.format_to_contract()
-    # print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
-    #
+    final_amount = estimate_final_token_amount(src_net, usdc_amount, [], stargate_data, dst_net, [])
+    print("esimate final token:", final_amount / usdc_decimal, "\n")
+
+    # set dst swap slippage
+    (_, starget_min_amount) = estimate_min_amount(dst_net, final_amount, 0.005, [])
+    # set stargate min amount
+    stargate.minAmount = starget_min_amount
+    stargate_data = stargate.format_to_contract()
+    print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
+
     # # call
-    # change_network(src_net)
-    # so_diamond = SoDiamond[-1]
-    # proxy_diamond = Contract.from_abi(
-    #     "StargateFacet", so_diamond.address, StargateFacet.abi)
-    # # get stargate cross fee
-    # src_fee = proxy_diamond.getStargateFee(
-    #     so_data,
-    #     stargate_data,
-    #     []
-    # )
-    # print("stargate cross fee:", src_fee / eth_decimal)
-    # proxy_diamond.soSwapViaStargate(
-    #     so_data,
-    #     src_swap_data,
-    #     stargate_data,
-    #     [],
-    #     {'from': account, 'value': int(eth_amount + src_fee)}
-    # )
+    change_network(src_net)
+
+    usdc = get_contract("usdc")
+    so_diamond = SoDiamond[-1]
+    usdc.approve(so_diamond.address, usdc_amount, {'from': account})
+    proxy_diamond = Contract.from_abi(
+        "StargateFacet", so_diamond.address, StargateFacet.abi)
+    # get stargate cross fee
+    src_fee = proxy_diamond.getStargateFee(
+        so_data,
+        stargate_data,
+        []
+    )
+    print("stargate cross fee:", src_fee / eth_decimal)
+    proxy_diamond.soSwapViaStargate(
+        so_data,
+        [],
+        stargate_data,
+        [],
+        {'from': account, 'value': src_fee}
+    )
+
+    # 2. src_net:native_token --> dst_net:usdc
+    print(f"2.from:{src_net}:native_token -> to:{dst_net}:usdc...")
+    # generate so data
+    eth_amount = int(2 * 1e-10 * eth_decimal)
+    so_data = SoData. \
+        create(account, src_net, dst_net, eth_amount, "eth", "usdc"). \
+        format_to_contract()
+    # estimate gas for sgReceive
+    dst_gas = estimate_for_gas(dst_net, so_data, [])
+    print("dst gas for sgReceive:", dst_gas)
+    # generate stargate data
+    stargate = StargateData.create(src_net, dst_net, dst_gas)
+    stargate_data = stargate.format_to_contract()
+
+    func_name = support_src_swap(src_net)
+
+    src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
+    src_swap_data = [src_swap.format_to_contract()]
+
+    final_amount = estimate_final_token_amount(src_net, eth_amount, src_swap.path, stargate_data, dst_net, [])
+    print("esimate final token:", final_amount / usdc_decimal, "\n")
+
+    # set dst swap slippage
+    (_, starget_min_amount) = estimate_min_amount(
+        dst_net, final_amount, 0.005, [])
+    # set stargate min amount
+    stargate.minAmount = starget_min_amount
+    stargate_data = stargate.format_to_contract()
+    print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
+
+    # call
+    change_network(src_net)
+    so_diamond = SoDiamond[-1]
+    proxy_diamond = Contract.from_abi(
+        "StargateFacet", so_diamond.address, StargateFacet.abi)
+    # get stargate cross fee
+    src_fee = proxy_diamond.getStargateFee(
+        so_data,
+        stargate_data,
+        []
+    )
+    print("stargate cross fee:", src_fee / eth_decimal)
+    proxy_diamond.soSwapViaStargate(
+        so_data,
+        src_swap_data,
+        stargate_data,
+        [],
+        {'from': account, 'value': int(eth_amount + src_fee)}
+    )
 
     # 3. src_net:usdc --> dst_net:native_token
     print(f"3.from:{src_net}:usdc -> to:{dst_net}:native_token...")
@@ -644,4 +647,67 @@ def single_swap():
         so_data,
         src_swap_data,
         {'from': account, 'value': int(eth_amount)}
+    )
+
+
+def swap_for_stargate_eth(src_net: str, dst_net: str):
+    account = get_account()
+    print(f"src_net:{src_net} eth -> strargate eth -> dst_net:{dst_net} usdc")
+
+    # generate so data
+    eth_amount = int(2 * 1e-10 * eth_decimal)
+    so_data = SoData. \
+        create(account, src_net, dst_net, eth_amount, "eth", "usdc"). \
+        format_to_contract()
+
+    # generate destination swap data
+    dst_func_name = support_dst_swap(dst_net)
+
+    # generate dst swap data
+    # The fromAmount of dst swap fill in casually
+    dst_swap = SwapData.create(dst_net, dst_func_name, 0, "eth", "usdc")
+    dst_swap_data = [dst_swap.format_to_contract()]
+
+    # estimate gas for sgReceive
+    dst_gas = estimate_for_gas(dst_net, so_data, dst_swap_data, if_eth=True)
+    print("dst gas for sgReceive:", dst_gas)
+    # generate stargate data
+    stargate = StargateData.create(src_net, dst_net, dst_gas, if_eth=True)
+    stargate_data = stargate.format_to_contract()
+
+    final_amount = estimate_final_token_amount(src_net, eth_amount, [], stargate_data, dst_net,
+                                               dst_swap.path)
+    print("esimate final token:", final_amount / eth_decimal, "\n")
+
+    # set dst swap slippage
+    (dst_swap_min_amount, starget_min_amount) = estimate_min_amount(
+        dst_net, final_amount, 0.005, dst_swap.path)
+    # set stargate min amount
+    stargate.minAmount = starget_min_amount
+    stargate_data = stargate.format_to_contract()
+    print(f"stargate min amount: {starget_min_amount / usdc_decimal}")
+    # set dst swap min amount
+    dst_swap.set_dst_min_amount(dst_net, dst_func_name, dst_swap_min_amount)
+    dst_swap_data = [dst_swap.format_to_contract()]
+    print(
+        f"dst swap min amount(min final token): {dst_swap_min_amount / eth_decimal}")
+
+    # # call
+    change_network(src_net)
+    so_diamond = SoDiamond[-1]
+    proxy_diamond = Contract.from_abi(
+        "StargateFacet", so_diamond.address, StargateFacet.abi)
+    # get stargate cross fee
+    src_fee = proxy_diamond.getStargateFee(
+        so_data,
+        stargate_data,
+        dst_swap_data
+    )
+    print("stargate cross fee:", src_fee / eth_decimal)
+    proxy_diamond.soSwapViaStargate(
+        so_data,
+        [],
+        stargate_data,
+        dst_swap_data,
+        {'from': account, 'value': int(src_fee + eth_amount)}
     )

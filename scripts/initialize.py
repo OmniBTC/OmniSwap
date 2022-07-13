@@ -28,7 +28,8 @@ def main():
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
     # Transfer a little to SoDiamond as a handling fee
-    if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test", "arbitrum-test", "optimism-test"]:
+    if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test", "arbitrum-test",
+                                 "optimism-test"]:
         so_diamond = SoDiamond[-1]
         usdc = Contract.from_abi("MockToken", config["networks"][network.show_active()]["usdc"], MockToken.abi)
         try:
@@ -38,6 +39,8 @@ def main():
             print(f"usdc mint fail:{e}")
         usdc.transfer(so_diamond.address, int(0.01 * 1e6), {"from": account})
         print("transfer 0.01 usdc success!")
+    if network.show_active() in ["rinkeby", "arbitrum-test", "optimism-test"]:
+        initialize_eth_for_dstforgas()
 
 
 def initialize_cut(account, so_diamond):
@@ -172,8 +175,36 @@ def initialize_main_for_dstforgas_from_v3(token: str):
           f"{token} amount in sodiamond is {token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
 
 
+def initialize_eth_for_dstforgas():
+    account = get_account()
+    net = network.show_active()
+    decimal = 18
+    stargate_router = config["networks"][net]["stargate_router"]
+    stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
+    factory_address = stragate.factory()
+    factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
+    pool_address = factory.getPool(13)
+    pool = Contract.from_abi("IStargatePool", pool_address, interface.IStargatePool.abi)
+    token_address = pool.token()
+    token = Contract.from_abi("IStargateEthVault", token_address, interface.IStargateEthVault.abi)
+    weth_amount = int(1e-7 * 1e18)
+    proxy_diamond = Contract.from_abi(
+        "StargateFacet", SoDiamond[-1].address, StargateFacet.abi)
+    proxy_diamond.deposit(zero_address(), token, weth_amount, {"from": account, "value": weth_amount})
+    print(f"initialize_eth_for_dstforgas finish, "
+          f"weth:{token} amount in sodiamond:{SoDiamond[-1].address} "
+          f"is {token.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
+
+
 def reset_so_fee():
     account = get_account()
     so_fee_contract = Contract.from_abi("LibSoFeeV01", LibSoFeeV01[-1].address, LibSoFeeV01.abi)
     so_fee = int(1e-3 * 1e18)
     so_fee_contract.setFee(so_fee, {"from": account})
+
+
+def reset_so_gas():
+    account = get_account()
+    so_fee_contract = Contract.from_abi("LibSoFeeV01", LibSoFeeV01[-1].address, LibSoFeeV01.abi)
+    gas = int(30000)
+    so_fee_contract.setTransferForGas(gas, {"from": account})

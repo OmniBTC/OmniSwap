@@ -359,6 +359,42 @@
         ],
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
+    "optimism-test": {
+        "ChainId": 69,
+        "SoDiamond": "0x66619cb2a51fbd9FF8EDA47BE3299Bf781A4b899",
+        "StargateChainId": 10011,
+        "StargatePool": [
+            {
+                "PoolId": 1,
+                "TokenAddress": "0x567f39d9e6d02078F357658f498F80eF087059aa",
+                "TokenName": "USDC"
+            },
+            {
+                "PoolId": 10,
+                "TokenAddress": "0xF8Ac33Bf8Ebf07722253514afAE0a0db73b9F033",
+                "TokenName": "WETH"
+            },
+            {
+                "PoolId": 12,
+                "TokenAddress": "0x54ab08953765079890B7d1ECE2701d5B8D5fa384",
+                "TokenName": "ETH"
+            },
+            {
+                "PoolId": 13,
+                "TokenAddress": "0x8b299936aa5e0eEA763f55267ACcE7394F0d83C0",
+                "TokenName": "SGETH"
+            }
+        ],
+        "StargateRouter": "0xCC68641528B948642bDE1729805d6cf1DECB0B00",
+        "UniswapRouter": [
+            {
+                "Address": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "TokenList": "",
+                "Type": "ISwapRouter"
+            }
+        ],
+        "WETH": "0x4200000000000000000000000000000000000006"
+    },
     "polygon-test": {
         "ChainId": 4,
         "SoDiamond": "0xF1783f15a94020AD8F3988d434F7ef3968bF303c",
