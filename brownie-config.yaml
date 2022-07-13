@@ -79,7 +79,7 @@ networks:
     weth: "0x4200000000000000000000000000000000000006"
     swap: [
       # uniswap v3
-      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter ]
+      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "", "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6" ]
     ]
   ftm-test:
     chainid: 4002

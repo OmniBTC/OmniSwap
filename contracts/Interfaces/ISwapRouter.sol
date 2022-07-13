@@ -7,6 +7,9 @@ import '@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.so
 /// @title Router token swapping functionality
 /// @notice Functions for swapping tokens via Uniswap V3
 interface ISwapRouter is IUniswapV3SwapCallback {
+
+    function WETH9() external view returns (address);
+
     struct ExactInputSingleParams {
         address tokenIn;
         address tokenOut;

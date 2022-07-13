@@ -28,7 +28,7 @@ def main():
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
     # Transfer a little to SoDiamond as a handling fee
-    if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test", "arbitrum-test"]:
+    if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test", "arbitrum-test", "optimism-test"]:
         so_diamond = SoDiamond[-1]
         usdc = Contract.from_abi("MockToken", config["networks"][network.show_active()]["usdc"], MockToken.abi)
         try:
