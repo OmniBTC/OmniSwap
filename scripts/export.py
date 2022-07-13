@@ -38,6 +38,7 @@ def get_stragate_pool_infos(net):
         pool_info.append({
             "TokenAddress": token_address,
             "TokenName": token.symbol(),
+            "Decimal": token.decimals(),
             "PoolId": pool_id
         })
     return pool_info
@@ -54,6 +55,7 @@ def check_stargate_pool(
                 continue
             if ("main" in net1 and "main" not in net2) or ("main" not in net1 and "main" in net2):
                 continue
+            print(f"net1:{net1}, net2:{net2}")
             try:
                 stargate_router = config["networks"][net1]["stargate_router"]
             except:
@@ -141,3 +143,4 @@ def export(*arg):
         so_diamond_abi += f.abi
     write_file(so_omnichain_info, output)
     write_file(os.path.join(os.path.dirname(cur_path), "export/abi/SoDiamond.json"), so_diamond_abi)
+    check_stargate_pool()
