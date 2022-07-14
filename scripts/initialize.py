@@ -98,6 +98,12 @@ def redeploy_stargate():
     initialize_for_test_fee()
 
 
+def redeploy_generic_swap():
+    account = get_account()
+    GenericSwapFacet.deploy({'from': account})
+    reinitialize_cut(GenericSwapFacet)
+
+
 def reinitialize_cut(contract):
     account = get_account()
     register_data = []
@@ -114,10 +120,12 @@ def reinitialize_cut(contract):
                 register_funcs[func_name].append(reg_funcs[func_name])
         else:
             register_funcs[func_name] = [reg_funcs[func_name]]
-    register_data.append(
-        [reg_facet, 0, [reg_funcs[func_name] for func_name in reg_funcs if func_name in ["withdraw", "deposit"]]])
-    register_data.append(
-        [reg_facet, 1, [reg_funcs[func_name] for func_name in reg_funcs if func_name not in ["withdraw", "deposit"]]])
+    data = [reg_funcs[func_name] for func_name in reg_funcs if func_name in ["withdraw", "deposit"]]
+    if len(data):
+        register_data.append([reg_facet, 0, data])
+    data = [reg_funcs[func_name] for func_name in reg_funcs if func_name not in ["withdraw", "deposit"]]
+    if len(data):
+        register_data.append([reg_facet, 1, data])
     proxy_cut = Contract.from_abi("DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
     proxy_cut.diamondCut(register_data,
                          zero_address(),

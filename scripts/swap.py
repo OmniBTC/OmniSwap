@@ -630,23 +630,25 @@ def single_swap():
     account = get_account()
     src_net = network.show_active()
     dst_net = src_net
-    eth_amount = int(2 * 1e-10 * eth_decimal)
+    usdc_amount = int(2 * 1e-10 * eth_decimal)
     so_data = SoData. \
-        create(account, src_net, dst_net, eth_amount, "eth", "usdc"). \
+        create(account, src_net, dst_net, usdc_amount, "usdc", "eth"). \
         format_to_contract()
 
     func_name = support_src_swap(src_net)
 
-    src_swap = SwapData.create(src_net, func_name, eth_amount, "eth", "usdc")
+    src_swap = SwapData.create(src_net, func_name, usdc_amount, "usdc", "eth")
     src_swap_data = [src_swap.format_to_contract()]
 
     so_diamond = SoDiamond[-1]
     proxy_diamond = Contract.from_abi(
         "GenericSwapFacet", so_diamond.address, GenericSwapFacet.abi)
+    usdc = get_contract("usdc")
+    usdc.approve(so_diamond.address, usdc_amount, {'from': account})
     proxy_diamond.swapTokensGeneric(
         so_data,
         src_swap_data,
-        {'from': account, 'value': int(eth_amount)}
+        {'from': account}
     )
 
 
