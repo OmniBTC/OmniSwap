@@ -113,21 +113,28 @@ def export(*arg):
                     swap_token_list = config["networks"][net]["swap"][k][2]
                 else:
                     swap_token_list = ""
+                try:
+                    quoter_address = config["networks"][net]["swap"][k][3]
+                except:
+                    quoter_address = ""
                 swap_router.append({
-                    "Address": swap_router_address,
+                    "RouterAddress": swap_router_address,
                     "Type": swap_router_type,
-                    "TokenList": swap_token_list
+                    "TokenList": swap_token_list,
+                    "QuoterAddressForUniswapV3": quoter_address
                 })
                 if swap_router_type not in swap_router_types:
                     write_file(os.path.join(os.path.dirname(cur_path), f"export/abi/{swap_router_type}.json"),
                                getattr(interface, swap_router_type).abi)
                 swap_router_types[swap_router_type] = True
+            write_file(os.path.join(os.path.dirname(cur_path), f"export/abi/IQuoter.json"),
+                       getattr(interface, "IQuoter").abi)
         except:
             pass
 
         output[net] = {
             "SoDiamond": so_diamond.address,
-            "ChainId": network.chain.id,
+            "ChainId": config["networks"][net]["chainid"],
             "StargateRouter": config["networks"][net]["stargate_router"],
             "StargateChainId": config["networks"][net]["stargate_chainid"],
             "StargatePool": pool_info,

@@ -1,6 +1,6 @@
 {
     "arbitrum-main": {
-        "ChainId": 4,
+        "ChainId": 42161,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 10,
         "StargatePool": [
@@ -46,15 +46,22 @@
         "StargateRouter": "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614",
         "UniswapRouter": [
             {
-                "Address": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
                 "TokenList": "",
                 "Type": "IUniswapV2Router02"
+            },
+            {
+                "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+                "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "TokenList": "",
+                "Type": "ISwapRouter"
             }
         ],
         "WETH": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
     },
     "arbitrum-test": {
-        "ChainId": 4,
+        "ChainId": 421611,
         "SoDiamond": "0x96568bF35abeeb6C39910f6672f8e3fbEB1dB303",
         "StargateChainId": 10010,
         "StargatePool": [
@@ -206,12 +213,14 @@
         "StargateRouter": "0x6701D9802aDF674E524053bd44AA83ef253efc41",
         "UniswapRouter": [
             {
-                "Address": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+                "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
                 "TokenList": "",
                 "Type": "ISwapRouter"
             },
             {
-                "Address": "0xb5a35165047fed7440D3a75909c0949bf1943696",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0xb5a35165047fed7440D3a75909c0949bf1943696",
                 "TokenList": "",
                 "Type": "IUniswapV2Router02"
             }
@@ -219,7 +228,7 @@
         "WETH": "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
     },
     "avax-test": {
-        "ChainId": 4,
+        "ChainId": 43113,
         "SoDiamond": "0xdEd3a9A7099A5B91CA63128749f324685B1b0881",
         "StargateChainId": 10006,
         "StargatePool": [
@@ -323,12 +332,14 @@
         "StargateRouter": "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1",
         "UniswapRouter": [
             {
-                "Address": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
                 "TokenList": "",
                 "Type": "IUniswapV2Router02AVAX"
             },
             {
-                "Address": "0x7E3411B04766089cFaa52DB688855356A12f05D1",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x7E3411B04766089cFaa52DB688855356A12f05D1",
                 "TokenList": "",
                 "Type": "IUniswapV2Router02AVAX"
             }
@@ -336,7 +347,7 @@
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
     "bsc-main": {
-        "ChainId": 4,
+        "ChainId": 56,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 2,
         "StargatePool": [
@@ -382,7 +393,8 @@
         "StargateRouter": "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8",
         "UniswapRouter": [
             {
-                "Address": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
                 "TokenList": "https://tokens.pancakeswap.finance/pancakeswap-top-100.json",
                 "Type": "IUniswapV2Router02"
             }
@@ -390,7 +402,7 @@
         "WETH": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
     },
     "bsc-test": {
-        "ChainId": 4,
+        "ChainId": 97,
         "SoDiamond": "0x92113298552f99271cb0b9545C40096eE7B0a351",
         "StargateChainId": 10002,
         "StargatePool": [
@@ -506,7 +518,8 @@
         "StargateRouter": "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176",
         "UniswapRouter": [
             {
-                "Address": "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3",
                 "TokenList": "",
                 "Type": "IUniswapV2Router02"
             }
@@ -514,7 +527,7 @@
         "WETH": "0xae13d989dac2f0debff460ac112a837c89baa7cd"
     },
     "ftm-test": {
-        "ChainId": 4,
+        "ChainId": 4002,
         "SoDiamond": "0x4293c37140Be04430709cA52790334F56731c166",
         "StargateChainId": 10012,
         "StargatePool": [
@@ -574,7 +587,8 @@
         "StargateRouter": "0xa73b0a56B29aD790595763e71505FCa2c1abb77f",
         "UniswapRouter": [
             {
-                "Address": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
                 "TokenList": "",
                 "Type": "IUniswapV2Router02"
             }
@@ -582,8 +596,8 @@
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
     "optimism-test": {
-        "ChainId": 4,
-        "SoDiamond": "0xd64715AFCC9015ECa711D3915B3d11A5e97904e7",
+        "ChainId": 69,
+        "SoDiamond": "0xEdF7ce007E2561afd80EB981aE466aFc5ad70eEf",
         "StargateChainId": 10011,
         "StargatePool": [
             {
@@ -690,7 +704,8 @@
         "StargateRouter": "0xCC68641528B948642bDE1729805d6cf1DECB0B00",
         "UniswapRouter": [
             {
-                "Address": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+                "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
                 "TokenList": "",
                 "Type": "ISwapRouter"
             }
@@ -698,7 +713,7 @@
         "WETH": "0x4200000000000000000000000000000000000006"
     },
     "polygon-test": {
-        "ChainId": 4,
+        "ChainId": 80001,
         "SoDiamond": "0xD7eC4E3DaC58e537Eb24fef4c3F7B011aeA50f30",
         "StargateChainId": 10009,
         "StargatePool": [
@@ -802,7 +817,8 @@
         "StargateRouter": "0x817436a076060D158204d955E5403b6Ed0A5fac0",
         "UniswapRouter": [
             {
-                "Address": "0x8954AfA98594b838bda56FE4C12a09D7739D179b",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x8954AfA98594b838bda56FE4C12a09D7739D179b",
                 "TokenList": "",
                 "Type": "IUniswapV2Router02"
             }
@@ -974,9 +990,16 @@
         "StargateRouter": "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561",
         "UniswapRouter": [
             {
-                "Address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
                 "TokenList": "",
                 "Type": "IUniswapV2Router02"
+            },
+            {
+                "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+                "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "TokenList": "",
+                "Type": "ISwapRouter"
             }
         ],
         "WETH": "0xc778417E063141139Fce010982780140Aa0cD5Ab"

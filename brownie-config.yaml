@@ -24,7 +24,11 @@ networks:
     stargate_poolid_eth: 13
     usdc: "0x1717A0D5C8705EE89A8aD6E808268D6A826C97A4"
     weth: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
-    swap: [ [ "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02 ] ]
+    swap: [
+      [ "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02 ],
+      # uniswap v3
+      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "", "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6" ]
+    ]
   bsc-test:
     chainid: 97
     stargate_router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
@@ -109,6 +113,8 @@ networks:
     stargate_poolid: 2
     weth: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
     usdt: "0x55d398326f99059fF775485246999027B3197955"
+    busd: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
+    usdd: "0xd17479997F34dd9156Deef8F95A52D81D265be9c"
     swap: [
       # pancakeswap
       [ "0x10ED43C718714eb63d5aA57B78B54704E256024E", IUniswapV2Router02, "https://tokens.pancakeswap.finance/pancakeswap-top-100.json" ]
@@ -137,8 +143,10 @@ networks:
     weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
     usdc: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
     # sushiswap no liquidity for usdt
-    #usdt: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+    usdt: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
     swap: [
+      # uniswap v3
+      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "", "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6" ],
       # sushiswap v2
       [ "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", IUniswapV2Router02 ]
     ]
