@@ -3,6 +3,15 @@
 pragma solidity >=0.7.0;
 
 interface ILayerZeroUltraLightNodeV1 {
+    struct ApplicationConfiguration {
+        uint16 inboundProofLibraryVersion;
+        uint64 inboundBlockConfirmations;
+        address relayer;
+        uint16 outboundProofType;
+        uint64 outboundBlockConfirmations;
+        address oracle;
+    }
+
     event AppConfigUpdated(address userApplication, uint configType, bytes newConfig);
     event AddInboundProofLibraryForChain(uint16 chainId, address lib);
     event EnableSupportedOutboundProof(uint16 chainId, uint16 proofType);
@@ -34,4 +43,6 @@ interface ILayerZeroUltraLightNodeV1 {
     function oracleQuotedAmount(address _oracle) external view returns (uint);
 
     function relayerQuotedAmount(address _relayer) external view returns (uint);
+
+    function getAppConfig(uint16 _chainId, address userApplicationAddress) external view returns (ApplicationConfiguration memory);
 }
