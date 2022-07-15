@@ -109,6 +109,7 @@ networks:
   bsc-main:
     chainid: 56
     stargate_router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
+    stargate_bridge: "0x6694340fc020c5E6B96567843da2df01b2CE1eb6"
     stargate_chainid: 2
     stargate_poolid: 2
     weth: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
@@ -138,6 +139,7 @@ networks:
   arbitrum-main:
     chainid: 42161
     stargate_router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
+    stargate_bridge: "0x352d8275AAE3e0c2404d9f68f6cEE084B5bEB3DD"
     stargate_chainid: 10
     stargate_poolid: 1
     weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"

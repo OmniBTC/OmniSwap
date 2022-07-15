@@ -1,4 +1,3 @@
-
 from brownie import network, config, Contract, interface, SoDiamond
 
 
@@ -20,5 +19,10 @@ def main():
     print(f"endpoint: {endpoint_address}")
     ultra_light_node_address = endpoint.defaultSendLibrary()
     print("ultra_light_node_address", ultra_light_node_address)
-    Contract.from_abi("ILayerZeroUltraLightNodeV1", ultra_light_node_address,
-                      interface.ILayerZeroUltraLightNodeV1.abi)
+    ultra_light_node = Contract.from_abi("ILayerZeroUltraLightNodeV1", ultra_light_node_address,
+                                         interface.ILayerZeroUltraLightNodeV1.abi)
+    src_net = "bsc-main"
+    app_config = ultra_light_node.getAppConfig(config["networks"][src_net]["stargate_chainid"],
+                                               config["networks"][src_net]["stargate_bridge"]
+                                               )
+    print("app config", app_config)
