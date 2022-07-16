@@ -74,10 +74,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         bool _hasSourceSwap;
         bool _hasDestinationSwap;
         uint256 _bridgeAmount;
-        if (_swapDataSrc.length == 0) {
-            if (!LibAsset.isNativeAsset(_soData.sendingAssetId)) {
+        if (!LibAsset.isNativeAsset(_soData.sendingAssetId)) {
                 LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
-            }
+        }
+        if (_swapDataSrc.length == 0) {
             deposit(_soData.sendingAssetId, _getStargateTokenByPoolId(_stargateData.srcStargatePoolId), _soData.amount);
             _bridgeAmount = _soData.amount;
             _hasSourceSwap = false;
@@ -140,7 +140,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _swapPayload
             )
         {} catch Error(string memory revertReason) {
-            withdraw(_token, _soData.receivingAssetId, _amount, _soData.receiver);
+            withdraw(_token, _token, _amount, _soData.receiver);
             emit SoTransferFailed(
                 _soData.transactionId,
                 revertReason,
@@ -148,7 +148,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _soData
             );
         } catch (bytes memory returnData) {
-            withdraw(_token, _soData.receivingAssetId, _amount, _soData.receiver);
+            withdraw(_token, _token, _amount, _soData.receiver);
             emit SoTransferFailed(
                 _soData.transactionId,
                 "",
@@ -222,7 +222,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                     _soData
                 );
             } catch Error(string memory revertReason) {
-                withdraw(_swapDataDst[0].sendingAssetId, _soData.receivingAssetId, _amount, _soData.receiver);
+                withdraw(_swapDataDst[0].sendingAssetId, _swapDataDst[0].sendingAssetId, _amount, _soData.receiver);
                 emit SoTransferFailed(
                     _soData.transactionId,
                     revertReason,
@@ -230,7 +230,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                     _soData
                 );
             } catch (bytes memory returnData) {
-                withdraw(_swapDataDst[0].sendingAssetId, _soData.receivingAssetId, _amount, _soData.receiver);
+                withdraw(_swapDataDst[0].sendingAssetId, _swapDataDst[0].sendingAssetId, _amount, _soData.receiver);
                 emit SoTransferFailed(
                     _soData.transactionId,
                     "",
