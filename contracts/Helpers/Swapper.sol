@@ -8,6 +8,7 @@ import {LibAsset} from "../Libraries/LibAsset.sol";
 import {LibUtil} from "../Libraries/LibUtil.sol";
 import {LibStorage} from "../Libraries/LibStorage.sol";
 import {LibAsset} from "../Libraries/LibAsset.sol";
+import {IStargateEthVault} from "../Interfaces/IStargateEthVault.sol";
 import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided, NotSupportedSwapRouter} from "../Errors/GenericErrors.sol";
 
 /// @title Swapper
@@ -62,6 +63,59 @@ contract Swapper is ISo {
         swapBalance = LibAsset.getOwnBalance(finalTokenId) - swapBalance;
         if (swapBalance == 0) revert InvalidAmount();
         return swapBalance;
+    }
+
+    /// Public Methods ///
+
+    /// @dev Eth wrapped is used by stargate
+    function deposit(
+        address _currentAssetId,
+        address _expectAssetId,
+        uint256 _amount
+    ) public payable {
+        if (LibAsset.isNativeAsset(_currentAssetId)) {
+            // eth -> weth
+            if (_currentAssetId != _expectAssetId) {
+                try IStargateEthVault(_expectAssetId).deposit{value : _amount}() {
+                }catch {
+                    revert("Deposit fail");
+                }
+            }
+        } else {
+            // weth -> eth -> weth
+            if (_currentAssetId != _expectAssetId) {
+                try IStargateEthVault(_currentAssetId).withdraw(_amount) {
+                }catch {
+                    revert("Deposit withdraw fail");
+                }
+                try IStargateEthVault(_expectAssetId).deposit{value : _amount}() {
+                }catch {
+                    revert("Withdraw deposit fail");
+                }
+            }
+        }
+    }
+
+    /// @dev Eth wrapped is used by stargate
+    function withdraw(
+        address _currentAssetId,
+        address _expectAssetId,
+        uint256 _amount,
+        address _receiver
+    ) public {
+        if (LibAsset.isNativeAsset(_expectAssetId)) {
+            if (_currentAssetId != _expectAssetId) {
+                try IStargateEthVault(_currentAssetId).withdraw(_amount) {
+                }catch {
+                    revert("Withdraw fail");
+                }
+            }
+        } else {
+            require(_currentAssetId == _expectAssetId, "AssetId not match");
+        }
+        if (_receiver != address(this)) {
+            LibAsset.transferAsset(_expectAssetId, payable(_receiver), _amount);
+        }
     }
 
     /// Private Methods ///

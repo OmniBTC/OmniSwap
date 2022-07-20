@@ -9,7 +9,6 @@ import {IStargateFactory} from "../Interfaces/IStargateFactory.sol";
 import {IStargatePool} from "../Interfaces/IStargatePool.sol";
 import {IStargateFeeLibrary} from "../Interfaces/IStargateFeeLibrary.sol";
 import {IStargateReceiver} from "../Interfaces/IStargateReceiver.sol";
-import {IStargateEthVault} from "../Interfaces/IStargateEthVault.sol";
 import {LibDiamond} from "../Libraries/LibDiamond.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidConfig} from "../Errors/GenericErrors.sol";
@@ -123,7 +122,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         address _token,
         uint256 _amount,
         bytes memory _payload
-    ) external nonReentrant {
+    ) external {
         (SoData memory _soData, bytes memory _swapPayload) = abi.decode(
             _payload,
             (SoData, bytes)
@@ -331,47 +330,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     }
 
     /// Public Methods ///
-
-    /// @dev Eth wrapped is used by stargate
-    function deposit(
-        address _currentAssetId,
-        address _expectAssetId,
-        uint256 _amount
-    ) public payable {
-        if (LibAsset.isNativeAsset(_currentAssetId)) {
-            if (_currentAssetId != _expectAssetId) {
-                require(msg.value >= _amount, "value not enough");
-                try IStargateEthVault(_expectAssetId).deposit{value : _amount}() {
-                }catch {
-                    revert("Deposit fail");
-                }
-            }
-        } else {
-            require(_currentAssetId == _expectAssetId, "AssetId not match");
-        }
-    }
-
-    /// @dev Eth wrapped is used by stargate
-    function withdraw(
-        address _currentAssetId,
-        address _expectAssetId,
-        uint256 _amount,
-        address _receiver
-    ) public {
-        if (LibAsset.isNativeAsset(_expectAssetId)) {
-            if (_currentAssetId != _expectAssetId) {
-                try IStargateEthVault(_currentAssetId).withdraw(_amount) {
-                }catch {
-                    revert("Withdraw fail");
-                }
-            }
-        } else {
-            require(_currentAssetId == _expectAssetId, "AssetId not match");
-        }
-        if (_receiver != address(this)) {
-            LibAsset.transferAsset(_expectAssetId, payable(_receiver), _amount);
-        }
-    }
 
     /// @dev Get so fee
     function getSoFee(uint256 _amount) public view returns (uint256) {
