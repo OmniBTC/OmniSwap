@@ -623,7 +623,7 @@ def single_swap(
         sourceSwapPath
 ):
     print(
-        f"{'-' * 100}\nnetwork {src_session.net} single swap from: , token {sendingTokenName} -> {receiveTokenName}")
+        f"{'-' * 100}\nnetwork {src_session.net}, single swap: token {sendingTokenName} -> {receiveTokenName}")
     so_data = SoData.create(
         src_session.put_task(get_account_address),
         amount=inputAmount,
@@ -682,15 +682,15 @@ def main(src_net="rinkeby", dst_net="optimism-test"):
         receiveTokenName="eth",
         sourceSwapType=SwapType.ISwapRouter,
         sourceSwapFunc=SwapFunc.exactInput,
-        sourceSwapPath=("usdc", 0.003, "weth")
+        sourceSwapPath=("usdc", 0.01, "weth")
     )
 
-    cross_swap(inputAmount=int(100000 * src_session.put_task(get_token_decimal, args=("usdc",))),
+    cross_swap(inputAmount=int(100 * src_session.put_task(get_token_decimal, args=("usdc",))),
                sourceTokenName="usdc",  # stargate
                destinationTokenName="usdc",  # stargate
                sourceSwapType=SwapType.ISwapRouter,
                sourceSwapFunc=SwapFunc.exactInput,
-               sourceSwapPath=("usdc", 0.003, "weth"),
+               sourceSwapPath=("usdc", 0.01, "weth"),
                sourceStargateToken="weth",
                destinationStargateToken="weth",
                destinationSwapType=SwapType.ISwapRouter,
