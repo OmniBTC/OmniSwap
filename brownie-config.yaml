@@ -18,160 +18,282 @@ networks:
   default: rinkeby
   rinkeby:
     chainid: 4
-    stargate_router: "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561"
-    stargate_chainid: 10001
-    stargate_poolid: 1
-    stargate_poolid_eth: 13
-    usdc: "0x1717A0D5C8705EE89A8aD6E808268D6A826C97A4"
-    weth: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
-    swap: [
-      [ "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02 ],
-      # uniswap v3
-      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "", "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6" ]
-    ]
+    stargate:
+      router: "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561"
+      chainid: 10001
+      poolid:
+        usdc: 1
+        weth: 13
+    token:
+      usdc:
+        address: "0x1717A0D5C8705EE89A8aD6E808268D6A826C97A4"
+        decimal: 6
+      weth:
+        address: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
+        decimal: 18
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: ""
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+        token_list: ""
   bsc-test:
     chainid: 97
-    stargate_router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
-    stargate_chainid: 10002
-    stargate_poolid: 2
-    usdc: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
-    weth: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
-    swap: [ [ "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3", IUniswapV2Router02 ] ]
+    stargate:
+      router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
+      chainid: 10002
+      poolid:
+        usdt: 2
+    token:
+      usdt:
+        address: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
+        decimal: 18
+      weth:
+        address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
+        decimal: 18
+    swap:
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3"
+        token_list: ""
   avax-test:
     chainid: 43113
-    stargate_router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
-    stargate_chainid: 10006
-    stargate_poolid: 1
-    usdc: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
-    # DexLot used weth
-    weth: "0x9B5828d46A43176F07656e162cCbDc787624468c"
-    # Hurricaneswap used weth
-    # weth: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
-    hct: "0xEdDEB2ff49830f3aa30Fee2F7FaBC5136845304a"
-    swap: [
-      # DexLot Uniswap V2 https://test-swap.dexlot.app/swap
-      [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02AVAX ],
-      # Hurricaneswap Uniswap V2 https://test.hurricaneswap.com/#/swap
-      [ "0x7E3411B04766089cFaa52DB688855356A12f05D1",  IUniswapV2Router02AVAX ]
-    ]
+    stargate:
+      router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
+      chainid: 10006
+      poolid:
+        usdc: 1
+    token:
+      usdc:
+        address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
+        decimal: 6
+      weth:
+        # DexLot used weth
+        address: "0x9B5828d46A43176F07656e162cCbDc787624468c"
+        # Hurricaneswap used weth "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
+        decimal: 18
+    swap:
+      IUniswapV2Router02AVAX:
+        name: DexLotV2
+        router: "0x6D481b9F59b22B6eB097b986fC06E438d585c039"
+        token_list: ""
+#      IUniswapV2Router02AVAX:
+#        name: HurricaneswapV2
+#        router: "0x7E3411B04766089cFaa52DB688855356A12f05D1"
+#        token_list: ""
   polygon-test:
     chainid: 80001
-    stargate_router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
-    stargate_chainid: 10009
-    stargate_poolid: 1
-    usdc: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
-    weth: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
-    swap: [ [ "0x8954AfA98594b838bda56FE4C12a09D7739D179b", IUniswapV2Router02 ] ]
+    stargate:
+      router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
+      chainid: 10009
+      poolid:
+        usdc: 1
+    token:
+      usdc:
+        address: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
+        decimal: 6
+      weth:
+        address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
+        decimal: 18
+    swap:
+      IUniswapV2Router02AVAX:
+        name: UniswapV2
+        router: "0x8954AfA98594b838bda56FE4C12a09D7739D179b"
+        token_list: ""
   arbitrum-test:
     chainid: 421611
-    stargate_router: "0x6701D9802aDF674E524053bd44AA83ef253efc41"
-    stargate_chainid: 10010
-    stargate_poolid: 1
-    stargate_poolid_eth: 13
-    usdc: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
-    weth: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
-    swap: [
-      # uniswap v3
-      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "", "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6" ],
-      # Swapr https://swapr.eth.limo/
-      [ "0xb5a35165047fed7440D3a75909c0949bf1943696", IUniswapV2Router02 ]
-    ]
+    stargate:
+      router: "0x6701D9802aDF674E524053bd44AA83ef253efc41"
+      chainid: 10010
+      poolid:
+        usdc: 1
+        weth: 13
+    token:
+      usdc:
+        address: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
+        decimal: 6
+      weth:
+        address: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
+        decimal: 18
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: ""
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0xb5a35165047fed7440D3a75909c0949bf1943696"
+        token_list: ""
   optimism-test:
     chainid: 69
-    stargate_router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
-    stargate_chainid: 10011
-    stargate_poolid: 1
-    stargate_poolid_eth: 13
-    usdc: "0x567f39d9e6d02078F357658f498F80eF087059aa"
-    weth: "0x4200000000000000000000000000000000000006"
-    swap: [
-      # uniswap v3
-      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "", "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6" ]
-    ]
+    stargate:
+      router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
+      chainid: 10011
+      poolid:
+        usdc: 1
+        weth: 13
+    token:
+      usdc:
+        address: "0x567f39d9e6d02078F357658f498F80eF087059aa"
+        decimal: 6
+      weth:
+        address: "0x4200000000000000000000000000000000000006"
+        decimal: 18
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: ""
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
   ftm-test:
     chainid: 4002
-    stargate_router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
-    stargate_chainid: 10012
-    stargate_poolid: 1
-    weth: "0x9B5828d46A43176F07656e162cCbDc787624468c"
-    usdc: "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e"
-    swap: [ [ "0x6D481b9F59b22B6eB097b986fC06E438d585c039", IUniswapV2Router02 ] ]
+    stargate:
+      router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
+      chainid: 10012
+      poolid:
+        usdc: 1
+    token:
+      usdc:
+        address: "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e"
+        decimal: 6
+      weth:
+        address: "0x9B5828d46A43176F07656e162cCbDc787624468c"
+        decimal: 18
+    swap:
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0x6D481b9F59b22B6eB097b986fC06E438d585c039"
+        token_list: ""
   mainnet:
     chainid: 1
-    stargate_router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
-    stargate_chainid: 1
-    swap: [
-      # uniswap v2
-      [ "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", IUniswapV2Router02, "https://tokens.uniswap.org/" ],
-      # uniswap v3
-      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter ]
-    ]
+    stargate:
+      router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
+      chainid: 1
+      poolid:
+        usdc: 1
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: ""
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+        token_list: "https://tokens.uniswap.org/"
   bsc-main:
     chainid: 56
-    stargate_router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
-    stargate_bridge: "0x6694340fc020c5E6B96567843da2df01b2CE1eb6"
-    stargate_chainid: 2
-    stargate_poolid: 2
-    weth: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
-    usdt: "0x55d398326f99059fF775485246999027B3197955"
-    busd: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
-    usdd: "0xd17479997F34dd9156Deef8F95A52D81D265be9c"
-    swap: [
-      # pancakeswap
-      [ "0x10ED43C718714eb63d5aA57B78B54704E256024E", IUniswapV2Router02, "https://tokens.pancakeswap.finance/pancakeswap-top-100.json" ]
-    ]
+    stargate:
+      router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
+      chainid: 2
+      poolid:
+        usdt: 2
+    token:
+      usdt:
+        address: "0x55d398326f99059fF775485246999027B3197955"
+        decimal: 18
+      busd:
+        address: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
+        decimal: 18
+      usdd:
+        address: "0xd17479997F34dd9156Deef8F95A52D81D265be9c"
+        decimal: 18
+      weth:
+        address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+        decimal: 18
+    swap:
+      IUniswapV2Router02:
+        name: PancakeSwapV2
+        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
+        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
   avax-main:
     chainid: 43114
-    stargate_router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
-    stargate_chainid: 6
-    swap: [
-      # Pangolin
-      [ "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106", IUniswapV2Router02AVAX, "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json" ]
-    ]
+    stargate:
+      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+      chainid: 6
+      poolid:
+        usdc: 1
+    swap:
+      IUniswapV2Router02AVAX:
+        name: PangolinV2
+        router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
+        token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
   polygon-main:
     chainid: 137
-    stargate_router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
-    stargate_chainid: 9
-    swap: [
-      # quickswap
-      [ "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff", IUniswapV2Router02, "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json" ]
-    ]
+    stargate:
+      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+      chainid: 9
+      poolid:
+        usdc: 1
+    swap:
+      IUniswapV2Router02:
+        name: QuickswapV2
+        router: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"
+        token_list: "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json"
   arbitrum-main:
     chainid: 42161
-    stargate_router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
-    stargate_bridge: "0x352d8275AAE3e0c2404d9f68f6cEE084B5bEB3DD"
-    stargate_chainid: 10
-    stargate_poolid: 1
-    weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
-    usdc: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
-    # sushiswap no liquidity for usdt
-    usdt: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
-    swap: [
-      # uniswap v3
-      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "", "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6" ],
-      # sushiswap v2
-      [ "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", IUniswapV2Router02 ]
-    ]
+    stargate:
+      router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
+      chainid: 10
+      poolid:
+        usdc: 1
+    usdt:
+      address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+      decimal: 6
+    usdc:
+      address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+      decimal: 6
+    weth:
+      address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+      decimal: 18
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: ""
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      IUniswapV2Router02:
+        name: SushiswapV2
+        router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
+        token_list: ""
   optimism-main:
     chainid: 10
-    stargate_router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
-    stargate_chainid: 11
-    swap: [
-      #      # uniswap v3
-      [ "0xE592427A0AEce92De3Edee1F18E0157C05861564", ISwapRouter, "https://static.optimism.io/optimism.swap_tokenlist.json" ],
-      # ZipSwap
-      [ "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6", IUniswapV2Router02 ]
-    ]
+    stargate:
+      router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
+      chainid: 11
+      poolid:
+        usdc: 1
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      IUniswapV2Router02:
+        name: ZipSwapV2
+        router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
+        token_list: ""
   ftm-main:
     chainid: 250
-    stargate_router: "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6"
-    stargate_chainid: 12
-    swap: [
-      # spookyswap
-      [ "0xF491e7B69E4244ad4002BC14e878a34207E38c29", IUniswapV2Router02, "https://docs.spooky.fi/Resources/ftm-token-addresses" ],
-      # spiritswap
-      [ "0x16327E3FbDaCA3bcF7E38F5Af2599D2DDc33aE52", IUniswapV2Router02 ]
-    ]
+    stargate:
+      router: "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6"
+      chainid: 12
+      poolid:
+        usdc: 1
+    swap:
+      IUniswapV2Router02:
+        name: SpookyswapV2
+        router: "0xF491e7B69E4244ad4002BC14e878a34207E38c29"
+        token_list: "https://docs.spooky.fi/Resources/ftm-token-addresses"
+#      IUniswapV2Router02:
+#        name: Spiritswap
+#        router: "0x16327E3FbDaCA3bcF7E38F5Af2599D2DDc33aE52"
+#        token_list: "https://docs.spooky.fi/Resources/ftm-token-addresses"
 wallets:
   from_key: ${PRIVATE_KEY}
   from_mnemonic: ${MNEMONIC}

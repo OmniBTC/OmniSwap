@@ -1,12 +1,12 @@
 import time
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, Contract, network, config, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1, \
+    OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1, \
     web3
 from brownie.network import priority_fee
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address, combine_bytes, \
-    padding_to_bytes
+    padding_to_bytes, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info
 
 
 def main():
@@ -36,7 +36,7 @@ def initialize_for_test_fee():
     if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test", "arbitrum-test",
                                  "optimism-test"]:
         so_diamond = SoDiamond[-1]
-        usdc = Contract.from_abi("MockToken", config["networks"][network.show_active()]["usdc"], MockToken.abi)
+        usdc = Contract.from_abi("MockToken", get_token_address("usdc"), MockToken.abi)
         try:
             usdc.mint(account, 100 * 1e4 * 1e6, {"from": account})
             print("mint 1000000 usdc success!\n")
@@ -139,8 +139,8 @@ def initialize_stargate(account, so_diamond):
     net = network.show_active()
     print(f"network:{net}, init stargate...")
     proxy_stargate.initStargate(
-        config["networks"][net]["stargate_router"],
-        config["networks"][net]["stargate_chainid"],
+        get_stargate_router(),
+        get_stargate_chain_id(),
         {'from': account}
     )
 
@@ -152,14 +152,16 @@ def initialize_dex_manager(account, so_diamond):
     dexs = []
     sigs = []
     proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {'from': account})
-    for pair in config["networks"][net]["swap"]:
-        dexs.append(pair[0])
-        reg_funcs = get_method_signature_by_abi(getattr(interface, pair[1]).abi)
+    swap_info = get_swap_info()
+    for swap_type in swap_info:
+        cur_swap = swap_info[swap_type]
+        dexs.append(cur_swap["router"])
+        reg_funcs = get_method_signature_by_abi(getattr(interface, swap_type).abi)
         for sig in reg_funcs.values():
             sigs.append(sig.hex() + "0" * 56)
     proxy_dex.batchAddDex(dexs, {'from': account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
-    proxy_dex.addFee(config["networks"][net]["stargate_router"], LibSoFeeV01[-1].address, {'from': account})
+    proxy_dex.addFee(get_stargate_router(), LibSoFeeV01[-1].address, {'from': account})
 
 
 def reinitialize_dex(old_dex):
@@ -168,8 +170,10 @@ def reinitialize_dex(old_dex):
     proxy_dex = Contract.from_abi("DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
     proxy_dex.removeDex(old_dex, {'from': account})
     dexs = []
-    for pair in config["networks"][net]["swap"]:
-        dexs.append(pair[0])
+    swap_info = get_swap_info()
+    for swap_type in swap_info:
+        cur_swap = swap_info[swap_type]
+        dexs.append(cur_swap["router"])
     proxy_dex.batchAddDex(dexs, {'from': account})
 
 
@@ -186,12 +190,12 @@ def initialize_main_for_dstforgas(token: str):
         raise "TOKEN FAIL"
     account = get_account()
     net = network.show_active()
-    token_address = config["networks"][net][token]
-    weth = config["networks"][net]["weth"]
+    token_address = get_token_address(token)
+    weth = get_token_address("weth")
     swap_router = Contract.from_abi(
         "ROUTER",
-        config["networks"][net]["swap"][0][0],
-        getattr(interface, config["networks"][net]["swap"][0][1]).abi)
+        get_swap_info()["IUniswapV2Router02"]["router"],
+        getattr(interface, "IUniswapV2Router02").abi)
     amount = 0.01 * (10 ** decimal)
     weth_amount = int(amount * 10 ** (18 - decimal) / 100)
     swap_router.swapETHForExactTokens(
@@ -218,12 +222,12 @@ def initialize_main_for_dstforgas_from_v3(token: str):
         raise "TOKEN FAIL"
     account = get_account()
     net = network.show_active()
-    token_address = config["networks"][net][token]
-    weth = config["networks"][net]["weth"]
+    token_address = get_token_address(token)
+    weth = get_token_address("weth")
     swap_router = Contract.from_abi(
         "ROUTER",
-        config["networks"][net]["swap"][0][0],
-        getattr(interface, config["networks"][net]["swap"][0][1]).abi)
+        get_swap_info()["ISwapRouter"]["router"],
+        getattr(interface, "ISwapRouter").abi)
     amount = int(0.01 * (10 ** decimal))
     weth_max_amount = int(amount * 10 ** (18 - decimal) / 1000)
     path = combine_bytes([weth,
@@ -249,7 +253,7 @@ def initialize_eth_for_dstforgas():
     account = get_account()
     net = network.show_active()
     decimal = 18
-    stargate_router = config["networks"][net]["stargate_router"]
+    stargate_router = get_stargate_router()
     stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
     factory_address = stragate.factory()
     factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)

@@ -1,9 +1,9 @@
 # @Time    : 2022/7/15 16:40
 # @Author  : WeiDai
 # @FileName: compensate.py
-from brownie import network, config, interface, SoDiamond, Contract, chain, StargateFacet
+from brownie import network, interface, SoDiamond, Contract, chain, StargateFacet
 
-from scripts.helpful_scripts import get_account
+from scripts.helpful_scripts import get_account, get_stargate_router
 
 
 def compensate_v1():
@@ -23,10 +23,10 @@ def compensate_v1():
     )
 
 
-def main():
+def compensate_v2():
     account = get_account()
     net = network.show_active()
-    stargate_router = config["networks"][net]["stargate_router"]
+    stargate_router = get_stargate_router()
     print(f"stragate router: {stargate_router}")
     stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
 

@@ -1,4 +1,6 @@
-from brownie import network, config, Contract, interface, SoDiamond
+from brownie import network, Contract, interface, SoDiamond
+
+from scripts.helpful_scripts import get_stargate_router, get_stargate_info
 
 
 def main():
@@ -8,7 +10,7 @@ def main():
     except:
         addr = ""
     print(f"network:{net}, SoDiamond: {addr}")
-    stargate_router = config["networks"][net]["stargate_router"]
+    stargate_router = get_stargate_router()
     print(f"stragate router: {stargate_router}")
     stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
     bridge_address = stragate.bridge()
@@ -22,7 +24,7 @@ def main():
     ultra_light_node = Contract.from_abi("ILayerZeroUltraLightNodeV1", ultra_light_node_address,
                                          interface.ILayerZeroUltraLightNodeV1.abi)
     src_net = "bsc-main"
-    app_config = ultra_light_node.getAppConfig(config["networks"][src_net]["stargate_chainid"],
-                                               config["networks"][src_net]["stargate_bridge"]
+    app_config = ultra_light_node.getAppConfig(get_stargate_router(),
+                                               get_stargate_info()["bridge"]
                                                )
     print("app config", app_config)

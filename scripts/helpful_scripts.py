@@ -1,15 +1,19 @@
+import functools
 import json
+from pathlib import Path
+from typing import Union
 
 from brownie import (
     network,
     accounts,
     config,
-    Contract,
-    interface,
-    web3
+    project
 )
 from brownie.network.web3 import Web3
 from brownie.network import priority_fee
+from multiprocessing import Queue, Process, set_start_method
+
+from brownie.project import get_loaded_projects
 
 NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["hardhat", "development", "ganache"]
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
@@ -17,14 +21,6 @@ LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "binance-fork",
     "matic-fork",
 ]
-
-contract_to_type = {
-    "stargate_router": interface.IStargate,
-    "usdc": interface.IERC20
-}
-
-DECIMALS = 18
-INITIAL_VALUE = web3.toWei(2000, "ether")
 
 
 def get_account(index=None, id=None):
@@ -35,39 +31,6 @@ def get_account(index=None, id=None):
     if id:
         return accounts.load(id)
     return accounts.add(config["wallets"]["from_key"])
-
-
-def get_contract(contract_name):
-    """If you want to use this function, go to the brownie config and add a new entry for
-    the contract that you want to be able to 'get'. Then add an entry in the variable 'contract_to_type'.
-    You'll see examples like the 'link_token'.
-        This script will then either:
-            - Get a address from the config
-            - Or deploy a mock to use for a network that doesn't have it
-
-        Args:
-            contract_name (string): This is the name that is referred to in the
-            brownie config and 'contract_to_type' variable.
-
-        Returns:
-            brownie.network.contract.ProjectContract: The most recently deployed
-            Contract of the type specificed by the dictionary. This could be either
-            a mock or the 'real' contract on a live network.
-    """
-    contract_type = contract_to_type[contract_name]
-    try:
-        contract_address = config["networks"][network.show_active()][contract_name]
-        contract = Contract.from_abi(
-            contract_type._name, contract_address, contract_type.abi
-        )
-        return contract
-    except KeyError:
-        print(
-            f"{network.show_active()} address not found, perhaps you should add it to the config or deploy mocks?"
-        )
-        print(
-            f"brownie run scripts/deploy_mocks.py --network {network.show_active()}"
-        )
 
 
 def get_func_prototype(data):
@@ -147,3 +110,115 @@ def combine_bytes(bs: list):
     for b in bs:
         output += b.replace("0x", "")
     return output
+
+
+def find_loaded_projects(name):
+    for loaded_project in get_loaded_projects():
+        if loaded_project._name == name:
+            return loaded_project
+
+
+class TaskType:
+    Execute = "execute"
+    ExecuteWithProject = "execute_with_project"
+
+
+class Session(Process):
+    def __init__(self,
+                 net: str,
+                 project_path: Union[Path, str, None],
+                 group=None,
+                 name=None,
+                 kwargs={},
+                 *,
+                 daemon=None):
+        self.net = net
+        self.project_path = project_path
+        try:
+            set_start_method("spawn")
+        except:
+            pass
+        self.task_queue = Queue(maxsize=1)
+        self.result_queue = Queue(maxsize=1)
+
+        super().__init__(
+            group=group,
+            target=self.work,
+            name=name,
+            args=(self.task_queue, self.result_queue),
+            kwargs=kwargs,
+            daemon=daemon
+        )
+        self.start()
+
+    def work(self,
+             task_queue: Queue,
+             result_queue: Queue):
+        p = project.load(self.project_path, name=self.name)
+        p.load_config()
+        change_network(self.net)
+        print(f"network {self.net} is connected!")
+        while True:
+            task_type, task = task_queue.get()
+            if task_type == TaskType.Execute:
+                result_queue.put(task())
+            else:
+                result_queue.put(task(p=p))
+
+    def put_task(self, func, args=(), with_project=False):
+        task = functools.partial(func, *args)
+        if with_project:
+            self.task_queue.put((TaskType.ExecuteWithProject, task))
+        else:
+            self.task_queue.put((TaskType.Execute, task))
+        return self.result_queue.get()
+
+
+def get_chain_id():
+    return network.chain.id
+
+
+def get_current_net_info():
+    return config["networks"][network.show_active()]
+
+
+def get_stargate_info():
+    return get_current_net_info()["stargate"]
+
+
+def get_stargate_router():
+    return get_stargate_info()["router"]
+
+
+def get_stargate_chain_id():
+    return get_stargate_info()["chainid"]
+
+
+def get_stargate_pool_id(token_name: str):
+    return get_stargate_info()["poolid"][token_name]
+
+
+def get_swap_info():
+    return get_current_net_info()["swap"]
+
+
+def get_token_info(token_name: str):
+    return get_current_net_info()["token"][token_name]
+
+
+def get_token_address(token_name: str):
+    if token_name == "eth":
+        return zero_address()
+    else:
+        return get_token_info(token_name)["address"]
+
+
+def get_token_decimal(token_name: str):
+    if token_name == "eth":
+        return 10 ** 18
+    else:
+        return 10 ** get_token_info(token_name)["decimal"]
+
+
+def get_account_address():
+    return get_account().address
