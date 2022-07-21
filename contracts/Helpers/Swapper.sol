@@ -67,19 +67,23 @@ contract Swapper is ISo {
 
     /// Public Methods ///
 
-    /// @dev Eth wrapped is used by stargate
+    /// @dev Convert to wrapped eth. As long as it is successful, it must be converted
+    /// from the currentAssetId to the expectedAssetId of the amount
     function deposit(
         address _currentAssetId,
         address _expectAssetId,
         uint256 _amount
     ) public payable {
+        if (_currentAssetId == _expectAssetId) {
+            require(LibAsset.getOwnBalance(_currentAssetId) >= _amount,  "Deposit not enough");
+            return;
+        }
+
         if (LibAsset.isNativeAsset(_currentAssetId)) {
             // eth -> weth
-            if (_currentAssetId != _expectAssetId) {
-                try IStargateEthVault(_expectAssetId).deposit{value : _amount}() {
-                }catch {
-                    revert("Deposit fail");
-                }
+            try IStargateEthVault(_expectAssetId).deposit{value : _amount}() {
+            }catch {
+                revert("Deposit fail");
             }
         } else {
             // weth -> eth -> weth
@@ -96,7 +100,7 @@ contract Swapper is ISo {
         }
     }
 
-    /// @dev Eth wrapped is used by stargate
+    /// @dev Convert wrapped eth to eth and Transfer.
     function withdraw(
         address _currentAssetId,
         address _expectAssetId,
@@ -105,17 +109,17 @@ contract Swapper is ISo {
     ) public {
         if (LibAsset.isNativeAsset(_expectAssetId)) {
             if (_currentAssetId != _expectAssetId) {
-                if (LibAsset.getOwnBalance(_currentAssetId) >= _amount){
-                    try IStargateEthVault(_currentAssetId).withdraw(_amount) {
-                    } catch {
-                        revert("Withdraw fail");
-                    }
+                // weth -> eth
+                try IStargateEthVault(_currentAssetId).withdraw(_amount) {
+                } catch {
+                    revert("Withdraw fail");
                 }
             }
         } else {
             require(_currentAssetId == _expectAssetId, "AssetId not match");
         }
         if (_receiver != address(this)) {
+            require(LibAsset.getOwnBalance(_expectAssetId) >= _amount,  "Withdraw not enough");
             LibAsset.transferAsset(_expectAssetId, payable(_receiver), _amount);
         }
     }

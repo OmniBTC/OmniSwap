@@ -13,6 +13,7 @@ import {LibDiamond} from "../Libraries/LibDiamond.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 import {InvalidAmount, CannotBridgeToSameNetwork, NativeValueWithERC, InvalidConfig} from "../Errors/GenericErrors.sol";
 import {Swapper, LibSwap} from "../Helpers/Swapper.sol";
+import {IStargateEthVault} from "../Interfaces/IStargateEthVault.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
@@ -46,6 +47,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Events ///
 
     event StargateInitialized(address stargate, uint256 chainId);
+    event CachedSgReceive(uint16 chainId, bytes srcAddress, uint256 nonce, address token, uint256 amount, bytes payload);
 
     /// Init ///
 
@@ -123,6 +125,12 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 _amount,
         bytes memory _payload
     ) external {
+        if (LibAsset.getOwnBalance(_token) < _amount) {
+            require(!IStargateEthVault(_token).noUnwrapTo(address(this)), "Token error");
+            require(LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= _amount, "Not enough");
+            _token = LibAsset.NATIVE_ASSETID;
+        }
+
         (SoData memory _soData, bytes memory _swapPayload) = abi.decode(
             _payload,
             (SoData, bytes)
@@ -140,6 +148,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             )
         {} catch Error(string memory revertReason) {
             withdraw(_token, _token, _amount, _soData.receiver);
+            emit CachedSgReceive(_chainId, _srcAddress, _nonce, _token, _amount, _payload);
             emit SoTransferFailed(
                 _soData.transactionId,
                 revertReason,
@@ -148,6 +157,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             );
         } catch (bytes memory returnData) {
             withdraw(_token, _token, _amount, _soData.receiver);
+            emit CachedSgReceive(_chainId, _srcAddress, _nonce, _token, _amount, _payload);
             emit SoTransferFailed(
                 _soData.transactionId,
                 "",
@@ -204,39 +214,20 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                     );
             }
 
-            try this.executeAndCheckSwaps(_soData, _swapDataDst) returns (
-                uint256 _amountFinal
-            ) {
-                withdraw(
-                    _swapDataDst[_swapDataDst.length - 1].receivingAssetId,
-                    _soData.receivingAssetId,
-                    _amountFinal,
-                    _soData.receiver);
-                emit SoTransferCompleted(
-                    _soData.transactionId,
-                    _soData.receivingAssetId,
-                    _soData.receiver,
-                    _amountFinal,
-                    block.timestamp,
-                    _soData
-                );
-            } catch Error(string memory revertReason) {
-                withdraw(_swapDataDst[0].sendingAssetId, _swapDataDst[0].sendingAssetId, _amount, _soData.receiver);
-                emit SoTransferFailed(
-                    _soData.transactionId,
-                    revertReason,
-                    bytes(""),
-                    _soData
-                );
-            } catch (bytes memory returnData) {
-                withdraw(_swapDataDst[0].sendingAssetId, _swapDataDst[0].sendingAssetId, _amount, _soData.receiver);
-                emit SoTransferFailed(
-                    _soData.transactionId,
-                    "",
-                    returnData,
-                    _soData
-                );
-            }
+            uint256 _amountFinal = this.executeAndCheckSwaps(_soData, _swapDataDst);
+            withdraw(
+                _swapDataDst[_swapDataDst.length - 1].receivingAssetId,
+                _soData.receivingAssetId,
+                _amountFinal,
+                _soData.receiver);
+            emit SoTransferCompleted(
+                _soData.transactionId,
+                _soData.receivingAssetId,
+                _soData.receiver,
+                _amountFinal,
+                block.timestamp,
+                _soData
+            );
         }
     }
 
@@ -248,12 +239,24 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     ) external {
         address _token = _getStargateTokenByPoolId(_dstStargatePoolId);
         uint256 _amount = LibAsset.getOwnBalance(_token);
+        if (_amount == 0) {
+            require(!IStargateEthVault(_token).noUnwrapTo(address(this)), "Token error");
+            _amount = LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID);
+        }
+
         require(_amount > 0, "sgReceiveForGas need a little amount token!");
         bytes memory _payload = _getSgReceiveForGasPayload(
             _soData,
             _swapDataDst
         );
+
         // monitor sgReceive
+        if (LibAsset.getOwnBalance(_token) < _amount) {
+            require(!IStargateEthVault(_token).noUnwrapTo(address(this)), "Token error");
+            require(LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= _amount, "Not enough");
+            _token = LibAsset.NATIVE_ASSETID;
+        }
+
         (SoData memory __soData, bytes memory _swapPayload) = abi.decode(
             _payload,
             (SoData, bytes)
