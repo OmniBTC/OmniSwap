@@ -18,7 +18,7 @@ def write_file(file: str, data):
         json.dump(data, f, indent=4, sort_keys=True)
 
 
-def get_stragate_pool_infos(net):
+def get_stragate_pool_infos():
     try:
         stargate_router = get_stargate_router()
     except:
@@ -100,7 +100,7 @@ def export(*arg):
             so_diamond = SoDiamond[-1]
         except:
             continue
-        pool_info = get_stragate_pool_infos(net)
+        pool_info = get_stragate_pool_infos()
         try:
             weth = get_token_address("weth")
         except:

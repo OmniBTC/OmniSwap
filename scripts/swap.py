@@ -94,6 +94,10 @@ class View:
             del data[k]
         return json.dumps(data, sort_keys=True, indent=4, separators=(',', ':'))
 
+    @staticmethod
+    def from_dict(obj, data: dict):
+        return obj(**data)
+
 
 class SoData(View):
 
@@ -496,7 +500,8 @@ def estimate_min_amount(
     print(f"Estimate min amount: slippage {slippage * 100}%")
     expect_min_amount = int(final_amount * (1 - slippage))
     if dst_swap_data is not None:
-        dst_swap_min_amount = dst_session.put_task(SwapData.estimate_in,
+        dst_swap_min_amount = expect_min_amount
+        stargate_min_amount = dst_session.put_task(SwapData.estimate_in,
                                                    args=(expect_min_amount,
                                                          dst_swap_data.swapType,
                                                          # note revert!
@@ -505,7 +510,7 @@ def estimate_min_amount(
                                                    with_project=True
                                                    )
         stargate_min_amount = dst_session.put_task(StargateData.estimate_before_so_fee,
-                                                   args=(dst_swap_min_amount,),
+                                                   args=(stargate_min_amount,),
                                                    with_project=True
                                                    )
     else:
@@ -532,8 +537,8 @@ def cross_swap(
         slippage
 ):
     print(f"{'-' * 100}\nSwap from: network {src_session.net}, token {sourceTokenName} "
-          f"-> stragate {sourceStargateToken} -> {destinationStargateToken}"
-          f"to: network {dst_session.net}, token: {destinationTokenName}")
+          f"-> stragate {sourceStargateToken} -> {destinationStargateToken} to: network "
+          f"{dst_session.net}, token: {destinationTokenName}")
     src_diamond_address = src_session.put_task(get_contract_address, args=("SoDiamond",), with_project=True)
     dst_diamond_address = dst_session.put_task(get_contract_address, args=("SoDiamond",), with_project=True)
     print(f"Source diamond address: {src_diamond_address}. Destination diamond address: {dst_diamond_address}")
@@ -564,7 +569,6 @@ def cross_swap(
                                                              destinationSwapPath),
                                                        with_project=True
                                                        )
-        print("DestinationSwapData:\n", dst_swap_data)
     else:
         dst_swap_data: SwapData = None
 
@@ -578,11 +582,13 @@ def cross_swap(
                                                  )
 
     stargate_data = StargateData.create(dst_gas_for_sgReceive, sourceStargateToken, destinationStargateToken)
-    print("StargateData:\n", stargate_data)
 
     final_amount = estimate_final_token_amount(inputAmount, src_swap_data, stargate_data, dst_swap_data)
 
     dst_swap_min_amount, stargate_min_amount = estimate_min_amount(final_amount, slippage, dst_swap_data)
+
+    stargate_data.minAmount = stargate_min_amount
+    print("StargateData:\n", stargate_data)
 
     if dst_swap_data is not None:
         dst_swap_data.callData = dst_session.put_task(SwapData.reset_min_amount,
@@ -593,7 +599,8 @@ def cross_swap(
                                                             ),
                                                       with_project=True
                                                       )
-    stargate_data.minAmount = stargate_min_amount
+        print("DestinationSwapData:\n", dst_swap_data)
+
     if sourceTokenName != "eth":
         src_session.put_task(token_appove,
                              args=(sourceTokenName,
@@ -674,7 +681,7 @@ def main(src_net="rinkeby", dst_net="optimism-test"):
                destinationSwapType=SwapType.ISwapRouter,
                destinationSwapFunc=SwapFunc.exactInput,
                destinationSwapPath=("usdc", 0.003, "weth"),
-               slippage=0.005)
+               slippage=0.001)
 
     single_swap(
         inputAmount=int(100 * src_session.put_task(get_token_decimal, args=("usdc",))),
@@ -696,7 +703,7 @@ def main(src_net="rinkeby", dst_net="optimism-test"):
                destinationSwapType=SwapType.ISwapRouter,
                destinationSwapFunc=SwapFunc.exactInput,
                destinationSwapPath=("weth", 0.003, "usdc"),
-               slippage=0.005)
+               slippage=0.001)
 
     src_session.terminate()
     dst_session.terminate()

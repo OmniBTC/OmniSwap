@@ -251,7 +251,6 @@ def initialize_main_for_dstforgas_from_v3(token: str):
 
 def initialize_eth_for_dstforgas():
     account = get_account()
-    net = network.show_active()
     decimal = 18
     stargate_router = get_stargate_router()
     stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
@@ -264,10 +263,16 @@ def initialize_eth_for_dstforgas():
     weth_amount = int(1e-5 * 1e18)
     proxy_diamond = Contract.from_abi(
         "StargateFacet", SoDiamond[-1].address, StargateFacet.abi)
-    proxy_diamond.deposit(zero_address(), token, weth_amount, {"from": account, "value": weth_amount})
-    print(f"initialize_eth_for_dstforgas finish, "
-          f"weth:{token} amount in sodiamond:{SoDiamond[-1].address} "
-          f"is {token.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
+    if token.noUnwrapTo(SoDiamond[-1].address):
+        proxy_diamond.deposit(zero_address(), token, weth_amount, {"from": account, "value": weth_amount})
+        print(f"initialize_eth_for_dstforgas finish, "
+              f"weth:{token} amount in sodiamond:{SoDiamond[-1].address} "
+              f"is {token.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
+    else:
+        account.transfer(SoDiamond[-1].address, weth_amount)
+        print(f"initialize_eth_for_dstforgas finish, "
+              f"eth amount in sodiamond:{SoDiamond[-1].address} "
+              f"is {web3.eth.get_balance(SoDiamond[-1].address) / 10 ** decimal}.")
 
 
 def reset_so_fee():
