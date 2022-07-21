@@ -105,9 +105,11 @@ contract Swapper is ISo {
     ) public {
         if (LibAsset.isNativeAsset(_expectAssetId)) {
             if (_currentAssetId != _expectAssetId) {
-                try IStargateEthVault(_currentAssetId).withdraw(_amount) {
-                }catch {
-                    revert("Withdraw fail");
+                if (LibAsset.getOwnBalance(_currentAssetId) >= _amount){
+                    try IStargateEthVault(_currentAssetId).withdraw(_amount) {
+                    } catch {
+                        revert("Withdraw fail");
+                    }
                 }
             }
         } else {
