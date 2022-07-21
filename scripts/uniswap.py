@@ -10,7 +10,6 @@ from scripts.helpful_scripts import get_account, get_token_address, get_swap_inf
 
 def create_pair_and_add_liquidity():
     account = get_account()
-    net = network.show_active()
 
     # usdc
     token1_address = "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"

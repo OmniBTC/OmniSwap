@@ -24,9 +24,21 @@ def get_stragate_pool_infos():
     except:
         return []
     stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
+    bridge_address = stragate.bridge()
+    bridge = Contract.from_abi("IStargateBridge", bridge_address, interface.IStargateBridge.abi)
+    endpoint_address = bridge.layerZeroEndpoint()
+    endpoint = Contract.from_abi("ILayerZeroEndpoint", endpoint_address, interface.ILayerZeroEndpoint.abi)
+    ultra_light_node_address = endpoint.defaultSendLibrary()
     factory_address = stragate.factory()
     factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
     pools_length = factory.allPoolsLength()
+    all_stragate_info = {
+        "router": stargate_router,
+        "bridge": bridge_address,
+        "endpoint": endpoint_address,
+        "ultra_light_node": ultra_light_node_address,
+        "factory": factory_address
+    }
     pool_info = []
     for i in range(0, pools_length):
         pool_address = factory.allPools(i)
@@ -42,7 +54,8 @@ def get_stragate_pool_infos():
             "Decimal": token.decimals(),
             "PoolId": pool_id
         })
-    return pool_info
+    all_stragate_info["pools"] = pool_info
+    return pool_info, all_stragate_info
 
 
 # check stargate pool
@@ -57,11 +70,11 @@ def check_stargate_pool(
             if ("main" in net1 and "main" not in net2) or ("main" not in net1 and "main" in net2):
                 continue
             print(f"net1:{net1}, net2:{net2}")
+            change_network(net1)
             try:
                 stargate_router = get_stargate_router()
             except:
                 return
-            change_network(net1)
             stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
             factory_address = stragate.factory()
             factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
@@ -92,6 +105,7 @@ def export(*arg):
         del arg[arg.index("development")]
     so_omnichain_info = os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json")
     output = read_abi(so_omnichain_info)
+    stargate_infos = {}
     swap_types = {}
     for net in arg:
         print(f"current net: {net}")
@@ -100,7 +114,8 @@ def export(*arg):
             so_diamond = SoDiamond[-1]
         except:
             continue
-        pool_info = get_stragate_pool_infos()
+        pool_info, stargate_info = get_stragate_pool_infos()
+        stargate_infos[net] = stargate_info
         try:
             weth = get_token_address("weth")
         except:
@@ -151,5 +166,7 @@ def export(*arg):
     for f in facets + libs:
         so_diamond_abi += f.abi
     write_file(so_omnichain_info, output)
+    write_file(os.path.join(os.path.dirname(cur_path), "export/StargateInfo.json"), stargate_infos)
+    write_file(os.path.join(os.path.dirname(cur_path), "export/abi/IStargate.json"), interface.IStargate.abi)
     write_file(os.path.join(os.path.dirname(cur_path), "export/abi/SoDiamond.json"), so_diamond_abi)
     check_stargate_pool()
