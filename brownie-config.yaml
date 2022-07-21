@@ -176,6 +176,10 @@ networks:
       chainid: 1
       poolid:
         usdc: 1
+    token:
+      weth:
+        address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+        decimal: 18
     swap:
       ISwapRouter:
         name: UniswapV3
@@ -218,6 +222,10 @@ networks:
       chainid: 6
       poolid:
         usdc: 1
+    token:
+      weth:
+        address: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
+        decimal: 18
     swap:
       IUniswapV2Router02AVAX:
         name: PangolinV2
@@ -230,7 +238,16 @@ networks:
       chainid: 9
       poolid:
         usdc: 1
+    token:
+      weth:
+        address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
+        decimal: 18
     swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: ""
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
       IUniswapV2Router02:
         name: QuickswapV2
         router: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"
@@ -242,15 +259,16 @@ networks:
       chainid: 10
       poolid:
         usdc: 1
-    usdt:
-      address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
-      decimal: 6
-    usdc:
-      address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
-      decimal: 6
-    weth:
-      address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
-      decimal: 18
+    token:
+      usdt:
+        address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+        decimal: 6
+      usdc:
+        address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+        decimal: 6
+      weth:
+        address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+        decimal: 18
     swap:
       ISwapRouter:
         name: UniswapV3
@@ -268,6 +286,10 @@ networks:
       chainid: 11
       poolid:
         usdc: 1
+    token:
+      weth:
+        address: "0x4200000000000000000000000000000000000006"
+        decimal: 18
     swap:
       ISwapRouter:
         name: UniswapV3

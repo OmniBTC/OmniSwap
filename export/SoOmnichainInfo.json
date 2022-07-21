@@ -46,12 +46,14 @@
         "StargateRouter": "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614",
         "UniswapRouter": [
             {
+                "Name": "UniswapV3",
                 "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
                 "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
                 "TokenList": "",
                 "Type": "ISwapRouter"
             },
             {
+                "Name": "SushiswapV2",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
                 "TokenList": "",
@@ -213,12 +215,14 @@
         "StargateRouter": "0x6701D9802aDF674E524053bd44AA83ef253efc41",
         "UniswapRouter": [
             {
+                "Name": "UniswapV3",
                 "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
                 "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
                 "TokenList": "",
                 "Type": "ISwapRouter"
             },
             {
+                "Name": "UniswapV2",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0xb5a35165047fed7440D3a75909c0949bf1943696",
                 "TokenList": "",
@@ -332,6 +336,7 @@
         "StargateRouter": "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1",
         "UniswapRouter": [
             {
+                "Name": "DexLotV2",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
                 "TokenList": "",
@@ -387,6 +392,7 @@
         "StargateRouter": "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8",
         "UniswapRouter": [
             {
+                "Name": "PancakeSwapV2",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
                 "TokenList": "https://tokens.pancakeswap.finance/pancakeswap-top-100.json",
@@ -512,6 +518,7 @@
         "StargateRouter": "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176",
         "UniswapRouter": [
             {
+                "Name": "UniswapV2",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3",
                 "TokenList": "",
@@ -581,6 +588,7 @@
         "StargateRouter": "0xa73b0a56B29aD790595763e71505FCa2c1abb77f",
         "UniswapRouter": [
             {
+                "Name": "UniswapV2",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
                 "TokenList": "",
@@ -698,6 +706,7 @@
         "StargateRouter": "0xCC68641528B948642bDE1729805d6cf1DECB0B00",
         "UniswapRouter": [
             {
+                "Name": "UniswapV3",
                 "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
                 "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
                 "TokenList": "",
@@ -811,6 +820,7 @@
         "StargateRouter": "0x817436a076060D158204d955E5403b6Ed0A5fac0",
         "UniswapRouter": [
             {
+                "Name": "UniswapV2",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0x8954AfA98594b838bda56FE4C12a09D7739D179b",
                 "TokenList": "",
@@ -984,12 +994,14 @@
         "StargateRouter": "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561",
         "UniswapRouter": [
             {
+                "Name": "UniswapV3",
                 "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
                 "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
                 "TokenList": "",
                 "Type": "ISwapRouter"
             },
             {
+                "Name": "UniswapV2",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
                 "TokenList": "",

@@ -134,7 +134,12 @@ def export(*arg):
                     quoter_address = cur_swap["quoter"]
                 except:
                     quoter_address = ""
+                try:
+                    swap_name = cur_swap["name"]
+                except:
+                    swap_name = ""
                 swap_router.append({
+                    "Name": swap_name,
                     "RouterAddress": swap_router_address,
                     "Type": swap_type,
                     "TokenList": swap_token_list,
