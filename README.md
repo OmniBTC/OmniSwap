@@ -75,3 +75,9 @@ brownie networks add Arbitrum arbitrum-test host=https://rinkeby.arbitrum.io/rpc
 # Currently supported
 
 - [X] **[Stargate](https://stargate.finance/)**: Based on the [LayerZero](https://layerzero.network/) cross -chain message protocol, a single currency pool cross-chain bridge.
+
+# Acknowledge
+Many thanks to [LayerZero](https://layerzero.network/) and [Stargate](https://stargate.finance/) for the secure and reliable lower layer construction and [LiFi](https://li.fi/) for the Diamond contract idea and part of the contract code. Many thanks, of course, to the authors and contributors of [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535).
+
+# License
+[GPLv3](./LICENSE)
