@@ -3,7 +3,7 @@
 # @FileName: uniswap.py
 import time
 
-from brownie import network, interface, Contract
+from brownie import interface, Contract
 
 from scripts.helpful_scripts import get_account, get_token_address, get_swap_info
 
