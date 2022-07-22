@@ -105,7 +105,7 @@ def export(*arg):
         del arg[arg.index("development")]
     so_omnichain_info = os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json")
     output = read_abi(so_omnichain_info)
-    stargate_infos = {}
+    stargate_infos = read_abi(os.path.join(os.path.dirname(cur_path), "export/StargateInfo.json"))
     swap_types = {}
     for net in arg:
         print(f"current net: {net}")

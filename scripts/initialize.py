@@ -6,7 +6,7 @@ from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFac
 from brownie.network import priority_fee
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address, combine_bytes, \
-    padding_to_bytes, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info
+    padding_to_bytes, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal
 
 
 def main():
@@ -178,26 +178,16 @@ def reinitialize_dex(old_dex):
 
 
 def initialize_main_for_dstforgas(token: str):
-    if token == "usdt":
-        decimal = 18
-    elif token == "usdc":
-        decimal = 6
-    elif token == "busd":
-        decimal = 18
-    elif token == "usdd":
-        decimal = 18
-    else:
-        raise "TOKEN FAIL"
     account = get_account()
-    net = network.show_active()
     token_address = get_token_address(token)
+    decimal = get_token_decimal(token)
     weth = get_token_address("weth")
     swap_router = Contract.from_abi(
         "ROUTER",
         get_swap_info()["IUniswapV2Router02"]["router"],
         getattr(interface, "IUniswapV2Router02").abi)
-    amount = 0.01 * (10 ** decimal)
-    weth_amount = int(amount * 10 ** (18 - decimal) / 100)
+    amount = 0.01 * decimal
+    weth_amount = int(amount * (10 ** 18) / decimal / 1000)
     swap_router.swapETHForExactTokens(
         amount,
         [weth, token_address],
@@ -210,16 +200,11 @@ def initialize_main_for_dstforgas(token: str):
     )
     token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
     print(f"initialize_main_for_dstforgas finish, "
-          f"{token} amount in sodiamond:{SoDiamond[-1].address} is {token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
+          f"{token} amount in sodiamond:{SoDiamond[-1].address} is {token_contract.balanceOf(SoDiamond[-1].address) / decimal}.")
 
 
 def initialize_main_for_dstforgas_from_v3(token: str):
-    if token == "usdt":
-        decimal = 18
-    elif token == "usdc":
-        decimal = 6
-    else:
-        raise "TOKEN FAIL"
+    decimal = get_token_decimal(token)
     account = get_account()
     net = network.show_active()
     token_address = get_token_address(token)
@@ -228,8 +213,8 @@ def initialize_main_for_dstforgas_from_v3(token: str):
         "ROUTER",
         get_swap_info()["ISwapRouter"]["router"],
         getattr(interface, "ISwapRouter").abi)
-    amount = int(0.01 * (10 ** decimal))
-    weth_max_amount = int(amount * 10 ** (18 - decimal) / 1000)
+    amount = int(0.01 * decimal)
+    weth_max_amount = int(amount * (10 ** 18) / decimal / 1000)
     path = combine_bytes([weth,
                           padding_to_bytes(web3.toHex(int(0.003 * 1e6)), padding="left", length=3),
                           token_address])

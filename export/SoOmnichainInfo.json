@@ -7,12 +7,40 @@
             {
                 "ChainPath": [
                     [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
                         2,
                         2
                     ],
                     [
                         2,
                         5
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        11,
+                        1
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
                     ]
                 ],
                 "Decimal": 6,
@@ -23,12 +51,40 @@
             {
                 "ChainPath": [
                     [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
                         2,
                         2
                     ],
                     [
                         2,
                         5
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        11,
+                        1
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
                     ]
                 ],
                 "Decimal": 6,
@@ -37,6 +93,16 @@
                 "TokenName": "USDT"
             },
             {
+                "ChainPath": [
+                    [
+                        1,
+                        13
+                    ],
+                    [
+                        11,
+                        13
+                    ]
+                ],
                 "Decimal": 18,
                 "PoolId": 13,
                 "TokenAddress": "0x82CbeCF39bEe528B5476FE6d1550af59a9dB6Fc0",
@@ -231,6 +297,112 @@
         ],
         "WETH": "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
     },
+    "avax-main": {
+        "ChainId": 43114,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 6,
+        "StargatePool": [
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        1
+                    ],
+                    [
+                        10,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ],
+                    [
+                        2,
+                        5
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        11,
+                        1
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        1
+                    ],
+                    [
+                        10,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ],
+                    [
+                        2,
+                        5
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        11,
+                        1
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+                "TokenName": "USDt"
+            }
+        ],
+        "StargateRouter": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+        "UniswapRouter": [
+            {
+                "Name": "PangolinV2",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106",
+                "TokenList": "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json",
+                "Type": "IUniswapV2Router02AVAX"
+            }
+        ],
+        "WETH": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
+    },
     "avax-test": {
         "ChainId": 43113,
         "SoDiamond": "0x8c516Ce3C76c858A294d89c9E27431F51F366674",
@@ -359,6 +531,34 @@
                     [
                         10,
                         2
+                    ],
+                    [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        11,
+                        1
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
                     ]
                 ],
                 "Decimal": 18,
@@ -375,6 +575,34 @@
                     [
                         10,
                         2
+                    ],
+                    [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        11,
+                        1
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
                     ]
                 ],
                 "Decimal": 18,
@@ -383,6 +611,12 @@
                 "TokenName": "BUSD"
             },
             {
+                "ChainPath": [
+                    [
+                        1,
+                        11
+                    ]
+                ],
                 "Decimal": 18,
                 "PoolId": 11,
                 "TokenAddress": "0xd17479997F34dd9156Deef8F95A52D81D265be9c",
@@ -597,6 +831,236 @@
         ],
         "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c"
     },
+    "mainnet": {
+        "ChainId": 1,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 1,
+        "StargatePool": [
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        1
+                    ],
+                    [
+                        10,
+                        2
+                    ],
+                    [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ],
+                    [
+                        2,
+                        5
+                    ],
+                    [
+                        11,
+                        1
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        1
+                    ],
+                    [
+                        10,
+                        2
+                    ],
+                    [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ],
+                    [
+                        2,
+                        5
+                    ],
+                    [
+                        11,
+                        1
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    [
+                        2,
+                        11
+                    ]
+                ],
+                "Decimal": 18,
+                "PoolId": 11,
+                "TokenAddress": "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6",
+                "TokenName": "USDD"
+            },
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        13
+                    ],
+                    [
+                        11,
+                        13
+                    ]
+                ],
+                "Decimal": 18,
+                "PoolId": 13,
+                "TokenAddress": "0x72E2F4830b9E45d52F80aC08CB2bEC0FeF72eD9c",
+                "TokenName": "SGETH"
+            }
+        ],
+        "StargateRouter": "0x8731d54E9D02c286767d56ac03e8037C07e01e98",
+        "UniswapRouter": [
+            {
+                "Name": "UniswapV3",
+                "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+                "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "TokenList": "",
+                "Type": "ISwapRouter"
+            },
+            {
+                "Name": "UniswapV2",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+                "TokenList": "https://tokens.uniswap.org/",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+    },
+    "optimism-main": {
+        "ChainId": 10,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 11,
+        "StargatePool": [
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        1
+                    ],
+                    [
+                        10,
+                        2
+                    ],
+                    [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ],
+                    [
+                        2,
+                        5
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        9,
+                        1
+                    ],
+                    [
+                        9,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        13
+                    ],
+                    [
+                        1,
+                        13
+                    ]
+                ],
+                "Decimal": 18,
+                "PoolId": 13,
+                "TokenAddress": "0xb69c8CBCD90A39D8D3d3ccf0a3E968511C3856A0",
+                "TokenName": "SGETH"
+            }
+        ],
+        "StargateRouter": "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b",
+        "UniswapRouter": [
+            {
+                "Name": "UniswapV3",
+                "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+                "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "TokenList": "https://static.optimism.io/optimism.swap_tokenlist.json",
+                "Type": "ISwapRouter"
+            },
+            {
+                "Name": "ZipSwapV2",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0x4200000000000000000000000000000000000006"
+    },
     "optimism-test": {
         "ChainId": 69,
         "SoDiamond": "0xC4bDB9667679a5ECD339Ac47e0C1CE0139D50b5b",
@@ -714,6 +1178,119 @@
             }
         ],
         "WETH": "0x4200000000000000000000000000000000000006"
+    },
+    "polygon-main": {
+        "ChainId": 137,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 9,
+        "StargatePool": [
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        1
+                    ],
+                    [
+                        10,
+                        2
+                    ],
+                    [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ],
+                    [
+                        2,
+                        5
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        11,
+                        1
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        10,
+                        1
+                    ],
+                    [
+                        10,
+                        2
+                    ],
+                    [
+                        6,
+                        1
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ],
+                    [
+                        2,
+                        5
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        11,
+                        1
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                "TokenName": "USDT"
+            }
+        ],
+        "StargateRouter": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+        "UniswapRouter": [
+            {
+                "Name": "UniswapV3",
+                "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+                "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "TokenList": "",
+                "Type": "ISwapRouter"
+            },
+            {
+                "Name": "QuickswapV2",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff",
+                "TokenList": "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
     },
     "polygon-test": {
         "ChainId": 80001,
