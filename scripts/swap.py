@@ -100,7 +100,7 @@ class View:
 
 
 class SoData(View):
-
+      
     def __init__(self,
                  transactionId,
                  receiver,
@@ -126,6 +126,11 @@ class SoData(View):
         self.amount = amount
 
     def format_to_contract(self):
+        """Get the SoData needed for the contract interface
+
+        Returns:
+            SoData: Information for recording and tracking cross-chain transactions
+        """
         return [self.transactionId,
                 self.receiver,
                 self.sourceChainId,
@@ -136,6 +141,11 @@ class SoData(View):
 
     @staticmethod
     def generate_random_bytes32():
+        """Produce random transactions iD for tracking transactions on both chains
+
+        Returns:
+            result: 32 bytes hex
+        """
         chars = [str(i) for i in range(10)] + ["a", "b", "c", "d", "e"]
         result = "0x"
         for _ in range(64):
@@ -144,6 +154,17 @@ class SoData(View):
 
     @classmethod
     def create(cls, receiver: str, amount: int, sendingTokenName: str, receiveTokenName: str):
+        """Create SoData class
+
+        Args:
+            receiver (str): The final recipient of the target token
+            amount (int): Amount of tokens sent
+            sendingTokenName (str): The name of the token sent on the source chain side, like usdt etc.
+            receiveTokenName (str): The name of the token  to the target link, like usdt etc.
+
+        Returns:
+            SoData: SoData class
+        """
         transactionId = cls.generate_random_bytes32()
         return SoData(
             transactionId=transactionId,
@@ -187,6 +208,7 @@ class StargateData(View):
         self.dstStargateTokenDecimal = dstStargateTokenDecimal
 
     def format_to_contract(self):
+        """Get the Stargate data passed into the contract interface"""
         return [self.srcStargatePoolId,
                 self.dstStargateChainId,
                 self.dstStargatePoolId,
@@ -196,6 +218,16 @@ class StargateData(View):
 
     @classmethod
     def create(cls, dstGasForSgReceive: int, srcStargateToken: str, dstStargateToken: str, ):
+        """Create StargateData class
+
+        Args:
+            dstGasForSgReceive (int): The gas needed to call sgReceive in the target chain
+            srcStargateToken (str): Name of the Token in the Stargate pool on the source chain side
+            dstStargateToken (str): Name of the token in the target chain Stargate pool
+
+        Returns:
+            StargateData: StargateData class
+        """
         return StargateData(
             srcStargatePoolId=src_session.put_task(func=get_stargate_pool_id, args=(srcStargateToken,)),
             dstStargateChainId=dst_session.put_task(func=get_stargate_chain_id),
@@ -211,7 +243,16 @@ class StargateData(View):
 
     @staticmethod
     def estimate_stargate_final_amount(stargate_data, amount, p: Project = None):
-        """Source chain"""
+        """Estimated amount of tokens to be acquired from Stargate in the target chain
+
+        Args:
+            stargate_data (_type_): StargateData class
+            amount (_type_): Amount of tokens sent to Stargate in the source chain
+            p (Project, optional): Load brownie project config. Defaults to None.
+
+        Returns:
+            final_amount: Amount of tokens after processing decimal
+        """
         proxy_diamond = Contract.from_abi(
             "StargateFacet", p["SoDiamond"][-1].address, p["StargateFacet"].abi)
         final_amount = proxy_diamond.estimateStargateFinalAmount(stargate_data.format_to_contract(), amount)
@@ -222,7 +263,15 @@ class StargateData(View):
 
     @staticmethod
     def estimate_so_fee(amount, p: Project = None):
-        """Destination chain"""
+        """Get the processing fee of the target chain Diamond
+
+        Args:
+            amount (_type_): Amount of tokens acquired from Stargate in the target chain
+            p (Project, optional): Load brownie project config. Defaults to None.
+
+        Returns:
+            so_fee: Fees charged by Diamond
+        """
         proxy_diamond = Contract.from_abi(
             "StargateFacet", p["SoDiamond"][-1].address, p["StargateFacet"].abi)
         so_fee = proxy_diamond.getSoFee(amount)
@@ -231,7 +280,17 @@ class StargateData(View):
 
     @staticmethod
     def estimate_before_so_fee(amount, p: Project = None):
-        """Destination chain"""
+        """The minimum number of tokens should be obtained from Stargate in the target chain 
+        
+        It is mainly used to calculate the slippage of the target chain stargate.
+
+        Args:
+            amount (_type_): Amount of Swap input tokens on the target chain after slippage calculation
+            p (Project, optional): Load brownie project config. Defaults to None.
+
+        Returns:
+            before_so_fee: stargate minamount
+        """
         proxy_diamond = Contract.from_abi(
             "StargateFacet", p["SoDiamond"][-1].address, p["StargateFacet"].abi)
         before_so_fee = proxy_diamond.getAmountBeforeSoFee(amount)
@@ -240,12 +299,14 @@ class StargateData(View):
 
 
 class SwapType:
+    """Interfaces that may be called"""
     IUniswapV2Router02 = "IUniswapV2Router02"
     IUniswapV2Router02AVAX = "IUniswapV2Router02AVAX"
     ISwapRouter = "ISwapRouter"
 
 
 class SwapFunc:
+    """Swap functions that may be called"""
     swapExactETHForTokens = "swapExactETHForTokens"
     swapExactAVAXForTokens = "swapExactAVAXForTokens"
     swapExactTokensForETH = "swapExactTokensForETH"
@@ -255,6 +316,7 @@ class SwapFunc:
 
 
 class SwapData(View):
+    """Constructing data for calling UniswapLike"""
     def __init__(self,
                  callTo,
                  approveTo,
@@ -285,6 +347,7 @@ class SwapData(View):
         self.swapEncodePath = swapEncodePath
 
     def format_to_contract(self):
+        """Returns the data used to pass into the contract interface"""
         return [self.callTo,
                 self.approveTo,
                 self.sendingAssetId,
@@ -299,6 +362,21 @@ class SwapData(View):
                fromAmount: int,
                swapPath: list,
                p: Project = None):
+        """Create SwapData class
+
+        Args:
+            swapType (str): Calling the uniswap interface type
+            swapFuncName (str): Calling a specific function name
+            fromAmount (int): Input amount for Swap
+            swapPath (list): Token path for Swap
+            p (Project, optional): Load brownie project config. Defaults to None.
+
+        Raises:
+            ValueError: Not support swapFuncName
+
+        Returns:
+            swap_data: SwapData class
+        """
         if swapFuncName not in vars(SwapFunc):
             raise ValueError("Not support")
         swap_info = get_swap_info()[swapType]
@@ -368,6 +446,21 @@ class SwapData(View):
 
     @staticmethod
     def reset_min_amount(callData: str, swapType: str, swapFuncName: str, minAmount: int, p: Project = None):
+        """Resetting the min amount of dst swap based on the results of the overall slippage calculation
+
+        Args:
+            callData (str): Calldata for target chain execution swap
+            swapType (str): Calling the uniswap interface type
+            swapFuncName (str): Calling a specific function name
+            minAmount (int): Min amount
+            p (Project, optional): Load brownie project config. Defaults to None.
+
+        Raises:
+            ValueError: not support swapType
+
+        Returns:
+            callData: Calldata after setting min amount
+        """
         swap_info = get_swap_info()[swapType]
         swap_contract = Contract.from_abi(swapType, swap_info['router'], getattr(p.interface, swapType).abi)
         if swapType == SwapType.ISwapRouter and swapFuncName == "exactInput":
@@ -421,6 +514,20 @@ class SwapData(View):
 
     @classmethod
     def estimate_out(cls, amountIn: int, swapType: str, swapPath, p: Project = None):
+        """Estimate uniswap final output amount
+
+        Args:
+            amountIn (int): swap input amount
+            swapType (str): uniswap interface type
+            swapPath (_type_): swap token path
+            p (Project, optional): Load brownie project config. Defaults to None.
+
+        Raises:
+            ValueError: not support swapType
+
+        Returns:
+            amountOut: final output amount
+        """
         account = get_account()
         swap_info = get_swap_info()[swapType]
         if swapType == "ISwapRouter":
@@ -440,6 +547,20 @@ class SwapData(View):
 
     @classmethod
     def estimate_in(cls, amountOut: int, swapType: str, swapPath, p: Project = None):
+        """Estimate uniswap input amount based on output amount 
+
+        Args:
+            amountOut (int): uniswap output amount 
+            swapType (str): uniswap interface type
+            swapPath (_type_): swap token path
+            p (Project, optional): load brownie project config. Defaults to None.
+
+        Raises:
+            ValueError: not support swapType 
+
+        Returns:
+            amountIn: input amount
+        """
         account = get_account()
         swap_info = get_swap_info()[swapType]
         if swapType == "ISwapRouter":
@@ -477,8 +598,8 @@ def estimate_final_token_amount(
         stargate_data,
         dst_swap_data: SwapData,
 ):
-    # Estimate source swap output
-    print(f"Estimate final token amount:")
+    """Estimate source swap output"""
+    print("Estimate final token amount:")
     if src_swap_data is not None:
         amount = src_session.put_task(SwapData.estimate_out,
                                       args=(amount,
