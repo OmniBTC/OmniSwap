@@ -383,6 +383,15 @@ class SwapData(View):
                 to,
                 deadline
             )
+        elif swapType.startswith("IUniswapV2") and (
+                swapFuncName.startswith("swapExactETH") or swapFuncName.startswith("swapExactAVAX")):
+            (_, path, to, deadline) = getattr(swap_contract, swapFuncName).decode_input(callData)
+            return getattr(swap_contract, swapFuncName).encode_input(
+                minAmount,
+                path,
+                to,
+                deadline
+            )
         else:
             raise ValueError("Not support")
 
@@ -663,14 +672,14 @@ def single_swap(
                          )
 
 
-def main(src_net="rinkeby", dst_net="optimism-test"):
+def main(src_net="arbitrum-main", dst_net="optimism-main"):
     global src_session
     global dst_session
     src_session = Session(net=src_net, project_path=root_path, name=src_net, daemon=False)
     dst_session = Session(net=dst_net, project_path=root_path, name=dst_net, daemon=False)
 
     # swap
-    cross_swap(inputAmount=int(2 * 1e-10 * src_session.put_task(get_token_decimal, args=("eth",))),
+    cross_swap(inputAmount=int(1e-3 * src_session.put_task(get_token_decimal, args=("eth",))),
                sourceTokenName="eth",  # stargate
                destinationTokenName="eth",  # stargate
                sourceSwapType=SwapType.IUniswapV2Router02,
@@ -680,33 +689,46 @@ def main(src_net="rinkeby", dst_net="optimism-test"):
                destinationStargateToken="usdc",
                destinationSwapType=SwapType.ISwapRouter,
                destinationSwapFunc=SwapFunc.exactInput,
-               destinationSwapPath=("usdc", 0.003, "weth"),
+               destinationSwapPath=("usdc", 0.0005, "weth"),
                slippage=0.001)
 
+    cross_swap(inputAmount=int(1 * src_session.put_task(get_token_decimal, args=("usdc",))),
+               sourceTokenName="usdc",  # stargate
+               destinationTokenName="usdc",  # stargate
+               sourceSwapType=SwapType.IUniswapV2Router02,
+               sourceSwapFunc=SwapFunc.swapExactTokensForETH,
+               sourceSwapPath=("usdc", "weth"),
+               sourceStargateToken="weth",
+               destinationStargateToken="weth",
+               destinationSwapType=SwapType.IUniswapV2Router02,
+               destinationSwapFunc=SwapFunc.swapExactETHForTokens,
+               destinationSwapPath=("weth", "usdc"),
+               slippage=0.01)
+
+    src_session.terminate()
+    dst_session.terminate()
+
+    src_session = Session(net=src_net, project_path=root_path, name=src_net, daemon=False)
+    dst_session = src_session
     single_swap(
         inputAmount=int(100 * src_session.put_task(get_token_decimal, args=("usdc",))),
         sendingTokenName="usdc",
         receiveTokenName="eth",
         sourceSwapType=SwapType.ISwapRouter,
         sourceSwapFunc=SwapFunc.exactInput,
-        sourceSwapPath=("usdc", 0.01, "weth")
+        sourceSwapPath=("usdc", 0.005, "weth")
     )
 
-    cross_swap(inputAmount=int(100 * src_session.put_task(get_token_decimal, args=("usdc",))),
-               sourceTokenName="usdc",  # stargate
-               destinationTokenName="usdc",  # stargate
-               sourceSwapType=SwapType.ISwapRouter,
-               sourceSwapFunc=SwapFunc.exactInput,
-               sourceSwapPath=("usdc", 0.01, "weth"),
-               sourceStargateToken="weth",
-               destinationStargateToken="weth",
-               destinationSwapType=SwapType.ISwapRouter,
-               destinationSwapFunc=SwapFunc.exactInput,
-               destinationSwapPath=("weth", 0.003, "usdc"),
-               slippage=0.001)
-
-    src_session.terminate()
-    dst_session.terminate()
+    dst_session = Session(net=dst_net, project_path=root_path, name=dst_net, daemon=False)
+    src_session = dst_session
+    single_swap(
+        inputAmount=int(100 * src_session.put_task(get_token_decimal, args=("usdc",))),
+        sendingTokenName="usdc",
+        receiveTokenName="eth",
+        sourceSwapType=SwapType.ISwapRouter,
+        sourceSwapFunc=SwapFunc.exactInput,
+        sourceSwapPath=("usdc", 0.005, "weth")
+    )
 
 
 if __name__ == '__main__':
