@@ -1,10 +1,10 @@
-# SoOmnichain
+# OmniSwap
 
 # Overview
 
-The original intention of SoOmnichain is to achieve the purpose of full chain interoperability by aggregating the liquidity of various bridges.
+The original intention of OmniSwap is to achieve the purpose of full chain interoperability by aggregating the liquidity of various bridges.
 
-With the help of SoOmnichain:
+With the help of OmniSwap:
 1. Rapid circulation of user assets in different chains.
 2. Aggregate different bridges such as stargate, cbridge, anyswap, etc. Users have the best cross-chain experience, covering security, speed and fees.
 3. Aggregate the swap of different chains, users can swap different assets of the two chains with one click, such as eth of Ethereum and bnb of bsc.

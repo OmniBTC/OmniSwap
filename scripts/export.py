@@ -60,7 +60,7 @@ def get_stragate_pool_infos():
 
 # check stargate pool
 def check_stargate_pool(
-        so_omnichain_info: str = os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json")):
+        so_omnichain_info: str = os.path.join(os.path.dirname(cur_path), "export/OmniSwapInfo.json")):
     output = read_abi(so_omnichain_info)
     nets = list(output.keys())
     for net1 in nets:
@@ -94,7 +94,7 @@ def check_stargate_pool(
                         if "ChainPath" not in src_pool_info:
                             src_pool_info["ChainPath"] = []
                         src_pool_info["ChainPath"].append((output[net2]["StargateChainId"], dst_pool_info["PoolId"]))
-    write_file(os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json"), output)
+    write_file(os.path.join(os.path.dirname(cur_path), "export/OmniSwapInfo.json"), output)
 
 
 def export(*arg):
@@ -103,7 +103,7 @@ def export(*arg):
         del arg[arg.index("default")]
         del arg[arg.index("live")]
         del arg[arg.index("development")]
-    so_omnichain_info = os.path.join(os.path.dirname(cur_path), "export/SoOmnichainInfo.json")
+    so_omnichain_info = os.path.join(os.path.dirname(cur_path), "export/OmniSwapInfo.json")
     output = read_abi(so_omnichain_info)
     stargate_infos = read_abi(os.path.join(os.path.dirname(cur_path), "export/StargateInfo.json"))
     swap_types = {}
