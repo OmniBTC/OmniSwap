@@ -637,7 +637,7 @@
     },
     "bsc-test": {
         "ChainId": 97,
-        "SoDiamond": "0x92113298552f99271cb0b9545C40096eE7B0a351",
+        "SoDiamond": "0x38373a7678C62a66e4C76C612bcf71eF252b12F9",
         "StargateChainId": 10002,
         "StargatePool": [
             {
@@ -763,7 +763,7 @@
     },
     "ftm-test": {
         "ChainId": 4002,
-        "SoDiamond": "0x4293c37140Be04430709cA52790334F56731c166",
+        "SoDiamond": "0xd5590072684D5718fDF5e8FbE3F24B2c10d5Ec6E",
         "StargateChainId": 10012,
         "StargatePool": [
             {

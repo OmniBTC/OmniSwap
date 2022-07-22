@@ -166,7 +166,6 @@ def initialize_dex_manager(account, so_diamond):
 
 def reinitialize_dex(old_dex):
     account = get_account()
-    net = network.show_active()
     proxy_dex = Contract.from_abi("DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
     proxy_dex.removeDex(old_dex, {'from': account})
     dexs = []
@@ -200,13 +199,13 @@ def initialize_main_for_dstforgas(token: str):
     )
     token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
     print(f"initialize_main_for_dstforgas finish, "
-          f"{token} amount in sodiamond:{SoDiamond[-1].address} is {token_contract.balanceOf(SoDiamond[-1].address) / decimal}.")
+          f"{token} amount in sodiamond:{SoDiamond[-1].address} is "
+          f"{token_contract.balanceOf(SoDiamond[-1].address) / decimal}.")
 
 
 def initialize_main_for_dstforgas_from_v3(token: str):
     decimal = get_token_decimal(token)
     account = get_account()
-    net = network.show_active()
     token_address = get_token_address(token)
     weth = get_token_address("weth")
     swap_router = Contract.from_abi(
@@ -231,7 +230,8 @@ def initialize_main_for_dstforgas_from_v3(token: str):
     )
     token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
     print(f"initialize_main_for_dstforgas_from_v3 finish, "
-          f"{token} amount in sodiamond:{SoDiamond[-1].address} is {token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
+          f"{token} amount in sodiamond:{SoDiamond[-1].address} is "
+          f"{token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
 
 
 def initialize_eth_for_dstforgas():
