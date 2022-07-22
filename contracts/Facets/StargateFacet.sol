@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPLv3
 pragma solidity 0.8.13;
 
 import {LibAsset, IERC20} from "../Libraries/LibAsset.sol";
@@ -18,7 +18,7 @@ import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /// @title Stargate Facet
-/// @author SoSwap
+/// @author SoOmnichain
 /// @notice Provides functionality for bridging through Stargate
 contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     using SafeMath for uint256;
@@ -66,6 +66,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// External Methods ///
 
     /// @notice Bridges tokens via Stargate
+    /// @param _soData Data for tracking cross-chain transactions and a 
+    ///                portion of the accompanying cross-chain messages
+    /// @param _swapDataSrc Contains a set of data required for Swap 
+    ///                     transactions on the source chain side
+    /// @param _stargateData Data used to call Stargate's router for swap
+    /// @param _swapDataDst Contains a set of Swap transaction data executed 
+    ///                     on the target chain.
     function soSwapViaStargate(
         SoData calldata _soData,
         LibSwap.SwapData[] calldata _swapDataSrc,
@@ -231,7 +238,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
     }
 
-    // @dev Simplify the gas evaluation of the destination chain sgReceive
+    /// @dev Simplifies evaluation of the target chain calls sgReceive's 
+    ///      gas to facilitate building applications in the upper layers.
     function sgReceiveForGas(
         SoData calldata _soData,
         uint256 _dstStargatePoolId,
@@ -274,7 +282,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         );
     }
 
-    // @dev Used to obtain stargate cross-chain fee
+    /// @dev Used to obtain stargate cross-chain fee
     function getStargateFee(
         SoData calldata _soData,
         StargateData calldata _stargateData,
@@ -302,7 +310,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         return _stargateFee;
     }
 
-    // @dev Estimate the number of tokens that stargate can get
+    /// @dev Estimate the number of tokens that stargate can get
     function estimateStargateFinalAmount(
         StargateData calldata _stargateData,
         uint256 _amount
@@ -345,7 +353,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
     }
 
-    /// @dev Get amount before so fee
+    /// @dev Get amount from stargate before so fee
     function getAmountBeforeSoFee(uint256 _amount)
         public
         view
