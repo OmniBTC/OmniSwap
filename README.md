@@ -2,7 +2,7 @@
 
 # Overview
 
-The original intention of OmniSwap is to achieve the purpose of full chain interoperability by aggregating the liquidity of various bridges.
+The original intention of OmniSwap is to achieve the purpose of **omnichain** interoperability by aggregating the liquidity of various bridges.
 
 With the help of OmniSwap:
 1. Rapid circulation of user assets in different chains.
