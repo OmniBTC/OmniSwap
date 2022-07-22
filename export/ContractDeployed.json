@@ -1,0 +1,74 @@
+{
+    "arbitrum-main": {
+        "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
+        "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
+        "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
+        "GenericSwapFacet": "0x01c49cF47dCF62769466738a179F94d51ea8BDdB",
+        "LibCorrectSwapV1": "0xa19d570d65Ff031331dFD453faC2F94bF2bdE405",
+        "LibSoFeeV01": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+        "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateFacet": "0xD8dec96b9E22a99f68D48CfB20cd6868a3dcc56b",
+        "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    },
+    "avax-main": {
+        "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
+        "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
+        "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
+        "GenericSwapFacet": "0x26bda683F874e7AE3e3A5d3fad44Bcb82a7c107C",
+        "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+        "LibSoFeeV01": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+        "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
+        "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    },
+    "bsc-main": {
+        "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
+        "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
+        "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
+        "GenericSwapFacet": "0x0F4aedfB8DA8aF176DefF282DA86EBbe3A0EA19e",
+        "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+        "LibSoFeeV01": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+        "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateFacet": "0xA7Bfb2449036DEeFC06c1Bf960A820F87f79738e",
+        "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    },
+    "mainnet": {
+        "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
+        "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
+        "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
+        "GenericSwapFacet": "0x26bda683F874e7AE3e3A5d3fad44Bcb82a7c107C",
+        "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+        "LibSoFeeV01": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+        "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
+        "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    },
+    "optimism-main": {
+        "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
+        "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
+        "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
+        "GenericSwapFacet": "0x26bda683F874e7AE3e3A5d3fad44Bcb82a7c107C",
+        "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+        "LibSoFeeV01": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+        "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
+        "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    },
+    "polygon-main": {
+        "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
+        "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
+        "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
+        "GenericSwapFacet": "0x26bda683F874e7AE3e3A5d3fad44Bcb82a7c107C",
+        "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+        "LibSoFeeV01": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+        "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
+        "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    }
+}
