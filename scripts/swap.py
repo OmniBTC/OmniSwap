@@ -258,7 +258,7 @@ class StargateData(View):
         final_amount = proxy_diamond.estimateStargateFinalAmount(stargate_data.format_to_contract(), amount)
         print(f"  Stargate cross: token {stargate_data.srcStargateToken}, "
               f"amount:{amount / stargate_data.srcStargateTokenDecimal} -> token {stargate_data.dstStargateToken}, "
-              f"amount {final_amount / stargate_data.dstStargateTokenDecimal}")
+              f"amount {final_amount / stargate_data.srcStargateTokenDecimal}")
         return final_amount
 
     @staticmethod
