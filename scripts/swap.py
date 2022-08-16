@@ -100,7 +100,7 @@ class View:
 
 
 class SoData(View):
-      
+
     def __init__(self,
                  transactionId,
                  receiver,
@@ -280,8 +280,8 @@ class StargateData(View):
 
     @staticmethod
     def estimate_before_so_fee(amount, p: Project = None):
-        """The minimum number of tokens should be obtained from Stargate in the target chain 
-        
+        """The minimum number of tokens should be obtained from Stargate in the target chain
+
         It is mainly used to calculate the slippage of the target chain stargate.
 
         Args:
@@ -547,16 +547,16 @@ class SwapData(View):
 
     @classmethod
     def estimate_in(cls, amountOut: int, swapType: str, swapPath, p: Project = None):
-        """Estimate uniswap input amount based on output amount 
+        """Estimate uniswap input amount based on output amount
 
         Args:
-            amountOut (int): uniswap output amount 
+            amountOut (int): uniswap output amount
             swapType (str): uniswap interface type
             swapPath (_type_): swap token path
             p (Project, optional): load brownie project config. Defaults to None.
 
         Raises:
-            ValueError: not support swapType 
+            ValueError: not support swapType
 
         Returns:
             amountIn: input amount
@@ -587,7 +587,7 @@ def estimate_for_gas(so_data: SoData, stargate_cross_token: str, dst_swap_data: 
     return proxy_diamond.sgReceiveForGas.estimate_gas(
         so_data.format_to_contract(),
         get_stargate_pool_id(stargate_cross_token),
-        [dst_swap_data.format_to_contract()],
+        [dst_swap_data.format_to_contract()] if dst_swap_data is not None else [],
         {"from": account}
     )
 
