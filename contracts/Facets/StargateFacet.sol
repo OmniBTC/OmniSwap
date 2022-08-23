@@ -376,6 +376,20 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
     }
 
+    /// @dev Get SgReceive for gas payload
+    function getSgReceiveForGasPayload(
+        SoData calldata _soData,
+        LibSwap.SwapData[] memory _swapDataDst
+    ) public pure returns (bytes memory) {
+        bytes memory _payload;
+        if (_swapDataDst.length == 0) {
+            _payload = abi.encode(_soData, bytes(""));
+        } else {
+            _payload = abi.encode(_soData, abi.encode(_swapDataDst));
+        }
+        return _payload;
+    }
+
     /// Private Methods ///
 
     /// @dev Conatains the business logic for the bridge via Stargate
@@ -415,21 +429,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             _to,
             _payload
         );
-    }
-
-
-    /// @dev Get SgReceive for gas payload
-    function getSgReceiveForGasPayload(
-        SoData calldata _soData,
-        LibSwap.SwapData[] memory _swapDataDst
-    ) public pure returns (bytes memory) {
-        bytes memory _payload;
-        if (_swapDataDst.length == 0) {
-            _payload = abi.encode(_soData, bytes(""));
-        } else {
-            _payload = abi.encode(_soData, abi.encode(_swapDataDst));
-        }
-        return _payload;
     }
 
     /// @dev Calculate the fee for paying the stargate bridge

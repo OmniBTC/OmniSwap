@@ -78,24 +78,24 @@ def initialize_cut(account, so_diamond):
 def redeploy_stargate():
     account = get_account()
 
-    LibCorrectSwapV1.deploy({'from': account})
-    StargateFacet.deploy({"from": account})
+    # LibCorrectSwapV1.deploy({'from': account})
+    StargateFacet.deploy({"from": account}, publish_source=True)
     initialize_stargate(account, SoDiamond[-1])
     reinitialize_cut(StargateFacet)
-    reset_so_gas()
+    # reset_so_gas()
 
-    proxy_dex = Contract.from_abi("DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
-    proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {'from': account})
+    # proxy_dex = Contract.from_abi("DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
+    # proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {'from': account})
 
-    dexs = ["0xE592427A0AEce92De3Edee1F18E0157C05861564"]
-    swapType = "ISwapRouter"
-    sigs = []
-    reg_funcs = get_method_signature_by_abi(getattr(interface, swapType).abi)
-    for sig in reg_funcs.values():
-        sigs.append(sig.hex() + "0" * 56)
-    proxy_dex.batchAddDex(dexs, {'from': account})
-    proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
-    initialize_for_test_fee()
+    # dexs = ["0xE592427A0AEce92De3Edee1F18E0157C05861564"]
+    # swapType = "ISwapRouter"
+    # sigs = []
+    # reg_funcs = get_method_signature_by_abi(getattr(interface, swapType).abi)
+    # for sig in reg_funcs.values():
+    #     sigs.append(sig.hex() + "0" * 56)
+    # proxy_dex.batchAddDex(dexs, {'from': account})
+    # proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
+    # initialize_for_test_fee()
 
 
 def redeploy_generic_swap():
@@ -120,10 +120,10 @@ def reinitialize_cut(contract):
                 register_funcs[func_name].append(reg_funcs[func_name])
         else:
             register_funcs[func_name] = [reg_funcs[func_name]]
-    data = [reg_funcs[func_name] for func_name in reg_funcs if func_name in ["withdraw", "deposit"]]
+    data = [reg_funcs[func_name] for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
     if len(data):
         register_data.append([reg_facet, 0, data])
-    data = [reg_funcs[func_name] for func_name in reg_funcs if func_name not in ["withdraw", "deposit"]]
+    data = [reg_funcs[func_name] for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
     if len(data):
         register_data.append([reg_facet, 1, data])
     proxy_cut = Contract.from_abi("DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
