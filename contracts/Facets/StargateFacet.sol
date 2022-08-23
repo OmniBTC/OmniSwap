@@ -47,7 +47,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Events ///
 
     event StargateInitialized(address stargate, uint256 chainId);
-    event CachedSgReceive(uint16 chainId, bytes srcAddress, uint256 nonce, address token, uint256 amount, bytes payload);
 
     /// Init ///
 
@@ -66,12 +65,12 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// External Methods ///
 
     /// @notice Bridges tokens via Stargate
-    /// @param _soData Data for tracking cross-chain transactions and a 
+    /// @param _soData Data for tracking cross-chain transactions and a
     ///                portion of the accompanying cross-chain messages
-    /// @param _swapDataSrc Contains a set of data required for Swap 
+    /// @param _swapDataSrc Contains a set of data required for Swap
     ///                     transactions on the source chain side
     /// @param _stargateData Data used to call Stargate's router for swap
-    /// @param _swapDataDst Contains a set of Swap transaction data executed 
+    /// @param _swapDataDst Contains a set of Swap transaction data executed
     ///                     on the target chain.
     function soSwapViaStargate(
         SoData calldata _soData,
@@ -155,7 +154,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             )
         {} catch Error(string memory revertReason) {
             withdraw(_token, _token, _amount, _soData.receiver);
-            emit CachedSgReceive(_chainId, _srcAddress, _nonce, _token, _amount, _payload);
             emit SoTransferFailed(
                 _soData.transactionId,
                 revertReason,
@@ -164,7 +162,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             );
         } catch (bytes memory returnData) {
             withdraw(_token, _token, _amount, _soData.receiver);
-            emit CachedSgReceive(_chainId, _srcAddress, _nonce, _token, _amount, _payload);
             emit SoTransferFailed(
                 _soData.transactionId,
                 "",
@@ -238,7 +235,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
     }
 
-    /// @dev Simplifies evaluation of the target chain calls sgReceive's 
+    /// @dev Simplifies evaluation of the target chain calls sgReceive's
     ///      gas to facilitate building applications in the upper layers.
     function sgReceiveForGas(
         SoData calldata _soData,
@@ -253,7 +250,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
 
         require(_amount > 0, "sgReceiveForGas need a little amount token!");
-        bytes memory _payload = _getSgReceiveForGasPayload(
+        bytes memory _payload = getSgReceiveForGasPayload(
             _soData,
             _swapDataDst
         );
@@ -422,10 +419,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
 
     /// @dev Get SgReceive for gas payload
-    function _getSgReceiveForGasPayload(
+    function getSgReceiveForGasPayload(
         SoData calldata _soData,
         LibSwap.SwapData[] memory _swapDataDst
-    ) private pure returns (bytes memory) {
+    ) public pure returns (bytes memory) {
         bytes memory _payload;
         if (_swapDataDst.length == 0) {
             _payload = abi.encode(_soData, bytes(""));
