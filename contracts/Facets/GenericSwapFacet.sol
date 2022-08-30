@@ -37,7 +37,7 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
         }
         uint256 postSwapBalance = this.executeAndCheckSwaps(_soData, _swapData);
         address receivingAssetId = _swapData[_swapData.length - 1].receivingAssetId;
-        withdraw(receivingAssetId, _soData.receivingAssetId, postSwapBalance, msg.sender);
+        withdraw(receivingAssetId, _soData.receivingAssetId, postSwapBalance, _soData.receiver);
 
         emit SoSwappedGeneric(
             _soData.transactionId,
