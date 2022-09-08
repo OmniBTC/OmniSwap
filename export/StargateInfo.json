@@ -24,7 +24,7 @@
             }
         ],
         "router": "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614",
-        "ultra_light_node": "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675"
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
     },
     "arbitrum-test": {
         "bridge": "0x881f70A7d194cE618E0ae493Ae9707B4983Fe3E8",
@@ -84,7 +84,7 @@
             }
         ],
         "router": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
-        "ultra_light_node": "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675"
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
     },
     "avax-test": {
         "bridge": "0x29fBC4E4092Db862218c62a888a00F9521619230",
@@ -132,7 +132,7 @@
             }
         ],
         "router": "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8",
-        "ultra_light_node": "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675"
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
     },
     "bsc-test": {
         "bridge": "0xa1E105511416aEc3200CcE7069548cF332c6DCA2",
@@ -207,7 +207,7 @@
             }
         ],
         "router": "0x8731d54E9D02c286767d56ac03e8037C07e01e98",
-        "ultra_light_node": "0x5B19bd330A84c049b62D5B0FC2bA120217a18C1C"
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
     },
     "optimism-main": {
         "bridge": "0x701a95707A0290AC8B90b3719e8EE5b210360883",
@@ -228,7 +228,7 @@
             }
         ],
         "router": "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b",
-        "ultra_light_node": "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675"
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
     },
     "optimism-test": {
         "bridge": "0x87E8c9E141F896a4bB517e10A3cD6D610d597aaa",
@@ -282,7 +282,7 @@
             }
         ],
         "router": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
-        "ultra_light_node": "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675"
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
     },
     "polygon-test": {
         "bridge": "0x629B57D89b1739eE1C0c0fD9eab426306e11cF42",
