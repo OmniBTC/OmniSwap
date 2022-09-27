@@ -112,11 +112,15 @@ contract WormholeFacet is Swapper {
             (SoData, bytes)
         );
 
-        uint256 amount = LibAsset.getOwnBalance(_wormholePayload.tokenAddress);
+        address _tokenAddress = address(
+            uint160(uint256(_wormholePayload.tokenAddress))
+        );
+
+        uint256 amount = LibAsset.getOwnBalance(_tokenAddress);
 
         IWETH _weth = IWormholeBridge(bridge).WETH();
 
-        if (address(_weth) == _wormholePayload.tokenAddress) {
+        if (address(_weth) == _tokenAddress) {
             _weth.withdraw(amount);
         }
 
@@ -228,6 +232,15 @@ contract WormholeFacet is Swapper {
                 bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
                 s.nonce,
                 _payload
+            );
+        }
+
+        uint256 _dust = LibAsset.getOwnBalance(_token);
+        if (_dust > 0) {
+            LibAsset.transferAsset(
+                _token,
+                payable(msg.sender),
+                _dust
             );
         }
 
