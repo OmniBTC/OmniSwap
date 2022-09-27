@@ -15,13 +15,13 @@ contract WormholeFacet is Swapper {
 
     struct Storage {
         address tokenBridge;
-        uint16 wormholeChainId;
+        uint16 srcWormholeChainId;
         uint32 nonce;
     }
 
     /// Events ///
 
-    event InitWormholeEvent(address tokenBridge, uint16 wormholeChainId);
+    event InitWormholeEvent(address tokenBridge, uint16 srcWormholeChainId);
 
     /// Types ///
     struct WormholeData {
@@ -39,7 +39,7 @@ contract WormholeFacet is Swapper {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
         s.tokenBridge = _tokenBridge;
-        s.wormholeChainId = _wormholeChainId;
+        s.srcWormholeChainId = _wormholeChainId;
         emit InitWormholeEvent(_tokenBridge, _wormholeChainId);
     }
 
@@ -55,12 +55,12 @@ contract WormholeFacet is Swapper {
         bool _hasSourceSwap;
         bool _hasDestinationSwap;
         uint256 _bridgeAmount;
-        address _bridgeAdress;
+        address _bridgeAddress;
         if (!LibAsset.isNativeAsset(_soData.sendingAssetId)) {
             LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
         }
         if (_swapDataSrc.length == 0) {
-            _bridgeAdress = _soData.sendingAssetId;
+            _bridgeAddress = _soData.sendingAssetId;
             _bridgeAmount = _soData.amount;
             _hasSourceSwap = false;
         } else {
@@ -69,7 +69,7 @@ contract WormholeFacet is Swapper {
                 "soData and swapDataSrc amount not match!"
             );
             _bridgeAmount = this.executeAndCheckSwaps(_soData, _swapDataSrc);
-            _bridgeAdress = _swapDataSrc[_swapDataSrc.length - 1]
+            _bridgeAddress = _swapDataSrc[_swapDataSrc.length - 1]
                 .receivingAssetId;
             _hasSourceSwap = true;
         }
@@ -84,7 +84,7 @@ contract WormholeFacet is Swapper {
         }
 
         /// start bridge
-        startBridge(_wormholeData, _bridgeAdress, _bridgeAmount, _payload);
+        _startBridge(_wormholeData, _bridgeAddress, _bridgeAmount, _payload);
 
         emit ISo.SoTransferStarted(
             _soData.transactionId,
@@ -95,42 +95,31 @@ contract WormholeFacet is Swapper {
         );
     }
 
-    function startBridge(
-        WormholeData calldata _wormholeData,
-        address _bridgeAdress,
-        uint256 _amount,
-        bytes memory _payload
-    ) internal {
-        Storage storage s = getStorage();
-        address bridge = s.tokenBridge;
-
-        LibAsset.maxApproveERC20(IERC20(_bridgeAdress), bridge, _amount);
-
-        IWormholeBridge(bridge).transferTokensWithPayload{value: msg.value}(
-            _bridgeAdress,
-            _amount,
-            _wormholeData.dstWormholeChainId,
-            bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
-            s.nonce,
-            _payload
-        );
-        s.nonce += 1;
-    }
-
     /// complete transfer with payload
     /// called by relayer
-    function completeSwap(bytes memory _encodeVm) external {
+    function completeSoSwap(bytes memory _encodeVm) external {
         Storage storage s = getStorage();
         address bridge = s.tokenBridge;
-        bytes memory _payload = IWormholeBridge(bridge)
-            .completeTransferWithPayload(_encodeVm);
+
+        IWormholeBridge.TransferWithPayload memory _wormholePayload = abi
+            .decode(
+                IWormholeBridge(bridge).completeTransferWithPayload(_encodeVm),
+                (IWormholeBridge.TransferWithPayload)
+            );
 
         (SoData memory _soData, bytes memory _swapPayload) = abi.decode(
-            _payload,
+            _wormholePayload.payload,
             (SoData, bytes)
         );
 
-        uint256 amount = LibAsset.getOwnBalance(_soData.receivingAssetId);
+        uint256 amount = LibAsset.getOwnBalance(_wormholePayload.tokenAddress);
+
+        IWETH _weth = IWormholeBridge(bridge).WETH();
+
+        if (address(_weth) == _wormholePayload.tokenAddress) {
+            _weth.withdraw(amount);
+        }
+
         if (_swapPayload.length == 0) {
             LibAsset.transferAsset(
                 _soData.receivingAssetId,
@@ -206,6 +195,46 @@ contract WormholeFacet is Swapper {
             }
         }
     }
+
+    /// Internal Methods ///
+
+    function _startBridge(
+        WormholeData calldata _wormholeData,
+        address _token,
+        uint256 _amount,
+        bytes memory _payload
+    ) internal {
+        Storage storage s = getStorage();
+        address _bridge = s.tokenBridge;
+
+        LibAsset.maxApproveERC20(IERC20(_token), _bridge, _amount);
+
+        if (!LibAsset.isNativeAsset(_token)) {
+            IWormholeBridge(_bridge).wrapAndTransferETHWithPayload{
+                value: msg.value
+            }(
+                _wormholeData.dstWormholeChainId,
+                bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
+                s.nonce,
+                _payload
+            );
+        } else {
+            IWormholeBridge(_bridge).transferTokensWithPayload{
+                value: msg.value
+            }(
+                _token,
+                _amount,
+                _wormholeData.dstWormholeChainId,
+                bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
+                s.nonce,
+                _payload
+            );
+        }
+
+        s.nonce += 1;
+    }
+
+    /// Private Methods ///
 
     /// @dev fetch local storage
     function getStorage() private pure returns (Storage storage s) {
