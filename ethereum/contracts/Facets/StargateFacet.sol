@@ -82,10 +82,14 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         bool _hasDestinationSwap;
         uint256 _bridgeAmount;
         if (!LibAsset.isNativeAsset(_soData.sendingAssetId)) {
-                LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
+            LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
         }
         if (_swapDataSrc.length == 0) {
-            deposit(_soData.sendingAssetId, _getStargateTokenByPoolId(_stargateData.srcStargatePoolId), _soData.amount);
+            deposit(
+                _soData.sendingAssetId,
+                _getStargateTokenByPoolId(_stargateData.srcStargatePoolId),
+                _soData.amount
+            );
             _bridgeAmount = _soData.amount;
             _hasSourceSwap = false;
         } else {
@@ -132,8 +136,14 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         bytes memory _payload
     ) external {
         if (LibAsset.getOwnBalance(_token) < _amount) {
-            require(!IStargateEthVault(_token).noUnwrapTo(address(this)), "Token error");
-            require(LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= _amount, "Not enough");
+            require(
+                !IStargateEthVault(_token).noUnwrapTo(address(this)),
+                "Token error"
+            );
+            require(
+                LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= _amount,
+                "Not enough"
+            );
             _token = LibAsset.NATIVE_ASSETID;
         }
 
@@ -185,9 +195,19 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
         if (_swapPayload.length == 0) {
             if (_soFee > 0) {
-                withdraw(_token, _soData.receivingAssetId, _soFee, LibDiamond.contractOwner());
+                withdraw(
+                    _token,
+                    _soData.receivingAssetId,
+                    _soFee,
+                    LibDiamond.contractOwner()
+                );
             }
-            withdraw(_token, _soData.receivingAssetId, _amount, _soData.receiver);
+            withdraw(
+                _token,
+                _soData.receivingAssetId,
+                _amount,
+                _soData.receiver
+            );
             emit SoTransferCompleted(
                 _soData.transactionId,
                 _soData.receivingAssetId,
@@ -202,9 +222,19 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 (LibSwap.SwapData[])
             );
             if (_soFee > 0) {
-                withdraw(_token, _swapDataDst[0].sendingAssetId, _soFee, LibDiamond.contractOwner());
+                withdraw(
+                    _token,
+                    _swapDataDst[0].sendingAssetId,
+                    _soFee,
+                    LibDiamond.contractOwner()
+                );
             }
-            withdraw(_token, _swapDataDst[0].sendingAssetId, _amount, address(this));
+            withdraw(
+                _token,
+                _swapDataDst[0].sendingAssetId,
+                _amount,
+                address(this)
+            );
 
             _swapDataDst[0].fromAmount = _amount;
 
@@ -218,12 +248,16 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                     );
             }
 
-            uint256 _amountFinal = this.executeAndCheckSwaps(_soData, _swapDataDst);
+            uint256 _amountFinal = this.executeAndCheckSwaps(
+                _soData,
+                _swapDataDst
+            );
             withdraw(
                 _swapDataDst[_swapDataDst.length - 1].receivingAssetId,
                 _soData.receivingAssetId,
                 _amountFinal,
-                _soData.receiver);
+                _soData.receiver
+            );
             emit SoTransferCompleted(
                 _soData.transactionId,
                 _soData.receivingAssetId,
@@ -245,7 +279,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         address _token = _getStargateTokenByPoolId(_dstStargatePoolId);
         uint256 _amount = LibAsset.getOwnBalance(_token);
         if (_amount == 0) {
-            require(!IStargateEthVault(_token).noUnwrapTo(address(this)), "Token error");
+            require(
+                !IStargateEthVault(_token).noUnwrapTo(address(this)),
+                "Token error"
+            );
             _amount = LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID);
         }
 
@@ -257,8 +294,14 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
         // monitor sgReceive
         if (LibAsset.getOwnBalance(_token) < _amount) {
-            require(!IStargateEthVault(_token).noUnwrapTo(address(this)), "Token error");
-            require(LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= _amount, "Not enough");
+            require(
+                !IStargateEthVault(_token).noUnwrapTo(address(this)),
+                "Token error"
+            );
+            require(
+                LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= _amount,
+                "Not enough"
+            );
             _token = LibAsset.NATIVE_ASSETID;
         }
 

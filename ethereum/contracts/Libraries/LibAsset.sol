@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.13;
-import { NullAddrIsNotAnERC20Token, NullAddrIsNotAValidSpender, NoTransferToNullAddress, InvalidAmount, NativeValueWithERC, NativeAssetTransferFailed } from "../Errors/GenericErrors.sol";
+import {NullAddrIsNotAnERC20Token, NullAddrIsNotAValidSpender, NoTransferToNullAddress, InvalidAmount, NativeValueWithERC, NativeAssetTransferFailed} from "../Errors/GenericErrors.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -12,7 +12,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 library LibAsset {
     uint256 private constant MAX_INT = type(uint256).max;
 
-    address internal constant NULL_ADDRESS = 0x0000000000000000000000000000000000000000; //address(0)
+    address internal constant NULL_ADDRESS =
+        0x0000000000000000000000000000000000000000; //address(0)
 
     /// @dev All native assets use the empty address for their asset id
     ///      by convention
@@ -23,17 +24,22 @@ library LibAsset {
     /// @param assetId The asset identifier to get the balance of
     /// @return Balance held by contracts using this library
     function getOwnBalance(address assetId) internal view returns (uint256) {
-        return assetId == NATIVE_ASSETID ? address(this).balance : IERC20(assetId).balanceOf(address(this));
+        return
+            assetId == NATIVE_ASSETID
+                ? address(this).balance
+                : IERC20(assetId).balanceOf(address(this));
     }
 
     /// @notice Transfers ether from the inheriting contract to a given
     ///         recipient
     /// @param recipient Address to send ether to
     /// @param amount Amount to send to given recipient
-    function transferNativeAsset(address payable recipient, uint256 amount) private {
+    function transferNativeAsset(address payable recipient, uint256 amount)
+        private
+    {
         if (recipient == NULL_ADDRESS) revert NoTransferToNullAddress();
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = recipient.call{ value: amount }("");
+        (bool success, ) = recipient.call{value: amount}("");
         if (!success) revert NativeAssetTransferFailed();
     }
 
@@ -49,7 +55,8 @@ library LibAsset {
         if (address(assetId) == NATIVE_ASSETID) return;
         if (spender == NULL_ADDRESS) revert NullAddrIsNotAValidSpender();
         uint256 allowance = assetId.allowance(address(this), spender);
-        if (allowance < amount) SafeERC20.safeApprove(IERC20(assetId), spender, MAX_INT);
+        if (allowance < amount)
+            SafeERC20.safeApprove(IERC20(assetId), spender, MAX_INT);
     }
 
     /// @notice Transfers tokens from the inheriting contract to a given
@@ -95,10 +102,16 @@ library LibAsset {
         if (isNative) {
             if (msg.value != amount) revert InvalidAmount();
         } else {
-//            if (msg.value != 0) revert NativeValueWithERC();
+            //            if (msg.value != 0) revert NativeValueWithERC();
             uint256 _fromTokenBalance = LibAsset.getOwnBalance(tokenId);
-            LibAsset.transferFromERC20(tokenId, msg.sender, address(this), amount);
-            if (LibAsset.getOwnBalance(tokenId) - _fromTokenBalance != amount) revert InvalidAmount();
+            LibAsset.transferFromERC20(
+                tokenId,
+                msg.sender,
+                address(this),
+                amount
+            );
+            if (LibAsset.getOwnBalance(tokenId) - _fromTokenBalance != amount)
+                revert InvalidAmount();
         }
     }
 

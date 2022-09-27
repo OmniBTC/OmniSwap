@@ -75,25 +75,31 @@ contract Swapper is ISo {
         uint256 _amount
     ) public payable {
         if (_currentAssetId == _expectAssetId) {
-            require(LibAsset.getOwnBalance(_currentAssetId) >= _amount,  "Deposit not enough");
+            require(
+                LibAsset.getOwnBalance(_currentAssetId) >= _amount,
+                "Deposit not enough"
+            );
             return;
         }
 
         if (LibAsset.isNativeAsset(_currentAssetId)) {
             // eth -> weth
-            try IStargateEthVault(_expectAssetId).deposit{value : _amount}() {
-            }catch {
+            try
+                IStargateEthVault(_expectAssetId).deposit{value: _amount}()
+            {} catch {
                 revert("Deposit fail");
             }
         } else {
             // weth -> eth -> weth
             if (_currentAssetId != _expectAssetId) {
-                try IStargateEthVault(_currentAssetId).withdraw(_amount) {
-                }catch {
+                try
+                    IStargateEthVault(_currentAssetId).withdraw(_amount)
+                {} catch {
                     revert("Deposit withdraw fail");
                 }
-                try IStargateEthVault(_expectAssetId).deposit{value : _amount}() {
-                }catch {
+                try
+                    IStargateEthVault(_expectAssetId).deposit{value: _amount}()
+                {} catch {
                     revert("Withdraw deposit fail");
                 }
             }
@@ -110,8 +116,9 @@ contract Swapper is ISo {
         if (LibAsset.isNativeAsset(_expectAssetId)) {
             if (_currentAssetId != _expectAssetId) {
                 // weth -> eth
-                try IStargateEthVault(_currentAssetId).withdraw(_amount) {
-                } catch {
+                try
+                    IStargateEthVault(_currentAssetId).withdraw(_amount)
+                {} catch {
                     revert("Withdraw fail");
                 }
             }
@@ -119,7 +126,10 @@ contract Swapper is ISo {
             require(_currentAssetId == _expectAssetId, "AssetId not match");
         }
         if (_receiver != address(this)) {
-            require(LibAsset.getOwnBalance(_expectAssetId) >= _amount,  "Withdraw not enough");
+            require(
+                LibAsset.getOwnBalance(_expectAssetId) >= _amount,
+                "Withdraw not enough"
+            );
             LibAsset.transferAsset(_expectAssetId, payable(_receiver), _amount);
         }
     }
@@ -142,7 +152,9 @@ contract Swapper is ISo {
                 !(appStorage.dexAllowlist[currentSwapData.approveTo] &&
                     appStorage.dexAllowlist[currentSwapData.callTo] &&
                     appStorage.dexFuncSignatureAllowList[
-                        bytes32(LibUtil.getSlice(currentSwapData.callData, 0, 4))
+                        bytes32(
+                            LibUtil.getSlice(currentSwapData.callData, 0, 4)
+                        )
                     ])
             ) revert ContractCallNotAllowed();
 
@@ -155,10 +167,11 @@ contract Swapper is ISo {
                 address correctSwap = appStorage.correctSwapRouterSelectors;
                 if (correctSwap == address(0)) revert NotSupportedSwapRouter();
                 currentSwapData.fromAmount = swapBalance;
-                currentSwapData.callData = ICorrectSwap(correctSwap).correctSwap(
-                    currentSwapData.callData,
-                    currentSwapData.fromAmount
-                );
+                currentSwapData.callData = ICorrectSwap(correctSwap)
+                    .correctSwap(
+                        currentSwapData.callData,
+                        currentSwapData.fromAmount
+                    );
             }
         }
     }

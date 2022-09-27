@@ -149,9 +149,19 @@ interface ITransactionManager {
     event AssetRemoved(address indexed removedAssetId, address indexed caller);
 
     // Liquidity events
-    event LiquidityAdded(address indexed router, address indexed assetId, uint256 amount, address caller);
+    event LiquidityAdded(
+        address indexed router,
+        address indexed assetId,
+        uint256 amount,
+        address caller
+    );
 
-    event LiquidityRemoved(address indexed router, address indexed assetId, uint256 amount, address recipient);
+    event LiquidityRemoved(
+        address indexed router,
+        address indexed assetId,
+        uint256 amount,
+        address recipient
+    );
 
     // Transaction events
     event TransactionPrepared(
@@ -217,9 +227,16 @@ interface ITransactionManager {
     // 2. prepare by router on receiving chain
     // 3. fulfill by user on receiving chain
     // 4. fulfill by router on sending chain
-    function prepare(PrepareArgs calldata args) external payable returns (TransactionData memory);
+    function prepare(PrepareArgs calldata args)
+        external
+        payable
+        returns (TransactionData memory);
 
-    function fulfill(FulfillArgs calldata args) external returns (TransactionData memory);
+    function fulfill(FulfillArgs calldata args)
+        external
+        returns (TransactionData memory);
 
-    function cancel(CancelArgs calldata args) external returns (TransactionData memory);
+    function cancel(CancelArgs calldata args)
+        external
+        returns (TransactionData memory);
 }

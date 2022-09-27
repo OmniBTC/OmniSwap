@@ -7,7 +7,8 @@ pragma solidity 0.8.13;
 abstract contract ReentrancyGuard {
     /// Storage ///
 
-    bytes32 private constant NAMESPACE = hex"a65bb2f450488ab0858c00edc14abc5297769bf42adb48cfb77752890e8b697b";
+    bytes32 private constant NAMESPACE =
+        hex"a65bb2f450488ab0858c00edc14abc5297769bf42adb48cfb77752890e8b697b";
 
     /// Types ///
 
@@ -37,7 +38,11 @@ abstract contract ReentrancyGuard {
     /// Private Methods ///
 
     /// @dev fetch local storage
-    function reentrancyStorage() private pure returns (ReentrancyStorage storage data) {
+    function reentrancyStorage()
+        private
+        pure
+        returns (ReentrancyStorage storage data)
+    {
         bytes32 position = NAMESPACE;
         // solhint-disable-next-line no-inline-assembly
         assembly {

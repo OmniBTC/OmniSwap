@@ -3,7 +3,7 @@ pragma solidity 0.8.13;
 
 error InvalidAmount(); // 0x2c5211c6
 error TokenAddressIsZero(); // 0xdc2e5e8d
-error CannotBridgeToSameNetwork();  // 0x4ac09ad3
+error CannotBridgeToSameNetwork(); // 0x4ac09ad3
 error ZeroPostSwapBalance(); // 0xf74e8909
 error InvalidBridgeConfigLength(); // 0x10502ef9
 error NoSwapDataProvided(); // 0x0503c3ed

@@ -2,13 +2,12 @@
 
 pragma solidity 0.8.13;
 
-
 interface ISo {
     /// Structs ///
 
     struct SoData {
-        bytes32 transactionId;  // unique identification id
-        address payable receiver;  // token receiving account
+        bytes32 transactionId; // unique identification id
+        address payable receiver; // token receiving account
         uint256 sourceChainId; // source chain id
         address sendingAssetId; // The starting token address of the source chain
         uint256 destinationChainId; // destination chain id

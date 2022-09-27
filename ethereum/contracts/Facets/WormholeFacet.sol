@@ -11,7 +11,7 @@ import "../Interfaces/IWormholeBridge.sol";
 /// @notice Provides functionality for bridging through Wormhole
 contract WormholeFacet is Swapper {
     bytes32 internal constant NAMESPACE =
-        hex"5cf8a649899e43a2530442580fb1a9721870a3fa10790c9ef200c611cab819d4"; // keccak256("com.omnibtc.facets.wormhole")
+        hex"d4ca4302bca26785486b2ceec787497a9cf992c36dcf57c306a00c1f88154623"; // keccak256("com.so.facets.wormhole")
 
     struct Storage {
         address tokenBridge;
@@ -25,9 +25,8 @@ contract WormholeFacet is Swapper {
 
     /// Types ///
     struct WormholeData {
-        address bridgeToken;
-        uint16 recipientChain; // wormhole chain id
-        bytes32 recipient;
+        uint16 dstWormholeChainId;
+        address dstSoDiamond;
     }
 
     /// Init ///
@@ -47,7 +46,7 @@ contract WormholeFacet is Swapper {
     /// External Methods ///
 
     /// transfer with payload
-    function omniswapViaWormhole(
+    function soSwapViaWormhole(
         ISo.SoData calldata _soData,
         LibSwap.SwapData[] calldata _swapDataSrc,
         WormholeData calldata _wormholeData,
@@ -56,10 +55,12 @@ contract WormholeFacet is Swapper {
         bool _hasSourceSwap;
         bool _hasDestinationSwap;
         uint256 _bridgeAmount;
+        address _bridgeAdress;
         if (!LibAsset.isNativeAsset(_soData.sendingAssetId)) {
             LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
         }
         if (_swapDataSrc.length == 0) {
+            _bridgeAdress = _soData.sendingAssetId;
             _bridgeAmount = _soData.amount;
             _hasSourceSwap = false;
         } else {
@@ -68,6 +69,8 @@ contract WormholeFacet is Swapper {
                 "soData and swapDataSrc amount not match!"
             );
             _bridgeAmount = this.executeAndCheckSwaps(_soData, _swapDataSrc);
+            _bridgeAdress = _swapDataSrc[_swapDataSrc.length - 1]
+                .receivingAssetId;
             _hasSourceSwap = true;
         }
 
@@ -81,7 +84,7 @@ contract WormholeFacet is Swapper {
         }
 
         /// start bridge
-        startBridge(_wormholeData, _bridgeAmount, _payload);
+        startBridge(_wormholeData, _bridgeAdress, _bridgeAmount, _payload);
 
         emit ISo.SoTransferStarted(
             _soData.transactionId,
@@ -94,23 +97,20 @@ contract WormholeFacet is Swapper {
 
     function startBridge(
         WormholeData calldata _wormholeData,
+        address _bridgeAdress,
         uint256 _amount,
         bytes memory _payload
     ) internal {
         Storage storage s = getStorage();
         address bridge = s.tokenBridge;
 
-        LibAsset.maxApproveERC20(
-            IERC20(_wormholeData.bridgeToken),
-            bridge,
-            _amount
-        );
+        LibAsset.maxApproveERC20(IERC20(_bridgeAdress), bridge, _amount);
 
         IWormholeBridge(bridge).transferTokensWithPayload{value: msg.value}(
-            _wormholeData.bridgeToken,
+            _bridgeAdress,
             _amount,
-            _wormholeData.recipientChain,
-            _wormholeData.recipient,
+            _wormholeData.dstWormholeChainId,
+            bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
             s.nonce,
             _payload
         );

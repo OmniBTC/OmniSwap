@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import { LibDiamond } from "../Libraries/LibDiamond.sol";
-import { IERC173 } from "../Interfaces/IERC173.sol";
+import {LibDiamond} from "../Libraries/LibDiamond.sol";
+import {IERC173} from "../Interfaces/IERC173.sol";
 
 /// @title Ownership Facet
 /// @author LI.FI (https://li.fi)
@@ -10,7 +10,8 @@ import { IERC173 } from "../Interfaces/IERC173.sol";
 contract OwnershipFacet is IERC173 {
     /// Storage ///
 
-    bytes32 internal constant NAMESPACE = hex"cf2fba1a5c9c61959b11f2f1f88658271468c6fcc649cb2a6868473d3cd07f8b"; //keccak256("com.so.facets.ownership");
+    bytes32 internal constant NAMESPACE =
+        hex"cf2fba1a5c9c61959b11f2f1f88658271468c6fcc649cb2a6868473d3cd07f8b"; //keccak256("com.so.facets.ownership");
     struct Storage {
         address newOwner;
     }
@@ -24,7 +25,10 @@ contract OwnershipFacet is IERC173 {
 
     /// Events ///
 
-    event OwnershipTransferRequested(address indexed _from, address indexed _to);
+    event OwnershipTransferRequested(
+        address indexed _from,
+        address indexed _to
+    );
 
     /// External Methods ///
 
@@ -36,7 +40,8 @@ contract OwnershipFacet is IERC173 {
 
         if (_newOwner == address(0)) revert NoNullOwner();
 
-        if (_newOwner == LibDiamond.contractOwner()) revert NewOwnerMustNotBeSelf();
+        if (_newOwner == LibDiamond.contractOwner())
+            revert NewOwnerMustNotBeSelf();
 
         s.newOwner = _newOwner;
         emit OwnershipTransferRequested(msg.sender, s.newOwner);

@@ -5,11 +5,36 @@ import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
 
 contract LibCorrectSwapV1 {
     // Exact search for supported function signatures
-    bytes4 private constant _FUNC1 = bytes4(keccak256('swapExactETHForTokens(uint256,address[],address,uint256)'));
-    bytes4 private constant _FUNC2 = bytes4(keccak256('swapExactAVAXForTokens(uint256,address[],address,uint256)'));
-    bytes4 private constant _FUNC3 = bytes4(keccak256('swapExactTokensForETH(uint256,uint256,address[],address,uint256)'));
-    bytes4 private constant _FUNC4 = bytes4(keccak256('swapExactTokensForAVAX(uint256,uint256,address[],address,uint256)'));
-    bytes4 private constant _FUNC5 = bytes4(keccak256('swapExactTokensForTokens(uint256,uint256,address[],address,uint256)'));
+    bytes4 private constant _FUNC1 =
+        bytes4(
+            keccak256(
+                "swapExactETHForTokens(uint256,address[],address,uint256)"
+            )
+        );
+    bytes4 private constant _FUNC2 =
+        bytes4(
+            keccak256(
+                "swapExactAVAXForTokens(uint256,address[],address,uint256)"
+            )
+        );
+    bytes4 private constant _FUNC3 =
+        bytes4(
+            keccak256(
+                "swapExactTokensForETH(uint256,uint256,address[],address,uint256)"
+            )
+        );
+    bytes4 private constant _FUNC4 =
+        bytes4(
+            keccak256(
+                "swapExactTokensForAVAX(uint256,uint256,address[],address,uint256)"
+            )
+        );
+    bytes4 private constant _FUNC5 =
+        bytes4(
+            keccak256(
+                "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)"
+            )
+        );
     bytes4 private constant _FUNC6 = ISwapRouter.exactInput.selector;
 
     //---------------------------------------------------------------------------
@@ -44,9 +69,11 @@ contract LibCorrectSwapV1 {
         view
         returns (bytes memory)
     {
-        try this.basicCorrectSwap(_data, _amount) returns (bytes memory _result){
+        try this.basicCorrectSwap(_data, _amount) returns (
+            bytes memory _result
+        ) {
             return _result;
-        }catch{
+        } catch {
             revert("basicCorrectSwap fail!");
         }
     }
@@ -57,21 +84,25 @@ contract LibCorrectSwapV1 {
         returns (bytes memory)
     {
         (
-        ,
-        uint256 _amountOutMin,
-        address[] memory _path,
-        address _to,
-        uint256 _deadline
-        ) = abi.decode(_data[4 :], (uint256, uint256, address[], address, uint256));
+            ,
+            uint256 _amountOutMin,
+            address[] memory _path,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, address[], address, uint256)
+            );
 
-        return abi.encodeWithSelector(
-            bytes4(_data[:4]),
-            _amount,
-            _amountOutMin,
-            _path,
-            _to,
-            _deadline
-        );
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _deadline
+            );
     }
 
     function tryExactInput(bytes calldata _data, uint256 _amount)
@@ -79,9 +110,9 @@ contract LibCorrectSwapV1 {
         view
         returns (bytes memory)
     {
-        try this.exactInput(_data, _amount) returns (bytes memory _result){
+        try this.exactInput(_data, _amount) returns (bytes memory _result) {
             return _result;
-        }catch{
+        } catch {
             revert("exactInput fail!");
         }
     }
@@ -91,12 +122,12 @@ contract LibCorrectSwapV1 {
         pure
         returns (bytes memory)
     {
-        ISwapRouter.ExactInputParams memory params = abi.decode(_data[4 :], (ISwapRouter.ExactInputParams));
+        ISwapRouter.ExactInputParams memory params = abi.decode(
+            _data[4:],
+            (ISwapRouter.ExactInputParams)
+        );
         params.amountIn = _amount;
 
-        return abi.encodeWithSelector(
-            bytes4(_data[:4]),
-            params
-        );
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
     }
 }
