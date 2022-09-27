@@ -60,6 +60,48 @@ interface IWormholeBridge {
         bytes memory payload
     ) external payable returns (uint64 sequence);
 
+    /// @notice Complete a contract-controlled transfer of an ERC20 token.
+    ///
+    /// @dev The transaction can only be redeemed by the recipient, typically a
+    /// contract.
+    ///
+    /// @param encodedVm    A byte array containing a VAA signed by the guardians.
+    ///
+    /// @return The byte array representing a BridgeStructs.TransferWithPayload.
+    ///
+    function completeTransferWithPayload(bytes memory encodedVm)
+        external
+        returns (bytes memory);
+
+    /// @notice Complete a contract-controlled transfer of WETH, and unwrap to ETH.
+    ///
+    /// @dev The transaction can only be redeemed by the recipient, typically a
+    /// contract.
+    ///
+    /// @param encodedVm    A byte array containing a VAA signed by the guardians.
+    ///
+    /// @return The byte array representing a BridgeStructs.TransferWithPayload.
+    ///
+    function completeTransferAndUnwrapETHWithPayload(bytes memory encodedVm)
+        external
+        returns (bytes memory);
+
+    /// @notice Complete a transfer of an ERC20 token.
+    ///
+    /// @dev The msg.sender gets paid the associated fee.
+    ///
+    /// @param encodedVm A byte array containing a VAA signed by the guardians.
+    ///
+    function completeTransfer(bytes memory encodedVm) external;
+
+    /// @notice Complete a transfer of WETH and unwrap to eth.
+    ///
+    /// @dev The msg.sender gets paid the associated fee.
+    ///
+    /// @param encodedVm A byte array containing a VAA signed by the guardians.
+    ///
+    function completeTransferAndUnwrapETH(bytes memory encodedVm) external;
+
     function governanceActionIsConsumed(bytes32 hash)
         external
         view
