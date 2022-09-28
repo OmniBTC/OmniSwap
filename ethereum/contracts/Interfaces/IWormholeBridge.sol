@@ -108,6 +108,18 @@ interface IWormholeBridge {
         uint16 newChainId;
     }
 
+    /*
+     *  @dev Produce a AssetMeta message for a given token
+     */
+    function attestToken(address tokenAddress, uint32 nonce)
+        external
+        payable
+        returns (uint64 sequence);
+
+    function createWrapped(bytes memory encodedVm)
+        external
+        returns (address token);
+
     /// @notice Send eth through portal by first wrapping it to WETH
     function wrapAndTransferETH(
         uint16 recipientChain,

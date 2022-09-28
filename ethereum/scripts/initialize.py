@@ -2,10 +2,10 @@ import time
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1, \
-    web3
+    WormholeFacet, web3
 from brownie.network import priority_fee
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi, zero_address, combine_bytes, \
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_wormhole_bridge, get_wormhole_chainid, zero_address, combine_bytes, \
     padding_to_bytes, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal
 
 
@@ -24,10 +24,14 @@ def main():
     except Exception as e:
         print(f"initialize_stargate fail:{e}")
     try:
+        initialize_wormhole(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_wormhole fail: {e}")
+    try:
         initialize_dex_manager(account, so_diamond)
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
-    initialize_for_test_fee()
+    # initialize_for_test_fee()
 
 
 def initialize_for_test_fee():
@@ -36,7 +40,8 @@ def initialize_for_test_fee():
     if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test", "arbitrum-test",
                                  "optimism-test"]:
         so_diamond = SoDiamond[-1]
-        usdc = Contract.from_abi("MockToken", get_token_address("usdc"), MockToken.abi)
+        usdc = Contract.from_abi(
+            "MockToken", get_token_address("usdc"), MockToken.abi)
         try:
             usdc.mint(account, 100 * 1e4 * 1e6, {"from": account})
             print("mint 1000000 usdc success!\n")
@@ -49,10 +54,11 @@ def initialize_for_test_fee():
 
 
 def initialize_cut(account, so_diamond):
-    proxy_cut = Contract.from_abi("DiamondCutFacet", so_diamond.address, DiamondCutFacet.abi)
+    proxy_cut = Contract.from_abi(
+        "DiamondCutFacet", so_diamond.address, DiamondCutFacet.abi)
     register_funcs = {}
     register_contract = [DiamondLoupeFacet, DexManagerFacet, OwnershipFacet,
-                         StargateFacet, WithdrawFacet, GenericSwapFacet]
+                         StargateFacet, WormholeFacet, WithdrawFacet, GenericSwapFacet]
     register_data = []
     for reg in register_contract:
         print(f"Initalize {reg._name}...")
@@ -120,13 +126,16 @@ def reinitialize_cut(contract):
                 register_funcs[func_name].append(reg_funcs[func_name])
         else:
             register_funcs[func_name] = [reg_funcs[func_name]]
-    data = [reg_funcs[func_name] for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
+    data = [reg_funcs[func_name]
+            for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
     if len(data):
         register_data.append([reg_facet, 0, data])
-    data = [reg_funcs[func_name] for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
+    data = [reg_funcs[func_name]
+            for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
     if len(data):
         register_data.append([reg_facet, 1, data])
-    proxy_cut = Contract.from_abi("DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
+    proxy_cut = Contract.from_abi(
+        "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
     proxy_cut.diamondCut(register_data,
                          zero_address(),
                          b'',
@@ -135,7 +144,8 @@ def reinitialize_cut(contract):
 
 
 def initialize_stargate(account, so_diamond):
-    proxy_stargate = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    proxy_stargate = Contract.from_abi(
+        "StargateFacet", so_diamond.address, StargateFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init stargate...")
     proxy_stargate.initStargate(
@@ -145,8 +155,21 @@ def initialize_stargate(account, so_diamond):
     )
 
 
+def initialize_wormhole(account, so_diamond):
+    proxy_stargate = Contract.from_abi(
+        "WormholeFacet", so_diamond.address, WormholeFacet.abi)
+    net = network.show_active()
+    print(f"network:{net}, init wormhole...")
+    proxy_stargate.initWormholeTokenBridge(
+        get_wormhole_bridge(),
+        get_wormhole_chainid(),
+        {'from': account}
+    )
+
+
 def initialize_dex_manager(account, so_diamond):
-    proxy_dex = Contract.from_abi("DexManagerFacet", so_diamond.address, DexManagerFacet.abi)
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", so_diamond.address, DexManagerFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init dex manager...")
     dexs = []
@@ -156,17 +179,21 @@ def initialize_dex_manager(account, so_diamond):
     for swap_type in swap_info:
         cur_swap = swap_info[swap_type]
         dexs.append(cur_swap["router"])
-        reg_funcs = get_method_signature_by_abi(getattr(interface, swap_type).abi)
+        reg_funcs = get_method_signature_by_abi(
+            getattr(interface, swap_type).abi)
         for sig in reg_funcs.values():
             sigs.append(sig.hex() + "0" * 56)
     proxy_dex.batchAddDex(dexs, {'from': account})
-    proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
-    proxy_dex.addFee(get_stargate_router(), LibSoFeeV01[-1].address, {'from': account})
+    proxy_dex.batchSetFunctionApprovalBySignature(
+        sigs, True, {'from': account})
+    proxy_dex.addFee(get_stargate_router(),
+                     LibSoFeeV01[-1].address, {'from': account})
 
 
 def reinitialize_dex(old_dex):
     account = get_account()
-    proxy_dex = Contract.from_abi("DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
     proxy_dex.removeDex(old_dex, {'from': account})
     dexs = []
     swap_info = get_swap_info()
@@ -197,7 +224,8 @@ def initialize_main_for_dstforgas(token: str):
             "value": weth_amount
         }
     )
-    token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
+    token_contract = Contract.from_abi(
+        "TOKEN", token_address, interface.IERC20.abi)
     print(f"initialize_main_for_dstforgas finish, "
           f"{token} amount in sodiamond:{SoDiamond[-1].address} is "
           f"{token_contract.balanceOf(SoDiamond[-1].address) / decimal}.")
@@ -215,7 +243,8 @@ def initialize_main_for_dstforgas_from_v3(token: str):
     amount = int(0.01 * decimal)
     weth_max_amount = int(amount * (10 ** 18) / decimal / 1000)
     path = combine_bytes([weth,
-                          padding_to_bytes(web3.toHex(int(0.003 * 1e6)), padding="left", length=3),
+                          padding_to_bytes(web3.toHex(
+                              int(0.003 * 1e6)), padding="left", length=3),
                           token_address])
     swap_router.exactInput([
         path,
@@ -226,9 +255,10 @@ def initialize_main_for_dstforgas_from_v3(token: str):
         {
             "from": account,
             "value": weth_max_amount
-        }
+    }
     )
-    token_contract = Contract.from_abi("TOKEN", token_address, interface.IERC20.abi)
+    token_contract = Contract.from_abi(
+        "TOKEN", token_address, interface.IERC20.abi)
     print(f"initialize_main_for_dstforgas_from_v3 finish, "
           f"{token} amount in sodiamond:{SoDiamond[-1].address} is "
           f"{token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
@@ -238,18 +268,23 @@ def initialize_eth_for_dstforgas():
     account = get_account()
     decimal = 18
     stargate_router = get_stargate_router()
-    stragate = Contract.from_abi("IStargate", stargate_router, interface.IStargate.abi)
+    stragate = Contract.from_abi(
+        "IStargate", stargate_router, interface.IStargate.abi)
     factory_address = stragate.factory()
-    factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
+    factory = Contract.from_abi(
+        "IStargateFactory", factory_address, interface.IStargateFactory.abi)
     pool_address = factory.getPool(13)
-    pool = Contract.from_abi("IStargatePool", pool_address, interface.IStargatePool.abi)
+    pool = Contract.from_abi(
+        "IStargatePool", pool_address, interface.IStargatePool.abi)
     token_address = pool.token()
-    token = Contract.from_abi("IStargateEthVault", token_address, interface.IStargateEthVault.abi)
+    token = Contract.from_abi(
+        "IStargateEthVault", token_address, interface.IStargateEthVault.abi)
     weth_amount = int(1e-5 * 1e18)
     proxy_diamond = Contract.from_abi(
         "StargateFacet", SoDiamond[-1].address, StargateFacet.abi)
     if token.noUnwrapTo(SoDiamond[-1].address):
-        proxy_diamond.deposit(zero_address(), token, weth_amount, {"from": account, "value": weth_amount})
+        proxy_diamond.deposit(zero_address(), token, weth_amount, {
+                              "from": account, "value": weth_amount})
         print(f"initialize_eth_for_dstforgas finish, "
               f"weth:{token} amount in sodiamond:{SoDiamond[-1].address} "
               f"is {token.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
@@ -269,6 +304,6 @@ def reset_so_fee():
 
 def reset_so_gas():
     account = get_account()
-    gas = int(30000)
+    gas = 30000
     LibSoFeeV01[-1].setTransferForGas(gas, {"from": account})
     print("Cur gas is", LibSoFeeV01[-1].getTransferForGas())

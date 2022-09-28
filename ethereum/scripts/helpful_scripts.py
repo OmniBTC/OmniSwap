@@ -15,7 +15,8 @@ from multiprocessing import Queue, Process, set_start_method
 
 from brownie.project import get_loaded_projects
 
-NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["hardhat", "development", "ganache"]
+NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS = [
+    "hardhat", "development", "ganache"]
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "mainnet-fork",
     "binance-fork",
@@ -180,6 +181,18 @@ def get_chain_id():
 
 def get_current_net_info():
     return config["networks"][network.show_active()]
+
+
+def get_wormhole_info():
+    return get_current_net_info()["wormhole"]
+
+
+def get_wormhole_chainid():
+    return get_wormhole_info()["chainid"]
+
+
+def get_wormhole_bridge():
+    return get_wormhole_info()["bridge"]
 
 
 def get_stargate_info():

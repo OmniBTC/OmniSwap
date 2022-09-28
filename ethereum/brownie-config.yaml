@@ -43,6 +43,9 @@ networks:
         token_list: ""
   bsc-test:
     chainid: 97
+    wormhole:
+      chainid: 4
+      bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
     stargate:
       router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
       chainid: 10002
@@ -62,6 +65,9 @@ networks:
         token_list: ""
   avax-test:
     chainid: 43113
+    wormhole:
+      chainid: 6
+      bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
     stargate:
       router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
       chainid: 10006
@@ -81,10 +87,10 @@ networks:
         name: DexLotV2
         router: "0x6D481b9F59b22B6eB097b986fC06E438d585c039"
         token_list: ""
-#      IUniswapV2Router02AVAX:
-#        name: HurricaneswapV2
-#        router: "0x7E3411B04766089cFaa52DB688855356A12f05D1"
-#        token_list: ""
+  #      IUniswapV2Router02AVAX:
+  #        name: HurricaneswapV2
+  #        router: "0x7E3411B04766089cFaa52DB688855356A12f05D1"
+  #        token_list: ""
   polygon-test:
     chainid: 80001
     stargate:
@@ -350,7 +356,3 @@ networks:
 wallets:
   from_key: ${PRIVATE_KEY}
   from_mnemonic: ${MNEMONIC}
-
-
-
-
