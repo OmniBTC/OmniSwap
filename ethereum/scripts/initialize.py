@@ -1,13 +1,11 @@
-import time
-
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1, \
     WormholeFacet, web3
 from brownie.network import priority_fee
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_wormhole_bridge, get_wormhole_chainid, \
-    zero_address, combine_bytes, \
-    padding_to_bytes, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal, \
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_wormhole_bridge, \
+    get_wormhole_chainid, \
+    zero_address, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal, \
     get_stargate_info
 
 
@@ -207,9 +205,9 @@ def initialize_eth():
     account = get_account()
     decimal = 18
     stargate_router = get_stargate_router()
-    stragate = Contract.from_abi(
+    stargate = Contract.from_abi(
         "IStargate", stargate_router, interface.IStargate.abi)
-    factory_address = stragate.factory()
+    factory_address = stargate.factory()
     factory = Contract.from_abi(
         "IStargateFactory", factory_address, interface.IStargateFactory.abi)
     pool_address = factory.getPool(13)
