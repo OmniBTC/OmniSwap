@@ -5,8 +5,10 @@ from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFac
     WormholeFacet, web3
 from brownie.network import priority_fee
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_wormhole_bridge, get_wormhole_chainid, zero_address, combine_bytes, \
-    padding_to_bytes, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_wormhole_bridge, get_wormhole_chainid, \
+    zero_address, combine_bytes, \
+    padding_to_bytes, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal, \
+    get_stargate_info
 
 
 def main():
@@ -14,7 +16,7 @@ def main():
         priority_fee("2 gwei")
     account = get_account()
     so_diamond = SoDiamond[-1]
-    print(f"SoDiamond:{so_diamond}")
+    print(f"SoDiamond Address:{so_diamond}")
     try:
         initialize_cut(account, so_diamond)
     except Exception as e:
@@ -31,26 +33,7 @@ def main():
         initialize_dex_manager(account, so_diamond)
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
-    # initialize_for_test_fee()
-
-
-def initialize_for_test_fee():
-    account = get_account()
-    # Transfer a little to SoDiamond as a handling fee
-    if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test", "arbitrum-test",
-                                 "optimism-test"]:
-        so_diamond = SoDiamond[-1]
-        usdc = Contract.from_abi(
-            "MockToken", get_token_address("usdc"), MockToken.abi)
-        try:
-            usdc.mint(account, 100 * 1e4 * 1e6, {"from": account})
-            print("mint 1000000 usdc success!\n")
-        except Exception as e:
-            print(f"usdc mint fail:{e}")
-        usdc.transfer(so_diamond.address, int(0.01 * 1e6), {"from": account})
-        print("transfer 0.01 usdc success!")
-    if network.show_active() in ["rinkeby", "arbitrum-test", "optimism-test"]:
-        initialize_eth_for_dstforgas()
+    initialize_little_token_for_stargate()
 
 
 def initialize_cut(account, so_diamond):
@@ -61,7 +44,7 @@ def initialize_cut(account, so_diamond):
                          StargateFacet, WormholeFacet, WithdrawFacet, GenericSwapFacet]
     register_data = []
     for reg in register_contract:
-        print(f"Initalize {reg._name}...")
+        print(f"Initialize {reg._name}...")
         reg_facet = reg[-1]
         reg_funcs = get_method_signature_by_abi(reg.abi)
         for func_name in list(reg_funcs.keys()):
@@ -74,68 +57,6 @@ def initialize_cut(account, so_diamond):
             else:
                 register_funcs[func_name] = [reg_funcs[func_name]]
         register_data.append([reg_facet, 0, list(reg_funcs.values())])
-    proxy_cut.diamondCut(register_data,
-                         zero_address(),
-                         b'',
-                         {'from': account}
-                         )
-
-
-def redeploy_stargate():
-    account = get_account()
-
-    # LibCorrectSwapV1.deploy({'from': account})
-    StargateFacet.deploy({"from": account}, publish_source=True)
-    initialize_stargate(account, SoDiamond[-1])
-    reinitialize_cut(StargateFacet)
-    # reset_so_gas()
-
-    # proxy_dex = Contract.from_abi("DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
-    # proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {'from': account})
-
-    # dexs = ["0xE592427A0AEce92De3Edee1F18E0157C05861564"]
-    # swapType = "ISwapRouter"
-    # sigs = []
-    # reg_funcs = get_method_signature_by_abi(getattr(interface, swapType).abi)
-    # for sig in reg_funcs.values():
-    #     sigs.append(sig.hex() + "0" * 56)
-    # proxy_dex.batchAddDex(dexs, {'from': account})
-    # proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {'from': account})
-    # initialize_for_test_fee()
-
-
-def redeploy_generic_swap():
-    account = get_account()
-    GenericSwapFacet.deploy({'from': account})
-    reinitialize_cut(GenericSwapFacet)
-
-
-def reinitialize_cut(contract):
-    account = get_account()
-    register_data = []
-    register_funcs = {}
-    print(f"Initalize {contract._name}...")
-    reg_facet = contract[-1]
-    reg_funcs = get_method_signature_by_abi(contract.abi)
-    for func_name in list(reg_funcs.keys()):
-        if func_name in register_funcs:
-            if reg_funcs[func_name] in register_funcs[func_name]:
-                print(f"function:{func_name} has been register!")
-                del reg_funcs[func_name]
-            else:
-                register_funcs[func_name].append(reg_funcs[func_name])
-        else:
-            register_funcs[func_name] = [reg_funcs[func_name]]
-    data = [reg_funcs[func_name]
-            for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
-    if len(data):
-        register_data.append([reg_facet, 0, data])
-    data = [reg_funcs[func_name]
-            for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
-    if len(data):
-        register_data.append([reg_facet, 1, data])
-    proxy_cut = Contract.from_abi(
-        "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
     proxy_cut.diamondCut(register_data,
                          zero_address(),
                          b'',
@@ -190,6 +111,65 @@ def initialize_dex_manager(account, so_diamond):
                      LibSoFeeV01[-1].address, {'from': account})
 
 
+def initialize_little_token_for_stargate():
+    # Transfer a little to SoDiamond as a handling fee
+    if network.show_active() in ["rinkeby", "avax-test", "polygon-test", "ftm-test", "bsc-test", "arbitrum-test",
+                                 "optimism-test"]:
+        for token_name in get_stargate_info()["poolid"].keys():
+            initialize_erc20(token_name)
+
+    if network.show_active() in ["rinkeby", "arbitrum-test", "optimism-test"]:
+        initialize_eth()
+
+
+# redeploy and initialize
+def redeploy_stargate():
+    account = get_account()
+
+    StargateFacet.deploy({"from": account}, publish_source=True)
+    initialize_stargate(account, SoDiamond[-1])
+    reinitialize_cut(StargateFacet)
+
+
+def redeploy_generic_swap():
+    account = get_account()
+    GenericSwapFacet.deploy({'from': account})
+    reinitialize_cut(GenericSwapFacet)
+
+
+def reinitialize_cut(contract):
+    account = get_account()
+    register_data = []
+    register_funcs = {}
+    print(f"Initialize {contract._name}...")
+    reg_facet = contract[-1]
+    reg_funcs = get_method_signature_by_abi(contract.abi)
+    for func_name in list(reg_funcs.keys()):
+        if func_name in register_funcs:
+            if reg_funcs[func_name] in register_funcs[func_name]:
+                print(f"function:{func_name} has been register!")
+                del reg_funcs[func_name]
+            else:
+                register_funcs[func_name].append(reg_funcs[func_name])
+        else:
+            register_funcs[func_name] = [reg_funcs[func_name]]
+    data = [reg_funcs[func_name]
+            for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
+    if len(data):
+        register_data.append([reg_facet, 0, data])
+    data = [reg_funcs[func_name]
+            for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
+    if len(data):
+        register_data.append([reg_facet, 1, data])
+    proxy_cut = Contract.from_abi(
+        "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
+    proxy_cut.diamondCut(register_data,
+                         zero_address(),
+                         b'',
+                         {'from': account}
+                         )
+
+
 def reinitialize_dex(old_dex):
     account = get_account()
     proxy_dex = Contract.from_abi(
@@ -203,68 +183,27 @@ def reinitialize_dex(old_dex):
     proxy_dex.batchAddDex(dexs, {'from': account})
 
 
-def initialize_main_for_dstforgas(token: str):
+def initialize_erc20(token_name: str):
     account = get_account()
-    token_address = get_token_address(token)
-    decimal = get_token_decimal(token)
-    weth = get_token_address("weth")
-    swap_router = Contract.from_abi(
-        "ROUTER",
-        get_swap_info()["IUniswapV2Router02"]["router"],
-        getattr(interface, "IUniswapV2Router02").abi)
-    amount = 0.01 * decimal
-    weth_amount = int(amount * (10 ** 18) / decimal / 1000)
-    swap_router.swapETHForExactTokens(
-        amount,
-        [weth, token_address],
-        SoDiamond[-1].address,
-        int(time.time() + 3000),
-        {
-            "from": account,
-            "value": weth_amount
-        }
-    )
-    token_contract = Contract.from_abi(
-        "TOKEN", token_address, interface.IERC20.abi)
-    print(f"initialize_main_for_dstforgas finish, "
-          f"{token} amount in sodiamond:{SoDiamond[-1].address} is "
-          f"{token_contract.balanceOf(SoDiamond[-1].address) / decimal}.")
+    token_address = get_token_address(token_name)
+    token_decimal = get_token_decimal(token_name)
+    try:
+        so_diamond = SoDiamond[-1]
+        token = Contract.from_abi(
+            "MockToken", token_address, MockToken.abi)
+    except Exception as e:
+        print(f"get token {token_name} mint fail:{e}")
+        return
+    try:
+        token.mint(account, 100 * 1e4 * token_decimal, {"from": account})
+        print(f"mint 1000000 {token_name} success!\n")
+    except Exception as e:
+        print(f"{token_name} mint fail:{e}")
+    token.transfer(so_diamond.address, int(0.01 * token_decimal), {"from": account})
+    print(f"transfer 0.01 {token_name} success!")
 
 
-def initialize_main_for_dstforgas_from_v3(token: str):
-    decimal = get_token_decimal(token)
-    account = get_account()
-    token_address = get_token_address(token)
-    weth = get_token_address("weth")
-    swap_router = Contract.from_abi(
-        "ROUTER",
-        get_swap_info()["ISwapRouter"]["router"],
-        getattr(interface, "ISwapRouter").abi)
-    amount = int(0.01 * decimal)
-    weth_max_amount = int(amount * (10 ** 18) / decimal / 1000)
-    path = combine_bytes([weth,
-                          padding_to_bytes(web3.toHex(
-                              int(0.003 * 1e6)), padding="left", length=3),
-                          token_address])
-    swap_router.exactInput([
-        path,
-        SoDiamond[-1].address,
-        int(time.time() + 3000),
-        weth_max_amount,
-        0],
-        {
-            "from": account,
-            "value": weth_max_amount
-    }
-    )
-    token_contract = Contract.from_abi(
-        "TOKEN", token_address, interface.IERC20.abi)
-    print(f"initialize_main_for_dstforgas_from_v3 finish, "
-          f"{token} amount in sodiamond:{SoDiamond[-1].address} is "
-          f"{token_contract.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
-
-
-def initialize_eth_for_dstforgas():
+def initialize_eth():
     account = get_account()
     decimal = 18
     stargate_router = get_stargate_router()
@@ -284,13 +223,13 @@ def initialize_eth_for_dstforgas():
         "StargateFacet", SoDiamond[-1].address, StargateFacet.abi)
     if token.noUnwrapTo(SoDiamond[-1].address):
         proxy_diamond.deposit(zero_address(), token, weth_amount, {
-                              "from": account, "value": weth_amount})
-        print(f"initialize_eth_for_dstforgas finish, "
+            "from": account, "value": weth_amount})
+        print(f"initialize_eth finish, "
               f"weth:{token} amount in sodiamond:{SoDiamond[-1].address} "
               f"is {token.balanceOf(SoDiamond[-1].address) / 10 ** decimal}.")
     else:
         account.transfer(SoDiamond[-1].address, weth_amount)
-        print(f"initialize_eth_for_dstforgas finish, "
+        print(f"initialize_eth finish, "
               f"eth amount in sodiamond:{SoDiamond[-1].address} "
               f"is {web3.eth.get_balance(SoDiamond[-1].address) / 10 ** decimal}.")
 

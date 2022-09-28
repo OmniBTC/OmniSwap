@@ -192,7 +192,7 @@ def get_wormhole_chainid():
 
 
 def get_wormhole_bridge():
-    return get_wormhole_info()["bridge"]
+    return get_wormhole_info()["token_bridge"]
 
 
 def get_stargate_info():
