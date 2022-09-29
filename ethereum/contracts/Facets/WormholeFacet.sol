@@ -13,10 +13,17 @@ contract WormholeFacet is Swapper {
     bytes32 internal constant NAMESPACE =
         hex"d4ca4302bca26785486b2ceec787497a9cf992c36dcf57c306a00c1f88154623"; // keccak256("com.so.facets.wormhole")
 
+    uint256 public constant RAY = 1e27;
+
     struct Storage {
         address tokenBridge;
         uint16 srcWormholeChainId;
         uint32 nonce;
+        // The maximum price ratio of native coins (such as MATIC)
+        // to cross-chain tokens (such as USDC).
+        // Used for UA for slippage control.
+        // address is origin address;
+        mapping(address => uint256) maxGasRatio; // [RAY]
     }
 
     /// Events ///
@@ -26,21 +33,27 @@ contract WormholeFacet is Swapper {
     /// Types ///
     struct WormholeData {
         uint16 dstWormholeChainId;
+        uint256 dstGasForRelayer;
         address dstSoDiamond;
     }
 
     /// Init ///
 
     /// init wormhole token bridge
-    function initWormholeTokenBridge(
-        address _tokenBridge,
-        uint16 _wormholeChainId
-    ) external {
+    function initWormhole(address _tokenBridge, uint16 _wormholeChainId)
+        external
+    {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
         s.tokenBridge = _tokenBridge;
         s.srcWormholeChainId = _wormholeChainId;
         emit InitWormholeEvent(_tokenBridge, _wormholeChainId);
+    }
+
+    function setMaxGasRatio(address _tokenAddress, uint256 _ratio) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.maxGasRatio[_tokenAddress] = _ratio;
     }
 
     /// External Methods ///

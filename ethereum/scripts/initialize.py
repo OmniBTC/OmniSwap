@@ -79,7 +79,7 @@ def initialize_wormhole(account, so_diamond):
         "WormholeFacet", so_diamond.address, WormholeFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init wormhole...")
-    proxy_stargate.initWormholeTokenBridge(
+    proxy_stargate.initWormhole(
         get_wormhole_bridge(),
         get_wormhole_chainid(),
         {'from': account}
