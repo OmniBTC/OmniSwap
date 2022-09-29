@@ -211,9 +211,7 @@ contract WormholeFacet is Swapper {
         Storage storage s = getStorage();
         address _bridge = s.tokenBridge;
 
-        LibAsset.maxApproveERC20(IERC20(_token), _bridge, _amount);
-
-        if (!LibAsset.isNativeAsset(_token)) {
+        if (LibAsset.isNativeAsset(_token)) {
             IWormholeBridge(_bridge).wrapAndTransferETHWithPayload{
                 value: msg.value
             }(
@@ -223,6 +221,7 @@ contract WormholeFacet is Swapper {
                 _payload
             );
         } else {
+            LibAsset.maxApproveERC20(IERC20(_token), _bridge, _amount);
             IWormholeBridge(_bridge).transferTokensWithPayload{
                 value: msg.value
             }(
@@ -237,11 +236,7 @@ contract WormholeFacet is Swapper {
 
         uint256 _dust = LibAsset.getOwnBalance(_token);
         if (_dust > 0) {
-            LibAsset.transferAsset(
-                _token,
-                payable(msg.sender),
-                _dust
-            );
+            LibAsset.transferAsset(_token, payable(msg.sender), _dust);
         }
 
         s.nonce += 1;
