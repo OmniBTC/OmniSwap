@@ -123,9 +123,17 @@ contract WormholeFacet is Swapper {
             (SoData, bytes)
         );
 
-        address _tokenAddress = address(
-            uint160(uint256(_wormholePayload.tokenAddress))
-        );
+        address _tokenAddress;
+        if (_wormholePayload.tokenChain == IWormholeBridge(bridge).chainId()) {
+            _tokenAddress = address(
+                uint160(uint256(_wormholePayload.tokenAddress))
+            );
+        } else {
+            _tokenAddress = IWormholeBridge(bridge).wrappedAsset(
+                _wormholePayload.tokenChain,
+                _wormholePayload.tokenAddress
+            );
+        }
 
         uint256 amount = LibAsset.getOwnBalance(_tokenAddress);
 
