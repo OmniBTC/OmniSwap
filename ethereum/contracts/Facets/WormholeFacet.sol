@@ -139,13 +139,17 @@ contract WormholeFacet is Swapper {
 
         uint256 amount = LibAsset.getOwnBalance(_tokenAddress);
 
+        require(amount > 0, "amount > 0");
+
         IWETH _weth = IWormholeBridge(bridge).WETH();
 
         if (_isOriginChain && address(_weth) == _tokenAddress) {
             _weth.withdraw(amount);
+            _tokenAddress = LibAsset.NATIVE_ASSETID;
         }
 
         if (_swapPayload.length == 0) {
+            require(_tokenAddress == _soData.receivingAssetId, "token error");
             LibAsset.transferAsset(
                 _soData.receivingAssetId,
                 _soData.receiver,
@@ -163,6 +167,10 @@ contract WormholeFacet is Swapper {
             LibSwap.SwapData[] memory _swapDataDst = abi.decode(
                 _swapPayload,
                 (LibSwap.SwapData[])
+            );
+            require(
+                _swapDataDst[0].sendingAssetId == _tokenAddress,
+                "token error"
             );
 
             _swapDataDst[0].fromAmount = amount;

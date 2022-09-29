@@ -8,6 +8,7 @@ dependencies:
   - Uniswap/v3-core@1.0.0
 compiler:
   solc:
+    version: 0.8.13
     remappings:
       - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.6.0"
       - "@uniswap/v3-core=Uniswap/v3-core@1.0.0"
@@ -81,6 +82,9 @@ networks:
         # DexLot used weth
         address: "0x9B5828d46A43176F07656e162cCbDc787624468c"
         # Hurricaneswap used weth "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
+        decimal: 18
+      wbnb:
+        address: "0x10F1053bF2884b28ee0Bd7a2dDBa237Af3511d29"
         decimal: 18
     swap:
       IUniswapV2Router02AVAX:
