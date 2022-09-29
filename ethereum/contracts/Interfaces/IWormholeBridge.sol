@@ -108,6 +108,11 @@ interface IWormholeBridge {
         uint16 newChainId;
     }
 
+    function parseTransferWithPayload(bytes memory encoded)
+        external
+        pure
+        returns (TransferWithPayload memory transfer);
+
     /*
      *  @dev Produce a AssetMeta message for a given token
      */

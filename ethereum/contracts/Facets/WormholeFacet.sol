@@ -95,17 +95,28 @@ contract WormholeFacet is Swapper {
         );
     }
 
+    function completeTransferAndUnwrapETHWithPayload(bytes memory _encodeVm)
+        external
+    {
+        completeSoSwap(_encodeVm);
+    }
+
+    function completeTransferWithPayload(bytes memory _encodeVm) external {
+        completeSoSwap(_encodeVm);
+    }
+
     /// complete transfer with payload
     /// called by relayer
-    function completeSoSwap(bytes memory _encodeVm) external {
+    function completeSoSwap(bytes memory _encodeVm) public {
         Storage storage s = getStorage();
         address bridge = s.tokenBridge;
 
-        IWormholeBridge.TransferWithPayload memory _wormholePayload = abi
-            .decode(
-                IWormholeBridge(bridge).completeTransferWithPayload(_encodeVm),
-                (IWormholeBridge.TransferWithPayload)
-            );
+        bytes memory payload = IWormholeBridge(bridge)
+            .completeTransferWithPayload(_encodeVm);
+
+        IWormholeBridge.TransferWithPayload
+            memory _wormholePayload = IWormholeBridge(bridge)
+                .parseTransferWithPayload(payload);
 
         (SoData memory _soData, bytes memory _swapPayload) = abi.decode(
             _wormholePayload.payload,
