@@ -124,10 +124,12 @@ contract WormholeFacet is Swapper {
         );
 
         address _tokenAddress;
+        bool _isOriginChain;
         if (_wormholePayload.tokenChain == IWormholeBridge(bridge).chainId()) {
             _tokenAddress = address(
                 uint160(uint256(_wormholePayload.tokenAddress))
             );
+            _isOriginChain = true;
         } else {
             _tokenAddress = IWormholeBridge(bridge).wrappedAsset(
                 _wormholePayload.tokenChain,
@@ -139,7 +141,7 @@ contract WormholeFacet is Swapper {
 
         IWETH _weth = IWormholeBridge(bridge).WETH();
 
-        if (address(_weth) == _tokenAddress) {
+        if (_isOriginChain && address(_weth) == _tokenAddress) {
             _weth.withdraw(amount);
         }
 
