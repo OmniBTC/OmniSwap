@@ -7,6 +7,10 @@ import "../Interfaces/ISo.sol";
 import "../Interfaces/ILibPrice.sol";
 import "../Helpers/Swapper.sol";
 import "../Interfaces/IWormholeBridge.sol";
+// todo! 1. Add deploy LibSoFeeWormholeV1.sol and initialize chainlink address[https://data.chain.link/polygon/mainnet/crypto-usd/eth-usd]
+// todo! 2. Add setWormholeReserve and setWormholeGas to script
+// todo! 3. Modify relayer to support dstMaxGasForRelayer and dstMaxGasPriceInWeiForRelayer;
+// todo! 4. Finish relayer test
 
 /// @title Wormhole Facet
 /// @author OmniBTC
@@ -25,11 +29,19 @@ contract WormholeFacet is Swapper {
         uint32 nonce;
         uint256 actualReserve; // [RAY]
         uint256 estimateReserve; // [RAY]
+        mapping(uint16 => uint256) dstBaseGas;
+        mapping(uint16 => uint256) dstGasPerBytes;
     }
 
     /// Events ///
 
     event InitWormholeEvent(address tokenBridge, uint16 srcWormholeChainId);
+    event UpdateWormholeReserve(uint256 actualReserve, uint256 estimateReserve);
+    event UpdateWormholeGas(
+        uint16 dstWormholeChainId,
+        uint256 baseGas,
+        uint256 gasPerBytes
+    );
 
     /// Types ///
     struct WormholeData {
@@ -52,16 +64,39 @@ contract WormholeFacet is Swapper {
         emit InitWormholeEvent(_tokenBridge, _wormholeChainId);
     }
 
+    function setWormholeReserve(
+        uint256 _actualReserve,
+        uint256 _estimateReserve
+    ) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.actualReserve = _actualReserve;
+        s.estimateReserve = _estimateReserve;
+        emit UpdateWormholeReserve(_actualReserve, _estimateReserve);
+    }
+
+    function setWormholeGas(
+        uint16 _dstWormholeChainId,
+        uint256 _baseGas,
+        uint256 _gasPerBytes
+    ) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.dstBaseGas[_dstWormholeChainId] = _baseGas;
+        s.dstGasPerBytes[_dstWormholeChainId] = _gasPerBytes;
+        emit UpdateWormholeGas(_dstWormholeChainId, _baseGas, _gasPerBytes);
+    }
+
     /// External Methods ///
 
-    struct WormholeCache{
+    struct WormholeCache {
         bool _flag;
         uint256 _fee;
         bool _hasSourceSwap;
         bool _hasDestinationSwap;
         uint256 _bridgeAmount;
         address _bridgeAddress;
-        bytes  _payload;
+        bytes _payload;
     }
 
     /// transfer with payload
@@ -72,9 +107,17 @@ contract WormholeFacet is Swapper {
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable {
         WormholeCache memory _cache;
-        (_cache._flag,  _cache._fee) = checkRelayerFee(_soData, _wormholeData, msg.value);
+        (_cache._flag, _cache._fee) = checkRelayerFee(
+            _soData,
+            _wormholeData,
+            msg.value
+        );
         require(_cache._flag, "Check fail");
-        LibAsset.transferAsset(LibAsset.NATIVE_ASSETID, payable(LibDiamond.contractOwner()), _cache._fee);
+        LibAsset.transferAsset(
+            LibAsset.NATIVE_ASSETID,
+            payable(LibDiamond.contractOwner()),
+            _cache._fee
+        );
         if (!LibAsset.isNativeAsset(_soData.sendingAssetId)) {
             LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
         }
@@ -87,7 +130,10 @@ contract WormholeFacet is Swapper {
                 _soData.amount == _swapDataSrc[0].fromAmount,
                 "soData and swapDataSrc amount not match!"
             );
-            _cache._bridgeAmount = this.executeAndCheckSwaps(_soData, _swapDataSrc);
+            _cache._bridgeAmount = this.executeAndCheckSwaps(
+                _soData,
+                _swapDataSrc
+            );
             _cache._bridgeAddress = _swapDataSrc[_swapDataSrc.length - 1]
                 .receivingAssetId;
             _cache._hasSourceSwap = true;
@@ -102,7 +148,13 @@ contract WormholeFacet is Swapper {
         }
 
         /// start bridge
-        _startBridge(_wormholeData, _cache._bridgeAddress, _cache._bridgeAmount, _cache._fee, _cache._payload);
+        _startBridge(
+            _wormholeData,
+            _cache._bridgeAddress,
+            _cache._bridgeAmount,
+            _cache._fee,
+            _cache._payload
+        );
 
         emit ISo.SoTransferStarted(
             _soData.transactionId,
@@ -245,6 +297,26 @@ contract WormholeFacet is Swapper {
                 );
             }
         }
+    }
+
+    function estimateCompleteSoSwapGas(
+        ISo.SoData calldata _soData,
+        WormholeData calldata _wormholeData,
+        LibSwap.SwapData[] calldata _swapDataDst
+    ) public view returns (uint256) {
+        bytes memory _payload;
+        if (_swapDataDst.length == 0) {
+            _payload = abi.encode(_soData, bytes(""));
+        } else {
+            _payload = abi.encode(_soData, abi.encode(_swapDataDst));
+        }
+        Storage storage s = getStorage();
+        return
+            s.dstBaseGas[_wormholeData.dstWormholeChainId].add(
+                s.dstGasPerBytes[_wormholeData.dstWormholeChainId].mul(
+                    _payload.length
+                )
+            );
     }
 
     function checkRelayerFee(
