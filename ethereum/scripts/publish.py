@@ -21,7 +21,7 @@ def main(net: str = None):
     p.load_config()
     change_network(net)
     deployed_contract = ["DiamondCutFacet", "DiamondLoupeFacet", "DexManagerFacet", "StargateFacet",
-                         "WithdrawFacet", "OwnershipFacet", "GenericSwapFacet", "SoDiamond", "LibSoFeeV01",
+                         "WithdrawFacet", "OwnershipFacet", "GenericSwapFacet", "SoDiamond", "LibSoFeeStargate",
                          "LibCorrectSwapV1"]
     for c in deployed_contract:
         print(f"network:{net} publish source: {c}")

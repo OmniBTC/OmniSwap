@@ -9,7 +9,7 @@ import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 
 // Stargate
-contract LibSoFeeV01 is ILibSoFee, Ownable, ReentrancyGuard {
+contract LibSoFeeStargate is ILibSoFee, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     //---------------------------------------------------------------------------
@@ -59,6 +59,6 @@ contract LibSoFeeV01 is ILibSoFee, Ownable, ReentrancyGuard {
     }
 
     function getVersion() external pure override returns (string memory) {
-        return "1.0.0";
+        return "Stargate";
     }
 }

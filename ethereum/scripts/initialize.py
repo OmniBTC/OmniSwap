@@ -1,5 +1,5 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeV01, MockToken, LibCorrectSwapV1, \
+    OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeStargate, MockToken, LibCorrectSwapV1, \
     WormholeFacet, web3
 from brownie.network import priority_fee
 
@@ -106,7 +106,7 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchSetFunctionApprovalBySignature(
         sigs, True, {'from': account})
     proxy_dex.addFee(get_stargate_router(),
-                     LibSoFeeV01[-1].address, {'from': account})
+                     LibSoFeeStargate[-1].address, {'from': account})
 
 
 def initialize_little_token_for_stargate():
@@ -235,12 +235,12 @@ def initialize_eth():
 def reset_so_fee():
     account = get_account()
     so_fee = int(1e-3 * 1e18)
-    LibSoFeeV01[-1].setFee(so_fee, {"from": account})
-    print("Cur soFee is", LibSoFeeV01[-1].soFee() / 1e18)
+    LibSoFeeStargate[-1].setFee(so_fee, {"from": account})
+    print("Cur soFee is", LibSoFeeStargate[-1].soFee() / 1e18)
 
 
 def reset_so_gas():
     account = get_account()
     gas = 30000
-    LibSoFeeV01[-1].setTransferForGas(gas, {"from": account})
-    print("Cur gas is", LibSoFeeV01[-1].getTransferForGas())
+    LibSoFeeStargate[-1].setTransferForGas(gas, {"from": account})
+    print("Cur gas is", LibSoFeeStargate[-1].getTransferForGas())

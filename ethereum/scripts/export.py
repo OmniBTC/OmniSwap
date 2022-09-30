@@ -5,7 +5,7 @@ import json
 import os
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeV01, LibCorrectSwapV1
+    OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeStargate, LibCorrectSwapV1
 
 from scripts.helpful_scripts import change_network, zero_address, read_json, get_stargate_router, get_token_address, \
     get_swap_info, get_stargate_chain_id
@@ -103,7 +103,7 @@ def get_stargate_chain_path():
 
 def export_deployed():
     deployed_contract = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet,
-                         WithdrawFacet, OwnershipFacet, GenericSwapFacet, SoDiamond, LibSoFeeV01,
+                         WithdrawFacet, OwnershipFacet, GenericSwapFacet, SoDiamond, LibSoFeeStargate,
                          LibCorrectSwapV1]
     return {v._name: v[-1].address for v in deployed_contract}
 

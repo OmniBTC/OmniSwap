@@ -19,11 +19,6 @@ contract WormholeFacet is Swapper {
         address tokenBridge;
         uint16 srcWormholeChainId;
         uint32 nonce;
-        // The maximum price ratio of native coins (such as MATIC)
-        // to cross-chain tokens (such as USDC).
-        // Used for UA for slippage control.
-        // address is origin address;
-        mapping(address => uint256) maxGasRatio; // [RAY]
     }
 
     /// Events ///
@@ -34,6 +29,7 @@ contract WormholeFacet is Swapper {
     struct WormholeData {
         uint16 dstWormholeChainId;
         uint256 dstGasForRelayer;
+        uint256 dstGasPriceInWeiForRelayer;
         address dstSoDiamond;
     }
 
@@ -48,12 +44,6 @@ contract WormholeFacet is Swapper {
         s.tokenBridge = _tokenBridge;
         s.srcWormholeChainId = _wormholeChainId;
         emit InitWormholeEvent(_tokenBridge, _wormholeChainId);
-    }
-
-    function setMaxGasRatio(address _tokenAddress, uint256 _ratio) external {
-        LibDiamond.enforceIsContractOwner();
-        Storage storage s = getStorage();
-        s.maxGasRatio[_tokenAddress] = _ratio;
     }
 
     /// External Methods ///
