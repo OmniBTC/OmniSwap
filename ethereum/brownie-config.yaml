@@ -17,20 +17,21 @@ autofetch_sources: True
 dotenv: .env
 networks:
   default: rinkeby
-  rinkeby:
-    chainid: 4
+  goerli:
+    chainid: 5
     stargate:
-      router: "0x82A0F5F531F9ce0df1DF5619f74a0d3fA31FF561"
-      chainid: 10001
+      # Will be deployed soon
+      router: 
+      chainid: 10121
       poolid:
         usdc: 1
         weth: 13
     token:
       usdc:
-        address: "0x1717A0D5C8705EE89A8aD6E808268D6A826C97A4"
+        address: "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557"
         decimal: 6
       weth:
-        address: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
+        address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
         decimal: 18
     swap:
       ISwapRouter:
@@ -49,7 +50,7 @@ networks:
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
     stargate:
       router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
-      chainid: 10002
+      chainid: 10102
       poolid:
         usdt: 2
     token:
@@ -71,7 +72,7 @@ networks:
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
     stargate:
       router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
-      chainid: 10006
+      chainid: 10106
       poolid:
         usdc: 1
     token:
@@ -99,7 +100,7 @@ networks:
     chainid: 80001
     stargate:
       router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
-      chainid: 10009
+      chainid: 10109
       poolid:
         usdc: 1
     token:
@@ -118,7 +119,7 @@ networks:
     chainid: 421611
     stargate:
       router: "0x6701D9802aDF674E524053bd44AA83ef253efc41"
-      chainid: 10010
+      chainid: 10110
       poolid:
         usdc: 1
         weth: 13
@@ -143,7 +144,7 @@ networks:
     chainid: 69
     stargate:
       router: "0xCC68641528B948642bDE1729805d6cf1DECB0B00"
-      chainid: 10011
+      chainid: 10111
       poolid:
         usdc: 1
         weth: 13
@@ -164,7 +165,7 @@ networks:
     chainid: 4002
     stargate:
       router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
-      chainid: 10012
+      chainid: 10112
       poolid:
         usdc: 1
     token:
