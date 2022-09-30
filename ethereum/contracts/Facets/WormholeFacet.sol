@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPLv3
 pragma solidity 0.8.13;
 
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../Libraries/LibDiamond.sol";
 import "../Interfaces/ISo.sol";
+import "../Interfaces/ILibPrice.sol";
 import "../Helpers/Swapper.sol";
 import "../Interfaces/IWormholeBridge.sol";
 
@@ -10,6 +12,8 @@ import "../Interfaces/IWormholeBridge.sol";
 /// @author OmniBTC
 /// @notice Provides functionality for bridging through Wormhole
 contract WormholeFacet is Swapper {
+    using SafeMath for uint256;
+
     bytes32 internal constant NAMESPACE =
         hex"d4ca4302bca26785486b2ceec787497a9cf992c36dcf57c306a00c1f88154623"; // keccak256("com.so.facets.wormhole")
 
@@ -19,6 +23,8 @@ contract WormholeFacet is Swapper {
         address tokenBridge;
         uint16 srcWormholeChainId;
         uint32 nonce;
+        uint256 actualReserve; // [RAY]
+        uint256 estimateReserve; // [RAY]
     }
 
     /// Events ///
@@ -28,8 +34,8 @@ contract WormholeFacet is Swapper {
     /// Types ///
     struct WormholeData {
         uint16 dstWormholeChainId;
-        uint256 dstGasForRelayer;
-        uint256 dstGasPriceInWeiForRelayer;
+        uint256 dstMaxGasForRelayer;
+        uint256 dstMaxGasPriceInWeiForRelayer;
         address dstSoDiamond;
     }
 
@@ -48,6 +54,16 @@ contract WormholeFacet is Swapper {
 
     /// External Methods ///
 
+    struct WormholeCache{
+        bool _flag;
+        uint256 _fee;
+        bool _hasSourceSwap;
+        bool _hasDestinationSwap;
+        uint256 _bridgeAmount;
+        address _bridgeAddress;
+        bytes  _payload;
+    }
+
     /// transfer with payload
     function soSwapViaWormhole(
         ISo.SoData calldata _soData,
@@ -55,45 +71,44 @@ contract WormholeFacet is Swapper {
         WormholeData calldata _wormholeData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable {
-        bool _hasSourceSwap;
-        bool _hasDestinationSwap;
-        uint256 _bridgeAmount;
-        address _bridgeAddress;
+        WormholeCache memory _cache;
+        (_cache._flag,  _cache._fee) = checkRelayerFee(_soData, _wormholeData, msg.value);
+        require(_cache._flag, "Check fail");
+        LibAsset.transferAsset(LibAsset.NATIVE_ASSETID, payable(LibDiamond.contractOwner()), _cache._fee);
         if (!LibAsset.isNativeAsset(_soData.sendingAssetId)) {
             LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
         }
         if (_swapDataSrc.length == 0) {
-            _bridgeAddress = _soData.sendingAssetId;
-            _bridgeAmount = _soData.amount;
-            _hasSourceSwap = false;
+            _cache._bridgeAddress = _soData.sendingAssetId;
+            _cache._bridgeAmount = _soData.amount;
+            _cache._hasSourceSwap = false;
         } else {
             require(
                 _soData.amount == _swapDataSrc[0].fromAmount,
                 "soData and swapDataSrc amount not match!"
             );
-            _bridgeAmount = this.executeAndCheckSwaps(_soData, _swapDataSrc);
-            _bridgeAddress = _swapDataSrc[_swapDataSrc.length - 1]
+            _cache._bridgeAmount = this.executeAndCheckSwaps(_soData, _swapDataSrc);
+            _cache._bridgeAddress = _swapDataSrc[_swapDataSrc.length - 1]
                 .receivingAssetId;
-            _hasSourceSwap = true;
+            _cache._hasSourceSwap = true;
         }
 
-        bytes memory _payload;
         if (_swapDataDst.length == 0) {
-            _payload = abi.encode(_soData, bytes(""));
-            _hasDestinationSwap = false;
+            _cache._payload = abi.encode(_soData, bytes(""));
+            _cache._hasDestinationSwap = false;
         } else {
-            _payload = abi.encode(_soData, abi.encode(_swapDataDst));
-            _hasDestinationSwap = true;
+            _cache._payload = abi.encode(_soData, abi.encode(_swapDataDst));
+            _cache._hasDestinationSwap = true;
         }
 
         /// start bridge
-        _startBridge(_wormholeData, _bridgeAddress, _bridgeAmount, _payload);
+        _startBridge(_wormholeData, _cache._bridgeAddress, _cache._bridgeAmount, _cache._payload);
 
         emit ISo.SoTransferStarted(
             _soData.transactionId,
             "Wormhole",
-            _hasSourceSwap,
-            _hasDestinationSwap,
+            _cache._hasSourceSwap,
+            _cache._hasDestinationSwap,
             _soData
         );
     }
@@ -230,6 +245,67 @@ contract WormholeFacet is Swapper {
                 );
             }
         }
+    }
+
+    function checkRelayerFee(
+        ISo.SoData calldata _soData,
+        WormholeData calldata _wormholeData,
+        uint256 _value
+    ) public returns (bool, uint256) {
+        Storage storage s = getStorage();
+        ILibPrice _oracle = ILibPrice(
+            appStorage.gatewaySoFeeSelectors[s.tokenBridge]
+        );
+        uint256 _ratio = _oracle.updatePriceRatio(
+            _wormholeData.dstWormholeChainId
+        );
+        uint256 _dstFee = _wormholeData.dstMaxGasForRelayer.mul(
+            _wormholeData.dstMaxGasPriceInWeiForRelayer
+        );
+        uint256 _srcFee = _dstFee
+            .mul(_ratio)
+            .div(_oracle.RAY())
+            .mul(s.actualReserve)
+            .div(RAY);
+
+        uint256 _userInput;
+        if (LibAsset.isNativeAsset(_soData.sendingAssetId)) {
+            _userInput = _soData.amount;
+        }
+        bool flag;
+        if (
+            IWormholeBridge(s.tokenBridge)
+                .wormhole()
+                .messageFee()
+                .add(_userInput)
+                .add(_srcFee) <= _value
+        ) {
+            flag = true;
+        }
+        return (flag, _srcFee);
+    }
+
+    function estimateRelayerFee(WormholeData calldata _wormholeData)
+        external
+        view
+        returns (uint256)
+    {
+        Storage storage s = getStorage();
+        ILibPrice _oracle = ILibPrice(
+            appStorage.gatewaySoFeeSelectors[s.tokenBridge]
+        );
+        (uint256 _ratio, ) = _oracle.getPriceRatio(
+            _wormholeData.dstWormholeChainId
+        );
+        uint256 _dstFee = _wormholeData.dstMaxGasForRelayer.mul(
+            _wormholeData.dstMaxGasPriceInWeiForRelayer
+        );
+        uint256 _srcFee = _dstFee
+            .mul(_ratio)
+            .div(_oracle.RAY())
+            .mul(s.estimateReserve)
+            .div(RAY);
+        return _srcFee;
     }
 
     /// Internal Methods ///

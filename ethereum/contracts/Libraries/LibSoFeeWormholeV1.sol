@@ -6,10 +6,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
+import {ILibPrice} from "../Interfaces/ILibPrice.sol";
 import {IAggregatorV3Interface} from "../Interfaces/IAggregatorV3Interface.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 
-contract LibSoFeeWormhole is ILibSoFee, Ownable, ReentrancyGuard {
+contract LibSoFeeWormholeV1 is ILibSoFee, ILibPrice, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     //---------------------------------------------------------------------------
@@ -140,6 +141,12 @@ contract LibSoFeeWormhole is ILibSoFee, Ownable, ReentrancyGuard {
         return _ratio;
     }
 
+    function setPriceRatio(uint16 _chainId, uint256 _ratio) external onlyOwner {
+        priceData[_chainId].currentPriceRatio = _ratio;
+        priceData[_chainId].lastUpdateTimestamp = block.timestamp;
+        emit UpdatePriceRatio(msg.sender, _ratio);
+    }
+
     function getRestoredAmount(uint256 _amountIn)
         external
         view
@@ -167,6 +174,6 @@ contract LibSoFeeWormhole is ILibSoFee, Ownable, ReentrancyGuard {
     }
 
     function getVersion() external pure override returns (string memory) {
-        return "Wormhole";
+        return "WormholeV1";
     }
 }
