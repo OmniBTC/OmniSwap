@@ -102,7 +102,7 @@ contract WormholeFacet is Swapper {
         }
 
         /// start bridge
-        _startBridge(_wormholeData, _cache._bridgeAddress, _cache._bridgeAmount, _cache._payload);
+        _startBridge(_wormholeData, _cache._bridgeAddress, _cache._bridgeAmount, _cache._fee, _cache._payload);
 
         emit ISo.SoTransferStarted(
             _soData.transactionId,
@@ -314,6 +314,7 @@ contract WormholeFacet is Swapper {
         WormholeData calldata _wormholeData,
         address _token,
         uint256 _amount,
+        uint256 _srcFee,
         bytes memory _payload
     ) internal {
         Storage storage s = getStorage();
@@ -321,7 +322,7 @@ contract WormholeFacet is Swapper {
 
         if (LibAsset.isNativeAsset(_token)) {
             IWormholeBridge(_bridge).wrapAndTransferETHWithPayload{
-                value: msg.value
+                value: msg.value.sub(_srcFee)
             }(
                 _wormholeData.dstWormholeChainId,
                 bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
