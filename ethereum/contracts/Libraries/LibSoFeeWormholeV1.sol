@@ -35,7 +35,7 @@ contract LibSoFeeWormholeV1 is ILibSoFee, ILibPrice, Ownable, ReentrancyGuard {
         uint256 lastUpdateTimestamp;
     }
 
-    uint256 public constant RAY = 1e18;
+    uint256 public constant RAY = 1e27;
 
     uint256 public soFee;
 

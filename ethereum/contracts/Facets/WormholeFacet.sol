@@ -7,6 +7,8 @@ import "../Interfaces/ISo.sol";
 import "../Interfaces/ILibPrice.sol";
 import "../Helpers/Swapper.sol";
 import "../Interfaces/IWormholeBridge.sol";
+import "../Interfaces/ILibSoFee.sol";
+
 // todo! 1. Add deploy LibSoFeeWormholeV1.sol and initialize chainlink address[https://data.chain.link/polygon/mainnet/crypto-usd/eth-usd]
 // todo! 2. Add setWormholeReserve and setWormholeGas to script
 // todo! 3. Modify relayer to support dstMaxGasForRelayer and dstMaxGasPriceInWeiForRelayer;
@@ -107,12 +109,21 @@ contract WormholeFacet is Swapper {
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable {
         WormholeCache memory _cache;
-        (_cache._flag, _cache._fee) = checkRelayerFee(
+        uint256 returnValue;
+        (_cache._flag, _cache._fee, returnValue) = checkRelayerFee(
             _soData,
             _wormholeData,
             msg.value
         );
         require(_cache._flag, "Check fail");
+        // return the redundant msg.value
+        if (returnValue > 0) {
+            LibAsset.transferAsset(
+                LibAsset.NATIVE_ASSETID,
+                payable(msg.sender),
+                returnValue
+            );
+        }
         LibAsset.transferAsset(
             LibAsset.NATIVE_ASSETID,
             payable(LibDiamond.contractOwner()),
@@ -208,7 +219,10 @@ contract WormholeFacet is Swapper {
         }
 
         uint256 amount = LibAsset.getOwnBalance(_tokenAddress);
-
+        uint256 soFee = getSoFee(amount);
+        if (soFee < amount) {
+            amount = amount.sub(soFee);
+        }
         require(amount > 0, "amount > 0");
 
         IWETH _weth = IWormholeBridge(bridge).WETH();
@@ -220,6 +234,13 @@ contract WormholeFacet is Swapper {
 
         if (_swapPayload.length == 0) {
             require(_tokenAddress == _soData.receivingAssetId, "token error");
+            if (soFee > 0) {
+                LibAsset.transferAsset(
+                    _soData.receivingAssetId,
+                    payable(LibDiamond.contractOwner()),
+                    soFee
+                );
+            }
             LibAsset.transferAsset(
                 _soData.receivingAssetId,
                 _soData.receiver,
@@ -238,6 +259,13 @@ contract WormholeFacet is Swapper {
                 _swapPayload,
                 (LibSwap.SwapData[])
             );
+            if (soFee > 0) {
+                LibAsset.transferAsset(
+                    _swapDataDst[0].sendingAssetId,
+                    payable(LibDiamond.contractOwner()),
+                    soFee
+                );
+            }
             require(
                 _swapDataDst[0].sendingAssetId == _tokenAddress,
                 "token error"
@@ -323,7 +351,14 @@ contract WormholeFacet is Swapper {
         ISo.SoData calldata _soData,
         WormholeData calldata _wormholeData,
         uint256 _value
-    ) public returns (bool, uint256) {
+    )
+        public
+        returns (
+            bool,
+            uint256,
+            uint256
+        )
+    {
         Storage storage s = getStorage();
         ILibPrice _oracle = ILibPrice(
             appStorage.gatewaySoFeeSelectors[s.tokenBridge]
@@ -345,16 +380,17 @@ contract WormholeFacet is Swapper {
             _userInput = _soData.amount;
         }
         bool flag;
-        if (
-            IWormholeBridge(s.tokenBridge)
-                .wormhole()
-                .messageFee()
-                .add(_userInput)
-                .add(_srcFee) <= _value
-        ) {
+        uint256 returnValue;
+        uint256 consumeValue = IWormholeBridge(s.tokenBridge)
+            .wormhole()
+            .messageFee()
+            .add(_userInput)
+            .add(_srcFee);
+        if (consumeValue <= _value) {
             flag = true;
+            returnValue = _value.sub(consumeValue);
         }
-        return (flag, _srcFee);
+        return (flag, _srcFee, returnValue);
     }
 
     function estimateRelayerFee(WormholeData calldata _wormholeData)
@@ -378,6 +414,17 @@ contract WormholeFacet is Swapper {
             .mul(s.estimateReserve)
             .div(RAY);
         return _srcFee;
+    }
+
+    /// @dev Get so fee
+    function getSoFee(uint256 _amount) public view returns (uint256) {
+        Storage storage s = getStorage();
+        address _soFee = appStorage.gatewaySoFeeSelectors[s.tokenBridge];
+        if (_soFee == address(0x0)) {
+            return 0;
+        } else {
+            return ILibSoFee(_soFee).getFees(_amount);
+        }
     }
 
     /// Internal Methods ///
