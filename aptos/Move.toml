@@ -1,0 +1,16 @@
+[package]
+name = "OmniSwap"
+version = "0.1.0"
+
+[addresses]
+std = "0x1"
+aptos_framework = "0x1"
+aptos_std = "0x1"
+omniswap = "_"
+
+[dev-addresses]
+omniswap = "0x11"
+
+[dependencies.AptosFramework]
+local = "../../meta/aptos/aptos-core/aptos-move/framework/aptos-framework"
+
