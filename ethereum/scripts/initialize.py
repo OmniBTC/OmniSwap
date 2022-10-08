@@ -1,10 +1,10 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeStargateV1, MockToken, LibCorrectSwapV1, \
-    WormholeFacet, web3
+    WormholeFacet, LibSoFeeWormholeV1, web3
 from brownie.network import priority_fee
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_wormhole_bridge, \
-    get_wormhole_chainid, \
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_native_oracle_address, get_oracles, get_wormhole_actual_reserve, get_wormhole_bridge, \
+    get_wormhole_chainid, get_wormhole_estimate_reserve, get_wormhole_info, \
     zero_address, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal, \
     get_stargate_info
 
@@ -28,10 +28,29 @@ def main():
     except Exception as e:
         print(f"initialize_wormhole fail: {e}")
     try:
+        initialize_wormhole_fee(account)
+    except Exception as e:
+        print(f"initialize_wormhole_fee fail: {e}")
+    try:
         initialize_dex_manager(account, so_diamond)
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
     initialize_little_token_for_stargate()
+
+
+def initialize_wormhole_fee(account):
+    # initialize oracle
+    oracles = get_oracles()
+    native_oracle_address = get_native_oracle_address()
+    chainid = get_wormhole_chainid()
+    for token in oracles:
+        if chainid == oracles[token]["chainid"]:
+            continue
+        print(f'initialize_wormhole fee oracle: {token}')
+        LibSoFeeWormholeV1[-1].setPriceConfig(oracles[token]["chainid"], [
+            [oracles[token]["address"], False],
+            [native_oracle_address, True]
+        ], 0, {'from': account})
 
 
 def initialize_cut(account, so_diamond):
@@ -84,6 +103,25 @@ def initialize_wormhole(account, so_diamond):
         get_wormhole_chainid(),
         {'from': account}
     )
+
+    ray = 1e27
+    # setWormholeReserve
+    print(f"network:{net}, set wormhole reserve...")
+    proxy_stargate.setWormholeReserve(
+        int(get_wormhole_actual_reserve() * ray),
+        int(get_wormhole_estimate_reserve() * ray),
+        {'from': account}
+    )
+    # setWormholeGas
+    gas = get_wormhole_info()["gas"]
+    for chain in gas:
+        print(f"network:{net}, set dst chain {chain} wormhole gas...")
+        proxy_stargate.setWormholeGas(
+            gas[chain]["dst_chainid"],
+            gas[chain]["base_gas"],
+            gas[chain]["per_byte_gas"],
+            {'from': account}
+        )
 
 
 def initialize_dex_manager(account, so_diamond):
@@ -197,7 +235,8 @@ def initialize_erc20(token_name: str):
         print(f"mint 1000000 {token_name} success!\n")
     except Exception as e:
         print(f"{token_name} mint fail:{e}")
-    token.transfer(so_diamond.address, int(0.01 * token_decimal), {"from": account})
+    token.transfer(so_diamond.address, int(
+        0.01 * token_decimal), {"from": account})
     print(f"transfer 0.01 {token_name} success!")
 
 

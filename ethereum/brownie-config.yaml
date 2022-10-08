@@ -21,11 +21,18 @@ networks:
     chainid: 5
     stargate:
       # Will be deployed soon
-      router: 
+      router:
       chainid: 10121
       poolid:
         usdc: 1
         weth: 13
+    wormhole:
+      chainid: 2
+      token_bridge: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7"
+    oracle:
+      eth:
+        chainid: 2
+        address: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
     token:
       usdc:
         address: "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557"
@@ -48,6 +55,31 @@ networks:
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        avax:
+          dst_chainid: 6
+          base_gas: 21000
+          per_byte_gas: 68
+        polygon:
+          dst_chainid: 5
+          base_gas: 21000
+          per_byte_gas: 68
+        eth:
+          dst_chainid: 2
+          base_gas: 21000
+          per_byte_gas: 68
+    oracle:
+      bsc:
+        chainid: 4
+        address: "0x2514895c72f50D8bd4B4F9b1110F0D6bD2c97526"
+      eth:
+        chainid: 2
+        address: "0x143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7"
+      matic:
+        chainid: 5
+        address: "0x957Eb0316f02ba4a9De3D308742eefd44a3c1719"
     stargate:
       router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
       chainid: 10102
@@ -70,6 +102,28 @@ networks:
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        bsc:
+          dst_chainid: 4
+          base_gas: 21000
+          per_byte_gas: 68
+        polygon:
+          dst_chainid: 5
+          base_gas: 21000
+          per_byte_gas: 68
+        eth:
+          dst_chainid: 2
+          base_gas: 21000
+          per_byte_gas: 68
+    oracle:
+      avax:
+        chainid: 6
+        address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
+      matic:
+        chainid: 5
+        address: "0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0"
     stargate:
       router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
       chainid: 10106
@@ -98,6 +152,28 @@ networks:
   #        token_list: ""
   polygon-test:
     chainid: 80001
+    wormhole:
+      chainid: 5
+      token_bridge: "0x377D55a7928c046E18eEbb61977e714d2a76472a"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        avax:
+          dst_chainid: 6
+          base_gas: 21000
+          per_byte_gas: 68
+        bsc:
+          dst_chainid: 4
+          base_gas: 21000
+          per_byte_gas: 68
+        eth:
+          dst_chainid: 2
+          base_gas: 21000
+          per_byte_gas: 68
+    oracle:
+      matic:
+        chainid: 5
+        address: "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada"
     stargate:
       router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
       chainid: 10109

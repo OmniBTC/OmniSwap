@@ -195,6 +195,26 @@ def get_wormhole_bridge():
     return get_wormhole_info()["token_bridge"]
 
 
+def get_wormhole_actual_reserve():
+    return get_wormhole_info()["actual_reserve"]
+
+
+def get_wormhole_estimate_reserve():
+    return get_wormhole_info()["estimate_reserve"]
+
+
+def get_oracles():
+    return get_current_net_info()["oracle"]
+
+
+def get_native_oracle_address():
+    oracles = get_oracles()
+    chainid = get_wormhole_chainid()
+    for oracle in oracles:
+        if chainid == oracles[oracle]["chainid"]:
+            return oracles[oracle]["address"]
+
+
 def get_stargate_info():
     return get_current_net_info()["stargate"]
 

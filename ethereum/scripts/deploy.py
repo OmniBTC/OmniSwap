@@ -1,5 +1,5 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, LibSoFeeStargateV1, LibCorrectSwapV1, WormholeFacet, network
+    OwnershipFacet, GenericSwapFacet, LibSoFeeStargateV1, LibSoFeeWormholeV1, LibCorrectSwapV1, WormholeFacet, network
 from brownie.network import priority_fee
 
 from scripts.helpful_scripts import get_account
@@ -27,6 +27,10 @@ def deploy_contracts(account):
     so_fee = 1e-3
     transfer_for_gas = 30000
     LibSoFeeStargateV1.deploy(int(so_fee*1e18), transfer_for_gas, {'from': account})
+
+    print("deploy LibSoFeeWormholeV1.sol...")
+    ray = 1e27
+    LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
 
     print("deploy LibCorrectSwapV1...")
     LibCorrectSwapV1.deploy({'from': account})
