@@ -143,8 +143,11 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchAddDex(dexs, {'from': account})
     proxy_dex.batchSetFunctionApprovalBySignature(
         sigs, True, {'from': account})
+    # register fee lib
     proxy_dex.addFee(get_stargate_router(),
                      LibSoFeeStargateV1[-1].address, {'from': account})
+    proxy_dex.addFee(get_wormhole_bridge(),
+                     LibSoFeeWormholeV1[-1].address, {'from': account})
 
 
 def initialize_little_token_for_stargate():
@@ -165,6 +168,15 @@ def redeploy_stargate():
     StargateFacet.deploy({"from": account}, publish_source=True)
     initialize_stargate(account, SoDiamond[-1])
     reinitialize_cut(StargateFacet)
+
+
+def redeploy_wormhole():
+    account = get_account()
+
+    WormholeFacet.deploy({'from': account})
+    reinitialize_cut(WormholeFacet)
+    initialize_wormhole(account, SoDiamond[-1])
+    initialize_wormhole_fee(account)
 
 
 def redeploy_generic_swap():
@@ -193,10 +205,12 @@ def reinitialize_cut(contract):
             for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
     if len(data):
         register_data.append([reg_facet, 0, data])
+
     data = [reg_funcs[func_name]
             for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
     if len(data):
         register_data.append([reg_facet, 1, data])
+
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
     proxy_cut.diamondCut(register_data,

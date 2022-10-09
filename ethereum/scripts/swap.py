@@ -153,7 +153,7 @@ class SoData(View):
         return result
 
     @classmethod
-    def create(cls, receiver: str, amount: int, sendingTokenName: str, receiveTokenName: str):
+    def create(cls, src_session, dst_session, receiver: str, amount: int, sendingTokenName: str, receiveTokenName: str):
         """Create SoData class
 
         Args:
@@ -673,6 +673,8 @@ def cross_swap(
     dst_diamond_address = dst_session.put_task(get_contract_address, args=("SoDiamond",), with_project=True)
     print(f"Source diamond address: {src_diamond_address}. Destination diamond address: {dst_diamond_address}")
     so_data = SoData.create(
+        src_session,
+        dst_session,
         src_session.put_task(get_account_address),
         amount=inputAmount,
         sendingTokenName=sourceTokenName,
@@ -762,6 +764,8 @@ def single_swap(
     print(
         f"{'-' * 100}\nnetwork {src_session.net}, single swap: token {sendingTokenName} -> {receiveTokenName}")
     so_data = SoData.create(
+        src_session,
+        dst_session,
         src_session.put_task(get_account_address),
         amount=inputAmount,
         sendingTokenName=sendingTokenName,

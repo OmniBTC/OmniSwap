@@ -3,6 +3,7 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../Libraries/LibDiamond.sol";
+import "../Libraries/LibBytes.sol";
 import "../Interfaces/ISo.sol";
 import "../Interfaces/ILibPrice.sol";
 import "../Helpers/Swapper.sol";
@@ -19,6 +20,7 @@ import "../Interfaces/ILibSoFee.sol";
 /// @notice Provides functionality for bridging through Wormhole
 contract WormholeFacet is Swapper {
     using SafeMath for uint256;
+    using LibBytes for bytes;
 
     bytes32 internal constant NAMESPACE =
         hex"d4ca4302bca26785486b2ceec787497a9cf992c36dcf57c306a00c1f88154623"; // keccak256("com.so.facets.wormhole")
@@ -151,10 +153,17 @@ contract WormholeFacet is Swapper {
         }
 
         if (_swapDataDst.length == 0) {
-            _cache._payload = abi.encode(_soData, bytes(""));
+            _cache._payload = abi.encodePacked(
+                _wormholeData.dstMaxGasPriceInWeiForRelayer,
+                encodeSoData(_soData)
+            );
             _cache._hasDestinationSwap = false;
         } else {
-            _cache._payload = abi.encode(_soData, abi.encode(_swapDataDst));
+            _cache._payload = abi.encode(
+                _wormholeData.dstMaxGasPriceInWeiForRelayer,
+                encodeSoData(_soData),
+                encodeSwapData(_swapDataDst)
+            );
             _cache._hasDestinationSwap = true;
         }
 
@@ -199,9 +208,9 @@ contract WormholeFacet is Swapper {
             memory _wormholePayload = IWormholeBridge(bridge)
                 .parseTransferWithPayload(payload);
 
-        (SoData memory _soData, bytes memory _swapPayload) = abi.decode(
-            _wormholePayload.payload,
-            (SoData, bytes)
+        ISo.SoData memory _soData = parseSoData(_wormholePayload.payload);
+        LibSwap.SwapData[] memory _swapDataDst = parseSwapData(
+            _wormholePayload.payload
         );
 
         address _tokenAddress;
@@ -232,7 +241,7 @@ contract WormholeFacet is Swapper {
             _tokenAddress = LibAsset.NATIVE_ASSETID;
         }
 
-        if (_swapPayload.length == 0) {
+        if (_swapDataDst.length == 0) {
             require(_tokenAddress == _soData.receivingAssetId, "token error");
             if (soFee > 0) {
                 LibAsset.transferAsset(
@@ -255,10 +264,6 @@ contract WormholeFacet is Swapper {
                 _soData
             );
         } else {
-            LibSwap.SwapData[] memory _swapDataDst = abi.decode(
-                _swapPayload,
-                (LibSwap.SwapData[])
-            );
             if (soFee > 0) {
                 LibAsset.transferAsset(
                     _swapDataDst[0].sendingAssetId,
@@ -424,6 +429,138 @@ contract WormholeFacet is Swapper {
             return 0;
         } else {
             return ILibSoFee(_soFee).getFees(_amount);
+        }
+    }
+
+    /// @dev decode signedVAA to get max gas and price for relayer
+    function getMaxGasAndPrice(bytes memory _encodeVm)
+        external
+        view
+        returns (uint256)
+    {
+        Storage storage s = getStorage();
+        address bridge = s.tokenBridge;
+        bytes memory payload = IWormholeBridge(bridge)
+            .wormhole()
+            .parseVM(_encodeVm)
+            .payload;
+
+        IWormholeBridge.TransferWithPayload
+            memory _wormholePayload = IWormholeBridge(bridge)
+                .parseTransferWithPayload(payload);
+
+        uint256 dstMaxGasPriceInWeiForRelayer = parseMaxGasPrice(
+            _wormholePayload.payload
+        );
+
+        return dstMaxGasPriceInWeiForRelayer;
+    }
+
+    function encodeSoData(ISo.SoData memory _soData)
+        public
+        pure
+        returns (bytes memory _encoded)
+    {
+        _encoded = abi.encodePacked(
+            _soData.transactionId,
+            _soData.receiver,
+            _soData.sourceChainId,
+            _soData.sendingAssetId,
+            _soData.destinationChainId,
+            _soData.destinationChainId,
+            _soData.receivingAssetId,
+            _soData.amount
+        );
+    }
+
+    function encodeSwapData(LibSwap.SwapData[] memory _swapData)
+        public
+        pure
+        returns (bytes memory _encoded)
+    {
+        bytes memory encodedLength = abi.encodePacked(_swapData.length);
+        _encoded.concat(encodedLength);
+        for (uint256 i = 0; i < _swapData.length; i++) {
+            bytes memory encodedSwapData = abi.encodePacked(
+                _swapData[i].callTo,
+                _swapData[i].approveTo,
+                _swapData[i].sendingAssetId,
+                _swapData[i].receivingAssetId,
+                _swapData[i].fromAmount,
+                _swapData[i].callData.length,
+                _swapData[i].callData
+            );
+            _encoded.concat(encodedSwapData);
+        }
+    }
+
+    function parseMaxGasPrice(bytes memory _encodedPayload)
+        public
+        pure
+        returns (uint256 maxGasPrice)
+    {
+        maxGasPrice = _encodedPayload.toUint256(0);
+    }
+
+    function parseSoData(bytes memory _encodedPayload)
+        public
+        pure
+        returns (ISo.SoData memory _soData)
+    {
+        uint256 index = 0 + 32;
+
+        _soData.transactionId = _encodedPayload.toBytes32(index);
+        index += 32;
+
+        _soData.receiver = payable(_encodedPayload.toAddress(index));
+        index += 20;
+
+        _soData.sourceChainId = _encodedPayload.toUint256(index);
+        index += 32;
+
+        _soData.sendingAssetId = _encodedPayload.toAddress(index);
+        index += 20;
+
+        _soData.destinationChainId = _encodedPayload.toUint256(index);
+        index += 32;
+
+        _soData.receivingAssetId = _encodedPayload.toAddress(index);
+        index += 20;
+
+        _soData.amount = _encodedPayload.toUint256(index);
+        index += 32;
+    }
+
+    function parseSwapData(bytes memory _encodedPayload)
+        public
+        pure
+        returns (LibSwap.SwapData[] memory _swapData)
+    {
+        uint256 index = 0 + 32 + 32 + 20 + 32 + 20 + 32 + 20 + 32;
+        if (_encodedPayload.length == index) {} else {
+            uint256 length = _encodedPayload.toUint256(index);
+            index += 32;
+            for (uint256 i = 0; i < length; i++) {
+                _swapData[i].callTo = _encodedPayload.toAddress(index);
+                index += 20;
+                _swapData[i].approveTo = _encodedPayload.toAddress(index);
+                index += 20;
+                _swapData[i].sendingAssetId = _encodedPayload.toAddress(index);
+                index += 20;
+                _swapData[i].receivingAssetId = _encodedPayload.toAddress(
+                    index
+                );
+                index += 20;
+                _swapData[i].fromAmount = _encodedPayload.toUint256(index);
+                index += 32;
+                uint256 bytesLength = _encodedPayload.toUint256(index);
+                index += 32;
+                _swapData[i].callData = _encodedPayload.slice(
+                    index,
+                    bytesLength
+                );
+                index += bytesLength;
+            }
         }
     }
 
