@@ -2,6 +2,10 @@ module omniswap::serde {
     use std::vector;
     use std::error;
     use omniswap::u256::{U256, Self};
+    use std::bcs;
+    use aptos_framework::util;
+    use aptos_std::type_info;
+    use std::string;
 
     const EINVALID_LENGTH: u64 = 0x00;
 
@@ -53,6 +57,16 @@ module omniswap::serde {
 
     public fun serialize_vector(buf: &mut vector<u8>, v: vector<u8>) {
         vector::append(buf, v);
+    }
+
+    public fun serialize_address(buf: &mut vector<u8>, v: address) {
+        let data = bcs::to_bytes(&v);
+        assert!(vector::length(&data) == 32, error::invalid_argument(EINVALID_LENGTH));
+        vector::append(buf, data);
+    }
+
+    public fun serialize_type<T>(buf: &mut vector<u8>) {
+        serialize_vector_with_length(buf,  *string::bytes(&type_info::type_name<T>()));
     }
 
     public fun serialize_vector_with_length(buf: &mut vector<u8>, v: vector<u8>) {
@@ -113,12 +127,17 @@ module omniswap::serde {
         u256::add(u256::shl(v0, 128), v1)
     }
 
+    public fun deserialize_address(buf: &vector<u8>): address {
+        assert!(vector::length(buf) == 32, error::invalid_argument(EINVALID_LENGTH));
+        util::address_from_bytes(*buf)
+    }
+
     public fun deserialize_vector_with_length(buf: &vector<u8>): vector<u8> {
         let len = vector::length(buf);
         if (len == 0) {
             return vector::empty<u8>()
         };
-        assert!(len>8, error::invalid_argument(EINVALID_LENGTH));
+        assert!(len > 8, error::invalid_argument(EINVALID_LENGTH));
         let data_len = deserialize_u64(&vector_slice(buf, 0, 8));
         assert!(len >= data_len + 8, error::invalid_argument(EINVALID_LENGTH));
         vector_slice(buf, 8, data_len + 8)

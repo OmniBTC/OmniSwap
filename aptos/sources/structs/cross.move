@@ -2,10 +2,11 @@ module omniswap::cross {
     use omniswap::serde;
     use omniswap::u256::{U256, Self};
     use std::vector;
+    use std::error;
 
     const EINVALID_LENGTH: u64 = 0x00;
 
-    struct SoData has drop {
+    struct SoData has drop, copy {
         // unique identification id. length is 32.
         transaction_id: vector<u8>,
         // token receiving account. length is 20, 32.
@@ -22,7 +23,7 @@ module omniswap::cross {
         amount: U256
     }
 
-    struct SwapData has drop {
+    struct SwapData has drop, copy{
         // The swap address
         call_to: vector<u8>,
         // The swap address
@@ -37,7 +38,27 @@ module omniswap::cross {
         call_data: vector<u8>
     }
 
-    public entry fun encode_payload(so_data: SoData, swap_data: vector<SwapData>): vector<u8> {
+    public fun swap_call_to(data: SwapData): vector<u8>{
+        data.call_to
+    }
+
+    public fun swap_sending_asset_id(data: SwapData): vector<u8>{
+        data.sending_asset_id
+    }
+
+    public fun swap_receiving_asset_id(data: SwapData): vector<u8>{
+        data.receiving_asset_id
+    }
+
+    public fun swap_call_data(data: SwapData): vector<u8>{
+        data.call_data
+    }
+
+    public fun swap_from_amount(data: SwapData): U256{
+        data.from_amount
+    }
+
+    public fun encode_payload(so_data: SoData, swap_data: vector<SwapData>): vector<u8> {
         let data = vector::empty<u8>();
         serde::serialize_vector_with_length(&mut data, so_data.transaction_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiver);
@@ -59,9 +80,9 @@ module omniswap::cross {
         data
     }
 
-    public entry fun decode_payload(data: &mut vector<u8>): (SoData, vector<SwapData>) {
+    public fun decode_payload(data: &mut vector<u8>): (SoData, vector<SwapData>) {
         let len = vector::length(data);
-        assert!(len>0, EINVALID_LENGTH);
+        assert!(len>0, error::invalid_argument(EINVALID_LENGTH));
         let index = 0;
         let so_data = SoData {
             transaction_id: vector::empty(),
