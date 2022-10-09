@@ -467,7 +467,6 @@ contract WormholeFacet is Swapper {
             _soData.sourceChainId,
             _soData.sendingAssetId,
             _soData.destinationChainId,
-            _soData.destinationChainId,
             _soData.receivingAssetId,
             _soData.amount
         );
@@ -540,21 +539,28 @@ contract WormholeFacet is Swapper {
         if (_encodedPayload.length == index) {} else {
             uint256 length = _encodedPayload.toUint256(index);
             index += 32;
+
             for (uint256 i = 0; i < length; i++) {
                 _swapData[i].callTo = _encodedPayload.toAddress(index);
                 index += 20;
+
                 _swapData[i].approveTo = _encodedPayload.toAddress(index);
                 index += 20;
+
                 _swapData[i].sendingAssetId = _encodedPayload.toAddress(index);
                 index += 20;
+
                 _swapData[i].receivingAssetId = _encodedPayload.toAddress(
                     index
                 );
                 index += 20;
+
                 _swapData[i].fromAmount = _encodedPayload.toUint256(index);
                 index += 32;
+
                 uint256 bytesLength = _encodedPayload.toUint256(index);
                 index += 32;
+
                 _swapData[i].callData = _encodedPayload.slice(
                     index,
                     bytesLength
