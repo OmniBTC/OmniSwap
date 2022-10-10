@@ -25,7 +25,7 @@ contract WormholeFacet is Swapper {
     struct Storage {
         address tokenBridge;
         uint16 srcWormholeChainId;
-        uint32 nonce;
+        uint64 nonce;
         uint256 actualReserve; // [RAY]
         uint256 estimateReserve; // [RAY]
         mapping(uint16 => uint256) dstBaseGas;

@@ -3,6 +3,8 @@ module omniswap::cross {
     use omniswap::u256::{U256, Self};
     use std::vector;
     use std::error;
+    use omniswap::u16::U16;
+    use omniswap::u16;
 
     const EINVALID_LENGTH: u64 = 0x00;
 
@@ -12,11 +14,11 @@ module omniswap::cross {
         // token receiving account. length is 20, 32.
         receiver: vector<u8>,
         // source chain id
-        source_chainId: u64,
+        source_chainId: U16,
         // The starting token address of the source chain
         sending_asset_id: vector<u8>,
         // destination chain id
-        destination_chain_id: u64,
+        destination_chain_id: U16,
         // The final token address of the destination chain
         receiving_asset_id: vector<u8>,
         // User enters amount
@@ -70,9 +72,9 @@ module omniswap::cross {
         let data = vector::empty<u8>();
         serde::serialize_vector_with_length(&mut data, so_data.transaction_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiver);
-        serde::serialize_u64(&mut data, so_data.source_chainId);
+        serde::serialize_u16(&mut data, so_data.source_chainId);
         serde::serialize_vector_with_length(&mut data, so_data.sending_asset_id);
-        serde::serialize_u64(&mut data, so_data.destination_chain_id);
+        serde::serialize_u16(&mut data, so_data.destination_chain_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiving_asset_id);
         serde::serialize_u256(&mut data, so_data.amount);
         data
@@ -100,9 +102,9 @@ module omniswap::cross {
         let so_data = SoData {
             transaction_id: vector::empty(),
             receiver: vector::empty(),
-            source_chainId: 0,
+            source_chainId: u16::zero(),
             sending_asset_id: vector::empty(),
-            destination_chain_id: 0,
+            destination_chain_id: u16::zero(),
             receiving_asset_id: vector::empty(),
             amount: u256::zero()
         };
@@ -112,15 +114,15 @@ module omniswap::cross {
         so_data.receiver = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
 
         index = index + vector::length(&so_data.receiver);
-        so_data.source_chainId = serde::deserialize_u64(&serde::vector_slice(data, index, index + 8));
+        so_data.source_chainId = serde::deserialize_u16(&serde::vector_slice(data, index, index + 2));
 
-        index = index + 8;
+        index = index + 2;
         so_data.sending_asset_id = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + 8));
 
         index = index + vector::length(&so_data.sending_asset_id);
-        so_data.destination_chain_id = serde::deserialize_u64(&serde::vector_slice(data, index, index + 8));
+        so_data.destination_chain_id = serde::deserialize_u16(&serde::vector_slice(data, index, index + 2));
 
-        index = index + 8;
+        index = index + 2;
         so_data.receiving_asset_id = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
 
         index = index + vector::length(&so_data.receiving_asset_id);
