@@ -43,6 +43,10 @@ def so_swap_via_wormhole(so_data, dst_diamond_address: str = "", dst_chainid: in
     src_swap = []
     dst_swap = []
 
+    usdt_address = "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
+    usdt = Contract.from_abi("IERC20", usdt_address, p.interface.IERC20.abi)
+    usdt.approve(proxy_diamond.address, amount, {"from": account})
+
     so_data = so_data.format_to_contract()
     # test calculated fee
     dstMaxGasForRelayer = 0
@@ -52,7 +56,7 @@ def so_swap_via_wormhole(so_data, dst_diamond_address: str = "", dst_chainid: in
     # value = wormhole_fee + input_eth_amount + relayer_fee
     relayer_fee = proxy_diamond.estimateRelayerFee(wormhole_data)
     wormhole_fee = proxy_diamond.getWormholeMessageFee()
-    msg_value = wormhole_fee + amount + relayer_fee
+    msg_value = wormhole_fee + relayer_fee
     proxy_diamond.soSwapViaWormhole(
         so_data, src_swap, wormhole_data, dst_swap, {'from': account, 'value': msg_value})
 
@@ -100,8 +104,8 @@ def main(src_net="bsc-test", dst_net="avax-test"):
         dst_session,
         src_session.put_task(get_account_address),
         amount=amount,
-        sendingTokenName="eth",
-        receiveTokenName=get_receive_native_token_name(dst_net))
+        sendingTokenName="usdt",
+        receiveTokenName="wusdt")
 
     src_session.put_task(so_swap_via_wormhole, args=(
         so_data, dst_diamond_address, dst_chainid),  with_project=True)

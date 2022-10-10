@@ -1,13 +1,15 @@
 # @Time    : 2022/6/14 13:57
 # @Author  : WeiDai
 # @FileName: export.py
+import contextlib
 import json
 import os
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
-    OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeStargateV1, LibCorrectSwapV1
+    OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeStargateV1, LibCorrectSwapV1, \
+    WormholeFacet, LibSoFeeWormholeV1
 
-from scripts.helpful_scripts import change_network, zero_address, read_json, get_stargate_router, get_token_address, \
+from scripts.helpful_scripts import change_network, get_wormhole_bridge, get_wormhole_chainid, zero_address, read_json, get_stargate_router, get_token_address, \
     get_swap_info, get_stargate_chain_id
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -26,14 +28,18 @@ def get_stragate_pool_infos():
         stargate_router_address = get_stargate_router()
     except:
         return []
-    stargate_router = Contract.from_abi("IStargate", stargate_router_address, interface.IStargate.abi)
+    stargate_router = Contract.from_abi(
+        "IStargate", stargate_router_address, interface.IStargate.abi)
     bridge_address = stargate_router.bridge()
-    bridge = Contract.from_abi("IStargateBridge", bridge_address, interface.IStargateBridge.abi)
+    bridge = Contract.from_abi(
+        "IStargateBridge", bridge_address, interface.IStargateBridge.abi)
     endpoint_address = bridge.layerZeroEndpoint()
-    endpoint = Contract.from_abi("ILayerZeroEndpoint", endpoint_address, interface.ILayerZeroEndpoint.abi)
+    endpoint = Contract.from_abi(
+        "ILayerZeroEndpoint", endpoint_address, interface.ILayerZeroEndpoint.abi)
     ultra_light_node_address = endpoint.defaultSendLibrary()
     factory_address = stargate_router.factory()
-    factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
+    factory = Contract.from_abi(
+        "IStargateFactory", factory_address, interface.IStargateFactory.abi)
     pools_length = factory.allPoolsLength()
     all_stragate_info = {
         "router": stargate_router_address,
@@ -43,11 +49,12 @@ def get_stragate_pool_infos():
         "factory": factory_address
     }
     pool_info = []
-    for i in range(0, pools_length):
+    for i in range(pools_length):
         pool_address = factory.allPools(i)
         if pool_address == zero_address():
             continue
-        pool = Contract.from_abi("IStargatePool", pool_address, interface.IStargatePool.abi)
+        pool = Contract.from_abi(
+            "IStargatePool", pool_address, interface.IStargatePool.abi)
         pool_id = pool.poolId()
         token_address = pool.token()
         token = Contract.from_abi("ERC20", token_address, ERC20.abi)
@@ -68,16 +75,20 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
         stargate_router_address = get_stargate_router()
     except:
         return
-    stargate_router = Contract.from_abi("IStargate", stargate_router_address, interface.IStargate.abi)
+    stargate_router = Contract.from_abi(
+        "IStargate", stargate_router_address, interface.IStargate.abi)
     factory_address = stargate_router.factory()
-    factory = Contract.from_abi("IStargateFactory", factory_address, interface.IStargateFactory.abi)
+    factory = Contract.from_abi(
+        "IStargateFactory", factory_address, interface.IStargateFactory.abi)
     for src_pool_info in omni_swap_infos[net1]["StargatePool"]:
         pool_address = factory.getPool(src_pool_info["PoolId"])
-        pool = Contract.from_abi("IStargatePool", pool_address, interface.IStargatePool.abi)
+        pool = Contract.from_abi(
+            "IStargatePool", pool_address, interface.IStargatePool.abi)
         for dst_pool_info in omni_swap_infos[net2]["StargatePool"]:
             flag = False
             try:
-                result = pool.getChainPath(omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"])
+                result = pool.getChainPath(
+                    omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"])
                 flag = result[0]
             except:
                 pass
@@ -85,7 +96,8 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
                 continue
             if "ChainPath" not in src_pool_info:
                 src_pool_info["ChainPath"] = []
-            src_pool_info["ChainPath"].append((omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"]))
+            src_pool_info["ChainPath"].append(
+                (omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"]))
 
 
 def get_stargate_chain_path():
@@ -101,15 +113,19 @@ def get_stargate_chain_path():
     write_file(omni_swap_file, omni_swap_infos)
 
 
+def get_wormhole_support_token(net):
+    return [{"TokenName": token.upper(), "TokenAddress": config["networks"][net]["token"][token]["address"], "Decimal": config["networks"][net]["token"][token]["decimal"]} for token in config["networks"][net]["token"] if token != "weth"]
+
+
 def export_deployed():
-    deployed_contract = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet,
+    deployed_contract = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WormholeFacet,
                          WithdrawFacet, OwnershipFacet, GenericSwapFacet, SoDiamond, LibSoFeeStargateV1,
-                         LibCorrectSwapV1]
+                         LibSoFeeWormholeV1, LibCorrectSwapV1]
     return {v._name: v[-1].address for v in deployed_contract}
 
 
 def export(*arg):
-    if len(arg) == 0:
+    if not arg:
         arg = list(config["networks"].keys())
         del arg[arg.index("default")]
         del arg[arg.index("live")]
@@ -123,18 +139,17 @@ def export(*arg):
         change_network(net)
         try:
             so_diamond = SoDiamond[-1]
-        except:
+        except Exception:
             continue
-        if "main" in net:
-            deployed_contracts[net] = export_deployed()
+        deployed_contracts[net] = export_deployed()
         pool_info, stargate_info = get_stragate_pool_infos()
         stargate_infos[net] = stargate_info
         try:
             weth = get_token_address("weth")
-        except:
+        except Exception:
             weth = ""
         swap_router = []
-        try:
+        with contextlib.suppress(Exception):
             swap_info = get_swap_info()
             for swap_type in swap_info:
                 cur_swap = swap_info[swap_type]
@@ -153,13 +168,14 @@ def export(*arg):
                     write_file(os.path.join(root_path, f"export/abi/{swap_type}.json"),
                                getattr(interface, swap_type).abi)
                 swap_types[swap_type] = True
-            write_file(os.path.join(root_path, f"export/abi/IQuoter.json"), getattr(interface, "IQuoter").abi)
-        except:
-            pass
-
+            write_file(os.path.join(root_path, "export/abi/IQuoter.json"),
+                       getattr(interface, "IQuoter").abi)
         omni_swap_infos[net] = {
             "SoDiamond": so_diamond.address,
             "ChainId": config["networks"][net]["chainid"],
+            "WormholeBridge": get_wormhole_bridge(),
+            "WormholeChainId": get_wormhole_chainid(),
+            "WormholeSupportToken": get_wormhole_support_token(net),
             "StargateRouter": get_stargate_router(),
             "StargateChainId": get_stargate_chain_id(),
             "StargatePool": pool_info,
@@ -167,7 +183,7 @@ def export(*arg):
             "UniswapRouter": swap_router
         }
     facets = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet,
-              WithdrawFacet, OwnershipFacet, GenericSwapFacet
+              WithdrawFacet, OwnershipFacet, GenericSwapFacet, WormholeFacet
               ]
     libs = [LibSwap]
     so_diamond_abi = []
@@ -176,6 +192,8 @@ def export(*arg):
     write_file(deployed_file, deployed_contracts)
     write_file(omni_swap_file, omni_swap_infos)
     write_file(stragate_file, stargate_infos)
-    write_file(os.path.join(root_path, "export/abi/IStargate.json"), interface.IStargate.abi)
-    write_file(os.path.join(root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
+    write_file(os.path.join(root_path, "export/abi/IStargate.json"),
+               interface.IStargate.abi)
+    write_file(os.path.join(
+        root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
     get_stargate_chain_path()

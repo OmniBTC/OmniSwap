@@ -95,6 +95,9 @@ networks:
       wavax:
         address: "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
         decimal: 18
+      wusdc:
+        address: "0x71b7E25BE7879E042E55FBabD4037De116ae07e0"
+        decimal: 6
     swap:
       IUniswapV2Router02:
         name: UniswapV2
@@ -143,6 +146,9 @@ networks:
         decimal: 18
       wbnb:
         address: "0x10F1053bF2884b28ee0Bd7a2dDBa237Af3511d29"
+        decimal: 18
+      wusdt:
+        address: "0x8337e5eF98af25012e1B39CD996772143f6c5fDf"
         decimal: 18
     swap:
       IUniswapV2Router02AVAX:
