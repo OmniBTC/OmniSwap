@@ -25,6 +25,9 @@ local = "../../wormhole/aptos/token_bridge"
 #subdir = "aptos/token_bridge"
 #rev = "aptos/integration"
 
+[dependencies.Wormhole]
+local = "../../wormhole/aptos/wormhole"
+
 [dependencies.Liquidswap]
 local = "../../liquidswap"
 

@@ -38,6 +38,10 @@ module omniswap::cross {
         call_data: vector<u8>
     }
 
+    public fun so_amount(data: SoData): U256{
+        data.amount
+    }
+
     public fun swap_call_to(data: SwapData): vector<u8>{
         data.call_to
     }
@@ -58,7 +62,7 @@ module omniswap::cross {
         data.from_amount
     }
 
-    public fun encode_payload(so_data: SoData, swap_data: vector<SwapData>): vector<u8> {
+    public fun encode_so_data(so_data: SoData): vector<u8> {
         let data = vector::empty<u8>();
         serde::serialize_vector_with_length(&mut data, so_data.transaction_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiver);
@@ -67,6 +71,11 @@ module omniswap::cross {
         serde::serialize_u64(&mut data, so_data.destination_chain_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiving_asset_id);
         serde::serialize_u256(&mut data, so_data.amount);
+        data
+    }
+
+    public fun encode_swap_data(swap_data: vector<SwapData>): vector<u8> {
+        let data = vector::empty<u8>();
         vector::reverse(&mut swap_data);
         while (!vector::is_empty(&swap_data)) {
             let d = vector::pop_back(&mut swap_data);
@@ -80,9 +89,9 @@ module omniswap::cross {
         data
     }
 
-    public fun decode_payload(data: &mut vector<u8>): (SoData, vector<SwapData>) {
+    public fun decode_so_data(data: &mut vector<u8>): SoData{
         let len = vector::length(data);
-        assert!(len>0, error::invalid_argument(EINVALID_LENGTH));
+        assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
         let index = 0;
         let so_data = SoData {
             transaction_id: vector::empty(),
@@ -93,20 +102,19 @@ module omniswap::cross {
             receiving_asset_id: vector::empty(),
             amount: u256::zero()
         };
-        let swap_data = vector::empty<SwapData>();
         so_data.transaction_id = serde::deserialize_vector_with_length(data);
 
         index = index + vector::length(&so_data.transaction_id);
         so_data.receiver = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
 
         index = index + vector::length(&so_data.receiver);
-        so_data.source_chainId = serde::deserialize_u64(&serde::vector_slice(data, index, len));
+        so_data.source_chainId = serde::deserialize_u64(&serde::vector_slice(data, index, index + 8));
 
         index = index + 8;
-        so_data.sending_asset_id = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
+        so_data.sending_asset_id = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + 8));
 
         index = index + vector::length(&so_data.sending_asset_id);
-        so_data.destination_chain_id = serde::deserialize_u64(&serde::vector_slice(data, index, len));
+        so_data.destination_chain_id = serde::deserialize_u64(&serde::vector_slice(data, index, index + 8));
 
         index = index + 8;
         so_data.receiving_asset_id = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
@@ -114,7 +122,14 @@ module omniswap::cross {
         index = index + vector::length(&so_data.receiving_asset_id);
         so_data.amount = serde::deserialize_u256(&serde::vector_slice(data, index, len));
 
-        index = index + 8;
+        so_data
+    }
+
+    public fun decode_swap_data(data: &mut vector<u8>):  vector<SwapData>{
+        let len = vector::length(data);
+        assert!(len>0, error::invalid_argument(EINVALID_LENGTH));
+        let index = 0;
+        let swap_data = vector::empty<SwapData>();
 
         while (index < len) {
             let d = SwapData {
@@ -137,13 +152,13 @@ module omniswap::cross {
             d.receiving_asset_id = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
 
             index = index + vector::length(&d.receiving_asset_id);
-            d.from_amount = serde::deserialize_u256(&serde::vector_slice(data, index, len));
+            d.from_amount = serde::deserialize_u256(&serde::vector_slice(data, index, index + 32));
 
-            index = index + 8;
+            index = index + 32;
             d.call_data = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
         };
 
-        (so_data, swap_data)
+        swap_data
     }
 
     // todo! test

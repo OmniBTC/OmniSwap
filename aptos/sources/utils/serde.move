@@ -79,17 +79,17 @@ module omniswap::serde {
     }
 
     public fun deserialize_u8(buf: &vector<u8>): u8 {
-        assert!(vector::length(buf) == 1, error::invalid_argument(EINVALID_LENGTH));
+        assert!(vector::length(buf) >= 1, error::invalid_argument(EINVALID_LENGTH));
         *vector::borrow(buf, 0)
     }
 
     public fun deserialize_u16(buf: &vector<u8>): u64 {
-        assert!(vector::length(buf) == 2, error::invalid_argument(EINVALID_LENGTH));
+        assert!(vector::length(buf) >= 2, error::invalid_argument(EINVALID_LENGTH));
         ((*vector::borrow(buf, 0) as u64) << 8) + (*vector::borrow(buf, 1) as u64)
     }
 
     public fun deserialize_u64(buf: &vector<u8>): u64 {
-        assert!(vector::length(buf) == 8, error::invalid_argument(EINVALID_LENGTH));
+        assert!(vector::length(buf) >= 8, error::invalid_argument(EINVALID_LENGTH));
         ((*vector::borrow(buf, 0) as u64) << 56)
             + ((*vector::borrow(buf, 1) as u64) << 48)
             + ((*vector::borrow(buf, 2) as u64) << 40)
@@ -101,7 +101,7 @@ module omniswap::serde {
     }
 
     public fun deserialize_u128(buf: &vector<u8>): u128 {
-        assert!(vector::length(buf) == 16, error::invalid_argument(EINVALID_LENGTH));
+        assert!(vector::length(buf) >= 16, error::invalid_argument(EINVALID_LENGTH));
         ((*vector::borrow(buf, 0) as u128) << 120)
             + ((*vector::borrow(buf, 1) as u128) << 112)
             + ((*vector::borrow(buf, 2) as u128) << 104)
@@ -121,14 +121,14 @@ module omniswap::serde {
     }
 
     public fun deserialize_u256(buf: &vector<u8>): U256 {
-        assert!(vector::length(buf) == 32, error::invalid_argument(EINVALID_LENGTH));
+        assert!(vector::length(buf) >= 32, error::invalid_argument(EINVALID_LENGTH));
         let v0 = u256::from_u128(deserialize_u128(&vector_slice(buf, 0, 16)));
         let v1 = u256::from_u128(deserialize_u128(&vector_slice(buf, 16, 32)));
         u256::add(u256::shl(v0, 128), v1)
     }
 
     public fun deserialize_address(buf: &vector<u8>): address {
-        assert!(vector::length(buf) == 32, error::invalid_argument(EINVALID_LENGTH));
+        assert!(vector::length(buf) >= 32, error::invalid_argument(EINVALID_LENGTH));
         util::address_from_bytes(*buf)
     }
 
