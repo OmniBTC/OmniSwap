@@ -15,6 +15,11 @@ module omniswap::wormhole_facet {
     use aptos_framework::coin;
     use aptos_framework::aptos_coin::AptosCoin;
     use wormhole::external_address;
+    use token_bridge::complete_transfer_with_payload;
+    use token_bridge::transfer_with_payload;
+    use aptos_framework::coin::{Coin, is_account_registered};
+    use aptos_std::type_info;
+    use aptos_framework::aptos_account;
 
     const SEED: vector<u8> = b"wormhole";
 
@@ -35,6 +40,14 @@ module omniswap::wormhole_facet {
 
     struct EmitterManager has key {
         emitter_cap: EmitterCapability
+    }
+
+
+    fun transfer<X>(coin_x: Coin<X>, to: address) {
+        if (!is_account_registered<X>(to) && type_info::type_of<X>() == type_info::type_of<AptosCoin>()) {
+            aptos_account::create_account(to);
+        };
+        coin::deposit(to, coin_x);
     }
 
     public fun encode_wormhole_data(wormhole_data: WormholeData): vector<u8> {
@@ -120,8 +133,7 @@ module omniswap::wormhole_facet {
         assert!(signer::address_of(account) == @omniswap, NOT_DEPLOYED_ADDRESS);
         assert!(!is_initialize(), HAS_initialize);
 
-        let resource_signer: signer;
-        (resource_signer, _) = account::create_resource_account(account, SEED);
+        let (resource_signer, _) = account::create_resource_account(account, SEED);
 
         move_to(&resource_signer, EmitterManager { emitter_cap: wormhole::register_emitter() })
     }
@@ -158,7 +170,7 @@ module omniswap::wormhole_facet {
         if (vector::length(&swap_data_src) > 0) {
             let swap_data_src = cross::decode_swap_data(&mut swap_data_src);
             if (vector::length(&swap_data_src) == 1) {
-                let coin_y = swap::swap_two<X, Y>(account, swap_data_src);
+                let coin_y = swap::swap_two_by_account<X, Y>(account, swap_data_src);
                 transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_y,
@@ -169,7 +181,7 @@ module omniswap::wormhole_facet {
                     payload
                 );
             }else if (vector::length(&swap_data_src) == 2) {
-                let coin_z = swap::swap_three<X, Y, Z>(account, swap_data_src);
+                let coin_z = swap::swap_three_by_account<X, Y, Z>(account, swap_data_src);
                 transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_z,
@@ -180,7 +192,7 @@ module omniswap::wormhole_facet {
                     payload
                 );
             }else if (vector::length(&swap_data_src) == 3) {
-                let coin_m = swap::swap_four<X, Y, Z, M>(account, swap_data_src);
+                let coin_m = swap::swap_four_by_account<X, Y, Z, M>(account, swap_data_src);
                 transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_m,
@@ -208,7 +220,29 @@ module omniswap::wormhole_facet {
         };
     }
 
-    public entry fun complete_so_swap(_vaa: vector<u8>){
+    public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires EmitterManager {
+        let emitter_cap = &borrow_global<EmitterManager>(get_resource_address()).emitter_cap;
+        let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
 
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        // todo! add some check
+
+        if (vector::length(&swap_data_dst) > 0) {
+            if (vector::length(&swap_data_dst) == 1) {
+                let coin_y = swap::swap_two_by_coin<X, Y>(coin_x, swap_data_dst);
+                transfer(coin_y, receiver);
+            }else if (vector::length(&swap_data_dst) == 2) {
+                let coin_z = swap::swap_three_by_coin<X, Y, Z>(coin_x, swap_data_dst);
+                transfer(coin_z, receiver);
+            }else if (vector::length(&swap_data_dst) == 3) {
+                let coin_m = swap::swap_four_by_coin<X, Y, Z, M>(coin_x, swap_data_dst);
+                transfer(coin_m, receiver);
+            }else {
+                abort EINVALID_LENGTH
+            }
+        }else {
+            transfer(coin_x, receiver);
+        }
     }
 }

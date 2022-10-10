@@ -38,6 +38,10 @@ module omniswap::cross {
         call_data: vector<u8>
     }
 
+    public fun so_receiver(data: SoData): vector<u8>{
+        data.receiver
+    }
+
     public fun so_amount(data: SoData): U256{
         data.amount
     }
