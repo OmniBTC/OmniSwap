@@ -85,46 +85,62 @@ module omniswap::wormhole_facet {
         let len = vector::length(data);
         assert!(len > 0, EINVALID_LENGTH);
         let index = 0;
-        let wormhole_data = WormholeData {
-            dst_wormhole_chain_id: u16::zero(),
-            dst_max_gas_price_in_wei_for_relayer: u256::zero(),
-            wormhole_fee: 0,
-            dst_so_diamond: vector::empty()
-        };
-        wormhole_data.dst_wormhole_chain_id = serde::deserialize_u16(data);
+        let next_len;
 
-        index = index + 2;
-        wormhole_data.dst_max_gas_price_in_wei_for_relayer = serde::deserialize_u256(&serde::vector_slice(data, index, index + 32));
+        next_len = 2;
+        let dst_wormhole_chain_id = serde::deserialize_u16(&serde::vector_slice(data, index, index + next_len));
+        index = index + next_len;
 
-        index = index + 32;
-        wormhole_data.wormhole_fee = serde::deserialize_u64(&serde::vector_slice(data, index, index + 8));
+        next_len = 32;
+        let dst_max_gas_price_in_wei_for_relayer = serde::deserialize_u256(&serde::vector_slice(data, index, index + next_len));
+        index = index + next_len;
 
-        index = index + 8;
-        wormhole_data.dst_so_diamond = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
+        next_len = 8;
+        let wormhole_fee = serde::deserialize_u64(&serde::vector_slice(data, index, index + 8));
+        index = index + next_len;
 
-        wormhole_data
+        next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
+        let dst_so_diamond = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
+        index = index + next_len;
+
+        assert!(index == len, EINVALID_LENGTH);
+
+        WormholeData {
+            dst_wormhole_chain_id,
+            dst_max_gas_price_in_wei_for_relayer,
+            wormhole_fee,
+            dst_so_diamond
+        }
     }
 
     public fun decode_wormhole_payload(data: &vector<u8>): (U256, U256, SoData, vector<SwapData>) {
         let len = vector::length(data);
         assert!(len > 0, EINVALID_LENGTH);
         let index = 0;
+        let next_len;
 
-        let dst_max_gas_price = serde::deserialize_u256(data);
+        next_len = 32;
+        let dst_max_gas_price = serde::deserialize_u256(&serde::vector_slice(data, index, index + next_len));
+        index = index + next_len;
 
-        index = index + 32;
-        let dst_max_gas = serde::deserialize_u256(&serde::vector_slice(data, index, index + 32));
+        next_len = 32;
+        let dst_max_gas = serde::deserialize_u256(&serde::vector_slice(data, index, index + next_len));
+        index = index + next_len;
 
-        let so_data = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
+        next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
+        let so_data = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + next_len));
         index = index + vector::length(&so_data);
 
         let so_data = cross::decode_so_data(&mut so_data);
 
         if (index < len) {
-            let swap_data_dst = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
+            next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
+            let swap_data_dst = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + next_len));
             let swap_data_dst = cross::decode_swap_data(&mut swap_data_dst);
+            assert!(index == len, EINVALID_LENGTH);
             (dst_max_gas_price, dst_max_gas, so_data, swap_data_dst)
         }else {
+            assert!(index == len, EINVALID_LENGTH);
             (dst_max_gas_price, dst_max_gas, so_data, vector::empty())
         }
     }
