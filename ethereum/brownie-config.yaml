@@ -92,6 +92,9 @@ networks:
       weth:
         address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
         decimal: 18
+      wavax:
+        address: "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
+        decimal: 18
     swap:
       IUniswapV2Router02:
         name: UniswapV2

@@ -10,11 +10,6 @@ import "../Helpers/Swapper.sol";
 import "../Interfaces/IWormholeBridge.sol";
 import "../Interfaces/ILibSoFee.sol";
 
-// todo! 1. Add deploy LibSoFeeWormholeV1.sol and initialize chainlink address[https://data.chain.link/polygon/mainnet/crypto-usd/eth-usd]
-// todo! 2. Add setWormholeReserve and setWormholeGas to script
-// todo! 3. Modify relayer to support dstMaxGasForRelayer and dstMaxGasPriceInWeiForRelayer;
-// todo! 4. Finish relayer test
-
 /// @title Wormhole Facet
 /// @author OmniBTC
 /// @notice Provides functionality for bridging through Wormhole
@@ -419,6 +414,11 @@ contract WormholeFacet is Swapper {
             .mul(s.estimateReserve)
             .div(RAY);
         return _srcFee;
+    }
+
+    function getWormholeMessageFee() external view returns (uint256) {
+        Storage storage s = getStorage();
+        return IWormholeBridge(s.tokenBridge).wormhole().messageFee();
     }
 
     /// @dev Get so fee
