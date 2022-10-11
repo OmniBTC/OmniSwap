@@ -7,7 +7,8 @@ from brownie import (
     network,
     accounts,
     config,
-    project
+    project,
+    web3
 )
 from brownie.network.web3 import Web3
 from brownie.network import priority_fee
@@ -22,6 +23,23 @@ LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "binance-fork",
     "matic-fork",
 ]
+
+def judge_hex_str(data: str):
+    if not data.startswith("0x"):
+        return False
+    if len(data) % 2 != 0:
+        return False
+    try:
+        web3.toInt(data)
+        return True
+    except:
+        return False
+
+def to_hex_str(data: str):
+    if judge_hex_str(data):
+        return data
+    else:
+        return str("0x") + str(bytes(data, 'ascii').hex())
 
 
 def get_account(index=None, id=None):

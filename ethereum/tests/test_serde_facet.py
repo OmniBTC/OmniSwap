@@ -2,7 +2,7 @@
 # @Author  : WeiDai
 # @FileName: test_serde_facet.py
 import pytest
-from scripts.helpful_scripts import get_account
+from scripts.helpful_scripts import get_account, to_hex_str
 from brownie import SerdeFacet, WormholeFacet
 from scripts.swap import SoData, SwapData
 
@@ -26,7 +26,7 @@ def test_serde_so_data(serdeFacet):
         transactionId="0x4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
         receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
         sourceChainId=1,
-        sendingAssetId=get_aptos_bytes(b"0x1::aptos_coin::AptosCoin"),
+        sendingAssetId=to_hex_str("0x1::aptos_coin::AptosCoin"),
         destinationChainId=2,
         receivingAssetId="0x957Eb0316f02ba4a9De3D308742eefd44a3c1719",
         amount=100000000
@@ -49,10 +49,10 @@ def test_serde_swap_data(serdeFacet):
         SwapData(
         callTo="0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
         approveTo="0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
-        sendingAssetId=get_aptos_bytes(b"0x1::aptos_coin::AptosCoin"),
-        receivingAssetId=get_aptos_bytes(b"0x1::omni_bridge::XBTC"),
+        sendingAssetId=to_hex_str("0x1::aptos_coin::AptosCoin"),
+        receivingAssetId=to_hex_str("0x1::omni_bridge::XBTC"),
         fromAmount=8900000000,
-        callData=get_aptos_bytes(b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated")
+        callData=to_hex_str("0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated")
     ),
     SwapData(
         callTo="0x957Eb0316f02ba4a9De3D308742eefd44a3c1719",
@@ -76,7 +76,7 @@ def test_serde_swap_data(serdeFacet):
         sendingAssetId="0x143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7",
         receivingAssetId="0x143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7",
         fromAmount=8900000000,
-        callData=get_aptos_bytes(b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated")
+        callData=to_hex_str("0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated")
     )]
     normalized_data = [d.format_to_contract() for d in swap_data]
 
@@ -103,7 +103,7 @@ def test_serde_wormhole_payload(wormholeFacet):
         transactionId="0x4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
         receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
         sourceChainId=1,
-        sendingAssetId=get_aptos_bytes(b"0x1::aptos_coin::AptosCoin"),
+        sendingAssetId=to_hex_str("0x1::aptos_coin::AptosCoin"),
         destinationChainId=2,
         receivingAssetId="0x957Eb0316f02ba4a9De3D308742eefd44a3c1719",
         amount=100000000
@@ -114,10 +114,10 @@ def test_serde_wormhole_payload(wormholeFacet):
         SwapData(
         callTo="0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
         approveTo="0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
-        sendingAssetId=get_aptos_bytes(b"0x1::aptos_coin::AptosCoin"),
-        receivingAssetId=get_aptos_bytes(b"0x1::omni_bridge::XBTC"),
+        sendingAssetId=to_hex_str("0x1::aptos_coin::AptosCoin"),
+        receivingAssetId=to_hex_str("0x1::omni_bridge::XBTC"),
         fromAmount=8900000000,
-        callData=get_aptos_bytes(b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated")
+        callData=to_hex_str("0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated")
     ),
     SwapData(
         callTo="0x957Eb0316f02ba4a9De3D308742eefd44a3c1719",
