@@ -154,7 +154,7 @@ contract WormholeFacet is Swapper {
             );
             _cache._hasDestinationSwap = false;
         } else {
-            _cache._payload = abi.encode(
+            _cache._payload = abi.encodePacked(
                 _wormholeData.dstMaxGasPriceInWeiForRelayer,
                 encodeSoData(_soData),
                 encodeSwapData(_swapDataDst)
@@ -477,8 +477,7 @@ contract WormholeFacet is Swapper {
         pure
         returns (bytes memory _encoded)
     {
-        bytes memory encodedLength = abi.encodePacked(_swapData.length);
-        _encoded.concat(encodedLength);
+        _encoded = abi.encodePacked(_swapData.length);
         for (uint256 i = 0; i < _swapData.length; i++) {
             bytes memory encodedSwapData = abi.encodePacked(
                 _swapData[i].callTo,
@@ -489,7 +488,7 @@ contract WormholeFacet is Swapper {
                 _swapData[i].callData.length,
                 _swapData[i].callData
             );
-            _encoded.concat(encodedSwapData);
+            _encoded = abi.encodePacked(_encoded, encodedSwapData);
         }
     }
 
