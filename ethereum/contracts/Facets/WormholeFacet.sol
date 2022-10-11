@@ -539,6 +539,7 @@ contract WormholeFacet is Swapper {
             uint256 length = _encodedPayload.toUint256(index);
             index += 32;
 
+            _swapData = new LibSwap.SwapData[](length);
             for (uint256 i = 0; i < length; i++) {
                 _swapData[i].callTo = _encodedPayload.toAddress(index);
                 index += 20;
