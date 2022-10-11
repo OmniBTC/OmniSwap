@@ -8,7 +8,7 @@ import {LibBytes} from "../Libraries/LibBytes.sol";
 library LibCross {
     using LibBytes for bytes;
 
-    function enNormalizedSoData(ISo.SoData memory soData)
+    function normalizeSoData(ISo.SoData memory soData)
         internal
         pure
         returns (ISo.NormalizedSoData memory)
@@ -25,7 +25,15 @@ library LibCross {
         return data;
     }
 
-    function deNormalizedSoData(ISo.NormalizedSoData memory data)
+    function tryAddress(bytes memory data) internal pure returns (address) {
+        if (data.length == 20) {
+            return data.toAddress(0);
+        } else {
+            return address(0);
+        }
+    }
+
+    function denormalizeSoData(ISo.NormalizedSoData memory data)
         internal
         pure
         returns (ISo.SoData memory)
@@ -33,45 +41,58 @@ library LibCross {
         return
             ISo.SoData({
                 transactionId: data.transactionId.toBytes32(0),
-                receiver: payable(data.receiver.toAddress(0)),
+                receiver: payable(tryAddress(data.receiver)),
                 sourceChainId: data.sourceChainId,
                 sendingAssetId: data.sendingAssetId.toAddress(0),
                 destinationChainId: data.destinationChainId,
-                receivingAssetId: data.receivingAssetId.toAddress(0),
+                receivingAssetId: tryAddress(data.receivingAssetId),
                 amount: data.amount
             });
     }
 
-    function enNormalizedSwapData(LibSwap.SwapData memory swapData)
+    function normalizeSwapData(LibSwap.SwapData[] memory swapData)
         internal
         pure
-        returns (LibSwap.NormalizedSwapData memory)
+        returns (LibSwap.NormalizedSwapData[] memory)
     {
-        LibSwap.NormalizedSwapData memory data;
-        data.callTo = abi.encodePacked(swapData.callTo);
-        data.approveTo = abi.encodePacked(swapData.approveTo);
-        data.sendingAssetId = abi.encodePacked(swapData.sendingAssetId);
-        data.receivingAssetId = abi.encodePacked(swapData.receivingAssetId);
-        data.fromAmount = swapData.fromAmount;
-        data.callData = abi.encodePacked(swapData.callData);
+        LibSwap.NormalizedSwapData[]
+            memory data = new LibSwap.NormalizedSwapData[](swapData.length);
+
+        for (uint256 i = 0; i < swapData.length; i++) {
+            data[i].callTo = abi.encodePacked(swapData[i].callTo);
+            data[i].approveTo = abi.encodePacked(swapData[i].approveTo);
+            data[i].sendingAssetId = abi.encodePacked(
+                swapData[i].sendingAssetId
+            );
+            data[i].receivingAssetId = abi.encodePacked(
+                swapData[i].receivingAssetId
+            );
+            data[i].fromAmount = swapData[i].fromAmount;
+            data[i].callData = abi.encodePacked(swapData[i].callData);
+        }
 
         return data;
     }
 
-    function deNormalizedSwapData(LibSwap.NormalizedSwapData memory data)
+    function denormalizeSwapData(LibSwap.NormalizedSwapData[] memory data)
         internal
         pure
-        returns (LibSwap.SwapData memory)
+        returns (LibSwap.SwapData[] memory)
     {
-        return
-            LibSwap.SwapData({
-                callTo: data.callTo.toAddress(0),
-                approveTo: data.approveTo.toAddress(0),
-                sendingAssetId: data.sendingAssetId.toAddress(0),
-                receivingAssetId: data.receivingAssetId.toAddress(0),
-                fromAmount: data.fromAmount,
-                callData: data.callData
-            });
+        LibSwap.SwapData[] memory swapData = new LibSwap.SwapData[](
+            data.length
+        );
+        for (uint256 i = 0; i < swapData.length; i++) {
+            swapData[i].callTo = data[i].callTo.toAddress(0);
+            swapData[i].approveTo = data[i].approveTo.toAddress(0);
+            swapData[i].sendingAssetId = data[i].sendingAssetId.toAddress(0);
+            swapData[i].receivingAssetId = data[i].receivingAssetId.toAddress(
+                0
+            );
+            swapData[i].fromAmount = data[i].fromAmount;
+            swapData[i].callData = data[i].callData;
+        }
+        return swapData;
     }
 
     function encodeNormalizedSoData(ISo.NormalizedSoData memory data)
@@ -79,20 +100,25 @@ library LibCross {
         pure
         returns (bytes memory)
     {
-        return
+        bytes memory encodeData = abi.encodePacked(
+            uint64(data.transactionId.length),
+            data.transactionId,
+            uint64(data.receiver.length),
+            data.receiver,
+            data.sourceChainId
+        );
+        // Avoid variable value1 is 1 slot(s) too deep;
+        encodeData.concat(
             abi.encodePacked(
-                uint64(data.transactionId.length),
-                data.transactionId,
-                uint64(data.receiver.length),
-                data.receiver,
-                data.sourceChainId,
                 uint64(data.sendingAssetId.length),
                 data.sendingAssetId,
                 data.destinationChainId,
                 uint64(data.receivingAssetId.length),
                 data.receivingAssetId,
                 data.amount
-            );
+            )
+        );
+        return encodeData;
     }
 
     function decodeNormalizedSoData(bytes memory soData)
@@ -160,7 +186,12 @@ library LibCross {
                     uint64(data[i].approveTo.length),
                     data[i].approveTo,
                     uint64(data[i].sendingAssetId.length),
-                    data[i].sendingAssetId,
+                    data[i].sendingAssetId
+                )
+            );
+            // Avoid variable value1 is 1 slot(s) too deep;
+            encodeData = encodeData.concat(
+                abi.encodePacked(
                     uint64(data[i].receivingAssetId.length),
                     data[i].receivingAssetId,
                     data[i].fromAmount,
