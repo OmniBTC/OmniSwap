@@ -130,14 +130,14 @@ module omniswap::wormhole_facet {
         let so_data = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + next_len));
         index = index + next_len;
 
-        let so_data = cross::decode_so_data(&mut so_data);
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
 
         if (index < len) {
             next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
             let swap_data_dst = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + next_len));
             index = index + next_len;
 
-            let swap_data_dst = cross::decode_swap_data(&mut swap_data_dst);
+            let swap_data_dst = cross::decode_normalized_swap_data(&mut swap_data_dst);
             assert!(index == len, EINVALID_LENGTH);
             (dst_max_gas_price, dst_max_gas, so_data, swap_data_dst)
         }else {
@@ -148,13 +148,13 @@ module omniswap::wormhole_facet {
 
     public fun encode_wormhole_payload(dst_max_gas_price: U256, dst_max_gas: U256, so_data: NormalizedSoData, swap_data_dst: vector<NormalizedSwapData>): vector<u8> {
         let data = vector::empty<u8>();
-        let so_data = cross::encode_so_data(so_data);
+        let so_data = cross::encode_normalized_so_data(so_data);
 
         serialize_u256(&mut data, dst_max_gas_price);
         serialize_u256(&mut data, dst_max_gas);
         serialize_vector_with_length(&mut data, so_data);
         if (vector::length(&swap_data_dst) > 0) {
-            let swap_data_dst = cross::encode_swap_data(swap_data_dst);
+            let swap_data_dst = cross::encode_normalized_swap_data(swap_data_dst);
             serialize_vector_with_length(&mut data, swap_data_dst);
         };
         data
@@ -242,7 +242,7 @@ module omniswap::wormhole_facet {
 
         let ratio = so_fee_wormhole_v1::update_price_ratio(u16::to_u64(wormhole_data.dst_wormhole_chain_id));
 
-        let dst_max_gas = estimate_complete_soswap_gas(cross::encode_so_data(so_data), wormhole_data, cross::encode_swap_data(swap_data_dst));
+        let dst_max_gas = estimate_complete_soswap_gas(cross::encode_normalized_so_data(so_data), wormhole_data, cross::encode_normalized_swap_data(swap_data_dst));
         let dst_fee = u256::mul(wormhole_data.dst_max_gas_price_in_wei_for_relayer, dst_max_gas);
 
         let one = u256::from_u64(RAY);
@@ -279,11 +279,11 @@ module omniswap::wormhole_facet {
         assert!(is_initialize(), NOT_initialize);
         let emitter_cap = &borrow_global<EmitterManager>(get_resource_address()).emitter_cap;
 
-        let so_data = cross::decode_so_data(&mut so_data);
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
         let wormhole_data = decode_wormhole_data(&wormhole_data);
 
         let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
-            cross::decode_swap_data(&mut swap_data_dst)
+            cross::decode_normalized_swap_data(&mut swap_data_dst)
         }else {
             vector::empty()
         };
@@ -302,7 +302,7 @@ module omniswap::wormhole_facet {
         let coin_aptos = coin::withdraw<AptosCoin>(account, fee);
 
         if (vector::length(&swap_data_src) > 0) {
-            let swap_data_src = cross::decode_swap_data(&mut swap_data_src);
+            let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
             if (vector::length(&swap_data_src) == 1) {
                 let coin_y = swap::swap_two_by_account<X, Y>(account, swap_data_src);
                 transfer_tokens::transfer_tokens_with_payload(
@@ -400,13 +400,13 @@ module omniswap::wormhole_facet {
     #[test]
     fun test_serde_wormhole_payload() {
         let data = x"00000000000000204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0001000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00020000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000000000000000000000000000000000000000000000005f5e100";
-        let so_data = cross::decode_so_data(&data);
-        let data = x"00000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
-        let swap_data = cross::decode_swap_data(&data);
+        let so_data = cross::decode_normalized_so_data(&data);
+        let data = x"000000000000000200000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
+        let swap_data = cross::decode_normalized_swap_data(&data);
         let dst_max_gas_price = u256::from_u64(10000);
         let dst_max_gas = u256::from_u64(99000);
         let encode_data = encode_wormhole_payload(dst_max_gas_price, dst_max_gas, so_data, swap_data);
-        let data = x"000000000000000000000000000000000000000000000000000000000000271000000000000000000000000000000000000000000000000000000000000182b800000000000000a600000000000000204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0001000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00020000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000000000000000000000000000000000000000000000005f5e10000000000000001bc00000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
+        let data = x"000000000000000000000000000000000000000000000000000000000000271000000000000000000000000000000000000000000000000000000000000182b800000000000000a600000000000000204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0001000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00020000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000000000000000000000000000000000000000000000005f5e10000000000000001c4000000000000000200000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
 
         assert!(data == encode_data, 1);
         let (v1, v2, v3, v4) = decode_wormhole_payload(&data);

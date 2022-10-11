@@ -71,7 +71,7 @@ module omniswap::cross {
         data.from_amount
     }
 
-    public fun encode_so_data(so_data: NormalizedSoData): vector<u8> {
+    public fun encode_normalized_so_data(so_data: NormalizedSoData): vector<u8> {
         let data = vector::empty<u8>();
         serde::serialize_vector_with_length(&mut data, so_data.transaction_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiver);
@@ -83,9 +83,15 @@ module omniswap::cross {
         data
     }
 
-    public fun encode_swap_data(swap_data: vector<NormalizedSwapData>): vector<u8> {
+    public fun encode_normalized_swap_data(swap_data: vector<NormalizedSwapData>): vector<u8> {
         let data = vector::empty<u8>();
         vector::reverse(&mut swap_data);
+
+        let len = vector::length(&swap_data);
+        if (len > 0) {
+            serde::serialize_u64(&mut data, len)
+        };
+
         while (!vector::is_empty(&swap_data)) {
             let d = vector::pop_back(&mut swap_data);
             serde::serialize_vector_with_length(&mut data, d.call_to);
@@ -98,7 +104,7 @@ module omniswap::cross {
         data
     }
 
-    public fun decode_so_data(data: &vector<u8>): NormalizedSoData {
+    public fun decode_normalized_so_data(data: &vector<u8>): NormalizedSoData {
         let len = vector::length(data);
         assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
 
@@ -146,12 +152,16 @@ module omniswap::cross {
         }
     }
 
-    public fun decode_swap_data(data: &vector<u8>): vector<NormalizedSwapData> {
+    public fun decode_normalized_swap_data(data: &vector<u8>): vector<NormalizedSwapData> {
         let len = vector::length(data);
         assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
         let index = 0;
         let next_len;
         let swap_data = vector::empty<NormalizedSwapData>();
+
+        next_len = 8;
+        let swap_len = serde::deserialize_u64(&serde::vector_slice(data, index, index + next_len));
+        index = index + next_len;
 
         while (index < len) {
             next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
@@ -204,10 +214,10 @@ module omniswap::cross {
             receiving_asset_id: x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
             amount: u256::from_u64(100000000)
         };
-        let encode_data = encode_so_data(so_data);
+        let encode_data = encode_normalized_so_data(so_data);
         let data = x"00000000000000204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0001000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00020000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000000000000000000000000000000000000000000000005f5e100";
         assert!(data == encode_data, 1);
-        assert!(decode_so_data(&data) == so_data, 1);
+        assert!(decode_normalized_so_data(&data) == so_data, 1);
     }
 
     #[test]
@@ -233,10 +243,9 @@ module omniswap::cross {
             }
         ];
 
-        let encode_data = encode_swap_data(swap_data);
-        let data = x"00000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
+        let encode_data = encode_normalized_swap_data(swap_data);
+        let data = x"000000000000000200000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
         assert!(data == encode_data, 1);
-        assert!(decode_swap_data(&data) == swap_data, 1);
-
+        assert!(decode_normalized_swap_data(&data) == swap_data, 1);
     }
 }
