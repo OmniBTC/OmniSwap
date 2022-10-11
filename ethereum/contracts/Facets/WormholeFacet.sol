@@ -25,7 +25,6 @@ contract WormholeFacet is Swapper {
     struct Storage {
         address tokenBridge;
         uint16 srcWormholeChainId;
-        uint64 nonce;
         uint256 actualReserve; // [RAY]
         uint256 estimateReserve; // [RAY]
         mapping(uint16 => uint256) dstBaseGas;
@@ -513,13 +512,13 @@ contract WormholeFacet is Swapper {
         _soData.receiver = payable(_encodedPayload.toAddress(index));
         index += 20;
 
-        _soData.sourceChainId = _encodedPayload.toUint256(index);
+        _soData.sourceChainId = _encodedPayload.toUint16(index);
         index += 32;
 
         _soData.sendingAssetId = _encodedPayload.toAddress(index);
         index += 20;
 
-        _soData.destinationChainId = _encodedPayload.toUint256(index);
+        _soData.destinationChainId = _encodedPayload.toUint16(index);
         index += 32;
 
         _soData.receivingAssetId = _encodedPayload.toAddress(index);
@@ -588,7 +587,7 @@ contract WormholeFacet is Swapper {
             }(
                 _wormholeData.dstWormholeChainId,
                 bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
-                uint32(s.nonce),
+                0,
                 _payload
             );
         } else {
@@ -600,7 +599,7 @@ contract WormholeFacet is Swapper {
                 _amount,
                 _wormholeData.dstWormholeChainId,
                 bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
-                uint32(s.nonce),
+                0,
                 _payload
             );
         }
@@ -609,8 +608,6 @@ contract WormholeFacet is Swapper {
         if (_dust > 0) {
             LibAsset.transferAsset(_token, payable(msg.sender), _dust);
         }
-
-        s.nonce += 1;
     }
 
     /// Private Methods ///

@@ -11,7 +11,7 @@ module omniswap::wormhole_facet {
     use aptos_framework::account;
     use std::signer;
     use omniswap::serde;
-    use omniswap::cross::{SoData, SwapData};
+    use omniswap::cross::{NormalizedSoData, NormalizedSwapData};
     use omniswap::serde::{serialize_vector_with_length, serialize_u256, deserialize_u256};
     use aptos_framework::coin;
     use aptos_framework::aptos_coin::AptosCoin;
@@ -57,7 +57,6 @@ module omniswap::wormhole_facet {
 
     struct Storage has key {
         src_wormhole_chain_id: U16,
-        nonce: u64,
         actual_reserve: u64,
         estimate_reserve: u64,
         dst_base_gas: Table<U16, U256>,
@@ -113,7 +112,7 @@ module omniswap::wormhole_facet {
         }
     }
 
-    public fun decode_wormhole_payload(data: &vector<u8>): (U256, U256, SoData, vector<SwapData>) {
+    public fun decode_wormhole_payload(data: &vector<u8>): (U256, U256, NormalizedSoData, vector<NormalizedSwapData>) {
         let len = vector::length(data);
         assert!(len > 0, EINVALID_LENGTH);
         let index = 0;
@@ -147,7 +146,7 @@ module omniswap::wormhole_facet {
         }
     }
 
-    public fun encode_wormhole_payload(dst_max_gas_price: U256, dst_max_gas: U256, so_data: SoData, swap_data_dst: vector<SwapData>): vector<u8> {
+    public fun encode_wormhole_payload(dst_max_gas_price: U256, dst_max_gas: U256, so_data: NormalizedSoData, swap_data_dst: vector<NormalizedSwapData>): vector<u8> {
         let data = vector::empty<u8>();
         let so_data = cross::encode_so_data(so_data);
 
@@ -185,7 +184,6 @@ module omniswap::wormhole_facet {
         move_to(&resource_signer,
             Storage {
                 src_wormhole_chain_id: u16::from_u64(wormhole_chain_id),
-                nonce: 0,
                 actual_reserve: 0,
                 estimate_reserve: 0,
                 dst_base_gas: table::new(),
@@ -236,9 +234,9 @@ module omniswap::wormhole_facet {
     }
 
     public fun check_relayer_fee(
-        so_data: SoData,
+        so_data: NormalizedSoData,
         wormhole_data: WormholeData,
-        swap_data_dst: vector<SwapData>
+        swap_data_dst: vector<NormalizedSwapData>
     ): (bool, u64, u64, U256) acquires Storage {
         let actual_reserve = borrow_global<Storage>(get_resource_address()).actual_reserve;
 
@@ -303,7 +301,6 @@ module omniswap::wormhole_facet {
 
         let coin_aptos = coin::withdraw<AptosCoin>(account, fee);
 
-        let s = borrow_global_mut<Storage>(get_resource_address());
         if (vector::length(&swap_data_src) > 0) {
             let swap_data_src = cross::decode_swap_data(&mut swap_data_src);
             if (vector::length(&swap_data_src) == 1) {
@@ -314,7 +311,7 @@ module omniswap::wormhole_facet {
                     coin_aptos,
                     wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
                     external_address::from_bytes(wormhole_data.dst_so_diamond),
-                    s.nonce,
+                    0,
                     payload
                 );
             }else if (vector::length(&swap_data_src) == 2) {
@@ -325,7 +322,7 @@ module omniswap::wormhole_facet {
                     coin_aptos,
                     wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
                     external_address::from_bytes(wormhole_data.dst_so_diamond),
-                    s.nonce,
+                    0,
                     payload
                 );
             }else if (vector::length(&swap_data_src) == 3) {
@@ -336,7 +333,7 @@ module omniswap::wormhole_facet {
                     coin_aptos,
                     wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
                     external_address::from_bytes(wormhole_data.dst_so_diamond),
-                    s.nonce,
+                    0,
                     payload
                 );
             }else {
@@ -351,11 +348,10 @@ module omniswap::wormhole_facet {
                 coin_aptos,
                 wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
                 external_address::from_bytes(wormhole_data.dst_so_diamond),
-                s.nonce,
+                0,
                 payload
             );
         };
-        s.nonce = s.nonce + 1;
     }
 
     public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires EmitterManager {

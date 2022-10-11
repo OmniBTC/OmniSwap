@@ -11,7 +11,7 @@ module omniswap::cross {
 
     const EINVALID_LENGTH: u64 = 0x00;
 
-    struct SoData has drop, copy {
+    struct NormalizedSoData has drop, copy {
         // unique identification id. length is 32.
         transaction_id: vector<u8>,
         // token receiving account. length is 20, 32.
@@ -28,7 +28,7 @@ module omniswap::cross {
         amount: U256
     }
 
-    struct SwapData has drop, copy {
+    struct NormalizedSwapData has drop, copy {
         // The swap address
         call_to: vector<u8>,
         // The swap address
@@ -43,35 +43,35 @@ module omniswap::cross {
         call_data: vector<u8>
     }
 
-    public fun so_receiver(data: SoData): vector<u8> {
+    public fun so_receiver(data: NormalizedSoData): vector<u8> {
         data.receiver
     }
 
-    public fun so_amount(data: SoData): U256 {
+    public fun so_amount(data: NormalizedSoData): U256 {
         data.amount
     }
 
-    public fun swap_call_to(data: SwapData): vector<u8> {
+    public fun swap_call_to(data: NormalizedSwapData): vector<u8> {
         data.call_to
     }
 
-    public fun swap_sending_asset_id(data: SwapData): vector<u8> {
+    public fun swap_sending_asset_id(data: NormalizedSwapData): vector<u8> {
         data.sending_asset_id
     }
 
-    public fun swap_receiving_asset_id(data: SwapData): vector<u8> {
+    public fun swap_receiving_asset_id(data: NormalizedSwapData): vector<u8> {
         data.receiving_asset_id
     }
 
-    public fun swap_call_data(data: SwapData): vector<u8> {
+    public fun swap_call_data(data: NormalizedSwapData): vector<u8> {
         data.call_data
     }
 
-    public fun swap_from_amount(data: SwapData): U256 {
+    public fun swap_from_amount(data: NormalizedSwapData): U256 {
         data.from_amount
     }
 
-    public fun encode_so_data(so_data: SoData): vector<u8> {
+    public fun encode_so_data(so_data: NormalizedSoData): vector<u8> {
         let data = vector::empty<u8>();
         serde::serialize_vector_with_length(&mut data, so_data.transaction_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiver);
@@ -83,7 +83,7 @@ module omniswap::cross {
         data
     }
 
-    public fun encode_swap_data(swap_data: vector<SwapData>): vector<u8> {
+    public fun encode_swap_data(swap_data: vector<NormalizedSwapData>): vector<u8> {
         let data = vector::empty<u8>();
         vector::reverse(&mut swap_data);
         while (!vector::is_empty(&swap_data)) {
@@ -98,7 +98,7 @@ module omniswap::cross {
         data
     }
 
-    public fun decode_so_data(data: &vector<u8>): SoData {
+    public fun decode_so_data(data: &vector<u8>): NormalizedSoData {
         let len = vector::length(data);
         assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
 
@@ -135,7 +135,7 @@ module omniswap::cross {
 
         assert!(index == len, EINVALID_LENGTH);
 
-        SoData {
+        NormalizedSoData {
             transaction_id,
             receiver,
             source_chain_id,
@@ -146,12 +146,12 @@ module omniswap::cross {
         }
     }
 
-    public fun decode_swap_data(data: &vector<u8>): vector<SwapData> {
+    public fun decode_swap_data(data: &vector<u8>): vector<NormalizedSwapData> {
         let len = vector::length(data);
         assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
         let index = 0;
         let next_len;
-        let swap_data = vector::empty<SwapData>();
+        let swap_data = vector::empty<NormalizedSwapData>();
 
         while (index < len) {
             next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
@@ -178,7 +178,7 @@ module omniswap::cross {
             let call_data = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + next_len));
             index = index + next_len;
 
-            vector::push_back(&mut swap_data, SwapData {
+            vector::push_back(&mut swap_data, NormalizedSwapData {
                 call_to,
                 approve_to,
                 sending_asset_id,
@@ -195,7 +195,7 @@ module omniswap::cross {
 
     #[test]
     fun test_serde_so_data() {
-        let so_data = SoData {
+        let so_data = NormalizedSoData {
             transaction_id: x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
             receiver: x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
             source_chain_id: u16::from_u64(1),
@@ -212,8 +212,8 @@ module omniswap::cross {
 
     #[test]
     fun test_serde_swap_data() {
-        let swap_data = vector<SwapData>[
-            SwapData {
+        let swap_data = vector<NormalizedSwapData>[
+            NormalizedSwapData {
                 call_to: x"4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
                 approve_to: x"4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
                 sending_asset_id: b"0x1::aptos_coin::AptosCoin",
@@ -222,7 +222,7 @@ module omniswap::cross {
                 // liquidswap curve
                 call_data: b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated"
             },
-            SwapData {
+            NormalizedSwapData {
                 call_to: x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
                 approve_to: x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
                 sending_asset_id: x"2514895c72f50d8bd4b4f9b1110f0d6bd2c97526",

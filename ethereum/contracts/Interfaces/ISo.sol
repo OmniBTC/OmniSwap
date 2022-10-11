@@ -8,10 +8,20 @@ interface ISo {
     struct SoData {
         bytes32 transactionId; // unique identification id
         address payable receiver; // token receiving account
-        uint256 sourceChainId; // source chain id
+        uint16 sourceChainId; // source chain id
         address sendingAssetId; // The starting token address of the source chain
-        uint256 destinationChainId; // destination chain id
+        uint16 destinationChainId; // destination chain id
         address receivingAssetId; // The final token address of the destination chain
+        uint256 amount; // User enters amount
+    }
+
+    struct NormalizedSoData {
+        bytes transactionId; // unique identification id
+        bytes receiver; // token receiving account
+        uint16 sourceChainId; // source chain id
+        bytes sendingAssetId; // The starting token address of the source chain
+        uint16 destinationChainId; // destination chain id
+        bytes receivingAssetId; // The final token address of the destination chain
         uint256 amount; // User enters amount
     }
 

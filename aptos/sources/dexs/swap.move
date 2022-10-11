@@ -1,5 +1,5 @@
 module omniswap::swap {
-    use omniswap::cross::{SwapData, Self};
+    use omniswap::cross::{NormalizedSwapData, Self};
     use liquidswap::curves::{Stable, Uncorrelated};
     use std::vector;
     use omniswap::serde;
@@ -26,7 +26,7 @@ module omniswap::swap {
         }
     }
 
-    public fun swap_by_account<X, Y>(account: &signer, data: SwapData): Coin<Y> {
+    public fun swap_by_account<X, Y>(account: &signer, data: NormalizedSwapData): Coin<Y> {
         if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
             assert!(right_token<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
             assert!(right_token<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
@@ -51,7 +51,7 @@ module omniswap::swap {
         }
     }
 
-    public fun swap_by_coin<X, Y>(coin_x: Coin<X>, data: SwapData): Coin<Y> {
+    public fun swap_by_coin<X, Y>(coin_x: Coin<X>, data: NormalizedSwapData): Coin<Y> {
         if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
             assert!(right_token<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
             assert!(right_token<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
@@ -74,36 +74,36 @@ module omniswap::swap {
         }
     }
 
-    public fun swap_two_by_account<X, Y>(account: &signer, swap_data: vector<SwapData>): Coin<Y> {
+    public fun swap_two_by_account<X, Y>(account: &signer, swap_data: vector<NormalizedSwapData>): Coin<Y> {
         assert!(vector::length(&swap_data) == 1, EINVALID_LENGTH);
         swap_by_account<X, Y>(account, *vector::borrow(&mut swap_data, 0))
     }
 
-    public fun swap_two_by_coin<X, Y>(coins: Coin<X>, swap_data: vector<SwapData>): Coin<Y> {
+    public fun swap_two_by_coin<X, Y>(coins: Coin<X>, swap_data: vector<NormalizedSwapData>): Coin<Y> {
         assert!(vector::length(&swap_data) == 1, EINVALID_LENGTH);
         swap_by_coin<X, Y>(coins, *vector::borrow(&mut swap_data, 0))
     }
 
-    public fun swap_three_by_account<X, Y, Z>(account: &signer, swap_data: vector<SwapData>): Coin<Z> {
+    public fun swap_three_by_account<X, Y, Z>(account: &signer, swap_data: vector<NormalizedSwapData>): Coin<Z> {
         assert!(vector::length(&swap_data) == 2, EINVALID_LENGTH);
         let coin_y = swap_by_account<X, Y>(account, *vector::borrow(&mut swap_data, 0));
         swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1))
     }
 
-    public fun swap_three_by_coin<X, Y, Z>(coins: Coin<X>, swap_data: vector<SwapData>): Coin<Z> {
+    public fun swap_three_by_coin<X, Y, Z>(coins: Coin<X>, swap_data: vector<NormalizedSwapData>): Coin<Z> {
         assert!(vector::length(&swap_data) == 2, EINVALID_LENGTH);
         let coin_y = swap_by_coin<X, Y>(coins, *vector::borrow(&mut swap_data, 0));
         swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1))
     }
 
-    public fun swap_four_by_account<X, Y, Z, M>(account: &signer, swap_data: vector<SwapData>): Coin<M> {
+    public fun swap_four_by_account<X, Y, Z, M>(account: &signer, swap_data: vector<NormalizedSwapData>): Coin<M> {
         assert!(vector::length(&swap_data) == 3, EINVALID_LENGTH);
         let coin_y = swap_by_account<X, Y>(account, *vector::borrow(&mut swap_data, 0));
         let coin_z = swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1));
         swap_by_coin<Z, M>(coin_z, *vector::borrow(&mut swap_data, 2))
     }
 
-    public fun swap_four_by_coin<X, Y, Z, M>(coins: Coin<X>,swap_data: vector<SwapData>): Coin<M> {
+    public fun swap_four_by_coin<X, Y, Z, M>(coins: Coin<X>,swap_data: vector<NormalizedSwapData>): Coin<M> {
         assert!(vector::length(&swap_data) == 3, EINVALID_LENGTH);
         let coin_y = swap_by_coin<X, Y>(coins, *vector::borrow(&mut swap_data, 0));
         let coin_z = swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1));

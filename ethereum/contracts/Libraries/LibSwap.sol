@@ -17,6 +17,15 @@ library LibSwap {
         bytes callData; // The swap callData
     }
 
+    struct NormalizedSwapData {
+        bytes callTo; // The swap address
+        bytes approveTo; // The swap address
+        bytes sendingAssetId; // The swap start token address
+        bytes receivingAssetId; // The swap final token address
+        uint256 fromAmount; // The swap start token amount
+        bytes callData; // The swap callData
+    }
+
     event AssetSwapped(
         bytes32 transactionId,
         address dex,
