@@ -375,10 +375,10 @@ class SwapData(View):
                  receivingAssetId,
                  fromAmount,
                  callData,
-                 swapType: str,
-                 swapFuncName: str,
-                 swapPath: list,
-                 swapEncodePath: list
+                 swapType: str = None,
+                 swapFuncName: str= None,
+                 swapPath: list= None,
+                 swapEncodePath: list= None
                  ):
         # The swap address
         self.callTo = callTo

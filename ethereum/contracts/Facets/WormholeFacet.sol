@@ -549,12 +549,16 @@ contract WormholeFacet is Swapper {
         ISo.NormalizedSoData memory soData,
         LibSwap.NormalizedSwapData[] memory swapDataDst
     ) public pure returns (bytes memory) {
+        bytes memory d1 = LibCross.encodeNormalizedSoData(soData);
+        bytes memory d2 = LibCross.encodeNormalizedSwapData(swapDataDst);
         return
             abi.encodePacked(
                 dstMaxGasPrice,
                 dstMaxGas,
-                LibCross.encodeNormalizedSoData(soData),
-                LibCross.encodeNormalizedSwapData(swapDataDst)
+                uint64(d1.length),
+                d1,
+                uint64(d2.length),
+                d2
             );
     }
 
