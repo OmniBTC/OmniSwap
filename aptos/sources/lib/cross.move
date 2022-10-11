@@ -4,6 +4,10 @@ module omniswap::cross {
     use std::vector;
     use std::error;
     use omniswap::u16::U16;
+    #[test_only]
+    use omniswap::u16;
+    #[test_only]
+    use omniswap::u256;
 
     const EINVALID_LENGTH: u64 = 0x00;
 
@@ -13,7 +17,7 @@ module omniswap::cross {
         // token receiving account. length is 20, 32.
         receiver: vector<u8>,
         // source chain id
-        source_chainId: U16,
+        source_chain_id: U16,
         // The starting token address of the source chain
         sending_asset_id: vector<u8>,
         // destination chain id
@@ -71,7 +75,7 @@ module omniswap::cross {
         let data = vector::empty<u8>();
         serde::serialize_vector_with_length(&mut data, so_data.transaction_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiver);
-        serde::serialize_u16(&mut data, so_data.source_chainId);
+        serde::serialize_u16(&mut data, so_data.source_chain_id);
         serde::serialize_vector_with_length(&mut data, so_data.sending_asset_id);
         serde::serialize_u16(&mut data, so_data.destination_chain_id);
         serde::serialize_vector_with_length(&mut data, so_data.receiving_asset_id);
@@ -94,7 +98,7 @@ module omniswap::cross {
         data
     }
 
-    public fun decode_so_data(data: &mut vector<u8>): SoData {
+    public fun decode_so_data(data: &vector<u8>): SoData {
         let len = vector::length(data);
         assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
 
@@ -110,7 +114,7 @@ module omniswap::cross {
         index = index + next_len;
 
         next_len = 2;
-        let source_chainId = serde::deserialize_u16(&serde::vector_slice(data, index, index + next_len));
+        let source_chain_id = serde::deserialize_u16(&serde::vector_slice(data, index, index + next_len));
         index = index + next_len;
 
         next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
@@ -134,7 +138,7 @@ module omniswap::cross {
         SoData {
             transaction_id,
             receiver,
-            source_chainId,
+            source_chain_id,
             sending_asset_id,
             destination_chain_id,
             receiving_asset_id,
@@ -142,7 +146,7 @@ module omniswap::cross {
         }
     }
 
-    public fun decode_swap_data(data: &mut vector<u8>): vector<SwapData> {
+    public fun decode_swap_data(data: &vector<u8>): vector<SwapData> {
         let len = vector::length(data);
         assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
         let index = 0;
@@ -189,5 +193,50 @@ module omniswap::cross {
         swap_data
     }
 
-    // todo! test
+    #[test]
+    fun test_serde_so_data() {
+        let so_data = SoData {
+            transaction_id: x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
+            receiver: x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+            source_chain_id: u16::from_u64(1),
+            sending_asset_id: b"0x1::aptos_coin::AptosCoin",
+            destination_chain_id: u16::from_u64(2),
+            receiving_asset_id: x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
+            amount: u256::from_u64(100000000)
+        };
+        let encode_data = encode_so_data(so_data);
+        let data = x"00000000000000204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0001000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00020000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000000000000000000000000000000000000000000000005f5e100";
+        assert!(data == encode_data, 1);
+        assert!(decode_so_data(&data) == so_data, 1);
+    }
+
+    #[test]
+    fun test_serde_swap_data() {
+        let swap_data = vector<SwapData>[
+            SwapData {
+                call_to: x"4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
+                approve_to: x"4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
+                sending_asset_id: b"0x1::aptos_coin::AptosCoin",
+                receiving_asset_id: b"0x1::omni_bridge::XBTC",
+                from_amount: u256::from_u64(8900000000),
+                // liquidswap curve
+                call_data: b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated"
+            },
+            SwapData {
+                call_to: x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
+                approve_to: x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
+                sending_asset_id: x"2514895c72f50d8bd4b4f9b1110f0d6bd2c97526",
+                receiving_asset_id: x"143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7",
+                from_amount: u256::from_u64(7700000000),
+                // liquidswap curve
+                call_data: x"6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
+            }
+        ];
+
+        let encode_data = encode_swap_data(swap_data);
+        let data = x"00000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
+        assert!(data == encode_data, 1);
+        assert!(decode_swap_data(&data) == swap_data, 1);
+
+    }
 }
