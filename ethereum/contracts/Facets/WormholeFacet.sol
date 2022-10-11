@@ -588,7 +588,7 @@ contract WormholeFacet is Swapper {
             }(
                 _wormholeData.dstWormholeChainId,
                 bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
-                s.nonce,
+                uint32(s.nonce),
                 _payload
             );
         } else {
@@ -600,7 +600,7 @@ contract WormholeFacet is Swapper {
                 _amount,
                 _wormholeData.dstWormholeChainId,
                 bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
-                s.nonce,
+                uint32(s.nonce),
                 _payload
             );
         }
