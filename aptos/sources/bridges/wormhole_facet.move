@@ -44,7 +44,7 @@ module omniswap::wormhole_facet {
     const CHECK_FEE_FAIL: u64 = 0x05;
 
 
-    struct WormholeData has drop, copy {
+    struct NormalizedWormholeData has drop, copy {
         dst_wormhole_chain_id: U16,
         dst_max_gas_price_in_wei_for_relayer: U256,
         wormhole_fee: U256,
@@ -71,7 +71,7 @@ module omniswap::wormhole_facet {
         coin::deposit(to, coin_x);
     }
 
-    public fun encode_wormhole_data(wormhole_data: WormholeData): vector<u8> {
+    public fun encode_normalized_wormhole_data(wormhole_data: NormalizedWormholeData): vector<u8> {
         let data = vector::empty<u8>();
         serde::serialize_u16(&mut data, wormhole_data.dst_wormhole_chain_id);
         serde::serialize_u256(&mut data, wormhole_data.dst_max_gas_price_in_wei_for_relayer);
@@ -80,7 +80,7 @@ module omniswap::wormhole_facet {
         data
     }
 
-    public fun decode_wormhole_data(data: &vector<u8>): WormholeData {
+    public fun decode_normalized_wormhole_data(data: &vector<u8>): NormalizedWormholeData {
         let len = vector::length(data);
         assert!(len > 0, EINVALID_LENGTH);
         let index = 0;
@@ -104,7 +104,7 @@ module omniswap::wormhole_facet {
 
         assert!(index == len, EINVALID_LENGTH);
 
-        WormholeData {
+        NormalizedWormholeData {
             dst_wormhole_chain_id,
             dst_max_gas_price_in_wei_for_relayer,
             wormhole_fee,
@@ -222,7 +222,7 @@ module omniswap::wormhole_facet {
 
     public fun estimate_complete_soswap_gas(
         so_data: vector<u8>,
-        wormhole_data: WormholeData,
+        wormhole_data: NormalizedWormholeData,
         swap_data_dst: vector<u8>
     ): U256 acquires Storage {
         let len = 32 + 32 + 1 + vector::length(&so_data) + 1 + vector::length(&swap_data_dst);
@@ -235,7 +235,7 @@ module omniswap::wormhole_facet {
 
     public fun check_relayer_fee(
         so_data: NormalizedSoData,
-        wormhole_data: WormholeData,
+        wormhole_data: NormalizedWormholeData,
         swap_data_dst: vector<NormalizedSwapData>
     ): (bool, u64, u64, U256) acquires Storage {
         let actual_reserve = borrow_global<Storage>(get_resource_address()).actual_reserve;
@@ -281,7 +281,7 @@ module omniswap::wormhole_facet {
         let emitter_cap = &borrow_global<EmitterManager>(get_resource_address()).emitter_cap;
 
         let so_data = cross::decode_normalized_so_data(&mut so_data);
-        let wormhole_data = decode_wormhole_data(&wormhole_data);
+        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
 
         let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
             cross::decode_normalized_swap_data(&mut swap_data_dst)
@@ -385,17 +385,17 @@ module omniswap::wormhole_facet {
 
     #[test]
     fun test_serde_wormhole_data() {
-        let wormhole_data = WormholeData {
+        let wormhole_data = NormalizedWormholeData {
             dst_wormhole_chain_id: u16::from_u64(1),
             dst_max_gas_price_in_wei_for_relayer: u256::from_u64(10000),
             wormhole_fee: u256::from_u64(2389),
             dst_so_diamond: x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
         };
-        let encode_data = encode_wormhole_data(wormhole_data);
+        let encode_data = encode_normalized_wormhole_data(wormhole_data);
 
         let data = x"00010000000000000000000000000000000000000000000000000000000000002710000000000000000000000000000000000000000000000000000000000000095500000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af";
         assert!(data == encode_data, 1);
-        assert!(decode_wormhole_data(&data) == wormhole_data, 1);
+        assert!(decode_normalized_wormhole_data(&data) == wormhole_data, 1);
     }
 
     #[test]

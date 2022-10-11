@@ -42,11 +42,11 @@ contract WormholeFacet is Swapper {
     );
 
     /// Types ///
-    struct WormholeData {
+    struct NormalizedWormholeData {
         uint16 dstWormholeChainId;
         uint256 dstMaxGasPriceInWeiForRelayer;
         uint256 wormholeFee;
-        address dstSoDiamond;
+        bytes dstSoDiamond;
     }
 
     /// Init ///
@@ -103,7 +103,7 @@ contract WormholeFacet is Swapper {
     function soSwapViaWormhole(
         ISo.SoData calldata _soData,
         LibSwap.SwapData[] calldata _swapDataSrc,
-        WormholeData calldata _wormholeData,
+        NormalizedWormholeData calldata _wormholeData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable {
         require(msg.value == _wormholeData.wormholeFee, "Fee error");
@@ -331,7 +331,7 @@ contract WormholeFacet is Swapper {
 
     function estimateCompleteSoSwapGas(
         ISo.SoData calldata _soData,
-        WormholeData calldata _wormholeData,
+        NormalizedWormholeData calldata _wormholeData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) public view returns (uint256) {
         bytes memory _payload;
@@ -362,7 +362,7 @@ contract WormholeFacet is Swapper {
 
     function checkRelayerFee(
         ISo.SoData calldata _soData,
-        WormholeData calldata _wormholeData,
+        NormalizedWormholeData calldata _wormholeData,
         LibSwap.SwapData[] calldata _swapDataDst
     )
         public
@@ -409,7 +409,7 @@ contract WormholeFacet is Swapper {
 
     function estimateRelayerFee(
         ISo.SoData calldata _soData,
-        WormholeData calldata _wormholeData,
+        NormalizedWormholeData calldata _wormholeData,
         LibSwap.SwapData[] calldata _swapDataDst
         )
         external
@@ -592,7 +592,7 @@ contract WormholeFacet is Swapper {
     /// Internal Methods ///
 
     function _startBridge(
-        WormholeData calldata _wormholeData,
+        NormalizedWormholeData calldata _wormholeData,
         address _token,
         uint256 _amount,
         uint256 _srcFee,
@@ -600,13 +600,20 @@ contract WormholeFacet is Swapper {
     ) internal {
         Storage storage s = getStorage();
         address _bridge = s.tokenBridge;
+        
+        bytes32 dstSoDiamond;
+        if (_wormholeData.dstSoDiamond.length == 20){
+            dstSoDiamond = bytes32(uint256(uint160(_wormholeData.dstSoDiamond.toAddress(0))));
+        }else{
+            dstSoDiamond = _wormholeData.dstSoDiamond.toBytes32(0);
+        }
 
         if (LibAsset.isNativeAsset(_token)) {
             IWormholeBridge(_bridge).wrapAndTransferETHWithPayload{
                 value: msg.value.sub(_srcFee)
             }(
                 _wormholeData.dstWormholeChainId,
-                bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
+                dstSoDiamond,
                 0,
                 _payload
             );
@@ -618,7 +625,7 @@ contract WormholeFacet is Swapper {
                 _token,
                 _amount,
                 _wormholeData.dstWormholeChainId,
-                bytes32(uint256(uint160(_wormholeData.dstSoDiamond))),
+                dstSoDiamond,
                 0,
                 _payload
             );
