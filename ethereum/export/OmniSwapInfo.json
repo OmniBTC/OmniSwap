@@ -32,19 +32,48 @@
         "WormholeChainId": 6,
         "WormholeSupportToken": [
             {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x0000000000000000000000000000000000000000",
+                "TokenName": "AVAX"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x71b7E25BE7879E042E55FBabD4037De116ae07e0"
+                    ]
+                ],
                 "Decimal": 6,
                 "TokenAddress": "0x4A0D1092E9df255cf95D72834Ea9255132782318",
                 "TokenName": "USDC"
             },
             {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x0000000000000000000000000000000000000000"
+                    ]
+                ],
                 "Decimal": 18,
                 "TokenAddress": "0x10F1053bF2884b28ee0Bd7a2dDBa237Af3511d29",
                 "TokenName": "WBNB"
             },
             {
+                "ChainPath": [
+                    [
+                        4,
+                        "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
+                    ]
+                ],
                 "Decimal": 18,
                 "TokenAddress": "0x8337e5eF98af25012e1B39CD996772143f6c5fDf",
-                "TokenName": "WUSDT"
+                "TokenName": "USDT"
             }
         ]
     },
@@ -87,19 +116,48 @@
         "WormholeChainId": 4,
         "WormholeSupportToken": [
             {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x10F1053bF2884b28ee0Bd7a2dDBa237Af3511d29"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x0000000000000000000000000000000000000000",
+                "TokenName": "BNB"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x8337e5eF98af25012e1B39CD996772143f6c5fDf"
+                    ]
+                ],
                 "Decimal": 18,
                 "TokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
                 "TokenName": "USDT"
             },
             {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x0000000000000000000000000000000000000000"
+                    ]
+                ],
                 "Decimal": 18,
                 "TokenAddress": "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7",
                 "TokenName": "WAVAX"
             },
             {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x4A0D1092E9df255cf95D72834Ea9255132782318"
+                    ]
+                ],
                 "Decimal": 6,
                 "TokenAddress": "0x71b7E25BE7879E042E55FBabD4037De116ae07e0",
-                "TokenName": "WUSDC"
+                "TokenName": "USDC"
             }
         ]
     }
