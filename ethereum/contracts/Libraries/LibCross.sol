@@ -108,7 +108,7 @@ library LibCross {
             data.sourceChainId
         );
         // Avoid variable value1 is 1 slot(s) too deep;
-        encodeData.concat(
+        encodeData = encodeData.concat(
             abi.encodePacked(
                 uint64(data.sendingAssetId.length),
                 data.sendingAssetId,

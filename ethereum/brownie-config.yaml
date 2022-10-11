@@ -16,7 +16,7 @@ compiler:
 autofetch_sources: True
 dotenv: .env
 networks:
-  default: rinkeby
+  default: development
   goerli:
     chainid: 5
     stargate:
