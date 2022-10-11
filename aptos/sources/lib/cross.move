@@ -160,7 +160,7 @@ module omniswap::cross {
         let swap_data = vector::empty<NormalizedSwapData>();
 
         next_len = 8;
-        let swap_len = serde::deserialize_u64(&serde::vector_slice(data, index, index + next_len));
+        let _swap_len = serde::deserialize_u64(&serde::vector_slice(data, index, index + next_len));
         index = index + next_len;
 
         while (index < len) {

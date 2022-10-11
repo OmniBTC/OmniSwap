@@ -44,8 +44,8 @@ contract WormholeFacet is Swapper {
     /// Types ///
     struct WormholeData {
         uint16 dstWormholeChainId;
-        uint256 dstMaxGasForRelayer;
         uint256 dstMaxGasPriceInWeiForRelayer;
+        uint256 wormholeFee;
         address dstSoDiamond;
     }
 
@@ -94,6 +94,8 @@ contract WormholeFacet is Swapper {
         bool _hasDestinationSwap;
         uint256 _bridgeAmount;
         address _bridgeAddress;
+        uint256 returnValue;
+        uint256 dstMaxGas;
         bytes _payload;
     }
 
@@ -104,20 +106,21 @@ contract WormholeFacet is Swapper {
         WormholeData calldata _wormholeData,
         LibSwap.SwapData[] calldata _swapDataDst
     ) external payable {
+        require(msg.value == _wormholeData.wormholeFee, "Fee error");
+
         WormholeCache memory _cache;
-        uint256 returnValue;
-        (_cache._flag, _cache._fee, returnValue) = checkRelayerFee(
+        (_cache._flag, _cache._fee, _cache.returnValue, _cache.dstMaxGas) = checkRelayerFee(
             _soData,
             _wormholeData,
-            msg.value
+            _swapDataDst
         );
         require(_cache._flag, "Check fail");
         // return the redundant msg.value
-        if (returnValue > 0) {
+        if (_cache.returnValue > 0) {
             LibAsset.transferAsset(
                 LibAsset.NATIVE_ASSETID,
                 payable(msg.sender),
-                returnValue
+                _cache.returnValue
             );
         }
         LibAsset.transferAsset(
@@ -346,53 +349,69 @@ contract WormholeFacet is Swapper {
             );
     }
 
+    struct CacheCheck {
+        uint256 _ratio;
+        uint256 _srcFee;
+        uint256 _dstFee;
+        uint256 _userInput;
+        uint256 dstMaxGasForRelayer;
+        bool flag;
+        uint256 returnValue;
+        uint256 consumeValue;
+    }
+
     function checkRelayerFee(
         ISo.SoData calldata _soData,
         WormholeData calldata _wormholeData,
-        uint256 _value
+        LibSwap.SwapData[] calldata _swapDataDst
     )
         public
         returns (
             bool,
             uint256,
+            uint256,
             uint256
         )
     {
+        CacheCheck memory data;
         Storage storage s = getStorage();
         ILibPrice _oracle = ILibPrice(
             appStorage.gatewaySoFeeSelectors[s.tokenBridge]
         );
-        uint256 _ratio = _oracle.updatePriceRatio(
+        data._ratio = _oracle.updatePriceRatio(
             _wormholeData.dstWormholeChainId
         );
-        uint256 _dstFee = _wormholeData.dstMaxGasForRelayer.mul(
+        data.dstMaxGasForRelayer = estimateCompleteSoSwapGas(_soData, _wormholeData, _swapDataDst);
+
+        data._dstFee = data.dstMaxGasForRelayer.mul(
             _wormholeData.dstMaxGasPriceInWeiForRelayer
         );
-        uint256 _srcFee = _dstFee
-            .mul(_ratio)
+        data._srcFee = data._dstFee
+            .mul(data._ratio)
             .div(_oracle.RAY())
             .mul(s.actualReserve)
             .div(RAY);
 
-        uint256 _userInput;
         if (LibAsset.isNativeAsset(_soData.sendingAssetId)) {
-            _userInput = _soData.amount;
+            data._userInput = _soData.amount;
         }
-        bool flag;
-        uint256 returnValue;
-        uint256 consumeValue = IWormholeBridge(s.tokenBridge)
+        data.consumeValue = IWormholeBridge(s.tokenBridge)
             .wormhole()
             .messageFee()
-            .add(_userInput)
-            .add(_srcFee);
-        if (consumeValue <= _value) {
-            flag = true;
-            returnValue = _value.sub(consumeValue);
+            .add(data._userInput)
+            .add(data._srcFee);
+        if (data.consumeValue <= _wormholeData.wormholeFee) {
+            data.flag = true;
+            data.returnValue = _wormholeData.wormholeFee.sub(data.consumeValue);
         }
-        return (flag, _srcFee, returnValue);
+        return (data.flag, data._srcFee, data.returnValue, data.dstMaxGasForRelayer);
     }
 
-    function estimateRelayerFee(WormholeData calldata _wormholeData)
+    function estimateRelayerFee(
+        ISo.SoData calldata _soData,
+        WormholeData calldata _wormholeData,
+        LibSwap.SwapData[] calldata _swapDataDst
+        )
         external
         view
         returns (uint256)
@@ -404,7 +423,8 @@ contract WormholeFacet is Swapper {
         (uint256 _ratio, ) = _oracle.getPriceRatio(
             _wormholeData.dstWormholeChainId
         );
-        uint256 _dstFee = _wormholeData.dstMaxGasForRelayer.mul(
+        uint256 dstMaxGasForRelayer = estimateCompleteSoSwapGas(_soData, _wormholeData, _swapDataDst);
+        uint256 _dstFee = dstMaxGasForRelayer.mul(
             _wormholeData.dstMaxGasPriceInWeiForRelayer
         );
         uint256 _srcFee = _dstFee

@@ -47,7 +47,7 @@ module omniswap::wormhole_facet {
     struct WormholeData has drop, copy {
         dst_wormhole_chain_id: U16,
         dst_max_gas_price_in_wei_for_relayer: U256,
-        wormhole_fee: u64,
+        wormhole_fee: U256,
         dst_so_diamond: vector<u8>,
     }
 
@@ -75,7 +75,7 @@ module omniswap::wormhole_facet {
         let data = vector::empty<u8>();
         serde::serialize_u16(&mut data, wormhole_data.dst_wormhole_chain_id);
         serde::serialize_u256(&mut data, wormhole_data.dst_max_gas_price_in_wei_for_relayer);
-        serde::serialize_u64(&mut data, wormhole_data.wormhole_fee);
+        serde::serialize_u256(&mut data, wormhole_data.wormhole_fee);
         serde::serialize_vector_with_length(&mut data, wormhole_data.dst_so_diamond);
         data
     }
@@ -94,12 +94,12 @@ module omniswap::wormhole_facet {
         let dst_max_gas_price_in_wei_for_relayer = serde::deserialize_u256(&serde::vector_slice(data, index, index + next_len));
         index = index + next_len;
 
-        next_len = 8;
-        let wormhole_fee = serde::deserialize_u64(&serde::vector_slice(data, index, index + 8));
+        next_len = 32;
+        let wormhole_fee = serde::deserialize_u256(&serde::vector_slice(data, index, index + next_len));
         index = index + next_len;
 
         next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
-        let dst_so_diamond = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, len));
+        let dst_so_diamond = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + next_len));
         index = index + next_len;
 
         assert!(index == len, EINVALID_LENGTH);
@@ -262,9 +262,10 @@ module omniswap::wormhole_facet {
         let flag = false;
         let return_value = 0;
 
-        if (comsume_value <= wormhole_data.wormhole_fee) {
+        let wormhole_fee = u256::as_u64(wormhole_data.wormhole_fee);
+        if (comsume_value <= wormhole_fee) {
             flag = true;
-            return_value = wormhole_data.wormhole_fee - comsume_value;
+            return_value = wormhole_fee - comsume_value;
         };
         (flag, src_fee, return_value, dst_max_gas)
     }
@@ -387,12 +388,12 @@ module omniswap::wormhole_facet {
         let wormhole_data = WormholeData {
             dst_wormhole_chain_id: u16::from_u64(1),
             dst_max_gas_price_in_wei_for_relayer: u256::from_u64(10000),
-            wormhole_fee: 2389,
+            wormhole_fee: u256::from_u64(2389),
             dst_so_diamond: x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
         };
         let encode_data = encode_wormhole_data(wormhole_data);
 
-        let data = x"00010000000000000000000000000000000000000000000000000000000000002710000000000000095500000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af";
+        let data = x"00010000000000000000000000000000000000000000000000000000000000002710000000000000000000000000000000000000000000000000000000000000095500000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af";
         assert!(data == encode_data, 1);
         assert!(decode_wormhole_data(&data) == wormhole_data, 1);
     }
