@@ -238,10 +238,6 @@ contract WormholeFacet is Swapper {
         }
 
         uint256 amount = LibAsset.getOwnBalance(_tokenAddress);
-        uint256 soFee = getSoFee(amount);
-        if (soFee < amount) {
-            amount = amount.sub(soFee);
-        }
         require(amount > 0, "amount > 0");
 
         IWETH _weth = IWormholeBridge(bridge).WETH();
@@ -249,6 +245,11 @@ contract WormholeFacet is Swapper {
         if (_isOriginChain && address(_weth) == _tokenAddress) {
             _weth.withdraw(amount);
             _tokenAddress = LibAsset.NATIVE_ASSETID;
+        }
+
+        uint256 soFee = getSoFee(amount);
+        if (soFee > 0 && soFee < amount) {
+            amount = amount.sub(soFee);
         }
 
         if (_swapDataDst.length == 0) {
