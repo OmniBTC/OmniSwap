@@ -74,6 +74,50 @@
                 "Decimal": 18,
                 "TokenAddress": "0x8337e5eF98af25012e1B39CD996772143f6c5fDf",
                 "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x0ecacbE08B4E2AA71B8f71ECe35A7EbF815607E8"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x93056503b159fa416Ed5e8eF3907e2F01CAD1eDD",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x662046742e926D1Ffa5Ffce198bB025b2df0bDEe"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x2c0C13029742a116D83e3581B85438Af821B8053",
+                "TokenName": "AAVE"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x6B41b85629Bc293F5e00A2EEfB50D0B1Bc35b367"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0xB09CC68675349e13cc76921154940C7A4b19cf60",
+                "TokenName": "DAI"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0xb3841879399923B35101FB033aa936199E5255E1"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x215B7e1dFC3A1757016cF8A531cF929F2b3FC4B1",
+                "TokenName": "UNI"
             }
         ]
     },
@@ -158,6 +202,50 @@
                 "Decimal": 6,
                 "TokenAddress": "0x71b7E25BE7879E042E55FBabD4037De116ae07e0",
                 "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x93056503b159fa416Ed5e8eF3907e2F01CAD1eDD"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x0ecacbE08B4E2AA71B8f71ECe35A7EbF815607E8",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x2c0C13029742a116D83e3581B85438Af821B8053"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x662046742e926D1Ffa5Ffce198bB025b2df0bDEe",
+                "TokenName": "AAVE"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0xB09CC68675349e13cc76921154940C7A4b19cf60"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x6B41b85629Bc293F5e00A2EEfB50D0B1Bc35b367",
+                "TokenName": "DAI"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x215B7e1dFC3A1757016cF8A531cF929F2b3FC4B1"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0xb3841879399923B35101FB033aa936199E5255E1",
+                "TokenName": "UNI"
             }
         ]
     }
