@@ -175,7 +175,6 @@ contract WormholeFacet is Swapper {
             _wormholeDataNo,
             _cache._bridgeAddress,
             _cache._bridgeAmount,
-            _cache._fee,
             _cache._payload
         );
 
@@ -459,7 +458,7 @@ contract WormholeFacet is Swapper {
         return _srcFee;
     }
 
-    function getWormholeMessageFee() external view returns (uint256) {
+    function getWormholeMessageFee() public view returns (uint256) {
         Storage storage s = getStorage();
         return IWormholeBridge(s.tokenBridge).wormhole().messageFee();
     }
@@ -624,7 +623,6 @@ contract WormholeFacet is Swapper {
         NormalizedWormholeData calldata _wormholeData,
         address _token,
         uint256 _amount,
-        uint256 _srcFee,
         bytes memory _payload
     ) internal {
         Storage storage s = getStorage();
@@ -640,14 +638,15 @@ contract WormholeFacet is Swapper {
         }
 
         uint64 sequence;
+        uint256 wormhole_msg_fee = getWormholeMessageFee();
         if (LibAsset.isNativeAsset(_token)) {
             sequence = IWormholeBridge(_bridge).wrapAndTransferETHWithPayload{
-                value: msg.value.sub(_srcFee)
+                value: _amount + wormhole_msg_fee
             }(_wormholeData.dstWormholeChainId, dstSoDiamond, 0, _payload);
         } else {
             LibAsset.maxApproveERC20(IERC20(_token), _bridge, _amount);
             sequence = IWormholeBridge(_bridge).transferTokensWithPayload{
-                value: msg.value
+                value: wormhole_msg_fee
             }(
                 _token,
                 _amount,
