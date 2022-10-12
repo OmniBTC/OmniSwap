@@ -1,6 +1,6 @@
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeStargateV1, MockToken, LibCorrectSwapV1, \
-    WormholeFacet, LibSoFeeWormholeV1, web3
+    WormholeFacet, SerdeFacet, LibSoFeeWormholeV1, web3
 from brownie.network import priority_fee
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_native_oracle_address, get_oracles, get_wormhole_actual_reserve, get_wormhole_bridge, \
@@ -58,7 +58,8 @@ def initialize_cut(account, so_diamond):
         "DiamondCutFacet", so_diamond.address, DiamondCutFacet.abi)
     register_funcs = {}
     register_contract = [DiamondLoupeFacet, DexManagerFacet, OwnershipFacet,
-                         StargateFacet, WormholeFacet, WithdrawFacet, GenericSwapFacet]
+                         StargateFacet, WormholeFacet, WithdrawFacet, GenericSwapFacet,
+                         SerdeFacet]
     register_data = []
     for reg in register_contract:
         print(f"Initialize {reg._name}...")

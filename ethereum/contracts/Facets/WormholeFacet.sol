@@ -41,6 +41,7 @@ contract WormholeFacet is Swapper {
         uint256 baseGas,
         uint256 gasPerBytes
     );
+    event TransferFromWormhole(uint16 srcWormholeChainId, uint16 dstWormholeChainId, uint64 sequence);
 
     /// Types ///
     struct NormalizedWormholeData {
@@ -637,13 +638,14 @@ contract WormholeFacet is Swapper {
             dstSoDiamond = _wormholeData.dstSoDiamond.toBytes32(0);
         }
 
+        uint64 sequence;
         if (LibAsset.isNativeAsset(_token)) {
-            IWormholeBridge(_bridge).wrapAndTransferETHWithPayload{
+            sequence = IWormholeBridge(_bridge).wrapAndTransferETHWithPayload{
                 value: msg.value.sub(_srcFee)
             }(_wormholeData.dstWormholeChainId, dstSoDiamond, 0, _payload);
         } else {
             LibAsset.maxApproveERC20(IERC20(_token), _bridge, _amount);
-            IWormholeBridge(_bridge).transferTokensWithPayload{
+            sequence = IWormholeBridge(_bridge).transferTokensWithPayload{
                 value: msg.value
             }(
                 _token,
@@ -659,6 +661,8 @@ contract WormholeFacet is Swapper {
         if (_dust > 0) {
             LibAsset.transferAsset(_token, payable(msg.sender), _dust);
         }
+
+        emit TransferFromWormhole(s.srcWormholeChainId, _wormholeData.dstWormholeChainId, sequence);
     }
 
     /// Private Methods ///

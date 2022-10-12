@@ -35,7 +35,7 @@ def get_receive_native_token_name(net):
         return "wavax"
 
 
-def so_swap_via_wormhole(so_data, dst_diamond_address: str = "", dst_chainid: int = 0, p: Project = None):
+def so_swap_via_wormhole(so_data: SoData, dst_diamond_address: str = "", dst_chainid: int = 0, p: Project = None):
     account = get_account()
 
     proxy_diamond = Contract.from_abi(
@@ -46,17 +46,15 @@ def so_swap_via_wormhole(so_data, dst_diamond_address: str = "", dst_chainid: in
     usdt_address = "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
     usdt = Contract.from_abi("IERC20", usdt_address, p.interface.IERC20.abi)
     usdt.approve(proxy_diamond.address, amount, {"from": account})
-
     so_data = so_data.format_to_contract()
-    # test calculated fee
-    dstMaxGasForRelayer = 0
     dstMaxGasPriceInWeiForRelayer = 25000000000
-    wormhole_data = [dst_chainid, dstMaxGasForRelayer,
-                     dstMaxGasPriceInWeiForRelayer, dst_diamond_address]
+    wormhole_data = [dst_chainid,
+                     dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
     # value = wormhole_fee + input_eth_amount + relayer_fee
-    relayer_fee = proxy_diamond.estimateRelayerFee(wormhole_data)
+    relayer_fee = proxy_diamond.estimateRelayerFee(so_data, wormhole_data, dst_swap)
     wormhole_fee = proxy_diamond.getWormholeMessageFee()
     msg_value = wormhole_fee + relayer_fee
+    wormhole_data[2] = msg_value
     proxy_diamond.soSwapViaWormhole(
         so_data, src_swap, wormhole_data, dst_swap, {'from': account, 'value': msg_value})
 

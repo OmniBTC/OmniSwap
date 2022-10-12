@@ -8,7 +8,7 @@ from brownie.project.main import Project
 from scripts.helpful_scripts import get_account, get_wormhole_chainid, zero_address, combine_bytes, \
     padding_to_bytes, Session, get_token_address, get_token_decimal, get_chain_id, get_stargate_pool_id, \
     get_stargate_chain_id, \
-    get_account_address, get_swap_info
+    get_account_address, get_swap_info, to_hex_str
 from random import choice
 
 uniswap_v3_fee_decimal = 1e6
@@ -31,7 +31,7 @@ def get_dst_chainid(p: Project = None):
     return get_wormhole_chainid()
 
 
-def token_appove(token_name: str, aprrove_address: str, amount: int, p: Project = None):
+def token_approve(token_name: str, aprrove_address: str, amount: int, p: Project = None):
     token = Contract.from_abi(token_name.upper(),
                               get_token_address(token_name),
                               p.interface.IERC20.abi
@@ -172,12 +172,12 @@ class SoData(View):
         Returns:
             SoData: Information for recording and tracking cross-chain transactions
         """
-        return [self.transactionId,
-                self.receiver,
+        return [to_hex_str(self.transactionId),
+                to_hex_str(self.receiver),
                 self.sourceChainId,
-                self.sendingAssetId,
+                to_hex_str(self.sendingAssetId),
                 self.destinationChainId,
-                self.receivingAssetId,
+                to_hex_str(self.receivingAssetId),
                 self.amount]
 
     @staticmethod
@@ -257,7 +257,7 @@ class StargateData(View):
                 self.dstStargatePoolId,
                 self.minAmount,
                 self.dstGasForSgReceive,
-                self.dstSoDiamond]
+                to_hex_str(self.dstSoDiamond)]
 
     @classmethod
     def create(cls, dstGasForSgReceive: int, srcStargateToken: str, dstStargateToken: str, ):
@@ -376,9 +376,9 @@ class SwapData(View):
                  fromAmount,
                  callData,
                  swapType: str = None,
-                 swapFuncName: str= None,
-                 swapPath: list= None,
-                 swapEncodePath: list= None
+                 swapFuncName: str = None,
+                 swapPath: list = None,
+                 swapEncodePath: list = None
                  ):
         # The swap address
         self.callTo = callTo
@@ -399,12 +399,12 @@ class SwapData(View):
 
     def format_to_contract(self):
         """Returns the data used to pass into the contract interface"""
-        return [self.callTo,
-                self.approveTo,
-                self.sendingAssetId,
-                self.receivingAssetId,
+        return [to_hex_str(self.callTo),
+                to_hex_str(self.approveTo),
+                to_hex_str(self.sendingAssetId),
+                to_hex_str(self.receivingAssetId),
                 self.fromAmount,
-                self.callData]
+                to_hex_str(self.callData)]
 
     @classmethod
     def create(cls,
@@ -642,6 +642,28 @@ class SwapData(View):
         return amountIn
 
 
+class WormholeData(View):
+
+    def __init__(self,
+                 dstWormholeChainId: int,
+                 dstMaxGasPriceInWeiForRelayer: int,
+                 wormholeFee: int,
+                 dstSoDiamond: str
+                 ):
+        self.dstWormholeChainId = dstWormholeChainId
+        self.dstMaxGasPriceInWeiForRelayer = dstMaxGasPriceInWeiForRelayer
+        self.wormholeFee = wormholeFee
+        self.dstSoDiamond = dstSoDiamond
+
+    def format_to_contract(self):
+        """Returns the data used to pass into the contract interface"""
+        return [self.dstWormholeChainId,
+                self.dstMaxGasPriceInWeiForRelayer,
+                self.wormholeFee,
+                to_hex_str(self.dstSoDiamond)
+                ]
+
+
 def estimate_for_gas(so_data: SoData, stargate_cross_token: str, dst_swap_data: SwapData, p: Project = None):
     """estimate gas for sgReceive"""
     account = get_account()
@@ -788,7 +810,7 @@ def cross_swap_via_wormhole(
         print("DestinationSwapData:\n", dst_swap_data)
 
     if sourceTokenName != "eth":
-        src_session.put_task(token_appove,
+        src_session.put_task(token_approve,
                              args=(sourceTokenName,
                                    src_session.put_task(get_contract_address, args=(
                                        "SoDiamond",), with_project=True),
@@ -898,7 +920,7 @@ def cross_swap_via_stargate(
         print("DestinationSwapData:\n", dst_swap_data)
 
     if sourceTokenName != "eth":
-        src_session.put_task(token_appove,
+        src_session.put_task(token_approve,
                              args=(sourceTokenName,
                                    src_session.put_task(get_contract_address, args=(
                                        "SoDiamond",), with_project=True),
@@ -947,7 +969,7 @@ def single_swap(
                                          )
     print("SourceSwapData:\n", src_swap_data)
     if sendingTokenName != "eth":
-        src_session.put_task(token_appove,
+        src_session.put_task(token_approve,
                              args=(sendingTokenName,
                                    src_session.put_task(get_contract_address, args=(
                                        "SoDiamond",), with_project=True),

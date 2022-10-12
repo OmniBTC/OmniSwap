@@ -24,16 +24,18 @@ LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "matic-fork",
 ]
 
+
 def judge_hex_str(data: str):
     if not data.startswith("0x"):
         return False
     if len(data) % 2 != 0:
         return False
     try:
-        web3.toInt(data)
+        web3.toInt(hexstr=data)
         return True
     except:
         return False
+
 
 def to_hex_str(data: str):
     if judge_hex_str(data):
