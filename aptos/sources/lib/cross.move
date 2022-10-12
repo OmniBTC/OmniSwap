@@ -203,6 +203,47 @@ module omniswap::cross {
         swap_data
     }
 
+    #[test_only]
+    public fun construct_swap_data(
+        call_to: vector<u8>,
+        approve_to: vector<u8>,
+        sending_asset_id: vector<u8>,
+        receiving_asset_id: vector<u8>,
+        from_amount: U256,
+        call_data: vector<u8>
+    ): NormalizedSwapData {
+        NormalizedSwapData {
+                call_to,
+                approve_to,
+                sending_asset_id,
+                receiving_asset_id,
+                from_amount,
+                // liquidswap curve
+                call_data
+            }
+    }
+
+    #[test_only]
+    public fun construct_so_data(
+        transaction_id: vector<u8>,
+        receiver: vector<u8>,
+        source_chain_id: U16,
+        sending_asset_id: vector<u8>,
+        destination_chain_id: U16,
+        receiving_asset_id: vector<u8>,
+        amount: U256
+    ): NormalizedSoData {
+        NormalizedSoData {
+            transaction_id,
+            receiver,
+            source_chain_id,
+            sending_asset_id,
+            destination_chain_id,
+            receiving_asset_id,
+            amount
+        }
+    }
+
     #[test]
     fun test_serde_so_data() {
         let so_data = NormalizedSoData {

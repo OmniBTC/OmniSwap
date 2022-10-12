@@ -383,6 +383,21 @@ module omniswap::wormhole_facet {
         }
     }
 
+    #[test_only]
+    fun construct_normalized_wormhole_data(
+        dst_wormhole_chain_id: U16,
+        dst_max_gas_price_in_wei_for_relayer: U256,
+        wormhole_fee: U256,
+        dst_so_diamond: vector<u8>
+    ): NormalizedWormholeData {
+        NormalizedWormholeData {
+            dst_wormhole_chain_id,
+            dst_max_gas_price_in_wei_for_relayer,
+            wormhole_fee,
+            dst_so_diamond,
+        }
+    }
+
     #[test]
     fun test_serde_wormhole_data() {
         let wormhole_data = NormalizedWormholeData {

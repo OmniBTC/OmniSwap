@@ -68,7 +68,7 @@ module omniswap::serde {
     }
 
     public fun serialize_type<T>(buf: &mut vector<u8>) {
-        serialize_vector_with_length(buf,  *string::bytes(&type_info::type_name<T>()));
+        serialize_vector(buf,  *string::bytes(&type_info::type_name<T>()));
     }
 
     public fun serialize_vector_with_length(buf: &mut vector<u8>, v: vector<u8>) {
