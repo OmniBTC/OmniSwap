@@ -1,7 +1,7 @@
 {
     "avax-test": {
         "ChainId": 43113,
-        "SoDiamond": "0x85211a005319d407EC6479B29e183e901FFc0155",
+        "SoDiamond": "0xDEE3a4fA877658E7e5efD4A9332de1b673ABF75f",
         "StargateChainId": 10106,
         "StargatePool": [
             {
@@ -123,7 +123,7 @@
     },
     "bsc-test": {
         "ChainId": 97,
-        "SoDiamond": "0x10D2B31d8058Bc02A51950b60F72335EBfb07Cf3",
+        "SoDiamond": "0x379838Ab3cab29F5BdA0FFD62547c90E8AeB6Ecc",
         "StargateChainId": 10102,
         "StargatePool": [
             {
