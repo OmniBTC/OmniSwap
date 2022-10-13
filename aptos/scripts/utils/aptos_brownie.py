@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Union, List
 
+from aptos_sdk import account
 from aptos_sdk.bcs import Deserializer, Serializer
 from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload
 from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U128Tag, U64Tag, U8Tag, BoolTag
@@ -193,7 +194,8 @@ class EntryFunctionABI:
 class AptosPackage:
     def __init__(self,
                  project_path: Union[Path, str] = Path.cwd(),
-                 network: str = "aptos-testnet"
+                 network: str = "aptos-testnet",
+                 is_compile: bool = True
                  ):
         if isinstance(project_path, Path):
             self.project_path = project_path
@@ -249,6 +251,10 @@ class AptosPackage:
                     else:
                         self.replace_address += f',{k}={self.account.account_address}'
 
+        if is_compile:
+            self.compile()
+
+    def compile(self):
         # # # # # Compile
         view = "Compile"
         print("-" * 50 + view + "-" * 50)
@@ -299,7 +305,7 @@ class AptosPackage:
         # print(f"Publish package: {self.package_name} Success.\n")
         view = "Publish package"
         print("-" * 50 + view + "-" * 50)
-        compile_cmd = f"aptos move publish --assume-yes {self.replace_address} " \
+        compile_cmd = f"aptos move publish --assume-yes {self.replace_address} --package-dir {self.project_path} " \
                       f"--url {self.network_config['node_url']} " \
                       f"--private-key {self.account.private_key}"
         os.system(compile_cmd)
@@ -379,10 +385,25 @@ class AptosPackage:
         ), f"{response.text} - {txn_hash}"
         return response.json()
 
+    def create_random_account(self):
+        acc = account.Account.generate()
+        try:
+            self.faucet_client.fund_account(str(acc.account_address), int(100 * 1e8))
+        except:
+            pass
+        print(f"Private key: {acc.private_key}")
+        print(f"Address: {acc.account_address}")
+        try:
+            print(f"APT: {self.rest_client.account_balance(str(acc.account_address))}")
+        except:
+            print(f"APT: 0")
+        return acc
+
 
 if __name__ == "__main__":
     # # # # # Example
     omniswap = AptosPackage("../..")
+    omniswap.create_random_account()
     omniswap.publish_package()
     try:
         # Maybe dump initialize
