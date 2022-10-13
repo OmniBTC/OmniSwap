@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Union, List
 
 from aptos_sdk import account
+from aptos_sdk.account_address import AccountAddress
 from aptos_sdk.bcs import Deserializer, Serializer
 from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload
 from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U128Tag, U64Tag, U8Tag, BoolTag
@@ -385,12 +386,37 @@ class AptosPackage:
         ), f"{response.text} - {txn_hash}"
         return response.json()
 
+    def transfer(
+        self, sender: Account, recipient: AccountAddress, amount: int
+    ) -> str:
+        transaction_arguments = [
+            TransactionArgument(recipient, Serializer.struct),
+            TransactionArgument(amount, Serializer.u64),
+        ]
+
+        payload = EntryFunction.natural(
+            "0x1::aptos_account",
+            "transfer",
+            [],
+            transaction_arguments,
+        )
+
+        signed_transaction = self.rest_client.create_single_signer_bcs_transaction(
+            sender, TransactionPayload(payload)
+        )
+        return self.rest_client.submit_bcs_transaction(signed_transaction)
+
     def create_random_account(self):
+        assert self.network in ["aptos-devnet", "aptos-testnet"]
         acc = account.Account.generate()
         try:
             self.faucet_client.fund_account(str(acc.account_address), int(100 * 1e8))
         except:
-            pass
+            b = self.rest_client.account_balance(str(self.account.account_address))
+            amount = max(int(int(float(b) / 1e8) * 1e8 - 1e8), 0)
+            if amount > 0:
+                txn_hash = self.transfer(self.account, acc.account_address, amount)
+                self.wait_for_transaction(txn_hash)
         print(f"Private key: {acc.private_key}")
         print(f"Address: {acc.account_address}")
         try:
@@ -404,10 +430,10 @@ if __name__ == "__main__":
     # # # # # Example
     omniswap = AptosPackage("../..")
     omniswap.create_random_account()
-    omniswap.publish_package()
-    try:
-        # Maybe dump initialize
-        omniswap["so_fee_wormhole_v1::initialize"]()
-    except:
-        pass
-    omniswap["so_fee_wormhole_v1::set_price_ratio"](1, 1)
+    # omniswap.publish_package()
+    # try:
+    #     # Maybe dump initialize
+    #     omniswap["so_fee_wormhole_v1::initialize"]()
+    # except:
+    #     pass
+    # omniswap["so_fee_wormhole_v1::set_price_ratio"](1, 1)

@@ -19,6 +19,6 @@ def main():
     # # wormhole
     try:
         # Maybe has initialized
-        package["wormhole_facet::init_wormhole"](package.network_config["wormhole"]["id"])
+        package["wormhole_facet::init_wormhole"](package.network_config["wormhole"]["chainid"])
     except:
         pass

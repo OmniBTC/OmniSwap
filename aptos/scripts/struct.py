@@ -1,7 +1,19 @@
 import json
 from typing import List
+import hashlib
 
 from brownie import web3, network
+
+
+def generate_aptos_coin_address_in_wormhole(data: str) -> str:
+    """
+    Generate token address
+    :param data: eg: 0x1::aptos_coin::AptosCoin
+    :return: hex str
+    """
+    hasher = hashlib.sha3_256()
+    hasher.update(bytes(data, "ascii"))
+    return "0x" + hasher.digest().hex()
 
 
 def change_network(dst_net):

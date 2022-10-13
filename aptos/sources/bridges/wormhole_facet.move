@@ -25,6 +25,8 @@ module omniswap::wormhole_facet {
     use omniswap::so_fee_wormhole_v1;
     use wormhole::state;
     use omniswap::swap::right_token;
+    use aptos_std::event::EventHandle;
+    use aptos_std::event;
 
     const RAY: u64 = 100000000;
 
@@ -32,9 +34,9 @@ module omniswap::wormhole_facet {
 
     const NOT_DEPLOYED_ADDRESS: u64 = 0x00;
 
-    const HAS_initialize: u64 = 0x01;
+    const HAS_INITIALIZE: u64 = 0x01;
 
-    const NOT_initialize: u64 = 0x02;
+    const NOT_INITIALIZE: u64 = 0x02;
 
     const EINVALID_LENGTH: u64 = 0x03;
 
@@ -61,7 +63,14 @@ module omniswap::wormhole_facet {
         actual_reserve: u64,
         estimate_reserve: u64,
         dst_base_gas: Table<U16, U256>,
-        dst_gas_per_bytes: Table<U16, U256>
+        dst_gas_per_bytes: Table<U16, U256>,
+        so_swap_events: EventHandle<TransferFromWormholeEvent>
+    }
+
+    struct TransferFromWormholeEvent has store, drop {
+        src_wormhole_chain_id: U16,
+        dst_wormhole_chain_id: U16,
+        sequence: u64
     }
 
 
@@ -177,7 +186,7 @@ module omniswap::wormhole_facet {
 
     public entry fun init_wormhole(account: &signer, wormhole_chain_id: u64) {
         assert!(signer::address_of(account) == @omniswap, NOT_DEPLOYED_ADDRESS);
-        assert!(!is_initialize(), HAS_initialize);
+        assert!(!is_initialize(), HAS_INITIALIZE);
 
         let (resource_signer, _) = account::create_resource_account(account, SEED);
 
@@ -188,7 +197,8 @@ module omniswap::wormhole_facet {
                 actual_reserve: 0,
                 estimate_reserve: 0,
                 dst_base_gas: table::new(),
-                dst_gas_per_bytes: table::new()
+                dst_gas_per_bytes: table::new(),
+                so_swap_events: account::new_event_handle(&resource_signer)
             });
     }
 
@@ -197,7 +207,7 @@ module omniswap::wormhole_facet {
         actual_reserve: u64,
         estimate_reserve: u64
     ) acquires Storage {
-        assert!(is_initialize(), NOT_initialize);
+        assert!(is_initialize(), NOT_INITIALIZE);
         assert!(is_approve(signer::address_of(account)), EINVALID_ACCOUNT);
 
         let s = borrow_global_mut<Storage>(get_resource_address());
@@ -211,7 +221,7 @@ module omniswap::wormhole_facet {
         base_gas: vector<u8>,
         gas_per_bytes: vector<u8>
     ) acquires Storage {
-        assert!(is_initialize(), NOT_initialize);
+        assert!(is_initialize(), NOT_INITIALIZE);
         assert!(is_approve(signer::address_of(account)), EINVALID_ACCOUNT);
         let s = borrow_global_mut<Storage>(get_resource_address());
 
@@ -282,7 +292,7 @@ module omniswap::wormhole_facet {
         wormhole_data: vector<u8>,
         swap_data_dst: vector<u8>
     ) acquires EmitterManager, Storage {
-        assert!(is_initialize(), NOT_initialize);
+        assert!(is_initialize(), NOT_INITIALIZE);
         let emitter_cap = &borrow_global<EmitterManager>(get_resource_address()).emitter_cap;
 
         let so_data = cross::decode_normalized_so_data(&mut so_data);
@@ -307,11 +317,12 @@ module omniswap::wormhole_facet {
 
         let coin_aptos = coin::withdraw<AptosCoin>(account, fee);
 
+        let sequence: u64;
         if (vector::length(&swap_data_src) > 0) {
             let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
             if (vector::length(&swap_data_src) == 1) {
                 let coin_y = swap::swap_two_by_account<X, Y>(account, swap_data_src);
-                transfer_tokens::transfer_tokens_with_payload(
+                sequence = transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_y,
                     coin_aptos,
@@ -322,7 +333,7 @@ module omniswap::wormhole_facet {
                 );
             }else if (vector::length(&swap_data_src) == 2) {
                 let coin_z = swap::swap_three_by_account<X, Y, Z>(account, swap_data_src);
-                transfer_tokens::transfer_tokens_with_payload(
+                sequence = transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_z,
                     coin_aptos,
@@ -333,7 +344,7 @@ module omniswap::wormhole_facet {
                 );
             }else if (vector::length(&swap_data_src) == 3) {
                 let coin_m = swap::swap_four_by_account<X, Y, Z, M>(account, swap_data_src);
-                transfer_tokens::transfer_tokens_with_payload(
+                sequence = transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_m,
                     coin_aptos,
@@ -348,7 +359,7 @@ module omniswap::wormhole_facet {
         }else {
             let coin_val = u256::as_u64(cross::so_amount(so_data));
             let coin_x = coin::withdraw<X>(account, coin_val);
-            transfer_tokens::transfer_tokens_with_payload(
+            sequence = transfer_tokens::transfer_tokens_with_payload(
                 emitter_cap,
                 coin_x,
                 coin_aptos,
@@ -358,10 +369,19 @@ module omniswap::wormhole_facet {
                 payload
             );
         };
+        let s = borrow_global_mut<Storage>(get_resource_address());
+        event::emit_event<TransferFromWormholeEvent>(
+            &mut s.so_swap_events,
+            TransferFromWormholeEvent{
+                src_wormhole_chain_id: s.src_wormhole_chain_id,
+                dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
+                sequence
+            }
+        );
     }
 
     public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires EmitterManager {
-        assert!(is_initialize(), NOT_initialize);
+        assert!(is_initialize(), NOT_INITIALIZE);
 
         let emitter_cap = &borrow_global<EmitterManager>(get_resource_address()).emitter_cap;
         let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
