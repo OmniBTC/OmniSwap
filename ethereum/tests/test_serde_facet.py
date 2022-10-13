@@ -18,7 +18,7 @@ def wormholeFacet():
     return account.deploy(WormholeFacet)
 
 def get_aptos_bytes(data: bytes) -> str:
-    return str("0x") + str(data.hex())
+    return f"0x{data.hex()}"
 
 
 def test_serde_so_data(serdeFacet):

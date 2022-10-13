@@ -133,11 +133,14 @@ contract WormholeFacet is Swapper {
                 _cache.returnValue
             );
         }
-        LibAsset.transferAsset(
-            LibAsset.NATIVE_ASSETID,
-            payable(LibDiamond.contractOwner()),
-            _cache._fee
-        );
+
+        if (_cache._fee > 0) {
+            LibAsset.transferAsset(
+                LibAsset.NATIVE_ASSETID,
+                payable(LibDiamond.contractOwner()),
+                _cache._fee
+            );
+        }
         if (!LibAsset.isNativeAsset(_soData.sendingAssetId)) {
             LibAsset.depositAsset(_soData.sendingAssetId, _soData.amount);
         }
@@ -599,9 +602,9 @@ contract WormholeFacet is Swapper {
         );
         index += nextLen;
 
+        nextLen = uint256(wormholeData.toUint64(index));
+        index += 8;
         if (index < wormholeData.length) {
-            nextLen = uint256(wormholeData.toUint64(index));
-            index += 8;
             data.swapDataDst = LibCross.decodeNormalizedSwapData(
                 wormholeData.slice(index, nextLen)
             );

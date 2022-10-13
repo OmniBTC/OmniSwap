@@ -59,18 +59,22 @@ def soSwapViaWormhole(so_data,
     proxy_diamond = Contract.from_abi(
         "WormholeFacet", p["SoDiamond"][-1].address, p["WormholeFacet"].abi)
 
-    relayer_fee = proxy_diamond.estimateRelayerFee(wormhole_data)
+    relayer_fee = proxy_diamond.estimateRelayerFee(
+        so_data, wormhole_data, dst_swap_data)
     wormhole_fee = proxy_diamond.getWormholeMessageFee()
-    print(f"wormhole cross fee: {wormhole_fee / get_token_decimal('eth')}, "
-          f"relayer fee: {relayer_fee / get_token_decimal('eth')}, "
-          f"input eth: {input_eth_amount / get_token_decimal('eth')}")
+    msg_value = wormhole_fee + relayer_fee + input_eth_amount
+    wormhole_data[2] = msg_value
+    print(f"wormhole cross fee: {wormhole_fee / get_token_decimal('eth')} ether\n"
+          f"relayer fee: {relayer_fee / get_token_decimal('eth')} ether\n"
+          f"input eth: {input_eth_amount / get_token_decimal('eth')} ether\n"
+          f"msg value: {msg_value/ get_token_decimal('eth')} ether")
     proxy_diamond.soSwapViaWormhole(
         so_data,
         src_swap_data,
         wormhole_data,
         dst_swap_data,
-        {'from': get_account(), 'value': int(
-            relayer_fee + wormhole_fee + input_eth_amount)}
+        {'from': get_account(), 'value': int(msg_value),
+         'gas_limit': 1000000, 'allow_revert': True}
     )
 
 
@@ -751,7 +755,7 @@ def cross_swap_via_wormhole(
         destinationSwapFunc,
         destinationSwapPath,
 ):
-    print(f"{'-' * 100}\nSwap from: network {src_session.net}, token {sourceTokenName} "
+    print(f"{'-' * 100}\nSwap from: network {src_session.net}, token: {sourceTokenName}\n"
           f"{dst_session.net}, token: {destinationTokenName}")
     src_diamond_address = src_session.put_task(
         get_contract_address, args=("SoDiamond",), with_project=True)
@@ -793,10 +797,9 @@ def cross_swap_via_wormhole(
 
     dst_chainid = dst_session.put_task(get_dst_chainid, with_project=True)
 
-    relayer_gas = 0
-    relayer_gas_price = 25000000000  # todo: get gas price
-    wormhole_data = [dst_chainid, relayer_gas,
-                     relayer_gas_price, dst_diamond_address]
+    dstMaxGasPriceInWeiForRelayer = 25000000000  # todo: get gas price
+    wormhole_data = [dst_chainid, dstMaxGasPriceInWeiForRelayer,
+                     0, dst_diamond_address]
 
     if dst_swap_data is not None:
         dst_swap_data.callData = dst_session.put_task(SwapData.reset_min_amount,
