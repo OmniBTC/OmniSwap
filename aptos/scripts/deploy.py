@@ -4,7 +4,7 @@ from scripts.utils import aptos_brownie
 def main():
     # deploy
     package = aptos_brownie.AptosPackage(
-        project_path="../",
+        project_path=".",
         network="aptos-testnet"
     )
     package.publish_package()
@@ -22,8 +22,3 @@ def main():
         package["wormhole_facet::init_wormhole"](package.network_config["wormhole"]["id"])
     except:
         pass
-    print(list(package.abis.keys()))
-
-
-if __name__ == "__main__":
-    main()

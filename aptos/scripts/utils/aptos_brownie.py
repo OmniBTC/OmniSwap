@@ -37,7 +37,7 @@ class VectorTag(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     def serialize(self, serializer: Serializer):
-        serializer.sequence(self.value, Tag.serialize)
+        serializer.sequence(self.value, Serializer.struct)
 
 
 class VectorBoolTag(VectorTag):

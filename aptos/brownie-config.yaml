@@ -19,3 +19,6 @@ networks:
       liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
     wormhole:
       id: 22
+    SoDiamond:
+      bsc-test: "0x7c9bccAdF247B4E0B30DCE87E777B74070a23AcC"
+

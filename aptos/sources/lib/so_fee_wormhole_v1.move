@@ -60,8 +60,11 @@ module omniswap::so_fee_wormhole_v1 {
         let manager = borrow_global_mut<PriceManager>(get_resource_address());
 
         let chain_id = u16::from_u64(chain_id);
-        assert!(table::contains(&manager.price_data, chain_id), EINVALID_CHAIN_ID);
-        table::borrow(&manager.price_data, chain_id).current_price_ratio
+        if (table::contains(&manager.price_data, chain_id)) {
+            table::borrow(&manager.price_data, chain_id).current_price_ratio
+        }else {
+            0
+        }
     }
 
     public entry fun update_price_ratio(chain_id: u64): u64 acquires PriceManager {
