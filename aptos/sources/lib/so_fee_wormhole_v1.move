@@ -47,7 +47,7 @@ module omniswap::so_fee_wormhole_v1 {
         account == @omniswap
     }
 
-    public entry fun initiliaze(account: &signer) {
+    public entry fun initialize(account: &signer) {
         assert!(signer::address_of(account) == @omniswap, NOT_DEPLOYED_ADDRESS);
         assert!(!is_initialize(), HAS_initialize);
 

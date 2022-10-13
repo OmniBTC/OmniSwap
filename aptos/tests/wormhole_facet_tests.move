@@ -6,7 +6,7 @@ module omniswap::wormhole_facet_tests {
     use omniswap::u16;
     use omniswap::u256;
     use std::vector;
-    use omniswap::so_fee_wormhole_v1::{initiliaze, set_price_ratio};
+    use omniswap::so_fee_wormhole_v1::{initialize, set_price_ratio};
     use omniswap::serde::{serialize_u256, serialize_address};
     use aptos_framework::coin;
     use std::signer;
@@ -47,7 +47,7 @@ module omniswap::wormhole_facet_tests {
         // init wormhole tokenbridge
         token_bridge::init_test(deployer);
         // init wormhole so fee
-        initiliaze(omniswap);
+        initialize(omniswap);
         set_price_ratio(omniswap, 1, 1 * RAY);
         set_price_ratio(omniswap, 2, 1 * RAY);
         // init wormhole facet
