@@ -29,7 +29,7 @@ def main():
     wormhole = Contract.from_abi(wormhole_name, so_diamond_address, p[wormhole_name].abi)
 
     # construct data
-    wormhole_data = [4, 1, 0, "0x379838Ab3cab29F5BdA0FFD62547c90E8AeB6Ecc"]
+    wormhole_data = [4, 1, 100000000, "0x379838Ab3cab29F5BdA0FFD62547c90E8AeB6Ecc"]
     normal_wormhole_data = hex_str_to_vector_u8(str(wormhole.encodeNormalizedWormholeData(wormhole_data)))
     so_data = SoData(
         transactionId="0x4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",

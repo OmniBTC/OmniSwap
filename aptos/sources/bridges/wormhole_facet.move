@@ -42,7 +42,7 @@ module omniswap::wormhole_facet {
 
     const EINVALID_CHAIN_ID: u64 = 0x05;
 
-    const CHECK_FEE_FAIL: u64 = 0x05;
+    const CHECK_FEE_FAIL: u64 = 0x06;
 
 
     struct NormalizedWormholeData has drop, copy {
@@ -228,10 +228,13 @@ module omniswap::wormhole_facet {
     ): U256 acquires Storage {
         let len = 32 + 32 + 1 + vector::length(&so_data) + 1 + vector::length(&swap_data_dst);
         let s = borrow_global<Storage>(get_resource_address());
-        assert!(table::contains(&s.dst_base_gas, wormhole_data.dst_wormhole_chain_id), EINVALID_CHAIN_ID);
-        let dst_base_gas = *table::borrow(&s.dst_base_gas, wormhole_data.dst_wormhole_chain_id);
-        let dst_gas_per_bytes = *table::borrow(&s.dst_gas_per_bytes, wormhole_data.dst_wormhole_chain_id);
-        u256::add(dst_base_gas, u256::mul(dst_gas_per_bytes, u256::from_u64(len)))
+        if (table::contains(&s.dst_base_gas, wormhole_data.dst_wormhole_chain_id)) {
+            let dst_base_gas = *table::borrow(&s.dst_base_gas, wormhole_data.dst_wormhole_chain_id);
+            let dst_gas_per_bytes = *table::borrow(&s.dst_gas_per_bytes, wormhole_data.dst_wormhole_chain_id);
+            u256::add(dst_base_gas, u256::mul(dst_gas_per_bytes, u256::from_u64(len)))
+        }else {
+            u256::zero()
+        }
     }
 
     public fun check_relayer_fee(
