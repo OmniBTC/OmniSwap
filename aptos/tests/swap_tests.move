@@ -15,7 +15,6 @@ module omniswap::swap_tests {
     use omniswap::serde::serialize_address;
     use omniswap::u256;
     use omniswap::swap::{swap_by_account, swap_by_coin};
-    use aptos_std::debug::print;
 
     public fun register_pool_with_liquidity(x_val: u64, y_val: u64): (signer, signer) {
         let (coin_admin, lp_owner) = test_pool::setup_coins_and_lp_owner();
@@ -36,11 +35,8 @@ module omniswap::swap_tests {
     }
 
     public fun register_stable_pool_with_liquidity(x_val: u64, y_val: u64): (signer, signer) {
-        print(&2);
         let (coin_admin, lp_owner) = test_pool::setup_coins_and_lp_owner();
-        print(&1);
         router::register_pool<USDC, USDT, Stable>(&lp_owner);
-        print(&1);
         let lp_owner_addr = signer::address_of(&lp_owner);
         if (x_val != 0 && y_val != 0) {
             let usdc_coins = test_coins::mint<USDC>(&coin_admin, x_val);
