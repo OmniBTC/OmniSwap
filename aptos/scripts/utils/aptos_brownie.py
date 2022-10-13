@@ -4,7 +4,6 @@ import abc
 import functools
 import os
 import time
-import unittest
 from pathlib import Path
 from typing import Union, List
 
@@ -256,7 +255,7 @@ class AptosPackage:
         bytecode_modules = self.build_path.joinpath("bytecode_modules")
         for m in os.listdir(bytecode_modules):
             if str(m).endswith(".mv"):
-                self.move_module_files.append(bytecode_modules.joinpath(m))
+                self.move_module_files.append(bytecode_modules.joinpath(str(m)))
         self.move_modules = []
         for m in self.move_module_files:
             with open(m, "rb") as f:
@@ -359,6 +358,7 @@ class AptosPackage:
 if __name__ == "__main__":
     # # # # # Example
     omniswap = AptosPackage("../..")
+    omniswap.publish_package()
     try:
         # Maybe dump initialize
         omniswap["so_fee_wormhole_v1::initialize"]()

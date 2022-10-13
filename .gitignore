@@ -131,3 +131,5 @@ __pycache__
 build/
 reports/
 .deps/
+.pytest_cache/
+.aptos/
