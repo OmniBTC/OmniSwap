@@ -7,7 +7,7 @@ import os
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeStargateV1, LibCorrectSwapV1, \
-    WormholeFacet, LibSoFeeWormholeV1
+    WormholeFacet, LibSoFeeWormholeV1, SerdeFacet
 
 from scripts.helpful_scripts import change_network, get_wormhole_bridge, get_wormhole_chainid, zero_address, read_json, get_stargate_router, get_token_address, \
     get_swap_info, get_stargate_chain_id
@@ -120,7 +120,7 @@ def get_wormhole_support_token(net):
 def export_deployed():
     deployed_contract = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WormholeFacet,
                          WithdrawFacet, OwnershipFacet, GenericSwapFacet, SoDiamond, LibSoFeeStargateV1,
-                         LibSoFeeWormholeV1, LibCorrectSwapV1]
+                         LibSoFeeWormholeV1, LibCorrectSwapV1, SerdeFacet]
     return {v._name: v[-1].address for v in deployed_contract}
 
 

@@ -8,10 +8,11 @@
         "LibSoFeeStargateV1": "0xf89280D4d6dDC1795AFF50E2E5Fd8ab11C7d02ca",
         "LibSoFeeWormholeV1": "0xEb398C254995214C03028AdEA2805722c1d87082",
         "OwnershipFacet": "0x4e9fa545d7e8cbA543aa4026A6e6d9D50D734cEc",
+        "SerdeFacet": "0x0F5996c48dd775dAB07592568179F92142184D02",
         "SoDiamond": "0x85211a005319d407EC6479B29e183e901FFc0155",
         "StargateFacet": "0x3190b00a5203E7C99d7288aa26d57b2654525FC8",
         "WithdrawFacet": "0x1323ED7CA00c7c978126fFcB39E45D743F60973a",
-        "WormholeFacet": "0xb2FF6648F9b582c15374A3c0B5F6358Df4B63B1E"
+        "WormholeFacet": "0x14C91C7edE338faCa974E5713724a7B9872DC0A7"
     },
     "bsc-test": {
         "DexManagerFacet": "0x93D49825C3ba0Cf391812F1DbE70cBbF3E7edaE9",
@@ -22,9 +23,10 @@
         "LibSoFeeStargateV1": "0xe516997D40b204ab8511dACec6f780001658fb21",
         "LibSoFeeWormholeV1": "0x4D154546ab21222F258688967c9A91c9031F84d6",
         "OwnershipFacet": "0x770E43e790Ea6f0127211C7a7091Bd5ccDb06D4C",
+        "SerdeFacet": "0xaB38328F9737c164628F41Cf7a1c97BdFB90983f",
         "SoDiamond": "0x10D2B31d8058Bc02A51950b60F72335EBfb07Cf3",
         "StargateFacet": "0xFE499DBE0c83dac2f92d733690416D97e1Ca3928",
         "WithdrawFacet": "0x274d8E7f9e039F0cB6CaA5eCb3356537AeE08Aef",
-        "WormholeFacet": "0xeBCebdA4879be75197d20a0dB846e5432C1e85b9"
+        "WormholeFacet": "0x6eADf0B226d6D56aabB84CC1642C80e41f5DF959"
     }
 }

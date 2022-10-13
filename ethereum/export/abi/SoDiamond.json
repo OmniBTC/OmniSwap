@@ -520,9 +520,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -530,9 +530,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -588,9 +588,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -598,9 +598,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -662,9 +662,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -672,9 +672,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -809,9 +809,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -819,9 +819,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -921,9 +921,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -931,9 +931,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1033,9 +1033,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1043,9 +1043,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1204,9 +1204,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1214,9 +1214,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1297,9 +1297,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1307,9 +1307,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1389,9 +1389,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1399,9 +1399,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1868,9 +1868,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1878,9 +1878,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1936,9 +1936,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -1946,9 +1946,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2010,9 +2010,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2020,9 +2020,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2082,9 +2082,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2092,9 +2092,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2175,9 +2175,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2185,9 +2185,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2390,9 +2390,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2400,9 +2400,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2458,9 +2458,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2468,9 +2468,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2532,9 +2532,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2542,9 +2542,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -2564,6 +2564,31 @@
             }
         ],
         "name": "SoTransferStarted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint16",
+                "name": "srcWormholeChainId",
+                "type": "uint16"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint16",
+                "name": "dstWormholeChainId",
+                "type": "uint16"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint64",
+                "name": "sequence",
+                "type": "uint64"
+            }
+        ],
+        "name": "TransferFromWormhole",
         "type": "event"
     },
     {
@@ -2628,34 +2653,34 @@
             {
                 "components": [
                     {
-                        "internalType": "bytes32",
+                        "internalType": "bytes",
                         "name": "transactionId",
-                        "type": "bytes32"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address payable",
+                        "internalType": "bytes",
                         "name": "receiver",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "sendingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "receivingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
                         "internalType": "uint256",
@@ -2663,7 +2688,7 @@
                         "type": "uint256"
                     }
                 ],
-                "internalType": "struct ISo.SoData",
+                "internalType": "struct ISo.NormalizedSoData",
                 "name": "_soData",
                 "type": "tuple"
             },
@@ -2676,28 +2701,60 @@
                     },
                     {
                         "internalType": "uint256",
-                        "name": "dstMaxGasForRelayer",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
                         "name": "dstMaxGasPriceInWeiForRelayer",
                         "type": "uint256"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "uint256",
+                        "name": "wormholeFee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
                         "name": "dstSoDiamond",
-                        "type": "address"
+                        "type": "bytes"
                     }
                 ],
-                "internalType": "struct WormholeFacet.WormholeData",
+                "internalType": "struct WormholeFacet.NormalizedWormholeData",
                 "name": "_wormholeData",
                 "type": "tuple"
             },
             {
-                "internalType": "uint256",
-                "name": "_value",
-                "type": "uint256"
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "_swapDataDst",
+                "type": "tuple[]"
             }
         ],
         "name": "checkRelayerFee",
@@ -2706,6 +2763,11 @@
                 "internalType": "bool",
                 "name": "",
                 "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             },
             {
                 "internalType": "uint256",
@@ -2763,6 +2825,150 @@
     {
         "inputs": [
             {
+                "internalType": "bytes",
+                "name": "wormholeData",
+                "type": "bytes"
+            }
+        ],
+        "name": "decodeNormalizedWormholeData",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint16",
+                        "name": "dstWormholeChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "dstMaxGasPriceInWeiForRelayer",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "wormholeFee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "dstSoDiamond",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct WormholeFacet.NormalizedWormholeData",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "wormholeData",
+                "type": "bytes"
+            }
+        ],
+        "name": "decodeWormholePayload",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "_currentAssetId",
                 "type": "address"
@@ -2788,51 +2994,36 @@
             {
                 "components": [
                     {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
+                        "internalType": "uint16",
+                        "name": "dstWormholeChainId",
+                        "type": "uint16"
                     },
                     {
                         "internalType": "uint256",
-                        "name": "sourceChainId",
+                        "name": "dstMaxGasPriceInWeiForRelayer",
                         "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
                     },
                     {
                         "internalType": "uint256",
-                        "name": "destinationChainId",
+                        "name": "wormholeFee",
                         "type": "uint256"
                     },
                     {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
+                        "internalType": "bytes",
+                        "name": "dstSoDiamond",
+                        "type": "bytes"
                     }
                 ],
-                "internalType": "struct ISo.SoData",
-                "name": "_soData",
+                "internalType": "struct WormholeFacet.NormalizedWormholeData",
+                "name": "data",
                 "type": "tuple"
             }
         ],
-        "name": "encodeSoData",
+        "name": "encodeNormalizedWormholeData",
         "outputs": [
             {
                 "internalType": "bytes",
-                "name": "_encoded",
+                "name": "",
                 "type": "bytes"
             }
         ],
@@ -2842,26 +3033,78 @@
     {
         "inputs": [
             {
+                "internalType": "uint256",
+                "name": "dstMaxGasPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "dstMaxGas",
+                "type": "uint256"
+            },
+            {
                 "components": [
                     {
-                        "internalType": "address",
-                        "name": "callTo",
-                        "type": "address"
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
-                        "name": "approveTo",
-                        "type": "address"
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
                         "name": "sendingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
                         "name": "receivingAssetId",
-                        "type": "address"
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
                     },
                     {
                         "internalType": "uint256",
@@ -2874,16 +3117,16 @@
                         "type": "bytes"
                     }
                 ],
-                "internalType": "struct LibSwap.SwapData[]",
-                "name": "_swapData",
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "swapDataDst",
                 "type": "tuple[]"
             }
         ],
-        "name": "encodeSwapData",
+        "name": "encodeWormholePayload",
         "outputs": [
             {
                 "internalType": "bytes",
-                "name": "_encoded",
+                "name": "",
                 "type": "bytes"
             }
         ],
@@ -2895,34 +3138,34 @@
             {
                 "components": [
                     {
-                        "internalType": "bytes32",
+                        "internalType": "bytes",
                         "name": "transactionId",
-                        "type": "bytes32"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address payable",
+                        "internalType": "bytes",
                         "name": "receiver",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "sendingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "receivingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
                         "internalType": "uint256",
@@ -2930,7 +3173,7 @@
                         "type": "uint256"
                     }
                 ],
-                "internalType": "struct ISo.SoData",
+                "internalType": "struct ISo.NormalizedSoData",
                 "name": "_soData",
                 "type": "tuple"
             },
@@ -2943,45 +3186,45 @@
                     },
                     {
                         "internalType": "uint256",
-                        "name": "dstMaxGasForRelayer",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
                         "name": "dstMaxGasPriceInWeiForRelayer",
                         "type": "uint256"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "uint256",
+                        "name": "wormholeFee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
                         "name": "dstSoDiamond",
-                        "type": "address"
+                        "type": "bytes"
                     }
                 ],
-                "internalType": "struct WormholeFacet.WormholeData",
+                "internalType": "struct WormholeFacet.NormalizedWormholeData",
                 "name": "_wormholeData",
                 "type": "tuple"
             },
             {
                 "components": [
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "callTo",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "approveTo",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "sendingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "receivingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
                         "internalType": "uint256",
@@ -2994,7 +3237,7 @@
                         "type": "bytes"
                     }
                 ],
-                "internalType": "struct LibSwap.SwapData[]",
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
                 "name": "_swapDataDst",
                 "type": "tuple[]"
             }
@@ -3015,14 +3258,51 @@
             {
                 "components": [
                     {
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
+                    },
+                    {
                         "internalType": "uint16",
-                        "name": "dstWormholeChainId",
+                        "name": "sourceChainId",
                         "type": "uint16"
                     },
                     {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
                         "internalType": "uint256",
-                        "name": "dstMaxGasForRelayer",
+                        "name": "amount",
                         "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "_soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint16",
+                        "name": "dstWormholeChainId",
+                        "type": "uint16"
                     },
                     {
                         "internalType": "uint256",
@@ -3030,14 +3310,56 @@
                         "type": "uint256"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "uint256",
+                        "name": "wormholeFee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
                         "name": "dstSoDiamond",
-                        "type": "address"
+                        "type": "bytes"
                     }
                 ],
-                "internalType": "struct WormholeFacet.WormholeData",
+                "internalType": "struct WormholeFacet.NormalizedWormholeData",
                 "name": "_wormholeData",
                 "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "_swapDataDst",
+                "type": "tuple[]"
             }
         ],
         "name": "estimateRelayerFee",
@@ -3066,9 +3388,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -3076,9 +3398,9 @@
                         "type": "address"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
                         "internalType": "address",
@@ -3216,132 +3538,6 @@
     {
         "inputs": [
             {
-                "internalType": "bytes",
-                "name": "_encodedPayload",
-                "type": "bytes"
-            }
-        ],
-        "name": "parseMaxGasPrice",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "maxGasPrice",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "pure",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "_encodedPayload",
-                "type": "bytes"
-            }
-        ],
-        "name": "parseSoData",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "sourceChainId",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "destinationChainId",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "internalType": "struct ISo.SoData",
-                "name": "_soData",
-                "type": "tuple"
-            }
-        ],
-        "stateMutability": "pure",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "_encodedPayload",
-                "type": "bytes"
-            }
-        ],
-        "name": "parseSwapData",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "address",
-                        "name": "callTo",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "approveTo",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "fromAmount",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "bytes",
-                        "name": "callData",
-                        "type": "bytes"
-                    }
-                ],
-                "internalType": "struct LibSwap.SwapData[]",
-                "name": "_swapData",
-                "type": "tuple[]"
-            }
-        ],
-        "stateMutability": "pure",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "uint16",
                 "name": "_dstWormholeChainId",
                 "type": "uint16"
@@ -3385,34 +3581,34 @@
             {
                 "components": [
                     {
-                        "internalType": "bytes32",
+                        "internalType": "bytes",
                         "name": "transactionId",
-                        "type": "bytes32"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address payable",
+                        "internalType": "bytes",
                         "name": "receiver",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "sourceChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "sendingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "uint256",
+                        "internalType": "uint16",
                         "name": "destinationChainId",
-                        "type": "uint256"
+                        "type": "uint16"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "receivingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
                         "internalType": "uint256",
@@ -3420,31 +3616,31 @@
                         "type": "uint256"
                     }
                 ],
-                "internalType": "struct ISo.SoData",
-                "name": "_soData",
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "_soDataNo",
                 "type": "tuple"
             },
             {
                 "components": [
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "callTo",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "approveTo",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "sendingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "receivingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
                         "internalType": "uint256",
@@ -3457,8 +3653,8 @@
                         "type": "bytes"
                     }
                 ],
-                "internalType": "struct LibSwap.SwapData[]",
-                "name": "_swapDataSrc",
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "_swapDataSrcNo",
                 "type": "tuple[]"
             },
             {
@@ -3470,45 +3666,45 @@
                     },
                     {
                         "internalType": "uint256",
-                        "name": "dstMaxGasForRelayer",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
                         "name": "dstMaxGasPriceInWeiForRelayer",
                         "type": "uint256"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "uint256",
+                        "name": "wormholeFee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
                         "name": "dstSoDiamond",
-                        "type": "address"
+                        "type": "bytes"
                     }
                 ],
-                "internalType": "struct WormholeFacet.WormholeData",
-                "name": "_wormholeData",
+                "internalType": "struct WormholeFacet.NormalizedWormholeData",
+                "name": "_wormholeDataNo",
                 "type": "tuple"
             },
             {
                 "components": [
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "callTo",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "approveTo",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "sendingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "bytes",
                         "name": "receivingAssetId",
-                        "type": "address"
+                        "type": "bytes"
                     },
                     {
                         "internalType": "uint256",
@@ -3521,8 +3717,8 @@
                         "type": "bytes"
                     }
                 ],
-                "internalType": "struct LibSwap.SwapData[]",
-                "name": "_swapDataDst",
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "_swapDataDstNo",
                 "type": "tuple[]"
             }
         ],
