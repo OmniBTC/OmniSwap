@@ -1,6 +1,7 @@
 # automatically fetch contract sources from Etherscan
 dotenv: .env
 networks:
+  default: bsc-test
   aptos-main:
     node_url:
     faucet_url:
@@ -20,5 +21,6 @@ networks:
     wormhole:
       id: 22
     SoDiamond:
+      # The aptos parameter does not support struct, use eth to convert to vector<u8>.
       bsc-test: "0x7c9bccAdF247B4E0B30DCE87E777B74070a23AcC"
 

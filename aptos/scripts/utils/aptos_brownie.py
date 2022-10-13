@@ -252,7 +252,8 @@ class AptosPackage:
         # # # # # Compile
         view = "Compile"
         print("-" * 50 + view + "-" * 50)
-        compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir {self.project_path} {self.replace_address}"
+        compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir " \
+                      f"{self.project_path} {self.replace_address}"
         print(compile_cmd)
         os.system(compile_cmd)
         print("-" * (100 + len(view)))
@@ -291,10 +292,19 @@ class AptosPackage:
                         self.abis[abi.key()] = abi
 
     def publish_package(self):
-        txn_hash = self.rest_client.publish_package(self.account, self.package_metadata, self.move_modules)
-        print(f"Publish package: {self.package_name}, hash: {txn_hash}, waiting...")
-        self.rest_client.wait_for_transaction(txn_hash)
-        print(f"Publish package: {self.package_name} Success.\n")
+        # # Sometimes: "Transaction Executed and Committed with Error LINKER_ERROR"
+        # txn_hash = self.rest_client.publish_package(self.account, self.package_metadata, self.move_modules)
+        # print(f"Publish package: {self.package_name}, hash: {txn_hash}, waiting...")
+        # self.rest_client.wait_for_transaction(txn_hash)
+        # print(f"Publish package: {self.package_name} Success.\n")
+        view = "Publish package"
+        print("-" * 50 + view + "-" * 50)
+        compile_cmd = f"aptos move publish --assume-yes {self.replace_address} " \
+                      f"--url {self.network_config['node_url']} " \
+                      f"--private-key {self.account.private_key}"
+        os.system(compile_cmd)
+        print("-" * (100 + len(view)))
+        print("\n")
 
     def __getitem__(self, key):
         assert key in self.abis, f"key not found in abi"

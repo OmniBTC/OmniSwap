@@ -7,11 +7,11 @@ Here is OmniSwap's aptos contract repository.
 ## Deploy 
 
 ~~~shell
-brownie run --network bsc-test scripts/deploy.py
+brownie run scripts/deploy.py
 ~~~
 
 ## Swap
 
 ~~~shell
-brownie run --network bsc-test scripts/wormhole.py
+brownie run scripts/wormhole.py
 ~~~
