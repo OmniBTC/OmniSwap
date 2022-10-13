@@ -7,6 +7,15 @@ networks:
   aptos-devnet:
     node_url: https://fullnode.devnet.aptoslabs.com/v1
     faucet_url: https://tap.devnet.prod.gcp.aptosdev.com
+    wormhole:
+      id: 22
   aptos-testnet:
     node_url: https://fullnode.testnet.aptoslabs.com/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
+    replace_address:
+      deployer: "0x5ad53ef0cb7cd21816a0371c367be38e7874a9d2f71c77af7592f6b0791f6ca3"
+      token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
+      wormhole: "0x1b1752e26b65fc24971ee5ec9718d2ccdd36bf20486a10b2973ea6dedc6cd197"
+      liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
+    wormhole:
+      id: 22

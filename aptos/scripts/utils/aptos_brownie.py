@@ -215,6 +215,7 @@ class AptosPackage:
         except Exception as e:
             raise e
         self.account = Account.load_key(self.private_key)
+        self.network_config = self.config["networks"][network]
         self.rest_client = RestClient(self.config["networks"][network]["node_url"])
         self.faucet_client = FaucetClient(self.config["networks"][network]["faucet_url"], self.rest_client)
 
@@ -228,8 +229,20 @@ class AptosPackage:
 
         # # # # # Replace address
         self.replace_address = ""
+        has_replace = {}
         if "addresses" in self.move_toml:
+            if "replace_address" in self.network_config:
+                for k in self.network_config["replace_address"]:
+                    if k not in self.move_toml["addresses"] or (k in has_replace):
+                        continue
+                    if len(self.replace_address) == 0:
+                        self.replace_address = f"--named-addresses {k}={self.network_config['replace_address'][k]}"
+                    else:
+                        self.replace_address += f',{k}={self.network_config["replace_address"][k]}'
+                    has_replace[k] = True
             for k in self.move_toml["addresses"]:
+                if k in has_replace:
+                    continue
                 if self.move_toml["addresses"][k] == "_":
                     if len(self.replace_address) == 0:
                         self.replace_address = f"--named-addresses {k}={self.account.account_address}"
@@ -279,8 +292,9 @@ class AptosPackage:
 
     def publish_package(self):
         txn_hash = self.rest_client.publish_package(self.account, self.package_metadata, self.move_modules)
-        print(f"Publish package: {self.package_name}, hash: {txn_hash}")
+        print(f"Publish package: {self.package_name}, hash: {txn_hash}, waiting...")
         self.rest_client.wait_for_transaction(txn_hash)
+        print(f"Publish package: {self.package_name} Success.\n")
 
     def __getitem__(self, key):
         assert key in self.abis, f"key not found in abi"
@@ -333,8 +347,9 @@ class AptosPackage:
             self.account, TransactionPayload(payload)
         )
         txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)
-        print(f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting...\n")
+        print(f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting...")
         response = self.wait_for_transaction(txn_hash)
+        print(f"Execute {abi.module.name}::{abi.name} Success.\n")
         return {
             "hash": txn_hash,
             "response": response
