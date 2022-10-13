@@ -24,6 +24,7 @@ module omniswap::wormhole_facet {
     use aptos_std::table::{Table, Self};
     use omniswap::so_fee_wormhole_v1;
     use wormhole::state;
+    use omniswap::swap::right_token;
 
     const RAY: u64 = 100000000;
 
@@ -246,14 +247,15 @@ module omniswap::wormhole_facet {
         let dst_fee = u256::mul(wormhole_data.dst_max_gas_price_in_wei_for_relayer, dst_max_gas);
 
         let one = u256::from_u64(RAY);
-
         let src_fee = u256::mul(dst_fee, u256::from_u64(ratio));
         src_fee = u256::div(src_fee, one);
         src_fee = u256::mul(src_fee, u256::from_u64(actual_reserve));
         src_fee = u256::div(src_fee, one);
-
         let comsume_value = u256::from_u64(state::get_message_fee());
-        comsume_value = u256::add(comsume_value, cross::so_amount(so_data));
+
+        if (right_token<AptosCoin>(cross::so_sending_asset_id(so_data))) {
+            comsume_value = u256::add(comsume_value, cross::so_amount(so_data));
+        };
         comsume_value = u256::add(comsume_value, src_fee);
 
         let src_fee = u256::as_u64(src_fee);
@@ -384,7 +386,7 @@ module omniswap::wormhole_facet {
     }
 
     #[test_only]
-    fun construct_normalized_wormhole_data(
+    public fun construct_normalized_wormhole_data(
         dst_wormhole_chain_id: U16,
         dst_max_gas_price_in_wei_for_relayer: U256,
         wormhole_fee: U256,

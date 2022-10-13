@@ -113,7 +113,7 @@ networks:
     swap:
       IUniswapV2Router02:
         name: UniswapV2
-        router: "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3"
+        router: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1"
         token_list: ""
   avax-test:
     chainid: 43113

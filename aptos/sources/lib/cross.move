@@ -51,6 +51,10 @@ module omniswap::cross {
         data.amount
     }
 
+    public fun so_sending_asset_id(data: NormalizedSoData): vector<u8> {
+        data.sending_asset_id
+    }
+
     public fun swap_call_to(data: NormalizedSwapData): vector<u8> {
         data.call_to
     }
