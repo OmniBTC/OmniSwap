@@ -2,6 +2,7 @@
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
 import "../Libraries/LibDiamond.sol";
 import "../Libraries/LibBytes.sol";
 import "../Libraries/LibCross.sol";
@@ -169,7 +170,7 @@ contract WormholeFacet is Swapper {
             _swapDataDstNo
         );
 
-        if (_swapDataSrc.length > 0) {
+        if (_swapDataDstNo.length > 0) {
             _cache._hasDestinationSwap = true;
         }
 
