@@ -196,13 +196,27 @@ class AptosPackage:
     def __init__(self,
                  project_path: Union[Path, str] = Path.cwd(),
                  network: str = "aptos-testnet",
-                 is_compile: bool = True
+                 is_compile: bool = True,
+                 package_path: Union[Path, str] = None
                  ):
+        """
+        :param project_path: The folder where brownie-config.yaml is located.
+        :param network:
+        :param is_compile:
+        :param package_path: The folder where Move.toml is located. Mostly the same as project_path.
+        """
         if isinstance(project_path, Path):
             self.project_path = project_path
         else:
             self.project_path = Path(project_path)
         self.network = network
+
+        if package_path is None:
+            self.package_path = self.project_path
+        elif isinstance(package_path, str):
+            self.package_path = Path(package_path)
+        else:
+            self.package_path = package_path
 
         # # # # # load config
         assert self.project_path.joinpath("brownie-config.yaml").exists(), "brownie-config.yaml not found"
@@ -223,8 +237,9 @@ class AptosPackage:
         self.faucet_client = FaucetClient(self.config["networks"][network]["faucet_url"], self.rest_client)
 
         # # # # # load move toml
-        assert self.project_path.joinpath("Move.toml").exists(), "Move.toml not found"
-        self.move_path = self.project_path.joinpath("Move.toml")
+        print(self.package_path.joinpath("Move.toml").absolute())
+        assert self.package_path.joinpath("Move.toml").exists(), "Move.toml not found"
+        self.move_path = self.package_path.joinpath("Move.toml")
         self.move_toml = {}
         with self.move_path.open() as fp:
             self.move_toml = toml.load(fp)
@@ -236,7 +251,7 @@ class AptosPackage:
         if "addresses" in self.move_toml:
             if "replace_address" in self.network_config:
                 for k in self.network_config["replace_address"]:
-                    if k not in self.move_toml["addresses"] or (k in has_replace):
+                    if k in has_replace:
                         continue
                     if len(self.replace_address) == 0:
                         self.replace_address = f"--named-addresses {k}={self.network_config['replace_address'][k]}"
@@ -260,14 +275,14 @@ class AptosPackage:
         view = "Compile"
         print("-" * 50 + view + "-" * 50)
         compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir " \
-                      f"{self.project_path} {self.replace_address}"
+                      f"{self.package_path} {self.replace_address}"
         print(compile_cmd)
         os.system(compile_cmd)
         print("-" * (100 + len(view)))
         print("\n")
 
         # # # # # Metadata
-        self.build_path = self.project_path.joinpath(f"build/{self.package_name}")
+        self.build_path = self.package_path.joinpath(f"build/{self.package_name}")
         with open(self.build_path.joinpath(f"package-metadata.bcs"), "rb") as f:
             self.package_metadata = f.read()
 
@@ -295,8 +310,11 @@ class AptosPackage:
                         continue
                     with open(module_abi_path.joinpath(str(v2)), "rb") as f:
                         data = f.read()
-                        abi = EntryFunctionABI.deserialize(Deserializer(data))
-                        self.abis[abi.key()] = abi
+                        try:
+                            abi = EntryFunctionABI.deserialize(Deserializer(data))
+                            self.abis[abi.key()] = abi
+                        except:
+                            print(f"Decode {v2} fail")
 
     def publish_package(self):
         # # Sometimes: "Transaction Executed and Committed with Error LINKER_ERROR"
@@ -306,7 +324,7 @@ class AptosPackage:
         # print(f"Publish package: {self.package_name} Success.\n")
         view = "Publish package"
         print("-" * 50 + view + "-" * 50)
-        compile_cmd = f"aptos move publish --assume-yes {self.replace_address} --package-dir {self.project_path} " \
+        compile_cmd = f"aptos move publish --assume-yes {self.replace_address} --package-dir {self.package_path} " \
                       f"--url {self.network_config['node_url']} " \
                       f"--private-key {self.account.private_key}"
         os.system(compile_cmd)
@@ -387,7 +405,7 @@ class AptosPackage:
         return response.json()
 
     def transfer(
-        self, sender: Account, recipient: AccountAddress, amount: int
+            self, sender: Account, recipient: AccountAddress, amount: int
     ) -> str:
         transaction_arguments = [
             TransactionArgument(recipient, Serializer.struct),
