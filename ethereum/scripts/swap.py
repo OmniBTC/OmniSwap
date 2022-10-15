@@ -97,11 +97,13 @@ def soSwapViaStargate(so_data,
         dst_swap_data = [dst_swap_data.format_to_contract()]
     proxy_diamond = Contract.from_abi(
         "StargateFacet", p["SoDiamond"][-1].address, p["StargateFacet"].abi)
+
     stargate_cross_fee = proxy_diamond.getStargateFee(
         so_data,
         stargate_data,
         dst_swap_data
     )
+
     print(f"stargate cross fee: {stargate_cross_fee / get_token_decimal('eth')}, "
           f"input eth: {input_eth_amount / get_token_decimal('eth')}")
     proxy_diamond.soSwapViaStargate(
@@ -264,7 +266,7 @@ class StargateData(View):
                 to_hex_str(self.dstSoDiamond)]
 
     @classmethod
-    def create(cls, dstGasForSgReceive: int, srcStargateToken: str, dstStargateToken: str, ):
+    def create(cls, src_session, dst_session, dstGasForSgReceive: int, srcStargateToken: str, dstStargateToken: str, ):
         """Create StargateData class
 
         Args:
@@ -682,6 +684,8 @@ def estimate_for_gas(so_data: SoData, stargate_cross_token: str, dst_swap_data: 
 
 
 def estimate_final_token_amount(
+        src_session,
+        dst_session,
         amount: int,
         src_swap_data: SwapData,
         stargate_data,
@@ -713,6 +717,7 @@ def estimate_final_token_amount(
 
 
 def estimate_min_amount(
+        dst_session,
         final_amount: int,
         slippage: float,
         dst_swap_data: SwapData
@@ -900,13 +905,13 @@ def cross_swap_via_stargate(
                                                  )
 
     stargate_data = StargateData.create(
-        dst_gas_for_sgReceive, sourceStargateToken, destinationStargateToken)
+        src_session, dst_session, dst_gas_for_sgReceive, sourceStargateToken, destinationStargateToken)
 
     final_amount = estimate_final_token_amount(
-        inputAmount, src_swap_data, stargate_data, dst_swap_data)
+        src_session, dst_session, inputAmount, src_swap_data, stargate_data, dst_swap_data)
 
     dst_swap_min_amount, stargate_min_amount = estimate_min_amount(
-        final_amount, slippage, dst_swap_data)
+        dst_session, final_amount, slippage, dst_swap_data)
 
     stargate_data.minAmount = stargate_min_amount
     print("StargateData:\n", stargate_data)
@@ -1006,14 +1011,14 @@ def main(src_net="bsc-test", dst_net="avax-test", bridge="wormhole"):
                                     1e-3 * src_session.put_task(get_token_decimal, args=("eth",))),
                                 sourceTokenName="eth",  # stargate
                                 destinationTokenName="eth",  # stargate
-                                sourceSwapType=SwapType.IUniswapV2Router02,
-                                sourceSwapFunc=SwapFunc.swapExactETHForTokens,
+                                sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+                                sourceSwapFunc=SwapFunc.swapExactAVAXForTokens,
                                 sourceSwapPath=("weth", "usdc"),
                                 sourceStargateToken="usdc",
-                                destinationStargateToken="usdc",
-                                destinationSwapType=SwapType.ISwapRouter,
-                                destinationSwapFunc=SwapFunc.exactInput,
-                                destinationSwapPath=("usdc", 0.0005, "weth"),
+                                destinationStargateToken="usdt",
+                                destinationSwapType=SwapType.IUniswapV2Router02,
+                                destinationSwapFunc=SwapFunc.swapExactTokensForETH,
+                                destinationSwapPath=("usdt", "weth"),
                                 slippage=0.001)
 
         cross_swap_via_stargate(src_session=src_session,
@@ -1022,14 +1027,14 @@ def main(src_net="bsc-test", dst_net="avax-test", bridge="wormhole"):
                                     1 * src_session.put_task(get_token_decimal, args=("usdc",))),
                                 sourceTokenName="usdc",  # stargate
                                 destinationTokenName="usdc",  # stargate
-                                sourceSwapType=SwapType.IUniswapV2Router02,
-                                sourceSwapFunc=SwapFunc.swapExactTokensForETH,
+                                sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+                                sourceSwapFunc=SwapFunc.swapExactTokensForAVAX,
                                 sourceSwapPath=("usdc", "weth"),
                                 sourceStargateToken="weth",
                                 destinationStargateToken="weth",
                                 destinationSwapType=SwapType.IUniswapV2Router02,
                                 destinationSwapFunc=SwapFunc.swapExactETHForTokens,
-                                destinationSwapPath=("weth", "usdc"),
+                                destinationSwapPath=("weth", "usdt"),
                                 slippage=0.01)
 
     elif bridge == "wormhole":

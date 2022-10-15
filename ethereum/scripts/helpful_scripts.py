@@ -240,7 +240,10 @@ def get_stargate_info():
 
 
 def get_stargate_router():
-    return get_stargate_info()["router"]
+    try:
+        return get_stargate_info()["router"]
+    except:
+        return ""
 
 
 def get_stargate_chain_id():

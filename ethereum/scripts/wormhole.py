@@ -1,8 +1,6 @@
 import os
-from time import sleep
 from brownie import Contract
-from brownie.network import gas_price
-from scripts.helpful_scripts import Session, get_account, get_account_address, get_wormhole_chainid
+from scripts.helpful_scripts import Session, get_account, get_account_address, get_token_address, get_wormhole_bridge, get_wormhole_chainid, zero_address
 from scripts.swap import SoData, src_session, dst_session
 from brownie.project.main import Project
 
@@ -10,6 +8,9 @@ root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 ether = 1e18
 amount = 0.01 * ether
+
+support_networks = ["avax-test", "bsc-test",
+                    "polygon-test", "goerli", "ftm-test"]
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -35,6 +36,48 @@ def get_receive_native_token_name(net):
         return "wavax"
 
 
+def get_stable_coin_address(net):
+    from brownie import config
+    try:
+        return ("usdc", config["networks"][net]["token"]["usdc"]["address"])
+    except Exception:
+        return ("usdt", config["networks"][net]["token"]["usdt"]["address"])
+
+
+def get_weth_address(net):
+    from brownie import config
+    try:
+        return config["networks"][net]["token"]["weth"]["address"]
+    except Exception:
+        return zero_address()
+
+
+def get_net_from_wormhole_chainid(chainid):
+    if chainid == 2:
+        return "goerli"
+    elif chainid == 4:
+        return "bsc-test"
+    elif chainid == 5:
+        return "polygon-test"
+    elif chainid == 6:
+        return "avax-test"
+    elif chainid == 10:
+        return "ftm-test"
+
+
+def get_native_token_name(net):
+    if net == "avax-test":
+        return "AVAX"
+    elif net == "bsc-test":
+        return "BNB"
+    elif net == "ftm-test":
+        return "FTM"
+    elif net == "polygon-test":
+        return "MATIC"
+    else:
+        return "ETH"
+
+
 def so_swap_via_wormhole(so_data: SoData, dst_diamond_address: str = "", dst_chainid: int = 0, p: Project = None):
     account = get_account()
 
@@ -58,6 +101,52 @@ def so_swap_via_wormhole(so_data: SoData, dst_diamond_address: str = "", dst_cha
     wormhole_data[2] = msg_value
     proxy_diamond.soSwapViaWormhole(
         so_data, src_swap, wormhole_data, dst_swap, {'from': account, 'value': msg_value})
+
+
+def test_get_weth():
+    from brownie import interface
+    token_bridge = Contract.from_abi(
+        "IWormholeBridge", get_wormhole_bridge(), interface.IWormholeBridge.abi)
+    # wrapped_address = token_bridge.wrappedAsset(
+    #     6, "0xF49E250aEB5abDf660d643583AdFd0be41464EfD")
+
+    print(token_bridge.WETH())
+
+
+def get_all_warpped_token():
+    from brownie import interface, config, network
+    token_bridge = Contract.from_abi(
+        "IWormholeBridge", get_wormhole_bridge(), interface.IWormholeBridge.abi)
+
+    current_net = network.show_active()
+    (current_coin_name, current_stable_coin) = get_stable_coin_address(current_net)
+    # print(
+    #     f'current net: {current_net}, {current_coin_name} [{current_stable_coin}]')
+    src_wormhole_chain_id = get_wormhole_chainid()
+    chain_path = []
+    for net in support_networks:
+        if net == current_net:
+            continue
+        wormhole_chain_id = config["networks"][net]["wormhole"]["chainid"]
+        (stable_coin_name, stable_coin_address) = get_stable_coin_address(net)
+        weth = get_weth_address(net)
+        wrapped_token = token_bridge.wrappedAsset(
+            wormhole_chain_id, stable_coin_address)
+        wrapped_eth = token_bridge.wrappedAsset(
+            wormhole_chain_id, weth)
+        if wrapped_token != zero_address():
+            chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_token,
+                              "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": stable_coin_address})
+        chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_eth,
+                          "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": zero_address()})
+        # native_token_name = get_native_token_name(net)
+        # print(f"{net} --> {current_net} ")
+        # print(
+        #     f'{net}: {stable_coin_name} [{stable_coin_address}] -> {current_net}: {stable_coin_name} [{wrapped_token}]')
+        # print(
+        #     f'{net}: {native_token_name} -> {current_net}: W{native_token_name} [{wrapped_eth}]\n')
+
+    return chain_path
 
 
 def test_complete():

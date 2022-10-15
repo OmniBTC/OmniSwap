@@ -12,8 +12,8 @@ def main():
 
 
 def deploy_contracts(account):
-    if network.show_active() in ["rinkeby"]:
-        priority_fee("2 gwei")
+    if network.show_active() in ["rinkeby", "goerli"]:
+        priority_fee("1 gwei")
     deploy_facets = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet,
                      WormholeFacet, WithdrawFacet, OwnershipFacet, GenericSwapFacet, SerdeFacet
                      ]
@@ -27,7 +27,8 @@ def deploy_contracts(account):
     print("deploy LibSoFeeStargateV1.sol...")
     so_fee = 1e-3
     transfer_for_gas = 30000
-    LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {'from': account})
+    LibSoFeeStargateV1.deploy(
+        int(so_fee * 1e18), transfer_for_gas, {'from': account})
 
     print("deploy LibSoFeeWormholeV1.sol...")
     ray = 1e27

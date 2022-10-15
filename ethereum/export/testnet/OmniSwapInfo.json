@@ -1,0 +1,252 @@
+{
+    "avax-test": {
+        "ChainId": 43113,
+        "SoDiamond": "0xDEE3a4fA877658E7e5efD4A9332de1b673ABF75f",
+        "StargateChainId": 10106,
+        "StargatePool": [
+            {
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0x4A0D1092E9df255cf95D72834Ea9255132782318",
+                "TokenName": "USDC"
+            },
+            {
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0x134Dc38AE8C853D1aa2103d5047591acDAA16682",
+                "TokenName": "USDT"
+            }
+        ],
+        "StargateRouter": "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1",
+        "UniswapRouter": [
+            {
+                "Name": "DexLotV2",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x6D481b9F59b22B6eB097b986fC06E438d585c039",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02AVAX"
+            }
+        ],
+        "WETH": "0x9B5828d46A43176F07656e162cCbDc787624468c",
+        "WormholeBridge": "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
+        "WormholeChainId": 6,
+        "WormholeSupportToken": [
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x0000000000000000000000000000000000000000",
+                "TokenName": "AVAX"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x71b7E25BE7879E042E55FBabD4037De116ae07e0"
+                    ]
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0x4A0D1092E9df255cf95D72834Ea9255132782318",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x0000000000000000000000000000000000000000"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x10F1053bF2884b28ee0Bd7a2dDBa237Af3511d29",
+                "TokenName": "WBNB"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x8337e5eF98af25012e1B39CD996772143f6c5fDf",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x0ecacbE08B4E2AA71B8f71ECe35A7EbF815607E8"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x93056503b159fa416Ed5e8eF3907e2F01CAD1eDD",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x662046742e926D1Ffa5Ffce198bB025b2df0bDEe"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x2c0C13029742a116D83e3581B85438Af821B8053",
+                "TokenName": "AAVE"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0x6B41b85629Bc293F5e00A2EEfB50D0B1Bc35b367"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0xB09CC68675349e13cc76921154940C7A4b19cf60",
+                "TokenName": "DAI"
+            },
+            {
+                "ChainPath": [
+                    [
+                        4,
+                        "0xb3841879399923B35101FB033aa936199E5255E1"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x215B7e1dFC3A1757016cF8A531cF929F2b3FC4B1",
+                "TokenName": "UNI"
+            }
+        ]
+    },
+    "bsc-test": {
+        "ChainId": 97,
+        "SoDiamond": "0x379838Ab3cab29F5BdA0FFD62547c90E8AeB6Ecc",
+        "StargateChainId": 10102,
+        "StargatePool": [
+            {
+                "Decimal": 18,
+                "PoolId": 2,
+                "TokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
+                "TokenName": "USDT"
+            },
+            {
+                "Decimal": 18,
+                "PoolId": 5,
+                "TokenAddress": "0x1010Bb1b9Dff29e6233E7947e045e0ba58f6E92e",
+                "TokenName": "BUSD"
+            },
+            {
+                "Decimal": 18,
+                "PoolId": 11,
+                "TokenAddress": "0x8467C2439BC4C593aC8AAf0df4879b89F7Ab8a61",
+                "TokenName": "USDD"
+            }
+        ],
+        "StargateRouter": "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176",
+        "UniswapRouter": [
+            {
+                "Name": "UniswapV2",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0xae13d989dac2f0debff460ac112a837c89baa7cd",
+        "WormholeBridge": "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
+        "WormholeChainId": 4,
+        "WormholeSupportToken": [
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x10F1053bF2884b28ee0Bd7a2dDBa237Af3511d29"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x0000000000000000000000000000000000000000",
+                "TokenName": "BNB"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x8337e5eF98af25012e1B39CD996772143f6c5fDf"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x0000000000000000000000000000000000000000"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7",
+                "TokenName": "WAVAX"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x4A0D1092E9df255cf95D72834Ea9255132782318"
+                    ]
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0x71b7E25BE7879E042E55FBabD4037De116ae07e0",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x93056503b159fa416Ed5e8eF3907e2F01CAD1eDD"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x0ecacbE08B4E2AA71B8f71ECe35A7EbF815607E8",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x2c0C13029742a116D83e3581B85438Af821B8053"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x662046742e926D1Ffa5Ffce198bB025b2df0bDEe",
+                "TokenName": "AAVE"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0xB09CC68675349e13cc76921154940C7A4b19cf60"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x6B41b85629Bc293F5e00A2EEfB50D0B1Bc35b367",
+                "TokenName": "DAI"
+            },
+            {
+                "ChainPath": [
+                    [
+                        6,
+                        "0x215B7e1dFC3A1757016cF8A531cF929F2b3FC4B1"
+                    ]
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0xb3841879399923B35101FB033aa936199E5255E1",
+                "TokenName": "UNI"
+            }
+        ]
+    }
+}

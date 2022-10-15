@@ -10,8 +10,8 @@ from scripts.helpful_scripts import get_account, get_method_signature_by_abi, ge
 
 
 def main():
-    if network.show_active() in ["rinkeby"]:
-        priority_fee("2 gwei")
+    if network.show_active() in ["rinkeby", "goerli"]:
+        priority_fee("1 gwei")
     account = get_account()
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond Address:{so_diamond}")
@@ -166,7 +166,7 @@ def initialize_little_token_for_stargate():
 def redeploy_stargate():
     account = get_account()
 
-    StargateFacet.deploy({"from": account}, publish_source=True)
+    StargateFacet.deploy({"from": account})
     initialize_stargate(account, SoDiamond[-1])
     reinitialize_cut(StargateFacet)
 
@@ -191,7 +191,7 @@ def reinitialize_cut(contract):
     register_data = []
     register_funcs = {}
     print(f"Initialize {contract._name}...")
-    reg_facet = contract[-1]
+    # reg_facet = contract[-1]
     reg_funcs = get_method_signature_by_abi(contract.abi)
     for func_name in list(reg_funcs.keys()):
         if func_name in register_funcs:
@@ -202,15 +202,15 @@ def reinitialize_cut(contract):
                 register_funcs[func_name].append(reg_funcs[func_name])
         else:
             register_funcs[func_name] = [reg_funcs[func_name]]
-    data = [reg_funcs[func_name]
-            for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
-    if len(data):
-        register_data.append([reg_facet, 0, data])
+    # data = [reg_funcs[func_name]
+    #         for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
+    # if len(data):
+    #     register_data.append([reg_facet, 0, data])
 
-    data = [reg_funcs[func_name]
-            for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
-    if len(data):
-        register_data.append([reg_facet, 1, data])
+    # data = [reg_funcs[func_name]
+    #         for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
+    # if len(data):
+    #     register_data.append([reg_facet, 1, data])
 
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)

@@ -4,8 +4,12 @@
 import contextlib
 import time
 
-from brownie import interface, Contract
+from brownie import interface, Contract, MockToken
+from brownie.network import priority_fee
 from scripts.helpful_scripts import get_account, get_token_address, get_swap_info
+
+
+# todo: batch add liquidity
 
 
 def create_pair_and_add_liquidity():

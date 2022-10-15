@@ -340,16 +340,15 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     /// @dev Used to obtain stargate cross-chain fee
     function getStargateFee(
-        SoData calldata _soData,
+        ISo.NormalizedSoData calldata _soDataNo,
         StargateData calldata _stargateData,
-        LibSwap.SwapData[] calldata _swapDataDst
+        LibSwap.NormalizedSwapData[] calldata _swapDataDstNo
     ) external view returns (uint256) {
-        bytes memory _payload;
-        if (_swapDataDst.length == 0) {
-            _payload = abi.encode(_soData, bytes(""));
-        } else {
-            _payload = abi.encode(_soData, abi.encode(_swapDataDst));
-        }
+        bytes memory _payload = encodeStargatePayload(
+            _soDataNo,
+            _swapDataDstNo
+        );
+
         Storage storage s = getStorage();
         IStargate.lzTxObj memory _lzTxParams = IStargate.lzTxObj(
             _stargateData.dstGasForSgReceive,

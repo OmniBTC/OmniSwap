@@ -4,6 +4,8 @@
 import contextlib
 import json
 import os
+from pprint import pprint
+import re
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeStargateV1, LibCorrectSwapV1, \
@@ -11,6 +13,7 @@ from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFac
 
 from scripts.helpful_scripts import change_network, get_wormhole_bridge, get_wormhole_chainid, zero_address, read_json, get_stargate_router, get_token_address, \
     get_swap_info, get_stargate_chain_id
+from scripts.wormhole import get_all_warpped_token, get_native_token_name, get_net_from_wormhole_chainid, get_stable_coin_address
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 omni_swap_file = os.path.join(root_path, "export/OmniSwapInfo.json")
@@ -24,9 +27,8 @@ def write_file(file: str, data):
 
 
 def get_stragate_pool_infos():
-    try:
-        stargate_router_address = get_stargate_router()
-    except:
+    stargate_router_address = get_stargate_router()
+    if stargate_router_address == "":
         return []
     stargate_router = Contract.from_abi(
         "IStargate", stargate_router_address, interface.IStargate.abi)
@@ -71,9 +73,8 @@ def get_stragate_pool_infos():
 def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
     print(f"Get stargate pair chain path net1:{net1}, net2:{net2}")
     change_network(net1)
-    try:
-        stargate_router_address = get_stargate_router()
-    except:
+    stargate_router_address = get_stargate_router()
+    if stargate_router_address == "":
         return
     stargate_router = Contract.from_abi(
         "IStargate", stargate_router_address, interface.IStargate.abi)
@@ -113,8 +114,87 @@ def get_stargate_chain_path():
     write_file(omni_swap_file, omni_swap_infos)
 
 
+def get_wormhole_chain_path(net, wormhole_chain_path):
+    change_network(net)
+    current_net = net
+    net_chain_path = []
+    for chain_path in wormhole_chain_path:
+        if chain_path["SrcWormholeChainId"] == get_wormhole_chainid():
+            net_chain_path.append(chain_path)
+        if chain_path["DstWormholeChainId"] == get_wormhole_chainid():
+            net_chain_path.append({
+                "SrcWormholeChainId": chain_path["DstWormholeChainId"],
+                "SrcTokenAddress": chain_path["DstTokenAddress"],
+                "DstWormholeChainId": chain_path["SrcWormholeChainId"],
+                "DstTokenAddress": chain_path["SrcTokenAddress"]
+            })
+
+    net_support_token = get_wormhole_support_token(current_net)
+
+    (stable_token_name, stable_token_address) = get_stable_coin_address(current_net)
+
+    weth_chain_path = []
+    stable_chain_path = []
+    wrapped_chain_path = []
+    for chain_path in net_chain_path:
+        if chain_path["SrcTokenAddress"] == zero_address() and chain_path["DstTokenAddress"] == zero_address():
+            continue
+        if chain_path["SrcTokenAddress"] == zero_address():
+            weth_chain_path.append(chain_path)
+        elif chain_path["DstTokenAddress"] == zero_address():
+            dst_net = get_net_from_wormhole_chainid(
+                chain_path["DstWormholeChainId"])
+            dst_native_token = get_native_token_name(dst_net)
+            net_support_token.append({
+                'ChainPath': [chain_path],
+                'Decimal': 18,
+                'NativeToken': False,
+                'TokenName': f'W{dst_native_token}'
+            })
+        elif chain_path["SrcTokenAddress"] == stable_token_address:
+            stable_chain_path.append(chain_path)
+        else:
+            wrapped_chain_path.append(chain_path)
+
+    for support_token in net_support_token:
+        if support_token["NativeToken"] == True:
+            support_token["ChainPath"] = stable_chain_path
+
+    net_support_token.append({
+        'ChainPath': weth_chain_path,
+        'Decimal': 18,
+        'NativeToken': True,
+        'TokenAddress': zero_address(),
+        'TokenName': get_native_token_name(current_net)
+    })
+
+    if stable_token_name == "usdt":
+        net_support_token.append({'ChainPath': wrapped_chain_path,
+                                  'Decimal': 6,
+                                  'NativeToken': False,
+                                  'TokenName': 'USDC'})
+    else:
+        net_support_token.append({'ChainPath': wrapped_chain_path,
+                                  'Decimal': 18,
+                                  'NativeToken': False,
+                                  'TokenName': 'USDT'
+                                  })
+
+    return net_support_token
+
+
+def export_wormhole_chain_path(wormhole_chain_path):
+    omni_swap_infos = read_json(omni_swap_file)
+    nets = list(omni_swap_infos.keys())
+    for net in nets:
+        net_support_token = get_wormhole_chain_path(
+            net, wormhole_chain_path)
+        omni_swap_infos[net]["WormholeSupportToken"] = net_support_token
+    write_file(omni_swap_file, omni_swap_infos)
+
+
 def get_wormhole_support_token(net):
-    return [{"TokenName": token.upper(), "TokenAddress": config["networks"][net]["token"][token]["address"], "Decimal": config["networks"][net]["token"][token]["decimal"]} for token in config["networks"][net]["token"] if token != "weth"]
+    return [{"ChainPath": [], "TokenName": token.upper(), "NativeToken": True, "TokenAddress": config["networks"][net]["token"][token]["address"], "Decimal": config["networks"][net]["token"][token]["decimal"]} for token in config["networks"][net]["token"] if token in ["usdc", "usdt"]]
 
 
 def export_deployed():
@@ -134,15 +214,27 @@ def export(*arg):
     stargate_infos = read_json(stragate_file)
     deployed_contracts = read_json(deployed_file)
     swap_types = {}
+    wormhole_chain_path = []
+
     for net in arg:
         print(f"current net: {net}")
         change_network(net)
+
+        try:
+            wormhole_chain_path.extend(get_all_warpped_token())
+        except Exception:
+            continue
+
         try:
             so_diamond = SoDiamond[-1]
         except Exception:
             continue
         deployed_contracts[net] = export_deployed()
-        pool_info, stargate_info = get_stragate_pool_infos()
+
+        if get_stragate_pool_infos() == []:
+            pool_info, stargate_info = ([], [])
+        else:
+            pool_info, stargate_info = get_stragate_pool_infos()
         stargate_infos[net] = stargate_info
         try:
             weth = get_token_address("weth")
@@ -183,12 +275,13 @@ def export(*arg):
             "UniswapRouter": swap_router
         }
     facets = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet,
-              WithdrawFacet, OwnershipFacet, GenericSwapFacet, WormholeFacet
+              WithdrawFacet, OwnershipFacet, GenericSwapFacet, WormholeFacet, SerdeFacet
               ]
     libs = [LibSwap]
     so_diamond_abi = []
     for f in facets + libs:
         so_diamond_abi += f.abi
+
     write_file(deployed_file, deployed_contracts)
     write_file(omni_swap_file, omni_swap_infos)
     write_file(stragate_file, stargate_infos)
@@ -196,4 +289,5 @@ def export(*arg):
                interface.IStargate.abi)
     write_file(os.path.join(
         root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
+    export_wormhole_chain_path(wormhole_chain_path)
     get_stargate_chain_path()
