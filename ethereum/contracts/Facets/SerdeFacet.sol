@@ -2,12 +2,15 @@
 pragma solidity 0.8.13;
 
 import "../Libraries/LibCross.sol";
+import "../Libraries/LibBytes.sol";
 import "../Interfaces/ISo.sol";
 import "../Libraries/LibSwap.sol";
 
 /// @title Serde Facet
 /// @notice Provides functionality for encode and decode cross data
 contract SerdeFacet {
+    using LibBytes for bytes;
+
     function encodeNormalizedSoData(ISo.NormalizedSoData memory data)
         external
         pure
@@ -70,5 +73,17 @@ contract SerdeFacet {
         returns (LibSwap.SwapData[] memory)
     {
         return LibCross.denormalizeSwapData(data);
+    }
+
+    function normalizeU256(uint256 data) external pure returns (bytes memory) {
+        return abi.encodePacked(data);
+    }
+
+    function denormalizeU256(bytes memory data)
+        external
+        pure
+        returns (uint256)
+    {
+        return data.toUint256(0);
     }
 }

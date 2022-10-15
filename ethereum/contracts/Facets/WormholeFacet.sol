@@ -42,7 +42,11 @@ contract WormholeFacet is Swapper {
         uint256 baseGas,
         uint256 gasPerBytes
     );
-    event TransferFromWormhole(uint16 srcWormholeChainId, uint16 dstWormholeChainId, uint64 sequence);
+    event TransferFromWormhole(
+        uint16 srcWormholeChainId,
+        uint16 dstWormholeChainId,
+        uint64 sequence
+    );
 
     /// Types ///
     struct NormalizedWormholeData {
@@ -666,7 +670,11 @@ contract WormholeFacet is Swapper {
             LibAsset.transferAsset(_token, payable(msg.sender), _dust);
         }
 
-        emit TransferFromWormhole(s.srcWormholeChainId, _wormholeData.dstWormholeChainId, sequence);
+        emit TransferFromWormhole(
+            s.srcWormholeChainId,
+            _wormholeData.dstWormholeChainId,
+            sequence
+        );
     }
 
     /// Private Methods ///

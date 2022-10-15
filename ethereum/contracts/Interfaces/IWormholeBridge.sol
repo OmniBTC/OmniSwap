@@ -108,6 +108,23 @@ interface IWormholeBridge {
         uint16 newChainId;
     }
 
+    /*
+     * @dev Parse a token transfer (payload id 1).
+     *
+     * @params encoded The byte array corresponding to the token transfer (not
+     *                 the whole VAA, only the payload)
+     */
+    function parseTransfer(bytes memory encoded)
+        external
+        pure
+        returns (Transfer memory transfer);
+
+    /*
+     * @dev Parse a token transfer with payload (payload id 3).
+     *
+     * @params encoded The byte array corresponding to the token transfer (not
+     *                 the whole VAA, only the payload)
+     */
     function parseTransferWithPayload(bytes memory encoded)
         external
         pure
