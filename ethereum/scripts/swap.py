@@ -995,7 +995,7 @@ def single_swap(
                          )
 
 
-def main(src_net="avax-test", dst_net="polygon-test", bridge="wormhole"):
+def main(src_net="polygon-test", dst_net="bsc-test", bridge="wormhole"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1044,14 +1044,14 @@ def main(src_net="avax-test", dst_net="polygon-test", bridge="wormhole"):
                                 inputAmount=int(
                                     1e-3 * src_session.put_task(get_token_decimal, args=("bsc-usdt",))),
                                 sourceTokenName="bsc-usdt",
-                                sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+                                sourceSwapType=SwapType.IUniswapV2Router02,
                                 sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
                                 sourceSwapPath=("bsc-usdt", "usdc"),
-                                destinationTokenName="avax-usdc",
+                                destinationTokenName="polygon-usdc",
                                 destinationSwapType=SwapType.IUniswapV2Router02,
                                 destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
                                 destinationSwapPath=(
-                                    "avax-usdc", "usdc")
+                                    "polygon-usdc", "usdt", "avax-usdc")
                                 )
     elif bridge == "swap":
         # single swap

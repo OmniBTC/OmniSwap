@@ -33,19 +33,19 @@ networks:
       gas:
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
     oracle:
       eth:
@@ -60,6 +60,12 @@ networks:
         decimal: 18
       avax-usdc:
         address: "0xAC6331db5C84602F2F8dc4592bdeafE602C2a994"
+        decimal: 6
+      polygon-usdc:
+        address: "0x4e8c50d7c76991f8E058b58fA6C243670CeB1eda"
+        decimal: 6
+      ftm-usdc:
+        address: "0xc014D91f2843F111371e2fDEf519EB1fDE10751C"
         decimal: 6
       # usdc:
       #   address: "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557"
@@ -87,19 +93,19 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
     oracle:
       bsc:
@@ -129,6 +135,15 @@ networks:
       avax-usdc:
         address: "0x71b7E25BE7879E042E55FBabD4037De116ae07e0"
         decimal: 6
+      goerli-usdt:
+        address: "0x51Bc652471dd4B236b278B6E98EC5dB8f020B934"
+        decimal: 18
+      polygon-usdc:
+        address: "0x55Ff5acCE2f2751A5C5Af91fa7e9f1c00F283cFb"
+        decimal: 6
+      ftm-usdc:
+        address: "0xc95CEe06CF296479eBfA379e62D79C491fEc875D"
+        decimal: 6
       wbtc:
         address: "0x0ecacbE08B4E2AA71B8f71ECe35A7EbF815607E8"
         decimal: 18
@@ -156,19 +171,19 @@ networks:
       gas:
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
     oracle:
       avax:
@@ -200,6 +215,15 @@ networks:
       bsc-usdt:
         address: "0x8337e5eF98af25012e1B39CD996772143f6c5fDf"
         decimal: 18
+      goerli-usdt:
+        address: "0x52019f6ad6b15739Ec083A1e54EaF294a2dDfD6B"
+        decimal: 18
+      polygon-usdc:
+        address: "0xF18BfDa8071eB9dc51aE47F46349cB98695E42C3"
+        decimal: 6
+      ftm-usdc:
+        address: "0xF0df323AEAeB85bbC1e08177C4ED1c57FaD76D84"
+        decimal: 6
       wbtc:
         address: "0x93056503b159fa416Ed5e8eF3907e2F01CAD1eDD"
         decimal: 18
@@ -231,19 +255,19 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
     oracle:
       matic:
@@ -266,6 +290,12 @@ networks:
         decimal: 18
       avax-usdc:
         address: "0x4Eef687C481CcBa613Dbf6b3245281C6f91aEc62"
+        decimal: 6
+      goerli-usdt:
+        address: "0x50c3f7B8ac1324A562c6532E30f516C5FBB9A20a"
+        decimal: 18
+      ftm-usdc:
+        address: "0xd337379dEA1f5ea9cD4692668ffD3FD22F4910BE"
         decimal: 6
     swap:
       IUniswapV2Router02:
@@ -328,19 +358,19 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 500000
           per_byte_gas: 68
     stargate:
       router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
@@ -356,6 +386,12 @@ networks:
         decimal: 18
       avax-usdc:
         address: "0x83764EAc47CC4db15d688602147aBf7BC6128b29"
+        decimal: 6
+      goerli-usdt:
+        address: "0xedBA00B37718a4bEC6409d54Ec56C74E4fd1e0F8"
+        decimal: 18
+      polygon-usdc:
+        address: "0x15C84f0C7c7da7D37EB06C831189225021AB0192"
         decimal: 6
       weth:
         # Wormhole used weth
