@@ -16,7 +16,7 @@ module omniswap::swap {
 
     const EINVALID_SWAP_CURVE: u64 = 0x03;
 
-    public fun right_token<X>(token: vector<u8>): bool {
+    public fun right_type<X>(token: vector<u8>): bool {
         let data = vector::empty();
         serde::serialize_type<X>(&mut data);
         if (data == token) {
@@ -28,17 +28,17 @@ module omniswap::swap {
 
     public fun swap_by_account<X, Y>(account: &signer, data: NormalizedSwapData): Coin<Y> {
         if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
-            assert!(right_token<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
-            assert!(right_token<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+            assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+            assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
             let coin_val = u256::as_u64(cross::swap_from_amount(data));
             let coin_x = coin::withdraw<X>(account, coin_val);
 
-            if (right_token<Stable>(cross::swap_call_data(data))) {
+            if (right_type<Stable>(cross::swap_call_data(data))) {
                 router::swap_exact_coin_for_coin<X, Y, Stable>(
                     coin_x,
                     0,
                 )
-            }else if (right_token<Uncorrelated>(cross::swap_call_data(data))) {
+            }else if (right_type<Uncorrelated>(cross::swap_call_data(data))) {
                 router::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
                     coin_x,
                     0,
@@ -53,15 +53,15 @@ module omniswap::swap {
 
     public fun swap_by_coin<X, Y>(coin_x: Coin<X>, data: NormalizedSwapData): Coin<Y> {
         if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
-            assert!(right_token<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
-            assert!(right_token<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+            assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+            assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
 
-            if (right_token<Stable>(cross::swap_call_data(data))) {
+            if (right_type<Stable>(cross::swap_call_data(data))) {
                 router::swap_exact_coin_for_coin<X, Y, Stable>(
                     coin_x,
                     0,
                 )
-            }else if (right_token<Uncorrelated>(cross::swap_call_data(data))) {
+            }else if (right_type<Uncorrelated>(cross::swap_call_data(data))) {
                 router::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
                     coin_x,
                     0,

@@ -24,7 +24,7 @@ module omniswap::wormhole_facet {
     use aptos_std::table::{Table, Self};
     use omniswap::so_fee_wormhole_v1;
     use wormhole::state;
-    use omniswap::swap::right_token;
+    use omniswap::swap::right_type;
     use aptos_std::event::EventHandle;
     use aptos_std::event;
     use token_bridge::attest_token;
@@ -267,7 +267,7 @@ module omniswap::wormhole_facet {
         src_fee = u256::div(src_fee, one);
         let comsume_value = u256::from_u64(state::get_message_fee());
 
-        if (right_token<AptosCoin>(cross::so_sending_asset_id(so_data))) {
+        if (right_type<AptosCoin>(cross::so_sending_asset_id(so_data))) {
             comsume_value = u256::add(comsume_value, cross::so_amount(so_data));
         };
         comsume_value = u256::add(comsume_value, src_fee);

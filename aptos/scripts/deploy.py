@@ -1,10 +1,11 @@
+from scripts.struct import omniswap_aptos_path
 from scripts.utils import aptos_brownie
 
 
 def main():
     # deploy
     package = aptos_brownie.AptosPackage(
-        project_path=".",
+        project_path=omniswap_aptos_path,
         network="aptos-testnet"
     )
     package.publish_package()

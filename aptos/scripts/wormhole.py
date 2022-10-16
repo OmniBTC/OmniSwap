@@ -5,21 +5,22 @@ from brownie import (
 )
 from brownie.project.main import Project
 
+from scripts.serde import get_serde_facet, get_wormhole_facet
 from scripts.struct import SoData, to_hex_str, change_network, hex_str_to_vector_u8, \
-    generate_aptos_coin_address_in_wormhole
+    generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project
 from scripts.utils import aptos_brownie
 
 
 def get_dst_wrapped_address_for_aptos(
         package: aptos_brownie.AptosPackage,
-        p: Project,
+        omniswap_ethereum_project: Project,
         token_name="APT",
         dst_net=network.show_active()
 ):
     token_address = generate_aptos_coin_address_in_wormhole(token_name)
     token_bridge = Contract.from_abi("TokenBridge",
                                      package.config["networks"][dst_net]["wormhole"]["token_bridge"],
-                                     p.interface.IWormholeBridge.abi)
+                                     omniswap_ethereum_project.interface.IWormholeBridge.abi)
     wrapped_address = token_bridge.wrappedAsset(package.network_config["wormhole"]["chainid"], token_address)
     is_wrapped = token_bridge.isWrappedAsset(wrapped_address)
     return token_address, wrapped_address, is_wrapped
@@ -32,28 +33,23 @@ def main():
 
     # load src net aptos package
     package = aptos_brownie.AptosPackage(
-        project_path=".",
+        project_path=omniswap_aptos_path,
         network=src_net
     )
 
     # load dst net project
-    p = project.load("../ethereum")
-    so_diamond_address = package.config["networks"][dst_net]["SoDiamond"]
-    so_diamond_network = dst_net
-    change_network(so_diamond_network)
+    change_network(dst_net)
 
     # cross token info
     token_name = "APT"
     (token_address, wrapped_address, is_wrapped) = get_dst_wrapped_address_for_aptos(
-        package, p, token_name, dst_net)
+        package, omniswap_ethereum_project, token_name, dst_net)
     print(f"{token_name} aptos source address: {token_address}, "
-          f"dst {so_diamond_network} address: {wrapped_address}, wrapped {is_wrapped}")
+          f"dst {dst_net} address: {wrapped_address}, wrapped {is_wrapped}")
 
     # load facet
-    serde_name = "SerdeFacet"
-    serde = Contract.from_abi(serde_name, so_diamond_address, p[serde_name].abi)
-    wormhole_name = "WormholeFacet"
-    wormhole = Contract.from_abi(wormhole_name, so_diamond_address, p[wormhole_name].abi)
+    serde = get_serde_facet(package, dst_net)
+    wormhole = get_wormhole_facet(package, dst_net)
 
     # construct data
     wormhole_data = [4, 1, 100000000, "0x379838Ab3cab29F5BdA0FFD62547c90E8AeB6Ecc"]

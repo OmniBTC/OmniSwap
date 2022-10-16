@@ -237,7 +237,6 @@ class AptosPackage:
         self.faucet_client = FaucetClient(self.config["networks"][network]["faucet_url"], self.rest_client)
 
         # # # # # load move toml
-        print(self.package_path.joinpath("Move.toml").absolute())
         assert self.package_path.joinpath("Move.toml").exists(), "Move.toml not found"
         self.move_path = self.package_path.joinpath("Move.toml")
         self.move_toml = {}
@@ -442,16 +441,3 @@ class AptosPackage:
         except:
             print(f"APT: 0")
         return acc
-
-
-if __name__ == "__main__":
-    # # # # # Example
-    omniswap = AptosPackage("../..")
-    omniswap.create_random_account()
-    # omniswap.publish_package()
-    # try:
-    #     # Maybe dump initialize
-    #     omniswap["so_fee_wormhole_v1::initialize"]()
-    # except:
-    #     pass
-    # omniswap["so_fee_wormhole_v1::set_price_ratio"](1, 1)

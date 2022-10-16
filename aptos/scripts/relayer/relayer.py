@@ -1,8 +1,9 @@
 import json
+from pathlib import Path
 
 import requests
 
-from scripts.struct import padding_to_bytes
+from scripts.struct import padding_to_bytes, omniswap_aptos_path
 from scripts.utils import aptos_brownie
 
 
@@ -82,7 +83,7 @@ def get_pending_data() -> list:
 
 
 def main():
-    package = aptos_brownie.AptosPackage(".")
+    package = aptos_brownie.AptosPackage(str(omniswap_aptos_path))
     while True:
         pending_data = get_pending_data()
         for d in pending_data:
