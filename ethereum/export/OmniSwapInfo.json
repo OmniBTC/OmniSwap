@@ -137,15 +137,22 @@
                         "SrcWormholeChainId": 6
                     },
                     {
-                        "DstTokenAddress": "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7",
-                        "DstWormholeChainId": 5,
-                        "SrcTokenAddress": "0xF18BfDa8071eB9dc51aE47F46349cB98695E42C3",
-                        "SrcWormholeChainId": 6
-                    },
-                    {
                         "DstTokenAddress": "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78",
                         "DstWormholeChainId": 2,
                         "SrcTokenAddress": "0x52019f6ad6b15739Ec083A1e54EaF294a2dDfD6B",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0xF18BfDa8071eB9dc51aE47F46349cB98695E42C3",
                         "SrcWormholeChainId": 6
                     },
                     {
@@ -155,9 +162,9 @@
                         "SrcWormholeChainId": 6
                     }
                 ],
-                "Decimal": 18,
+                "Decimal": 6,
                 "NativeToken": false,
-                "TokenName": "USDT"
+                "TokenName": "USDC"
             }
         ]
     },
@@ -292,12 +299,6 @@
                         "SrcWormholeChainId": 4
                     },
                     {
-                        "DstTokenAddress": "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78",
-                        "DstWormholeChainId": 2,
-                        "SrcTokenAddress": "0x51Bc652471dd4B236b278B6E98EC5dB8f020B934",
-                        "SrcWormholeChainId": 4
-                    },
-                    {
                         "DstTokenAddress": "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e",
                         "DstWormholeChainId": 10,
                         "SrcTokenAddress": "0xc95CEe06CF296479eBfA379e62D79C491fEc875D",
@@ -307,6 +308,19 @@
                 "Decimal": 6,
                 "NativeToken": false,
                 "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0x51Bc652471dd4B236b278B6E98EC5dB8f020B934",
+                        "SrcWormholeChainId": 4
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "USDT"
             }
         ]
     },
@@ -396,6 +410,19 @@
                         "SrcTokenAddress": "0x83764EAc47CC4db15d688602147aBf7BC6128b29",
                         "SrcWormholeChainId": 10
                     },
+                    {
+                        "DstTokenAddress": "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0x15C84f0C7c7da7D37EB06C831189225021AB0192",
+                        "SrcWormholeChainId": 10
+                    }
+                ],
+                "Decimal": 6,
+                "NativeToken": false,
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
                     {
                         "DstTokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
                         "DstWormholeChainId": 4,
@@ -547,12 +574,6 @@
                         "SrcWormholeChainId": 2
                     },
                     {
-                        "DstTokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
-                        "DstWormholeChainId": 4,
-                        "SrcTokenAddress": "0xa512c06d85004930526b1Ab0452fDD3F5F0fC665",
-                        "SrcWormholeChainId": 2
-                    },
-                    {
                         "DstTokenAddress": "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7",
                         "DstWormholeChainId": 5,
                         "SrcTokenAddress": "0x4e8c50d7c76991f8E058b58fA6C243670CeB1eda",
@@ -568,6 +589,19 @@
                 "Decimal": 6,
                 "NativeToken": false,
                 "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0xa512c06d85004930526b1Ab0452fDD3F5F0fC665",
+                        "SrcWormholeChainId": 2
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "USDT"
             }
         ]
     },
@@ -620,6 +654,12 @@
                     {
                         "DstTokenAddress": "0x4e8c50d7c76991f8E058b58fA6C243670CeB1eda",
                         "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7",
+                        "SrcWormholeChainId": 5
+                    },
+                    {
+                        "DstTokenAddress": "0x15C84f0C7c7da7D37EB06C831189225021AB0192",
+                        "DstWormholeChainId": 10,
                         "SrcTokenAddress": "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7",
                         "SrcWormholeChainId": 5
                     }
@@ -691,6 +731,19 @@
                         "SrcWormholeChainId": 5
                     },
                     {
+                        "DstTokenAddress": "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e",
+                        "DstWormholeChainId": 10,
+                        "SrcTokenAddress": "0xd337379dEA1f5ea9cD4692668ffD3FD22F4910BE",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 6,
+                "NativeToken": false,
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
                         "DstTokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
                         "DstWormholeChainId": 4,
                         "SrcTokenAddress": "0xa14f18f74580F9A7A23e2B66262af8b1500d293E",
@@ -700,12 +753,6 @@
                         "DstTokenAddress": "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78",
                         "DstWormholeChainId": 2,
                         "SrcTokenAddress": "0x50c3f7B8ac1324A562c6532E30f516C5FBB9A20a",
-                        "SrcWormholeChainId": 5
-                    },
-                    {
-                        "DstTokenAddress": "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e",
-                        "DstWormholeChainId": 10,
-                        "SrcTokenAddress": "0xd337379dEA1f5ea9cD4692668ffD3FD22F4910BE",
                         "SrcWormholeChainId": 5
                     }
                 ],

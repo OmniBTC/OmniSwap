@@ -73,8 +73,8 @@ def soSwapViaWormhole(so_data,
         src_swap_data,
         wormhole_data,
         dst_swap_data,
-        {'from': get_account(), 'value': int(msg_value),
-         'gas_limit': 1000000, 'allow_revert': True}
+        {'from': get_account(), 'value': int(msg_value)
+         }
     )
 
 
@@ -180,9 +180,9 @@ class SoData(View):
         """
         return [to_hex_str(self.transactionId),
                 to_hex_str(self.receiver),
-                self.sourceChainId,
+                self.sourceChainId if self.sourceChainId < 255 else 0,
                 to_hex_str(self.sendingAssetId),
-                self.destinationChainId,
+                self.destinationChainId if self.destinationChainId < 255 else 0,
                 to_hex_str(self.receivingAssetId),
                 self.amount]
 
@@ -995,7 +995,7 @@ def single_swap(
                          )
 
 
-def main(src_net="bsc-test", dst_net="avax-test", bridge="wormhole"):
+def main(src_net="avax-test", dst_net="polygon-test", bridge="wormhole"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1042,15 +1042,16 @@ def main(src_net="bsc-test", dst_net="avax-test", bridge="wormhole"):
         cross_swap_via_wormhole(src_session=src_session,
                                 dst_session=dst_session,
                                 inputAmount=int(
-                                    1e-3 * src_session.put_task(get_token_decimal, args=("wusdc",))),
-                                sourceTokenName="wusdc",
-                                sourceSwapType=SwapType.IUniswapV2Router02,
+                                    1e-3 * src_session.put_task(get_token_decimal, args=("bsc-usdt",))),
+                                sourceTokenName="bsc-usdt",
+                                sourceSwapType=SwapType.IUniswapV2Router02AVAX,
                                 sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-                                sourceSwapPath=("wusdc", "usdt"),
-                                destinationTokenName="wusdt",
-                                destinationSwapType=SwapType.IUniswapV2Router02AVAX,
+                                sourceSwapPath=("bsc-usdt", "usdc"),
+                                destinationTokenName="avax-usdc",
+                                destinationSwapType=SwapType.IUniswapV2Router02,
                                 destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-                                destinationSwapPath=("wusdt", "usdc")
+                                destinationSwapPath=(
+                                    "avax-usdc", "usdc")
                                 )
     elif bridge == "swap":
         # single swap

@@ -131,7 +131,7 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
 
     net_support_token = get_wormhole_support_token(current_net)
 
-    (stable_token_name, stable_token_address) = get_stable_coin_address(current_net)
+    (_, stable_token_address) = get_stable_coin_address(current_net)
 
     weth_chain_path = []
     stable_chain_path = []
@@ -168,17 +168,33 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
         'TokenName': get_native_token_name(current_net)
     })
 
-    if stable_token_name == "usdt":
-        net_support_token.append({'ChainPath': wrapped_chain_path,
-                                  'Decimal': 6,
-                                  'NativeToken': False,
-                                  'TokenName': 'USDC'})
-    else:
-        net_support_token.append({'ChainPath': wrapped_chain_path,
-                                  'Decimal': 18,
-                                  'NativeToken': False,
-                                  'TokenName': 'USDT'
-                                  })
+    wrapped_tokens = []
+    for wrapped_token in wrapped_chain_path:
+        erc20 = Contract.from_abi(
+            "ERC20", wrapped_token["SrcTokenAddress"], ERC20.abi)
+        if not wrapped_tokens:
+            wrapped_tokens.append({
+                'ChainPath': [wrapped_token],
+                'Decimal': erc20.decimals(),
+                'NativeToken': False,
+                'TokenName': erc20.symbol()
+            })
+        else:
+            exist_wrapped = False
+            for token in wrapped_tokens:
+                if token["TokenName"] == erc20.symbol():
+                    token["ChainPath"].append(wrapped_token)
+                    exist_wrapped = True
+
+            if not exist_wrapped:
+                wrapped_tokens.append({
+                    'ChainPath': [wrapped_token],
+                    'Decimal': erc20.decimals(),
+                    'NativeToken': False,
+                    'TokenName': erc20.symbol()
+                })
+
+    net_support_token.extend(wrapped_tokens)
 
     return net_support_token
 

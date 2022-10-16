@@ -55,6 +55,12 @@ networks:
       usdt:
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 18
+      bsc-usdt:
+        address: "0xa512c06d85004930526b1Ab0452fDD3F5F0fC665"
+        decimal: 18
+      avax-usdc:
+        address: "0xAC6331db5C84602F2F8dc4592bdeafE602C2a994"
+        decimal: 6
       # usdc:
       #   address: "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557"
       #   decimal: 6
@@ -120,7 +126,7 @@ networks:
       wavax:
         address: "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
         decimal: 18
-      wusdc:
+      avax-usdc:
         address: "0x71b7E25BE7879E042E55FBabD4037De116ae07e0"
         decimal: 6
       wbtc:
@@ -191,7 +197,7 @@ networks:
       wbnb:
         address: "0x10F1053bF2884b28ee0Bd7a2dDBa237Af3511d29"
         decimal: 18
-      wusdt:
+      bsc-usdt:
         address: "0x8337e5eF98af25012e1B39CD996772143f6c5fDf"
         decimal: 18
       wbtc:
@@ -255,6 +261,12 @@ networks:
       weth:
         address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
         decimal: 18
+      bsc-usdt:
+        address: "0xa14f18f74580F9A7A23e2B66262af8b1500d293E"
+        decimal: 18
+      avax-usdc:
+        address: "0x4Eef687C481CcBa613Dbf6b3245281C6f91aEc62"
+        decimal: 6
     swap:
       IUniswapV2Router02:
         name: UniswapV2
@@ -338,6 +350,12 @@ networks:
     token:
       usdc:
         address: "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e"
+        decimal: 6
+      bsc-usdt:
+        address: "0xcAc2b63530a468D422BA588bceed15afFF96A275"
+        decimal: 18
+      avax-usdc:
+        address: "0x83764EAc47CC4db15d688602147aBf7BC6128b29"
         decimal: 6
       weth:
         # Wormhole used weth
