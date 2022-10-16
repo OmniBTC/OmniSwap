@@ -5,6 +5,16 @@ import hashlib
 from brownie import web3, network
 
 
+def padding_to_bytes(data: str, padding="right", length=32):
+    if data[:2] == "0x":
+        data = data[2:]
+    padding_length = length * 2 - len(data)
+    if padding == "right":
+        return "0x" + data + "0" * padding_length
+    else:
+        return "0x" + "0" * padding_length + data
+
+
 def generate_aptos_coin_address_in_wormhole(data: str) -> str:
     """
     Generate token address

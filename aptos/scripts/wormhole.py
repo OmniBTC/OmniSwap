@@ -13,10 +13,12 @@ from scripts.utils import aptos_brownie
 def get_dst_wrapped_address_for_aptos(
         package: aptos_brownie.AptosPackage,
         p: Project,
-        token_name="APT"):
+        token_name="APT",
+        dst_net=network.show_active()
+):
     token_address = generate_aptos_coin_address_in_wormhole(token_name)
     token_bridge = Contract.from_abi("TokenBridge",
-                                     package.network_config["wormhole"]["token_bridge"][network.show_active()],
+                                     package.config["networks"][dst_net]["wormhole"]["token_bridge"],
                                      p.interface.IWormholeBridge.abi)
     wrapped_address = token_bridge.wrappedAsset(package.network_config["wormhole"]["chainid"], token_address)
     is_wrapped = token_bridge.isWrappedAsset(wrapped_address)
@@ -24,23 +26,26 @@ def get_dst_wrapped_address_for_aptos(
 
 
 def main():
+    src_net = "aptos-testnet"
+    assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
+    dst_net = "bsc-test"
+
+    # load src net aptos package
     package = aptos_brownie.AptosPackage(
         project_path=".",
-        network="aptos-testnet"
+        network=src_net
     )
 
-    # load project
+    # load dst net project
     p = project.load("../ethereum")
-    so_diamond_address = None
-    so_diamond_network = None
-    for k, v in package.network_config["SoDiamond"].items():
-        so_diamond_network = k
-        so_diamond_address = v
-        break
+    so_diamond_address = package.config["networks"][dst_net]["SoDiamond"]
+    so_diamond_network = dst_net
     change_network(so_diamond_network)
 
+    # cross token info
     token_name = "APT"
-    (token_address, wrapped_address, is_wrapped) = get_dst_wrapped_address_for_aptos(package, p, token_name)
+    (token_address, wrapped_address, is_wrapped) = get_dst_wrapped_address_for_aptos(
+        package, p, token_name, dst_net)
     print(f"{token_name} aptos source address: {token_address}, "
           f"dst {so_diamond_network} address: {wrapped_address}, wrapped {is_wrapped}")
 

@@ -221,7 +221,7 @@ class AptosPackage:
         # # # # # load config
         assert self.project_path.joinpath("brownie-config.yaml").exists(), "brownie-config.yaml not found"
         self.config_path = self.project_path.joinpath("brownie-config.yaml")
-        self.config = {}
+        self.config = {}  # all network configs
         with self.config_path.open() as fp:
             self.config = yaml.safe_load(fp)
         try:
@@ -232,7 +232,7 @@ class AptosPackage:
         except Exception as e:
             raise e
         self.account = Account.load_key(self.private_key)
-        self.network_config = self.config["networks"][network]
+        self.network_config = self.config["networks"][network]  # current aptos network config
         self.rest_client = RestClient(self.config["networks"][network]["node_url"])
         self.faucet_client = FaucetClient(self.config["networks"][network]["faucet_url"], self.rest_client)
 

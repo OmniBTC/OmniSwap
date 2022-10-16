@@ -2,14 +2,14 @@
 dotenv: .env
 networks:
   default: bsc-test
-  aptos-main:
+  aptos-mainnet:
     node_url:
     faucet_url:
   aptos-devnet:
     node_url: https://fullnode.devnet.aptoslabs.com/v1
     faucet_url: https://tap.devnet.prod.gcp.aptosdev.com
     wormhole:
-      id: 22
+      chainid: 22
   aptos-testnet:
     node_url: https://fullnode.testnet.aptoslabs.com/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
@@ -20,17 +20,14 @@ networks:
       liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
     wormhole:
       chainid: 22
-      token_bridge:
-        bsc-test: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
-        aptos-testnet: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
+      token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
       token:
+        APT: "0xa867703f5395cb2965feb7ebff5cdf39b771fc6156085da3ae4147a00be91b38"
+  bsc-test:
+    wormhole:
+      chainid: 4
+      token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
+      token:
+        # wrapped from aptos
         APT:
-          src:
-            aptos-testnet: "0xa867703f5395cb2965feb7ebff5cdf39b771fc6156085da3ae4147a00be91b38"
-          dst:
-            bsc-test:
-
-    SoDiamond:
-      # The aptos parameter does not support struct, use eth to convert to vector<u8>.
-      bsc-test: "0x7c9bccAdF247B4E0B30DCE87E777B74070a23AcC"
-
+    SoDiamond: "0x7c9bccAdF247B4E0B30DCE87E777B74070a23AcC"

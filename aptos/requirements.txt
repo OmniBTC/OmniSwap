@@ -3,3 +3,4 @@ python-dotenv
 pathlib
 yaml
 toml
+requests
