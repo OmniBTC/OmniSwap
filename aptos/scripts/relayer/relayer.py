@@ -1,10 +1,17 @@
 import json
-from pathlib import Path
+import logging
+import time
 
 import requests
 
-from scripts.struct import padding_to_bytes, omniswap_aptos_path
+from scripts.serde import parse_vaa_to_wormhole_payload
+from scripts.struct import padding_to_bytes, omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
 from scripts.utils import aptos_brownie
+
+FORMAT = '%(asctime)s - %(filename)s - %(funcName)s - %(levelname)s - %(message)s'
+logging.basicConfig(format=FORMAT)
+logger = logging.getLogger()
+logger.setLevel("INFO")
 
 
 def get_wormhole_info(package: aptos_brownie.AptosPackage) -> dict:
@@ -86,15 +93,44 @@ def main():
     package = aptos_brownie.AptosPackage(str(omniswap_aptos_path))
     while True:
         pending_data = get_pending_data()
+        logger.info(f"Pending data length: {len(pending_data)}")
         for d in pending_data:
             try:
                 vaa = get_signed_vaa(package, int(d["srcWormholeChainId"]), int(d["sequence"]))
-            except:
+            except Exception as e:
+                logger.error(f"Get signed vaa error: {e}")
                 continue
-            # todo! fix
-            package["wormhole_facet::complete_so_swap"]()
+            try:
+                # Use bsc-test to decode, too slow may need to change bsc-mainnet
+                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, "bsc-test", vaa)
+            except Exception as e:
+                logger.error(f"Parse signed vaa error: {e}")
+                continue
+            try:
+                final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
+                if len(wormhole_data[3]) == 0:
+                    ty_args = [final_asset_id, final_asset_id, final_asset_id, final_asset_id]
+                elif len(wormhole_data[3]) == 1:
+                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
+                    s2 = final_asset_id
+                    ty_args = [s1, s2, s2, s2]
+                elif len(wormhole_data[3]) == 2:
+                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
+                    s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
+                    s3 = final_asset_id
+                    ty_args = [s1, s2, s3, s3]
+                elif len(wormhole_data[3]) == 3:
+                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
+                    s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
+                    s3 = decode_hex_to_ascii(wormhole_data[3][2][2])
+                    s4 = final_asset_id
+                    ty_args = [s1, s2, s3, s4]
+                else:
+                    logger.error(f"Dst swap too much")
+                    raise OverflowError
+                package["wormhole_facet::complete_so_swap"](hex_str_to_vector_u8(vaa), ty_args=ty_args)
+            except Exception as e:
+                logger.error(f"Decode hex error: {e}")
+                continue
 
-
-if __name__ == "__main__":
-    print(get_signed_vaa(aptos_brownie.AptosPackage("../../"), 2, 2337, "0xf890982f9310df57d00f659cf4fd87e65aded8d7"))
-    print(get_pending_data())
+        time.sleep(60)

@@ -11,6 +11,11 @@ omniswap_ethereum_project = project.load(str(omniswap_ethereum_path), raise_if_l
 omniswap_aptos_path = Path(__file__).parent.parent
 
 
+def decode_hex_to_ascii(data: str):
+    data = data.replace("0x", "")
+    return str(bytearray.fromhex(data).decode(encoding="ascii"))
+
+
 def padding_to_bytes(data: str, padding="right", length=32):
     if data[:2] == "0x":
         data = data[2:]

@@ -15,3 +15,9 @@ brownie run scripts/deploy.py
 ~~~shell
 brownie run scripts/wormhole.py
 ~~~
+
+## Relayer
+
+~~~shell
+brownie run scripts/relayer/relayer.py
+~~~
