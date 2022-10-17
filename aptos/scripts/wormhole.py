@@ -68,7 +68,7 @@ def main():
     dst_swap_data = []
     aptos_str = "0x1::aptos_coin::AptosCoin"
     package["wormhole_facet::attest_token"](ty_args=[aptos_str])
-    package["wormhole_facet::so_swap"](
+    package["so_diamond::so_swap_via_wormhole"](
         normal_so_data,
         src_swap_data,
         normal_wormhole_data,

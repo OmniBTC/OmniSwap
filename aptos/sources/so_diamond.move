@@ -1,21 +1,18 @@
 module omniswap::so_diamond {
-    // use std::string::String;
-    // use aptos_std::type_info::TypeInfo;
-    // use aptos_std::bucket_table::{BucketTable, Self};
-    //
-    //
-    // struct SupportedBridge has key{
-    //     // Bridge typeinfo -> description
-    //     bridges: BucketTable<String, TypeInfo>
-    // }
-    //
-    // public fun is_supported(bridge: String) :bool acquires SupportedBridge {
-    //     let bridges = &borrow_global<SupportedBridge>(@omniswap).bridges;
-    //     bucket_table::contains(bridges, &bridge)
-    // }
 
-    public entry fun so_swap_via_wormhole(){
+    use omniswap::wormhole_facet;
 
+    public entry fun so_swap_via_wormhole<X, Y, Z, M>(
+        account: &signer,
+        so_data: vector<u8>,
+        swap_data_src: vector<u8>,
+        wormhole_data: vector<u8>,
+        swap_data_dst: vector<u8>
+    ) {
+        wormhole_facet::so_swap<X, Y, Z, M>(account, so_data, swap_data_src, wormhole_data, swap_data_dst);
     }
 
+    public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) {
+        wormhole_facet::complete_so_swap<X, Y, Z, M>(vaa);
+    }
 }

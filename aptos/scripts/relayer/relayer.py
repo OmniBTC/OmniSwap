@@ -128,7 +128,7 @@ def main():
                 else:
                     logger.error(f"Dst swap too much")
                     raise OverflowError
-                package["wormhole_facet::complete_so_swap"](hex_str_to_vector_u8(vaa), ty_args=ty_args)
+                package["so_diamond::complete_so_swap"](hex_str_to_vector_u8(vaa), ty_args=ty_args)
             except Exception as e:
                 logger.error(f"Decode hex error: {e}")
                 continue
