@@ -271,8 +271,8 @@ class AptosPackage:
 
     def compile(self):
         # # # # # Compile
-        view = "Compile"
-        print("-" * 50 + view + "-" * 50)
+        view = f"Compile {self.package_name}"
+        print("\n" + "-" * 50 + view + "-" * 50)
         compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir " \
                       f"{self.package_path} {self.replace_address}"
         print(compile_cmd)
@@ -321,8 +321,8 @@ class AptosPackage:
         # print(f"Publish package: {self.package_name}, hash: {txn_hash}, waiting...")
         # self.rest_client.wait_for_transaction(txn_hash)
         # print(f"Publish package: {self.package_name} Success.\n")
-        view = "Publish package"
-        print("-" * 50 + view + "-" * 50)
+        view = f"Publish {self.package_name}"
+        print("\n" + "-" * 50 + view + "-" * 50)
         compile_cmd = f"aptos move publish --assume-yes {self.replace_address} --package-dir {self.package_path} " \
                       f"--url {self.network_config['node_url']} " \
                       f"--private-key {self.account.private_key}"
