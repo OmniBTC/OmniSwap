@@ -7,6 +7,8 @@ module omniswap_mock::setup {
     use liquidswap::curves::{Uncorrelated, Stable};
     use std::signer;
     use liquidswap::liquidity_pool;
+    use aptos_framework::aptos_coin::AptosCoin;
+    use liquidswap::coin_helper;
 
     const SEED: vector<u8> = b"omniswap_mock";
 
@@ -75,6 +77,20 @@ module omniswap_mock::setup {
         account::create_signer_with_capability(&deploying_cap.signer_cap)
     }
 
+    fun add_liquidity<X, Y, Curve>(account: &signer, x_val: u64, y_val: u64) {
+        if (coin_helper::is_sorted<X, Y>()) {
+            if (!liquidity_pool::is_pool_exists<X, Y, Curve>()) {
+                scripts::register_pool<X, Y, Curve>(account);
+            };
+            scripts::add_liquidity<X, Y, Curve>(account, x_val, 0, y_val, 0);
+        }else {
+            if (!liquidity_pool::is_pool_exists<Y, X, Curve>()) {
+                scripts::register_pool<Y, X, Curve>(account);
+            };
+            scripts::add_liquidity<Y, X, Curve>(account, x_val, 0, y_val, 0);
+        }
+    }
+
     public entry fun setup_omniswap_enviroment(account: &signer) acquires SignerCapability {
         let account_addr = signer::address_of(account);
         if (!coin::is_account_registered<XBTC>(account_addr)) {
@@ -90,15 +106,8 @@ module omniswap_mock::setup {
         coin::transfer<USDC>(&get_resouce_signer(), account_addr, 20000 * 10000000000);
         coin::transfer<USDT>(&get_resouce_signer(), account_addr, 20000 * 10000000000);
 
-        if (!liquidity_pool::is_pool_exists<USDT, XBTC, Uncorrelated>()) {
-            scripts::register_pool<USDT, XBTC, Uncorrelated>(account);
-        };
-
-        if (!liquidity_pool::is_pool_exists<USDC, USDT, Stable>()) {
-            scripts::register_pool<USDC, USDT, Stable>(account);
-        };
-
-        scripts::add_liquidity<USDT, XBTC, Uncorrelated>(account, 20000 * 1000000000, 0, 1000000000, 0);
-        scripts::add_liquidity<USDC, USDT, Stable>(account, 10000000000, 0, 10000000000, 0);
+        add_liquidity<XBTC, AptosCoin, Uncorrelated>(account, 100000000, 100000000);
+        add_liquidity<USDT, XBTC, Uncorrelated>(account, 20000 * 1000000000, 1000000000);
+        add_liquidity<USDC, USDT, Stable>(account, 10000000000, 10000000000);
     }
 }

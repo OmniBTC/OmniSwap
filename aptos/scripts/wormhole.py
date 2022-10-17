@@ -37,12 +37,13 @@ def main():
         network=src_net
     )
 
-    package_mock = aptos_brownie.AptosPackage(
-        project_path=omniswap_aptos_path,
-        network=src_net,
-        package_path=omniswap_aptos_path.joinpath("mocks")
-    )
-    package_mock["setup::setup_omniswap_enviroment"]()
+    if "test" in src_net and "test" in dst_net:
+        package_mock = aptos_brownie.AptosPackage(
+            project_path=omniswap_aptos_path,
+            network=src_net,
+            package_path=omniswap_aptos_path.joinpath("mocks")
+        )
+        package_mock["setup::setup_omniswap_enviroment"]()
 
     # load dst net project
     change_network(dst_net)
