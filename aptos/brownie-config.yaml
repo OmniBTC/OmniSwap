@@ -3,14 +3,17 @@ dotenv: .env
 networks:
   default: bsc-test
   aptos-mainnet:
+    omnibtc_chainid: 1
     node_url:
     faucet_url:
   aptos-devnet:
+    omnibtc_chainid: 30001
     node_url: https://fullnode.devnet.aptoslabs.com/v1
     faucet_url: https://tap.devnet.prod.gcp.aptosdev.com
     wormhole:
       chainid: 22
   aptos-testnet:
+    omnibtc_chainid: 30001
     node_url: https://fullnode.testnet.aptoslabs.com/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
     replace_address:
@@ -18,17 +21,46 @@ networks:
       token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
       wormhole: "0x1b1752e26b65fc24971ee5ec9718d2ccdd36bf20486a10b2973ea6dedc6cd197"
       liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
+    token:
+      XBTC:
+        module: omniswap_mock
+        address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
+        decimal: 8
+      USDC:
+        module: omniswap_mock
+        address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
+        decimal: 8
+      USDT:
+        module: omniswap_mock
+        address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
+        decimal: 8
     wormhole:
       chainid: 22
       token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
       token:
-        APT: "0xa867703f5395cb2965feb7ebff5cdf39b771fc6156085da3ae4147a00be91b38"
+        AptosCoin: "0xa867703f5395cb2965feb7ebff5cdf39b771fc6156085da3ae4147a00be91b38"
+  bsc-main:
+    omnibtc_chainid: 2
   bsc-test:
+    omnibtc_chainid: 30002
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
       wormhole: "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D"
       token:
         # wrapped from aptos
-        APT:
+        AptosCoin:
     SoDiamond: "0x7c9bccAdF247B4E0B30DCE87E777B74070a23AcC"
+    token:
+      USDT:
+        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        decimal: 18
+      WETH:
+        address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
+        decimal: 18
+    swap:
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1"
+        token_list: ""
+

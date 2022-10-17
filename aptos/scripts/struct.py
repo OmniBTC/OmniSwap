@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from random import choice
 from typing import List
 import hashlib
 
@@ -10,6 +11,18 @@ omniswap_ethereum_project = project.load(str(omniswap_ethereum_path), raise_if_l
 
 omniswap_aptos_path = Path(__file__).parent.parent
 
+
+def generate_random_bytes32():
+    """Produce random transactions iD for tracking transactions on both chains
+
+    Returns:
+        result: 32 bytes hex
+    """
+    chars = [str(i) for i in range(10)] + ["a", "b", "c", "d", "e"]
+    result = "0x"
+    for _ in range(64):
+        result += choice(chars)
+    return result
 
 def decode_hex_to_ascii(data: str):
     data = data.replace("0x", "")
@@ -164,3 +177,25 @@ class SwapData(View):
                 to_hex_str(self.receivingAssetId),
                 self.fromAmount,
                 to_hex_str(self.callData)]
+
+
+class WormholeData(View):
+    """Constructing wormhole data"""
+
+    def __init__(self,
+                 dstWormholeChainId,
+                 dstMaxGasPriceInWeiForRelayer,
+                 wormholeFee,
+                 dstSoDiamond,
+                 ):
+        self.dstWormholeChainId = dstWormholeChainId
+        self.dstMaxGasPriceInWeiForRelayer = dstMaxGasPriceInWeiForRelayer
+        self.wormholeFee = wormholeFee
+        self.dstSoDiamond = dstSoDiamond
+
+    def format_to_contract(self):
+        """Returns the data used to pass into the contract interface"""
+        return [self.dstWormholeChainId,
+                self.dstMaxGasPriceInWeiForRelayer,
+                self.wormholeFee,
+                to_hex_str(self.dstSoDiamond)]
