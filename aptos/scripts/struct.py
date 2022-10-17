@@ -24,6 +24,7 @@ def generate_random_bytes32():
         result += choice(chars)
     return result
 
+
 def decode_hex_to_ascii(data: str):
     data = data.replace("0x", "")
     return str(bytearray.fromhex(data).decode(encoding="ascii"))

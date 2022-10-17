@@ -9,8 +9,10 @@ from typing import Union, List
 
 from aptos_sdk import account
 from aptos_sdk.account_address import AccountAddress
+from aptos_sdk.authenticator import Authenticator, Ed25519Authenticator
 from aptos_sdk.bcs import Deserializer, Serializer
-from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload
+from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload, SignedTransaction, \
+    RawTransaction
 from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U128Tag, U64Tag, U8Tag, BoolTag
 from dotenv import load_dotenv
 from aptos_sdk.account import Account
@@ -334,6 +336,25 @@ class AptosPackage:
         assert key in self.abis, f"key not found in abi"
         return functools.partial(self.submit_bcs_transaction, self.abis[key])
 
+    def create_single_signer_bcs_transaction(
+        self, sender: Account, payload: TransactionPayload, gas: int = 500000, gas_price: int = 100
+    ) -> SignedTransaction:
+        raw_transaction = RawTransaction(
+            sender.address(),
+            self.rest_client.account_sequence_number(sender.address()),
+            payload,
+            gas,
+            gas_price,
+            int(time.time()) + 600,
+            self.rest_client.chain_id,
+        )
+
+        signature = sender.sign(raw_transaction.keyed())
+        authenticator = Authenticator(
+            Ed25519Authenticator(sender.public_key(), signature)
+        )
+        return SignedTransaction(raw_transaction, authenticator)
+
     def submit_bcs_transaction(
             self, abi: EntryFunctionABI, *args, ty_args: List[str] = None, **kwargs,
     ) -> dict:
@@ -377,7 +398,7 @@ class AptosPackage:
                 for arg in normal_args
             ],
         )
-        signed_transaction = self.rest_client.create_single_signer_bcs_transaction(
+        signed_transaction = self.create_single_signer_bcs_transaction(
             self.account, TransactionPayload(payload)
         )
         txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)

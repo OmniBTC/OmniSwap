@@ -23,15 +23,15 @@ networks:
       liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
     token:
       XBTC:
-        module: omniswap_mock
+        module: setup
         address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
         decimal: 8
       USDC:
-        module: omniswap_mock
+        module: setup
         address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
         decimal: 8
       USDT:
-        module: omniswap_mock
+        module: setup
         address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
         decimal: 8
     wormhole:
@@ -52,6 +52,22 @@ networks:
         AptosCoin:
     SoDiamond: "0x7c9bccAdF247B4E0B30DCE87E777B74070a23AcC"
     token:
+      XBTC_WORMHOLE:
+        # wormhole aptos wrapped coin. todo! need to fix
+        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        decimal: 8
+      AptosCoin_WORMHOLE:
+        # wormhole aptos wrapped coin. todo! need to fix
+        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        decimal: 8
+      USDT_WORMHOLE:
+        # wormhole aptos wrapped coin. todo! need to fix
+        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        decimal: 8
+      USDC_WORMHOLE:
+        # wormhole aptos wrapped coin. todo! need to fix
+        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        decimal: 8
       USDT:
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 18

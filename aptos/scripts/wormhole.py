@@ -1,6 +1,7 @@
 import functools
 import time
 from enum import Enum
+from typing import List
 
 from brownie import (
     Contract,
@@ -103,9 +104,14 @@ def get_evm_token_address(package: aptos_brownie.AptosPackage, dst_net: str, tok
         return result[token_name]["address"]
 
 
-def get_liquidswap_curve(package: aptos_brownie.AptosPackage, curve_name):
-    assert curve_name in ["Uncorrelated", "Stable"]
-    return f"{package.network_config['replace_address']['liquidswap']}::curves::{curve_name}"
+class LiquidswapCurve(Enum):
+    Uncorrelated = "Uncorrelated"
+    Stable = "Stable"
+
+
+def get_liquidswap_curve(package: aptos_brownie.AptosPackage, curve_name: LiquidswapCurve):
+    assert curve_name.value in ["Uncorrelated", "Stable"]
+    return f"{package.network_config['replace_address']['liquidswap']}::curves::{curve_name.value}"
 
 
 def generate_so_data(
@@ -148,15 +154,15 @@ def generate_src_swap_data(
         router: str,
         path: list,
         amount: int,
-):
+) -> List[SwapData]:
     out = []
     i = 0
     while i <= len(path) - 2:
         swap_data = SwapData(
             callTo=package.network_config["replace_address"][router],
             approveTo=package.network_config["replace_address"][router],
-            sendingAssetId=get_aptos_token(package)[path[i]],
-            receivingAssetId=get_aptos_token(package)[path[i + 2]],
+            sendingAssetId=get_aptos_token(package)[path[i]]["address"],
+            receivingAssetId=get_aptos_token(package)[path[i + 2]]["address"],
             fromAmount=amount,
             callData=get_liquidswap_curve(package, path[i + 1])
         )
@@ -173,7 +179,7 @@ def generate_dst_swap_data(
         func: EvmSwapFunc,
         min_amount: int,
         path: list
-):
+) -> List[SwapData]:
     """Evm only test one swap"""
     out = []
     if len(path) == 0:
@@ -245,6 +251,89 @@ def generate_dst_swap_data(
     return out
 
 
+def cross_swap(
+        package: aptos_brownie.AptosPackage,
+        src_path: list,
+        dst_path: list,
+        receiver: str,
+        input_amount: int,
+        dst_gas_price: int = 0,
+        dst_router: EvmSwapType = None,
+        dst_func: EvmSwapFunc = None,
+        dst_min_amount: int = 0
+):
+    assert len(src_path) > 0
+    assert len(dst_path) > 0
+    dst_net = network.show_active()
+    serde = get_serde_facet(package, dst_net)
+    wormhole = get_wormhole_facet(package, dst_net)
+
+    # construct wormhole data
+    wormhole_data = generate_wormhole_data(
+        package,
+        dst_net=dst_net,
+        dst_gas_price=dst_gas_price,
+        wormhole_fee=100000000
+    )
+    normal_wormhole_data = hex_str_to_vector_u8(
+        str(wormhole.encodeNormalizedWormholeData(wormhole_data.format_to_contract())))
+
+    # construct so data
+    so_data = generate_so_data(
+        package,
+        src_token=src_path[0],
+        dst_net=dst_net,
+        dst_token=dst_path[-1],
+        receiver=receiver,
+        amount=input_amount)
+    normal_so_data = hex_str_to_vector_u8(str(serde.encodeNormalizedSoData(so_data.format_to_contract())))
+
+    # construct src data
+    normal_src_swap_data = []
+    src_swap_data = []
+    if len(src_path) > 1:
+        src_swap_data = generate_src_swap_data(package, "liquidswap", src_path, input_amount)
+        normal_src_swap_data = [d.format_to_contract() for d in src_swap_data]
+        normal_src_swap_data = hex_str_to_vector_u8(str(serde.encodeNormalizedSwapData(normal_src_swap_data)))
+
+    # construct dst data
+    normal_dst_swap_data = []
+    if len(dst_path) > 1:
+        dst_swap_data = generate_dst_swap_data(
+            package,
+            omniswap_ethereum_project,
+            dst_net,
+            dst_router,
+            dst_func,
+            dst_min_amount,
+            dst_path
+        )
+        normal_dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
+        normal_dst_swap_data = hex_str_to_vector_u8(str(serde.encodeNormalizedSwapData(normal_dst_swap_data)))
+
+    if len(src_swap_data) == 0:
+        ty_args = [so_data.sendingAssetId] * 4
+    elif len(src_swap_data) == 1:
+        ty_args = [src_swap_data[0].sendingAssetId] + [src_swap_data[0].receivingAssetId] * 3
+    elif len(src_swap_data) == 2:
+        ty_args = [src_swap_data[0].sendingAssetId, src_swap_data[1].sendingAssetId] + [
+            src_swap_data[1].receivingAssetId] * 2
+    elif len(src_swap_data) == 3:
+        ty_args = [src_swap_data[0].sendingAssetId,
+                   src_swap_data[1].sendingAssetId,
+                   src_swap_data[2].sendingAssetId,
+                   ] + [src_swap_data[2].receivingAssetId]
+    else:
+        raise ValueError
+
+    package["so_diamond::so_swap_via_wormhole"](
+        normal_so_data,
+        normal_src_swap_data,
+        normal_wormhole_data,
+        normal_dst_swap_data,
+        ty_args=ty_args)
+
+
 def main():
     src_net = "aptos-testnet"
     assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
@@ -270,40 +359,32 @@ def main():
 
     ####################################################
 
-    # load serde related facet
-    serde = get_serde_facet(package, dst_net)
-    wormhole = get_wormhole_facet(package, dst_net)
+    cross_swap(package,
+               src_path=["AptosCoin"],
+               dst_path=["AptosCoin_WORMHOLE"],
+               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+               input_amount=100000000,
+               )
 
-    # construct wormhole data
-    wormhole_data = generate_wormhole_data(
-        package,
-        dst_net=dst_net,
-        dst_gas_price=0,
-        wormhole_fee=100000000
-    )
-    normal_wormhole_data = hex_str_to_vector_u8(
-        str(wormhole.encodeNormalizedWormholeData(wormhole_data.format_to_contract())))
+    cross_swap(package,
+               src_path=["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"],
+               dst_path=["XBTC_WORMHOLE"],
+               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+               input_amount=100000000,
+               )
 
-    # construct so data
-    so_data = generate_so_data(
-        package,
-        src_token="AptosCoin",
-        dst_net=dst_net,
-        dst_token="USDT",
-        receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-        amount=100000000)
-    normal_so_data = hex_str_to_vector_u8(str(serde.encodeNormalizedSoData(so_data.format_to_contract())))
+    cross_swap(package,
+               src_path=["AptosCoin",
+                         LiquidswapCurve.Uncorrelated,
+                         "XBTC",
+                         LiquidswapCurve.Uncorrelated,
+                         "USDT",
+                         LiquidswapCurve.Stable,
+                         "USDC"
+                         ],
+               dst_path=["USDC_WORMHOLE"],
+               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+               input_amount=100000000,
+               )
 
-    # construct src data
-    src_swap_data = []
-
-    # construct dst data
-    dst_swap_data = []
-    aptos_str = "0x1::aptos_coin::AptosCoin"
-    package["wormhole_facet::attest_token"](ty_args=[aptos_str])
-    package["so_diamond::so_swap_via_wormhole"](
-        normal_so_data,
-        src_swap_data,
-        normal_wormhole_data,
-        dst_swap_data,
-        ty_args=[aptos_str, aptos_str, aptos_str, aptos_str])
+    # todo! test dst swap
