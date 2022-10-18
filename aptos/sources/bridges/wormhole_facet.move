@@ -22,7 +22,7 @@ module omniswap::wormhole_facet {
     use aptos_std::type_info;
     use aptos_framework::aptos_account;
     use aptos_std::table::{Table, Self};
-    use omniswap::so_fee_wormhole_v1;
+    use omniswap::so_fee_wormhole;
     use wormhole::state;
     use omniswap::swap::right_type;
     use aptos_std::event::EventHandle;
@@ -255,7 +255,7 @@ module omniswap::wormhole_facet {
     ): (bool, u64, u64, U256) acquires Storage {
         let actual_reserve = borrow_global<Storage>(get_resource_address()).actual_reserve;
 
-        let ratio = so_fee_wormhole_v1::update_price_ratio(u16::to_u64(wormhole_data.dst_wormhole_chain_id));
+        let ratio = so_fee_wormhole::update_price_ratio(u16::to_u64(wormhole_data.dst_wormhole_chain_id));
 
         let dst_max_gas = estimate_complete_soswap_gas(cross::encode_normalized_so_data(so_data), wormhole_data, cross::encode_normalized_swap_data(swap_data_dst));
         let dst_fee = u256::mul(wormhole_data.dst_max_gas_price_in_wei_for_relayer, dst_max_gas);

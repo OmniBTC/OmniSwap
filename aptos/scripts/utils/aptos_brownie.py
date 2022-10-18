@@ -337,7 +337,7 @@ class AptosPackage:
         return functools.partial(self.submit_bcs_transaction, self.abis[key])
 
     def create_single_signer_bcs_transaction(
-        self, sender: Account, payload: TransactionPayload, gas: int = 500000, gas_price: int = 100
+            self, sender: Account, payload: TransactionPayload, gas: int = 500000, gas_price: int = 100
     ) -> SignedTransaction:
         raw_transaction = RawTransaction(
             sender.address(),

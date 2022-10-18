@@ -244,7 +244,7 @@ def generate_dst_swap_data(
         approveTo=package.config["networks"][dst_net]["swap"][router.value]["router"],
         sendingAssetId=sendingAssetId,
         receivingAssetId=receivingAssetId,
-        fromAmount=project,
+        fromAmount=0,
         callData=callData
     )
     out.append(swap_data)
@@ -387,4 +387,18 @@ def main():
                input_amount=100000000,
                )
 
-    # todo! test dst swap
+    cross_swap(
+        package,
+        src_path=["AptosCoin",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC",
+                  LiquidswapCurve.Uncorrelated,
+                  "USDT"
+                  ],
+        dst_path=["USDT_WORMHOLE", "USDT"],
+        receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+        input_amount=100000000,
+        dst_router=EvmSwapType.IUniswapV2Router02,
+        dst_func=EvmSwapFunc.swapExactTokensForTokens
+    )
+

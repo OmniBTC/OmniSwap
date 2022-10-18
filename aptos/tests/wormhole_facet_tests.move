@@ -6,7 +6,7 @@ module omniswap::wormhole_facet_tests {
     use omniswap::u16;
     use omniswap::u256;
     use std::vector;
-    use omniswap::so_fee_wormhole_v1::{initialize, set_price_ratio};
+    use omniswap::so_fee_wormhole::{initialize, set_price_ratio};
     use omniswap::serde::{serialize_u256, serialize_address};
     use aptos_framework::coin;
     use std::signer;

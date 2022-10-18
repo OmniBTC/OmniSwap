@@ -1,4 +1,4 @@
-module omniswap::so_fee_wormhole_v1 {
+module omniswap::so_fee_wormhole {
 
     use aptos_std::table::{Table, Self};
     use omniswap::u16::{U16, Self};
