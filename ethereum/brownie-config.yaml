@@ -33,23 +33,24 @@ networks:
       gas:
         bsc-test:
           dst_chainid: 4
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         avax-test:
           dst_chainid: 6
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
+        currency: USD
         address: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
     token:
       usdt:
@@ -93,29 +94,32 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
     oracle:
       bsc:
         chainid: 4
+        currency: USD
         address: "0x2514895c72f50D8bd4B4F9b1110F0D6bD2c97526"
       eth:
         chainid: 2
+        currency: USD
         address: "0x143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7"
       matic:
         chainid: 5
+        currency: USD
         address: "0x957Eb0316f02ba4a9De3D308742eefd44a3c1719"
     stargate:
       router: "0xbB0f1be1E9CE9cB27EA5b0c3a85B7cc3381d8176"
@@ -171,26 +175,28 @@ networks:
       gas:
         bsc-test:
           dst_chainid: 4
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 2
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
     oracle:
       avax:
         chainid: 6
+        currency: USD
         address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
       matic:
         chainid: 5
+        currency: USD
         address: "0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0"
     stargate:
       router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
@@ -255,23 +261,24 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         bsc-test:
           dst_chainid: 4
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
     oracle:
       matic:
         chainid: 5
+        currency: USD
         address: "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada"
     stargate:
       router: "0x817436a076060D158204d955E5403b6Ed0A5fac0"
@@ -358,19 +365,19 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         bsc-test:
           dst_chainid: 4
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 500000
+          base_gas: 220000
           per_byte_gas: 68
     stargate:
       router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
@@ -413,6 +420,49 @@ networks:
         usdt: 2
         usdd: 11
         weth: 13
+    wormhole:
+      chainid: 2
+      token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
+        ftm-main:
+          dst_chainid: 10
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+      bsc:
+        chainid: 4
+        currency: USD
+        address: "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
+      ftm:
+        chainid: 10
+        currency: ETH
+        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
     token:
       weth:
         address: "0xf1277d1Ed8AD466beddF92ef448A132661956621"
@@ -447,6 +497,49 @@ networks:
       chainid: 102
       poolid:
         usdt: 2
+    wormhole:
+      chainid: 4
+      token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
+        ftm-main:
+          dst_chainid: 10
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+      bsc:
+        chainid: 4
+        currency: USD
+        address: "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
+      ftm:
+        chainid: 10
+        currency: USD
+        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
     token:
       usdt:
         address: "0x55d398326f99059fF775485246999027B3197955"
@@ -473,6 +566,45 @@ networks:
       poolid:
         usdc: 1
         usdt: 2
+    wormhole:
+      chainid: 6
+      token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        ftm-main:
+          dst_chainid: 10
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0x0A77230d17318075983913bC2145DB16C7366156"
+      ftm:
+        chainid: 10
+        currency: USD
+        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
     token:
       weth:
         address: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
@@ -496,6 +628,49 @@ networks:
       poolid:
         usdc: 1
         usdt: 2
+    wormhole:
+      chainid: 5
+      token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
+        ftm-main:
+          dst_chainid: 10
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+      bsc:
+        chainid: 4
+        currency: USD
+        address: "0x82a6c4AF830caa6c97bb504425f6A66165C2c26e"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
+      ftm:
+        chainid: 10
+        currency: USD
+        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
     token:
       weth:
         address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
@@ -576,6 +751,41 @@ networks:
       chainid: 112
       poolid:
         usdc: 1
+    wormhole:
+      chainid: 10
+      token_bridge: "0x7C9Fc5741288cDFdD83CeB07f3ea7e22618D79D2"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0x11DdD3d147E5b83D01cee7070027092397d63658"
+      bsc:
+        chainid: 4
+        currency: USD
+        address: "0x6dE70f4791C4151E00aD02e969bD900DC961f92a"
+      ftm:
+        chainid: 10
+        currency: USD
+        address: "0xf4766552D15AE4d256Ad41B6cf2933482B0680dc"
     swap:
       IUniswapV2Router02:
         name: SpookyswapV2

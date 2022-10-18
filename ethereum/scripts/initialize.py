@@ -47,10 +47,16 @@ def initialize_wormhole_fee(account):
         if chainid == oracles[token]["chainid"]:
             continue
         print(f'initialize_wormhole fee oracle: {token}')
-        LibSoFeeWormholeV1[-1].setPriceConfig(oracles[token]["chainid"], [
-            [oracles[token]["address"], False],
-            [native_oracle_address, True]
-        ], 0, {'from': account})
+        if oracles[token]["currency"] == "USD":
+
+            LibSoFeeWormholeV1[-1].setPriceConfig(oracles[token]["chainid"], [
+                [oracles[token]["address"], False],
+                [native_oracle_address, True]
+            ], 0, {'from': account})
+        elif oracles[token]["currency"] == "ETH":
+            LibSoFeeWormholeV1[-1].setPriceConfig(oracles[token]["chainid"], [
+                [oracles[token]["address"], False]
+            ], 0, {'from': account})
 
 
 def initialize_cut(account, so_diamond):
