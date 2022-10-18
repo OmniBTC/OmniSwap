@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import functools
+import hashlib
 import os
 import time
 from pathlib import Path
@@ -462,3 +463,23 @@ class AptosPackage:
         except:
             print(f"APT: 0")
         return acc
+
+    @staticmethod
+    def get_resource_addr(account_addr: str, seed: str):
+        ser = Serializer()
+        account_addr = AccountAddress.from_hex(account_addr)
+        account_addr.serialize(ser)
+        data = ser.output() + bytes(seed, "ascii") + bytes([255])
+        print(data)
+        hasher = hashlib.sha3_256()
+        hasher.update(data)
+        return "0x" + hasher.digest().hex()
+
+    def account_resource(self,
+                         account_addr: Union[str, AccountAddress],
+                         resource_type: str
+                         ):
+        if isinstance(account_addr, str):
+            account_addr = AccountAddress.from_hex(account_addr)
+        return self.rest_client.account_resource(account_addr, resource_type)
+

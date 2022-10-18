@@ -30,7 +30,8 @@ module omniswap::so_fee_wormhole {
     }
 
     struct PriceManager has key {
-        price_data: Table<U16, PriceData>
+        price_data: Table<U16, PriceData>,
+        owner: address
     }
 
     fun get_resource_address(): address {
@@ -41,10 +42,9 @@ module omniswap::so_fee_wormhole {
         exists<PriceManager>(get_resource_address())
     }
 
-    // Update permission
-    fun is_approve(account: address): bool {
-        // todo! add permission manage
-        account == @omniswap
+    fun is_owner(account: address): bool acquires PriceManager {
+        let manager = borrow_global<PriceManager>(get_resource_address());
+        return manager.owner == account
     }
 
     public entry fun initialize(account: &signer) {
@@ -53,7 +53,10 @@ module omniswap::so_fee_wormhole {
 
         let (resource_signer, _) = account::create_resource_account(account, SEED);
 
-        move_to(&resource_signer, PriceManager { price_data: table::new() })
+        move_to(&resource_signer, PriceManager {
+            price_data: table::new(),
+            owner: @omniswap
+        })
     }
 
     public entry fun get_price_ratio(chain_id: u64): u64 acquires PriceManager {
@@ -73,7 +76,7 @@ module omniswap::so_fee_wormhole {
 
     public entry fun set_price_ratio(account: &signer, chain_id: u64, ratio: u64) acquires PriceManager {
         assert!(is_initialize(), NOT_initialize);
-        assert!(is_approve(signer::address_of(account)), EINVALID_ACCOUNT);
+        assert!(is_owner(signer::address_of(account)), EINVALID_ACCOUNT);
 
         let manager = borrow_global_mut<PriceManager>(get_resource_address());
 

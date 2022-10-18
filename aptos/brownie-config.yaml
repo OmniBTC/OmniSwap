@@ -24,6 +24,7 @@ networks:
       token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
       wormhole: "0x1b1752e26b65fc24971ee5ec9718d2ccdd36bf20486a10b2973ea6dedc6cd197"
       liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
+      liquidswap_pool_account: "0x8aa500cd155a6087509fa84bc7f0deed3363dd253ecb62b2f110885dacf01c67"
     token:
       XBTC:
         module: setup
@@ -42,6 +43,10 @@ networks:
       token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
       token:
         AptosCoin: "0xa867703f5395cb2965feb7ebff5cdf39b771fc6156085da3ae4147a00be91b38"
+      actual_reserve: 110000000
+      estimate_reserve: 120000000
+      base_gas: 100000
+      gas_per_bytes: 100
   bsc-main:
     omnibtc_chainid: 2
   bsc-test:
@@ -53,7 +58,13 @@ networks:
       token:
         # wrapped from aptos
         AptosCoin:
-    SoDiamond: "0x7c9bccAdF247B4E0B30DCE87E777B74070a23AcC"
+      actual_reserve: 110000000
+      estimate_reserve: 120000000
+      base_gas: 400000
+      gas_per_bytes: 100
+      wormhole_facet_resource:
+      wormhole_fee_resource:
+    SoDiamond: "0xFD3581495E9c0a874403CEceb2d82938723508fE"
     token:
       XBTC_WORMHOLE:
         # wormhole aptos wrapped coin. todo! need to fix

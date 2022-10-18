@@ -109,6 +109,91 @@ class LiquidswapCurve(Enum):
     Stable = "Stable"
 
 
+def get_amounts_out_for_liquidswap(
+        package: aptos_brownie.AptosPackage,
+        path: list,
+        x_amount: int
+):
+    """
+    Unlike solidity, which requires off-chain simulation of on-chain code, manually written.
+    Automatic conversion tool:
+    1. move-to-ts: https://github.com/hippospace/move-to-ts
+    2. move-to-go: https://github.com/Lundalogik/move-to-go
+
+    :param package:
+    :param path:
+    :param x_amount:
+    :return:
+    """
+    amount_out = 0
+    resource_addr = package.network_config["replace_address"]["liquidswap_pool_account"]
+    for i in range(len(path) - 2):
+        x_type = get_aptos_token(package)[path[i]]["address"]
+        y_type = get_aptos_token(package)[path[i + 2]]["address"]
+        curve_type = get_liquidswap_curve(package, path[i + 1])
+        p1 = f'{package.network_config["replace_address"]["liquidswap"]}::liquidity_pool::LiquidityPool<' \
+             f'{x_type},{y_type},{curve_type}>'
+        p2 = f'{package.network_config["replace_address"]["liquidswap"]}::liquidity_pool::LiquidityPool<' \
+             f'{y_type},{x_type},{curve_type}>'
+        data = package.account_resource(resource_addr, p1)
+        if data is None:
+            data = package.account_resource(resource_addr, p2)
+            fee = float(data["data"]["fee"]) / 10000
+            x_val = int(data["data"]["coin_y_reserve"]["value"])
+            y_val = int(data["data"]["coin_x_reserve"]["value"])
+        else:
+            fee = float(data["data"]["fee"]) / 10000
+            x_val = int(data["data"]["coin_x_reserve"]["value"])
+            y_val = int(data["data"]["coin_y_reserve"]["value"])
+        x_amount_after_fee = x_amount * (1 - fee)
+        amount_out = x_amount_after_fee * y_val / (x_amount_after_fee + x_val)
+        x_amount = amount_out
+    return amount_out
+
+
+def estimate_wormhole_fee(
+        package: aptos_brownie.AptosPackage,
+        input_amount: int,
+        is_native: bool,
+        wormhole_cross_fee: int = 0,
+        wormhole_facet_resource: str = None,
+        wormhole_fee_resource: str = None
+
+):
+    """
+     wormhole_fee = wormhole_cross_fee + relayer_fee + input_native_amount
+    :param package:
+    :param input_amount:
+    :param is_native:
+    :param wormhole_cross_fee: wormhole_cross_fee current is 0
+    :param wormhole_facet_resource:
+    :param wormhole_fee_resource:
+    :return:
+    """
+    serde = get_serde_facet(package, network.show_active())
+
+    if wormhole_facet_resource is None:
+        wormhole_facet_resource = package.get_resource_addr(str(package.account.account_address), "wormhole_facet")
+
+    if wormhole_fee_resource is None:
+        wormhole_fee_resource = package.get_resource_addr(str(package.account.account_address), "wormhole_fee")
+    print("wormhole_facet_resource", wormhole_facet_resource)
+
+    print("wormhole_fee_resource", wormhole_fee_resource)
+
+    input_native_amount = input_amount if is_native else 0
+    wormhole_facet_storage = package.account_resource(
+        wormhole_facet_resource,
+        f"{str(package.account.account_address)}::wormhole_facet::Storage"
+    )
+    wormhole_price = package.account_resource(
+        wormhole_fee_resource,
+        f"{str(package.account.account_address)}::so_fee_wormhole::PriceManager"
+    )
+
+    print(wormhole_facet_storage, wormhole_price)
+
+
 def get_liquidswap_curve(package: aptos_brownie.AptosPackage, curve_name: LiquidswapCurve):
     assert curve_name.value in ["Uncorrelated", "Stable"]
     return f"{package.network_config['replace_address']['liquidswap']}::curves::{curve_name.value}"
@@ -358,19 +443,20 @@ def main():
     change_network(dst_net)
 
     ####################################################
-
+    print(get_amounts_out_for_liquidswap(package, ["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"], 1))
+    print(estimate_wormhole_fee(package, 0, False, ))
     cross_swap(package,
                src_path=["AptosCoin"],
                dst_path=["AptosCoin_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=100000000,
+               input_amount=10000000,
                )
 
     cross_swap(package,
                src_path=["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"],
                dst_path=["XBTC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=100000000,
+               input_amount=10000000,
                )
 
     cross_swap(package,
@@ -384,7 +470,7 @@ def main():
                          ],
                dst_path=["USDC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=100000000,
+               input_amount=10000000,
                )
 
     cross_swap(
@@ -397,8 +483,7 @@ def main():
                   ],
         dst_path=["USDT_WORMHOLE", "USDT"],
         receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-        input_amount=100000000,
+        input_amount=10000000,
         dst_router=EvmSwapType.IUniswapV2Router02,
         dst_func=EvmSwapFunc.swapExactTokensForTokens
     )
-

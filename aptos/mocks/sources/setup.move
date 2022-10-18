@@ -106,7 +106,7 @@ module omniswap_mock::setup {
         coin::transfer<USDC>(&get_resouce_signer(), account_addr, 20000 * 10000000000);
         coin::transfer<USDT>(&get_resouce_signer(), account_addr, 20000 * 10000000000);
 
-        add_liquidity<XBTC, AptosCoin, Uncorrelated>(account, 100000000, 100000000);
+        add_liquidity<XBTC, AptosCoin, Uncorrelated>(account, 10000000, 100000000);
         add_liquidity<USDT, XBTC, Uncorrelated>(account, 20000 * 1000000000, 1000000000);
         add_liquidity<USDC, USDT, Stable>(account, 10000000000, 10000000000);
     }
