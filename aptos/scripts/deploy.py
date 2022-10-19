@@ -32,13 +32,15 @@ def main():
     # # fee
     try:
         # Maybe has initialized
-        package["so_fee_wormhole::initialize"]()
+        # use dst chain id init
+        package["so_fee_wormhole::initialize"](4)
     except:
         pass
     # # wormhole
     try:
         # Maybe has initialized
-        package["wormhole_facet::init_wormhole"](package.network_config["wormhole"]["chainid"])
+        package["wormhole_facet::init_wormhole"](
+            package.network_config["wormhole"]["chainid"])
     except:
         pass
 
@@ -56,7 +58,8 @@ def main():
             continue
         if (("test" in net and "test" in package.network)
                 or ("main" in net and "main" in package.network)):
-            base_gas = hex_str_to_vector_u8(str(serde.normalizeU256(package.network_config["wormhole"]["base_gas"])))
+            base_gas = hex_str_to_vector_u8(str(serde.normalizeU256(
+                package.network_config["wormhole"]["base_gas"])))
             gas_per_bytes = hex_str_to_vector_u8(str(serde.normalizeU256(
                 package.network_config["wormhole"]["gas_per_bytes"])))
 

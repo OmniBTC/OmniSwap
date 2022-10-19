@@ -1,14 +1,11 @@
 module omniswap::so_fee_wormhole {
-
-    use aptos_std::table::{Table, Self};
-    use omniswap::u16::{U16, Self};
     use std::signer;
+    use std::vector;
     use aptos_framework::account;
     use aptos_framework::timestamp;
+    use omniswap::serde::serialize_u64;
 
     const RAY: u64 = 100000000;
-
-    const SEED: vector<u8> = b"wormhole_fee";
 
     /// Error Codes
 
@@ -32,31 +29,38 @@ module omniswap::so_fee_wormhole {
     }
 
     struct PriceManager has key {
-        price_data: Table<U16, PriceData>,
+        price_data: PriceData,
         owner: address
     }
 
-    public fun is_initialize(): bool {
-        exists<PriceManager>(get_resource_address())
+    public fun is_initialize(dst_chain_id: u64): bool {
+        exists<PriceManager>(get_resource_address(dst_chain_id))
     }
 
-    fun is_owner(account: address): bool acquires PriceManager {
-        let manager = borrow_global<PriceManager>(get_resource_address());
+    fun is_owner(account: address, dst_chain_id: u64): bool acquires PriceManager {
+        let manager = borrow_global<PriceManager>(get_resource_address(dst_chain_id));
         return manager.owner == account
     }
 
-    fun get_resource_address(): address {
-        account::create_resource_address(&@omniswap, SEED)
+    fun get_resource_address(dst_chain_id: u64): address {
+        let seed = vector::empty<u8>();
+        serialize_u64(&mut seed, dst_chain_id);
+        account::create_resource_address(&@omniswap, seed)
     }
 
-    public entry fun initialize(account: &signer) {
+    public entry fun initialize(account: &signer, dst_chain_id: u64) {
         assert!(signer::address_of(account) == @omniswap, ENOT_DEPLOYED_ADDRESS);
-        assert!(!is_initialize(), EHAS_Initialize);
+        assert!(!is_initialize(dst_chain_id), EHAS_Initialize);
 
-        let (resource_signer, _) = account::create_resource_account(account, SEED);
+        let seed = vector::empty<u8>();
+        serialize_u64(&mut seed, dst_chain_id);
+        let (resource_signer, _) = account::create_resource_account(account, seed);
 
         move_to(&resource_signer, PriceManager {
-            price_data: table::new(),
+            price_data: PriceData{
+                current_price_ratio: 0,
+                last_update_timestamp: timestamp::now_seconds()
+            },
             owner: @omniswap
         })
     }
@@ -66,27 +70,17 @@ module omniswap::so_fee_wormhole {
     }
 
     public entry fun set_price_ratio(account: &signer, chain_id: u64, ratio: u64) acquires PriceManager {
-        assert!(is_initialize(), ENOT_Initial);
-        assert!(is_owner(signer::address_of(account)), EINVALID_ACCOUNT);
+        assert!(is_initialize(chain_id), ENOT_Initial);
+        assert!(is_owner(signer::address_of(account), chain_id), EINVALID_ACCOUNT);
 
-        let manager = borrow_global_mut<PriceManager>(get_resource_address());
-
-        let chain_id = u16::from_u64(chain_id);
-
-        table::upsert<U16, PriceData>(
-            &mut manager.price_data,
-            chain_id,
-            PriceData { current_price_ratio: ratio, last_update_timestamp: timestamp::now_seconds() });
+        let manager = borrow_global_mut<PriceManager>(get_resource_address(chain_id));
+        manager.price_data.current_price_ratio = ratio;
+        manager.price_data.last_update_timestamp = timestamp::now_seconds();
     }
-    
-    public entry fun get_price_ratio(chain_id: u64): u64 acquires PriceManager {
-        let manager = borrow_global_mut<PriceManager>(get_resource_address());
 
-        let chain_id = u16::from_u64(chain_id);
-        if (table::contains(&manager.price_data, chain_id)) {
-            table::borrow(&manager.price_data, chain_id).current_price_ratio
-        }else {
-            0
-        }
+    public entry fun get_price_ratio(chain_id: u64): u64 acquires PriceManager {
+        assert!(is_initialize(chain_id), ENOT_Initial);
+        let manager = borrow_global_mut<PriceManager>(get_resource_address(chain_id));
+        manager.price_data.current_price_ratio
     }
 }

@@ -222,7 +222,8 @@ class AptosPackage:
             self.package_path = package_path
 
         # # # # # load config
-        assert self.project_path.joinpath("brownie-config.yaml").exists(), "brownie-config.yaml not found"
+        assert self.project_path.joinpath(
+            "brownie-config.yaml").exists(), "brownie-config.yaml not found"
         self.config_path = self.project_path.joinpath("brownie-config.yaml")
         self.config = {}  # all network configs
         with self.config_path.open() as fp:
@@ -235,12 +236,16 @@ class AptosPackage:
         except Exception as e:
             raise e
         self.account = Account.load_key(self.private_key)
-        self.network_config = self.config["networks"][network]  # current aptos network config
-        self.rest_client = RestClient(self.config["networks"][network]["node_url"])
-        self.faucet_client = FaucetClient(self.config["networks"][network]["faucet_url"], self.rest_client)
+        # current aptos network config
+        self.network_config = self.config["networks"][network]
+        self.rest_client = RestClient(
+            self.config["networks"][network]["node_url"])
+        self.faucet_client = FaucetClient(
+            self.config["networks"][network]["faucet_url"], self.rest_client)
 
         # # # # # load move toml
-        assert self.package_path.joinpath("Move.toml").exists(), "Move.toml not found"
+        assert self.package_path.joinpath(
+            "Move.toml").exists(), "Move.toml not found"
         self.move_path = self.package_path.joinpath("Move.toml")
         self.move_toml = {}
         with self.move_path.open() as fp:
@@ -284,7 +289,8 @@ class AptosPackage:
         print("\n")
 
         # # # # # Metadata
-        self.build_path = self.package_path.joinpath(f"build/{self.package_name}")
+        self.build_path = self.package_path.joinpath(
+            f"build/{self.package_name}")
         with open(self.build_path.joinpath(f"package-metadata.bcs"), "rb") as f:
             self.package_metadata = f.read()
 
@@ -293,7 +299,8 @@ class AptosPackage:
         bytecode_modules = self.build_path.joinpath("bytecode_modules")
         for m in os.listdir(bytecode_modules):
             if str(m).endswith(".mv"):
-                self.move_module_files.append(bytecode_modules.joinpath(str(m)))
+                self.move_module_files.append(
+                    bytecode_modules.joinpath(str(m)))
         self.move_modules = []
         for m in self.move_module_files:
             with open(m, "rb") as f:
@@ -313,7 +320,8 @@ class AptosPackage:
                     with open(module_abi_path.joinpath(str(v2)), "rb") as f:
                         data = f.read()
                         try:
-                            abi = EntryFunctionABI.deserialize(Deserializer(data))
+                            abi = EntryFunctionABI.deserialize(
+                                Deserializer(data))
                             self.abis[abi.key()] = abi
                         except:
                             print(f"Decode {v2} fail")
@@ -361,18 +369,22 @@ class AptosPackage:
     ) -> dict:
         if ty_args is None:
             ty_args = []
-        assert isinstance(list(ty_args), list) and len(abi.ty_args) == len(ty_args), f"ty_args error: {abi.ty_args}"
-        assert len(args) == len(abi.args) or len(kwargs) == len(abi.args), f"args error: {abi.args}"
+        assert isinstance(list(ty_args), list) and len(
+            abi.ty_args) == len(ty_args), f"ty_args error: {abi.ty_args}"
+        assert len(args) == len(abi.args) or len(
+            kwargs) == len(abi.args), f"args error: {abi.args}"
 
         normal_args = []
         if len(kwargs):
             for function_arg in abi.args:
                 assert function_arg.name in kwargs, f"Param {function_arg.name} not found"
                 if function_arg.type_tag == StructTag:
-                    assert StructTag.from_str(kwargs[function_arg.name]), f"Param {function_arg} not match"
+                    assert StructTag.from_str(
+                        kwargs[function_arg.name]), f"Param {function_arg} not match"
                     value = StructTag.from_str(kwargs[function_arg.name])
                 else:
-                    assert function_arg.type_tag(kwargs[function_arg.name]), f"Param {function_arg} not match"
+                    assert function_arg.type_tag(
+                        kwargs[function_arg.name]), f"Param {function_arg} not match"
                     value = function_arg.type_tag(kwargs[function_arg.name])
                 normal_args.append({
                     "value": value,
@@ -380,10 +392,12 @@ class AptosPackage:
         else:
             for i, function_arg in enumerate(abi.args):
                 if function_arg.type_tag == StructTag:
-                    assert StructTag.from_str(args[i]), f"Param {function_arg} not match"
+                    assert StructTag.from_str(
+                        args[i]), f"Param {function_arg} not match"
                     value = StructTag.from_str(args[i])
                 else:
-                    assert function_arg.type_tag(args[i]), f"Param {function_arg} not match"
+                    assert function_arg.type_tag(
+                        args[i]), f"Param {function_arg} not match"
                     value = function_arg.type_tag(args[i])
 
                 normal_args.append({
@@ -403,7 +417,8 @@ class AptosPackage:
             self.account, TransactionPayload(payload)
         )
         txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)
-        print(f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting...")
+        print(
+            f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting...")
         response = self.wait_for_transaction(txn_hash)
         print(f"Execute {abi.module.name}::{abi.name} Success.\n")
         return {
@@ -419,9 +434,10 @@ class AptosPackage:
             assert count < 20, f"transaction {txn_hash} timed out"
             time.sleep(1)
             count += 1
-        response = self.rest_client.client.get(f"{self.rest_client.base_url}/transactions/by_hash/{txn_hash}")
+        response = self.rest_client.client.get(
+            f"{self.rest_client.base_url}/transactions/by_hash/{txn_hash}")
         assert (
-                "success" in response.json() and response.json()["success"]
+            "success" in response.json() and response.json()["success"]
         ), f"{response.text} - {txn_hash}"
         return response.json()
 
@@ -449,17 +465,21 @@ class AptosPackage:
         assert self.network in ["aptos-devnet", "aptos-testnet"]
         acc = account.Account.generate()
         try:
-            self.faucet_client.fund_account(str(acc.account_address), int(100 * 1e8))
+            self.faucet_client.fund_account(
+                str(acc.account_address), int(100 * 1e8))
         except:
-            b = self.rest_client.account_balance(str(self.account.account_address))
+            b = self.rest_client.account_balance(
+                str(self.account.account_address))
             amount = max(int(int(float(b) / 1e8) * 1e8 - 1e8), 0)
             if amount > 0:
-                txn_hash = self.transfer(self.account, acc.account_address, amount)
+                txn_hash = self.transfer(
+                    self.account, acc.account_address, amount)
                 self.wait_for_transaction(txn_hash)
         print(f"Private key: {acc.private_key}")
         print(f"Address: {acc.account_address}")
         try:
-            print(f"APT: {self.rest_client.account_balance(str(acc.account_address))}")
+            print(
+                f"APT: {self.rest_client.account_balance(str(acc.account_address))}")
         except:
             print(f"APT: 0")
         return acc
@@ -482,4 +502,3 @@ class AptosPackage:
         if isinstance(account_addr, str):
             account_addr = AccountAddress.from_hex(account_addr)
         return self.rest_client.account_resource(account_addr, resource_type)
-

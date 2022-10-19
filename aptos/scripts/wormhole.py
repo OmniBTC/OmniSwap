@@ -1,3 +1,9 @@
+from scripts.utils import aptos_brownie
+from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
+    generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
+    WormholeData, SwapData, padding_to_bytes
+from scripts.serde import get_serde_facet, get_wormhole, get_wormhole_facet, get_token_bridge
+from scripts.serde import get_serde_facet, get_wormhole_facet, get_token_bridge, parse_vaa_to_wormhole_payload
 import functools
 import time
 from enum import Enum
@@ -9,12 +15,6 @@ from brownie import (
     network, web3,
 )
 from brownie.project.main import Project
-
-from scripts.serde import get_serde_facet, get_wormhole_facet, get_token_bridge, parse_vaa_to_wormhole_payload
-from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
-    generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
-    WormholeData, SwapData, padding_to_bytes
-from scripts.utils import aptos_brownie
 
 
 class EvmSwapType(Enum):
@@ -39,7 +39,7 @@ def encode_path_for_uniswap_v2(package: aptos_brownie.AptosPackage, dst_net: str
 
 
 def encode_path_for_uniswap_v3(package: aptos_brownie.AptosPackage, dst_net: str, path: list):
-    assert len(path) > 0
+    assert path
     assert (len(path) - 3) % 2 == 0, "path length not right"
     uniswap_v3_fee_decimal = 1e6
     path = [
@@ -57,9 +57,11 @@ def get_dst_wrapped_address_for_aptos(
         token_name="AptosCoin",
         dst_net=network.show_active()
 ):
-    token_address = generate_aptos_coin_address_in_wormhole(get_aptos_token(package)[token_name]["address"])
+    token_address = generate_aptos_coin_address_in_wormhole(
+        get_aptos_token(package)[token_name]["address"])
     token_bridge = get_token_bridge(package, dst_net)
-    wrapped_address = token_bridge.wrappedAsset(package.network_config["wormhole"]["chainid"], token_address)
+    wrapped_address = token_bridge.wrappedAsset(
+        package.network_config["wormhole"]["chainid"], token_address)
     is_wrapped = token_bridge.isWrappedAsset(wrapped_address)
     return token_address, wrapped_address, is_wrapped
 
@@ -73,8 +75,10 @@ def attest_token(
     token_address, wrapped_address, is_wrapped = get_dst_wrapped_address_for_aptos(token_bridge, token_name,
                                                                                    dst_net)
     if not is_wrapped:
-        attest_token_address = get_aptos_token(token_bridge)[token_name]["address"]
-        token_bridge["attest_token::attest_token_entry"](ty_args=[attest_token_address])
+        attest_token_address = get_aptos_token(
+            token_bridge)[token_name]["address"]
+        token_bridge["attest_token::attest_token_entry"](
+            ty_args=[attest_token_address])
     return token_address, wrapped_address, is_wrapped
 
 
@@ -150,13 +154,12 @@ def get_amounts_out_for_liquidswap(
         data = package.account_resource(resource_addr, p1)
         if data is None:
             data = package.account_resource(resource_addr, p2)
-            fee = float(data["data"]["fee"]) / 10000
             x_val = int(data["data"]["coin_y_reserve"]["value"])
             y_val = int(data["data"]["coin_x_reserve"]["value"])
         else:
-            fee = float(data["data"]["fee"]) / 10000
             x_val = int(data["data"]["coin_x_reserve"]["value"])
             y_val = int(data["data"]["coin_y_reserve"]["value"])
+        fee = float(data["data"]["fee"]) / 10000
         x_amount_after_fee = x_amount * (1 - fee)
         amount_out = x_amount_after_fee * y_val / (x_amount_after_fee + x_val)
         x_amount = amount_out
@@ -165,12 +168,11 @@ def get_amounts_out_for_liquidswap(
 
 def estimate_wormhole_fee(
         package: aptos_brownie.AptosPackage,
+        dst_chainid: int,
         input_amount: int,
         is_native: bool,
-        wormhole_cross_fee: int = 0,
-        wormhole_facet_resource: str = None,
-        wormhole_fee_resource: str = None
-
+        payload_length: int,
+        wormhole_cross_fee: int = 0
 ):
     """
      wormhole_fee = wormhole_cross_fee + relayer_fee + input_native_amount
@@ -182,28 +184,46 @@ def estimate_wormhole_fee(
     :param wormhole_fee_resource:
     :return:
     """
-    serde = get_serde_facet(package, network.show_active())
 
-    if wormhole_facet_resource is None:
-        wormhole_facet_resource = package.get_resource_addr(str(package.account.account_address), "wormhole_facet")
+    RAY = 100000000
+    current_net = network.show_active()
+    # serde = get_serde_facet(package, current_net)
 
-    if wormhole_fee_resource is None:
-        wormhole_fee_resource = package.get_resource_addr(str(package.account.account_address), "wormhole_fee")
-    print("wormhole_facet_resource", wormhole_facet_resource)
+    wormhole_fee_resource = package.get_resource_addr(
+        str(package.account.account_address), bytes.fromhex(str(dst_chainid).zfill(16)).decode("ascii"))
+    # if wormhole_facet_resource is None:
+    #     wormhole_facet_resource = package.get_resource_addr(
+    #         str(package.account.account_address), "1")
 
-    print("wormhole_fee_resource", wormhole_fee_resource)
+    # if wormhole_fee_resource is None:
+    #     wormhole_fee_resource = package.get_resource_addr(
+    #         str(package.account.account_address), "wormhole_fee")
+    # print("wormhole_facet_resource", wormhole_facet_resource)
+
+    # print("wormhole_fee_resource", wormhole_fee_resource)
 
     input_native_amount = input_amount if is_native else 0
-    wormhole_facet_storage = package.account_resource(
-        wormhole_facet_resource,
-        f"{str(package.account.account_address)}::wormhole_facet::Storage"
-    )
+    # wormhole_facet_storage = package.account_resource(
+    #     wormhole_facet_resource,
+    #     f"{str(package.account.account_address)}::wormhole_facet::Storage"
+    # )
     wormhole_price = package.account_resource(
         wormhole_fee_resource,
         f"{str(package.account.account_address)}::so_fee_wormhole::PriceManager"
     )
 
-    print(wormhole_facet_storage, wormhole_price)
+    ratio = wormhole_price["data"]["price_data"]["current_price_ratio"]
+
+    base_gas = package.config["networks"][current_net]["wormhole"]["base_gas"]
+    gas_per_bytes = package.config["networks"][current_net]["wormhole"]["gas_per_bytes"]
+    # actual_reserve = package.config["networks"][current_net]["wormhole"]["actual_reserve"]
+    estimate_reserve = package.config["networks"][current_net]["wormhole"]["estimate_reserve"]
+
+    dst_gas = base_gas + gas_per_bytes * payload_length
+
+    dst_fee = dst_gas * ratio / RAY * estimate_reserve / RAY
+
+    return dst_fee + wormhole_cross_fee + input_native_amount
 
 
 def get_liquidswap_curve(package: aptos_brownie.AptosPackage, curve_name: LiquidswapCurve):
@@ -219,7 +239,7 @@ def generate_so_data(
         receiver: str,
         amount: int
 ) -> SoData:
-    so_data = SoData(
+    return SoData(
         transactionId=generate_random_bytes32(),
         receiver=receiver,
         sourceChainId=package.config["networks"][package.network]["omnibtc_chainid"],
@@ -228,7 +248,6 @@ def generate_so_data(
         receivingAssetId=get_evm_token(package, dst_net)[dst_token]["address"],
         amount=amount
     )
-    return so_data
 
 
 def generate_wormhole_data(
@@ -237,13 +256,12 @@ def generate_wormhole_data(
         dst_gas_price: int,
         wormhole_fee: int
 ) -> WormholeData:
-    wormhole_data = WormholeData(
+    return WormholeData(
         dstWormholeChainId=package.config["networks"][dst_net]["wormhole"]["chainid"],
         dstMaxGasPriceInWeiForRelayer=dst_gas_price,
         wormholeFee=wormhole_fee,
         dstSoDiamond=package.config["networks"][dst_net]["SoDiamond"]
     )
-    return wormhole_data
 
 
 def generate_src_swap_data(
@@ -279,7 +297,7 @@ def generate_dst_swap_data(
 ) -> List[SwapData]:
     """Evm only test one swap"""
     out = []
-    if len(path) == 0:
+    if not path:
         return out
 
     if router == EvmSwapType.ISwapRouter:
@@ -288,21 +306,17 @@ def generate_dst_swap_data(
             if path[0] == "weth":
                 sendingAssetId = evm_zero_address()
             else:
-                sendingAssetId = get_evm_token_address(package, dst_net, path[0])
-            receivingAssetId = get_evm_token_address(package, dst_net, path[-1])
+                sendingAssetId = get_evm_token_address(
+                    package, dst_net, path[0])
+            receivingAssetId = get_evm_token_address(
+                package, dst_net, path[-1])
         else:
             raise ValueError("Not support")
     else:
         path_address = encode_path_for_uniswap_v2(package, dst_net, path)
-        if path[0] == "weth":
-            sendingAssetId = evm_zero_address()
-        else:
-            sendingAssetId = get_evm_token_address(package, dst_net, path[0])
-        if path[-1] == "weth":
-            receivingAssetId = evm_zero_address()
-        else:
-            receivingAssetId = get_evm_token_address(package, dst_net, path[-1])
-
+        sendingAssetId = evm_zero_address() if path[0] == "weth" else path[0]
+        receivingAssetId = evm_zero_address(
+        ) if path[-1] == "weth" else path[-1]
     swap_contract = Contract.from_abi(
         router.value,
         package.config["networks"][dst_net]["swap"][router.value]["router"],
@@ -359,8 +373,8 @@ def cross_swap(
         dst_func: EvmSwapFunc = None,
         dst_min_amount: int = 0
 ):
-    assert len(src_path) > 0
-    assert len(dst_path) > 0
+    assert src_path
+    assert dst_path
     dst_net = network.show_active()
     serde = get_serde_facet(package, dst_net)
     wormhole = get_wormhole_facet(package, dst_net)
@@ -383,15 +397,18 @@ def cross_swap(
         dst_token=dst_path[-1],
         receiver=receiver,
         amount=input_amount)
-    normal_so_data = hex_str_to_vector_u8(str(serde.encodeNormalizedSoData(so_data.format_to_contract())))
+    normal_so_data = hex_str_to_vector_u8(
+        str(serde.encodeNormalizedSoData(so_data.format_to_contract())))
 
     # construct src data
     normal_src_swap_data = []
     src_swap_data = []
     if len(src_path) > 1:
-        src_swap_data = generate_src_swap_data(package, "liquidswap", src_path, input_amount)
+        src_swap_data = generate_src_swap_data(
+            package, "liquidswap", src_path, input_amount)
         normal_src_swap_data = [d.format_to_contract() for d in src_swap_data]
-        normal_src_swap_data = hex_str_to_vector_u8(str(serde.encodeNormalizedSwapData(normal_src_swap_data)))
+        normal_src_swap_data = hex_str_to_vector_u8(
+            str(serde.encodeNormalizedSwapData(normal_src_swap_data)))
 
     # construct dst data
     normal_dst_swap_data = []
@@ -406,12 +423,14 @@ def cross_swap(
             dst_path
         )
         normal_dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
-        normal_dst_swap_data = hex_str_to_vector_u8(str(serde.encodeNormalizedSwapData(normal_dst_swap_data)))
+        normal_dst_swap_data = hex_str_to_vector_u8(
+            str(serde.encodeNormalizedSwapData(normal_dst_swap_data)))
 
     if len(src_swap_data) == 0:
         ty_args = [so_data.sendingAssetId] * 4
     elif len(src_swap_data) == 1:
-        ty_args = [src_swap_data[0].sendingAssetId] + [src_swap_data[0].receivingAssetId] * 3
+        ty_args = [src_swap_data[0].sendingAssetId] + \
+            [src_swap_data[0].receivingAssetId] * 3
     elif len(src_swap_data) == 2:
         ty_args = [src_swap_data[0].sendingAssetId, src_swap_data[1].sendingAssetId] + [
             src_swap_data[1].receivingAssetId] * 2
@@ -422,6 +441,22 @@ def cross_swap(
                    ] + [src_swap_data[2].receivingAssetId]
     else:
         raise ValueError
+
+    payload_length = len(normal_so_data) + \
+        len(normal_wormhole_data) + len(normal_dst_swap_data)
+
+    is_native = src_path[0] == "AptosCoin"
+    wormhole_fee = estimate_wormhole_fee(
+        package, package.config["networks"][dst_net]["omnibtc_chainid"], input_amount, is_native, payload_length, 0)
+
+    wormhole_data = generate_wormhole_data(
+        package,
+        dst_net=dst_net,
+        dst_gas_price=dst_gas_price,
+        wormhole_fee=wormhole_fee
+    )
+    normal_wormhole_data = hex_str_to_vector_u8(
+        str(wormhole.encodeNormalizedWormholeData(wormhole_data.format_to_contract())))
 
     package["so_diamond::so_swap_via_wormhole"](
         normal_so_data,
@@ -455,8 +490,9 @@ def main():
     change_network(dst_net)
 
     ####################################################
-    print(get_amounts_out_for_liquidswap(package, ["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"], 1))
-    print(estimate_wormhole_fee(package, 0, False, ))
+    print(get_amounts_out_for_liquidswap(
+        package, ["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"], 1))
+
     cross_swap(package,
                src_path=["AptosCoin"],
                dst_path=["AptosCoin_WORMHOLE"],
