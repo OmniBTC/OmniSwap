@@ -17,12 +17,9 @@ networks:
     node_url: https://fullnode.testnet.aptoslabs.com/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
     replace_address:
-#      deployer: "0xc12fa1b4f689381e507430fdce7bbce67bb3d4f37bccc520630ba4aa6153ac2d"
-#      token_bridge: "0x7041d0a5ae46a24fd5f1df67c54bf1a2e0fe7668ae9402e30e58f3ad452f9d52"
-#      wormhole: "0x799c8d35a610b6fa8ed33432e31c686c97b4ce4205fce88c13577615372e99a3"
-      deployer: "0x5ad53ef0cb7cd21816a0371c367be38e7874a9d2f71c77af7592f6b0791f6ca3"
-      token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
-      wormhole: "0x1b1752e26b65fc24971ee5ec9718d2ccdd36bf20486a10b2973ea6dedc6cd197"
+      deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
       liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
       liquidswap_pool_account: "0x8aa500cd155a6087509fa84bc7f0deed3363dd253ecb62b2f110885dacf01c67"
     token:
