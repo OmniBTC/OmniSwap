@@ -60,22 +60,22 @@ contract WormholeFacet is Swapper {
     }
 
     struct CacheSrcSoSwap {
-        bool _flag;
-        uint256 _fee;
-        bool _hasSourceSwap;
-        bool _hasDestinationSwap;
-        uint256 _bridgeAmount;
-        address _bridgeAddress;
+        bool flag;
+        uint256 fee;
+        bool hasSourceSwap;
+        bool hasDestinationSwap;
+        uint256 bridgeAmount;
+        address bridgeAddress;
         uint256 returnValue;
         uint256 dstMaxGas;
-        bytes _payload;
+        bytes payload;
     }
 
     struct CacheCheck {
-        uint256 _ratio;
-        uint256 _srcFee;
-        uint256 _dstFee;
-        uint256 _userInput;
+        uint256 ratio;
+        uint256 srcFee;
+        uint256 dstFee;
+        uint256 userInput;
         uint256 dstMaxGasForRelayer;
         bool flag;
         uint256 returnValue;
@@ -151,7 +151,7 @@ contract WormholeFacet is Swapper {
     ) external payable {
         require(msg.value == wormholeDataNo.wormholeFee, "Fee error");
 
-        CacheSrcSoSwap memory _cache;
+        CacheSrcSoSwap memory cache;
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
         LibSwap.SwapData[] memory swapDataSrc = LibCross.denormalizeSwapData(
@@ -159,99 +159,96 @@ contract WormholeFacet is Swapper {
         );
 
         (
-            _cache._flag,
-            _cache._fee,
-            _cache.returnValue,
-            _cache.dstMaxGas
+            cache.flag,
+            cache.fee,
+            cache.returnValue,
+            cache.dstMaxGas
         ) = checkRelayerFee(soDataNo, wormholeDataNo, swapDataDstNo);
 
-        require(_cache._flag, "Check fail");
+        require(cache.flag, "Check fail");
         // return the redundant msg.value
-        if (_cache.returnValue > 0) {
+        if (cache.returnValue > 0) {
             LibAsset.transferAsset(
                 LibAsset.NATIVE_ASSETID,
                 payable(msg.sender),
-                _cache.returnValue
+                cache.returnValue
             );
         }
 
-        if (_cache._fee > 0) {
+        if (cache.fee > 0) {
             LibAsset.transferAsset(
                 LibAsset.NATIVE_ASSETID,
                 payable(LibDiamond.contractOwner()),
-                _cache._fee
+                cache.fee
             );
         }
         if (!LibAsset.isNativeAsset(soData.sendingAssetId)) {
             LibAsset.depositAsset(soData.sendingAssetId, soData.amount);
         }
         if (swapDataSrc.length == 0) {
-            _cache._bridgeAddress = soData.sendingAssetId;
-            _cache._bridgeAmount = soData.amount;
-            _cache._hasSourceSwap = false;
+            cache.bridgeAddress = soData.sendingAssetId;
+            cache.bridgeAmount = soData.amount;
+            cache.hasSourceSwap = false;
         } else {
             require(
                 soData.amount == swapDataSrc[0].fromAmount,
                 "soData and swapDataSrc amount not match!"
             );
-            _cache._bridgeAmount = this.executeAndCheckSwaps(
-                soData,
-                swapDataSrc
-            );
-            _cache._bridgeAddress = swapDataSrc[swapDataSrc.length - 1]
+            cache.bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
+            cache.bridgeAddress = swapDataSrc[swapDataSrc.length - 1]
                 .receivingAssetId;
-            _cache._hasSourceSwap = true;
+            cache.hasSourceSwap = true;
         }
 
-        _cache._payload = encodeWormholePayload(
+        cache.payload = encodeWormholePayload(
             wormholeDataNo.dstMaxGasPriceInWeiForRelayer,
-            _cache.dstMaxGas,
+            cache.dstMaxGas,
             soDataNo,
             swapDataDstNo
         );
 
         if (swapDataDstNo.length > 0) {
-            _cache._hasDestinationSwap = true;
+            cache.hasDestinationSwap = true;
         }
 
         /// start bridge
         _startBridge(
             wormholeDataNo,
-            _cache._bridgeAddress,
-            _cache._bridgeAmount,
-            _cache._payload
+            cache.bridgeAddress,
+            cache.bridgeAmount,
+            cache.payload
         );
 
         emit ISo.SoTransferStarted(
             soData.transactionId,
             "Wormhole",
-            _cache._hasSourceSwap,
-            _cache._hasDestinationSwap,
+            cache.hasSourceSwap,
+            cache.hasDestinationSwap,
             soData
         );
     }
 
     /// @notice Receiving chain's native tokens crossed over from other chains
     /// @dev for relayer automatic call
-    function completeTransferAndUnwrapETHWithPayload(bytes memory _encodeVm)
+    function completeTransferAndUnwrapETHWithPayload(bytes memory encodeVm)
         external
     {
-        completeSoSwap(_encodeVm);
+        completeSoSwap(encodeVm);
     }
 
     /// @notice Receiving erc20 tokens crossed over from other chains
     /// @dev for relayer automatic call
-    function completeTransferWithPayload(bytes memory _encodeVm) external {
-        completeSoSwap(_encodeVm);
+    function completeTransferWithPayload(bytes memory encodeVm) external {
+        completeSoSwap(encodeVm);
     }
 
     /// @notice Users can manually call for cross-chain tokens
-    function completeSoSwap(bytes memory _encodeVm) public {
+    function completeSoSwap(bytes memory encodeVm) public {
         Storage storage s = getStorage();
         address bridge = s.tokenBridge;
 
         bytes memory payload = IWormholeBridge(bridge)
-            .completeTransferWithPayload(_encodeVm);
+            .completeTransferWithPayload(encodeVm);
 
         IWormholeBridge.TransferWithPayload
             memory wormholePayload = IWormholeBridge(bridge)
@@ -269,28 +266,28 @@ contract WormholeFacet is Swapper {
             swapDataDstNo
         );
 
-        address _tokenAddress;
-        bool _isOriginChain;
+        address tokenAddress;
+        bool isOriginChain;
         if (wormholePayload.tokenChain == IWormholeBridge(bridge).chainId()) {
-            _tokenAddress = address(
+            tokenAddress = address(
                 uint160(uint256(wormholePayload.tokenAddress))
             );
-            _isOriginChain = true;
+            isOriginChain = true;
         } else {
-            _tokenAddress = IWormholeBridge(bridge).wrappedAsset(
+            tokenAddress = IWormholeBridge(bridge).wrappedAsset(
                 wormholePayload.tokenChain,
                 wormholePayload.tokenAddress
             );
         }
 
-        uint256 amount = LibAsset.getOwnBalance(_tokenAddress);
+        uint256 amount = LibAsset.getOwnBalance(tokenAddress);
         require(amount > 0, "amount > 0");
 
-        IWETH _weth = IWormholeBridge(bridge).WETH();
+        IWETH weth = IWormholeBridge(bridge).WETH();
 
-        if (_isOriginChain && address(_weth) == _tokenAddress) {
-            _weth.withdraw(amount);
-            _tokenAddress = LibAsset.NATIVE_ASSETID;
+        if (isOriginChain && address(weth) == tokenAddress) {
+            weth.withdraw(amount);
+            tokenAddress = LibAsset.NATIVE_ASSETID;
         }
 
         uint256 soFee = getSoFee(amount);
@@ -299,7 +296,7 @@ contract WormholeFacet is Swapper {
         }
 
         if (swapDataDst.length == 0) {
-            require(_tokenAddress == soData.receivingAssetId, "token error");
+            require(tokenAddress == soData.receivingAssetId, "token error");
             if (soFee > 0) {
                 LibAsset.transferAsset(
                     soData.receivingAssetId,
@@ -329,35 +326,34 @@ contract WormholeFacet is Swapper {
                 );
             }
             require(
-                swapDataDst[0].sendingAssetId == _tokenAddress,
+                swapDataDst[0].sendingAssetId == tokenAddress,
                 "token error"
             );
 
             swapDataDst[0].fromAmount = amount;
 
-            address _correctSwap = appStorage.correctSwapRouterSelectors;
+            address correctSwap = appStorage.correctSwapRouterSelectors;
 
-            if (_correctSwap != address(0)) {
-                swapDataDst[0].callData = ICorrectSwap(_correctSwap)
-                    .correctSwap(
-                        swapDataDst[0].callData,
-                        swapDataDst[0].fromAmount
-                    );
+            if (correctSwap != address(0)) {
+                swapDataDst[0].callData = ICorrectSwap(correctSwap).correctSwap(
+                    swapDataDst[0].callData,
+                    swapDataDst[0].fromAmount
+                );
             }
 
             try this.executeAndCheckSwaps(soData, swapDataDst) returns (
-                uint256 _amountFinal
+                uint256 amountFinal
             ) {
                 LibAsset.transferAsset(
                     swapDataDst[swapDataDst.length - 1].receivingAssetId,
                     soData.receiver,
-                    _amountFinal
+                    amountFinal
                 );
                 emit SoTransferCompleted(
                     soData.transactionId,
                     soData.receivingAssetId,
                     soData.receiver,
-                    _amountFinal,
+                    amountFinal,
                     block.timestamp,
                     soData
                 );
@@ -398,7 +394,7 @@ contract WormholeFacet is Swapper {
         NormalizedWormholeData calldata wormholeData,
         LibSwap.NormalizedSwapData[] calldata swapDataDst
     ) public view returns (uint256) {
-        bytes memory _payload = encodeWormholePayload(
+        bytes memory payload = encodeWormholePayload(
             wormholeData.dstMaxGasPriceInWeiForRelayer,
             0,
             soData,
@@ -408,7 +404,7 @@ contract WormholeFacet is Swapper {
         return
             s.dstBaseGas[wormholeData.dstWormholeChainId].add(
                 s.dstGasPerBytes[wormholeData.dstWormholeChainId].mul(
-                    _payload.length
+                    payload.length
                 )
             );
     }
@@ -429,41 +425,41 @@ contract WormholeFacet is Swapper {
     {
         CacheCheck memory data;
         Storage storage s = getStorage();
-        ILibPrice _oracle = ILibPrice(
+        ILibPrice oracle = ILibPrice(
             appStorage.gatewaySoFeeSelectors[s.tokenBridge]
         );
-        data._ratio = _oracle.updatePriceRatio(wormholeData.dstWormholeChainId);
+        data.ratio = oracle.updatePriceRatio(wormholeData.dstWormholeChainId);
         data.dstMaxGasForRelayer = estimateCompleteSoSwapGas(
             soData,
             wormholeData,
             swapDataDst
         );
 
-        data._dstFee = data.dstMaxGasForRelayer.mul(
+        data.dstFee = data.dstMaxGasForRelayer.mul(
             wormholeData.dstMaxGasPriceInWeiForRelayer
         );
-        data._srcFee = data
-            ._dstFee
-            .mul(data._ratio)
-            .div(_oracle.RAY())
+        data.srcFee = data
+            .dstFee
+            .mul(data.ratio)
+            .div(oracle.RAY())
             .mul(s.actualReserve)
             .div(RAY);
 
         if (LibAsset.isNativeAsset(soData.sendingAssetId.toAddress(0))) {
-            data._userInput = soData.amount;
+            data.userInput = soData.amount;
         }
         data.consumeValue = IWormholeBridge(s.tokenBridge)
             .wormhole()
             .messageFee()
-            .add(data._userInput)
-            .add(data._srcFee);
+            .add(data.userInput)
+            .add(data.srcFee);
         if (data.consumeValue <= wormholeData.wormholeFee) {
             data.flag = true;
             data.returnValue = wormholeData.wormholeFee.sub(data.consumeValue);
         }
         return (
             data.flag,
-            data._srcFee,
+            data.srcFee,
             data.returnValue,
             data.dstMaxGasForRelayer
         );
@@ -476,10 +472,10 @@ contract WormholeFacet is Swapper {
         LibSwap.NormalizedSwapData[] calldata swapDataDst
     ) external view returns (uint256) {
         Storage storage s = getStorage();
-        ILibPrice _oracle = ILibPrice(
+        ILibPrice oracle = ILibPrice(
             appStorage.gatewaySoFeeSelectors[s.tokenBridge]
         );
-        (uint256 _ratio, ) = _oracle.getPriceRatio(
+        (uint256 ratio, ) = oracle.getPriceRatio(
             wormholeData.dstWormholeChainId
         );
         uint256 dstMaxGasForRelayer = estimateCompleteSoSwapGas(
@@ -487,15 +483,15 @@ contract WormholeFacet is Swapper {
             wormholeData,
             swapDataDst
         );
-        uint256 _dstFee = dstMaxGasForRelayer.mul(
+        uint256 dstFee = dstMaxGasForRelayer.mul(
             wormholeData.dstMaxGasPriceInWeiForRelayer
         );
-        uint256 _srcFee = _dstFee
-            .mul(_ratio)
-            .div(_oracle.RAY())
+        uint256 srcFee = dstFee
+            .mul(ratio)
+            .div(oracle.RAY())
             .mul(s.estimateReserve)
             .div(RAY);
-        return _srcFee;
+        return srcFee;
     }
 
     function getWormholeMessageFee() public view returns (uint256) {
@@ -504,13 +500,13 @@ contract WormholeFacet is Swapper {
     }
 
     /// @dev Get so fee
-    function getSoFee(uint256 _amount) public view returns (uint256) {
+    function getSoFee(uint256 amount) public view returns (uint256) {
         Storage storage s = getStorage();
-        address _soFee = appStorage.gatewaySoFeeSelectors[s.tokenBridge];
-        if (_soFee == address(0x0)) {
+        address soFee = appStorage.gatewaySoFeeSelectors[s.tokenBridge];
+        if (soFee == address(0x0)) {
             return 0;
         } else {
-            return ILibSoFee(_soFee).getFees(_amount);
+            return ILibSoFee(soFee).getFees(amount);
         }
     }
 
@@ -630,12 +626,12 @@ contract WormholeFacet is Swapper {
 
     function _startBridge(
         NormalizedWormholeData calldata wormholeData,
-        address _token,
-        uint256 _amount,
-        bytes memory _payload
+        address token,
+        uint256 amount,
+        bytes memory payload
     ) internal {
         Storage storage s = getStorage();
-        address _bridge = s.tokenBridge;
+        address bridge = s.tokenBridge;
 
         bytes32 dstSoDiamond;
         if (wormholeData.dstSoDiamond.length == 20) {
@@ -647,28 +643,28 @@ contract WormholeFacet is Swapper {
         }
 
         uint64 sequence;
-        uint256 wormhole_msg_fee = getWormholeMessageFee();
-        if (LibAsset.isNativeAsset(_token)) {
-            sequence = IWormholeBridge(_bridge).wrapAndTransferETHWithPayload{
-                value: _amount + wormhole_msg_fee
-            }(wormholeData.dstWormholeChainId, dstSoDiamond, 0, _payload);
+        uint256 wormhole_msgfee = getWormholeMessageFee();
+        if (LibAsset.isNativeAsset(token)) {
+            sequence = IWormholeBridge(bridge).wrapAndTransferETHWithPayload{
+                value: amount + wormhole_msgfee
+            }(wormholeData.dstWormholeChainId, dstSoDiamond, 0, payload);
         } else {
-            LibAsset.maxApproveERC20(IERC20(_token), _bridge, _amount);
-            sequence = IWormholeBridge(_bridge).transferTokensWithPayload{
-                value: wormhole_msg_fee
+            LibAsset.maxApproveERC20(IERC20(token), bridge, amount);
+            sequence = IWormholeBridge(bridge).transferTokensWithPayload{
+                value: wormhole_msgfee
             }(
-                _token,
-                _amount,
+                token,
+                amount,
                 wormholeData.dstWormholeChainId,
                 dstSoDiamond,
                 0,
-                _payload
+                payload
             );
         }
 
-        uint256 _dust = LibAsset.getOwnBalance(_token);
-        if (_dust > 0) {
-            LibAsset.transferAsset(_token, payable(msg.sender), _dust);
+        uint256 dust = LibAsset.getOwnBalance(token);
+        if (dust > 0) {
+            LibAsset.transferAsset(token, payable(msg.sender), dust);
         }
 
         emit TransferFromWormhole(
