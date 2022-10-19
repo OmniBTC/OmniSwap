@@ -96,7 +96,7 @@ def main():
         logger.info(f"Pending data length: {len(pending_data)}")
         for d in pending_data:
             try:
-                vaa = get_signed_vaa(package, int(d["srcWormholeChainId"]), int(d["sequence"]))
+                vaa = get_signed_vaa(package, int(d["srcWormholeChainId"]), int(d["sequence"]))["hexString"]
             except Exception as e:
                 logger.error(f"Get signed vaa error: {e}")
                 continue

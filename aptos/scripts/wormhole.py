@@ -1,6 +1,7 @@
 import functools
 import time
 from enum import Enum
+from pathlib import Path
 from typing import List
 
 from brownie import (
@@ -9,7 +10,7 @@ from brownie import (
 )
 from brownie.project.main import Project
 
-from scripts.serde import get_serde_facet, get_wormhole_facet
+from scripts.serde import get_serde_facet, get_wormhole_facet, get_token_bridge
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
     generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
     WormholeData, SwapData, padding_to_bytes
@@ -53,16 +54,27 @@ def encode_path_for_uniswap_v3(package: aptos_brownie.AptosPackage, dst_net: str
 
 def get_dst_wrapped_address_for_aptos(
         package: aptos_brownie.AptosPackage,
-        project: Project,
         token_name="AptosCoin",
         dst_net=network.show_active()
 ):
-    token_address = generate_aptos_coin_address_in_wormhole(token_name)
-    token_bridge = Contract.from_abi("TokenBridge",
-                                     package.config["networks"][dst_net]["wormhole"]["token_bridge"],
-                                     project.interface.IWormholeBridge.abi)
+    token_address = generate_aptos_coin_address_in_wormhole(get_aptos_token(package)[token_name]["address"])
+    token_bridge = get_token_bridge(package, dst_net)
     wrapped_address = token_bridge.wrappedAsset(package.network_config["wormhole"]["chainid"], token_address)
     is_wrapped = token_bridge.isWrappedAsset(wrapped_address)
+    return token_address, wrapped_address, is_wrapped
+
+
+def attest_token(
+        token_bridge: aptos_brownie.AptosPackage,
+        token_name="AptosCoin",
+        dst_net=network.show_active()
+):
+    assert token_bridge.network in ["aptos-testnet", "aptos-devnet"]
+    token_address, wrapped_address, is_wrapped = get_dst_wrapped_address_for_aptos(token_bridge, token_name,
+                                                                                   dst_net)
+    if not is_wrapped:
+        attest_token_address = get_aptos_token(token_bridge)[token_name]["address"]
+        token_bridge["attest_token::attest_token_entry"](ty_args=[attest_token_address])
     return token_address, wrapped_address, is_wrapped
 
 

@@ -1,13 +1,15 @@
 import functools
+import json
 import time
 from enum import Enum
 from pathlib import Path
 from typing import List
 
-from brownie import network, Contract, project
+import requests
+from brownie import network, Contract, project, config
 
 from scripts.helpful_scripts import to_hex_str, get_token_address, zero_address, change_network, \
-    get_account
+    get_account, padding_to_bytes
 from scripts.swap import SwapType, SwapFunc, View, SwapData, SoData
 from scripts.utils import aptos_brownie
 
@@ -203,6 +205,24 @@ def generate_src_swap_data(
     )
     out.append(swap_data)
     return out
+
+
+@functools.lru_cache()
+def get_token_bridge(
+        net: str):
+    contract_name = "TokenBridge"
+    return Contract.from_abi(
+        contract_name,
+        config["networks"][net]["wormhole"]["token_bridge"],
+        omniswap_ethereum_project.interface.IWormholeBridge.abi
+    )
+
+
+def create_wrapped_token():
+    vaa = "0x01000000000100a1698203cb42ea1306ec6ab22a6c3cbf4a6da09698a1df1de29fffb3f55637d97499ac8acd53c14e28015d01c61bfd2694683f9e8c0aebd5065eff4faf2c2df601634fa9400000000000160000000000000000000000000000000000000000000000000000000000000001000000000000002800024bd9df2764a60a1e96b733477bade7e50bdd0641a5bd6eee5861fb8c6fa2eaf300160855534454000000000000000000000000000000000000000000000000000000005553445400000000000000000000000000000000000000000000000000000000"
+    get_token_bridge(network.show_active()).createWrapped(vaa, {"from": get_account()})
+    vaa = "0x010000000001003f47e3efe319e9ae1ad2dcdc5643b4f9f12e58c43d0b36480e067679820e586f195bb4872a1c71d064e4b7ab2684a6f1c0257a5b5477f25363f44dbe2738fde200634fa94800000000001600000000000000000000000000000000000000000000000000000000000000010000000000000029000259d95dfe8482dc37f268864a62dd0d585e09559bfc42c3cbfcf1c499edbb2d9900160855534443000000000000000000000000000000000000000000000000000000005553444300000000000000000000000000000000000000000000000000000000"
+    get_token_bridge(network.show_active()).createWrapped(vaa, {"from": get_account()})
 
 
 def cross_swap(
