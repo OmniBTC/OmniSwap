@@ -11,9 +11,9 @@ module omniswap::so_fee_wormhole {
 
     const ENOT_DEPLOYED_ADDRESS: u64 = 0x00;
 
-    const EHAS_Initialize: u64 = 0x01;
+    const EHAS_INITIALIZE: u64 = 0x01;
 
-    const ENOT_Initial: u64 = 0x02;
+    const ENOT_INITIAL: u64 = 0x02;
 
     const EINVALID_LENGTH: u64 = 0x03;
 
@@ -50,7 +50,7 @@ module omniswap::so_fee_wormhole {
 
     public entry fun initialize(account: &signer, dst_chain_id: u64) {
         assert!(signer::address_of(account) == @omniswap, ENOT_DEPLOYED_ADDRESS);
-        assert!(!is_initialize(dst_chain_id), EHAS_Initialize);
+        assert!(!is_initialize(dst_chain_id), EHAS_INITIALIZE);
 
         let seed = vector::empty<u8>();
         serialize_u64(&mut seed, dst_chain_id);
@@ -70,7 +70,7 @@ module omniswap::so_fee_wormhole {
     }
 
     public entry fun set_price_ratio(account: &signer, chain_id: u64, ratio: u64) acquires PriceManager {
-        assert!(is_initialize(chain_id), ENOT_Initial);
+        assert!(is_initialize(chain_id), EHAS_INITIALIZE);
         assert!(is_owner(signer::address_of(account), chain_id), EINVALID_ACCOUNT);
 
         let manager = borrow_global_mut<PriceManager>(get_resource_address(chain_id));
@@ -79,7 +79,7 @@ module omniswap::so_fee_wormhole {
     }
 
     public entry fun get_price_ratio(chain_id: u64): u64 acquires PriceManager {
-        assert!(is_initialize(chain_id), ENOT_Initial);
+        assert!(is_initialize(chain_id), EHAS_INITIALIZE);
         let manager = borrow_global_mut<PriceManager>(get_resource_address(chain_id));
         manager.price_data.current_price_ratio
     }
