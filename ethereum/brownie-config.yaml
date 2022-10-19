@@ -209,20 +209,16 @@ networks:
         address: "0xb3841879399923B35101FB033aa936199E5255E1"
         decimal: 18
       XBTC_WORMHOLE:
-        # wormhole aptos wrapped coin. todo! need to fix
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0xa6Be3A4CD3aCbACCAc6b681ba02dDE174D09Fad8"
         decimal: 8
       AptosCoin_WORMHOLE:
-        # wormhole aptos wrapped coin. todo! need to fix
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454"
         decimal: 8
       USDT_WORMHOLE:
-        # wormhole aptos wrapped coin. todo! need to fix
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0xa8FF4CC05E3Df573edf56503062314DD55180fba"
         decimal: 8
       USDC_WORMHOLE:
-        # wormhole aptos wrapped coin. todo! need to fix
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0x09168423B6b06746012641BEAB505EdF4F3aa24A"
         decimal: 8
     swap:
       IUniswapV2Router02:

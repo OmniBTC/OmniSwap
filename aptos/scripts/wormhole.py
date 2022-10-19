@@ -10,7 +10,7 @@ from brownie import (
 )
 from brownie.project.main import Project
 
-from scripts.serde import get_serde_facet, get_wormhole_facet, get_token_bridge
+from scripts.serde import get_serde_facet, get_wormhole_facet, get_token_bridge, parse_vaa_to_wormhole_payload
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
     generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
     WormholeData, SwapData, padding_to_bytes
@@ -297,11 +297,11 @@ def generate_dst_swap_data(
         if path[0] == "weth":
             sendingAssetId = evm_zero_address()
         else:
-            sendingAssetId = path[0]
+            sendingAssetId = get_evm_token_address(package, dst_net, path[0])
         if path[-1] == "weth":
             receivingAssetId = evm_zero_address()
         else:
-            receivingAssetId = path[-1]
+            receivingAssetId = get_evm_token_address(package, dst_net, path[-1])
 
     swap_contract = Contract.from_abi(
         router.value,
@@ -487,13 +487,8 @@ def main():
 
     cross_swap(
         package,
-        src_path=["AptosCoin",
-                  LiquidswapCurve.Uncorrelated,
-                  "XBTC",
-                  LiquidswapCurve.Uncorrelated,
-                  "USDT"
-                  ],
-        dst_path=["USDT_WORMHOLE", "USDT"],
+        src_path=["AptosCoin"],
+        dst_path=["AptosCoin_WORMHOLE", "USDT"],
         receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
         input_amount=10000000,
         dst_router=EvmSwapType.IUniswapV2Router02,

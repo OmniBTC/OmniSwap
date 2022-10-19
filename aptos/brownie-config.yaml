@@ -74,7 +74,7 @@ networks:
         address: "0x09168423B6b06746012641BEAB505EdF4F3aa24A"
         decimal: 8
       USDT:
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
         decimal: 18
       WETH:
         address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
