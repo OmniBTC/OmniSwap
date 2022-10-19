@@ -74,13 +74,13 @@ module omniswap::wormhole_facet {
 
     /// Some parameters needed to use wormhole
     struct NormalizedWormholeData has drop, copy {
-        // Destination wormhole chain id
+        // destination wormhole chain id
         dst_wormhole_chain_id: U16,
-        // Gas price of the target chain
+        // gas price of the target chain
         dst_max_gas_price_in_wei_for_relayer: U256,
-        // Payment required for aptos coin
+        // payment required for aptos coin
         wormhole_fee: U256,
-        // Destination chain sodiamond address
+        // destination chain sodiamond address
         dst_so_diamond: vector<u8>,
     }
 
