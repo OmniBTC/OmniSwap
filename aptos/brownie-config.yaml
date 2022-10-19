@@ -59,7 +59,7 @@ networks:
       gas_per_bytes: 100
       wormhole_facet_resource:
       wormhole_fee_resource:
-    SoDiamond: "0xFD3581495E9c0a874403CEceb2d82938723508fE"
+    SoDiamond: "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228"
     token:
       XBTC_WORMHOLE:
         address: "0xa6Be3A4CD3aCbACCAc6b681ba02dDE174D09Fad8"
