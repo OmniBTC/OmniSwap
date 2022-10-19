@@ -1,7 +1,7 @@
 import functools
 import json
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 
 from brownie import (
     network,
@@ -23,6 +23,11 @@ LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "binance-fork",
     "matic-fork",
 ]
+
+
+def hex_str_to_vector_u8(data: str) -> List[int]:
+    assert judge_hex_str(data)
+    return list(bytearray.fromhex(data.replace("0x", "")))
 
 
 def judge_hex_str(data: str):
