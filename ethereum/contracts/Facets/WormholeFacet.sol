@@ -564,15 +564,25 @@ contract WormholeFacet is Swapper {
     ) public pure returns (bytes memory) {
         bytes memory d1 = LibCross.encodeNormalizedSoData(soData);
         bytes memory d2 = LibCross.encodeNormalizedSwapData(swapDataDst);
-        return
-            abi.encodePacked(
-                dstMaxGasPrice,
-                dstMaxGas,
-                uint64(d1.length),
-                d1,
-                uint64(d2.length),
-                d2
-            );
+        if (d2.length > 0) {
+            return
+                abi.encodePacked(
+                    dstMaxGasPrice,
+                    dstMaxGas,
+                    uint64(d1.length),
+                    d1,
+                    uint64(d2.length),
+                    d2
+                );
+        } else {
+            return
+                abi.encodePacked(
+                    dstMaxGasPrice,
+                    dstMaxGas,
+                    uint64(d1.length),
+                    d1
+                );
+        }
     }
 
     function decodeWormholePayload(bytes memory wormholeData)
@@ -604,9 +614,9 @@ contract WormholeFacet is Swapper {
         );
         index += nextLen;
 
-        nextLen = uint256(wormholeData.toUint64(index));
-        index += 8;
         if (index < wormholeData.length) {
+            nextLen = uint256(wormholeData.toUint64(index));
+            index += 8;
             data.swapDataDst = LibCross.decodeNormalizedSwapData(
                 wormholeData.slice(index, nextLen)
             );

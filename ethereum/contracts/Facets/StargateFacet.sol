@@ -422,7 +422,12 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     ) public pure returns (bytes memory) {
         bytes memory d1 = LibCross.encodeNormalizedSoData(soData);
         bytes memory d2 = LibCross.encodeNormalizedSwapData(swapDataDst);
-        return abi.encodePacked(uint64(d1.length), d1, uint64(d2.length), d2);
+        if (d2.length > 0) {
+            return
+                abi.encodePacked(uint64(d1.length), d1, uint64(d2.length), d2);
+        } else {
+            return abi.encodePacked(uint64(d1.length), d1);
+        }
     }
 
     function decodeStargatePayload(bytes memory stargatePayload)
@@ -443,9 +448,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             stargatePayload.slice(index, nextLen)
         );
         index += nextLen;
-        nextLen = uint256(stargatePayload.toUint64(index));
-        index += 8;
+
         if (index < stargatePayload.length) {
+            nextLen = uint256(stargatePayload.toUint64(index));
+            index += 8;
             swapDataDst = LibCross.decodeNormalizedSwapData(
                 stargatePayload.slice(index, nextLen)
             );

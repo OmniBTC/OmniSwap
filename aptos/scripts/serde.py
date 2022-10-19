@@ -83,9 +83,9 @@ def parse_vaa(
             hash: result[10]
         }
     """
-    if not vaa.startswith("0x"):
+    if not str(vaa).startswith("0x"):
         vaa = "0x" + vaa
-    return get_wormhole_facet(package, net).parseVM(vaa)
+    return get_wormhole(package, net).parseVM(vaa)
 
 
 def parse_transfer_with_payload(
@@ -110,7 +110,7 @@ def parse_transfer_with_payload(
             payload: result[7]
           }
     """
-    if not vaa_payload.startswith("0x"):
+    if not str(vaa_payload).startswith("0x"):
         vaa_payload = "0x" + vaa_payload
     return get_token_bridge(package, net).parseTransferWithPayload(vaa_payload)
 
@@ -136,7 +136,7 @@ def parse_transfer(
             fee: result[6]
           }
     """
-    if not vaa_payload.startswith("0x"):
+    if not str(vaa_payload).startswith("0x"):
         vaa_payload = "0x" + vaa_payload
     return get_token_bridge(package, net).parseTransfer(vaa_payload)
 
@@ -176,7 +176,7 @@ def parse_wormhole_payload(
             callData: result[3][i][5]
           }]
     """
-    if not transfer_payload.startswith("0x"):
+    if not str(transfer_payload).startswith("0x"):
         transfer_payload = "0x" + transfer_payload
     return get_wormhole_facet(package, net).decodeWormholePayload(transfer_payload)
 
