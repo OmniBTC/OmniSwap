@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import {LibDiamond} from "../Libraries/LibDiamond.sol";
-import {IERC173} from "../Interfaces/IERC173.sol";
+import "../Libraries/LibDiamond.sol";
+import "../Interfaces/IERC173.sol";
 
 /// @title Ownership Facet
-/// @author LI.FI (https://li.fi)
 /// @notice Manages ownership of the So Diamond contract for admin purposes
 contract OwnershipFacet is IERC173 {
     /// Storage ///
@@ -33,17 +32,17 @@ contract OwnershipFacet is IERC173 {
     /// External Methods ///
 
     /// @notice Intitiates transfer of ownership to a new address
-    /// @param _newOwner the address to transfer ownership to
-    function transferOwnership(address _newOwner) external override {
+    /// @param newOwner the address to transfer ownership to
+    function transferOwnership(address newOwner) external override {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
 
-        if (_newOwner == address(0)) revert NoNullOwner();
+        if (newOwner == address(0)) revert NoNullOwner();
 
-        if (_newOwner == LibDiamond.contractOwner())
+        if (newOwner == LibDiamond.contractOwner())
             revert NewOwnerMustNotBeSelf();
 
-        s.newOwner = _newOwner;
+        s.newOwner = newOwner;
         emit OwnershipTransferRequested(msg.sender, s.newOwner);
     }
 
@@ -66,9 +65,9 @@ contract OwnershipFacet is IERC173 {
     }
 
     /// @notice Return the current owner address
-    /// @return owner_ The current owner address
-    function owner() external view override returns (address owner_) {
-        owner_ = LibDiamond.contractOwner();
+    /// @return contractOwner The current owner address
+    function owner() external view override returns (address contractOwner) {
+        contractOwner = LibDiamond.contractOwner();
     }
 
     /// @dev fetch local storage

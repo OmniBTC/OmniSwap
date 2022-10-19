@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import {IDiamondCut} from "../Interfaces/IDiamondCut.sol";
-import {LibDiamond} from "../Libraries/LibDiamond.sol";
+import "../Interfaces/IDiamondCut.sol";
+import "../Libraries/LibDiamond.sol";
 
 contract DiamondCutFacet is IDiamondCut {
     /// @notice Add/replace/remove any number of functions and optionally execute
     ///         a function with delegatecall
-    /// @param _diamondCut Contains the facet addresses and function selectors
-    /// @param _init The address of the contract or facet to execute _calldata
-    /// @param _calldata A function call, including function selector and arguments
-    ///                  _calldata is executed with delegatecall on _init
+    /// @param facetCut Contains the facet addresses and function selectors
+    /// @param init The address of the contract or facet to execute calldata
+    /// @param callData A function call, including function selector and arguments
+    ///                  calldata is executed with delegatecall on init
     function diamondCut(
-        FacetCut[] calldata _diamondCut,
-        address _init,
-        bytes calldata _calldata
+        FacetCut[] calldata facetCut,
+        address init,
+        bytes calldata callData
     ) external override {
         LibDiamond.enforceIsContractOwner();
-        LibDiamond.diamondCut(_diamondCut, _init, _calldata);
+        LibDiamond.diamondCut(facetCut, init, callData);
     }
 }

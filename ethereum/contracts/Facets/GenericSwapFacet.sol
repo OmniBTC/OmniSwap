@@ -25,39 +25,39 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
     /// External Methods ///
 
     /// @notice Performs multiple swaps in one transaction
-    /// @param _soDataNo data used purely for tracking and analytics
-    /// @param _swapDataNo an array of swap related data for performing swaps before bridging
+    /// @param soDataNo data used purely for tracking and analytics
+    /// @param swapDataNo an array of swap related data for performing swaps before bridging
     function swapTokensGeneric(
-        ISo.NormalizedSoData calldata _soDataNo,
-        LibSwap.NormalizedSwapData[] calldata _swapDataNo
+        ISo.NormalizedSoData calldata soDataNo,
+        LibSwap.NormalizedSwapData[] calldata swapDataNo
     ) external payable nonReentrant {
-        ISo.SoData memory _soData = LibCross.denormalizeSoData(_soDataNo);
-        LibSwap.SwapData[] memory _swapData = LibCross.denormalizeSwapData(
-            _swapDataNo
+        ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
+        LibSwap.SwapData[] memory swapData = LibCross.denormalizeSwapData(
+            swapDataNo
         );
 
-        if (_swapData.length == 0) revert NoSwapDataProvided();
-        if (!LibAsset.isNativeAsset(_swapData[0].sendingAssetId)) {
+        if (swapData.length == 0) revert NoSwapDataProvided();
+        if (!LibAsset.isNativeAsset(swapData[0].sendingAssetId)) {
             LibAsset.depositAsset(
-                _swapData[0].sendingAssetId,
-                _swapData[0].fromAmount
+                swapData[0].sendingAssetId,
+                swapData[0].fromAmount
             );
         }
-        uint256 postSwapBalance = this.executeAndCheckSwaps(_soData, _swapData);
-        address receivingAssetId = _swapData[_swapData.length - 1]
+        uint256 postSwapBalance = this.executeAndCheckSwaps(soData, swapData);
+        address receivingAssetId = swapData[swapData.length - 1]
             .receivingAssetId;
         withdraw(
             receivingAssetId,
-            _soData.receivingAssetId,
+            soData.receivingAssetId,
             postSwapBalance,
-            _soData.receiver
+            soData.receiver
         );
 
         emit SoSwappedGeneric(
-            _soData.transactionId,
-            _soData.sendingAssetId,
-            _soData.receivingAssetId,
-            _swapData[0].fromAmount,
+            soData.transactionId,
+            soData.sendingAssetId,
+            soData.receivingAssetId,
+            swapData[0].fromAmount,
             postSwapBalance
         );
     }

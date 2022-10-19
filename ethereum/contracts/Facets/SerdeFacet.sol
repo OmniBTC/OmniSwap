@@ -7,6 +7,7 @@ import "../Interfaces/ISo.sol";
 import "../Libraries/LibSwap.sol";
 
 /// @title Serde Facet
+/// @author OmniBTC
 /// @notice Provides functionality for encode and decode cross data
 contract SerdeFacet {
     using LibBytes for bytes;
