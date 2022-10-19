@@ -60,9 +60,9 @@ def get_signed_vaa(
     data = {
         "method": "GetSignedVAA",
         "params": [
+            str(sequence),
             src_wormhole_id,
             padding_to_bytes(src_emitter_address, padding="left"),
-            str(sequence)
         ]
     }
     headers = {'content-type': 'application/json'}
