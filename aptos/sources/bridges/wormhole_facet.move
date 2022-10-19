@@ -53,6 +53,12 @@ module omniswap::wormhole_facet {
 
     /// Storage
 
+    /// The so fee of cross token
+    struct WormholeFee has key {
+        fee: u64,
+        beneficiary: address
+    }
+
     struct Storage has key {
         // current wormhole chain id, aptos 22
         src_wormhole_chain_id: U16,
@@ -131,6 +137,13 @@ module omniswap::wormhole_facet {
         return manager.owner == account
     }
 
+    public entry fun transfer_beneficiary(account: &signer, to: address) acquires WormholeFee {
+        let manager = borrow_global_mut<WormholeFee>(get_resource_address());
+        assert!(manager.beneficiary == signer::address_of(account), EINVALID_ACCOUNT);
+        manager.beneficiary = to;
+    }
+
+
     /// Make sure the user has aptos coin, and help register if they don't.
     fun transfer<X>(coin_x: Coin<X>, to: address) {
         if (!is_account_registered<X>(to) && type_info::type_of<X>() == type_info::type_of<AptosCoin>()) {
@@ -139,8 +152,32 @@ module omniswap::wormhole_facet {
         coin::deposit(to, coin_x);
     }
 
+    fun is_transfer<X>(to: address): bool {
+        if (is_account_registered<X>(to) || type_info::type_of<X>() == type_info::type_of<AptosCoin>()) {
+            true
+        }else {
+            false
+        }
+    }
+
     fun get_resource_address(): address {
         account::create_resource_address(&@omniswap, SEED)
+    }
+
+    fun get_beneficiary_address(): address acquires WormholeFee {
+        let manager = borrow_global_mut<WormholeFee>(get_resource_address());
+        manager.beneficiary
+    }
+
+    public entry fun set_so_fees(account: &signer, fee: u64) acquires WormholeFee {
+        let manager = borrow_global_mut<WormholeFee>(get_resource_address());
+        assert!(manager.beneficiary == signer::address_of(account), EINVALID_ACCOUNT);
+        manager.fee = fee;
+    }
+
+    public entry fun get_so_fees(): u64 acquires WormholeFee {
+        let manager = borrow_global_mut<WormholeFee>(get_resource_address());
+        manager.fee
     }
 
     /// Inits
@@ -167,6 +204,12 @@ module omniswap::wormhole_facet {
                 so_transfer_completed_events: account::new_event_handle(&resource_signer),
                 transfer_from_wormhole_events: account::new_event_handle(&resource_signer)
             });
+        move_to(&resource_signer,
+            WormholeFee {
+                fee: 0,
+                beneficiary: @omniswap
+            }
+        );
     }
 
     /// Set relayer fee scale factor
@@ -320,12 +363,21 @@ module omniswap::wormhole_facet {
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
-    public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires WormholeFacetManager, Storage {
+    public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires WormholeFacetManager, Storage, WormholeFee {
         assert!(is_initialize(), ENOT_INITIALIZE);
 
 
         let emitter_cap = &borrow_global<WormholeFacetManager>(get_resource_address()).emitter_cap;
         let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees() as u128)) as u64) / RAY ;
+        let beneficiary = get_beneficiary_address();
+        if (so_fee > 0 && so_fee <= x_val && is_transfer<X>(beneficiary)) {
+            let coin_fee = coin::extract(&mut coin_x, so_fee);
+            transfer(coin_fee, beneficiary);
+        };
+
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));

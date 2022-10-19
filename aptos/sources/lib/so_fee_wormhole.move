@@ -42,6 +42,12 @@ module omniswap::so_fee_wormhole {
         return manager.owner == account
     }
 
+    public entry fun transfer_owner(account: &signer, dst_chain_id: u64, to: address) acquires PriceManager {
+        assert!(is_owner(signer::address_of(account), dst_chain_id), EINVALID_ACCOUNT);
+        let manager = borrow_global_mut<PriceManager>(get_resource_address(dst_chain_id));
+        manager.owner = to;
+    }
+
     fun get_resource_address(dst_chain_id: u64): address {
         let seed = vector::empty<u8>();
         serialize_u64(&mut seed, dst_chain_id);
