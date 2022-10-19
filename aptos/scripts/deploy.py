@@ -66,4 +66,4 @@ def main():
                 gas_per_bytes
             )
 
-    setup_mock(net)
+    setup_mock(package.network)
