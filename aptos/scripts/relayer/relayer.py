@@ -91,10 +91,13 @@ def get_pending_data() -> list:
 
 def main():
     package = aptos_brownie.AptosPackage(str(omniswap_aptos_path))
+    has_process = {}
     while True:
         pending_data = get_pending_data()
-        logger.info(f"Pending data length: {len(pending_data)}")
         for d in pending_data:
+            if (int(d["srcWormholeChainId"]), int(d["sequence"])) in has_process:
+                continue
+            has_process[(int(d["srcWormholeChainId"]), int(d["sequence"]))] = True
             try:
                 vaa = get_signed_vaa(package, int(d["srcWormholeChainId"]), int(d["sequence"]))["hexString"]
             except Exception as e:

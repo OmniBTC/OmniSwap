@@ -81,13 +81,14 @@ def generate_wormhole_data(
         package: aptos_brownie.AptosPackage,
         dst_net: str,
         dst_gas_price: int,
-        wormhole_fee: int
+        wormhole_fee: int,
+        dst_so_diamond: str
 ) -> WormholeData:
     wormhole_data = WormholeData(
         dstWormholeChainId=package.config["networks"][dst_net]["wormhole"]["chainid"],
         dstMaxGasPriceInWeiForRelayer=dst_gas_price,
         wormholeFee=wormhole_fee,
-        dstSoDiamond=omniswap_ethereum_project["SoDiamond"][-1].address
+        dstSoDiamond=dst_so_diamond
     )
     return wormhole_data
 
@@ -247,11 +248,12 @@ def cross_swap(
         src_path: list,
         dst_path: list,
         receiver: str,
+        dst_so_diamond: str,
         input_amount: int,
         dst_gas_price: int = 0,
         src_router: str = None,
         src_func: str = None,
-        src_min_amount: int = 0
+        src_min_amount: int = 0,
 ):
     assert len(src_path) > 0
     assert len(dst_path) > 0
@@ -268,7 +270,8 @@ def cross_swap(
         package,
         dst_net=dst_net,
         dst_gas_price=dst_gas_price,
-        wormhole_fee=10000000
+        wormhole_fee=10000000,
+        dst_so_diamond=dst_so_diamond
     )
     print("wormhole_data", wormhole_data)
     wormhole_data = wormhole_data.format_to_contract()
@@ -341,16 +344,17 @@ def main():
 
     cross_swap(
         package,
-        src_path=["usdt", "USDT_WORMHOLE"],
+        src_path=["usdt", "AptosCoin_WORMHOLE"],
         dst_path=[
-            "USDT",
+            "AptosCoin",
             LiquidswapCurve.Uncorrelated,
             "XBTC",
             LiquidswapCurve.Uncorrelated,
-            "AptosCoin",
+            "USDT",
         ],
         receiver="0x5b21da730075862b85ef9f681d1dad66e4b6ab2588b29161164ffb84ec8aebc3",
-        input_amount=10000000,
+        dst_so_diamond=config[dst_net]["SoDiamond"],
+        input_amount=int(1e18),
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens
     )

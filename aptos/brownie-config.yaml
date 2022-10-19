@@ -16,6 +16,7 @@ networks:
     omnibtc_chainid: 30001
     node_url: https://fullnode.testnet.aptoslabs.com/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
+    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
     replace_address:
       deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
@@ -25,15 +26,15 @@ networks:
     token:
       XBTC:
         module: setup
-        address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
+        address: "0x5b21da730075862b85ef9f681d1dad66e4b6ab2588b29161164ffb84ec8aebc3"
         decimal: 8
       USDC:
         module: setup
-        address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
+        address: "0x5b21da730075862b85ef9f681d1dad66e4b6ab2588b29161164ffb84ec8aebc3"
         decimal: 8
       USDT:
         module: setup
-        address: "0xbe2b7f7f7dfdb4243d97f5964ba4ad855df228839eea0928bbb59ee68221ae3c"
+        address: "0x5b21da730075862b85ef9f681d1dad66e4b6ab2588b29161164ffb84ec8aebc3"
         decimal: 8
     wormhole:
       chainid: 22

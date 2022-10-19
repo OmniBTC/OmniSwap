@@ -490,7 +490,6 @@ class AptosPackage:
         account_addr = AccountAddress.from_hex(account_addr)
         account_addr.serialize(ser)
         data = ser.output() + bytes(seed, "ascii") + bytes([255])
-        print(data)
         hasher = hashlib.sha3_256()
         hasher.update(data)
         return "0x" + hasher.digest().hex()
