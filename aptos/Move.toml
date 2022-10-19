@@ -21,12 +21,12 @@ deployer = "0x277fa055b6a73c42c0662d5236c65c864ccbf2d4abd21f174a30c8b786eab84b"
 
 [dependencies.TokenBridge]
 git = "https://github.com/OmniBTC/wormhole.git"
-rev ="055f88e6cbc137b47cf340963ec1d69a1c164dd5"
+rev ="4db3eb8e1d2ef54b5e7cc40613ceff2f534616fd"
 subdir = "aptos/token_bridge"
 
 [dependencies.Wormhole]
 git = "https://github.com/OmniBTC/wormhole.git"
-rev ="055f88e6cbc137b47cf340963ec1d69a1c164dd5"
+rev ="4db3eb8e1d2ef54b5e7cc40613ceff2f534616fd"
 subdir = "aptos/wormhole"
 
 [dependencies.AptosFramework]

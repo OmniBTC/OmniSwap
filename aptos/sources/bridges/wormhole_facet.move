@@ -27,7 +27,6 @@ module omniswap::wormhole_facet {
     use omniswap::swap::right_type;
     use aptos_std::event::EventHandle;
     use aptos_std::event;
-    use token_bridge::attest_token;
 
     const RAY: u64 = 100000000;
 
@@ -385,19 +384,6 @@ module omniswap::wormhole_facet {
             TransferFromWormholeEvent {
                 src_wormhole_chain_id: s.src_wormhole_chain_id,
                 dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
-                sequence
-            }
-        );
-    }
-
-    public entry fun attest_token<CoinType>(account: &signer) acquires Storage {
-        let sequence = attest_token::attest_token_with_signer<CoinType>(account);
-        let s = borrow_global_mut<Storage>(get_resource_address());
-        event::emit_event<TransferFromWormholeEvent>(
-            &mut s.so_swap_events,
-            TransferFromWormholeEvent {
-                src_wormhole_chain_id: s.src_wormhole_chain_id,
-                dst_wormhole_chain_id: u16::zero(),
                 sequence
             }
         );
