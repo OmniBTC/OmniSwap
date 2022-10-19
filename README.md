@@ -16,7 +16,7 @@ With the help of OmniSwap:
 ## Bridge
 
 - [x] **[Stargate](https://stargate.finance/)**: Based on the [LayerZero](https://layerzero.network/) cross -chain message protocol, a single currency pool cross-chain bridge.
-- [ ] **[Wormhole](https://wormhole.com/)**: Wormhole is a universal interoperability protocol, xAsset allows tokens to circulate across chains.
+- [x] **[Wormhole](https://wormhole.com/)**: Wormhole is a universal interoperability protocol, xAsset allows tokens to circulate across chains.
 
 ## Chain
 
@@ -26,7 +26,7 @@ With the help of OmniSwap:
 - [x] Optimism
 - [x] Polygon
 - [x] Avalanche
-- [ ] Aptos
+- [x] Aptos
 
 # Acknowledge
 Many thanks to [LayerZero](https://layerzero.network/) and [Stargate](https://stargate.finance/) for the secure and reliable lower layer construction. Many thanks, of course, to the authors and contributors of [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535).
