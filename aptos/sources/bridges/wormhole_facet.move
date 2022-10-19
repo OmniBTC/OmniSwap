@@ -371,7 +371,7 @@ module omniswap::wormhole_facet {
         let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
 
         let x_val = coin::value(&coin_x);
-        let so_fee = (((x_val as u128) * (get_so_fees() as u128)) as u64) / RAY ;
+        let so_fee = (((x_val as u128) * (get_so_fees() as u128) / (RAY as u128)) as u64);
         let beneficiary = get_beneficiary_address();
         if (so_fee > 0 && so_fee <= x_val && is_transfer<X>(beneficiary)) {
             let coin_fee = coin::extract(&mut coin_x, so_fee);

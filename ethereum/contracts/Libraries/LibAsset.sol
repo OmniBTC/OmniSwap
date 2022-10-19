@@ -147,11 +147,11 @@ library LibAsset {
     }
 
     /// @dev Checks whether the given address is a contract and contains code
-    function isContract(address _contractAddr) internal view returns (bool) {
+    function isContract(address contractAddr) internal view returns (bool) {
         uint256 size;
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            size := extcodesize(_contractAddr)
+            size := extcodesize(contractAddr)
         }
         return size > 0;
     }
