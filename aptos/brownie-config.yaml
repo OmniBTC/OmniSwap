@@ -26,15 +26,15 @@ networks:
     token:
       XBTC:
         module: setup
-        address: "0x5b21da730075862b85ef9f681d1dad66e4b6ab2588b29161164ffb84ec8aebc3"
+        address: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
         decimal: 8
       USDC:
         module: setup
-        address: "0x5b21da730075862b85ef9f681d1dad66e4b6ab2588b29161164ffb84ec8aebc3"
+        address: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
         decimal: 8
       USDT:
         module: setup
-        address: "0x5b21da730075862b85ef9f681d1dad66e4b6ab2588b29161164ffb84ec8aebc3"
+        address: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
         decimal: 8
     wormhole:
       chainid: 22
@@ -63,16 +63,16 @@ networks:
     SoDiamond: "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228"
     token:
       XBTC_WORMHOLE:
-        address: "0xa6Be3A4CD3aCbACCAc6b681ba02dDE174D09Fad8"
+        address: "0xf9471131e004dcdBF3325d0B9Fef49162739d87D"
         decimal: 8
       AptosCoin_WORMHOLE:
         address: "0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454"
         decimal: 8
       USDT_WORMHOLE:
-        address: "0xa8FF4CC05E3Df573edf56503062314DD55180fba"
+        address: "0x48E4508054A82996667e0ca9C3543f57c53FA3C6"
         decimal: 8
       USDC_WORMHOLE:
-        address: "0x09168423B6b06746012641BEAB505EdF4F3aa24A"
+        address: "0x6A14ccC52d89E0A7817CC65C43630f4D0515dDF9"
         decimal: 8
       USDT:
         address: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"

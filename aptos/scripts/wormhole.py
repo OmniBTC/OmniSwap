@@ -446,8 +446,12 @@ def cross_swap(
         len(normal_wormhole_data) + len(normal_dst_swap_data)
 
     is_native = src_path[0] == "AptosCoin"
-    wormhole_fee = estimate_wormhole_fee(
-        package, package.config["networks"][dst_net]["omnibtc_chainid"], input_amount, is_native, payload_length, 0)
+    if is_native:
+        wormhole_fee = input_amount
+    else:
+        wormhole_fee = 0
+    # wormhole_fee = estimate_wormhole_fee(
+    #     package, package.config["networks"][dst_net]["omnibtc_chainid"], input_amount, is_native, payload_length, 0)
 
     wormhole_data = generate_wormhole_data(
         package,
@@ -490,8 +494,6 @@ def main():
     change_network(dst_net)
 
     ####################################################
-    print(get_amounts_out_for_liquidswap(
-        package, ["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"], 1))
 
     cross_swap(package,
                src_path=["AptosCoin"],
