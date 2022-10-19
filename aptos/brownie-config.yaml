@@ -38,8 +38,6 @@ networks:
     wormhole:
       chainid: 22
       token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
-      token:
-        AptosCoin: "0xa867703f5395cb2965feb7ebff5cdf39b771fc6156085da3ae4147a00be91b38"
       actual_reserve: 110000000
       estimate_reserve: 120000000
       base_gas: 100000
@@ -64,20 +62,16 @@ networks:
     SoDiamond: "0xFD3581495E9c0a874403CEceb2d82938723508fE"
     token:
       XBTC_WORMHOLE:
-        # wormhole aptos wrapped coin. todo! need to fix
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0xa6Be3A4CD3aCbACCAc6b681ba02dDE174D09Fad8"
         decimal: 8
       AptosCoin_WORMHOLE:
-        # wormhole aptos wrapped coin. todo! need to fix
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454"
         decimal: 8
       USDT_WORMHOLE:
-        # wormhole aptos wrapped coin. todo! need to fix
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0xa8FF4CC05E3Df573edf56503062314DD55180fba"
         decimal: 8
       USDC_WORMHOLE:
-        # wormhole aptos wrapped coin. todo! need to fix
-        address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
+        address: "0x09168423B6b06746012641BEAB505EdF4F3aa24A"
         decimal: 8
       USDT:
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"

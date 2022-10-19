@@ -41,7 +41,7 @@ def get_token_bridge(
     return Contract.from_abi(
         contract_name,
         package.config["networks"][net]["wormhole"]["token_bridge"],
-        omniswap_ethereum_project.interface.IWormholeBridge
+        omniswap_ethereum_project.interface.IWormholeBridge.abi
     )
 
 
@@ -54,7 +54,7 @@ def get_wormhole(
     return Contract.from_abi(
         contract_name,
         package.config["networks"][net]["wormhole"]["wormhole"],
-        omniswap_ethereum_project.interface.IWormhole
+        omniswap_ethereum_project.interface.IWormhole.abi
     )
 
 
