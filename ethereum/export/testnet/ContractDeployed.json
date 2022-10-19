@@ -1,0 +1,32 @@
+{
+    "avax-test": {
+        "DexManagerFacet": "0xfAEC1D45e95C94fc5c4e17C11bb163486624d3b1",
+        "DiamondCutFacet": "0x88db9f2f680Eeda85FE00dB3bC9437278bFc69Ae",
+        "DiamondLoupeFacet": "0xA7c4953B8fe2E363e05c455745d7967D2103D8e6",
+        "GenericSwapFacet": "0x658dA33CAc5b6376Eb28810DF8e914D2980036Bf",
+        "LibCorrectSwapV1": "0x2bD92B0Bc285ea8198CcAf5c75c8a71DB2624e29",
+        "LibSoFeeStargateV1": "0x4f225d2b33Ce950cA09c3cD5fA0e97Bb717ab23c",
+        "LibSoFeeWormholeV1": "0x00A90033C829558c74974bdfA817Bc5868b4167a",
+        "OwnershipFacet": "0xb2470a419315579B2289aE6022EcBcFe34E925d2",
+        "SerdeFacet": "0xaB9a5b1B77Af91eF8E49DCbD558E502b13EfE581",
+        "SoDiamond": "0xDEE3a4fA877658E7e5efD4A9332de1b673ABF75f",
+        "StargateFacet": "0xC26F278B40D939F83A024c721Eead4947f1B9C7a",
+        "WithdrawFacet": "0x5AF43987996931B74c48ed5cbbf4c20ce2D7aD0a",
+        "WormholeFacet": "0x60E3730465ed8984B33BcF6cA408999bbe00C1aF"
+    },
+    "bsc-test": {
+        "DexManagerFacet": "0xc341590945e1718b12BE561A7BBc422649a68266",
+        "DiamondCutFacet": "0x377c3bfC36088e0Af1c8f8BB8d5D310beb1c13D9",
+        "DiamondLoupeFacet": "0xfc88f42E8938E1C0A97528279caD4A3952CDd8DE",
+        "GenericSwapFacet": "0x896d53F252DA11ce7c9e9577Abf2954eF5D30681",
+        "LibCorrectSwapV1": "0x4c53a8f85bBf8b1f93f6cd51500b0C462b96DC97",
+        "LibSoFeeStargateV1": "0x651BEa502Fbb2011648bb3b7222e9D9fF3fC241C",
+        "LibSoFeeWormholeV1": "0xDd56E19B3f2671dA9e83f3A7E50efAD87127524B",
+        "OwnershipFacet": "0x8E663e3BeD5a865eb6C7b3A4099129093B8FD37D",
+        "SerdeFacet": "0x2a47dF1B82f3D8013881917a9e8d704192aBcb19",
+        "SoDiamond": "0x379838Ab3cab29F5BdA0FFD62547c90E8AeB6Ecc",
+        "StargateFacet": "0x3308a85c214f67be788437447Ff3c10be55702f1",
+        "WithdrawFacet": "0x0a8A024d4cB1adb41176873a04345091a3B6BF48",
+        "WormholeFacet": "0xBd69C7892E2A14b03E023f052222042b9DEdE5E4"
+    }
+}

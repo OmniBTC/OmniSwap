@@ -131,3 +131,8 @@ __pycache__
 build/
 reports/
 .deps/
+.pytest_cache/
+.aptos/
+
+aptos/contracts/
+aptos/interfaces

@@ -1,0 +1,88 @@
+# automatically fetch contract sources from Etherscan
+dotenv: .env
+networks:
+  default: bsc-test
+  aptos-mainnet:
+    omnibtc_chainid: 1
+    node_url:
+    faucet_url:
+  aptos-devnet:
+    omnibtc_chainid: 30001
+    node_url: https://fullnode.devnet.aptoslabs.com/v1
+    faucet_url: https://tap.devnet.prod.gcp.aptosdev.com
+    wormhole:
+      chainid: 22
+  aptos-testnet:
+    omnibtc_chainid: 30001
+    node_url: https://fullnode.testnet.aptoslabs.com/v1
+    faucet_url: https://faucet.testnet.aptoslabs.com
+    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
+    replace_address:
+      deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
+      liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
+      liquidswap_pool_account: "0x8aa500cd155a6087509fa84bc7f0deed3363dd253ecb62b2f110885dacf01c67"
+    token:
+      XBTC:
+        module: setup
+        address: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+        decimal: 8
+      USDC:
+        module: setup
+        address: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+        decimal: 8
+      USDT:
+        module: setup
+        address: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+        decimal: 8
+    wormhole:
+      chainid: 22
+      token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
+      actual_reserve: 110000000
+      estimate_reserve: 120000000
+      base_gas: 100000
+      gas_per_bytes: 100
+  bsc-main:
+    omnibtc_chainid: 2
+  bsc-test:
+    omnibtc_chainid: 30002
+    wormhole:
+      chainid: 4
+      token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
+      wormhole: "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D"
+      token:
+        # wrapped from aptos
+        AptosCoin:
+      actual_reserve: 110000000
+      estimate_reserve: 120000000
+      base_gas: 400000
+      gas_per_bytes: 100
+      wormhole_facet_resource:
+      wormhole_fee_resource:
+    SoDiamond: "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228"
+    token:
+      XBTC_WORMHOLE:
+        address: "0xf9471131e004dcdBF3325d0B9Fef49162739d87D"
+        decimal: 8
+      AptosCoin_WORMHOLE:
+        address: "0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454"
+        decimal: 8
+      USDT_WORMHOLE:
+        address: "0x48E4508054A82996667e0ca9C3543f57c53FA3C6"
+        decimal: 8
+      USDC_WORMHOLE:
+        address: "0x6A14ccC52d89E0A7817CC65C43630f4D0515dDF9"
+        decimal: 8
+      USDT:
+        address: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
+        decimal: 18
+      WETH:
+        address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
+        decimal: 18
+    swap:
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1"
+        token_list: ""
+

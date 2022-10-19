@@ -1,0 +1,6 @@
+aptos_sdk
+python-dotenv
+pathlib
+yaml
+toml
+requests

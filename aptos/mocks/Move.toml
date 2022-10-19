@@ -1,0 +1,20 @@
+[package]
+name = "OmniSwapMock"
+version = "0.1.0"
+
+[addresses]
+std = "0x1"
+aptos-stdlib = "0x1"
+aptos_framework = "0x1"
+aptos_std = "0x1"
+omniswap_mock = "_"
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "985f19d40457a5f09f2d741b1feca6bf7ba1f8a6"
+subdir = "aptos-move/framework/aptos-framework"
+
+[dependencies.Liquidswap]
+git = "https://github.com/pontem-network/liquidswap.git"
+rev = 'c360ff1c3328581a0c78ed3f74a1c53acd9bfbd3'
+
