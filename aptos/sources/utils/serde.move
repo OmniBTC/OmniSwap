@@ -1,12 +1,15 @@
 module omniswap::serde {
-    use std::vector;
-    use std::error;
-    use omniswap::u256::{U256, Self};
-    use omniswap::u16::{U16, Self};
     use std::bcs;
-    use aptos_framework::util;
-    use aptos_std::type_info;
+    use std::error;
     use std::string;
+    use std::vector;
+
+    use omniswap::u16::{U16, Self};
+    use omniswap::u256::{U256, Self};
+
+    use aptos_std::type_info;
+    
+    use aptos_framework::util;
 
     const EINVALID_LENGTH: u64 = 0x00;
 

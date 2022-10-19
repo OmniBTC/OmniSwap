@@ -10,11 +10,13 @@ module omniswap::so_fee_wormhole {
 
     const SEED: vector<u8> = b"wormhole_fee";
 
-    const NOT_DEPLOYED_ADDRESS: u64 = 0x00;
+    /// Error Codes
 
-    const HAS_initialize: u64 = 0x01;
+    const ENOT_DEPLOYED_ADDRESS: u64 = 0x00;
 
-    const NOT_initialize: u64 = 0x02;
+    const EHAS_Initialize: u64 = 0x01;
+
+    const ENOT_Initial: u64 = 0x02;
 
     const EINVALID_LENGTH: u64 = 0x03;
 
@@ -34,10 +36,6 @@ module omniswap::so_fee_wormhole {
         owner: address
     }
 
-    fun get_resource_address(): address {
-        account::create_resource_address(&@omniswap, SEED)
-    }
-
     public fun is_initialize(): bool {
         exists<PriceManager>(get_resource_address())
     }
@@ -47,9 +45,13 @@ module omniswap::so_fee_wormhole {
         return manager.owner == account
     }
 
+    fun get_resource_address(): address {
+        account::create_resource_address(&@omniswap, SEED)
+    }
+
     public entry fun initialize(account: &signer) {
-        assert!(signer::address_of(account) == @omniswap, NOT_DEPLOYED_ADDRESS);
-        assert!(!is_initialize(), HAS_initialize);
+        assert!(signer::address_of(account) == @omniswap, ENOT_DEPLOYED_ADDRESS);
+        assert!(!is_initialize(), EHAS_Initialize);
 
         let (resource_signer, _) = account::create_resource_account(account, SEED);
 
@@ -59,23 +61,12 @@ module omniswap::so_fee_wormhole {
         })
     }
 
-    public entry fun get_price_ratio(chain_id: u64): u64 acquires PriceManager {
-        let manager = borrow_global_mut<PriceManager>(get_resource_address());
-
-        let chain_id = u16::from_u64(chain_id);
-        if (table::contains(&manager.price_data, chain_id)) {
-            table::borrow(&manager.price_data, chain_id).current_price_ratio
-        }else {
-            0
-        }
-    }
-
     public entry fun update_price_ratio(chain_id: u64): u64 acquires PriceManager {
         get_price_ratio(chain_id)
     }
 
     public entry fun set_price_ratio(account: &signer, chain_id: u64, ratio: u64) acquires PriceManager {
-        assert!(is_initialize(), NOT_initialize);
+        assert!(is_initialize(), ENOT_Initial);
         assert!(is_owner(signer::address_of(account)), EINVALID_ACCOUNT);
 
         let manager = borrow_global_mut<PriceManager>(get_resource_address());
@@ -86,5 +77,16 @@ module omniswap::so_fee_wormhole {
             &mut manager.price_data,
             chain_id,
             PriceData { current_price_ratio: ratio, last_update_timestamp: timestamp::now_seconds() });
+    }
+    
+    public entry fun get_price_ratio(chain_id: u64): u64 acquires PriceManager {
+        let manager = borrow_global_mut<PriceManager>(get_resource_address());
+
+        let chain_id = u16::from_u64(chain_id);
+        if (table::contains(&manager.price_data, chain_id)) {
+            table::borrow(&manager.price_data, chain_id).current_price_ratio
+        }else {
+            0
+        }
     }
 }

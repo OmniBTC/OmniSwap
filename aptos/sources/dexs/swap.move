@@ -1,13 +1,16 @@
 module omniswap::swap {
-    use omniswap::cross::{NormalizedSwapData, Self};
-    use liquidswap::curves::{Stable, Uncorrelated};
     use std::vector;
-    use omniswap::serde;
-    use aptos_framework::coin;
-    use omniswap::u256;
-    use liquidswap::router;
-    use aptos_framework::coin::Coin;
 
+    use aptos_framework::coin::{Self, Coin};
+
+    use liquidswap::router;
+    use liquidswap::curves::{Stable, Uncorrelated};
+
+    use omniswap::u256;
+    use omniswap::serde;
+    use omniswap::cross::{NormalizedSwapData, Self};
+
+    /// Error Codes
     const EINVALID_LENGTH: u64 = 0x00;
 
     const EINVALID_SWAP_ROUTER: u64 = 0x01;
@@ -16,6 +19,7 @@ module omniswap::swap {
 
     const EINVALID_SWAP_CURVE: u64 = 0x03;
 
+    /// Ensuring the origin of tokens
     public fun right_type<X>(token: vector<u8>): bool {
         let data = vector::empty();
         serde::serialize_type<X>(&mut data);
@@ -26,6 +30,7 @@ module omniswap::swap {
         }
     }
 
+    /// Coins are deducted directly from the user's account for swap.
     public fun swap_by_account<X, Y>(account: &signer, data: NormalizedSwapData): Coin<Y> {
         if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
             assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
@@ -51,6 +56,7 @@ module omniswap::swap {
         }
     }
 
+    /// Coins need to be removed from the account first and then swap using the coins.
     public fun swap_by_coin<X, Y>(coin_x: Coin<X>, data: NormalizedSwapData): Coin<Y> {
         if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
             assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);

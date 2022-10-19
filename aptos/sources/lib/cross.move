@@ -1,9 +1,11 @@
 module omniswap::cross {
-    use omniswap::serde;
-    use omniswap::u256::{U256};
-    use std::vector;
     use std::error;
+    use std::vector;
+
+    use omniswap::serde;
     use omniswap::u16::U16;
+    use omniswap::u256::{U256};
+
     #[test_only]
     use omniswap::u16;
     #[test_only]
@@ -12,15 +14,15 @@ module omniswap::cross {
     const EINVALID_LENGTH: u64 = 0x00;
 
     struct NormalizedSoData has drop, copy {
-        // unique identification id. length is 32.
+        // Unique identification id. length is 32.
         transaction_id: vector<u8>,
-        // token receiving account. length is 20, 32.
+        // Token receiving account. length is 20, 32.
         receiver: vector<u8>,
-        // source chain id
+        // Source chain id
         source_chain_id: U16,
         // The starting token address of the source chain
         sending_asset_id: vector<u8>,
-        // destination chain id
+        // Destination chain id
         destination_chain_id: U16,
         // The final token address of the destination chain
         receiving_asset_id: vector<u8>,
@@ -43,12 +45,18 @@ module omniswap::cross {
         call_data: vector<u8>
     }
 
+    /// Get Methods
+
     public fun so_receiver(data: NormalizedSoData): vector<u8> {
         data.receiver
     }
 
     public fun so_amount(data: NormalizedSoData): U256 {
         data.amount
+    }
+
+    public fun so_transaction_id(data: NormalizedSoData): vector<u8> {
+        data.transaction_id
     }
 
     public fun so_sending_asset_id(data: NormalizedSoData): vector<u8> {
@@ -74,6 +82,8 @@ module omniswap::cross {
     public fun swap_from_amount(data: NormalizedSwapData): U256 {
         data.from_amount
     }
+
+    /// Encode && Decode
 
     public fun encode_normalized_so_data(so_data: NormalizedSoData): vector<u8> {
         let data = vector::empty<u8>();
