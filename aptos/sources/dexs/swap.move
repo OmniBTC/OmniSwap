@@ -10,6 +10,9 @@ module omniswap::swap {
     use omniswap::serde;
     use omniswap::cross::{NormalizedSwapData, Self};
 
+    // Swap call data delimiter
+    const DELIMITER: u8 = 44;
+
     /// Error Codes
     const EINVALID_LENGTH: u64 = 0x00;
 
@@ -38,15 +41,28 @@ module omniswap::swap {
             let coin_val = u256::as_u64(cross::swap_from_amount(data));
             let coin_x = coin::withdraw<X>(account, coin_val);
 
-            if (right_type<Stable>(cross::swap_call_data(data))) {
+            let raw_call_data = cross::swap_call_data(data);
+            let min_amount = 0;
+            let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+            let call_data;
+            if (flag) {
+                call_data = serde::vector_slice(&raw_call_data, 0, index);
+                if (index + 9 <= vector::length(&raw_call_data)) {
+                    min_amount = serde::deserialize_u64(&serde::vector_slice(&raw_call_data, index + 1, index + 9));
+                }
+            }else {
+                call_data = raw_call_data;
+            };
+
+            if (right_type<Stable>(call_data)) {
                 router::swap_exact_coin_for_coin<X, Y, Stable>(
                     coin_x,
-                    0,
+                    min_amount,
                 )
-            }else if (right_type<Uncorrelated>(cross::swap_call_data(data))) {
+            }else if (right_type<Uncorrelated>(call_data)) {
                 router::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
                     coin_x,
-                    0,
+                    min_amount,
                 )
             }else {
                 abort EINVALID_SWAP_CURVE
@@ -109,7 +125,7 @@ module omniswap::swap {
         swap_by_coin<Z, M>(coin_z, *vector::borrow(&mut swap_data, 2))
     }
 
-    public fun swap_four_by_coin<X, Y, Z, M>(coins: Coin<X>,swap_data: vector<NormalizedSwapData>): Coin<M> {
+    public fun swap_four_by_coin<X, Y, Z, M>(coins: Coin<X>, swap_data: vector<NormalizedSwapData>): Coin<M> {
         assert!(vector::length(&swap_data) == 3, EINVALID_LENGTH);
         let coin_y = swap_by_coin<X, Y>(coins, *vector::borrow(&mut swap_data, 0));
         let coin_z = swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1));
