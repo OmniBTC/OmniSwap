@@ -426,6 +426,64 @@ class AptosPackage:
             "response": response
         }
 
+    def submit_transaction(
+            self, abi: EntryFunctionABI, *args, ty_args: List[str] = None, **kwargs,
+    ) -> dict:
+        if ty_args is None:
+            ty_args = []
+        assert isinstance(list(ty_args), list) and len(
+            abi.ty_args) == len(ty_args), f"ty_args error: {abi.ty_args}"
+        assert len(args) == len(abi.args) or len(
+            kwargs) == len(abi.args), f"args error: {abi.args}"
+
+        normal_args = []
+        if len(kwargs):
+            for function_arg in abi.args:
+                assert function_arg.name in kwargs, f"Param {function_arg.name} not found"
+                if function_arg.type_tag == StructTag:
+                    assert StructTag.from_str(
+                        kwargs[function_arg.name]), f"Param {function_arg} not match"
+                    value = StructTag.from_str(kwargs[function_arg.name])
+                else:
+                    assert function_arg.type_tag(
+                        kwargs[function_arg.name]), f"Param {function_arg} not match"
+                    value = function_arg.type_tag(kwargs[function_arg.name])
+                normal_args.append({
+                    "value": value,
+                    "abi": function_arg})
+        else:
+            for i, function_arg in enumerate(abi.args):
+                if function_arg.type_tag == StructTag:
+                    assert StructTag.from_str(
+                        args[i]), f"Param {function_arg} not match"
+                    value = args[i]
+                else:
+                    assert function_arg.type_tag(
+                        args[i]), f"Param {function_arg} not match"
+                    value = args[i]
+
+                normal_args.append({
+                    "value": value,
+                    "abi": function_arg})
+        payload = {
+            "type": "entry_function_payload",
+            "function": f"{str(abi.module)}::{str(abi.name)}",
+            "type_arguments": [v for v in ty_args],
+            "arguments": [
+                arg["value"]
+                for arg in normal_args
+            ],
+        }
+        txn_hash = self.rest_client.submit_transaction(self.account, payload)
+        print(
+            f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting...")
+        response = self.wait_for_transaction(txn_hash)
+        print(f"Execute {abi.module.name}::{abi.name} Success.\n")
+        return {
+            "hash": txn_hash,
+            "response": response
+        }
+
     def wait_for_transaction(self, txn_hash: str):
         """Waits up to 20 seconds for a transaction to move past pending state."""
 
