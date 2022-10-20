@@ -1,13 +1,12 @@
+from pprint import pprint
 from scripts.utils import aptos_brownie
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
     generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
     WormholeData, SwapData, padding_to_bytes
-from scripts.serde import get_serde_facet, get_wormhole, get_wormhole_facet, get_token_bridge
-from scripts.serde import get_serde_facet, get_wormhole_facet, get_token_bridge, parse_vaa_to_wormhole_payload
+from scripts.serde_aptos import get_serde_facet, get_wormhole_facet, get_token_bridge
 import functools
 import time
 from enum import Enum
-from pathlib import Path
 from typing import List
 
 from brownie import (
@@ -221,9 +220,9 @@ def estimate_wormhole_fee(
 
     dst_gas = base_gas + gas_per_bytes * payload_length
 
-    dst_fee = dst_gas * ratio / RAY * estimate_reserve / RAY
+    dst_fee = dst_gas * int(ratio) / RAY * estimate_reserve / RAY
 
-    return dst_fee + wormhole_cross_fee + input_native_amount
+    return int(dst_fee + wormhole_cross_fee + input_native_amount)
 
 
 def get_liquidswap_curve(package: aptos_brownie.AptosPackage, curve_name: LiquidswapCurve):
@@ -314,9 +313,10 @@ def generate_dst_swap_data(
             raise ValueError("Not support")
     else:
         path_address = encode_path_for_uniswap_v2(package, dst_net, path)
-        sendingAssetId = evm_zero_address() if path[0] == "weth" else path[0]
+        sendingAssetId = evm_zero_address(
+        ) if path[0] == "weth" else path_address[0]
         receivingAssetId = evm_zero_address(
-        ) if path[-1] == "weth" else path[-1]
+        ) if path[-1] == "weth" else path_address[-1]
     swap_contract = Contract.from_abi(
         router.value,
         package.config["networks"][dst_net]["swap"][router.value]["router"],
@@ -446,12 +446,12 @@ def cross_swap(
         len(normal_wormhole_data) + len(normal_dst_swap_data)
 
     is_native = src_path[0] == "AptosCoin"
-    if is_native:
-        wormhole_fee = input_amount
-    else:
-        wormhole_fee = 0
-    # wormhole_fee = estimate_wormhole_fee(
-    #     package, package.config["networks"][dst_net]["omnibtc_chainid"], input_amount, is_native, payload_length, 0)
+    # if is_native:
+    #     wormhole_fee = input_amount
+    # else:
+    #     wormhole_fee = 0
+    wormhole_fee = estimate_wormhole_fee(
+        package, package.config["networks"][dst_net]["wormhole"]["chainid"], input_amount, is_native, payload_length, 0)
 
     wormhole_data = generate_wormhole_data(
         package,

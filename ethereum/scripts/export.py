@@ -4,8 +4,6 @@
 import contextlib
 import json
 import os
-from pprint import pprint
-import re
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeStargateV1, LibCorrectSwapV1, \
@@ -279,6 +277,7 @@ def export(*arg):
             write_file(os.path.join(root_path, "export/abi/IQuoter.json"),
                        getattr(interface, "IQuoter").abi)
         omni_swap_infos[net] = {
+            "OmniBtcChainId": config["networks"][net]["omnibtc_chainid"],
             "SoDiamond": so_diamond.address,
             "ChainId": config["networks"][net]["chainid"],
             "WormholeBridge": get_wormhole_bridge(),

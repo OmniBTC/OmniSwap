@@ -14,9 +14,10 @@ networks:
       chainid: 22
   aptos-testnet:
     omnibtc_chainid: 30001
-    node_url: https://fullnode.testnet.aptoslabs.com/v1
+    node_url: https://aptos-testnet.coming.chat/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
-    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
+    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000004"
+    wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
     replace_address:
       deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
@@ -44,9 +45,9 @@ networks:
       base_gas: 100000
       gas_per_bytes: 100
   bsc-main:
-    omnibtc_chainid: 2
+    omnibtc_chainid: 3
   bsc-test:
-    omnibtc_chainid: 30002
+    omnibtc_chainid: 30003
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
