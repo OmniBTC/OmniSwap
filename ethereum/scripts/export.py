@@ -70,6 +70,8 @@ def get_stragate_pool_infos():
 
 def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
     print(f"Get stargate pair chain path net1:{net1}, net2:{net2}")
+    if "aptos" in net1 or "aptos" in net2:
+        return
     change_network(net1)
     stargate_router_address = get_stargate_router()
     if stargate_router_address == "":
@@ -201,6 +203,8 @@ def export_wormhole_chain_path(wormhole_chain_path):
     omni_swap_infos = read_json(omni_swap_file)
     nets = list(omni_swap_infos.keys())
     for net in nets:
+        if "aptos" in net:
+            continue
         net_support_token = get_wormhole_chain_path(
             net, wormhole_chain_path)
         omni_swap_infos[net]["WormholeSupportToken"] = net_support_token
