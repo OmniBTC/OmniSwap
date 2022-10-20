@@ -62,17 +62,17 @@
                     }
                 ],
                 "internalType": "struct IDiamondCut.FacetCut[]",
-                "name": "_diamondCut",
+                "name": "facetCut",
                 "type": "tuple[]"
             },
             {
                 "internalType": "address",
-                "name": "_init",
+                "name": "init",
                 "type": "address"
             },
             {
                 "internalType": "bytes",
-                "name": "_calldata",
+                "name": "callData",
                 "type": "bytes"
             }
         ],
@@ -85,7 +85,7 @@
         "inputs": [
             {
                 "internalType": "bytes4",
-                "name": "_functionSelector",
+                "name": "functionSelector",
                 "type": "bytes4"
             }
         ],
@@ -93,7 +93,7 @@
         "outputs": [
             {
                 "internalType": "address",
-                "name": "facetAddress_",
+                "name": "addresses",
                 "type": "address"
             }
         ],
@@ -106,7 +106,7 @@
         "outputs": [
             {
                 "internalType": "address[]",
-                "name": "facetAddresses_",
+                "name": "addresses",
                 "type": "address[]"
             }
         ],
@@ -117,7 +117,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_facet",
+                "name": "facet",
                 "type": "address"
             }
         ],
@@ -150,7 +150,7 @@
                     }
                 ],
                 "internalType": "struct IDiamondLoupe.Facet[]",
-                "name": "facets_",
+                "name": "allFacets",
                 "type": "tuple[]"
             }
         ],
@@ -161,7 +161,7 @@
         "inputs": [
             {
                 "internalType": "bytes4",
-                "name": "_interfaceId",
+                "name": "interfaceId",
                 "type": "bytes4"
             }
         ],
@@ -262,7 +262,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_correctSwap",
+                "name": "correctSwap",
                 "type": "address"
             }
         ],
@@ -275,7 +275,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_dex",
+                "name": "dex",
                 "type": "address"
             }
         ],
@@ -288,12 +288,12 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_gateway",
+                "name": "gateway",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_soFee",
+                "name": "soFee",
                 "type": "address"
             }
         ],
@@ -319,7 +319,7 @@
         "inputs": [
             {
                 "internalType": "address[]",
-                "name": "_dexs",
+                "name": "dexs",
                 "type": "address[]"
             }
         ],
@@ -332,7 +332,7 @@
         "inputs": [
             {
                 "internalType": "address[]",
-                "name": "_dexs",
+                "name": "dexs",
                 "type": "address[]"
             }
         ],
@@ -345,12 +345,12 @@
         "inputs": [
             {
                 "internalType": "bytes32[]",
-                "name": "_signatures",
+                "name": "signatures",
                 "type": "bytes32[]"
             },
             {
                 "internalType": "bool",
-                "name": "_approval",
+                "name": "approval",
                 "type": "bool"
             }
         ],
@@ -363,7 +363,7 @@
         "inputs": [
             {
                 "internalType": "bytes32",
-                "name": "_signature",
+                "name": "signature",
                 "type": "bytes32"
             }
         ],
@@ -382,7 +382,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_dex",
+                "name": "dex",
                 "type": "address"
             }
         ],
@@ -395,12 +395,12 @@
         "inputs": [
             {
                 "internalType": "bytes32",
-                "name": "_signature",
+                "name": "signature",
                 "type": "bytes32"
             },
             {
                 "internalType": "bool",
-                "name": "_approval",
+                "name": "approval",
                 "type": "bool"
             }
         ],
@@ -719,7 +719,7 @@
         "inputs": [
             {
                 "internalType": "bytes",
-                "name": "_stargatePayload",
+                "name": "stargatePayload",
                 "type": "bytes"
             }
         ],
@@ -764,7 +764,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -801,7 +801,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDst",
+                "name": "swapDataDst",
                 "type": "tuple[]"
             }
         ],
@@ -872,7 +872,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -909,7 +909,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDst",
+                "name": "swapDataDst",
                 "type": "tuple[]"
             }
         ],
@@ -960,12 +960,12 @@
                     }
                 ],
                 "internalType": "struct StargateFacet.StargateData",
-                "name": "_stargateData",
+                "name": "stargateData",
                 "type": "tuple"
             },
             {
                 "internalType": "uint256",
-                "name": "_amount",
+                "name": "amount",
                 "type": "uint256"
             }
         ],
@@ -1077,7 +1077,7 @@
         "inputs": [
             {
                 "internalType": "uint256",
-                "name": "_amount",
+                "name": "amount",
                 "type": "uint256"
             }
         ],
@@ -1133,7 +1133,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soDataNo",
+                "name": "soDataNo",
                 "type": "tuple"
             },
             {
@@ -1170,7 +1170,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDstNo",
+                "name": "swapDataDstNo",
                 "type": "tuple[]"
             }
         ],
@@ -1189,7 +1189,7 @@
         "inputs": [
             {
                 "internalType": "uint256",
-                "name": "_amount",
+                "name": "amount",
                 "type": "uint256"
             }
         ],
@@ -1245,7 +1245,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soDataNo",
+                "name": "soDataNo",
                 "type": "tuple"
             },
             {
@@ -1282,7 +1282,7 @@
                     }
                 ],
                 "internalType": "struct StargateFacet.StargateData",
-                "name": "_stargateData",
+                "name": "stargateData",
                 "type": "tuple"
             },
             {
@@ -1319,7 +1319,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDstNo",
+                "name": "swapDataDstNo",
                 "type": "tuple[]"
             }
         ],
@@ -1351,12 +1351,12 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_stargate",
+                "name": "stargate",
                 "type": "address"
             },
             {
                 "internalType": "uint16",
-                "name": "_chainId",
+                "name": "chainId",
                 "type": "uint16"
             }
         ],
@@ -1369,12 +1369,12 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_token",
+                "name": "token",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "_amount",
+                "name": "amount",
                 "type": "uint256"
             },
             {
@@ -1416,7 +1416,7 @@
                     }
                 ],
                 "internalType": "struct ISo.SoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -1453,7 +1453,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.SwapData[]",
-                "name": "_swapDataDst",
+                "name": "swapDataDst",
                 "type": "tuple[]"
             }
         ],
@@ -1481,17 +1481,17 @@
             },
             {
                 "internalType": "address",
-                "name": "_token",
+                "name": "token",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "_amount",
+                "name": "amount",
                 "type": "uint256"
             },
             {
                 "internalType": "bytes",
-                "name": "_payload",
+                "name": "payload",
                 "type": "bytes"
             }
         ],
@@ -1541,12 +1541,12 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soDataNo",
+                "name": "soDataNo",
                 "type": "tuple"
             },
             {
                 "internalType": "uint256",
-                "name": "_dstStargatePoolId",
+                "name": "dstStargatePoolId",
                 "type": "uint256"
             },
             {
@@ -1583,7 +1583,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDstNo",
+                "name": "swapDataDstNo",
                 "type": "tuple[]"
             }
         ],
@@ -1633,7 +1633,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soDataNo",
+                "name": "soDataNo",
                 "type": "tuple"
             },
             {
@@ -1670,7 +1670,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataSrcNo",
+                "name": "swapDataSrcNo",
                 "type": "tuple[]"
             },
             {
@@ -1707,7 +1707,7 @@
                     }
                 ],
                 "internalType": "struct StargateFacet.StargateData",
-                "name": "_stargateData",
+                "name": "stargateData",
                 "type": "tuple"
             },
             {
@@ -1744,7 +1744,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDstNo",
+                "name": "swapDataDstNo",
                 "type": "tuple[]"
             }
         ],
@@ -1808,13 +1808,13 @@
             {
                 "indexed": true,
                 "internalType": "address",
-                "name": "_assetAddress",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
                 "indexed": false,
                 "internalType": "address",
-                "name": "_to",
+                "name": "to",
                 "type": "address"
             },
             {
@@ -1831,17 +1831,17 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_assetAddress",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_to",
+                "name": "to",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "_amount",
+                "name": "amount",
                 "type": "uint256"
             }
         ],
@@ -1928,7 +1928,7 @@
         "outputs": [
             {
                 "internalType": "address",
-                "name": "owner_",
+                "name": "contractOwner",
                 "type": "address"
             }
         ],
@@ -1939,7 +1939,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_newOwner",
+                "name": "newOwner",
                 "type": "address"
             }
         ],
@@ -2419,7 +2419,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soDataNo",
+                "name": "soDataNo",
                 "type": "tuple"
             },
             {
@@ -2456,7 +2456,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataNo",
+                "name": "swapDataNo",
                 "type": "tuple[]"
             }
         ],
@@ -2907,7 +2907,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -2934,7 +2934,7 @@
                     }
                 ],
                 "internalType": "struct WormholeFacet.NormalizedWormholeData",
-                "name": "_wormholeData",
+                "name": "wormholeData",
                 "type": "tuple"
             },
             {
@@ -2971,7 +2971,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDst",
+                "name": "swapDataDst",
                 "type": "tuple[]"
             }
         ],
@@ -3005,7 +3005,7 @@
         "inputs": [
             {
                 "internalType": "bytes",
-                "name": "_encodeVm",
+                "name": "encodeVm",
                 "type": "bytes"
             }
         ],
@@ -3018,7 +3018,7 @@
         "inputs": [
             {
                 "internalType": "bytes",
-                "name": "_encodeVm",
+                "name": "encodeVm",
                 "type": "bytes"
             }
         ],
@@ -3031,7 +3031,7 @@
         "inputs": [
             {
                 "internalType": "bytes",
-                "name": "_encodeVm",
+                "name": "encodeVm",
                 "type": "bytes"
             }
         ],
@@ -3392,7 +3392,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -3419,7 +3419,7 @@
                     }
                 ],
                 "internalType": "struct WormholeFacet.NormalizedWormholeData",
-                "name": "_wormholeData",
+                "name": "wormholeData",
                 "type": "tuple"
             },
             {
@@ -3456,7 +3456,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDst",
+                "name": "swapDataDst",
                 "type": "tuple[]"
             }
         ],
@@ -3512,7 +3512,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -3539,7 +3539,7 @@
                     }
                 ],
                 "internalType": "struct WormholeFacet.NormalizedWormholeData",
-                "name": "_wormholeData",
+                "name": "wormholeData",
                 "type": "tuple"
             },
             {
@@ -3576,7 +3576,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDst",
+                "name": "swapDataDst",
                 "type": "tuple[]"
             }
         ],
@@ -3687,27 +3687,8 @@
     {
         "inputs": [
             {
-                "internalType": "bytes",
-                "name": "_encodeVm",
-                "type": "bytes"
-            }
-        ],
-        "name": "getMaxGasAndPrice",
-        "outputs": [
-            {
                 "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_amount",
+                "name": "amount",
                 "type": "uint256"
             }
         ],
@@ -3739,12 +3720,12 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_tokenBridge",
+                "name": "tokenBridge",
                 "type": "address"
             },
             {
                 "internalType": "uint16",
-                "name": "_wormholeChainId",
+                "name": "wormholeChainId",
                 "type": "uint16"
             }
         ],
@@ -3757,17 +3738,17 @@
         "inputs": [
             {
                 "internalType": "uint16",
-                "name": "_dstWormholeChainId",
+                "name": "dstWormholeChainId",
                 "type": "uint16"
             },
             {
                 "internalType": "uint256",
-                "name": "_baseGas",
+                "name": "baseGas",
                 "type": "uint256"
             },
             {
                 "internalType": "uint256",
-                "name": "_gasPerBytes",
+                "name": "gasPerBytes",
                 "type": "uint256"
             }
         ],
@@ -3780,12 +3761,12 @@
         "inputs": [
             {
                 "internalType": "uint256",
-                "name": "_actualReserve",
+                "name": "actualReserve",
                 "type": "uint256"
             },
             {
                 "internalType": "uint256",
-                "name": "_estimateReserve",
+                "name": "estimateReserve",
                 "type": "uint256"
             }
         ],
@@ -3835,7 +3816,7 @@
                     }
                 ],
                 "internalType": "struct ISo.NormalizedSoData",
-                "name": "_soDataNo",
+                "name": "soDataNo",
                 "type": "tuple"
             },
             {
@@ -3872,7 +3853,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataSrcNo",
+                "name": "swapDataSrcNo",
                 "type": "tuple[]"
             },
             {
@@ -3899,7 +3880,7 @@
                     }
                 ],
                 "internalType": "struct WormholeFacet.NormalizedWormholeData",
-                "name": "_wormholeDataNo",
+                "name": "wormholeDataNo",
                 "type": "tuple"
             },
             {
@@ -3936,7 +3917,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
-                "name": "_swapDataDstNo",
+                "name": "swapDataDstNo",
                 "type": "tuple[]"
             }
         ],
@@ -4259,6 +4240,25 @@
     {
         "inputs": [
             {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "denormalizeU256",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "components": [
                     {
                         "internalType": "bytes",
@@ -4534,6 +4534,25 @@
                 "internalType": "struct LibSwap.NormalizedSwapData[]",
                 "name": "",
                 "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "data",
+                "type": "uint256"
+            }
+        ],
+        "name": "normalizeU256",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
             }
         ],
         "stateMutability": "pure",
