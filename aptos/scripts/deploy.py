@@ -34,6 +34,7 @@ def main():
         # Maybe has initialized
         # use dst chain id init
         package["so_fee_wormhole::initialize"](4)
+        package["so_fee_wormhole::set_price_ratio"](4, 1)
     except:
         pass
     # # wormhole
