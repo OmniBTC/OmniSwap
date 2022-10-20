@@ -329,7 +329,14 @@
                         "DstWormholeChainId": 2,
                         "SrcTokenAddress": "0x51Bc652471dd4B236b278B6E98EC5dB8f020B934",
                         "SrcWormholeChainId": 4
-                    },
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "XBTC"
+            },
+            {
+                "ChainPath": [
                     {
                         "DstTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::XBTC",
                         "DstWormholeChainId": 22,
@@ -337,7 +344,7 @@
                         "SrcWormholeChainId": 4
                     }
                 ],
-                "Decimal": 18,
+                "Decimal": 8,
                 "NativeToken": false,
                 "TokenName": "XBTC"
             },
@@ -764,7 +771,7 @@
                     }
                 ],
                 "Decimal": 8,
-                "NativeToken": true,
+                "NativeToken": false,
                 "TokenName": "XBTC"
             },
             {
@@ -825,6 +832,7 @@
                 ],
                 "Decimal": 8,
                 "NativeToken": true,
+                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::XBTC",
                 "TokenName": "XBTC"
             },
             {
@@ -844,6 +852,7 @@
                 ],
                 "Decimal": 8,
                 "NativeToken": true,
+                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDC",
                 "TokenName": "USDC"
             },
             {
@@ -863,6 +872,7 @@
                 ],
                 "Decimal": 8,
                 "NativeToken": true,
+                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDT",
                 "TokenName": "USDT"
             }
         ]
