@@ -29,6 +29,7 @@ networks:
       wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
       liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
       liquidswap_pool_account: "0x8aa500cd155a6087509fa84bc7f0deed3363dd253ecb62b2f110885dacf01c67"
+      omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
     token:
       XBTC:
         module: setup

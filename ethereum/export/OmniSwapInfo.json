@@ -1,6 +1,7 @@
 {
     "avax-test": {
         "ChainId": 43113,
+        "OmniBtcChainId": 30004,
         "SoDiamond": "0x802e05b91769342af3F0d13f9DC6Df03a54C2ac7",
         "StargateChainId": 10106,
         "StargatePool": [
@@ -164,6 +165,7 @@
     },
     "bsc-test": {
         "ChainId": 97,
+        "OmniBtcChainId": 30003,
         "SoDiamond": "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228",
         "StargateChainId": 10102,
         "StargatePool": [
@@ -445,6 +447,7 @@
     },
     "goerli": {
         "ChainId": 5,
+        "OmniBtcChainId": 30002,
         "SoDiamond": "0x12479EEF3EF33687f6b79d59aC6E387C7bc75A3F",
         "StargateChainId": 10121,
         "StargatePool": [],
@@ -602,6 +605,7 @@
     },
     "polygon-test": {
         "ChainId": 80001,
+        "OmniBtcChainId": 30005,
         "SoDiamond": "0xBae5BeAdBaa65628eA9DC5A5c7F794b4865c8771",
         "StargateChainId": 10109,
         "StargatePool": [
@@ -789,8 +793,9 @@
             }
         ]
     },
-    "aptos-test": {
-        "SoDiamond": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+    "aptos-testnet": {
+        "OmniBtcChainId": 30001,
+        "SoDiamond": "0x0000000000000000000000000000000000000000000000000000000000000004",
         "LiquidSwap": "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
         "WormholeBridge": "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f",
         "WormholeChainId": 22,
@@ -876,8 +881,5 @@
                 "TokenName": "USDT"
             }
         ]
-    },
-    "aptos-testnet": {
-        "SoDiamond": "0x0000000000000000000000000000000000000000000000000000000000000004"
     }
 }
