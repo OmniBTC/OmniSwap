@@ -220,9 +220,9 @@ def estimate_wormhole_fee(
 
     dst_gas = base_gas + gas_per_bytes * payload_length
 
-    dst_fee = dst_gas * ratio / RAY * estimate_reserve / RAY
+    dst_fee = dst_gas * int(ratio) / RAY * estimate_reserve / RAY
 
-    return dst_fee + wormhole_cross_fee + input_native_amount
+    return int(dst_fee + wormhole_cross_fee + input_native_amount)
 
 
 def get_liquidswap_curve(package: aptos_brownie.AptosPackage, curve_name: LiquidswapCurve):
@@ -446,12 +446,12 @@ def cross_swap(
         len(normal_wormhole_data) + len(normal_dst_swap_data)
 
     is_native = src_path[0] == "AptosCoin"
-    if is_native:
-        wormhole_fee = input_amount
-    else:
-        wormhole_fee = 0
-    # wormhole_fee = estimate_wormhole_fee(
-    #     package, package.config["networks"][dst_net]["omnibtc_chainid"], input_amount, is_native, payload_length, 0)
+    # if is_native:
+    #     wormhole_fee = input_amount
+    # else:
+    #     wormhole_fee = 0
+    wormhole_fee = estimate_wormhole_fee(
+        package, package.config["networks"][dst_net]["wormhole"]["chainid"], input_amount, is_native, payload_length, 0)
 
     wormhole_data = generate_wormhole_data(
         package,
