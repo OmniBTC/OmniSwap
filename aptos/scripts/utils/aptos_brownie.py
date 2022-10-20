@@ -343,7 +343,7 @@ class AptosPackage:
 
     def __getitem__(self, key):
         assert key in self.abis, f"key not found in abi"
-        return functools.partial(self.custom_submit_transaction, self.abis[key])
+        return functools.partial(self.submit_bcs_transaction, self.abis[key])
 
     def create_single_signer_bcs_transaction(
             self, sender: Account, payload: TransactionPayload, gas: int = 500000, gas_price: int = 100
