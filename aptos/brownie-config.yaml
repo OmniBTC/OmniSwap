@@ -14,7 +14,7 @@ networks:
       chainid: 22
   aptos-testnet:
     omnibtc_chainid: 30001
-    node_url: https://fullnode.testnet.aptoslabs.com/v1
+    node_url: https://aptos-testnet.coming.chat/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
     replace_address:
