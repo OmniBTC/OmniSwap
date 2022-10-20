@@ -16,6 +16,8 @@ module omniswap::swap_tests {
     use omniswap::u256;
     use omniswap::swap::{swap_by_account, swap_by_coin};
 
+    const ERR_COIN_OUT_NUM_LESS_THAN_EXPECTED_MINIMUM: u64 = 205;
+
     public fun register_pool_with_liquidity(x_val: u64, y_val: u64): (signer, signer) {
         let (coin_admin, lp_owner) = test_pool::setup_coins_and_lp_owner();
 
@@ -48,6 +50,61 @@ module omniswap::swap_tests {
         };
 
         (coin_admin, lp_owner)
+    }
+
+    #[test(liquidswap=@liquidswap)]
+    fun test_swap_stable_coin_by_account_with_enough_min_amount(liquidswap: &signer) {
+    	let (coin_admin, _) = register_stable_pool_with_liquidity(10000, 10000);
+        let usdc_to_swap_val = 100;
+        let usdc_coins_to_swap = test_coins::mint<USDC>(&coin_admin, usdc_to_swap_val);
+
+        coin::register<USDC>(&coin_admin);
+        coin::deposit<USDC>(signer::address_of(&coin_admin), usdc_coins_to_swap);
+
+        let usdt_to_get_val = router::get_amount_out<USDC, USDT, Stable>(usdc_to_swap_val);
+
+        let router_address_bytes = vector::empty<u8>();
+        serialize_address(&mut router_address_bytes, signer::address_of(liquidswap));
+        let swap_data = construct_swap_data(
+            router_address_bytes,
+            router_address_bytes,
+            b"0x11::test_coins::USDC",
+            b"0x11::test_coins::USDT",
+            u256::from_u64(usdc_to_swap_val),
+            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Stable,100"
+        );
+        let usdt_coins = swap_by_account<USDC, USDT>(&coin_admin, swap_data);
+        assert!(coin::value(&usdt_coins) == usdt_to_get_val, 0);
+
+        test_coins::burn(&coin_admin, usdt_coins);
+    }
+
+    #[test(liquidswap=@liquidswap)]
+    #[expected_failure(abort_code=205)]
+    fun test_swap_stable_coin_by_account_with_less_min_amount(liquidswap: &signer) {
+    	let (coin_admin, _) = register_stable_pool_with_liquidity(10000, 10000);
+        let usdc_to_swap_val = 100;
+        let usdc_coins_to_swap = test_coins::mint<USDC>(&coin_admin, usdc_to_swap_val);
+
+        coin::register<USDC>(&coin_admin);
+        coin::deposit<USDC>(signer::address_of(&coin_admin), usdc_coins_to_swap);
+
+        let usdt_to_get_val = router::get_amount_out<USDC, USDT, Stable>(usdc_to_swap_val);
+
+        let router_address_bytes = vector::empty<u8>();
+        serialize_address(&mut router_address_bytes, signer::address_of(liquidswap));
+        let swap_data = construct_swap_data(
+            router_address_bytes,
+            router_address_bytes,
+            b"0x11::test_coins::USDC",
+            b"0x11::test_coins::USDT",
+            u256::from_u64(usdc_to_swap_val),
+            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Stable,1000"
+        );
+        let usdt_coins = swap_by_account<USDC, USDT>(&coin_admin, swap_data);
+        assert!(coin::value(&usdt_coins) == usdt_to_get_val, 0);
+
+        test_coins::burn(&coin_admin, usdt_coins);
     }
 
     #[test(liquidswap=@liquidswap)]

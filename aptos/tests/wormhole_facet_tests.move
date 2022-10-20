@@ -47,7 +47,8 @@ module omniswap::wormhole_facet_tests {
         // init wormhole tokenbridge
         token_bridge::init_test(deployer);
         // init wormhole so fee
-        initialize(omniswap);
+        initialize(omniswap, 2);
+        initialize(omniswap, 1);
         set_price_ratio(omniswap, 1, 1 * RAY);
         set_price_ratio(omniswap, 2, 1 * RAY);
         // init wormhole facet
@@ -57,7 +58,7 @@ module omniswap::wormhole_facet_tests {
         serialize_u256(&mut base_gas, u256::from_u64(1500000));
         let gas_per_bytes = vector::empty<u8>();
         serialize_u256(&mut gas_per_bytes, u256::from_u64(68));
-        set_wormhole_gas(omniswap,2, base_gas, gas_per_bytes);
+        set_wormhole_gas(omniswap, 2, base_gas, gas_per_bytes);
     }
 
     public fun setup_liquidswap_pool(): (signer, signer) {
@@ -82,8 +83,8 @@ module omniswap::wormhole_facet_tests {
         };
     }
 
-    #[test(aptos_framework=@aptos_framework, deployer=@deployer, omniswap=@omniswap)]
-    fun test_so_swap_without_swap(aptos_framework: &signer, deployer: &signer,omniswap: &signer) {
+    #[test(aptos_framework = @aptos_framework, deployer = @deployer, omniswap = @omniswap)]
+    fun test_so_swap_without_swap(aptos_framework: &signer, deployer: &signer, omniswap: &signer) {
         setup(aptos_framework, deployer, omniswap);
 
         let input_aptos_val = 100;
@@ -91,7 +92,7 @@ module omniswap::wormhole_facet_tests {
             x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
             x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
             u16::from_u64(1),
-             b"0x1::aptos_coin::AptosCoin",
+            b"0x1::aptos_coin::AptosCoin",
             u16::from_u64(2),
             x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
             u256::from_u64(input_aptos_val)
@@ -127,7 +128,7 @@ module omniswap::wormhole_facet_tests {
         );
     }
 
-    #[test(aptos_framework=@aptos_framework, deployer=@deployer, omniswap=@omniswap, liquidswap=@liquidswap)]
+    #[test(aptos_framework = @aptos_framework, deployer = @deployer, omniswap = @omniswap, liquidswap = @liquidswap)]
     fun test_so_swap_with_src_swap_two(aptos_framework: &signer, deployer: &signer, omniswap: &signer, liquidswap: &signer) {
         setup(aptos_framework, deployer, omniswap);
         let (coin_admin, lp_owner) = setup_liquidswap_pool();
@@ -138,7 +139,7 @@ module omniswap::wormhole_facet_tests {
             x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
             x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
             u16::from_u64(1),
-             b"0x11::test_coins::USDT",
+            b"0x11::test_coins::USDT",
             u16::from_u64(2),
             x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
             u256::from_u64(input_aptos_val)
@@ -193,7 +194,7 @@ module omniswap::wormhole_facet_tests {
         );
     }
 
-    #[test(aptos_framework=@aptos_framework, deployer=@deployer, omniswap=@omniswap)]
+    #[test(aptos_framework = @aptos_framework, deployer = @deployer, omniswap = @omniswap)]
     fun test_so_swap_with_dst_swap(aptos_framework: &signer, deployer: &signer, omniswap: &signer) {
         setup(aptos_framework, deployer, omniswap);
 
@@ -202,7 +203,7 @@ module omniswap::wormhole_facet_tests {
             x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
             x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
             u16::from_u64(1),
-             b"0x1::aptos_coin::AptosCoin",
+            b"0x1::aptos_coin::AptosCoin",
             u16::from_u64(2),
             x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
             u256::from_u64(input_aptos_val)
@@ -223,7 +224,7 @@ module omniswap::wormhole_facet_tests {
             x"2514895c72f50d8bd4b4f9b1110f0d6bd2c97526",
             x"143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7",
             u256::from_u64(7700000000),
-                // liquidswap curve
+            // liquidswap curve
             x"6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
         );
         let dst_swap_data = vector<NormalizedSwapData>[swap_data];
@@ -248,8 +249,8 @@ module omniswap::wormhole_facet_tests {
         );
     }
 
-    #[test(aptos_framework=@aptos_framework, deployer=@deployer, omniswap=@omniswap, liquidswap=@liquidswap)]
-    fun test_so_swap_with_src_swap_and_dst_swap(aptos_framework: &signer, deployer: &signer, omniswap: &signer, liquidswap: &signer){
+    #[test(aptos_framework = @aptos_framework, deployer = @deployer, omniswap = @omniswap, liquidswap = @liquidswap)]
+    fun test_so_swap_with_src_swap_and_dst_swap(aptos_framework: &signer, deployer: &signer, omniswap: &signer, liquidswap: &signer) {
         setup(aptos_framework, deployer, omniswap);
         let (coin_admin, lp_owner) = setup_liquidswap_pool();
         create_liquidswap_pool<BTC, USDT, Uncorrelated>(&coin_admin, &lp_owner, 1000, 1000000);
@@ -258,7 +259,7 @@ module omniswap::wormhole_facet_tests {
             x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
             x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
             u16::from_u64(1),
-             b"0x11::test_coins::USDT",
+            b"0x11::test_coins::USDT",
             u16::from_u64(2),
             x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
             u256::from_u64(100)
@@ -296,7 +297,7 @@ module omniswap::wormhole_facet_tests {
             x"2514895c72f50d8bd4b4f9b1110f0d6bd2c97526",
             x"143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7",
             u256::from_u64(7700000000),
-                // liquidswap curve
+            // liquidswap curve
             x"6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
         );
         let dst_swap_data = vector<NormalizedSwapData>[swap_data];
