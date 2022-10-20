@@ -10,7 +10,7 @@ module omniswap::swap {
     use omniswap::serde;
     use omniswap::cross::{NormalizedSwapData, Self};
 
-    // Swap call data delimiter
+    // Swap call data delimiter, represent ","
     const DELIMITER: u8 = 44;
 
     /// Error Codes
@@ -78,15 +78,28 @@ module omniswap::swap {
             assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
             assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
 
-            if (right_type<Stable>(cross::swap_call_data(data))) {
+            let raw_call_data = cross::swap_call_data(data);
+            let min_amount = 0;
+            let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+            let call_data;
+            if (flag) {
+                call_data = serde::vector_slice(&raw_call_data, 0, index);
+                if (index + 9 <= vector::length(&raw_call_data)) {
+                    min_amount = serde::deserialize_u64(&serde::vector_slice(&raw_call_data, index + 1, index + 9));
+                }
+            }else {
+                call_data = raw_call_data;
+            };
+
+            if (right_type<Stable>(call_data)) {
                 router::swap_exact_coin_for_coin<X, Y, Stable>(
                     coin_x,
-                    0,
+                    min_amount,
                 )
-            }else if (right_type<Uncorrelated>(cross::swap_call_data(data))) {
+            }else if (right_type<Uncorrelated>(call_data)) {
                 router::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
                     coin_x,
-                    0,
+                    min_amount,
                 )
             }else {
                 abort EINVALID_SWAP_CURVE
