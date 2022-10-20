@@ -278,7 +278,7 @@ def generate_src_swap_data(
             sendingAssetId=get_aptos_token(package)[path[i]]["address"],
             receivingAssetId=get_aptos_token(package)[path[i + 2]]["address"],
             fromAmount=amount,
-            callData=get_liquidswap_curve(package, path[i + 1])
+            callData=get_liquidswap_curve(package, path[i + 1]) + ",0"
         )
         out.append(swap_data)
         i += 2
@@ -406,6 +406,7 @@ def cross_swap(
     if len(src_path) > 1:
         src_swap_data = generate_src_swap_data(
             package, "liquidswap", src_path, input_amount)
+        print(src_swap_data)
         normal_src_swap_data = [d.format_to_contract() for d in src_swap_data]
         normal_src_swap_data = hex_str_to_vector_u8(
             str(serde.encodeNormalizedSwapData(normal_src_swap_data)))

@@ -6,7 +6,7 @@ import hashlib
 import os
 import time
 from pathlib import Path
-from typing import Union, List
+from typing import Union, List, Dict, Any
 
 from aptos_sdk import account
 from aptos_sdk.account_address import AccountAddress
@@ -17,7 +17,7 @@ from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument,
 from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U128Tag, U64Tag, U8Tag, BoolTag
 from dotenv import load_dotenv
 from aptos_sdk.account import Account
-from aptos_sdk.client import RestClient, FaucetClient
+from aptos_sdk.client import RestClient, FaucetClient, ApiError
 
 import yaml
 import toml
@@ -343,7 +343,7 @@ class AptosPackage:
 
     def __getitem__(self, key):
         assert key in self.abis, f"key not found in abi"
-        return functools.partial(self.submit_bcs_transaction, self.abis[key])
+        return functools.partial(self.custom_submit_transaction, self.abis[key])
 
     def create_single_signer_bcs_transaction(
             self, sender: Account, payload: TransactionPayload, gas: int = 500000, gas_price: int = 100
@@ -426,7 +426,46 @@ class AptosPackage:
             "response": response
         }
 
-    def submit_transaction(
+    def submit_transaction(self, sender: Account, payload: Dict[str, Any]) -> str:
+        """
+        1) Generates a transaction request
+        2) submits that to produce a raw transaction
+        3) signs the raw transaction
+        4) submits the signed transaction
+        """
+
+        txn_request = {
+            "sender": f"{sender.address()}",
+            "sequence_number": str(self.rest_client.account_sequence_number(sender.address())),
+            "max_gas_amount": "500000",
+            "gas_unit_price": "100",
+            "expiration_timestamp_secs": str(int(time.time()) + 600),
+            "payload": payload,
+        }
+
+        response = self.rest_client.client.post(
+            f"{self.rest_client.base_url}/transactions/encode_submission", json=txn_request
+        )
+        if response.status_code >= 400:
+            raise ApiError(response.text, response.status_code)
+
+        to_sign = bytes.fromhex(response.json()[2:])
+        signature = sender.sign(to_sign)
+        txn_request["signature"] = {
+            "type": "ed25519_signature",
+            "public_key": f"{sender.public_key()}",
+            "signature": f"{signature}",
+        }
+
+        headers = {"Content-Type": "application/json"}
+        response = self.rest_client.client.post(
+            f"{self.rest_client.base_url}/transactions", headers=headers, json=txn_request
+        )
+        if response.status_code >= 400:
+            raise ApiError(response.text, response.status_code)
+        return response.json()["hash"]
+
+    def custom_submit_transaction(
             self, abi: EntryFunctionABI, *args, ty_args: List[str] = None, **kwargs,
     ) -> dict:
         if ty_args is None:
@@ -461,6 +500,8 @@ class AptosPackage:
                     assert function_arg.type_tag(
                         args[i]), f"Param {function_arg} not match"
                     value = args[i]
+                    if isinstance(value, list):
+                        value = "0x" + str(bytes(value).hex())
 
                 normal_args.append({
                     "value": value,
@@ -474,9 +515,9 @@ class AptosPackage:
                 for arg in normal_args
             ],
         }
-        txn_hash = self.rest_client.submit_transaction(self.account, payload)
+        txn_hash = self.submit_transaction(self.account, payload)
         print(
-            f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting...")
+            f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting....")
         response = self.wait_for_transaction(txn_hash)
         print(f"Execute {abi.module.name}::{abi.name} Success.\n")
         return {
