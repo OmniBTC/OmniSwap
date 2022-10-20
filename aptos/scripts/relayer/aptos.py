@@ -158,10 +158,13 @@ def process_v1(
                 vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, "bsc-test",
                                                                                        d["hexString"])
             except Exception as e:
-                local_logger.error(f"Parse signed vaa error: {e}")
+                local_logger.error(f'Parse signed vaa for emitterChainId:{d["emitterChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
             if transfer_data[4] != dstSoDiamond:
-                local_logger.warning(f"dstSoDiamond: {dstSoDiamond} not match: {transfer_data[4]}")
+                local_logger.warning(
+                    f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} dstSoDiamond: {dstSoDiamond} '
+                    f'not match: {transfer_data[4]}')
                 continue
             try:
                 final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
@@ -187,9 +190,10 @@ def process_v1(
                     raise OverflowError
                 package["so_diamond::complete_so_swap"](hex_str_to_vector_u8(d["hexString"]), ty_args=ty_args)
             except Exception as e:
-                logger.error(f"Decode hex error: {e}")
+                local_logger.error(f'Complete so swap for emitterChainId:{d["emitterChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
-
+            logger.info(f'Process emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} success!')
         time.sleep(60)
 
 
@@ -213,16 +217,21 @@ def process_v2(
                     continue
                 vaa = vaa["hexString"]
             except Exception as e:
-                local_logger.error(f"Get signed vaa error: {e}")
+                local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
             try:
                 # Use bsc-test to decode, too slow may need to change bsc-mainnet
                 vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, "bsc-test", vaa)
             except Exception as e:
-                local_logger.error(f"Parse signed vaa error: {e}")
+                local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
             if transfer_data[4] != dstSoDiamond:
-                local_logger.warning(f"dstSoDiamond: {dstSoDiamond} not match: {transfer_data[4]}")
+                local_logger.warning(
+                    f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
+                    f'dstSoDiamond: {dstSoDiamond} '
+                    f'not match: {transfer_data[4]}')
                 continue
             try:
                 final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
@@ -248,7 +257,10 @@ def process_v2(
                     raise OverflowError
                 package["so_diamond::complete_so_swap"](hex_str_to_vector_u8(vaa), ty_args=ty_args)
             except Exception as e:
+                local_logger.error(f'Complete so swap for emitterChainId:{d["srcWormholeChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
+            logger.info(f'Process emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} success!')
         time.sleep(60)
 
 

@@ -50,18 +50,22 @@ def process_v1(
                 vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(
                     d["hexString"])
             except Exception as e:
-                local_logger.error(f"Parse signed vaa error: {e}")
+                local_logger.error(f'Parse signed vaa for emitterChainId:{d["emitterChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
             if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(
-                    f"dstSoDiamond: {dstSoDiamond} not match: {transfer_data[4]}")
+                    f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} dstSoDiamond: {dstSoDiamond} '
+                    f'not match: {transfer_data[4]}')
                 continue
             try:
                 get_wormhole_facet().completeSoSwap(
                     d["hexString"], {"from": get_account()})
             except Exception as e:
-                local_logger.error(f"Decode hex error: {e}")
+                local_logger.error(f'Complete so swap for emitterChainId:{d["emitterChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
+            logger.info(f'Process emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} success!')
 
         time.sleep(60)
 
@@ -88,25 +92,31 @@ def process_v2(
                     continue
                 vaa = vaa["hexString"]
             except Exception as e:
-                local_logger.error(f"Get signed vaa error: {e}")
+                local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
             try:
                 # Use bsc-test to decode, too slow may need to change bsc-mainnet
                 vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(
                     vaa)
             except Exception as e:
-                local_logger.error(f"Parse signed vaa error: {e}")
+                local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
             if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(
-                    f"dstSoDiamond: {dstSoDiamond} not match: {transfer_data[4]}")
+                    f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
+                    f'dstSoDiamond: {dstSoDiamond} '
+                    f'not match: {transfer_data[4]}')
                 continue
             try:
                 get_wormhole_facet().completeSoSwap(
                     vaa, {"from": get_account()})
             except Exception as e:
-                local_logger.error(f"Decode hex error: {e}")
+                local_logger.error(f'Complete so swap for emitterChainId:{d["srcWormholeChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
                 continue
+            logger.info(f'Process emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} success!')
         time.sleep(60)
 
 
