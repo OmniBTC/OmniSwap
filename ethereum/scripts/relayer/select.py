@@ -43,7 +43,7 @@ def get_signed_vaa(
         'version': 1}
     """
     if url is None:
-        url = "http://localhost:5066"
+        url = "http://wormhole-testnet.sherpax.io"
     if src_wormhole_id is None:
         data = {
             "method": "GetSignedVAA",
@@ -93,7 +93,7 @@ def get_signed_vaa_by_to(
         'version': 1}]
     """
     if url is None:
-        url = "http://localhost:5066"
+        url = "http://wormhole-testnet.sherpax.io"
     if count is None:
         count = 10
     if to is None:
