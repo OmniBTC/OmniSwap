@@ -47,8 +47,9 @@ module omniswap::swap {
             let call_data;
             if (flag) {
                 call_data = serde::vector_slice(&raw_call_data, 0, index);
-                if (index + 9 <= vector::length(&raw_call_data)) {
-                    min_amount = serde::deserialize_u64(&serde::vector_slice(&raw_call_data, index + 1, index + 9));
+                let len = vector::length(&raw_call_data);
+                if (index + 1 < len) {
+                    min_amount = ascill_to_u64(serde::vector_slice(&raw_call_data, index + 1, len));
                 }
             }else {
                 call_data = raw_call_data;
@@ -84,8 +85,9 @@ module omniswap::swap {
             let call_data;
             if (flag) {
                 call_data = serde::vector_slice(&raw_call_data, 0, index);
-                if (index + 9 <= vector::length(&raw_call_data)) {
-                    min_amount = serde::deserialize_u64(&serde::vector_slice(&raw_call_data, index + 1, index + 9));
+                let len = vector::length(&raw_call_data);
+                if (index + 1 < len) {
+                    min_amount = ascill_to_u64(serde::vector_slice(&raw_call_data, index + 1, len));
                 }
             }else {
                 call_data = raw_call_data;
@@ -143,5 +145,21 @@ module omniswap::swap {
         let coin_y = swap_by_coin<X, Y>(coins, *vector::borrow(&mut swap_data, 0));
         let coin_z = swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1));
         swap_by_coin<Z, M>(coin_z, *vector::borrow(&mut swap_data, 2))
+    }
+
+    public fun ascill_to_u64(data: vector<u8>): u64 {
+        let len = vector::length(&data);
+        let amount = 0;
+        let i = 0;
+        while (i < len) {
+            let m = *vector::borrow(&data, i);
+            if ((m < 48) || (m > 57)) {
+                return 0
+            };
+            let d = ((m - 48) as u64);
+            amount = amount * 10 + d;
+            i = i + 1;
+        };
+        amount
     }
 }
