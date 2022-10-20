@@ -35,23 +35,30 @@ def process_v1(
     local_logger.info("Starting process v1...")
     has_process = {}
     while True:
-        result = get_signed_vaa_by_to(dstWormholeChainId)
-        result = [d for d in result if (int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
+        try:
+            result = get_signed_vaa_by_to(dstWormholeChainId)
+            result = [d for d in result if (
+                int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
+        except Exception:
+            continue
         local_logger.info(f"Get signed vaa by to length: {len(result)}")
         for d in result[::-1]:
             has_process[(int(d["emitterChainId"]), int(d["sequence"]))] = True
 
             try:
                 # Use bsc-test to decode, too slow may need to change bsc-mainnet
-                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(d["hexString"])
+                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(
+                    d["hexString"])
             except Exception as e:
                 local_logger.error(f"Parse signed vaa error: {e}")
                 continue
             if transfer_data[4] != dstSoDiamond:
-                local_logger.warning(f"dstSoDiamond: {dstSoDiamond} not match: {transfer_data[4]}")
+                local_logger.warning(
+                    f"dstSoDiamond: {dstSoDiamond} not match: {transfer_data[4]}")
                 continue
             try:
-                get_wormhole_facet().completeSoSwap(d["hexString"], {"from": get_account()})
+                get_wormhole_facet().completeSoSwap(
+                    d["hexString"], {"from": get_account()})
             except Exception as e:
                 local_logger.error(f"Decode hex error: {e}")
                 continue
@@ -72,9 +79,11 @@ def process_v2(
                         (int(d["srcWormholeChainId"]), int(d["sequence"])) not in has_process]
         local_logger.info(f"Get signed vaa length: {len(pending_data)}")
         for d in pending_data:
-            has_process[(int(d["srcWormholeChainId"]), int(d["sequence"]))] = True
+            has_process[(int(d["srcWormholeChainId"]),
+                         int(d["sequence"]))] = True
             try:
-                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]))
+                vaa = get_signed_vaa(
+                    int(d["sequence"]), int(d["srcWormholeChainId"]))
                 if vaa is None:
                     continue
                 vaa = vaa["hexString"]
@@ -83,15 +92,18 @@ def process_v2(
                 continue
             try:
                 # Use bsc-test to decode, too slow may need to change bsc-mainnet
-                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(vaa)
+                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(
+                    vaa)
             except Exception as e:
                 local_logger.error(f"Parse signed vaa error: {e}")
                 continue
             if transfer_data[4] != dstSoDiamond:
-                local_logger.warning(f"dstSoDiamond: {dstSoDiamond} not match: {transfer_data[4]}")
+                local_logger.warning(
+                    f"dstSoDiamond: {dstSoDiamond} not match: {transfer_data[4]}")
                 continue
             try:
-                get_wormhole_facet().completeSoSwap(vaa, {"from": get_account()})
+                get_wormhole_facet().completeSoSwap(
+                    vaa, {"from": get_account()})
             except Exception as e:
                 local_logger.error(f"Decode hex error: {e}")
                 continue
@@ -124,8 +136,10 @@ class Session(Process):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
         change_network(self.dstNet)
-        t1 = threading.Thread(target=process_v1, args=(self.dstWormholeChainId, self.dstSoDiamond))
-        t2 = threading.Thread(target=process_v2, args=(self.dstWormholeChainId, self.dstSoDiamond))
+        t1 = threading.Thread(target=process_v1, args=(
+            self.dstWormholeChainId, self.dstSoDiamond))
+        t2 = threading.Thread(target=process_v2, args=(
+            self.dstWormholeChainId, self.dstSoDiamond))
         t1.start()
         t2.start()
         t1.join()
@@ -145,4 +159,5 @@ def main():
 
 
 def main1():
-    process_v1(SUPPORTED_EVM[0]["dstWormholeChainId"], SUPPORTED_EVM[0]["dstSoDiamond"])
+    process_v1(SUPPORTED_EVM[0]["dstWormholeChainId"],
+               SUPPORTED_EVM[0]["dstSoDiamond"])

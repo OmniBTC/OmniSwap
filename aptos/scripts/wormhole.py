@@ -1,3 +1,4 @@
+from pprint import pprint
 from scripts.utils import aptos_brownie
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
     generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
@@ -312,9 +313,10 @@ def generate_dst_swap_data(
             raise ValueError("Not support")
     else:
         path_address = encode_path_for_uniswap_v2(package, dst_net, path)
-        sendingAssetId = evm_zero_address() if path[0] == "weth" else path[0]
+        sendingAssetId = evm_zero_address(
+        ) if path[0] == "weth" else path_address[0]
         receivingAssetId = evm_zero_address(
-        ) if path[-1] == "weth" else path[-1]
+        ) if path[-1] == "weth" else path_address[-1]
     swap_contract = Contract.from_abi(
         router.value,
         package.config["networks"][dst_net]["swap"][router.value]["router"],
