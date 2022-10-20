@@ -437,7 +437,7 @@ class AptosPackage:
         response = self.rest_client.client.get(
             f"{self.rest_client.base_url}/transactions/by_hash/{txn_hash}")
         assert (
-            "success" in response.json() and response.json()["success"]
+                "success" in response.json() and response.json()["success"]
         ), f"{response.text} - {txn_hash}"
         return response.json()
 

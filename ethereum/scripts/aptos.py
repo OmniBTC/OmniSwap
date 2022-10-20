@@ -275,7 +275,6 @@ def cross_swap(
         wormhole_fee=10000000,
         dst_so_diamond=dst_so_diamond
     )
-    print("wormhole_data", wormhole_data)
     wormhole_data = wormhole_data.format_to_contract()
 
     # construct so data
@@ -286,14 +285,12 @@ def cross_swap(
         dst_token=dst_path[-1],
         receiver=receiver,
         amount=input_amount)
-    print("so_data", so_data)
     so_data = so_data.format_to_contract()
 
     # construct src data
     dst_swap_data = []
     if len(dst_path) > 1:
         dst_swap_data = generate_dst_swap_data(package, "liquidswap", dst_path, input_amount)
-        print("dst_swap_data", dst_swap_data)
 
         dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
 
@@ -309,7 +306,6 @@ def cross_swap(
             src_min_amount,
             src_path
         )
-        print("src_swap_data", src_swap_data)
         src_swap_data = [d.format_to_contract() for d in src_swap_data]
 
     if src_path[0] != "eth":
@@ -354,8 +350,8 @@ def main():
             LiquidswapCurve.Uncorrelated,
             "USDT",
         ],
-        receiver="0x5b21da730075862b85ef9f681d1dad66e4b6ab2588b29161164ffb84ec8aebc3",
-        dst_so_diamond=config[dst_net]["SoDiamond"],
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
         input_amount=int(1e18),
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens

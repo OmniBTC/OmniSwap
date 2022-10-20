@@ -117,7 +117,7 @@ def get_signed_vaa_by_to(
     return response.json()
 
 
-def get_pending_data() -> list:
+def get_pending_data(url: str = None) -> list:
     """
     Get data for pending relayer
     :return: list
@@ -128,7 +128,8 @@ def get_pending_data() -> list:
         'sequence': 2110, '
         blockTimestamp': 0}]
     """
-    url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+    if url is None:
+        url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
     try:
         response = requests.get(url)
         return response.json()["record"]

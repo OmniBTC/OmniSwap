@@ -158,6 +158,5 @@ def main():
                 )
 
 
-def main1():
-    process_v1(SUPPORTED_EVM[0]["dstWormholeChainId"],
-               SUPPORTED_EVM[0]["dstSoDiamond"])
+def single_process():
+    process_v1(SUPPORTED_EVM[0]["dstWormholeChainId"], SUPPORTED_EVM[0]["dstSoDiamond"])
