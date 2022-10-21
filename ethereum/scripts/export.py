@@ -12,7 +12,7 @@ from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFac
 
 from scripts.helpful_scripts import change_network, get_wormhole_bridge, get_wormhole_chainid, zero_address, read_json, get_stargate_router, get_token_address, \
     get_swap_info, get_stargate_chain_id
-from scripts.wormhole import get_all_warpped_token, get_native_token_name, get_net_from_wormhole_chainid, get_stable_coin_address
+from scripts.wormhole import get_all_warpped_token, get_native_token_name, get_net_from_wormhole_chainid, get_stable_coin_address, get_usdc_address, get_usdt_address
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 omni_swap_file = os.path.join(root_path, "export/OmniSwapInfo.json")
@@ -132,10 +132,9 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
 
     net_support_token = get_wormhole_support_token(current_net)
 
-    (_, stable_token_address) = get_stable_coin_address(current_net)
-
     weth_chain_path = []
-    stable_chain_path = []
+    usdt_chain_path = []
+    usdc_chain_path = []
     wrapped_chain_path = []
     for chain_path in net_chain_path:
         if chain_path["SrcTokenAddress"] == zero_address() and chain_path["DstTokenAddress"] == zero_address():
@@ -152,14 +151,19 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
                 'NativeToken': False,
                 'TokenName': f'W{dst_native_token}'
             })
-        elif chain_path["SrcTokenAddress"] == stable_token_address:
-            stable_chain_path.append(chain_path)
+        elif get_usdt_address(current_net) and chain_path["SrcTokenAddress"] == get_usdt_address(current_net):
+            usdt_chain_path.append(chain_path)
+        elif get_usdc_address(current_net) and chain_path["SrcTokenAddress"] == get_usdc_address(current_net):
+            usdc_chain_path.append(chain_path)
         else:
             wrapped_chain_path.append(chain_path)
 
     for support_token in net_support_token:
         if support_token["NativeToken"] == True:
-            support_token["ChainPath"] = stable_chain_path
+            if support_token["TokenName"] == "USDT":
+                support_token["ChainPath"] = usdt_chain_path
+            if support_token["TokenName"] == "USDC":
+                support_token["ChainPath"] = usdc_chain_path
 
     net_support_token.append({
         'ChainPath': weth_chain_path,
