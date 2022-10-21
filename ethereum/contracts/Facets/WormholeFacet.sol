@@ -653,15 +653,15 @@ contract WormholeFacet is Swapper {
         }
 
         uint64 sequence;
-        uint256 wormhole_msgfee = getWormholeMessageFee();
+        uint256 wormholeMsgFee = getWormholeMessageFee();
         if (LibAsset.isNativeAsset(token)) {
             sequence = IWormholeBridge(bridge).wrapAndTransferETHWithPayload{
-                value: amount + wormhole_msgfee
+                value: amount + wormholeMsgFee
             }(wormholeData.dstWormholeChainId, dstSoDiamond, 0, payload);
         } else {
             LibAsset.maxApproveERC20(IERC20(token), bridge, amount);
             sequence = IWormholeBridge(bridge).transferTokensWithPayload{
-                value: wormhole_msgfee
+                value: wormholeMsgFee
             }(
                 token,
                 amount,
@@ -670,11 +670,6 @@ contract WormholeFacet is Swapper {
                 0,
                 payload
             );
-        }
-
-        uint256 dust = LibAsset.getOwnBalance(token);
-        if (dust > 0) {
-            LibAsset.transferAsset(token, payable(msg.sender), dust);
         }
 
         emit TransferFromWormhole(
