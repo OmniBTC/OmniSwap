@@ -29,6 +29,21 @@
         "WithdrawFacet": "0x24DEeDaC97FdC08752228E64bB8b2201E370f3d4",
         "WormholeFacet": "0xeE6EBDf4263701fB700dBc48A2088d23c5Df8a88"
     },
+    "bsc-main": {
+        "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
+        "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
+        "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
+        "GenericSwapFacet": "0x26bda683F874e7AE3e3A5d3fad44Bcb82a7c107C",
+        "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+        "LibSoFeeStargateV1": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+        "LibSoFeeWormholeV1": "0xda7bc7A71142b6283BEE9206FE2B13c5faF5193B",
+        "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
+        "SerdeFacet": "0x99e010315c78FC03451352A4766243D163fC0e6A",
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
+        "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
+        "WormholeFacet": "0x01c49cF47dCF62769466738a179F94d51ea8BDdB"
+    },
     "bsc-test": {
         "DexManagerFacet": "0x098D26E4d2E98C1Dde14C543Eb6804Fd98Af9CB4",
         "DiamondCutFacet": "0x2B9aD416b22f19c93292E1Fd890C0a6B684C8F69",
@@ -73,6 +88,21 @@
         "StargateFacet": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
         "WithdrawFacet": "0xf9d4C04cA77FA71Cf8f2BbA44994cd38107d356E",
         "WormholeFacet": "0xacCA63aA138997602b2771E2aF6B7cfc643aa027"
+    },
+    "mainnet": {
+        "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
+        "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
+        "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
+        "GenericSwapFacet": "0x26bda683F874e7AE3e3A5d3fad44Bcb82a7c107C",
+        "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+        "LibSoFeeStargateV1": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+        "LibSoFeeWormholeV1": "0x01c49cF47dCF62769466738a179F94d51ea8BDdB",
+        "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
+        "SerdeFacet": "0x3462F4D39DD02848373db75Bc64665DDc3d0895A",
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
+        "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
+        "WormholeFacet": "0x1061A15dc5b44593cae9fFE7031f396da0970824"
     },
     "polygon-main": {
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
