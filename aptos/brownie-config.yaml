@@ -1,11 +1,42 @@
 # automatically fetch contract sources from Etherscan
 dotenv: .env
 networks:
-  default: bsc-test
+  default: avax-main
   aptos-mainnet:
     omnibtc_chainid: 1
-    node_url:
-    faucet_url:
+    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
+    node_url: https://aptos.coming.chat/v1
+    faucet_url: https://faucet.mainnet.aptoslabs.com
+    wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
+    replace_address:
+      deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
+      liquidswap: "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12"
+#      liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
+      omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+    wormhole:
+      chainid: 22
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
   aptos-devnet:
     omnibtc_chainid: 30001
     node_url: https://fullnode.devnet.aptoslabs.com/v1
@@ -45,8 +76,6 @@ networks:
       estimate_reserve: 120000000
       base_gas: 100000
       gas_per_bytes: 100
-  bsc-main:
-    omnibtc_chainid: 3
   bsc-test:
     omnibtc_chainid: 30003
     wormhole:
@@ -87,4 +116,312 @@ networks:
         name: UniswapV2
         router: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1"
         token_list: ""
+  mainnet:
+    omnibtc_chainid: 2
+    chainid: 1
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    stargate:
+      router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
+      chainid: 101
+      poolid:
+        usdc: 1
+        usdt: 2
+        usdd: 11
+        weth: 13
+    wormhole:
+      chainid: 2
+      token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
+      wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
+        ftm-main:
+          dst_chainid: 10
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+      bsc:
+        chainid: 4
+        currency: USD
+        address: "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
+      ftm:
+        chainid: 10
+        currency: ETH
+        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
+    token:
+      weth:
+        address: "0xf1277d1Ed8AD466beddF92ef448A132661956621"
+        decimal: 18
+      # stargate and wormhole use different weth address
+      # weth:
+      #   address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+      #   decimal: 18
+      usdc:
+        address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+        decimal: 6
+      usdt:
+        address: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        decimal: 6
+      usdd:
+        address: "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6"
+        decimal: 18
+      AptosCoin_WORMHOLE:
+        address: "0x8CDf7AF57E4c8B930e1B23c477c22f076530585e"
+        decimal: 8
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: ""
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+        token_list: "https://tokens.uniswap.org/"
+  bsc-main:
+    omnibtc_chainid: 3
+    chainid: 56
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    stargate:
+      router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
+      chainid: 102
+      poolid:
+        usdt: 2
+    wormhole:
+      chainid: 4
+      token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
+      wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
+        ftm-main:
+          dst_chainid: 10
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+      bsc:
+        chainid: 4
+        currency: USD
+        address: "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
+      ftm:
+        chainid: 10
+        currency: USD
+        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
+    token:
+      usdt:
+        address: "0x55d398326f99059fF775485246999027B3197955"
+        decimal: 18
+      busd:
+        address: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
+        decimal: 18
+      usdd:
+        address: "0xd17479997F34dd9156Deef8F95A52D81D265be9c"
+        decimal: 18
+      weth:
+        address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+        decimal: 18
+      AptosCoin_WORMHOLE:
+        address: "0x2Ba98cf7Edd2c5C794e21bc3Dc6973D3C2585eE3"
+        decimal: 8
+    swap:
+      IUniswapV2Router02:
+        name: PancakeSwapV2
+        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
+        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
+  polygon-main:
+    omnibtc_chainid: 5
+    chainid: 137
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    stargate:
+      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+      chainid: 109
+      poolid:
+        usdc: 1
+        usdt: 2
+    wormhole:
+      chainid: 5
+      token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
+      wormhole: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
+        ftm-main:
+          dst_chainid: 10
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+      bsc:
+        chainid: 4
+        currency: USD
+        address: "0x82a6c4AF830caa6c97bb504425f6A66165C2c26e"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
+      ftm:
+        chainid: 10
+        currency: USD
+        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
+    token:
+      weth:
+        address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
+        decimal: 18
+      usdc:
+        address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+        decimal: 6
+      usdt:
+        address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+        decimal: 6
+      WAVAX:
+        address: "0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a"
+        decimal: 18
+      AptosCoin_WORMHOLE:
+        address: "0xa4ef199d3ad524E9C3C51Ac46B303B103A307Cef"
+        decimal: 8
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+        token_list: ""
+        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      IUniswapV2Router02:
+        name: QuickswapV2
+        router: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"
+        token_list: "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json"
+  avax-main:
+    omnibtc_chainid: 4
+    chainid: 43114
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    stargate:
+      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+      chainid: 106
+      poolid:
+        usdc: 1
+        usdt: 2
+    wormhole:
+      chainid: 6
+      token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
+      wormhole: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        ftm-main:
+          dst_chainid: 10
+          base_gas: 220000
+          per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0x0A77230d17318075983913bC2145DB16C7366156"
+      ftm:
+        chainid: 10
+        currency: USD
+        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
+    token:
+      weth:
+        address: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
+        decimal: 18
+      usdc:
+        address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E"
+        decimal: 6
+      usdt:
+        address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
+        decimal: 6
+      AptosCoin_WORMHOLE:
+        address: "0x43c588459b3243fA541B98CC4B2E995b3de553A2"
+        decimal: 8
+    swap:
+      IUniswapV2Router02AVAX:
+        name: PangolinV2
+        router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
+        token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
 
