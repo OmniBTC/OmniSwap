@@ -33,8 +33,16 @@ def main():
     try:
         # Maybe has initialized
         # use dst chain id init
+        # ETH
+        ratio_decimal = 1e8
+        package["so_fee_wormhole::initialize"](2)
+        package["so_fee_wormhole::set_price_ratio"](2, int(1400 / 7 * ratio_decimal))
         package["so_fee_wormhole::initialize"](4)
-        package["so_fee_wormhole::set_price_ratio"](4, 1)
+        package["so_fee_wormhole::set_price_ratio"](4, int(300 / 7 * ratio_decimal))
+        package["so_fee_wormhole::initialize"](5)
+        package["so_fee_wormhole::set_price_ratio"](5, int(1 / 7 * ratio_decimal))
+        package["so_fee_wormhole::initialize"](6)
+        package["so_fee_wormhole::set_price_ratio"](6, int(20 / 7 * ratio_decimal))
     except:
         pass
     # # wormhole
@@ -44,6 +52,10 @@ def main():
             package.network_config["wormhole"]["chainid"])
     except:
         pass
+
+    # set so fee
+    so_fee_decimal = 1e8
+    package["wormhole_facet::set_so_fees"](int(1e-3 * so_fee_decimal))
 
     # set reserve
     reserve_decimal = 1e8
