@@ -114,7 +114,7 @@ contract LibSoFeeWormholeV1 is ILibSoFee, ILibPrice, Ownable, ReentrancyGuard {
     {
         PriceConfig memory _config = priceConfig[_chainId];
         if (_config.chainlink.length == 0) {
-            return (0, false);
+            return (priceData[_chainId].currentPriceRatio, false);
         }
         if (
             priceData[_chainId].lastUpdateTimestamp.add(_config.interval) >=
