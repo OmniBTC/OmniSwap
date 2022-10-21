@@ -52,11 +52,11 @@ def initialize_wormhole_fee(account):
             LibSoFeeWormholeV1[-1].setPriceConfig(oracles[token]["chainid"], [
                 [oracles[token]["address"], False],
                 [native_oracle_address, True]
-            ], 0, {'from': account})
+            ], 60, {'from': account})
         elif oracles[token]["currency"] == "ETH":
             LibSoFeeWormholeV1[-1].setPriceConfig(oracles[token]["chainid"], [
                 [oracles[token]["address"], False]
-            ], 0, {'from': account})
+            ], 60, {'from': account})
 
 
 def initialize_cut(account, so_diamond):
@@ -183,6 +183,14 @@ def redeploy_wormhole():
     WormholeFacet.deploy({'from': account})
     reinitialize_cut(WormholeFacet)
     initialize_wormhole(account, SoDiamond[-1])
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
+
+    so_fee = 1e-3
+    ray = 1e27
+    LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
+    proxy_dex.addFee(get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {'from': account})
     initialize_wormhole_fee(account)
 
 
@@ -197,7 +205,7 @@ def reinitialize_cut(contract):
     register_data = []
     register_funcs = {}
     print(f"Initialize {contract._name}...")
-    # reg_facet = contract[-1]
+    reg_facet = contract[-1]
     reg_funcs = get_method_signature_by_abi(contract.abi)
     for func_name in list(reg_funcs.keys()):
         if func_name in register_funcs:
@@ -208,10 +216,12 @@ def reinitialize_cut(contract):
                 register_funcs[func_name].append(reg_funcs[func_name])
         else:
             register_funcs[func_name] = [reg_funcs[func_name]]
-    # data = [reg_funcs[func_name]
-    #         for func_name in reg_funcs if func_name in ["getSgReceiveForGasPayload"]]
-    # if len(data):
-    #     register_data.append([reg_facet, 0, data])
+
+    data = [reg_funcs[func_name]
+            for func_name in reg_funcs if func_name not in
+            ["RAY",  "getSoFee", "deposit", "withdraw", "executeAndCheckSwaps"]]
+    if len(data):
+        register_data.append([reg_facet, 0, data])
 
     # data = [reg_funcs[func_name]
     #         for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
