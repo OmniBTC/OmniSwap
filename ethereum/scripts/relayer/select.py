@@ -1,4 +1,5 @@
 import json
+import logging
 
 import requests
 
@@ -112,9 +113,12 @@ def get_signed_vaa_by_to(
                 count
             ]
         }
-    headers = {'content-type': 'application/json'}
-    response = requests.post(url, data=json.dumps(data), headers=headers)
-    return response.json()
+    try:
+        headers = {'content-type': 'application/json'}
+        response = requests.post(url, data=json.dumps(data), headers=headers)
+        return response.json()
+    except:
+        return []
 
 
 def get_pending_data(url: str = None) -> list:
