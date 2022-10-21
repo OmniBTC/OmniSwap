@@ -19,10 +19,26 @@ omni_swap_file = os.path.join(root_path, "export/OmniSwapInfo.json")
 stragate_file = os.path.join(root_path, "export/StargateInfo.json")
 deployed_file = os.path.join(root_path, "export/ContractDeployed.json")
 
+mainnet_swap_file = os.path.join(root_path, "export/mainnet/OmniSwapInfo.json")
+
 
 def write_file(file: str, data):
     with open(file, "w") as f:
         json.dump(data, f, indent=4, sort_keys=True)
+
+
+def fit_mainnet_stargate_chain_path():
+    omni_swap_infos = read_json(omni_swap_file)
+    mainnet_swap_infos = read_json(mainnet_swap_file)
+    nets = list(omni_swap_infos.keys())
+    for net in nets:
+        if "main" in net:
+            print(f'replace {net} stargate pool')
+            try:
+                omni_swap_infos[net]["StargatePool"] = mainnet_swap_infos[net]["StargatePool"]
+            except Exception:
+                continue
+    write_file(omni_swap_file, omni_swap_infos)
 
 
 def get_stragate_pool_infos():
