@@ -517,10 +517,14 @@ networks:
           dst_chainid: 6
           base_gas: 220000
           per_byte_gas: 68
-        ftm-main:
-          dst_chainid: 10
-          base_gas: 220000
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 350000
           per_byte_gas: 68
+#        ftm-main:
+#          dst_chainid: 10
+#          base_gas: 220000
+#          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -538,10 +542,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
-      ftm:
-        chainid: 10
-        currency: ETH
-        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
+#      ftm:
+#        chainid: 10
+#        currency: ETH
+#        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
     token:
       weth:
         address: "0xf1277d1Ed8AD466beddF92ef448A132661956621"
@@ -595,10 +599,14 @@ networks:
           dst_chainid: 6
           base_gas: 220000
           per_byte_gas: 68
-        ftm-main:
-          dst_chainid: 10
-          base_gas: 220000
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 350000
           per_byte_gas: 68
+#        ftm-main:
+#          dst_chainid: 10
+#          base_gas: 220000
+#          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -616,10 +624,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
-      ftm:
-        chainid: 10
-        currency: USD
-        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
+#      ftm:
+#        chainid: 10
+#        currency: USD
+#        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
     token:
       usdt:
         address: "0x55d398326f99059fF775485246999027B3197955"
@@ -665,10 +673,14 @@ networks:
           dst_chainid: 5
           base_gas: 220000
           per_byte_gas: 68
-        ftm-main:
-          dst_chainid: 10
-          base_gas: 220000
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 350000
           per_byte_gas: 68
+#        ftm-main:
+#          dst_chainid: 10
+#          base_gas: 220000
+#          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -682,10 +694,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0x0A77230d17318075983913bC2145DB16C7366156"
-      ftm:
-        chainid: 10
-        currency: USD
-        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
+#      ftm:
+#        chainid: 10
+#        currency: USD
+#        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
     token:
       weth:
         address: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
@@ -728,10 +740,14 @@ networks:
           dst_chainid: 6
           base_gas: 220000
           per_byte_gas: 68
-        ftm-main:
-          dst_chainid: 10
-          base_gas: 220000
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 350000
           per_byte_gas: 68
+#        ftm-main:
+#          dst_chainid: 10
+#          base_gas: 220000
+#          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -749,10 +765,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
-      ftm:
-        chainid: 10
-        currency: USD
-        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
+#      ftm:
+#        chainid: 10
+#        currency: USD
+#        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
     token:
       weth:
         address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
