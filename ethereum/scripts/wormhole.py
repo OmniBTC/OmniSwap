@@ -54,25 +54,25 @@ def get_weth_address(net):
 
 def get_net_from_wormhole_chainid(chainid):
     if chainid == 2:
-        return "goerli"
+        return "mainnet"
     elif chainid == 4:
-        return "bsc-test"
+        return "bsc-main"
     elif chainid == 5:
-        return "polygon-test"
+        return "polygon-main"
     elif chainid == 6:
-        return "avax-test"
+        return "avax-main"
     elif chainid == 10:
-        return "ftm-test"
+        return "ftm-main"
 
 
 def get_native_token_name(net):
-    if net == "avax-test":
+    if "avax" in net:
         return "AVAX"
-    elif net == "bsc-test":
+    elif "bsc" in net:
         return "BNB"
-    elif net == "ftm-test":
+    elif "ftm" in net:
         return "FTM"
-    elif net == "polygon-test":
+    elif "polygon" in net:
         return "MATIC"
     else:
         return "ETH"
