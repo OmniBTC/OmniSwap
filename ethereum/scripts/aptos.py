@@ -1,5 +1,6 @@
 import functools
 import json
+from pprint import pprint
 import time
 from enum import Enum
 from pathlib import Path
@@ -14,7 +15,8 @@ from scripts.swap import SwapType, SwapFunc, View, SwapData, SoData
 from scripts.utils import aptos_brownie
 
 omniswap_ethereum_path = Path(__file__).parent.parent
-omniswap_ethereum_project = project.load(str(omniswap_ethereum_path), raise_if_loaded=False)
+omniswap_ethereum_project = project.load(
+    str(omniswap_ethereum_path), raise_if_loaded=False)
 
 omniswap_aptos_path = Path(__file__).parent.parent.parent.joinpath("aptos")
 
@@ -231,11 +233,14 @@ def get_wormhole_facet():
 
 def create_wrapped_token():
     vaa = "0x010000000001007f8398176ce200b8898dbd670d553b4209940bd601701bd54d129a3a9661e30a14b31c26512571aafb036abbba5c963bc364f1fd316d9579261469073a1cd7b101634ff6be0000000000160000000000000000000000000000000000000000000000000000000000000001000000000000003600020847d1d277d811e4ae86632a9123234fbf09a3a5773d515d894fea6cf5fa9f3b00160855534443000000000000000000000000000000000000000000000000000000005553444300000000000000000000000000000000000000000000000000000000"
-    get_token_bridge(network.show_active()).createWrapped(vaa, {"from": get_account()})
+    get_token_bridge(network.show_active()).createWrapped(
+        vaa, {"from": get_account()})
     vaa = "0x010000000001004799c1a6f6481806bab0d7476687ee460262ba6fb2a1c5ba1c215dc5ff0880b8072dde20edc3df3e32d1acdf754daed80f47d23a6bfb67930325052cee934f2800634ff6b8000000000016000000000000000000000000000000000000000000000000000000000000000100000000000000350002fe8192228f7991b052e121fc2c233a6779e56639a3d5d1fd2aba3d40dc11409900160855534454000000000000000000000000000000000000000000000000000000005553445400000000000000000000000000000000000000000000000000000000"
-    get_token_bridge(network.show_active()).createWrapped(vaa, {"from": get_account()})
+    get_token_bridge(network.show_active()).createWrapped(
+        vaa, {"from": get_account()})
     vaa = "0x010000000001000d1fba22fbbd1f37c8c5f0e1be13fcccb5bfc6f890281fc5def58d9c71b9b1f37e276c68269f51c7552f66b91c27db3e0bd46a97a6f1a0018457b131928fae2a00634ff6b3000000000016000000000000000000000000000000000000000000000000000000000000000100000000000000340002f8976066a3be9afad831d08b2fabf2b959de224a5df7399f38a2efaa3782760100160858425443000000000000000000000000000000000000000000000000000000005842544300000000000000000000000000000000000000000000000000000000"
-    get_token_bridge(network.show_active()).createWrapped(vaa, {"from": get_account()})
+    get_token_bridge(network.show_active()).createWrapped(
+        vaa, {"from": get_account()})
 
 
 def complete_so_swap():
@@ -263,7 +268,7 @@ def cross_swap(
     dst_net = package.network
     wormhole = Contract.from_abi(
         "WormholeFacet",
-        omniswap_ethereum_project["SoDiamond"][-1].address,
+        config["networks"][src_net]["SoDiamond"],
         omniswap_ethereum_project["WormholeFacet"].abi
     )
 
@@ -290,7 +295,8 @@ def cross_swap(
     # construct src data
     dst_swap_data = []
     if len(dst_path) > 1:
-        dst_swap_data = generate_dst_swap_data(package, "liquidswap", dst_path, input_amount)
+        dst_swap_data = generate_dst_swap_data(
+            package, "liquidswap", dst_path, input_amount)
 
         dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
 
@@ -350,7 +356,7 @@ def main():
             LiquidswapCurve.Uncorrelated,
             "USDT",
         ],
-        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        receiver="0xdff02e1c9825aaefb48f78b892e49af235acc56ee01832876f07355e4a69d1c8",
         dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
         input_amount=int(1e18),
         src_router=SwapType.IUniswapV2Router02,
