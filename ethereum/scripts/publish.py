@@ -20,9 +20,7 @@ def main(net: str = None):
     p = project.load(root_path, name=net)
     p.load_config()
     change_network(net)
-    deployed_contract = ["DiamondCutFacet", "DiamondLoupeFacet", "DexManagerFacet", "StargateFacet",
-                         "WithdrawFacet", "OwnershipFacet", "GenericSwapFacet", "SoDiamond", "LibSoFeeStargateV1",
-                         "LibCorrectSwapV1"]
+    deployed_contract = ["StargateFacet","GenericSwapFacet", "WormholeFacet", "SerdeFacet"]
     for c in deployed_contract:
         print(f"network:{net} publish source: {c}")
         try:
@@ -32,4 +30,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main('polygon-main')
+    main('bsc-main')

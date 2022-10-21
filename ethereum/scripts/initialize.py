@@ -169,25 +169,16 @@ def initialize_little_token_for_stargate():
         initialize_eth()
 
 
-# redeploy and initialize
-def redeploy_stargate():
-    account = get_account()
-
-    StargateFacet.deploy({"from": account})
-    initialize_stargate(account, SoDiamond[-1])
-    reinitialize_cut(StargateFacet)
-
-
 def redeploy_serde():
     SerdeFacet.deploy({'from': get_account()})
-    reinitialize_cut(SerdeFacet)
+    add_cut(SerdeFacet)
 
 
 def redeploy_wormhole():
     account = get_account()
 
     WormholeFacet.deploy({'from': account})
-    reinitialize_cut(WormholeFacet)
+    add_cut(WormholeFacet)
     initialize_wormhole(account, SoDiamond[-1])
 
     proxy_dex = Contract.from_abi(
@@ -228,40 +219,57 @@ def set_relayer_fee():
         LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 250 * decimal), {"from": get_account()})
 
 
+def remove_facet():
+    account = get_account()
+    proxy_cut = Contract.from_abi(
+        "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
+    register_data = [[zero_address(), 2, ["0x8340f549", "0xcd96eb9a", "0xf5c243f6",
+                                          "0x7e3c358b", "0x98d665b7", "0x519ef92e",
+                                          "0xaa73579f", "0x0e7e8ba2", "0xaf66a6d8",
+                                          "0x72c0d671", "0xab8236f3", "0x67b25169",
+                                          "0x205eefb0", "0x0e917f76", "0xa3583a88"]]]
+    proxy_cut.diamondCut(register_data,
+                         zero_address(),
+                         b'',
+                         {'from': account}
+                         )
+
+
 def redeploy_generic_swap():
     account = get_account()
     GenericSwapFacet.deploy({'from': account})
-    reinitialize_cut(GenericSwapFacet)
 
 
-def reinitialize_cut(contract):
+# redeploy and initialize
+def redeploy_stargate():
+    account = get_account()
+
+    StargateFacet.deploy({"from": account})
+    initialize_stargate(account, SoDiamond[-1])
+
+
+def add_cut(contracts: list = None):
+    if contracts is None:
+        contracts = []
     account = get_account()
     register_data = []
     register_funcs = {}
-    print(f"Initialize {contract._name}...")
-    reg_facet = contract[-1]
-    reg_funcs = get_method_signature_by_abi(contract.abi)
-    for func_name in list(reg_funcs.keys()):
-        if func_name in register_funcs:
-            if reg_funcs[func_name] in register_funcs[func_name]:
-                print(f"function:{func_name} has been register!")
-                del reg_funcs[func_name]
+    for contract in contracts:
+        print(f"Initialize {contract._name}...")
+        reg_facet = contract[-1]
+        reg_funcs = get_method_signature_by_abi(contract.abi)
+        for func_name in list(reg_funcs.keys()):
+            if func_name in register_funcs:
+                if reg_funcs[func_name] in register_funcs[func_name]:
+                    print(f"function:{func_name} has been register!")
+                    del reg_funcs[func_name]
+                else:
+                    register_funcs[func_name].append(reg_funcs[func_name])
             else:
-                register_funcs[func_name].append(reg_funcs[func_name])
-        else:
-            register_funcs[func_name] = [reg_funcs[func_name]]
-
-    data = [reg_funcs[func_name]
-            for func_name in reg_funcs if func_name not in
-            ["RAY", "getSoFee", "deposit", "withdraw", "executeAndCheckSwaps"]]
-    if len(data):
-        register_data.append([reg_facet, 0, data])
-
-    # data = [reg_funcs[func_name]
-    #         for func_name in reg_funcs if func_name not in ["getSgReceiveForGasPayload"]]
-    # if len(data):
-    #     register_data.append([reg_facet, 1, data])
-
+                register_funcs[func_name] = [reg_funcs[func_name]]
+        register_data.append([reg_facet, 0, list(reg_funcs.values())])
+    if len(register_data) == 0:
+        return
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
     proxy_cut.diamondCut(register_data,

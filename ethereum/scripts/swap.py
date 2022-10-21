@@ -995,7 +995,7 @@ def single_swap(
                          )
 
 
-def main(src_net="polygon-test", dst_net="bsc-test", bridge="wormhole"):
+def main(src_net="arbitrum-main", dst_net="polygon-main", bridge="stargate"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1008,34 +1008,34 @@ def main(src_net="polygon-test", dst_net="bsc-test", bridge="wormhole"):
         cross_swap_via_stargate(src_session=src_session,
                                 dst_session=dst_session,
                                 inputAmount=int(
-                                    1e-3 * src_session.put_task(get_token_decimal, args=("eth",))),
-                                sourceTokenName="eth",  # stargate
+                                    1e-3 * src_session.put_task(get_token_decimal, args=("usdc",))),
+                                sourceTokenName="usdc",  # stargate
                                 destinationTokenName="eth",  # stargate
-                                sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+                                sourceSwapType=None,
                                 sourceSwapFunc=SwapFunc.swapExactAVAXForTokens,
                                 sourceSwapPath=("weth", "usdc"),
                                 sourceStargateToken="usdc",
-                                destinationStargateToken="usdt",
+                                destinationStargateToken="usdc",
                                 destinationSwapType=SwapType.IUniswapV2Router02,
                                 destinationSwapFunc=SwapFunc.swapExactTokensForETH,
-                                destinationSwapPath=("usdt", "weth"),
+                                destinationSwapPath=("usdc", "weth"),
                                 slippage=0.001)
 
-        cross_swap_via_stargate(src_session=src_session,
-                                dst_session=dst_session,
-                                inputAmount=int(
-                                    1 * src_session.put_task(get_token_decimal, args=("usdc",))),
-                                sourceTokenName="usdc",  # stargate
-                                destinationTokenName="usdc",  # stargate
-                                sourceSwapType=SwapType.IUniswapV2Router02AVAX,
-                                sourceSwapFunc=SwapFunc.swapExactTokensForAVAX,
-                                sourceSwapPath=("usdc", "weth"),
-                                sourceStargateToken="weth",
-                                destinationStargateToken="weth",
-                                destinationSwapType=SwapType.IUniswapV2Router02,
-                                destinationSwapFunc=SwapFunc.swapExactETHForTokens,
-                                destinationSwapPath=("weth", "usdt"),
-                                slippage=0.01)
+        # cross_swap_via_stargate(src_session=src_session,
+        #                         dst_session=dst_session,
+        #                         inputAmount=int(
+        #                             1 * src_session.put_task(get_token_decimal, args=("usdc",))),
+        #                         sourceTokenName="usdc",  # stargate
+        #                         destinationTokenName="usdc",  # stargate
+        #                         sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+        #                         sourceSwapFunc=SwapFunc.swapExactTokensForAVAX,
+        #                         sourceSwapPath=("usdc", "weth"),
+        #                         sourceStargateToken="weth",
+        #                         destinationStargateToken="weth",
+        #                         destinationSwapType=SwapType.IUniswapV2Router02,
+        #                         destinationSwapFunc=SwapFunc.swapExactETHForTokens,
+        #                         destinationSwapPath=("weth", "usdt"),
+        #                         slippage=0.01)
 
     elif bridge == "wormhole":
         # wormhole swap
@@ -1062,28 +1062,28 @@ def main(src_net="polygon-test", dst_net="bsc-test", bridge="wormhole"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                100 * src_session.put_task(get_token_decimal, args=("usdc",))),
+                0.01 * src_session.put_task(get_token_decimal, args=("usdc",))),
             sendingTokenName="usdc",
             receiveTokenName="eth",
             sourceSwapType=SwapType.ISwapRouter,
             sourceSwapFunc=SwapFunc.exactInput,
-            sourceSwapPath=("usdc", 0.005, "weth")
+            sourceSwapPath=("usdc", 0.0005, "weth")
         )
 
-        dst_session = Session(
-            net=dst_net, project_path=root_path, name=dst_net, daemon=False)
-        src_session = dst_session
-        single_swap(
-            src_session=src_session,
-            dst_session=dst_session,
-            inputAmount=int(
-                100 * src_session.put_task(get_token_decimal, args=("usdc",))),
-            sendingTokenName="usdc",
-            receiveTokenName="eth",
-            sourceSwapType=SwapType.ISwapRouter,
-            sourceSwapFunc=SwapFunc.exactInput,
-            sourceSwapPath=("usdc", 0.005, "weth")
-        )
+        # dst_session = Session(
+        #     net=dst_net, project_path=root_path, name=dst_net, daemon=False)
+        # src_session = dst_session
+        # single_swap(
+        #     src_session=src_session,
+        #     dst_session=dst_session,
+        #     inputAmount=int(
+        #         100 * src_session.put_task(get_token_decimal, args=("usdc",))),
+        #     sendingTokenName="usdc",
+        #     receiveTokenName="eth",
+        #     sourceSwapType=SwapType.ISwapRouter,
+        #     sourceSwapFunc=SwapFunc.exactInput,
+        #     sourceSwapPath=("usdc", 0.005, "weth")
+        # )
 
     src_session.terminate()
     dst_session.terminate()

@@ -16,7 +16,7 @@ compiler:
 autofetch_sources: True
 dotenv: .env
 networks:
-  default: bsc-test
+  default: arbitrum-main
   aptos-testnet:
     omnibtc_chainid: 30001
     node_url: https://fullnode.testnet.aptoslabs.com/v1
