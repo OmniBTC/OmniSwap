@@ -1,4 +1,25 @@
 {
+    "avax-main": {
+        "bridge": "0x9d1B1669c73b033DFe47ae5a0164Ab96df25B944",
+        "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
+        "factory": "0x808d7c71ad2ba3FA531b068a2417C63106BC0949",
+        "pools": [
+            {
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                "TokenName": "USDC"
+            },
+            {
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+                "TokenName": "USDt"
+            }
+        ],
+        "router": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
+    },
     "avax-test": {
         "bridge": "0x29fBC4E4092Db862218c62a888a00F9521619230",
         "endpoint": "0x93f54D755A063cE7bB9e6Ac47Eccc8e33411d706",
@@ -63,6 +84,27 @@
         "ultra_light_node": "0x54109D468858d8f460587b7B4C1B950c9aB48CBd"
     },
     "goerli": [],
+    "polygon-main": {
+        "bridge": "0x9d1B1669c73b033DFe47ae5a0164Ab96df25B944",
+        "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
+        "factory": "0x808d7c71ad2ba3FA531b068a2417C63106BC0949",
+        "pools": [
+            {
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                "TokenName": "USDC"
+            },
+            {
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                "TokenName": "USDT"
+            }
+        ],
+        "router": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
+    },
     "polygon-test": {
         "bridge": "0x629B57D89b1739eE1C0c0fD9eab426306e11cF42",
         "endpoint": "0xf69186dfBa60DdB133E91E9A4B5673624293d8F8",

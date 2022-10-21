@@ -16,17 +16,17 @@ logger = logging.getLogger()
 logger.setLevel("INFO")
 
 SUPPORTED_EVM = [
-    {"dstWormholeChainId": 4,
-     "dstSoDiamond": "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228",
-     "dstNet": "bsc-test"
-     },
+    # {"dstWormholeChainId": 4,
+    #  "dstSoDiamond": "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228",
+    #  "dstNet": "bsc-test"
+    #  },
     {"dstWormholeChainId": 5,
-     "dstSoDiamond": "0xBae5BeAdBaa65628eA9DC5A5c7F794b4865c8771",
-     "dstNet": "polygon-test"
+     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+     "dstNet": "polygon-main"
      },
     {"dstWormholeChainId": 6,
-     "dstSoDiamond": "0x802e05b91769342af3F0d13f9DC6Df03a54C2ac7",
-     "dstNet": "avax-test"
+     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+     "dstNet": "avax-main"
      },
 ]
 
@@ -40,7 +40,7 @@ def process_v1(
     has_process = {}
     while True:
         try:
-            result = get_signed_vaa_by_to(dstWormholeChainId)
+            result = get_signed_vaa_by_to(dstWormholeChainId, url="http://wormhole-vaa.chainx.org")
             result = [d for d in result if (
                 int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
         except Exception:
@@ -91,7 +91,7 @@ def process_v2(
                          int(d["sequence"]))] = True
             try:
                 vaa = get_signed_vaa(
-                    int(d["sequence"]), int(d["srcWormholeChainId"]))
+                    int(d["sequence"]), int(d["srcWormholeChainId"]), url="http://wormhole-vaa.chainx.org")
                 if vaa is None:
                     continue
                 vaa = vaa["hexString"]

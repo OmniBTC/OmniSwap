@@ -223,7 +223,14 @@ def export_deployed():
     deployed_contract = [DiamondCutFacet, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WormholeFacet,
                          WithdrawFacet, OwnershipFacet, GenericSwapFacet, SoDiamond, LibSoFeeStargateV1,
                          LibSoFeeWormholeV1, LibCorrectSwapV1, SerdeFacet]
-    return {v._name: v[-1].address for v in deployed_contract}
+    out = {}
+    for v in deployed_contract:
+        if (v._name == "LibSoFeeStargateV1"):
+            if network.show_active() in ["avax-main", "polygon-main", "bsc-main", "mainnet"]:
+                out[v._name] = "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
+            continue
+        out[v._name] = v[-1].address
+    return out
 
 
 def export(*arg):

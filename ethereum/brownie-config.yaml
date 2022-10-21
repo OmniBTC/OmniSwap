@@ -491,6 +491,7 @@ networks:
   mainnet:
     omnibtc_chainid: 2
     chainid: 1
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
       chainid: 101
@@ -502,6 +503,7 @@ networks:
     wormhole:
       chainid: 2
       token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
+      wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
       estimate_reserve: 1.2
       gas:
@@ -572,6 +574,7 @@ networks:
   bsc-main:
     omnibtc_chainid: 3
     chainid: 56
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
       chainid: 102
@@ -580,6 +583,7 @@ networks:
     wormhole:
       chainid: 4
       token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
+      wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
       estimate_reserve: 1.2
       gas:
@@ -641,6 +645,7 @@ networks:
   avax-main:
     omnibtc_chainid: 4
     chainid: 43114
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
       chainid: 106
@@ -650,6 +655,7 @@ networks:
     wormhole:
       chainid: 6
       token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
+      wormhole: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c"
       actual_reserve: 1.1
       estimate_reserve: 1.2
       gas:
@@ -704,6 +710,7 @@ networks:
   polygon-main:
     omnibtc_chainid: 5
     chainid: 137
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
       chainid: 109
@@ -713,6 +720,7 @@ networks:
     wormhole:
       chainid: 5
       token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
+      wormhole: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7"
       actual_reserve: 1.1
       estimate_reserve: 1.2
       gas:
@@ -763,6 +771,9 @@ networks:
       usdt:
         address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
         decimal: 6
+      WAVAX:
+        address: "0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a"
+        decimal: 18
     swap:
       ISwapRouter:
         name: UniswapV3

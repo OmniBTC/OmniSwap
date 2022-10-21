@@ -1,4 +1,248 @@
 {
+    "aptos-testnet": {
+        "LiquidSwap": "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
+        "OmniBtcChainId": 30001,
+        "SoDiamond": "0x0000000000000000000000000000000000000000000000000000000000000004",
+        "WormholeBridge": "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f",
+        "WormholeChainId": 22,
+        "WormholeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0x1::aptos_coin::AptosCoin",
+                        "SrcWormholeChainId": 22
+                    },
+                    {
+                        "DstTokenAddress": "0x226B436043B537BD158e84fA199E2Aa36bf364f8",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0x1::aptos_coin::AptosCoin",
+                        "SrcWormholeChainId": 22
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": true,
+                "TokenAddress": "0x1::aptos_coin::AptosCoin",
+                "TokenName": "APT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0xf9471131e004dcdBF3325d0B9Fef49162739d87D",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::XBTC",
+                        "SrcWormholeChainId": 22
+                    },
+                    {
+                        "DstTokenAddress": "0x2baF26A3E7A6dfC3dF6E0aaB0DC8e0274729E35A,",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::XBTC",
+                        "SrcWormholeChainId": 22
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": true,
+                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::XBTC",
+                "TokenName": "XBTC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x6A14ccC52d89E0A7817CC65C43630f4D0515dDF9",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDC",
+                        "SrcWormholeChainId": 22
+                    },
+                    {
+                        "DstTokenAddress": "0x827e05D82f8f39b767Aca000F843588785dD1dce,",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDC",
+                        "SrcWormholeChainId": 22
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": true,
+                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDC",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x48E4508054A82996667e0ca9C3543f57c53FA3C6",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDT",
+                        "SrcWormholeChainId": 22
+                    },
+                    {
+                        "DstTokenAddress": "0x49cc9705f1Df944872239d7F04679Cf8841E854A,",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDT",
+                        "SrcWormholeChainId": 22
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": true,
+                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDT",
+                "TokenName": "USDT"
+            }
+        ]
+    },
+    "avax-main": {
+        "ChainId": 43114,
+        "OmniBtcChainId": 4,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 106,
+        "StargatePool": [
+            {
+                "ChainPath": [
+                    [
+                        109,
+                        1
+                    ],
+                    [
+                        109,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        109,
+                        1
+                    ],
+                    [
+                        109,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+                "TokenName": "USDt"
+            }
+        ],
+        "StargateRouter": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+        "UniswapRouter": [
+            {
+                "Name": "PangolinV2",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106",
+                "TokenList": "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json",
+                "Type": "IUniswapV2Router02AVAX"
+            }
+        ],
+        "WETH": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+        "WormholeBridge": "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
+        "WormholeChainId": 6,
+        "WormholeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0xAEA5CC14DefbC1b845FDE729E563B717Ee6825ae",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 6,
+                "NativeToken": true,
+                "TokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0xAEA5CC14DefbC1b845FDE729E563B717Ee6825ae",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 6,
+                "NativeToken": true,
+                "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0x442F7f22b1EE2c842bEAFf52880d4573E9201158",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "WBNB"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0xf2f13f0B7008ab2FA4A2418F4ccC3684E49D20Eb",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "WMATIC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": true,
+                "TokenAddress": "0x0000000000000000000000000000000000000000",
+                "TokenName": "ETH"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x55d398326f99059fF775485246999027B3197955",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0xA67BCC0D06d7d13A13A2AE30bF30f1B434f5a28B",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0x543672E9CBEC728CBBa9C3Ccd99ed80aC3607FA8",
+                        "SrcWormholeChainId": 6
+                    },
+                    {
+                        "DstTokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0xB24CA28D4e2742907115fECda335b40dbda07a4C",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 6,
+                "NativeToken": false,
+                "TokenName": "USDC"
+            }
+        ]
+    },
     "avax-test": {
         "ChainId": 43113,
         "OmniBtcChainId": 30004,
@@ -6,12 +250,56 @@
         "StargateChainId": 10106,
         "StargatePool": [
             {
+                "ChainPath": [
+                    [
+                        10102,
+                        2
+                    ],
+                    [
+                        10102,
+                        5
+                    ],
+                    [
+                        10112,
+                        1
+                    ],
+                    [
+                        10109,
+                        1
+                    ],
+                    [
+                        10109,
+                        2
+                    ]
+                ],
                 "Decimal": 6,
                 "PoolId": 1,
                 "TokenAddress": "0x4A0D1092E9df255cf95D72834Ea9255132782318",
                 "TokenName": "USDC"
             },
             {
+                "ChainPath": [
+                    [
+                        10102,
+                        2
+                    ],
+                    [
+                        10102,
+                        5
+                    ],
+                    [
+                        10112,
+                        1
+                    ],
+                    [
+                        10109,
+                        1
+                    ],
+                    [
+                        10109,
+                        2
+                    ]
+                ],
                 "Decimal": 6,
                 "PoolId": 2,
                 "TokenAddress": "0x134Dc38AE8C853D1aa2103d5047591acDAA16682",
@@ -170,12 +458,56 @@
         "StargateChainId": 10102,
         "StargatePool": [
             {
+                "ChainPath": [
+                    [
+                        10106,
+                        1
+                    ],
+                    [
+                        10106,
+                        2
+                    ],
+                    [
+                        10112,
+                        1
+                    ],
+                    [
+                        10109,
+                        1
+                    ],
+                    [
+                        10109,
+                        2
+                    ]
+                ],
                 "Decimal": 18,
                 "PoolId": 2,
                 "TokenAddress": "0xF49E250aEB5abDf660d643583AdFd0be41464EfD",
                 "TokenName": "USDT"
             },
             {
+                "ChainPath": [
+                    [
+                        10106,
+                        1
+                    ],
+                    [
+                        10106,
+                        2
+                    ],
+                    [
+                        10112,
+                        1
+                    ],
+                    [
+                        10109,
+                        1
+                    ],
+                    [
+                        10109,
+                        2
+                    ]
+                ],
                 "Decimal": 18,
                 "PoolId": 5,
                 "TokenAddress": "0x1010Bb1b9Dff29e6233E7947e045e0ba58f6E92e",
@@ -371,6 +703,32 @@
         "StargateChainId": 10112,
         "StargatePool": [
             {
+                "ChainPath": [
+                    [
+                        10106,
+                        1
+                    ],
+                    [
+                        10106,
+                        2
+                    ],
+                    [
+                        10102,
+                        2
+                    ],
+                    [
+                        10102,
+                        5
+                    ],
+                    [
+                        10109,
+                        1
+                    ],
+                    [
+                        10109,
+                        2
+                    ]
+                ],
                 "Decimal": 6,
                 "PoolId": 1,
                 "TokenAddress": "0x076488D244A73DA4Fa843f5A8Cd91F655CA81a1e",
@@ -603,6 +961,168 @@
             }
         ]
     },
+    "polygon-main": {
+        "ChainId": 137,
+        "OmniBtcChainId": 5,
+        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "StargateChainId": 109,
+        "StargatePool": [
+            {
+                "ChainPath": [
+                    [
+                        106,
+                        1
+                    ],
+                    [
+                        106,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    [
+                        106,
+                        1
+                    ],
+                    [
+                        106,
+                        2
+                    ]
+                ],
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                "TokenName": "USDT"
+            }
+        ],
+        "StargateRouter": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+        "UniswapRouter": [
+            {
+                "Name": "UniswapV3",
+                "QuoterAddressForUniswapV3": "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+                "RouterAddress": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                "TokenList": "",
+                "Type": "ISwapRouter"
+            },
+            {
+                "Name": "QuickswapV2",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff",
+                "TokenList": "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json",
+                "Type": "IUniswapV2Router02"
+            }
+        ],
+        "WETH": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+        "WormholeBridge": "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE",
+        "WormholeChainId": 5,
+        "WormholeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x543672E9CBEC728CBBa9C3Ccd99ed80aC3607FA8",
+                        "DstWormholeChainId": 6,
+                        "SrcTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 6,
+                "NativeToken": true,
+                "TokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x543672E9CBEC728CBBa9C3Ccd99ed80aC3607FA8",
+                        "DstWormholeChainId": 6,
+                        "SrcTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 6,
+                "NativeToken": true,
+                "TokenAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "DstWormholeChainId": 6,
+                        "SrcTokenAddress": "0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "WAVAX"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0xeCDCB5B88F8e3C15f95c720C51c71c9E2080525d",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "WBNB"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0xf2f13f0B7008ab2FA4A2418F4ccC3684E49D20Eb",
+                        "DstWormholeChainId": 6,
+                        "SrcTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": true,
+                "TokenAddress": "0x0000000000000000000000000000000000000000",
+                "TokenName": "ETH"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                        "DstWormholeChainId": 6,
+                        "SrcTokenAddress": "0xAEA5CC14DefbC1b845FDE729E563B717Ee6825ae",
+                        "SrcWormholeChainId": 5
+                    },
+                    {
+                        "DstTokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0x4318CB63A2b8edf2De971E2F17F77097e499459D",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 6,
+                "NativeToken": false,
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x55d398326f99059fF775485246999027B3197955",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0x07365017e2436b5C3553028DB2a98d7672fb75Eb",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "USDT"
+            }
+        ]
+    },
     "polygon-test": {
         "ChainId": 80001,
         "OmniBtcChainId": 30005,
@@ -610,12 +1130,56 @@
         "StargateChainId": 10109,
         "StargatePool": [
             {
+                "ChainPath": [
+                    [
+                        10106,
+                        1
+                    ],
+                    [
+                        10106,
+                        2
+                    ],
+                    [
+                        10102,
+                        2
+                    ],
+                    [
+                        10102,
+                        5
+                    ],
+                    [
+                        10112,
+                        1
+                    ]
+                ],
                 "Decimal": 6,
                 "PoolId": 1,
                 "TokenAddress": "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7",
                 "TokenName": "USDC"
             },
             {
+                "ChainPath": [
+                    [
+                        10106,
+                        1
+                    ],
+                    [
+                        10106,
+                        2
+                    ],
+                    [
+                        10102,
+                        2
+                    ],
+                    [
+                        10102,
+                        5
+                    ],
+                    [
+                        10112,
+                        1
+                    ]
+                ],
                 "Decimal": 6,
                 "PoolId": 2,
                 "TokenAddress": "0x6Fc340be8e378c2fF56476409eF48dA9a3B781a0",
@@ -790,95 +1354,6 @@
                 "Decimal": 8,
                 "NativeToken": false,
                 "TokenName": "WAPT"
-            }
-        ]
-    },
-    "aptos-testnet": {
-        "OmniBtcChainId": 30001,
-        "SoDiamond": "0x0000000000000000000000000000000000000000000000000000000000000004",
-        "LiquidSwap": "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
-        "WormholeBridge": "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f",
-        "WormholeChainId": 22,
-        "WormholeSupportToken": [
-            {
-                "ChainPath": [
-                    {
-                        "DstTokenAddress": "0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454",
-                        "DstWormholeChainId": 4,
-                        "SrcTokenAddress": "0x1::aptos_coin::AptosCoin",
-                        "SrcWormholeChainId": 22
-                    },
-                    {
-                        "DstTokenAddress": "0x226B436043B537BD158e84fA199E2Aa36bf364f8",
-                        "DstWormholeChainId": 5,
-                        "SrcTokenAddress": "0x1::aptos_coin::AptosCoin",
-                        "SrcWormholeChainId": 22
-                    }
-                ],
-                "Decimal": 8,
-                "NativeToken": true,
-                "TokenAddress": "0x1::aptos_coin::AptosCoin",
-                "TokenName": "APT"
-            },
-            {
-                "ChainPath": [
-                    {
-                        "DstTokenAddress": "0xf9471131e004dcdBF3325d0B9Fef49162739d87D",
-                        "DstWormholeChainId": 4,
-                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::XBTC",
-                        "SrcWormholeChainId": 22
-                    },
-                    {
-                        "DstTokenAddress": "0x2baF26A3E7A6dfC3dF6E0aaB0DC8e0274729E35A,",
-                        "DstWormholeChainId": 5,
-                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::XBTC",
-                        "SrcWormholeChainId": 22
-                    }
-                ],
-                "Decimal": 8,
-                "NativeToken": true,
-                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::XBTC",
-                "TokenName": "XBTC"
-            },
-            {
-                "ChainPath": [
-                    {
-                        "DstTokenAddress": "0x6A14ccC52d89E0A7817CC65C43630f4D0515dDF9",
-                        "DstWormholeChainId": 4,
-                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDC",
-                        "SrcWormholeChainId": 22
-                    },
-                    {
-                        "DstTokenAddress": "0x827e05D82f8f39b767Aca000F843588785dD1dce,",
-                        "DstWormholeChainId": 5,
-                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDC",
-                        "SrcWormholeChainId": 22
-                    }
-                ],
-                "Decimal": 8,
-                "NativeToken": true,
-                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDC",
-                "TokenName": "USDC"
-            },
-            {
-                "ChainPath": [
-                    {
-                        "DstTokenAddress": "0x48E4508054A82996667e0ca9C3543f57c53FA3C6",
-                        "DstWormholeChainId": 4,
-                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDT",
-                        "SrcWormholeChainId": 22
-                    },
-                    {
-                        "DstTokenAddress": "0x49cc9705f1Df944872239d7F04679Cf8841E854A,",
-                        "DstWormholeChainId": 5,
-                        "SrcTokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDT",
-                        "SrcWormholeChainId": 22
-                    }
-                ],
-                "Decimal": 8,
-                "NativeToken": true,
-                "TokenAddress": "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::setup::USDT",
-                "TokenName": "USDT"
             }
         ]
     }
