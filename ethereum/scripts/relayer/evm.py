@@ -23,7 +23,11 @@ SUPPORTED_EVM = [
     {"dstWormholeChainId": 5,
      "dstSoDiamond": "0xBae5BeAdBaa65628eA9DC5A5c7F794b4865c8771",
      "dstNet": "polygon-test"
-     }
+     },
+    {"dstWormholeChainId": 6,
+     "dstSoDiamond": "0x802e05b91769342af3F0d13f9DC6Df03a54C2ac7",
+     "dstNet": "avax-test"
+     },
 ]
 
 
