@@ -178,6 +178,11 @@ def redeploy_stargate():
     reinitialize_cut(StargateFacet)
 
 
+def redeploy_serde():
+    SerdeFacet.deploy({'from': get_account()})
+    reinitialize_cut(SerdeFacet)
+
+
 def redeploy_wormhole():
     account = get_account()
 
