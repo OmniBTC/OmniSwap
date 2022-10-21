@@ -3,7 +3,8 @@ from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFac
     WormholeFacet, SerdeFacet, LibSoFeeWormholeV1, web3
 from brownie.network import priority_fee
 
-from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_native_oracle_address, get_oracles, get_wormhole_actual_reserve, get_wormhole_bridge, \
+from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_native_oracle_address, get_oracles, \
+    get_wormhole_actual_reserve, get_wormhole_bridge, \
     get_wormhole_chainid, get_wormhole_estimate_reserve, get_wormhole_info, \
     zero_address, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal, \
     get_stargate_info
@@ -196,6 +197,32 @@ def redeploy_wormhole():
     initialize_wormhole_fee(account)
 
 
+def set_relayer_fee():
+    decimal = 1e27
+    if network.show_active() == "avax-main":
+        # bnb
+        dst_wormhole_id = 2
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(300 / 15 * decimal), {"from": get_account()})
+        # aptos
+        dst_wormhole_id = 22
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 15 * decimal), {"from": get_account()})
+
+    if network.show_active() == "mainnet":
+        # aptos
+        dst_wormhole_id = 22
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 1250 * decimal), {"from": get_account()})
+
+    if network.show_active() == "polygon-main":
+        # aptos
+        dst_wormhole_id = 22
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 0.7 * decimal), {"from": get_account()})
+
+    if network.show_active() == "bsc-main":
+        # aptos
+        dst_wormhole_id = 22
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 250 * decimal), {"from": get_account()})
+
+
 def redeploy_generic_swap():
     account = get_account()
     GenericSwapFacet.deploy({'from': account})
@@ -221,7 +248,7 @@ def reinitialize_cut(contract):
 
     data = [reg_funcs[func_name]
             for func_name in reg_funcs if func_name not in
-            ["RAY",  "getSoFee", "deposit", "withdraw", "executeAndCheckSwaps"]]
+            ["RAY", "getSoFee", "deposit", "withdraw", "executeAndCheckSwaps"]]
     if len(data):
         register_data.append([reg_facet, 0, data])
 
