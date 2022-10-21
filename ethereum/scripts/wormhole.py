@@ -7,10 +7,10 @@ from brownie.project.main import Project
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 ether = 1e18
-amount = 0.01 * ether
+amount = 0.001 * ether
 
-support_networks = ["avax-test", "bsc-test",
-                    "polygon-test", "goerli", "ftm-test"]
+support_networks = ["avax-main", "bsc-main",
+                    "polygon-main", "mainnet"]
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -86,9 +86,9 @@ def so_swap_via_wormhole(so_data: SoData, dst_diamond_address: str = "", dst_cha
     src_swap = []
     dst_swap = []
 
-    usdt_address = "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
-    usdt = Contract.from_abi("IERC20", usdt_address, p.interface.IERC20.abi)
-    usdt.approve(proxy_diamond.address, amount, {"from": account})
+    # usdt_address = "0x6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
+    # usdt = Contract.from_abi("IERC20", usdt_address, p.interface.IERC20.abi)
+    # usdt.approve(proxy_diamond.address, amount, {"from": account})
     so_data = so_data.format_to_contract()
     dstMaxGasPriceInWeiForRelayer = 25000000000
     wormhole_data = [dst_chainid,
@@ -96,9 +96,11 @@ def so_swap_via_wormhole(so_data: SoData, dst_diamond_address: str = "", dst_cha
     # value = wormhole_fee + input_eth_amount + relayer_fee
     relayer_fee = proxy_diamond.estimateRelayerFee(
         so_data, wormhole_data, dst_swap)
+    print(f"relayer fee:{relayer_fee}")
     wormhole_fee = proxy_diamond.getWormholeMessageFee()
-    msg_value = wormhole_fee + relayer_fee
+    msg_value = wormhole_fee + relayer_fee + amount
     wormhole_data[2] = msg_value
+
     proxy_diamond.soSwapViaWormhole(
         so_data, src_swap, wormhole_data, dst_swap, {'from': account, 'value': msg_value})
 
@@ -120,8 +122,8 @@ def get_all_warpped_token():
 
     current_net = network.show_active()
     (current_coin_name, current_stable_coin) = get_stable_coin_address(current_net)
-    # print(
-    #     f'current net: {current_net}, {current_coin_name} [{current_stable_coin}]')
+    print(
+        f'current net: {current_net}, {current_coin_name} [{current_stable_coin}]\n')
     src_wormhole_chain_id = get_wormhole_chainid()
     chain_path = []
     for net in support_networks:
@@ -139,12 +141,12 @@ def get_all_warpped_token():
                               "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": stable_coin_address})
         chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_eth,
                           "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": zero_address()})
-        # native_token_name = get_native_token_name(net)
-        # print(f"{net} --> {current_net} ")
-        # print(
-        #     f'{net}: {stable_coin_name} [{stable_coin_address}] -> {current_net}: {stable_coin_name} [{wrapped_token}]')
-        # print(
-        #     f'{net}: {native_token_name} -> {current_net}: W{native_token_name} [{wrapped_eth}]\n')
+        native_token_name = get_native_token_name(net)
+        print(f"{net} --> {current_net} ")
+        print(
+            f'{net}: {stable_coin_name} [{stable_coin_address}] -> {current_net}: {stable_coin_name} [{wrapped_token}]')
+        print(
+            f'{net}: {native_token_name} -> {current_net}: W{native_token_name} [{wrapped_eth}]\n')
 
     return chain_path
 
@@ -178,7 +180,7 @@ def test_get_price_ratio():
     print(f'ratio: {ratio}, ok: {ok}')
 
 
-def main(src_net="bsc-test", dst_net="avax-test"):
+def main(src_net="avax-main", dst_net="polygon-main"):
     global src_session
     global dst_session
     src_session = Session(
@@ -196,8 +198,8 @@ def main(src_net="bsc-test", dst_net="avax-test"):
         dst_session,
         src_session.put_task(get_account_address),
         amount=amount,
-        sendingTokenName=get_receive_native_token_name(src_net),
-        receiveTokenName="eth")
+        sendingTokenName="eth",
+        receiveTokenName="WAVAX")
 
     src_session.put_task(so_swap_via_wormhole, args=(
         so_data, dst_diamond_address, dst_chainid),  with_project=True)

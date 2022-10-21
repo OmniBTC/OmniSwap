@@ -1,4 +1,25 @@
 {
+    "avax-main": {
+        "bridge": "0x9d1B1669c73b033DFe47ae5a0164Ab96df25B944",
+        "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
+        "factory": "0x808d7c71ad2ba3FA531b068a2417C63106BC0949",
+        "pools": [
+            {
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                "TokenName": "USDC"
+            },
+            {
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+                "TokenName": "USDt"
+            }
+        ],
+        "router": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
+    },
     "avax-test": {
         "bridge": "0x29fBC4E4092Db862218c62a888a00F9521619230",
         "endpoint": "0x93f54D755A063cE7bB9e6Ac47Eccc8e33411d706",
@@ -19,6 +40,33 @@
         ],
         "router": "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1",
         "ultra_light_node": "0xfDDAFFa49e71dA3ef0419a303a6888F94bB5Ba18"
+    },
+    "bsc-main": {
+        "bridge": "0x6694340fc020c5E6B96567843da2df01b2CE1eb6",
+        "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
+        "factory": "0xe7Ec689f432f29383f217e36e680B5C855051f25",
+        "pools": [
+            {
+                "Decimal": 18,
+                "PoolId": 2,
+                "TokenAddress": "0x55d398326f99059fF775485246999027B3197955",
+                "TokenName": "USDT"
+            },
+            {
+                "Decimal": 18,
+                "PoolId": 5,
+                "TokenAddress": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+                "TokenName": "BUSD"
+            },
+            {
+                "Decimal": 18,
+                "PoolId": 11,
+                "TokenAddress": "0xd17479997F34dd9156Deef8F95A52D81D265be9c",
+                "TokenName": "USDD"
+            }
+        ],
+        "router": "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8",
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
     },
     "bsc-test": {
         "bridge": "0xa1E105511416aEc3200CcE7069548cF332c6DCA2",
@@ -63,6 +111,60 @@
         "ultra_light_node": "0x54109D468858d8f460587b7B4C1B950c9aB48CBd"
     },
     "goerli": [],
+    "mainnet": {
+        "bridge": "0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97",
+        "endpoint": "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675",
+        "factory": "0x06D538690AF257Da524f25D0CD52fD85b1c2173E",
+        "pools": [
+            {
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                "TokenName": "USDC"
+            },
+            {
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                "TokenName": "USDT"
+            },
+            {
+                "Decimal": 18,
+                "PoolId": 11,
+                "TokenAddress": "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6",
+                "TokenName": "USDD"
+            },
+            {
+                "Decimal": 18,
+                "PoolId": 13,
+                "TokenAddress": "0x72E2F4830b9E45d52F80aC08CB2bEC0FeF72eD9c",
+                "TokenName": "SGETH"
+            }
+        ],
+        "router": "0x8731d54E9D02c286767d56ac03e8037C07e01e98",
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
+    },
+    "polygon-main": {
+        "bridge": "0x9d1B1669c73b033DFe47ae5a0164Ab96df25B944",
+        "endpoint": "0x3c2269811836af69497E5F486A85D7316753cf62",
+        "factory": "0x808d7c71ad2ba3FA531b068a2417C63106BC0949",
+        "pools": [
+            {
+                "Decimal": 6,
+                "PoolId": 1,
+                "TokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                "TokenName": "USDC"
+            },
+            {
+                "Decimal": 6,
+                "PoolId": 2,
+                "TokenAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                "TokenName": "USDT"
+            }
+        ],
+        "router": "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd",
+        "ultra_light_node": "0x4D73AdB72bC3DD368966edD0f0b2148401A178E2"
+    },
     "polygon-test": {
         "bridge": "0x629B57D89b1739eE1C0c0fD9eab426306e11cF42",
         "endpoint": "0xf69186dfBa60DdB133E91E9A4B5673624293d8F8",

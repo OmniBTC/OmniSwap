@@ -4,6 +4,7 @@ import threading
 import time
 
 import requests
+from brownie import network
 
 from scripts.serde_aptos import parse_vaa_to_wormhole_payload
 from scripts.struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
@@ -14,7 +15,7 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-package = aptos_brownie.AptosPackage(str(omniswap_aptos_path))
+package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-mainnet")
 
 
 def get_signed_vaa(
@@ -146,7 +147,7 @@ def process_v1(
     local_logger.info("Starting process v1...")
     has_process = {}
     while True:
-        result = get_signed_vaa_by_to(dstWormholeChainId)
+        result = get_signed_vaa_by_to(dstWormholeChainId, url="http://wormhole-vaa.chainx.org")
         result = [d for d in result if (int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
         local_logger.info(f"Get signed vaa by to length: {len(result)}")
         for d in result[::-1]:
@@ -155,7 +156,7 @@ def process_v1(
             try:
                 # Use bsc-test to decode, too slow may need to change bsc-mainnet
                 d["hexString"] = "0x" + d["hexString"]
-                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, "bsc-test",
+                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, network.show_active(),
                                                                                        d["hexString"])
             except Exception as e:
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["emitterChainId"]}, '
@@ -212,7 +213,7 @@ def process_v2(
         for d in pending_data:
             has_process[(int(d["srcWormholeChainId"]), int(d["sequence"]))] = True
             try:
-                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]))
+                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url="http://wormhole-vaa.chainx.org")
                 if vaa is None:
                     continue
                 vaa = vaa["hexString"]
@@ -222,7 +223,7 @@ def process_v2(
                 continue
             try:
                 # Use bsc-test to decode, too slow may need to change bsc-mainnet
-                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, "bsc-test", vaa)
+                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, network.show_active(), vaa)
             except Exception as e:
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')

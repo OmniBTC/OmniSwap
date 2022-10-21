@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import List
 
 import requests
-from brownie import network, Contract, project, config
+from brownie import network, Contract, project, config, SoDiamond, WormholeFacet
 
 from scripts.helpful_scripts import to_hex_str, get_token_address, zero_address, change_network, \
     get_account, padding_to_bytes
@@ -257,7 +257,7 @@ def cross_swap(
         receiver: str,
         dst_so_diamond: str,
         input_amount: int,
-        dst_gas_price: int = 0,
+        dst_gas_price: int = 100 * 1e10,
         src_router: str = None,
         src_func: str = None,
         src_min_amount: int = 0,
@@ -277,7 +277,7 @@ def cross_swap(
         package,
         dst_net=dst_net,
         dst_gas_price=dst_gas_price,
-        wormhole_fee=10000000,
+        wormhole_fee=0,
         dst_so_diamond=dst_so_diamond
     )
     wormhole_data = wormhole_data.format_to_contract()
@@ -322,6 +322,17 @@ def cross_swap(
                                   )
         token.approve(wormhole.address, so_data[-1], {"from": get_account()})
 
+    proxy_diamond = Contract.from_abi(
+        "WormholeFacet", SoDiamond[-1].address, WormholeFacet.abi)
+    relayer_fee = proxy_diamond.estimateRelayerFee(
+        so_data, wormhole_data, dst_swap_data)
+    print(f"Relayer fee: {relayer_fee}")
+    if src_path[0] != "eth":
+        wormhole_fee = relayer_fee
+    else:
+        wormhole_fee = input_amount
+    wormhole_data[2] = wormhole_fee
+
     wormhole.soSwapViaWormhole(
         so_data,
         src_swap_data,
@@ -332,8 +343,8 @@ def cross_swap(
 
 
 def main():
-    src_net = "bsc-test"
-    dst_net = "aptos-testnet"
+    src_net = "polygon-main"
+    dst_net = "aptos-mainnet"
     assert dst_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
 
     # Prepare environment
@@ -348,17 +359,13 @@ def main():
 
     cross_swap(
         package,
-        src_path=["usdt", "AptosCoin_WORMHOLE"],
+        src_path=["AptosCoin_WORMHOLE"],
         dst_path=[
             "AptosCoin",
-            LiquidswapCurve.Uncorrelated,
-            "XBTC",
-            LiquidswapCurve.Uncorrelated,
-            "USDT",
         ],
-        receiver="0xdff02e1c9825aaefb48f78b892e49af235acc56ee01832876f07355e4a69d1c8",
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
         dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
-        input_amount=int(1e18),
+        input_amount=int(100000),
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens
     )

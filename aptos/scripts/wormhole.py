@@ -1,3 +1,4 @@
+from pathlib import Path
 from pprint import pprint
 from scripts.utils import aptos_brownie
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
@@ -70,14 +71,14 @@ def attest_token(
         token_name="AptosCoin",
         dst_net=network.show_active()
 ):
-    assert token_bridge.network in ["aptos-testnet", "aptos-devnet"]
     token_address, wrapped_address, is_wrapped = get_dst_wrapped_address_for_aptos(token_bridge, token_name,
                                                                                    dst_net)
     if not is_wrapped:
         attest_token_address = get_aptos_token(
             token_bridge)[token_name]["address"]
-        token_bridge["attest_token::attest_token_entry"](
-            ty_args=[attest_token_address])
+        if token_bridge.network != "aptos-mainnet":
+            token_bridge["attest_token::attest_token_entry"](
+                ty_args=[attest_token_address])
     return token_address, wrapped_address, is_wrapped
 
 
@@ -213,10 +214,10 @@ def estimate_wormhole_fee(
 
     ratio = wormhole_price["data"]["price_data"]["current_price_ratio"]
 
-    base_gas = package.config["networks"][current_net]["wormhole"]["base_gas"]
-    gas_per_bytes = package.config["networks"][current_net]["wormhole"]["gas_per_bytes"]
-    # actual_reserve = package.config["networks"][current_net]["wormhole"]["actual_reserve"]
-    estimate_reserve = package.config["networks"][current_net]["wormhole"]["estimate_reserve"]
+    base_gas = package.network_config["wormhole"]["gas"][current_net]["base_gas"]
+    gas_per_bytes = package.network_config["wormhole"]["gas"][current_net]["per_byte_gas"]
+    # actual_reserve = package.network_config["wormhole"]["actual_reserve"]
+    estimate_reserve = package.network_config["wormhole"]["estimate_reserve"]
 
     dst_gas = base_gas + gas_per_bytes * payload_length
 
@@ -453,7 +454,7 @@ def cross_swap(
     #     wormhole_fee = 0
     wormhole_fee = estimate_wormhole_fee(
         package, package.config["networks"][dst_net]["wormhole"]["chainid"], input_amount, is_native, payload_length, 0)
-
+    print(f"Wormhole fee: {wormhole_fee}")
     wormhole_data = generate_wormhole_data(
         package,
         dst_net=dst_net,
@@ -472,9 +473,9 @@ def cross_swap(
 
 
 def main():
-    src_net = "aptos-testnet"
+    src_net = "aptos-mainnet"
     assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
-    dst_net = "bsc-test"
+    dst_net = "polygon-main"
 
     # Prepare environment
     # load src net aptos package
@@ -500,7 +501,7 @@ def main():
                src_path=["AptosCoin"],
                dst_path=["AptosCoin_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=10000000,
+               input_amount=100000,
                )
 
     cross_swap(package,

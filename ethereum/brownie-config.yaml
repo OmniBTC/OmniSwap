@@ -499,15 +499,25 @@ networks:
         token_list: ""
   aptos-mainnet:
     omnibtc_chainid: 1
+<<<<<<< HEAD
     node_url: https://aptos-mainnet.coming.chat/v1
+=======
+    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
+    node_url: https://aptos.coming.chat/v1
+>>>>>>> export-mainnet-config
     faucet_url: https://faucet.mainnet.aptoslabs.com
     wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
     replace_address:
       deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
+<<<<<<< HEAD
       liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
       liquidswap_pool_account: "0x8aa500cd155a6087509fa84bc7f0deed3363dd253ecb62b2f110885dacf01c67"
+=======
+      liquidswap: "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12"
+#      liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
+>>>>>>> export-mainnet-config
       omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
     wormhole:
       chainid: 22
@@ -534,6 +544,7 @@ networks:
   mainnet:
     omnibtc_chainid: 2
     chainid: 1
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
       chainid: 101
@@ -545,6 +556,7 @@ networks:
     wormhole:
       chainid: 2
       token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
+      wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
       estimate_reserve: 1.2
       gas:
@@ -619,6 +631,7 @@ networks:
   bsc-main:
     omnibtc_chainid: 3
     chainid: 56
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
       chainid: 102
@@ -627,6 +640,7 @@ networks:
     wormhole:
       chainid: 4
       token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
+      wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
       estimate_reserve: 1.2
       gas:
@@ -692,6 +706,7 @@ networks:
   avax-main:
     omnibtc_chainid: 4
     chainid: 43114
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
       chainid: 106
@@ -701,6 +716,7 @@ networks:
     wormhole:
       chainid: 6
       token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
+      wormhole: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c"
       actual_reserve: 1.1
       estimate_reserve: 1.2
       gas:
@@ -759,6 +775,7 @@ networks:
   polygon-main:
     omnibtc_chainid: 5
     chainid: 137
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
       chainid: 109
@@ -768,6 +785,7 @@ networks:
     wormhole:
       chainid: 5
       token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
+      wormhole: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7"
       actual_reserve: 1.1
       estimate_reserve: 1.2
       gas:
@@ -822,6 +840,12 @@ networks:
       usdt:
         address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
         decimal: 6
+      WAVAX:
+        address: "0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a"
+        decimal: 18
+      AptosCoin_WORMHOLE:
+        address: "0xa4ef199d3ad524E9C3C51Ac46B303B103A307Cef"
+        decimal: 8
     swap:
       ISwapRouter:
         name: UniswapV3
