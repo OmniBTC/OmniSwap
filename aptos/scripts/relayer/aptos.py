@@ -10,7 +10,7 @@ from scripts.serde_aptos import parse_vaa_to_wormhole_payload
 from scripts.struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
 from scripts.utils import aptos_brownie
 
-FORMAT = '%(asctime)s - %(filename)s - %(funcName)s - %(levelname)s - %(message)s'
+FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
