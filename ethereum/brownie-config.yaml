@@ -45,13 +45,26 @@ networks:
         decimal: 8
     wormhole:
       chainid: 22
-      token_bridge: "0xdd0a2618dc5564ccf38d0eca7877198fef51157fea74a6bc2e5e40b52c2a0a08"
-      token:
-        AptosCoin: "0xa867703f5395cb2965feb7ebff5cdf39b771fc6156085da3ae4147a00be91b38"
-      actual_reserve: 110000000
-      estimate_reserve: 120000000
-      base_gas: 100000
-      gas_per_bytes: 100
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        goerli:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        bsc-test:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-test:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-test:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
   goerli:
     omnibtc_chainid: 30002
     chainid: 5
@@ -486,8 +499,38 @@ networks:
         token_list: ""
   aptos-mainnet:
     omnibtc_chainid: 1
-    node_url: https://fullnode.mainnet.aptoslabs.com/v1
+    node_url: https://aptos-mainnet.coming.chat/v1
     faucet_url: https://faucet.mainnet.aptoslabs.com
+    wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
+    replace_address:
+      deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
+      liquidswap: "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81"
+      liquidswap_pool_account: "0x8aa500cd155a6087509fa84bc7f0deed3363dd253ecb62b2f110885dacf01c67"
+      omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+    wormhole:
+      chainid: 22
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 220000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 220000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 220000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 220000
+          per_byte_gas: 68
   mainnet:
     omnibtc_chainid: 2
     chainid: 1

@@ -46,28 +46,27 @@ def main():
         pass
 
     # set reserve
+    reserve_decimal = 1e8
     package["wormhole_facet::set_wormhole_reserve"](
-        package.network_config["wormhole"]["actual_reserve"],
-        package.network_config["wormhole"]["estimate_reserve"]
+        int(package.network_config["wormhole"]["actual_reserve"] * reserve_decimal),
+        int(package.network_config["wormhole"]["estimate_reserve"] * reserve_decimal)
     )
 
     serde = get_serde_facet(package, "bsc-test")
 
     # set gas
-    for net in package.config["networks"]:
+    for net in package.network_config["wormhole"]["gas"]:
         if net == package.network:
             continue
-        if (("test" in net and "test" in package.network)
-                or ("main" in net and "main" in package.network)):
-            base_gas = hex_str_to_vector_u8(str(serde.normalizeU256(
-                package.network_config["wormhole"]["base_gas"])))
-            gas_per_bytes = hex_str_to_vector_u8(str(serde.normalizeU256(
-                package.network_config["wormhole"]["gas_per_bytes"])))
-
-            package["wormhole_facet::set_wormhole_gas"](
-                package.network_config["wormhole"]["chainid"],
-                base_gas,
-                gas_per_bytes
-            )
+        base_gas = hex_str_to_vector_u8(str(serde.normalizeU256(
+            package.network_config["wormhole"]["gas"][net]["base_gas"])))
+        gas_per_bytes = hex_str_to_vector_u8(str(serde.normalizeU256(
+            package.network_config["wormhole"]["gas"][net]["per_byte_gas"])))
+        print(f"Set wormhole gas for:{net}")
+        package["wormhole_facet::set_wormhole_gas"](
+            package.network_config["wormhole"]["chainid"],
+            base_gas,
+            gas_per_bytes
+        )
 
     setup_mock(package.network)

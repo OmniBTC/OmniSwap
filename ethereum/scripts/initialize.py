@@ -189,7 +189,9 @@ def redeploy_wormhole():
 
     so_fee = 1e-3
     ray = 1e27
+    print("Deploy LibSoFeeWormholeV1...")
     LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
+    print("AddFee ...")
     proxy_dex.addFee(get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {'from': account})
     initialize_wormhole_fee(account)
 
