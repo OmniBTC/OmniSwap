@@ -41,7 +41,7 @@
             {
                 "ChainPath": [
                     {
-                        "DstTokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "DstTokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
                         "DstWormholeChainId": 6,
                         "SrcTokenAddress": "0x39d84c2af3b0c9895b45d4da098049e382c451ba63bec0ce0396ff7af4bb5dff::coin::T",
                         "SrcWormholeChainId": 22
@@ -271,6 +271,12 @@
                         "DstWormholeChainId": 2,
                         "SrcTokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
                         "SrcWormholeChainId": 6
+                    },
+                    {
+                        "DstTokenAddress": "0x39d84c2af3b0c9895b45d4da098049e382c451ba63bec0ce0396ff7af4bb5dff::coin::T",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                        "SrcWormholeChainId": 6
                     }
                 ],
                 "Decimal": 6,
@@ -329,6 +335,19 @@
                 "Decimal": 18,
                 "NativeToken": false,
                 "TokenName": "WMATIC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x1::aptos_coin::AptosCoin",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0x43c588459b3243fA541B98CC4B2E995b3de553A2",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": false,
+                "TokenName": "WAPT"
             },
             {
                 "ChainPath": [
@@ -806,6 +825,12 @@
                         "DstWormholeChainId": 2,
                         "SrcTokenAddress": "0x55d398326f99059fF775485246999027B3197955",
                         "SrcWormholeChainId": 4
+                    },
+                    {
+                        "DstTokenAddress": "0xacd014e8bdf395fa8497b6d585b164547a9d45269377bdf67c96c541b7fec9ed::coin::T",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0x55d398326f99059fF775485246999027B3197955",
+                        "SrcWormholeChainId": 4
                     }
                 ],
                 "Decimal": 18,
@@ -838,6 +863,19 @@
                 "Decimal": 18,
                 "NativeToken": false,
                 "TokenName": "WMATIC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x1::aptos_coin::AptosCoin",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0x2Ba98cf7Edd2c5C794e21bc3Dc6973D3C2585eE3",
+                        "SrcWormholeChainId": 4
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": false,
+                "TokenName": "WAPT"
             },
             {
                 "ChainPath": [
@@ -1717,6 +1755,12 @@
                         "DstWormholeChainId": 4,
                         "SrcTokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
                         "SrcWormholeChainId": 2
+                    },
+                    {
+                        "DstTokenAddress": "0xa2eda21a58856fda86451436513b867c97eecb4ba099da5775520e0f7492e852::coin::T",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "SrcWormholeChainId": 2
                     }
                 ],
                 "Decimal": 6,
@@ -1762,6 +1806,19 @@
                 "Decimal": 18,
                 "NativeToken": false,
                 "TokenName": "WMATIC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x1::aptos_coin::AptosCoin",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0x8CDf7AF57E4c8B930e1B23c477c22f076530585e",
+                        "SrcWormholeChainId": 2
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": false,
+                "TokenName": "WAPT"
             },
             {
                 "ChainPath": [],
@@ -1934,6 +1991,12 @@
                         "DstWormholeChainId": 2,
                         "SrcTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
                         "SrcWormholeChainId": 5
+                    },
+                    {
+                        "DstTokenAddress": "0xc7160b1c2415d19a88add188ec726e62aab0045f0aed798106a2ef2994a9101e::coin::T",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "SrcWormholeChainId": 5
                     }
                 ],
                 "Decimal": 6,
@@ -1992,6 +2055,19 @@
                 "Decimal": 18,
                 "NativeToken": false,
                 "TokenName": "WBNB"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x1::aptos_coin::AptosCoin",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0xa4ef199d3ad524E9C3C51Ac46B303B103A307Cef",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": false,
+                "TokenName": "WAPT"
             },
             {
                 "ChainPath": [
