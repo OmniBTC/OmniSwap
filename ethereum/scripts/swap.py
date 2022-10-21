@@ -180,9 +180,9 @@ class SoData(View):
         """
         return [to_hex_str(self.transactionId),
                 to_hex_str(self.receiver),
-                self.sourceChainId if self.sourceChainId < 255 else 0,
+                self.sourceChainId if self.sourceChainId < 65535 else 0,
                 to_hex_str(self.sendingAssetId),
-                self.destinationChainId if self.destinationChainId < 255 else 0,
+                self.destinationChainId if self.destinationChainId < 65535 else 0,
                 to_hex_str(self.receivingAssetId),
                 self.amount]
 
