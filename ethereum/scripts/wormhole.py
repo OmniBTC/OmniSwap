@@ -9,8 +9,8 @@ root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 ether = 1e18
 amount = 0.01 * ether
 
-support_networks = ["avax-test", "bsc-test",
-                    "polygon-test", "goerli", "ftm-test"]
+support_networks = ["avax-main", "bsc-main",
+                    "polygon-main", "mainnet"]
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -120,8 +120,8 @@ def get_all_warpped_token():
 
     current_net = network.show_active()
     (current_coin_name, current_stable_coin) = get_stable_coin_address(current_net)
-    # print(
-    #     f'current net: {current_net}, {current_coin_name} [{current_stable_coin}]')
+    print(
+        f'current net: {current_net}, {current_coin_name} [{current_stable_coin}]\n')
     src_wormhole_chain_id = get_wormhole_chainid()
     chain_path = []
     for net in support_networks:
@@ -139,12 +139,12 @@ def get_all_warpped_token():
                               "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": stable_coin_address})
         chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_eth,
                           "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": zero_address()})
-        # native_token_name = get_native_token_name(net)
-        # print(f"{net} --> {current_net} ")
-        # print(
-        #     f'{net}: {stable_coin_name} [{stable_coin_address}] -> {current_net}: {stable_coin_name} [{wrapped_token}]')
-        # print(
-        #     f'{net}: {native_token_name} -> {current_net}: W{native_token_name} [{wrapped_eth}]\n')
+        native_token_name = get_native_token_name(net)
+        print(f"{net} --> {current_net} ")
+        print(
+            f'{net}: {stable_coin_name} [{stable_coin_address}] -> {current_net}: {stable_coin_name} [{wrapped_token}]')
+        print(
+            f'{net}: {native_token_name} -> {current_net}: W{native_token_name} [{wrapped_eth}]\n')
 
     return chain_path
 

@@ -4,10 +4,11 @@
 import contextlib
 import json
 import os
+from pprint import pprint
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeStargateV1, LibCorrectSwapV1, \
-    WormholeFacet, LibSoFeeWormholeV1, SerdeFacet
+    WormholeFacet, LibSoFeeWormholeV1, SerdeFacet, network
 
 from scripts.helpful_scripts import change_network, get_wormhole_bridge, get_wormhole_chainid, zero_address, read_json, get_stargate_router, get_token_address, \
     get_swap_info, get_stargate_chain_id
@@ -199,20 +200,23 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
     return net_support_token
 
 
-def export_wormhole_chain_path(wormhole_chain_path):
+def export_wormhole_chain_path(arg, wormhole_chain_path):
     omni_swap_infos = read_json(omni_swap_file)
-    nets = list(omni_swap_infos.keys())
-    for net in nets:
+    for net in arg:
         if "aptos" in net:
             continue
         net_support_token = get_wormhole_chain_path(
             net, wormhole_chain_path)
-        omni_swap_infos[net]["WormholeSupportToken"] = net_support_token
+        try:
+            omni_swap_infos[net]["WormholeSupportToken"] = net_support_token
+        except Exception:
+            omni_swap_infos[net].append({"WormholeSupportToken": []})
+            omni_swap_infos[net]["WormholeSupportToken"] = net_support_token
     write_file(omni_swap_file, omni_swap_infos)
 
 
 def get_wormhole_support_token(net):
-    return [{"ChainPath": [], "TokenName": token.upper(), "NativeToken": True, "TokenAddress": config["networks"][net]["token"][token]["address"], "Decimal": config["networks"][net]["token"][token]["decimal"]} for token in config["networks"][net]["token"] if token in ["usdc", "usdt"]]
+    return [{"ChainPath": [], "TokenName": token.upper(), "NativeToken": True, "TokenAddress": config["networks"][net]["token"][token]["address"], "Decimal": config["networks"][net]["token"][token]["decimal"]} for token in config["networks"][net]["token"] if token in ["usdt", "usdc"]]
 
 
 def export_deployed():
@@ -308,5 +312,5 @@ def export(*arg):
                interface.IStargate.abi)
     write_file(os.path.join(
         root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
-    export_wormhole_chain_path(wormhole_chain_path)
+    export_wormhole_chain_path(arg, wormhole_chain_path)
     get_stargate_chain_path()
