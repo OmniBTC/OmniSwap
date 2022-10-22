@@ -600,3 +600,26 @@ class AptosPackage:
         if isinstance(account_addr, str):
             account_addr = AccountAddress.from_hex(account_addr)
         return self.rest_client.account_resource(account_addr, resource_type)
+
+    def register_coin(self, asset_id):
+        """Register the receiver account to receive transfers for the new coin."""
+
+        payload = EntryFunction.natural(
+            "0x1::managed_coin",
+            "register",
+            [TypeTag(StructTag.from_str(
+                asset_id))],
+            [],
+        )
+        signed_transaction = self.create_single_signer_bcs_transaction(
+            self.account, TransactionPayload(payload)
+        )
+        txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)
+        print(
+            f"Execute register coin, transaction hash: {txn_hash}, waiting...")
+        response = self.wait_for_transaction(txn_hash)
+        print(f"Execute register coin Success.\n")
+        return {
+            "hash": txn_hash,
+            "response": response
+        }
