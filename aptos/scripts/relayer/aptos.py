@@ -165,6 +165,11 @@ def process_v1(
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["emitterChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
+            if time.time() > int(vaa_data[1]) + 5 * 60:
+                local_logger.warning(
+                    f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} '
+                    f'beyond 5min')
+                continue
             if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(
                     f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} dstSoDiamond: {dstSoDiamond} '
@@ -216,7 +221,8 @@ def process_v2(
         for d in pending_data:
             has_process[(int(d["srcWormholeChainId"]), int(d["sequence"]))] = True
             try:
-                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url="http://wormhole-vaa.chainx.org")
+                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]),
+                                     url="http://wormhole-vaa.chainx.org")
                 if vaa is None:
                     continue
                 vaa = vaa["hexString"]
@@ -226,10 +232,16 @@ def process_v2(
                 continue
             try:
                 # Use bsc-test to decode, too slow may need to change bsc-mainnet
-                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, network.show_active(), vaa)
+                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, network.show_active(),
+                                                                                       vaa)
             except Exception as e:
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
+                continue
+            if time.time() > int(vaa_data[1]) + 5 * 60:
+                local_logger.warning(
+                    f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
+                    f'beyond 5min')
                 continue
             if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(

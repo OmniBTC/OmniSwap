@@ -16,10 +16,14 @@ logger = logging.getLogger()
 logger.setLevel("INFO")
 
 SUPPORTED_EVM = [
-    # {"dstWormholeChainId": 4,
-    #  "dstSoDiamond": "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228",
-    #  "dstNet": "bsc-test"
-    #  },
+    {"dstWormholeChainId": 2,
+     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+     "dstNet": "mainnet"
+     },
+    {"dstWormholeChainId": 4,
+     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+     "dstNet": "bsc-main"
+     },
     {"dstWormholeChainId": 5,
      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
      "dstNet": "polygon-main"
@@ -72,6 +76,11 @@ def process_v1(
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["emitterChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
+            if time.time() > int(vaa_data[1]) + 5 * 60:
+                local_logger.warning(
+                    f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} '
+                    f'beyond 5min')
+                continue
             if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(
                     f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} dstSoDiamond: {dstSoDiamond} '
@@ -121,6 +130,11 @@ def process_v2(
             except Exception as e:
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
+                continue
+            if time.time() > int(vaa_data[1]) + 5 * 60:
+                local_logger.warning(
+                    f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
+                    f'beyond 5min')
                 continue
             if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(
