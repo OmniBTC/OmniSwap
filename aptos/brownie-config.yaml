@@ -71,7 +71,6 @@ networks:
         decimal: 8
     wormhole:
       chainid: 22
-<<<<<<< HEAD
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       actual_reserve: 1.1
       estimate_reserve: 1.2

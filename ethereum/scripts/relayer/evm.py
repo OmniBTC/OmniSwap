@@ -1,6 +1,6 @@
 import logging
 import time
-from multiprocessing import Process
+from multiprocessing import Process, set_start_method
 from pathlib import Path
 
 from brownie import project, network
@@ -178,7 +178,11 @@ class Session(Process):
     def worker(self):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
-        change_network(self.dstNet)
+        try:
+            change_network(self.dstNet)
+        except:
+            logger.error(f"Connect {self.dstNet} fail")
+            return
         t1 = threading.Thread(target=process_v1, args=(
             self.dstWormholeChainId, self.dstSoDiamond))
         t2 = threading.Thread(target=process_v2, args=(
@@ -190,6 +194,7 @@ class Session(Process):
 
 
 def main():
+    set_start_method("spawn")
     project_path = Path(__file__).parent.parent.parent
     logger.info(f"Loading project...")
     for d in SUPPORTED_EVM:
