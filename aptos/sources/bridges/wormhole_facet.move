@@ -220,6 +220,13 @@ module omniswap::wormhole_facet {
         );
     }
 
+    public entry fun register_new_emitter(account: &signer) {
+        move_to(account, WormholeFacetManager {
+            emitter_cap: wormhole::register_emitter(),
+            owner: signer::address_of(account)
+        });
+    }
+
     /// Set relayer fee scale factor
     public entry fun set_wormhole_reserve(
         account: &signer,
@@ -441,9 +448,30 @@ module omniswap::wormhole_facet {
         to: address
     ) acquires WormholeFacetManager, WormholeFee {
         assert!(is_initialize(), ENOT_INITIALIZE);
-        assert!(signer::address_of(account)==@omniswap, EINVALID_ACCOUNT);
+        assert!(signer::address_of(account) == @omniswap, EINVALID_ACCOUNT);
 
         let emitter_cap = &borrow_global<WormholeFacetManager>(get_resource_address()).emitter_cap;
+        let (coin_x, _) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees() as u128) / (RAY as u128)) as u64);
+        let beneficiary = get_beneficiary_address();
+        if (so_fee > 0 && so_fee <= x_val && is_transfer<X>(beneficiary)) {
+            let coin_fee = coin::extract(&mut coin_x, so_fee);
+            transfer(coin_fee, beneficiary);
+        };
+
+        transfer(coin_x, to);
+    }
+
+    public entry fun complete_so_swap_by_emitter<X, Y, Z, M>(
+        account: &signer,
+        vaa: vector<u8>,
+        to: address
+    ) acquires WormholeFacetManager, WormholeFee {
+        assert!(is_initialize(), ENOT_INITIALIZE);
+
+        let emitter_cap = &borrow_global<WormholeFacetManager>(signer::address_of(account)).emitter_cap;
         let (coin_x, _) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
 
         let x_val = coin::value(&coin_x);
