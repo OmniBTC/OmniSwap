@@ -2,7 +2,7 @@
     "aptos-mainnet": {
         "LiquidSwap": "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12",
         "OmniBtcChainId": 1,
-        "SoDiamond": "0x0000000000000000000000000000000000000000000000000000000000000004",
+        "SoDiamond": "0x0000000000000000000000000000000000000000000000000000000000000002",
         "WormholeBridge": "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f",
         "WormholeChainId": 22,
         "WormholeSupportToken": [
