@@ -76,7 +76,7 @@ def process_v1(
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["emitterChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
-            if time.time() > int(vaa_data[1]) + 5 * 60:
+            if time.time() > int(vaa_data[1]) + 3 * 60 * 60:
                 local_logger.warning(
                     f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} '
                     f'beyond 5min')
@@ -131,7 +131,7 @@ def process_v2(
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
-            if time.time() > int(vaa_data[1]) + 5 * 60:
+            if time.time() > int(vaa_data[1]) + 3 * 60 * 60:
                 local_logger.warning(
                     f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
                     f'beyond 5min')
