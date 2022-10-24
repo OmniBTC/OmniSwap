@@ -27,7 +27,7 @@ module omniswap::wormhole_facet {
     use omniswap::u16::{U16, Self};
     use omniswap::serde;
     use omniswap::cross::{NormalizedSoData, NormalizedSwapData, padding_swap_data};
-    use omniswap::serde::{serialize_u256, deserialize_u256, serialize_vector};
+    use omniswap::serde::{serialize_u256, deserialize_u256, serialize_vector, serialize_u8};
     use omniswap::so_fee_wormhole;
     use omniswap::swap::right_type;
     use aptos_framework::timestamp;
@@ -588,15 +588,16 @@ module omniswap::wormhole_facet {
     }
 
     /// CrossData
-    // 1. dst_max_gas_price
-    // 2. dst_max_gas
+    // 1. dst_max_gas_price INTER_DELIMITER
+    // 2. dst_max_gas INTER_DELIMITER
     // 3. transactionId(SoData) INTER_DELIMITER
     // 4. receiver(SoData) INTER_DELIMITER
     // 5. receivingAssetId(SoData) INTER_DELIMITER
-    // 6. callTo(SwapData) INTER_DELIMITER
-    // 7. sendingAssetId(SwapData) INTER_DELIMITER
-    // 8. receivingAssetId(SwapData) INTER_DELIMITER
-    // 9. callData(SwapData)
+    // 6. swapDataLength(u8) INTER_DELIMITER
+    // 7. callTo(SwapData) INTER_DELIMITER
+    // 8. sendingAssetId(SwapData) INTER_DELIMITER
+    // 9. receivingAssetId(SwapData) INTER_DELIMITER
+    // 10. callData(SwapData)
     public fun encode_wormhole_payload(dst_max_gas_price: U256, dst_max_gas: U256, so_data: NormalizedSoData, swap_data_dst: vector<NormalizedSwapData>): vector<u8> {
         let data = vector::empty<u8>();
 
@@ -613,6 +614,11 @@ module omniswap::wormhole_facet {
 
         vector::push_back(&mut data, INTER_DELIMITER);
         serialize_vector(&mut data, cross::so_receiving_asset_id(so_data));
+
+        let swap_len = vector::length(&swap_data_dst);
+        if (swap_len > 0){
+            serialize_u8(&mut data, swap_len as u8);
+        };
 
         vector::reverse(&mut swap_data_dst);
         while (!vector::is_empty(&swap_data_dst)) {
@@ -639,10 +645,11 @@ module omniswap::wormhole_facet {
     // 3. transactionId(SoData) INTER_DELIMITER
     // 4. receiver(SoData) INTER_DELIMITER
     // 5. receivingAssetId(SoData) INTER_DELIMITER
-    // 6. callTo(SwapData) INTER_DELIMITER
-    // 7. sendingAssetId(SwapData) INTER_DELIMITER
-    // 8. receivingAssetId(SwapData) INTER_DELIMITER
-    // 9. callData(SwapData)
+    // 6. swapDataLength(u8) INTER_DELIMITER
+    // 7. callTo(SwapData) INTER_DELIMITER
+    // 8. sendingAssetId(SwapData) INTER_DELIMITER
+    // 9. receivingAssetId(SwapData) INTER_DELIMITER
+    // 10. callData(SwapData)
     public fun decode_wormhole_payload(data: &vector<u8>): (U256, U256, NormalizedSoData, vector<NormalizedSwapData>) {
         let len = vector::length(data);
         assert!(len > 0, EINVALID_LENGTH);
@@ -666,6 +673,10 @@ module omniswap::wormhole_facet {
         let so_receiving_asset_id = *vector::borrow(&split_data, i);
         let so_data = cross::padding_so_data(so_transaction_id, so_receiver, so_receiving_asset_id);
 
+        // Skip swap data length
+        i = i + 1;
+
+        // Swap data
         let swap_data = vector::empty<NormalizedSwapData>();
         while (i < vector::length(&split_data)) {
             i = i + 1;
