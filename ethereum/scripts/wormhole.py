@@ -44,6 +44,22 @@ def get_stable_coin_address(net):
         return ("usdt", config["networks"][net]["token"]["usdt"]["address"])
 
 
+def get_usdc_address(net):
+    from brownie import config
+    try:
+        return config["networks"][net]["token"]["usdc"]["address"]
+    except Exception:
+        return None
+
+
+def get_usdt_address(net):
+    from brownie import config
+    try:
+        return config["networks"][net]["token"]["usdt"]["address"]
+    except Exception:
+        return None
+
+
 def get_weth_address(net):
     from brownie import config
     try:
@@ -54,25 +70,25 @@ def get_weth_address(net):
 
 def get_net_from_wormhole_chainid(chainid):
     if chainid == 2:
-        return "goerli"
+        return "mainnet"
     elif chainid == 4:
-        return "bsc-test"
+        return "bsc-main"
     elif chainid == 5:
-        return "polygon-test"
+        return "polygon-main"
     elif chainid == 6:
-        return "avax-test"
+        return "avax-main"
     elif chainid == 10:
-        return "ftm-test"
+        return "ftm-main"
 
 
 def get_native_token_name(net):
-    if net == "avax-test":
+    if "avax" in net:
         return "AVAX"
-    elif net == "bsc-test":
+    elif "bsc" in net:
         return "BNB"
-    elif net == "ftm-test":
+    elif "ftm" in net:
         return "FTM"
-    elif net == "polygon-test":
+    elif "polygon" in net:
         return "MATIC"
     else:
         return "ETH"
@@ -121,30 +137,44 @@ def get_all_warpped_token():
         "IWormholeBridge", get_wormhole_bridge(), interface.IWormholeBridge.abi)
 
     current_net = network.show_active()
-    (current_coin_name, current_stable_coin) = get_stable_coin_address(current_net)
-    print(
-        f'current net: {current_net}, {current_coin_name} [{current_stable_coin}]\n')
+
     src_wormhole_chain_id = get_wormhole_chainid()
     chain_path = []
     for net in support_networks:
         if net == current_net:
             continue
+        print(f"{net} --> {current_net}")
+
         wormhole_chain_id = config["networks"][net]["wormhole"]["chainid"]
-        (stable_coin_name, stable_coin_address) = get_stable_coin_address(net)
         weth = get_weth_address(net)
-        wrapped_token = token_bridge.wrappedAsset(
-            wormhole_chain_id, stable_coin_address)
+        usdc_address = get_usdc_address(net)
+        usdt_address = get_usdt_address(net)
         wrapped_eth = token_bridge.wrappedAsset(
             wormhole_chain_id, weth)
-        if wrapped_token != zero_address():
-            chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_token,
-                              "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": stable_coin_address})
+
         chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_eth,
                           "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": zero_address()})
+
+        if usdc_address != None:
+            wrapped_usdc_token = token_bridge.wrappedAsset(
+                wormhole_chain_id, usdc_address)
+            if wrapped_usdc_token != zero_address():
+                chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_usdc_token,
+                                   "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": usdc_address})
+                print(
+                    f'{net}: usdc [{usdc_address}] -> {current_net}: usdc [{wrapped_usdc_token}]')
+
+        if usdt_address != None:
+            wrapped_usdt_token = token_bridge.wrappedAsset(
+                wormhole_chain_id, usdt_address)
+            if wrapped_usdt_token != zero_address():
+                chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_usdt_token,
+                                   "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": usdt_address})
+                print(
+                    f'{net}: usdt [{usdt_address}] -> {current_net}: usdt [{wrapped_usdt_token}]')
+
         native_token_name = get_native_token_name(net)
-        print(f"{net} --> {current_net} ")
-        print(
-            f'{net}: {stable_coin_name} [{stable_coin_address}] -> {current_net}: {stable_coin_name} [{wrapped_token}]')
+
         print(
             f'{net}: {native_token_name} -> {current_net}: W{native_token_name} [{wrapped_eth}]\n')
 
