@@ -133,7 +133,8 @@ def get_pending_data(url: str = None) -> list:
         blockTimestamp': 0}]
     """
     if url is None:
-        url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+        # url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+        url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     try:
         response = requests.get(url)
         return response.json()["record"]

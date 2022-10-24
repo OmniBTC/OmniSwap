@@ -134,7 +134,8 @@ def get_pending_data(url: str = None) -> list:
         blockTimestamp': 0}]
     """
     if url is None:
-        url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+        # url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+        url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     try:
         response = requests.get(url)
         return response.json()["record"]
@@ -282,11 +283,11 @@ def process_v2(
 
 def main():
     t1 = threading.Thread(target=process_v1, args=(22, package.network_config["SoDiamond"]))
-    t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
+    # t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
     t1.start()
-    t2.start()
+    # t2.start()
     t1.join()
-    t2.join()
+    # t2.join()
 
 
 def single_process():

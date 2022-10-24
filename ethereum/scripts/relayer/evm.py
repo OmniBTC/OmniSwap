@@ -34,6 +34,7 @@ SUPPORTED_EVM = [
      },
 ]
 
+
 # SUPPORTED_EVM = [
 #     {"dstWormholeChainId": 4,
 #      "dstSoDiamond": "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228",
@@ -185,12 +186,20 @@ class Session(Process):
             return
         t1 = threading.Thread(target=process_v1, args=(
             self.dstWormholeChainId, self.dstSoDiamond))
-        t2 = threading.Thread(target=process_v2, args=(
-            self.dstWormholeChainId, self.dstSoDiamond))
+        # t2 = threading.Thread(target=process_v2, args=(
+        #     self.dstWormholeChainId, self.dstSoDiamond))
         t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
+        # t2.start()
+        while True:
+            if not t1.is_alive():
+                if not network.is_connected():
+                    change_network(self.dstNet)
+                t1.start()
+            # if not t2.is_alive():
+            #     if not network.is_connected():
+            #         change_network(self.dstNet)
+            #     t2.start()
+            time.sleep(10 * 60 * 60)
 
 
 def main():
