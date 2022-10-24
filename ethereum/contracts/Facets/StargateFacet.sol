@@ -33,8 +33,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
 
     struct Storage {
-        address stargate; // stargate route address
+        address stargate; // The stargate route address
         uint16 srcStargateChainId; // The stargate chain id of the source/current chain
+        mapping(address => uint256) approveAmount; // Use less than the amount of the transaction fee to estimate the dst gas
     }
 
     /// Types ///
@@ -51,6 +52,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Events ///
 
     event StargateInitialized(address stargate, uint256 chainId);
+    event SetApproveAmount(address token, uint256 amount);
 
     /// Init ///
 
@@ -64,6 +66,17 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         s.stargate = stargate;
         s.srcStargateChainId = chainId;
         emit StargateInitialized(stargate, chainId);
+    }
+
+    /// @dev Add a withdrawal limit for a token to prevent the interface
+    ///      used to estimate fees from being used for withdrawals.
+    /// @param token token address
+    /// @param amount approved amount
+    function setApproveAmount(address token, uint256 amount) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.approveAmount[token] = amount;
+        emit SetApproveAmount(token, amount);
     }
 
     /// External Methods ///
@@ -234,11 +247,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             address correctSwap = appStorage.correctSwapRouterSelectors;
 
             if (correctSwap != address(0)) {
-                swapDataDst[0].callData = ICorrectSwap(correctSwap)
-                    .correctSwap(
-                        swapDataDst[0].callData,
-                        swapDataDst[0].fromAmount
-                    );
+                swapDataDst[0].callData = ICorrectSwap(correctSwap).correctSwap(
+                    swapDataDst[0].callData,
+                    swapDataDst[0].fromAmount
+                );
             }
 
             uint256 amountFinal = this.executeAndCheckSwaps(
@@ -270,7 +282,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         LibSwap.NormalizedSwapData[] calldata swapDataDstNo
     ) external {
         address token = _getStargateTokenByPoolId(dstStargatePoolId);
-        uint256 amount = LibAsset.getOwnBalance(token);
+        Storage storage s = getStorage();
+        uint256 approveAmount = s.approveAmount[token];
+        uint256 ownBalance = LibAsset.getOwnBalance(token);
+        uint256 amount = approveAmount < ownBalance && approveAmount > 0
+            ? approveAmount
+            : ownBalance;
+
         if (amount == 0) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
