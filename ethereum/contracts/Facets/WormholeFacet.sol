@@ -228,20 +228,6 @@ contract WormholeFacet is Swapper {
         );
     }
 
-    /// @notice Receiving chain's native tokens crossed over from other chains
-    /// @dev for relayer automatic call
-    function completeTransferAndUnwrapETHWithPayload(bytes memory encodeVm)
-        external
-    {
-        completeSoSwap(encodeVm);
-    }
-
-    /// @notice Receiving erc20 tokens crossed over from other chains
-    /// @dev for relayer automatic call
-    function completeTransferWithPayload(bytes memory encodeVm) external {
-        completeSoSwap(encodeVm);
-    }
-
     /// @notice Users can manually call for cross-chain tokens
     function completeSoSwap(bytes memory encodeVm) public {
         Storage storage s = getStorage();

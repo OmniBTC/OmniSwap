@@ -8,7 +8,7 @@ module omniswap::serde {
     use omniswap::u256::{U256, Self};
 
     use aptos_std::type_info;
-    
+
     use aptos_framework::util;
 
     const EINVALID_LENGTH: u64 = 0x00;
@@ -71,7 +71,7 @@ module omniswap::serde {
     }
 
     public fun serialize_type<T>(buf: &mut vector<u8>) {
-        serialize_vector(buf,  *string::bytes(&type_info::type_name<T>()));
+        serialize_vector(buf, *string::bytes(&type_info::type_name<T>()));
     }
 
     public fun serialize_vector_with_length(buf: &mut vector<u8>, v: vector<u8>) {
@@ -138,7 +138,7 @@ module omniswap::serde {
         util::address_from_bytes(*buf)
     }
 
-    public fun get_vector_length(buf: &vector<u8>): u64{
+    public fun get_vector_length(buf: &vector<u8>): u64 {
         deserialize_u64(&vector_slice(buf, 0, 8))
     }
 
@@ -162,6 +162,23 @@ module omniswap::serde {
             i = i + 1;
         };
         slice
+    }
+
+    // todo! add test
+    public fun vector_split<T: copy + drop>(vec: &vector<T>, e: T): vector<vector<T>> {
+        let split = vector::empty<vector<T>>();
+        let start = 0;
+        let end = 0;
+        while (end < vector::length(vec)) {
+            if (*vector::borrow(vec, end) == e) {
+                if (start < end) {
+                    vector::push_back(&mut split, vector_slice(vec, start, end));
+                };
+                start = end + 1;
+            };
+            end = end + 1;
+        };
+        split
     }
 
     #[test]

@@ -11,7 +11,7 @@ module omniswap::swap {
     use omniswap::cross::{NormalizedSwapData, Self};
 
     // Swap call data delimiter, represent ","
-    const DELIMITER: u8 = 44;
+    const INNER_DELIMITER: u8 = 44;
 
     /// Error Codes
     const EINVALID_LENGTH: u64 = 0x00;
@@ -43,7 +43,7 @@ module omniswap::swap {
 
             let raw_call_data = cross::swap_call_data(data);
             let min_amount = 0;
-            let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+            let (flag, index) = vector::index_of(&raw_call_data, &INNER_DELIMITER);
             let call_data;
             if (flag) {
                 call_data = serde::vector_slice(&raw_call_data, 0, index);
@@ -81,7 +81,7 @@ module omniswap::swap {
 
             let raw_call_data = cross::swap_call_data(data);
             let min_amount = 0;
-            let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+            let (flag, index) = vector::index_of(&raw_call_data, &INNER_DELIMITER);
             let call_data;
             if (flag) {
                 call_data = serde::vector_slice(&raw_call_data, 0, index);
