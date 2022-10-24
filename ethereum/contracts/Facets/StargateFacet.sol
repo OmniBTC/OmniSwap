@@ -155,6 +155,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 amount,
         bytes memory payload
     ) external {
+        Storage storage s = getStorage();
+        require(msg.sender == s.stargate, "Not router");
+
         if (LibAsset.getOwnBalance(token) < amount) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
@@ -196,7 +199,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
     }
 
-    /// @dev convenient for sgReceive to catch exceptions
+    /// @dev For internal calls only, do not add it to DiamondCut,
+    ///      convenient for sgReceive to catch exceptions
     function remoteSoSwap(
         address token,
         uint256 amount,
