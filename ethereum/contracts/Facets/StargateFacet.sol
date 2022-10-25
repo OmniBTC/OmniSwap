@@ -296,20 +296,22 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         LibSwap.NormalizedSwapData[] calldata swapDataDstNo
     ) external {
         address token = _getStargateTokenByPoolId(dstStargatePoolId);
-        Storage storage s = getStorage();
-        uint256 approveAmount = s.approveAmount[token];
-        uint256 ownBalance = LibAsset.getOwnBalance(token);
-        uint256 amount = approveAmount < ownBalance && approveAmount > 0
-            ? approveAmount
-            : ownBalance;
+        uint256 amount = LibAsset.getOwnBalance(token);
 
         if (amount == 0) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
                 "Token error"
             );
-            amount = LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID);
+            token = LibAsset.NATIVE_ASSETID;
+            amount = LibAsset.getOwnBalance(token);
         }
+
+        Storage storage s = getStorage();
+        uint256 approveAmount = s.approveAmount[token];
+        amount = approveAmount < amount && approveAmount > 0
+            ? approveAmount
+            : amount;
 
         require(amount > 0, "sgReceiveForGas need a little amount token!");
         bytes memory payload = getSgReceiveForGasPayload(
