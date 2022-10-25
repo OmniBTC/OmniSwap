@@ -35,6 +35,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     struct Storage {
         address stargate; // The stargate route address
         uint16 srcStargateChainId; // The stargate chain id of the source/current chain
+        mapping(address => bool) allowedList; // Permission to allow calls to sgReceive
         mapping(address => uint256) approveAmount; // Use less than the amount of the transaction fee to estimate the dst gas
     }
 
@@ -53,6 +54,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     event StargateInitialized(address stargate, uint256 chainId);
     event SetApproveAmount(address token, uint256 amount);
+    event SetAllowedList(address router, bool isAllowed);
 
     /// Init ///
 
@@ -77,6 +79,14 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         Storage storage s = getStorage();
         s.approveAmount[token] = amount;
         emit SetApproveAmount(token, amount);
+    }
+
+    /// @dev Set permissions to control calls to sgReceive
+    function setAllowedAddress(address router, bool isAllowed) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.allowedList[router] = isAllowed;
+        emit SetAllowedList(router, isAllowed);
     }
 
     /// External Methods ///
@@ -156,7 +166,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         bytes memory payload
     ) external {
         Storage storage s = getStorage();
-        require(msg.sender == s.stargate, "Not router");
+        require(s.allowedList[msg.sender], "No permission");
 
         if (LibAsset.getOwnBalance(token) < amount) {
             require(
