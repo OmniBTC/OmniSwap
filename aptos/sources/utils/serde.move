@@ -10,10 +10,13 @@ module omniswap::serde {
     use aptos_std::type_info;
 
     use aptos_framework::util;
+    use aptos_std::debug::print;
 
     const EINVALID_LENGTH: u64 = 0x00;
 
-    const U64_MAX: u64= 0xFFFFFFFFFFFFFFFF;
+    const OVERFLOW: u64 = 0x01;
+
+    const U64_MAX: u64 = 0xFFFFFFFFFFFFFFFF;
 
     const U128_MAX: u128 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
@@ -62,6 +65,76 @@ module omniswap::serde {
         let v0 = u256::shr(v, 128);
         serialize_u128(buf, u256::as_u128(v0));
         serialize_u128(buf, u256::as_truncate_u128(v));
+    }
+
+    // [0, 9] --> ['0', '9']
+    // [10, 15] --> ['a', 'f']
+    public fun hex_str_to_ascii(v: u8): u8 {
+        print(&444444);
+        print(&v);
+        if (v >= 0 && v <= 9) {
+            v + 48
+        }else if (v <= 16) {
+            v + 87
+        }else {
+            abort OVERFLOW
+        }
+    }
+
+    // ['0', '9'] --> [0, 9]
+    // ['a', 'f'] --> [10, 15]
+    public fun ascii_to_hex_str(v: u8): u8 {
+        if (v >= 48 && v <= 57) {
+            v - 48
+        }else if (v >= 97 && v <= 102) {
+            v - 87
+        }else {
+            abort OVERFLOW
+        }
+    }
+
+    public fun serialize_u128_with_hex_str(buf: &mut vector<u8>, v: u128) {
+        let data = vector::empty<u8>();
+        serialize_u8(&mut data, hex_str_to_ascii(((v & 0xF) as u8)));
+        let d = (v >> 4);
+        while (d != 0) {
+            serialize_u8(&mut data, hex_str_to_ascii(((d & 0xF) as u8)));
+            d = d >> 4;
+        };
+        vector::reverse(&mut data);
+        vector::append(buf, data);
+    }
+
+    public fun deserialize_u128_with_hex_str(buf: &mut vector<u8>): u128 {
+        let data: u128 = 0;
+        let i = 0;
+        while (i < vector::length(buf)) {
+            data = (data << 4) + (ascii_to_hex_str(*vector::borrow(buf, i)) as u128);
+            i = i + 1;
+        };
+        data
+    }
+
+    public fun deserialize_u256_with_hex_str(buf: &mut vector<u8>): U256 {
+        let len = vector::length(buf);
+        assert!(len <= 64, EINVALID_LENGTH);
+        let data = u256::zero();
+        if (len > 32) {
+            let high_bit = len - 32;
+            let high = deserialize_u128_with_hex_str(&mut vector_slice(buf, 0, high_bit));
+            data = u256::shl(u256::from_u128(high), 128);
+            let low = deserialize_u128_with_hex_str(&mut vector_slice(buf, high_bit, len));
+            data = u256::add(data, u256::from_u128(low));
+        };
+        data
+    }
+
+    public fun serialize_u256_with_hex_str(buf: &mut vector<u8>, v: U256) {
+        let v0 = u256::shr(v, 128);
+        if (v0 != u256::zero()) {
+            serialize_u128_with_hex_str(buf, u256::as_u128(v0));
+        };
+        serialize_u128_with_hex_str(buf, u256::as_truncate_u128(v));
     }
 
     public fun serialize_u256_compressed(buf: &mut vector<u8>, v: U256) {
@@ -152,9 +225,9 @@ module omniswap::serde {
         assert!(vector::length(buf) <= 32, error::invalid_argument(EINVALID_LENGTH));
         let data = vector::empty<u8>();
         let i = 0;
-        while(i < 32 - vector::length(buf)){
+        while (i < 32 - vector::length(buf)) {
             vector::push_back(&mut data, 0);
-            i = i+1;
+            i = i + 1;
         };
         vector::append(&mut data, *buf);
         deserialize_u256(&data)
@@ -205,6 +278,9 @@ module omniswap::serde {
             };
             end = end + 1;
         };
+        if (start < end) {
+            vector::push_back(&mut split, vector_slice(vec, start, end));
+        };
         split
     }
 
@@ -235,6 +311,13 @@ module omniswap::serde {
         let data = vector::empty<u8>();
         serialize_vector_with_length(&mut data, vector<u8>[1, 2, 3, 4, 5, 6, 7, 8]);
         assert!(data == vector<u8>[0, 0, 0, 0, 0, 0, 0, 8, 1, 2, 3, 4, 5, 6, 7, 8], 0);
+
+        let data = vector::empty<u8>();
+        let v0 = u256::shl(u256::from_u128(1339673755198158349044581307228491536), 128);
+        let v1 = u256::add(u256::from_u128(22690724228668807036942595891182575392), v0);
+        serialize_u256_with_hex_str(&mut data, v1);
+        print(&data);
+        assert!(data == vector<u8>[49, 48, 50, 48, 51, 48, 52, 48, 53, 48, 54, 48, 55, 48, 56, 48, 57, 48, 97, 48, 98, 48, 99, 48, 100, 48, 101, 48, 102, 49, 48, 49, 49, 49, 50, 49, 51, 49, 52, 49, 53, 49, 54, 49, 55, 49, 56, 49, 57, 49, 97, 49, 98, 49, 99, 49, 100, 49, 101, 49, 102, 50, 48], 0);
     }
 
     #[test]
