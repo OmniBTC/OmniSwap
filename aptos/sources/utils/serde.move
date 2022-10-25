@@ -13,6 +13,10 @@ module omniswap::serde {
 
     const EINVALID_LENGTH: u64 = 0x00;
 
+    const U64_MAX: u64= 0xFFFFFFFFFFFFFFFF;
+
+    const U128_MAX: u128 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+
     public fun serialize_u8(buf: &mut vector<u8>, v: u8) {
         vector::push_back(buf, v);
     }
@@ -58,6 +62,16 @@ module omniswap::serde {
         let v0 = u256::shr(v, 128);
         serialize_u128(buf, u256::as_u128(v0));
         serialize_u128(buf, u256::as_truncate_u128(v));
+    }
+
+    public fun serialize_u256_compressed(buf: &mut vector<u8>, v: U256) {
+        if (u256::compare(&v, &u256::from_u64(U64_MAX)) != 2) {
+            serialize_u64(buf, u256::as_u64(v));
+        }else if (u256::compare(&v, &u256::from_u128(U128_MAX)) != 2) {
+            serialize_u128(buf, u256::as_u128(v));
+        }else {
+            serialize_u256(buf, v);
+        };
     }
 
     public fun serialize_vector(buf: &mut vector<u8>, v: vector<u8>) {
@@ -131,6 +145,19 @@ module omniswap::serde {
         let v0 = u256::from_u128(deserialize_u128(&vector_slice(buf, 0, 16)));
         let v1 = u256::from_u128(deserialize_u128(&vector_slice(buf, 16, 32)));
         u256::add(u256::shl(v0, 128), v1)
+    }
+
+    // todo! add test
+    public fun deserialize_u256_compressed(buf: &vector<u8>): U256 {
+        assert!(vector::length(buf) <= 32, error::invalid_argument(EINVALID_LENGTH));
+        let data = vector::empty<u8>();
+        let i = 0;
+        while(i < 32 - vector::length(buf)){
+            vector::push_back(&mut data, 0);
+            i = i+1;
+        };
+        vector::append(&mut data, *buf);
+        deserialize_u256(&data)
     }
 
     public fun deserialize_address(buf: &vector<u8>): address {
