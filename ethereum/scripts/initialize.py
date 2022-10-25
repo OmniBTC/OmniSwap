@@ -189,7 +189,8 @@ def redeploy_wormhole():
     print("Deploy LibSoFeeWormholeV1...")
     LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
     print("AddFee ...")
-    proxy_dex.addFee(get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {'from': account})
+    proxy_dex.addFee(get_wormhole_bridge(),
+                     LibSoFeeWormholeV1[-1].address, {'from': account})
     initialize_wormhole_fee(account)
 
 
@@ -198,25 +199,30 @@ def set_relayer_fee():
     if network.show_active() == "avax-main":
         # bnb
         dst_wormhole_id = 2
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(300 / 15 * decimal), {"from": get_account()})
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                             int(300 / 15 * decimal), {"from": get_account()})
         # aptos
         dst_wormhole_id = 22
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 15 * decimal), {"from": get_account()})
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                             int(8 / 15 * decimal), {"from": get_account()})
 
     if network.show_active() == "mainnet":
         # aptos
         dst_wormhole_id = 22
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 1250 * decimal), {"from": get_account()})
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                             int(8 / 1250 * decimal), {"from": get_account()})
 
     if network.show_active() == "polygon-main":
         # aptos
         dst_wormhole_id = 22
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 0.7 * decimal), {"from": get_account()})
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                             int(8 / 0.7 * decimal), {"from": get_account()})
 
     if network.show_active() == "bsc-main":
         # aptos
         dst_wormhole_id = 22
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id, int(8 / 250 * decimal), {"from": get_account()})
+        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                             int(8 / 250 * decimal), {"from": get_account()})
 
 
 def remove_facet():
@@ -259,6 +265,8 @@ def add_cut(contracts: list = None):
         reg_facet = contract[-1]
         reg_funcs = get_method_signature_by_abi(contract.abi)
         for func_name in list(reg_funcs.keys()):
+            if func_name == "remoteSoSwap":
+                continue
             if func_name in register_funcs:
                 if reg_funcs[func_name] in register_funcs[func_name]:
                     print(f"function:{func_name} has been register!")
