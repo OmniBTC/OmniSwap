@@ -617,7 +617,8 @@ module omniswap::wormhole_facet {
 
         let swap_len = vector::length(&swap_data_dst);
         if (swap_len > 0){
-            serialize_u8(&mut data, swap_len as u8);
+            vector::push_back(&mut data, INTER_DELIMITER);
+            serialize_u8(&mut data, (swap_len as u8));
         };
 
         vector::reverse(&mut swap_data_dst);

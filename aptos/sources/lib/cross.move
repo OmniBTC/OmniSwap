@@ -6,9 +6,6 @@ module omniswap::cross {
     use omniswap::u16::{U16, Self};
     use omniswap::u256::{U256, Self};
 
-    #[test_only]
-    use omniswap::u256;
-
     const EINVALID_LENGTH: u64 = 0x00;
 
     struct NormalizedSoData has drop, copy {
