@@ -141,6 +141,7 @@ module omniswap::wormhole_facet {
 
     struct SoTransferCompleted has store, drop {
         transaction_id: vector<u8>,
+        actual_receiving_amount: u64,
     }
 
     /// Helpers
@@ -419,19 +420,22 @@ module omniswap::wormhole_facet {
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
-
+        let receiving_amount = coin::value(&coin_x);
         if (vector::length(&swap_data_dst) > 0) {
             if (vector::length(&swap_data_dst) == 1) {
                 let coin_y = swap::swap_two_by_coin<X, Y>(coin_x, swap_data_dst);
 
+                receiving_amount = coin::value(&coin_y);
                 transfer(coin_y, receiver);
             }else if (vector::length(&swap_data_dst) == 2) {
                 let coin_z = swap::swap_three_by_coin<X, Y, Z>(coin_x, swap_data_dst);
 
+                receiving_amount = coin::value(&coin_z);
                 transfer(coin_z, receiver);
             }else if (vector::length(&swap_data_dst) == 3) {
                 let coin_m = swap::swap_four_by_coin<X, Y, Z, M>(coin_x, swap_data_dst);
 
+                receiving_amount = coin::value(&coin_m);
                 transfer(coin_m, receiver);
             }else {
                 abort EINVALID_LENGTH
@@ -444,7 +448,8 @@ module omniswap::wormhole_facet {
         event::emit_event<SoTransferCompleted>(
             &mut so_transfer_event_handle.so_transfer_completed,
             SoTransferCompleted {
-                transaction_id: cross::so_transaction_id(so_data)
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
             }
         )
     }
