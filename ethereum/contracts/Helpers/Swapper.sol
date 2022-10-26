@@ -21,17 +21,17 @@ contract Swapper is ISo {
     /// Modifiers ///
 
     /// @dev Sends any leftover balances back to the user
-    modifier noLeftovers(LibSwap.SwapData[] calldata _swapData) {
-        uint256 nSwaps = _swapData.length;
+    modifier noLeftovers(LibSwap.SwapData[] calldata swapData) {
+        uint256 nSwaps = swapData.length;
         if (nSwaps != 1) {
-            uint256[] memory initialBalances = _fetchBalances(_swapData);
-            address finalAsset = _swapData[nSwaps - 1].receivingAssetId;
+            uint256[] memory initialBalances = _fetchBalances(swapData);
+            address finalAsset = swapData[nSwaps - 1].receivingAssetId;
             uint256 curBalance = 0;
 
             _;
 
             for (uint256 i = 0; i < nSwaps - 1; i++) {
-                address curAsset = _swapData[i].receivingAssetId;
+                address curAsset = swapData[i].receivingAssetId;
                 if (curAsset == finalAsset) continue; // Handle multi-to-one swaps
                 curBalance =
                     LibAsset.getOwnBalance(curAsset) -
@@ -49,56 +49,56 @@ contract Swapper is ISo {
     /// External Methods ///
 
     /// @dev Validates input before executing swaps
-    /// @param _soData So tracking data
-    /// @param _swapData Array of data used to execute swaps
+    /// @param soData So tracking data
+    /// @param swapData Array of data used to execute swaps
     function executeAndCheckSwaps(
-        SoData memory _soData,
-        LibSwap.SwapData[] calldata _swapData
+        SoData memory soData,
+        LibSwap.SwapData[] calldata swapData
     ) external returns (uint256) {
-        uint256 nSwaps = _swapData.length;
+        uint256 nSwaps = swapData.length;
         if (nSwaps == 0) revert NoSwapDataProvided();
-        address finalTokenId = _swapData[_swapData.length - 1].receivingAssetId;
+        address finalTokenId = swapData[swapData.length - 1].receivingAssetId;
         uint256 swapBalance = LibAsset.getOwnBalance(finalTokenId);
-        _executeSwaps(_soData, _swapData);
+        _executeSwaps(soData, swapData);
         swapBalance = LibAsset.getOwnBalance(finalTokenId) - swapBalance;
         if (swapBalance == 0) revert InvalidAmount();
         return swapBalance;
     }
 
-    /// Public Methods ///
+    /// Internal Methods ///
 
     /// @dev Convert to wrapped eth. As long as it is successful, it must be converted
-    /// from the currentAssetId to the expectedAssetId of the amount
+    ///      from the currentAssetId to the expectedAssetId of the amount.
     function deposit(
-        address _currentAssetId,
-        address _expectAssetId,
-        uint256 _amount
-    ) public payable {
-        if (_currentAssetId == _expectAssetId) {
+        address currentAssetId,
+        address expectAssetId,
+        uint256 amount
+    ) internal {
+        if (currentAssetId == expectAssetId) {
             require(
-                LibAsset.getOwnBalance(_currentAssetId) >= _amount,
+                LibAsset.getOwnBalance(currentAssetId) >= amount,
                 "Deposit not enough"
             );
             return;
         }
 
-        if (LibAsset.isNativeAsset(_currentAssetId)) {
+        if (LibAsset.isNativeAsset(currentAssetId)) {
             // eth -> weth
             try
-                IStargateEthVault(_expectAssetId).deposit{value: _amount}()
+                IStargateEthVault(expectAssetId).deposit{value: amount}()
             {} catch {
                 revert("Deposit fail");
             }
         } else {
             // weth -> eth -> weth
-            if (_currentAssetId != _expectAssetId) {
+            if (currentAssetId != expectAssetId) {
                 try
-                    IStargateEthVault(_currentAssetId).withdraw(_amount)
+                    IStargateEthVault(currentAssetId).withdraw(amount)
                 {} catch {
                     revert("Deposit withdraw fail");
                 }
                 try
-                    IStargateEthVault(_expectAssetId).deposit{value: _amount}()
+                    IStargateEthVault(expectAssetId).deposit{value: amount}()
                 {} catch {
                     revert("Withdraw deposit fail");
                 }
@@ -108,43 +108,43 @@ contract Swapper is ISo {
 
     /// @dev Convert wrapped eth to eth and Transfer.
     function withdraw(
-        address _currentAssetId,
-        address _expectAssetId,
-        uint256 _amount,
-        address _receiver
-    ) public {
-        if (LibAsset.isNativeAsset(_expectAssetId)) {
-            if (_currentAssetId != _expectAssetId) {
+        address currentAssetId,
+        address expectAssetId,
+        uint256 amount,
+        address receiver
+    ) internal {
+        if (LibAsset.isNativeAsset(expectAssetId)) {
+            if (currentAssetId != expectAssetId) {
                 // weth -> eth
                 try
-                    IStargateEthVault(_currentAssetId).withdraw(_amount)
+                    IStargateEthVault(currentAssetId).withdraw(amount)
                 {} catch {
                     revert("Withdraw fail");
                 }
             }
         } else {
-            require(_currentAssetId == _expectAssetId, "AssetId not match");
+            require(currentAssetId == expectAssetId, "AssetId not match");
         }
-        if (_receiver != address(this)) {
+        if (receiver != address(this)) {
             require(
-                LibAsset.getOwnBalance(_expectAssetId) >= _amount,
+                LibAsset.getOwnBalance(expectAssetId) >= amount,
                 "Withdraw not enough"
             );
-            LibAsset.transferAsset(_expectAssetId, payable(_receiver), _amount);
+            LibAsset.transferAsset(expectAssetId, payable(receiver), amount);
         }
     }
 
     /// Private Methods ///
 
     /// @dev Executes swaps and checks that DEXs used are in the allowList
-    /// @param _soData So tracking data
-    /// @param _swapData Array of data used to execute swaps
+    /// @param soData So tracking data
+    /// @param swapData Array of data used to execute swaps
     function _executeSwaps(
-        SoData memory _soData,
-        LibSwap.SwapData[] calldata _swapData
+        SoData memory soData,
+        LibSwap.SwapData[] calldata swapData
     ) private {
-        LibSwap.SwapData memory currentSwapData = _swapData[0];
-        for (uint256 i = 0; i < _swapData.length; i++) {
+        LibSwap.SwapData memory currentSwapData = swapData[0];
+        for (uint256 i = 0; i < swapData.length; i++) {
             address receivedToken = currentSwapData.receivingAssetId;
             uint256 swapBalance = LibAsset.getOwnBalance(receivedToken);
 
@@ -158,12 +158,12 @@ contract Swapper is ISo {
                     ])
             ) revert ContractCallNotAllowed();
 
-            LibSwap.swap(_soData.transactionId, currentSwapData);
+            LibSwap.swap(soData.transactionId, currentSwapData);
 
             swapBalance = LibAsset.getOwnBalance(receivedToken) - swapBalance;
 
-            if (i + 1 < _swapData.length) {
-                currentSwapData = _swapData[i + 1];
+            if (i + 1 < swapData.length) {
+                currentSwapData = swapData[i + 1];
                 address correctSwap = appStorage.correctSwapRouterSelectors;
                 if (correctSwap == address(0)) revert NotSupportedSwapRouter();
                 currentSwapData.fromAmount = swapBalance;
@@ -177,17 +177,17 @@ contract Swapper is ISo {
     }
 
     /// @dev Fetches balances of tokens to be swapped before swapping.
-    /// @param _swapData Array of data used to execute swaps
+    /// @param swapData Array of data used to execute swaps
     /// @return uint256[] Array of token balances.
-    function _fetchBalances(LibSwap.SwapData[] calldata _swapData)
+    function _fetchBalances(LibSwap.SwapData[] calldata swapData)
         private
         view
         returns (uint256[] memory)
     {
-        uint256 length = _swapData.length;
+        uint256 length = swapData.length;
         uint256[] memory balances = new uint256[](length);
         for (uint256 i = 0; i < length; i++)
-            balances[i] = LibAsset.getOwnBalance(_swapData[i].receivingAssetId);
+            balances[i] = LibAsset.getOwnBalance(swapData[i].receivingAssetId);
         return balances;
     }
 }

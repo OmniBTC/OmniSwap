@@ -33,8 +33,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
 
     struct Storage {
-        address stargate; // stargate route address
+        address stargate; // The stargate route address
         uint16 srcStargateChainId; // The stargate chain id of the source/current chain
+        mapping(address => bool) allowedList; // Permission to allow calls to sgReceive
+        mapping(address => uint256) approveAmount; // Use less than the amount of the transaction fee to estimate the dst gas
     }
 
     /// Types ///
@@ -51,6 +53,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Events ///
 
     event StargateInitialized(address stargate, uint256 chainId);
+    event SetApproveAmount(address token, uint256 amount);
+    event SetAllowedList(address router, bool isAllowed);
 
     /// Init ///
 
@@ -63,7 +67,28 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         Storage storage s = getStorage();
         s.stargate = stargate;
         s.srcStargateChainId = chainId;
+        s.allowedList[stargate] = true;
+        s.allowedList[msg.sender] = true;
         emit StargateInitialized(stargate, chainId);
+    }
+
+    /// @dev Add a withdrawal limit for a token to prevent the interface
+    ///      used to estimate fees from being used for withdrawals.
+    /// @param token token address
+    /// @param amount approved amount
+    function setApproveAmount(address token, uint256 amount) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.approveAmount[token] = amount;
+        emit SetApproveAmount(token, amount);
+    }
+
+    /// @dev Set permissions to control calls to sgReceive
+    function setAllowedAddress(address router, bool isAllowed) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.allowedList[router] = isAllowed;
+        emit SetAllowedList(router, isAllowed);
     }
 
     /// External Methods ///
@@ -142,6 +167,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 amount,
         bytes memory payload
     ) external {
+        Storage storage s = getStorage();
+        require(s.allowedList[msg.sender], "No permission");
+
         if (LibAsset.getOwnBalance(token) < amount) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
@@ -183,7 +211,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         }
     }
 
-    /// @dev convenient for sgReceive to catch exceptions
+    /// @dev For internal calls only, do not add it to DiamondCut,
+    ///      convenient for sgReceive to catch exceptions
     function remoteSoSwap(
         address token,
         uint256 amount,
@@ -234,11 +263,10 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             address correctSwap = appStorage.correctSwapRouterSelectors;
 
             if (correctSwap != address(0)) {
-                swapDataDst[0].callData = ICorrectSwap(correctSwap)
-                    .correctSwap(
-                        swapDataDst[0].callData,
-                        swapDataDst[0].fromAmount
-                    );
+                swapDataDst[0].callData = ICorrectSwap(correctSwap).correctSwap(
+                    swapDataDst[0].callData,
+                    swapDataDst[0].fromAmount
+                );
             }
 
             uint256 amountFinal = this.executeAndCheckSwaps(
@@ -271,13 +299,21 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     ) external {
         address token = _getStargateTokenByPoolId(dstStargatePoolId);
         uint256 amount = LibAsset.getOwnBalance(token);
+
         if (amount == 0) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
                 "Token error"
             );
-            amount = LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID);
+            token = LibAsset.NATIVE_ASSETID;
+            amount = LibAsset.getOwnBalance(token);
         }
+
+        Storage storage s = getStorage();
+        uint256 approveAmount = s.approveAmount[token];
+        amount = approveAmount < amount && approveAmount > 0
+            ? approveAmount
+            : amount;
 
         require(amount > 0, "sgReceiveForGas need a little amount token!");
         bytes memory payload = getSgReceiveForGasPayload(
