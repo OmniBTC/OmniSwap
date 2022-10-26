@@ -32,6 +32,9 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     bytes32 internal constant NAMESPACE =
         hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
 
+    // Data delimiter, represent ";"
+    uint8 public constant INTERDELIMITER = 59;
+
     struct Storage {
         address stargate; // The stargate route address
         uint16 srcStargateChainId; // The stargate chain id of the source/current chain
@@ -48,6 +51,11 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 minAmount; // The stargate min amount
         uint256 dstGasForSgReceive; // destination gas for sgReceive
         address payable dstSoDiamond; // destination SoDiamond address
+    }
+
+    struct CachePayload {
+        ISo.NormalizedSoData soData;
+        LibSwap.NormalizedSwapData[] swapDataDst;
     }
 
     /// Events ///
@@ -420,20 +428,62 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         return encodeStargatePayload(soDataNo, swapDataDstNo);
     }
 
+    /// CrossData
+    // 1. transactionId(SoData) INTER_DELIMITER
+    // 2. receiver(SoData) INTER_DELIMITER
+    // 3. receivingAssetId(SoData) INTER_DELIMITER
+    // 4. swapDataLength(u8) INTER_DELIMITER
+    // 5. callTo(SwapData) INTER_DELIMITER
+    // 6. sendingAssetId(SwapData) INTER_DELIMITER
+    // 7. receivingAssetId(SwapData) INTER_DELIMITER
+    // 8. callData(SwapData)
     function encodeStargatePayload(
         ISo.NormalizedSoData memory soData,
         LibSwap.NormalizedSwapData[] memory swapDataDst
     ) public pure returns (bytes memory) {
-        bytes memory d1 = LibCross.encodeNormalizedSoData(soData);
-        bytes memory d2 = LibCross.encodeNormalizedSwapData(swapDataDst);
-        if (d2.length > 0) {
-            return
-                abi.encodePacked(uint64(d1.length), d1, uint64(d2.length), d2);
-        } else {
-            return abi.encodePacked(uint64(d1.length), d1);
+        bytes memory encodeData = abi.encodePacked(
+            soData.transactionId,
+            INTERDELIMITER,
+            soData.receiver,
+            INTERDELIMITER,
+            soData.receivingAssetId
+        );
+
+        if (swapDataDst.length > 0) {
+            encodeData = encodeData.concat(
+                abi.encodePacked(
+                    INTERDELIMITER,
+                    LibCross.serializeU256WithHexStr(swapDataDst.length)
+                )
+            );
         }
+
+        for (uint256 i = 0; i < swapDataDst.length; i++) {
+            encodeData = encodeData.concat(
+                abi.encodePacked(
+                    INTERDELIMITER,
+                    swapDataDst[i].callTo,
+                    INTERDELIMITER,
+                    swapDataDst[i].sendingAssetId,
+                    INTERDELIMITER,
+                    swapDataDst[i].receivingAssetId,
+                    INTERDELIMITER,
+                    swapDataDst[i].callData
+                )
+            );
+        }
+        return encodeData;
     }
 
+    /// CrossData
+    // 1. transactionId(SoData) INTER_DELIMITER
+    // 2. receiver(SoData) INTER_DELIMITER
+    // 3. receivingAssetId(SoData) INTER_DELIMITER
+    // 4. swapDataLength(u8) INTER_DELIMITER
+    // 5. callTo(SwapData) INTER_DELIMITER
+    // 6. sendingAssetId(SwapData) INTER_DELIMITER
+    // 7. receivingAssetId(SwapData) INTER_DELIMITER
+    // 8. callData(SwapData)
     function decodeStargatePayload(bytes memory stargatePayload)
         public
         pure
@@ -442,27 +492,70 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
             LibSwap.NormalizedSwapData[] memory swapDataDst
         )
     {
-        uint256 index = 0;
-        uint256 nextLen = 0;
+        CachePayload memory data;
+        uint256 start = 0;
+        uint256 end = 0;
 
-        nextLen = uint256(stargatePayload.toUint64(index));
-        index += 8;
+        end = stargatePayload.indexOf(INTERDELIMITER, start);
+        data.soData.transactionId = stargatePayload.slice(start, end - start);
+        start = end + 1;
+        end = end + 1;
 
-        soData = LibCross.decodeNormalizedSoData(
-            stargatePayload.slice(index, nextLen)
-        );
-        index += nextLen;
+        end = stargatePayload.indexOf(INTERDELIMITER, start);
+        data.soData.receiver = stargatePayload.slice(start, end - start);
+        start = end + 1;
+        end = end + 1;
 
-        if (index < stargatePayload.length) {
-            nextLen = uint256(stargatePayload.toUint64(index));
-            index += 8;
-            swapDataDst = LibCross.decodeNormalizedSwapData(
-                stargatePayload.slice(index, nextLen)
+        end = stargatePayload.indexOf(INTERDELIMITER, start);
+        data.soData.receivingAssetId = stargatePayload.slice(start, end - start);
+        start = end + 1;
+        end = end + 1;
+
+        if (start < stargatePayload.length) {
+            end = stargatePayload.indexOf(INTERDELIMITER, start);
+            uint256 swap_len = LibCross.deserializeU256WithHexStr(
+                stargatePayload.slice(start, end - start)
             );
-            index += nextLen;
-        }
+            start = end + 1;
+            end = end + 1;
 
-        require(index == stargatePayload.length, "LenErr");
+            data.swapDataDst = new LibSwap.NormalizedSwapData[](swap_len);
+            for (uint256 i = 0; i < swap_len; i++) {
+                end = stargatePayload.indexOf(INTERDELIMITER, start);
+                data.swapDataDst[i].callTo = stargatePayload.slice(
+                    start,
+                    end - start
+                );
+                data.swapDataDst[i].approveTo = data.swapDataDst[i].callTo;
+                start = end + 1;
+                end = end + 1;
+
+                end = stargatePayload.indexOf(INTERDELIMITER, start);
+                data.swapDataDst[i].sendingAssetId = stargatePayload.slice(
+                    start,
+                    end - start
+                );
+                start = end + 1;
+                end = end + 1;
+
+                end = stargatePayload.indexOf(INTERDELIMITER, start);
+                data.swapDataDst[i].receivingAssetId = stargatePayload.slice(
+                    start,
+                    end - start
+                );
+                start = end + 1;
+                end = end + 1;
+
+                end = stargatePayload.indexOf(INTERDELIMITER, start);
+                data.swapDataDst[i].callData = stargatePayload.slice(
+                    start,
+                    end - start
+                );
+                start = end + 1;
+                end = end + 1;
+            }
+        }
+        return (data.soData, data.swapDataDst);
     }
 
     /// Private Methods ///
