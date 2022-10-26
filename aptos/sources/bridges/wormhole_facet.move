@@ -30,9 +30,9 @@ module omniswap::wormhole_facet {
     use omniswap::serde::{deserialize_u256, serialize_vector, serialize_u256_with_hex_str};
     use omniswap::so_fee_wormhole;
     use omniswap::swap::right_type;
-    use aptos_framework::timestamp;
     #[test_only]
     use omniswap::cross::padding_so_data;
+
 
     const RAY: u64 = 100000000;
 
@@ -75,12 +75,19 @@ module omniswap::wormhole_facet {
         dst_base_gas: Table<U16, U256>,
         // target chain gas per bytes
         dst_gas_per_bytes: Table<U16, U256>,
+        // Deprecated
         // track cross-chain swaps sent from this chain
         so_transfer_started_events: EventHandle<SoTransferStartedEvent>,
+        // Deprecated
         // track cross-chain swaps that reach the chain
         so_transfer_completed_events: EventHandle<SoTransferCompletedEvent>,
         // trace wormhole msg sent from this chain
         transfer_from_wormhole_events: EventHandle<TransferFromWormholeEvent>
+    }
+
+    struct SoTransferEventHandle has key {
+        so_transfer_started: EventHandle<SoTransferStarted>,
+        so_transfer_completed: EventHandle<SoTransferCompleted>
     }
 
     /// Some parameters needed to use wormhole
@@ -109,6 +116,7 @@ module omniswap::wormhole_facet {
         sequence: u64
     }
 
+    /// Deprecated
     struct SoTransferStartedEvent has store, drop {
         transaction_id: vector<u8>,
         bridge: address,
@@ -117,6 +125,7 @@ module omniswap::wormhole_facet {
         so_data: vector<u8>
     }
 
+    /// Deprecated
     struct SoTransferCompletedEvent has store, drop {
         transaction_id: vector<u8>,
         receiveing_asset_id: address,
@@ -124,6 +133,14 @@ module omniswap::wormhole_facet {
         receive_amount: u64,
         timestamp: u64,
         so_data: vector<u8>
+    }
+
+    struct SoTransferStarted has store, drop {
+        transaction_id: vector<u8>,
+    }
+
+    struct SoTransferCompleted has store, drop {
+        transaction_id: vector<u8>,
     }
 
     /// Helpers
@@ -218,6 +235,11 @@ module omniswap::wormhole_facet {
                 transfer_from_wormhole_events: account::new_event_handle(&resource_signer)
             });
         move_to(&resource_signer,
+        	SoTransferEventHandle {
+                so_transfer_started: account::new_event_handle(&resource_signer),
+                so_transfer_completed: account::new_event_handle(&resource_signer)
+            });
+        move_to(&resource_signer,
             WormholeFee {
                 fee: 0,
                 beneficiary: @omniswap
@@ -279,16 +301,15 @@ module omniswap::wormhole_facet {
         swap_data_src: vector<u8>,
         wormhole_data: vector<u8>,
         swap_data_dst: vector<u8>
-    ) acquires WormholeFacetManager, Storage {
+    ) acquires WormholeFacetManager, Storage, SoTransferEventHandle {
         assert!(is_initialize(), ENOT_INITIALIZE);
-        let emitter_cap = &borrow_global<WormholeFacetManager>(get_resource_address()).emitter_cap;
+        let resource_address = get_resource_address();
+        let emitter_cap = &borrow_global<WormholeFacetManager>(resource_address).emitter_cap;
 
         let so_data = cross::decode_normalized_so_data(&mut so_data);
         let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
 
-        let has_destination_swap = false;
         let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
-            has_destination_swap = true;
             cross::decode_normalized_swap_data(&mut swap_data_dst)
         }else {
             vector::empty()
@@ -307,9 +328,7 @@ module omniswap::wormhole_facet {
         let coin_aptos = coin::withdraw<AptosCoin>(account, fee);
 
         let sequence: u64;
-        let has_source_swap = false;
         if (vector::length(&swap_data_src) > 0) {
-            has_source_swap = true;
             let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
             if (vector::length(&swap_data_src) == 1) {
                 let coin_y = swap::swap_two_by_account<X, Y>(account, swap_data_src);
@@ -360,17 +379,16 @@ module omniswap::wormhole_facet {
                 payload
             );
         };
-        let s = borrow_global_mut<Storage>(get_resource_address());
-        event::emit_event<SoTransferStartedEvent>(
-            &mut s.so_transfer_started_events,
-            SoTransferStartedEvent {
+
+        let so_transfer_evnet_handle = borrow_global_mut<SoTransferEventHandle>(resource_address);
+        event::emit_event<SoTransferStarted>(
+            &mut so_transfer_evnet_handle.so_transfer_started,
+            SoTransferStarted {
                 transaction_id: cross::so_transaction_id(so_data),
-                bridge: @token_bridge,
-                has_source_swap: has_source_swap,
-                has_destination_swap: has_destination_swap,
-                so_data: cross::encode_normalized_so_data(so_data)
             }
         );
+
+        let s = borrow_global_mut<Storage>(resource_address);
         event::emit_event<TransferFromWormholeEvent>(
             &mut s.transfer_from_wormhole_events,
             TransferFromWormholeEvent {
@@ -383,11 +401,11 @@ module omniswap::wormhole_facet {
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
-    public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires WormholeFacetManager, Storage, WormholeFee {
+    public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires WormholeFacetManager, WormholeFee, SoTransferEventHandle {
         assert!(is_initialize(), ENOT_INITIALIZE);
 
-
-        let emitter_cap = &borrow_global<WormholeFacetManager>(get_resource_address()).emitter_cap;
+        let resource_address = get_resource_address();
+        let emitter_cap = &borrow_global<WormholeFacetManager>(resource_address).emitter_cap;
         let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
 
         let x_val = coin::value(&coin_x);
@@ -401,26 +419,18 @@ module omniswap::wormhole_facet {
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
-        let receiving_amount = coin::value(&coin_x);
-        let type_info = type_info::type_of<X>();
 
         if (vector::length(&swap_data_dst) > 0) {
             if (vector::length(&swap_data_dst) == 1) {
                 let coin_y = swap::swap_two_by_coin<X, Y>(coin_x, swap_data_dst);
-                type_info = type_info::type_of<Y>();
-                receiving_amount = coin::value(&coin_y);
 
                 transfer(coin_y, receiver);
             }else if (vector::length(&swap_data_dst) == 2) {
                 let coin_z = swap::swap_three_by_coin<X, Y, Z>(coin_x, swap_data_dst);
-                type_info = type_info::type_of<Z>();
-                receiving_amount = coin::value(&coin_z);
 
                 transfer(coin_z, receiver);
             }else if (vector::length(&swap_data_dst) == 3) {
                 let coin_m = swap::swap_four_by_coin<X, Y, Z, M>(coin_x, swap_data_dst);
-                receiving_amount = coin::value(&coin_m);
-                type_info = type_info::type_of<M>();
 
                 transfer(coin_m, receiver);
             }else {
@@ -430,17 +440,11 @@ module omniswap::wormhole_facet {
             transfer(coin_x, receiver);
         };
 
-        let s = borrow_global_mut<Storage>(get_resource_address());
-        let receiving_asset_id = type_info::account_address(&type_info);
-        event::emit_event<SoTransferCompletedEvent>(
-            &mut s.so_transfer_completed_events,
-            SoTransferCompletedEvent {
-                transaction_id: cross::so_transaction_id(so_data),
-                receiveing_asset_id: receiving_asset_id,
-                receiver: receiver,
-                receive_amount: receiving_amount,
-                timestamp: timestamp::now_seconds(),
-                so_data: cross::encode_normalized_so_data(so_data)
+        let so_transfer_event_handle = borrow_global_mut<SoTransferEventHandle>(resource_address);
+        event::emit_event<SoTransferCompleted>(
+            &mut so_transfer_event_handle.so_transfer_completed,
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data)
             }
         )
     }

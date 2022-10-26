@@ -473,9 +473,9 @@ def cross_swap(
 
 
 def main():
-    src_net = "aptos-mainnet"
+    src_net = "aptos-testnet"
     assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
-    dst_net = "polygon-main"
+    dst_net = "bsc-test"
 
     # Prepare environment
     # load src net aptos package
@@ -490,6 +490,7 @@ def main():
             network=src_net,
             package_path=omniswap_aptos_path.joinpath("mocks")
         )
+        # gas: 9121
         package_mock["setup::setup_omniswap_enviroment"]()
 
     # load dst net project
@@ -497,6 +498,7 @@ def main():
 
     ####################################################
 
+    # gas: 24275
     cross_swap(package,
                src_path=["AptosCoin"],
                dst_path=["AptosCoin_WORMHOLE"],
@@ -504,6 +506,7 @@ def main():
                input_amount=100000,
                )
 
+    # gas: 21346
     cross_swap(package,
                src_path=["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"],
                dst_path=["XBTC_WORMHOLE"],
@@ -511,6 +514,7 @@ def main():
                input_amount=10000000,
                )
 
+    # gas: 33655
     cross_swap(package,
                src_path=["AptosCoin",
                          LiquidswapCurve.Uncorrelated,
@@ -524,7 +528,7 @@ def main():
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
                )
-
+    # gas: 47881
     cross_swap(
         package,
         src_path=["AptosCoin"],
