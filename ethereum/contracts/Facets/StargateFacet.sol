@@ -67,6 +67,8 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         Storage storage s = getStorage();
         s.stargate = stargate;
         s.srcStargateChainId = chainId;
+        s.allowedList[stargate] = true;
+        s.allowedList[msg.sender] = true;
         emit StargateInitialized(stargate, chainId);
     }
 

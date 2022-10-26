@@ -99,10 +99,6 @@ def initialize_stargate(account, so_diamond):
         get_stargate_chain_id(),
         {'from': account}
     )
-    proxy_stargate.setAllowedAddress(
-        account, True, {'from': account})
-    proxy_stargate.setAllowedAddress(
-        get_stargate_router(), True, {'from': account})
 
 
 def initialize_wormhole(account, so_diamond):
