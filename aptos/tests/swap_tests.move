@@ -71,7 +71,7 @@ module omniswap::swap_tests {
             b"0x11::test_coins::USDC",
             b"0x11::test_coins::USDT",
             u256::from_u64(usdc_to_swap_val),
-            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Stable,100"
+            b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Stable,100"
         );
         let usdt_coins = swap_by_account<USDC, USDT>(&coin_admin, swap_data);
         assert!(coin::value(&usdt_coins) == usdt_to_get_val, 0);
@@ -99,7 +99,7 @@ module omniswap::swap_tests {
             b"0x11::test_coins::USDC",
             b"0x11::test_coins::USDT",
             u256::from_u64(usdc_to_swap_val),
-            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Stable,1000"
+            b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Stable,1000"
         );
         let usdt_coins = swap_by_account<USDC, USDT>(&coin_admin, swap_data);
         assert!(coin::value(&usdt_coins) == usdt_to_get_val, 0);
@@ -126,7 +126,7 @@ module omniswap::swap_tests {
             b"0x11::test_coins::USDC",
             b"0x11::test_coins::USDT",
             u256::from_u64(usdc_to_swap_val),
-            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Stable"
+            b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Stable"
         );
         let usdt_coins = swap_by_account<USDC, USDT>(&coin_admin, swap_data);
         assert!(coin::value(&usdt_coins) == usdt_to_get_val, 0);
@@ -154,7 +154,7 @@ module omniswap::swap_tests {
             b"0x11::test_coins::BTC",
             b"0x11::test_coins::USDT",
             u256::from_u64(btc_to_swap_val),
-            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated"
+            b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated"
         );
         let usdt_coins = swap_by_account<BTC, USDT>(&coin_admin, swap_data);
         assert!(coin::value(&usdt_coins) == usdt_to_get_val, 0);
@@ -179,7 +179,7 @@ module omniswap::swap_tests {
             b"0x11::test_coins::USDC",
             b"0x11::test_coins::USDT",
             u256::from_u64(usdc_to_swap_val),
-            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Stable"
+            b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Stable"
         );
         let usdt_coins = swap_by_coin<USDC, USDT>(usdc_coins_to_swap, swap_data);
         assert!(coin::value(&usdt_coins) == usdt_to_get_val, 0);
@@ -204,7 +204,7 @@ module omniswap::swap_tests {
             b"0x11::test_coins::BTC",
             b"0x11::test_coins::USDT",
             u256::from_u64(btc_to_swap_val),
-            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated"
+            b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated"
         );
         let usdt_coins = swap_by_coin<BTC, USDT>(btc_coins_to_swap, swap_data);
         assert!(coin::value(&usdt_coins) == usdt_to_get_val, 0);

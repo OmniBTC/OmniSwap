@@ -368,7 +368,7 @@ module omniswap::wormhole_facet {
                 abort EINVALID_LENGTH
             }
         }else {
-            let coin_val = u256::as_u64(cross::so_amount(so_data));
+            let coin_val = u256::as_u64(cross::so_amount(&so_data));
             let coin_x = coin::withdraw<X>(account, coin_val);
             sequence = transfer_tokens::transfer_tokens_with_payload(
                 emitter_cap,
@@ -385,7 +385,7 @@ module omniswap::wormhole_facet {
         event::emit_event<SoTransferStarted>(
             &mut so_transfer_evnet_handle.so_transfer_started,
             SoTransferStarted {
-                transaction_id: cross::so_transaction_id(so_data),
+                transaction_id: cross::so_transaction_id(&so_data),
             }
         );
 
@@ -419,7 +419,7 @@ module omniswap::wormhole_facet {
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
 
-        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiver = serde::deserialize_address(&cross::so_receiver(&so_data));
         let receiving_amount = coin::value(&coin_x);
         if (vector::length(&swap_data_dst) > 0) {
             if (vector::length(&swap_data_dst) == 1) {
@@ -448,7 +448,7 @@ module omniswap::wormhole_facet {
         event::emit_event<SoTransferCompleted>(
             &mut so_transfer_event_handle.so_transfer_completed,
             SoTransferCompleted {
-                transaction_id: cross::so_transaction_id(so_data),
+                transaction_id: cross::so_transaction_id(&so_data),
                 actual_receiving_amount: receiving_amount
             }
         )
@@ -521,8 +521,8 @@ module omniswap::wormhole_facet {
         src_fee = u256::div(src_fee, one);
         let comsume_value = u256::from_u64(state::get_message_fee());
 
-        if (right_type<AptosCoin>(cross::so_sending_asset_id(so_data))) {
-            comsume_value = u256::add(comsume_value, cross::so_amount(so_data));
+        if (right_type<AptosCoin>(cross::so_sending_asset_id(&so_data))) {
+            comsume_value = u256::add(comsume_value, cross::so_amount(&so_data));
         };
         comsume_value = u256::add(comsume_value, src_fee);
 
@@ -618,13 +618,13 @@ module omniswap::wormhole_facet {
         serialize_u256_with_hex_str(&mut data, dst_max_gas);
 
         vector::push_back(&mut data, INTER_DELIMITER);
-        serialize_vector(&mut data, cross::so_transaction_id(so_data));
+        serialize_vector(&mut data, cross::so_transaction_id(&so_data));
 
         vector::push_back(&mut data, INTER_DELIMITER);
-        serialize_vector(&mut data, cross::so_receiver(so_data));
+        serialize_vector(&mut data, cross::so_receiver(&so_data));
 
         vector::push_back(&mut data, INTER_DELIMITER);
-        serialize_vector(&mut data, cross::so_receiving_asset_id(so_data));
+        serialize_vector(&mut data, cross::so_receiving_asset_id(&so_data));
 
         let swap_len = vector::length(&swap_data_dst);
         if (swap_len > 0) {
@@ -637,16 +637,16 @@ module omniswap::wormhole_facet {
             let d = vector::pop_back(&mut swap_data_dst);
 
             vector::push_back(&mut data, INTER_DELIMITER);
-            serialize_vector(&mut data, cross::swap_call_to(d));
+            serialize_vector(&mut data, cross::swap_call_to(&d));
 
             vector::push_back(&mut data, INTER_DELIMITER);
-            serialize_vector(&mut data, cross::swap_sending_asset_id(d));
+            serialize_vector(&mut data, cross::swap_sending_asset_id(&d));
 
             vector::push_back(&mut data, INTER_DELIMITER);
-            serialize_vector(&mut data, cross::swap_receiving_asset_id(d));
+            serialize_vector(&mut data, cross::swap_receiving_asset_id(&d));
 
             vector::push_back(&mut data, INTER_DELIMITER);
-            serialize_vector(&mut data, cross::swap_call_data(d));
+            serialize_vector(&mut data, cross::swap_call_data(&d));
         };
         data
     }
@@ -770,9 +770,9 @@ module omniswap::wormhole_facet {
         assert!(v1 == dst_max_gas_price, 1);
         assert!(v2 == dst_max_gas, 1);
         assert!(v3 == padding_so_data(
-            cross::so_transaction_id(so_data),
-            cross::so_receiver(so_data),
-            cross::so_receiving_asset_id(so_data)), 1);
+            cross::so_transaction_id(&so_data),
+            cross::so_receiver(&so_data),
+            cross::so_receiving_asset_id(&so_data)), 1);
         assert!(v4 == vector::empty(), 1);
 
 
@@ -786,10 +786,10 @@ module omniswap::wormhole_facet {
         let i = 0;
         while (i < vector::length(&v4)) {
             vector::push_back(&mut decode_swap_data, padding_swap_data(
-                cross::swap_call_to(*vector::borrow(&swap_data, i)),
-                cross::swap_sending_asset_id(*vector::borrow(&swap_data, i)),
-                cross::swap_receiving_asset_id(*vector::borrow(&swap_data, i)),
-                cross::swap_call_data(*vector::borrow(&swap_data, i))
+                cross::swap_call_to(vector::borrow(&swap_data, i)),
+                cross::swap_sending_asset_id(vector::borrow(&swap_data, i)),
+                cross::swap_receiving_asset_id(vector::borrow(&swap_data, i)),
+                cross::swap_call_data(vector::borrow(&swap_data, i))
             ));
             i = i +1;
         } ;
@@ -797,9 +797,9 @@ module omniswap::wormhole_facet {
         assert!(v1 == dst_max_gas_price, 1);
         assert!(v2 == dst_max_gas, 1);
         assert!(v3 == padding_so_data(
-            cross::so_transaction_id(so_data),
-            cross::so_receiver(so_data),
-            cross::so_receiving_asset_id(so_data)), 1);
+            cross::so_transaction_id(&so_data),
+            cross::so_receiver(&so_data),
+            cross::so_receiving_asset_id(&so_data)), 1);
         assert!(v4 == decode_swap_data, 1);
     }
 }
