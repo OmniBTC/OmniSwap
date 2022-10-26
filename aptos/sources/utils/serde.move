@@ -237,7 +237,6 @@ module omniswap::serde {
         slice
     }
 
-    // todo! add test
     public fun vector_split<T: copy + drop>(vec: &vector<T>, e: T): vector<vector<T>> {
         let split = vector::empty<vector<T>>();
         let start = 0;
@@ -299,6 +298,10 @@ module omniswap::serde {
         let data = vector::empty<u8>();
         serialize_u128_with_hex_str(&mut data, 123);
         assert!(data == vector<u8>[55, 98], 0);
+
+        let data = vector::empty<u8>();
+        serialize_u128_with_hex_str(&mut data, 0);
+        assert!(data == vector<u8>[48], 0);
     }
 
     #[test]
@@ -330,6 +333,10 @@ module omniswap::serde {
 
         let data = deserialize_u256_with_hex_str(&vector<u8>[55, 98]);
         let v0 = u256::from_u64(123);
+        assert!(data == v0, 0);
+
+        let data = deserialize_u256_with_hex_str(&vector<u8>[48]);
+        let v0 = u256::from_u64(0);
         assert!(data == v0, 0);
     }
 }
