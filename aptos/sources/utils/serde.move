@@ -110,16 +110,6 @@ module omniswap::serde {
         serialize_u128_with_hex_str(buf, u256::as_truncate_u128(v));
     }
 
-    public fun serialize_u256_compressed(buf: &mut vector<u8>, v: U256) {
-        if (u256::compare(&v, &u256::from_u64(U64_MAX)) != 2) {
-            serialize_u64(buf, u256::as_u64(v));
-        }else if (u256::compare(&v, &u256::from_u128(U128_MAX)) != 2) {
-            serialize_u128(buf, u256::as_u128(v));
-        }else {
-            serialize_u256(buf, v);
-        };
-    }
-
     public fun serialize_vector(buf: &mut vector<u8>, v: vector<u8>) {
         vector::append(buf, v);
     }
@@ -214,19 +204,6 @@ module omniswap::serde {
         }else{
             u256::from_u128(deserialize_u128_with_hex_str(buf))
         }
-    }
-
-    // todo! add test
-    public fun deserialize_u256_compressed(buf: &vector<u8>): U256 {
-        assert!(vector::length(buf) <= 32, error::invalid_argument(EINVALID_LENGTH));
-        let data = vector::empty<u8>();
-        let i = 0;
-        while (i < 32 - vector::length(buf)) {
-            vector::push_back(&mut data, 0);
-            i = i + 1;
-        };
-        vector::append(&mut data, *buf);
-        deserialize_u256(&data)
     }
 
     public fun deserialize_address(buf: &vector<u8>): address {
