@@ -190,10 +190,7 @@ contract WormholeFacet is Swapper {
             cache.bridgeAddress = soData.sendingAssetId;
             cache.bridgeAmount = soData.amount;
         } else {
-            require(
-                soData.amount == swapDataSrc[0].fromAmount,
-                "AmountErr"
-            );
+            require(soData.amount == swapDataSrc[0].fromAmount, "AmountErr");
             cache.bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
             cache.bridgeAddress = swapDataSrc[swapDataSrc.length - 1]
                 .receivingAssetId;
@@ -205,7 +202,6 @@ contract WormholeFacet is Swapper {
             soDataNo,
             swapDataDstNo
         );
-
 
         /// start bridge
         _startBridge(
@@ -257,7 +253,7 @@ contract WormholeFacet is Swapper {
         }
 
         uint256 amount = LibAsset.getOwnBalance(tokenAddress);
-        require(amount>0, "amount>0");
+        require(amount > 0, "amount>0");
 
         IWETH weth = IWormholeBridge(bridge).WETH();
 
@@ -294,10 +290,7 @@ contract WormholeFacet is Swapper {
                     soFee
                 );
             }
-            require(
-                swapDataDst[0].sendingAssetId == tokenAddress,
-                "TokenErr"
-            );
+            require(swapDataDst[0].sendingAssetId == tokenAddress, "TokenErr");
 
             swapDataDst[0].fromAmount = amount;
 
@@ -529,8 +522,12 @@ contract WormholeFacet is Swapper {
         ISo.NormalizedSoData memory soData,
         LibSwap.NormalizedSwapData[] memory swapDataDst
     ) public pure returns (bytes memory) {
-        bytes memory dstMaxGasPriceByte = LibCross.serializeU256WithHexStr(dstMaxGasPrice);
-        bytes memory dstMaxGasByte = LibCross.serializeU256WithHexStr(dstMaxGas);
+        bytes memory dstMaxGasPriceByte = LibCross.serializeU256WithHexStr(
+            dstMaxGasPrice
+        );
+        bytes memory dstMaxGasByte = LibCross.serializeU256WithHexStr(
+            dstMaxGas
+        );
         bytes memory encodeData = abi.encodePacked(
             dstMaxGasPriceByte,
             INTERDELIMITER,
@@ -545,7 +542,10 @@ contract WormholeFacet is Swapper {
 
         if (swapDataDst.length > 0) {
             encodeData = encodeData.concat(
-                abi.encodePacked(INTERDELIMITER, LibCross.serializeU256WithHexStr(swapDataDst.length))
+                abi.encodePacked(
+                    INTERDELIMITER,
+                    LibCross.serializeU256WithHexStr(swapDataDst.length)
+                )
             );
         }
 
@@ -592,12 +592,16 @@ contract WormholeFacet is Swapper {
         uint256 end = 0;
 
         end = wormholeData.indexOf(INTERDELIMITER, start);
-        data.dstMaxGasPrice = LibCross.deserializeU256WithHexStr(wormholeData.slice(start, end - start));
+        data.dstMaxGasPrice = LibCross.deserializeU256WithHexStr(
+            wormholeData.slice(start, end - start)
+        );
         start = end + 1;
         end = end + 1;
 
         end = wormholeData.indexOf(INTERDELIMITER, start);
-        data.dstMaxGas = LibCross.deserializeU256WithHexStr(wormholeData.slice(start, end - start));
+        data.dstMaxGas = LibCross.deserializeU256WithHexStr(
+            wormholeData.slice(start, end - start)
+        );
         start = end + 1;
         end = end + 1;
 
@@ -618,7 +622,9 @@ contract WormholeFacet is Swapper {
 
         if (start < wormholeData.length) {
             end = wormholeData.indexOf(INTERDELIMITER, start);
-            uint256 swap_len = LibCross.deserializeU256WithHexStr(wormholeData.slice(start, end - start));
+            uint256 swap_len = LibCross.deserializeU256WithHexStr(
+                wormholeData.slice(start, end - start)
+            );
             start = end + 1;
             end = end + 1;
 

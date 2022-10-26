@@ -284,11 +284,15 @@ library LibCross {
         pure
         returns (bytes memory)
     {
-        bytes memory encodeData = abi.encodePacked(hexStrToAscii(uint8(data & 0xF)));
+        bytes memory encodeData = abi.encodePacked(
+            hexStrToAscii(uint8(data & 0xF))
+        );
         data = data >> 4;
 
         while (data != 0) {
-            encodeData = abi.encodePacked(hexStrToAscii(uint8(data & 0xF))).concat(encodeData);
+            encodeData = abi
+                .encodePacked(hexStrToAscii(uint8(data & 0xF)))
+                .concat(encodeData);
             data = data >> 4;
         }
         return encodeData;

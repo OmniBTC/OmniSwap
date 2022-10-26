@@ -100,10 +100,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
             );
             bridgeAmount = soData.amount;
         } else {
-            require(
-                soData.amount == swapDataSrc[0].fromAmount,
-                "AmountErr"
-            );
+            require(soData.amount == swapDataSrc[0].fromAmount, "AmountErr");
             bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
             deposit(
                 swapDataSrc[swapDataSrc.length - 1].receivingAssetId,
