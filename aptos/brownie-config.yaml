@@ -1,7 +1,7 @@
 # automatically fetch contract sources from Etherscan
 dotenv: .env
 networks:
-  default: avax-main
+  default: bsc-test
   aptos-mainnet:
     omnibtc_chainid: 1
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
@@ -47,15 +47,16 @@ networks:
     omnibtc_chainid: 30001
     node_url: https://aptos-testnet.coming.chat/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
-    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000004"
-    wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
+    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000007"
+    wormhole_facet_resource: "0x47c89eaca741ae7b069c6f4f1b6740337d59d691245bf2d06ae302de47f43a4a"
     replace_address:
       deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
       liquidswap: "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12"
       liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
-      omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+      omniswap: "0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327"
+      omniswap_mock: "0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327"
     token:
       XBTC:
         module: setup

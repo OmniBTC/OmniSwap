@@ -264,6 +264,17 @@ def generate_wormhole_data(
     )
 
 
+def generate_src_swap_path(
+        package: aptos_brownie.AptosPackage,
+        p: list):
+    assert len(p) == 3
+    return [
+        get_aptos_token(package)[p[0]]["address"],
+        get_aptos_token(package)[p[2]]["address"],
+        get_liquidswap_curve(package, p[1]),
+    ]
+
+
 def generate_src_swap_data(
         package: aptos_brownie.AptosPackage,
         router: str,
@@ -432,7 +443,7 @@ def cross_swap(
         ty_args = [so_data.sendingAssetId] * 4
     elif len(src_swap_data) == 1:
         ty_args = [src_swap_data[0].sendingAssetId] + \
-            [src_swap_data[0].receivingAssetId] * 3
+                  [src_swap_data[0].receivingAssetId] * 3
     elif len(src_swap_data) == 2:
         ty_args = [src_swap_data[0].sendingAssetId, src_swap_data[1].sendingAssetId] + [
             src_swap_data[1].receivingAssetId] * 2
@@ -445,7 +456,7 @@ def cross_swap(
         raise ValueError
 
     payload_length = len(normal_so_data) + \
-        len(normal_wormhole_data) + len(normal_dst_swap_data)
+                     len(normal_wormhole_data) + len(normal_dst_swap_data)
 
     is_native = src_path[0] == "AptosCoin"
     # if is_native:
@@ -490,6 +501,10 @@ def main():
             network=src_net,
             package_path=omniswap_aptos_path.joinpath("mocks")
         )
+        package_mock["setup::add_liquidity"](
+            10000000,
+            100000000,
+            ty_args=generate_src_swap_path(package_mock, ["XBTC", LiquidswapCurve.Uncorrelated, "AptosCoin"]))
         # gas: 9121
         package_mock["setup::setup_omniswap_enviroment"]()
 

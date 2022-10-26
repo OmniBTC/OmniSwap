@@ -77,7 +77,7 @@ module omniswap_mock::setup {
         account::create_signer_with_capability(&deploying_cap.signer_cap)
     }
 
-    fun add_liquidity<X, Y, Curve>(account: &signer, x_val: u64, y_val: u64) {
+    public entry fun add_liquidity<X, Y, Curve>(account: &signer, x_val: u64, y_val: u64) {
         if (coin_helper::is_sorted<X, Y>()) {
             if (!liquidity_pool::is_pool_exists<X, Y, Curve>()) {
                 scripts::register_pool<X, Y, Curve>(account);

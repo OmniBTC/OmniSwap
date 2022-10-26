@@ -35,15 +35,16 @@ def main():
         # Maybe has initialized
         # use dst chain id init
         # ETH
-        ratio_decimal = 1e8
-        package["so_fee_wormhole::initialize"](2)
-        package["so_fee_wormhole::set_price_ratio"](2, int(1400 / 7 * ratio_decimal))
-        package["so_fee_wormhole::initialize"](4)
-        package["so_fee_wormhole::set_price_ratio"](4, int(300 / 7 * ratio_decimal))
-        package["so_fee_wormhole::initialize"](5)
-        package["so_fee_wormhole::set_price_ratio"](5, int(1 / 7 * ratio_decimal))
-        package["so_fee_wormhole::initialize"](6)
-        package["so_fee_wormhole::set_price_ratio"](6, int(20 / 7 * ratio_decimal))
+        if "test" not in net:
+            ratio_decimal = 1e8
+            package["so_fee_wormhole::initialize"](2)
+            package["so_fee_wormhole::set_price_ratio"](2, int(1400 / 7 * ratio_decimal))
+            package["so_fee_wormhole::initialize"](4)
+            package["so_fee_wormhole::set_price_ratio"](4, int(300 / 7 * ratio_decimal))
+            package["so_fee_wormhole::initialize"](5)
+            package["so_fee_wormhole::set_price_ratio"](5, int(1 / 7 * ratio_decimal))
+            package["so_fee_wormhole::initialize"](6)
+            package["so_fee_wormhole::set_price_ratio"](6, int(20 / 7 * ratio_decimal))
     except:
         pass
     # # wormhole
@@ -51,6 +52,8 @@ def main():
         # Maybe has initialized
         package["wormhole_facet::init_wormhole"](
             package.network_config["wormhole"]["chainid"])
+
+        package["wormhole_facet::init_so_transfer_event"]()
     except:
         pass
 
