@@ -21,6 +21,7 @@ def setup_mock(net: str = "aptos-testnet"):
 
 def main():
     net = "aptos-testnet"
+    print(f"Current aptos network:{net}")
     # deploy
     package = aptos_brownie.AptosPackage(
         project_path=omniswap_aptos_path,

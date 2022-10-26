@@ -248,6 +248,17 @@ module omniswap::wormhole_facet {
         );
     }
 
+    public entry fun init_so_transfer_event(account: &signer){
+        assert!(signer::address_of(account) == @omniswap, ENOT_DEPLOYED_ADDRESS);
+        assert!(!exists<SoTransferEventHandle>(signer::address_of(account)), EHAS_INITIALIZE);
+        let (resource_signer, _) = account::create_resource_account(account, SEED);
+        move_to(&resource_signer,
+        	SoTransferEventHandle {
+                so_transfer_started: account::new_event_handle(&resource_signer),
+                so_transfer_completed: account::new_event_handle(&resource_signer)
+            });
+    }
+
     public entry fun register_new_emitter(account: &signer) {
         move_to(account, WormholeFacetManager {
             emitter_cap: wormhole::register_emitter(),
