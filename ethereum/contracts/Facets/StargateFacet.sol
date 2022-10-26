@@ -23,7 +23,7 @@ import "../Libraries/LibBytes.sol";
 /// @title Stargate Facet
 /// @author OmniBTC
 /// @notice Provides functionality for bridging through Stargate
-contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
+contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     using SafeMath for uint256;
     using LibBytes for bytes;
 
