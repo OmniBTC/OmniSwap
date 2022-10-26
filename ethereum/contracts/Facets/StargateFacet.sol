@@ -82,8 +82,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         StargateData calldata stargateData,
         LibSwap.NormalizedSwapData[] calldata swapDataDstNo
     ) external payable nonReentrant {
-        bool hasSourceSwap;
-        bool hasDestinationSwap;
         uint256 bridgeAmount;
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -101,7 +99,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 soData.amount
             );
             bridgeAmount = soData.amount;
-            hasSourceSwap = false;
         } else {
             require(
                 soData.amount == swapDataSrc[0].fromAmount,
@@ -113,24 +110,13 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 _getStargateTokenByPoolId(stargateData.srcStargatePoolId),
                 bridgeAmount
             );
-            hasSourceSwap = true;
         }
         uint256 stargateValue = _getStargateValue(soData);
         bytes memory payload = encodeStargatePayload(soDataNo, swapDataDstNo);
 
-        if (swapDataDstNo.length > 0) {
-            hasDestinationSwap = true;
-        }
-
         _startBridge(stargateData, stargateValue, bridgeAmount, payload);
 
-        emit SoTransferStarted(
-            soData.transactionId,
-            "Stargate",
-            hasSourceSwap,
-            hasDestinationSwap,
-            soData
-        );
+        emit SoTransferStarted(soData.transactionId);
     }
 
     /// @dev Overload sgReceive of IStargateReceiver, called by stargate router
@@ -174,12 +160,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             emit SoTransferFailed(
                 soData.transactionId,
                 revertReason,
-                bytes(""),
-                soData
+                bytes("")
             );
         } catch (bytes memory returnData) {
             withdraw(token, token, amount, soData.receiver);
-            emit SoTransferFailed(soData.transactionId, "", returnData, soData);
+            emit SoTransferFailed(soData.transactionId, "", returnData);
         }
     }
 
@@ -205,14 +190,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 );
             }
             withdraw(token, soData.receivingAssetId, amount, soData.receiver);
-            emit SoTransferCompleted(
-                soData.transactionId,
-                soData.receivingAssetId,
-                soData.receiver,
-                amount,
-                block.timestamp,
-                soData
-            );
+            emit SoTransferCompleted(soData.transactionId, amount);
         } else {
             if (soFee > 0) {
                 withdraw(
@@ -250,14 +228,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 amountFinal,
                 soData.receiver
             );
-            emit SoTransferCompleted(
-                soData.transactionId,
-                soData.receivingAssetId,
-                soData.receiver,
-                amountFinal,
-                block.timestamp,
-                soData
-            );
+            emit SoTransferCompleted(soData.transactionId, amountFinal);
         }
     }
 

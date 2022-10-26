@@ -27,27 +27,16 @@ interface ISo {
 
     /// Events ///
 
-    event SoTransferStarted(
-        bytes32 indexed transactionId,
-        string bridge,
-        bool hasSourceSwap,
-        bool hasDestinationSwap,
-        SoData soData
-    );
+    event SoTransferStarted(bytes32 indexed transactionId);
 
     event SoTransferFailed(
         bytes32 indexed transactionId,
         string revertReason,
-        bytes otherReason,
-        SoData soData
+        bytes otherReason
     );
 
     event SoTransferCompleted(
         bytes32 indexed transactionId,
-        address receivingAssetId,
-        address receiver,
-        uint256 receiveAmount,
-        uint256 timestamp,
-        SoData soData
+        uint256 receiveAmount
     );
 }
