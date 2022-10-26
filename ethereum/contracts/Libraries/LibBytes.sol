@@ -225,11 +225,11 @@ library LibBytes {
 
     function indexOf(
         bytes memory _bytes,
-        uint8 e,
+        uint8 _e,
         uint256 _start
     ) internal pure returns (uint256) {
         while (_start < _bytes.length) {
-            if (toUint8(_bytes, _start) == e) {
+            if (toUint8(_bytes, _start) == _e) {
                 return _start;
             }
             _start += 1;

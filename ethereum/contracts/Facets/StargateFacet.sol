@@ -102,7 +102,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         } else {
             require(
                 soData.amount == swapDataSrc[0].fromAmount,
-                "soData and swapDataSrc amount not match!"
+                "AmountErr"
             );
             bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
             deposit(
@@ -131,11 +131,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         if (LibAsset.getOwnBalance(token) < amount) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
-                "Token error"
+                "TokenErr"
             );
             require(
                 LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= amount,
-                "Not enough"
+                "NotEnough"
             );
             token = LibAsset.NATIVE_ASSETID;
         }
@@ -244,12 +244,12 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         if (amount == 0) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
-                "Token error"
+                "TokenErr"
             );
             amount = LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID);
         }
 
-        require(amount > 0, "sgReceiveForGas need a little amount token!");
+        require(amount > 0, "LittleAmount");
         bytes memory payload = getSgReceiveForGasPayload(
             soDataNo,
             swapDataDstNo
@@ -259,11 +259,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         if (LibAsset.getOwnBalance(token) < amount) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
-                "Token error"
+                "TokenErr"
             );
             require(
                 LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= amount,
-                "Not enough"
+                "NotEnough"
             );
             token = LibAsset.NATIVE_ASSETID;
         }
@@ -428,7 +428,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             index += nextLen;
         }
 
-        require(index == stargatePayload.length, "Length error");
+        require(index == stargatePayload.length, "LenErr");
     }
 
     /// Private Methods ///
@@ -479,7 +479,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         returns (uint256)
     {
         if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-            require(msg.value > soData.amount, "Stargate value is not enough!");
+            require(msg.value > soData.amount, "NotEnough");
             return msg.value.sub(soData.amount);
         } else {
             return msg.value;

@@ -71,7 +71,7 @@ module omniswap::serde {
     public fun hex_str_to_ascii(v: u8): u8 {
         if (v >= 0 && v <= 9) {
             v + 48
-        }else if (v <= 16) {
+        }else if (v <= 15) {
             v + 87
         }else {
             abort OVERFLOW
