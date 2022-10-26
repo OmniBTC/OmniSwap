@@ -534,7 +534,7 @@ contract WormholeFacet is Swapper {
         bytes memory encodeData = abi.encodePacked(
             dstMaxGasPriceByte,
             INTERDELIMITER,
-            dstMaxGasPriceByte,
+            dstMaxGasByte,
             INTERDELIMITER,
             soData.transactionId,
             INTERDELIMITER,
@@ -618,7 +618,6 @@ contract WormholeFacet is Swapper {
 
         if (start < wormholeData.length) {
             end = wormholeData.indexOf(INTERDELIMITER, start);
-            require(end - start == 1, "LenErr");
             uint256 swap_len = LibCross.deserializeU256WithHexStr(wormholeData.slice(start, end - start));
             start = end + 1;
             end = end + 1;
@@ -651,7 +650,7 @@ contract WormholeFacet is Swapper {
                 end = end + 1;
 
                 end = wormholeData.indexOf(INTERDELIMITER, start);
-                data.swapDataDst[i].callTo = wormholeData.slice(
+                data.swapDataDst[i].callData = wormholeData.slice(
                     start,
                     end - start
                 );
@@ -659,10 +658,9 @@ contract WormholeFacet is Swapper {
                 end = end + 1;
             }
         }
-        require(end == wormholeData.length, "PayloadErr");
         return (
             data.dstMaxGasPrice,
-            data.dstMaxGasPrice,
+            data.dstMaxGas,
             data.soData,
             data.swapDataDst
         );
