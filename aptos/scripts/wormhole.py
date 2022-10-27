@@ -420,7 +420,6 @@ def cross_swap(
     if len(src_path) > 1:
         src_swap_data = generate_src_swap_data(
             package, "liquidswap", src_path, input_amount)
-        print(src_swap_data)
         normal_src_swap_data = [d.format_to_contract() for d in src_swap_data]
         normal_src_swap_data = hex_str_to_vector_u8(
             str(serde.encodeNormalizedSwapData(normal_src_swap_data)))
