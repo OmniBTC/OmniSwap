@@ -1,5 +1,5 @@
 import pytest
-from scripts.helpful_scripts import get_account, to_hex_str
+from scripts.helpful_scripts import get_account, to_hex_str, zero_address
 from brownie import SerdeFacet
 from scripts.swap import SoData, SwapData
 
@@ -31,7 +31,7 @@ def test_serde_so_data(serdeFacet):
     assert data == normalized_data
 
     compare_data = so_data
-    compare_data.sendingAssetId = "0x3078313A3a6170746f735F636f696e3a3a417074"
+    compare_data.sendingAssetId = zero_address()
     data = serdeFacet.denormalizeSoData(normalized_data)
     assert compare_data.format_to_contract() == data
     data = serdeFacet.normalizeSoData(data)

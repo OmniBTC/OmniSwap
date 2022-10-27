@@ -66,13 +66,13 @@ def test_serde_stargate_payload(stargateFacet):
     # Not swap
     data = stargateFacet.encodeStargatePayload(
         so_data, [])
-    assert data == "0x4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed3b2da7e3a7f21cce79efeb66f3b082196ea0a8b9af3b957eb0316f02ba4a9de3d308742eefd44a3c1719"
+    assert data == "0x00204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0014957eb0316f02ba4a9de3d308742eefd44a3c1719"
     data = stargateFacet.decodeStargatePayload(data)
     assert data == [so_data_padding, []]
 
     # With swap
     data = stargateFacet.encodeStargatePayload(
         so_data, swap_data)
-    assert data == "0x4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed3b2da7e3a7f21cce79efeb66f3b082196ea0a8b9af3b957eb0316f02ba4a9de3d308742eefd44a3c17193b323b957eb0316f02ba4a9de3d308742eefd44a3c17193b2514895c72f50d8bd4b4f9b1110f0d6bd2c975263b143db3ceefbdfe5631add3e50f7614b6ba708ba73b143db3ceefbdfe5631add3e50f7614b6ba708ba73b957eb0316f02ba4a9de3d308742eefd44a3c17193b2514895c72f50d8bd4b4f9b1110f0d6bd2c975263b143db3ceefbdfe5631add3e50f7614b6ba708ba73b6ce9e2c8b59bbcf65da375d3d8ab503c8524caf7"
+    assert data == "0x00204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0014957eb0316f02ba4a9de3d308742eefd44a3c17190001020014957eb0316f02ba4a9de3d308742eefd44a3c171900142514895c72f50d8bd4b4f9b1110f0d6bd2c975260014143db3ceefbdfe5631add3e50f7614b6ba708ba70014143db3ceefbdfe5631add3e50f7614b6ba708ba70014957eb0316f02ba4a9de3d308742eefd44a3c171900142514895c72f50d8bd4b4f9b1110f0d6bd2c975260014143db3ceefbdfe5631add3e50f7614b6ba708ba700146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7"
     data = stargateFacet.decodeStargatePayload(data)
     assert data == [so_data_padding, swap_data_padding]

@@ -530,11 +530,11 @@ contract WormholeFacet is Swapper {
             dstMaxGasPriceByte,
             uint16(dstMaxGasByte.length),
             dstMaxGasByte,
-            uint16(dstMaxGasPriceByte.length),
+            uint16(soData.transactionId.length),
             soData.transactionId,
-            uint16(dstMaxGasPriceByte.length),
+            uint16(soData.receiver.length),
             soData.receiver,
-            uint16(dstMaxGasPriceByte.length),
+            uint16(soData.receivingAssetId.length),
             soData.receivingAssetId
         );
 
