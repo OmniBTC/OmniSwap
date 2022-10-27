@@ -178,7 +178,7 @@ def redeploy_wormhole():
     account = get_account()
 
     WormholeFacet.deploy({'from': account})
-    add_cut(WormholeFacet)
+    add_cut([WormholeFacet])
     initialize_wormhole(account, SoDiamond[-1])
 
     # proxy_dex = Contract.from_abi(
@@ -251,7 +251,7 @@ def redeploy_stargate():
     account = get_account()
 
     StargateFacet.deploy({"from": account})
-    add_cut(StargateFacet)
+    add_cut([StargateFacet])
     initialize_stargate(account, SoDiamond[-1])
 
 
