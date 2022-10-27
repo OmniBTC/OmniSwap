@@ -32,8 +32,6 @@ module omniswap::wormhole_facet {
     use omniswap::swap::right_type;
     #[test_only]
     use omniswap::cross::padding_so_data;
-    #[test_only]
-    use aptos_std::debug::print;
 
 
     const RAY: u64 = 100000000;
@@ -828,7 +826,6 @@ module omniswap::wormhole_facet {
         let encode_data = encode_wormhole_payload(dst_max_gas_price, dst_max_gas, so_data, swap_data);
         let data = x"022710013b204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed142da7e3a7f21cce79efeb66f3b082196ea0a8b9af14957eb0316f02ba4a9de3d308742eefd44a3c17190102204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c811a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e163078313a3a6f6d6e695f6272696467653a3a5842544300583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c6174656414957eb0316f02ba4a9de3d308742eefd44a3c1719142514895c72f50d8bd4b4f9b1110f0d6bd2c9752614143db3ceefbdfe5631add3e50f7614b6ba708ba700146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
         assert!(data == encode_data, 1);
-        print(&33);
         let (v1, v2, v3, v4) = decode_wormhole_payload(&data);
 
         let decode_swap_data = vector::empty<NormalizedSwapData>();
