@@ -43,7 +43,7 @@ library LibCross {
                 transactionId: data.transactionId.toBytes32(0),
                 receiver: payable(tryAddress(data.receiver)),
                 sourceChainId: data.sourceChainId,
-                sendingAssetId: data.sendingAssetId.toAddress(0),
+                sendingAssetId: tryAddress(data.sendingAssetId),
                 destinationChainId: data.destinationChainId,
                 receivingAssetId: tryAddress(data.receivingAssetId),
                 amount: data.amount
