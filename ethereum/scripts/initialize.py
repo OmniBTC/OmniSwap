@@ -181,17 +181,17 @@ def redeploy_wormhole():
     add_cut(WormholeFacet)
     initialize_wormhole(account, SoDiamond[-1])
 
-    proxy_dex = Contract.from_abi(
-        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
 
-    so_fee = 1e-3
-    ray = 1e27
-    print("Deploy LibSoFeeWormholeV1...")
-    LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
-    print("AddFee ...")
-    proxy_dex.addFee(get_wormhole_bridge(),
-                     LibSoFeeWormholeV1[-1].address, {'from': account})
-    initialize_wormhole_fee(account)
+    # so_fee = 1e-3
+    # ray = 1e27
+    # print("Deploy LibSoFeeWormholeV1...")
+    # LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
+    # print("AddFee ...")
+    # proxy_dex.addFee(get_wormhole_bridge(),
+    #                  LibSoFeeWormholeV1[-1].address, {'from': account})
+    # initialize_wormhole_fee(account)
 
 
 def set_relayer_fee():
@@ -251,6 +251,7 @@ def redeploy_stargate():
     account = get_account()
 
     StargateFacet.deploy({"from": account})
+    add_cut(StargateFacet)
     initialize_stargate(account, SoDiamond[-1])
 
 

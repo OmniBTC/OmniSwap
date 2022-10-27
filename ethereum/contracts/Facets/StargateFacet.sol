@@ -442,11 +442,11 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         LibSwap.NormalizedSwapData[] memory swapDataDst
     ) public pure returns (bytes memory) {
         bytes memory encodeData = abi.encodePacked(
-            uint16(soData.transactionId.length),
+            uint8(soData.transactionId.length),
             soData.transactionId,
-            uint16(soData.receiver.length),
+            uint8(soData.receiver.length),
             soData.receiver,
-            uint16(soData.receivingAssetId.length),
+            uint8(soData.receivingAssetId.length),
             soData.receivingAssetId
         );
 
@@ -455,18 +455,18 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
                 swapDataDst.length
             );
             encodeData = encodeData.concat(
-                abi.encodePacked(uint16(swapLenBytes.length), swapLenBytes)
+                abi.encodePacked(uint8(swapLenBytes.length), swapLenBytes)
             );
         }
 
         for (uint256 i = 0; i < swapDataDst.length; i++) {
             encodeData = encodeData.concat(
                 abi.encodePacked(
-                    uint16(swapDataDst[i].callTo.length),
+                    uint8(swapDataDst[i].callTo.length),
                     swapDataDst[i].callTo,
-                    uint16(swapDataDst[i].sendingAssetId.length),
+                    uint8(swapDataDst[i].sendingAssetId.length),
                     swapDataDst[i].sendingAssetId,
-                    uint16(swapDataDst[i].receivingAssetId.length),
+                    uint8(swapDataDst[i].receivingAssetId.length),
                     swapDataDst[i].receivingAssetId,
                     uint16(swapDataDst[i].callData.length),
                     swapDataDst[i].callData
@@ -497,24 +497,24 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 index;
         uint256 nextLen;
 
-        nextLen = uint256(stargatePayload.toUint16(index));
-        index += 2;
+        nextLen = uint256(stargatePayload.toUint8(index));
+        index += 1;
         data.soData.transactionId = stargatePayload.slice(index, nextLen);
         index += nextLen;
 
-        nextLen = uint256(stargatePayload.toUint16(index));
-        index += 2;
+        nextLen = uint256(stargatePayload.toUint8(index));
+        index += 1;
         data.soData.receiver = stargatePayload.slice(index, nextLen);
         index += nextLen;
 
-        nextLen = uint256(stargatePayload.toUint16(index));
-        index += 2;
+        nextLen = uint256(stargatePayload.toUint8(index));
+        index += 1;
         data.soData.receivingAssetId = stargatePayload.slice(index, nextLen);
         index += nextLen;
 
         if (index < stargatePayload.length) {
-            nextLen = uint256(stargatePayload.toUint16(index));
-            index += 2;
+            nextLen = uint256(stargatePayload.toUint8(index));
+            index += 1;
             uint256 swap_len = LibCross.deserializeU256WithHexStr(
                 stargatePayload.slice(index, nextLen)
             );
@@ -522,8 +522,8 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
 
             data.swapDataDst = new LibSwap.NormalizedSwapData[](swap_len);
             for (uint256 i = 0; i < swap_len; i++) {
-                nextLen = uint256(stargatePayload.toUint16(index));
-                index += 2;
+                nextLen = uint256(stargatePayload.toUint8(index));
+                index += 1;
                 data.swapDataDst[i].callTo = stargatePayload.slice(
                     index,
                     nextLen
@@ -531,16 +531,16 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
                 data.swapDataDst[i].approveTo = data.swapDataDst[i].callTo;
                 index += nextLen;
 
-                nextLen = uint256(stargatePayload.toUint16(index));
-                index += 2;
+                nextLen = uint256(stargatePayload.toUint8(index));
+                index += 1;
                 data.swapDataDst[i].sendingAssetId = stargatePayload.slice(
                     index,
                     nextLen
                 );
                 index += nextLen;
 
-                nextLen = uint256(stargatePayload.toUint16(index));
-                index += 2;
+                nextLen = uint256(stargatePayload.toUint8(index));
+                index += 1;
                 data.swapDataDst[i].receivingAssetId = stargatePayload.slice(
                     index,
                     nextLen
