@@ -6,7 +6,7 @@ from pathlib import Path
 from brownie import project, network
 import threading
 
-from scripts.helpful_scripts import get_account, change_network
+from scripts.helpful_scripts import get_account, change_network, padding_to_bytes
 from scripts.relayer.select import get_pending_data, get_signed_vaa, get_signed_vaa_by_to
 from scripts.serde import parse_vaa_to_wormhole_payload, get_wormhole_facet
 
@@ -41,7 +41,7 @@ SUPPORTED_EVM = [
      "dstNet": "bsc-test"
      },
     {"dstWormholeChainId": 6,
-     "dstSoDiamond": "0x3a208aaf7e5B516FF6ac762f09669Acb0b08cc51",
+     "dstSoDiamond": "0xBb032459B39547908eDB8E690c030Dc4F31DA673",
      "dstNet": "avax-test"
      },
 ]
@@ -145,7 +145,8 @@ def process_v2(
                     f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
                     f'beyond {int(interval / 60)}min')
                 continue
-            if transfer_data[4] != dstSoDiamond:
+            if padding_to_bytes(transfer_data[4], padding="left").lower() != \
+                    padding_to_bytes(dstSoDiamond, padding="left").lower():
                 local_logger.warning(
                     f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
                     f'dstSoDiamond: {dstSoDiamond} '

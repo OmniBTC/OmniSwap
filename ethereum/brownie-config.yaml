@@ -250,7 +250,7 @@ networks:
   avax-test:
     omnibtc_chainid: 30004
     chainid: 43113
-    SoDiamond: "0x3a208aaf7e5B516FF6ac762f09669Acb0b08cc51"
+    SoDiamond: "0xBb032459B39547908eDB8E690c030Dc4F31DA673"
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"

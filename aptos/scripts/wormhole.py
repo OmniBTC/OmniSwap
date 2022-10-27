@@ -211,10 +211,7 @@ def estimate_wormhole_fee(
         wormhole_fee_resource,
         f"{str(package.account.account_address)}::so_fee_wormhole::PriceManager"
     )
-    try:
-        ratio = wormhole_price["data"]["price_data"]["current_price_ratio"]
-    except:
-        ratio = 1
+    ratio = wormhole_price["data"]["price_data"]["current_price_ratio"]
 
     base_gas = package.network_config["wormhole"]["gas"][current_net]["base_gas"]
     gas_per_bytes = package.network_config["wormhole"]["gas"][current_net]["per_byte_gas"]
