@@ -82,12 +82,16 @@ module omniswap_mock::setup {
             if (!liquidity_pool::is_pool_exists<X, Y, Curve>()) {
                 scripts::register_pool<X, Y, Curve>(account);
             };
-            scripts::add_liquidity<X, Y, Curve>(account, x_val, 0, y_val, 0);
+            if (x_val > 0 || y_val > 0) {
+                scripts::add_liquidity<X, Y, Curve>(account, x_val, 0, y_val, 0);
+            }
         }else {
             if (!liquidity_pool::is_pool_exists<Y, X, Curve>()) {
                 scripts::register_pool<Y, X, Curve>(account);
             };
-            scripts::add_liquidity<Y, X, Curve>(account, x_val, 0, y_val, 0);
+            if (x_val > 0 || y_val > 0) {
+                scripts::add_liquidity<Y, X, Curve>(account, x_val, 0, y_val, 0);
+            }
         }
     }
 
