@@ -255,45 +255,19 @@ library LibCross {
         return data;
     }
 
-    // [0, 9] --> ['0', '9']
-    // [10, 15] --> ['a', 'f']
-    function hexStrToAscii(uint8 v) internal pure returns (uint8) {
-        if (v >= 0 && v <= 9) {
-            return v + 48;
-        } else if (v <= 15) {
-            return v + 87;
-        } else {
-            revert("Overflow");
-        }
-    }
-
-    // ['0', '9'] --> [0, 9]
-    // ['a', 'f'] --> [10, 15]
-    function asciiToHexStr(uint8 v) internal pure returns (uint8) {
-        if (v >= 48 && v <= 57) {
-            return v - 48;
-        } else if (v >= 97 && v <= 102) {
-            return v - 87;
-        } else {
-            revert("Overflow");
-        }
-    }
-
     function serializeU256WithHexStr(uint256 data)
         internal
         pure
         returns (bytes memory)
     {
-        bytes memory encodeData = abi.encodePacked(
-            hexStrToAscii(uint8(data & 0xF))
-        );
-        data = data >> 4;
+        bytes memory encodeData = abi.encodePacked(uint8(data & 0xFF));
+        data = data >> 8;
 
         while (data != 0) {
-            encodeData = abi
-                .encodePacked(hexStrToAscii(uint8(data & 0xF)))
-                .concat(encodeData);
-            data = data >> 4;
+            encodeData = abi.encodePacked(uint8(data & 0xFF)).concat(
+                encodeData
+            );
+            data = data >> 8;
         }
         return encodeData;
     }
@@ -305,7 +279,7 @@ library LibCross {
     {
         uint256 buf = 0;
         for (uint256 i = 0; i < data.length; i++) {
-            buf = (buf << 4) + asciiToHexStr(data.toUint8(i));
+            buf = (buf << 8) + data.toUint8(i);
         }
         return buf;
     }

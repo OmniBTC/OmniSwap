@@ -507,7 +507,10 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         end = end + 1;
 
         end = stargatePayload.indexOf(INTERDELIMITER, start);
-        data.soData.receivingAssetId = stargatePayload.slice(start, end - start);
+        data.soData.receivingAssetId = stargatePayload.slice(
+            start,
+            end - start
+        );
         start = end + 1;
         end = end + 1;
 

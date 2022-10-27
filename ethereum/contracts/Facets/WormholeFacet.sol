@@ -26,9 +26,6 @@ contract WormholeFacet is Swapper {
 
     uint256 public constant RAY = 1e27;
 
-    // Data delimiter, represent ";"
-    uint8 public constant INTERDELIMITER = 59;
-
     struct Storage {
         address tokenBridge;
         uint16 srcWormholeChainId;
@@ -506,16 +503,16 @@ contract WormholeFacet is Swapper {
     }
 
     /// CrossData
-    // 1. dst_max_gas_price INTER_DELIMITER
-    // 2. dst_max_gas INTER_DELIMITER
-    // 3. transactionId(SoData) INTER_DELIMITER
-    // 4. receiver(SoData) INTER_DELIMITER
-    // 5. receivingAssetId(SoData) INTER_DELIMITER
-    // 6. swapDataLength(u8) INTER_DELIMITER
-    // 7. callTo(SwapData) INTER_DELIMITER
-    // 8. sendingAssetId(SwapData) INTER_DELIMITER
-    // 9. receivingAssetId(SwapData) INTER_DELIMITER
-    // 10. callData(SwapData)
+    // 1. length + dst_max_gas_price
+    // 2. length + dst_max_gas
+    // 3. length + transactionId(SoData)
+    // 4. length + receiver(SoData)
+    // 5. length + receivingAssetId(SoData)
+    // 6. length + swapDataLength(u8)
+    // 7. length + callTo(SwapData)
+    // 8. length + sendingAssetId(SwapData)
+    // 9. length + receivingAssetId(SwapData)
+    // 10. length + callData(SwapData)
     function encodeWormholePayload(
         uint256 dstMaxGasPrice,
         uint256 dstMaxGas,
@@ -529,36 +526,37 @@ contract WormholeFacet is Swapper {
             dstMaxGas
         );
         bytes memory encodeData = abi.encodePacked(
+            uint16(dstMaxGasPriceByte.length),
             dstMaxGasPriceByte,
-            INTERDELIMITER,
+            uint16(dstMaxGasByte.length),
             dstMaxGasByte,
-            INTERDELIMITER,
+            uint16(dstMaxGasPriceByte.length),
             soData.transactionId,
-            INTERDELIMITER,
+            uint16(dstMaxGasPriceByte.length),
             soData.receiver,
-            INTERDELIMITER,
+            uint16(dstMaxGasPriceByte.length),
             soData.receivingAssetId
         );
 
         if (swapDataDst.length > 0) {
+            bytes memory swapLenBytes = LibCross.serializeU256WithHexStr(
+                swapDataDst.length
+            );
             encodeData = encodeData.concat(
-                abi.encodePacked(
-                    INTERDELIMITER,
-                    LibCross.serializeU256WithHexStr(swapDataDst.length)
-                )
+                abi.encodePacked(uint16(swapLenBytes.length), swapLenBytes)
             );
         }
 
         for (uint256 i = 0; i < swapDataDst.length; i++) {
             encodeData = encodeData.concat(
                 abi.encodePacked(
-                    INTERDELIMITER,
+                    uint16(swapDataDst[i].callTo.length),
                     swapDataDst[i].callTo,
-                    INTERDELIMITER,
+                    uint16(swapDataDst[i].sendingAssetId.length),
                     swapDataDst[i].sendingAssetId,
-                    INTERDELIMITER,
+                    uint16(swapDataDst[i].receivingAssetId.length),
                     swapDataDst[i].receivingAssetId,
-                    INTERDELIMITER,
+                    uint16(swapDataDst[i].callData.length),
                     swapDataDst[i].callData
                 )
             );
@@ -567,16 +565,16 @@ contract WormholeFacet is Swapper {
     }
 
     /// CrossData
-    // 1. dst_max_gas_price INTER_DELIMITER
-    // 2. dst_max_gas INTER_DELIMITER
-    // 3. transactionId(SoData) INTER_DELIMITER
-    // 4. receiver(SoData) INTER_DELIMITER
-    // 5. receivingAssetId(SoData) INTER_DELIMITER
-    // 6. swapDataLength(u8) INTER_DELIMITER
-    // 7. callTo(SwapData) INTER_DELIMITER
-    // 8. sendingAssetId(SwapData) INTER_DELIMITER
-    // 9. receivingAssetId(SwapData) INTER_DELIMITER
-    // 10. callData(SwapData)
+    // 1. length + dst_max_gas_price
+    // 2. length + dst_max_gas
+    // 3. length + transactionId(SoData)
+    // 4. length + receiver(SoData)
+    // 5. length + receivingAssetId(SoData)
+    // 6. length + swapDataLength(u8)
+    // 7. length + callTo(SwapData)
+    // 8. length + sendingAssetId(SwapData)
+    // 9. length + receivingAssetId(SwapData)
+    // 10. length + callData(SwapData)
     function decodeWormholePayload(bytes memory wormholeData)
         public
         pure
@@ -588,82 +586,80 @@ contract WormholeFacet is Swapper {
         )
     {
         CachePayload memory data;
-        uint256 start = 0;
-        uint256 end = 0;
+        uint256 index;
+        uint256 nextLen;
 
-        end = wormholeData.indexOf(INTERDELIMITER, start);
+        nextLen = uint256(wormholeData.toUint16(index));
+        index += 2;
         data.dstMaxGasPrice = LibCross.deserializeU256WithHexStr(
-            wormholeData.slice(start, end - start)
+            wormholeData.slice(index, nextLen)
         );
-        start = end + 1;
-        end = end + 1;
+        index += nextLen;
 
-        end = wormholeData.indexOf(INTERDELIMITER, start);
+        nextLen = uint256(wormholeData.toUint16(index));
+        index += 2;
         data.dstMaxGas = LibCross.deserializeU256WithHexStr(
-            wormholeData.slice(start, end - start)
+            wormholeData.slice(index, nextLen)
         );
-        start = end + 1;
-        end = end + 1;
+        index += nextLen;
 
-        end = wormholeData.indexOf(INTERDELIMITER, start);
-        data.soData.transactionId = wormholeData.slice(start, end - start);
-        start = end + 1;
-        end = end + 1;
+        nextLen = uint256(wormholeData.toUint16(index));
+        index += 2;
+        data.soData.transactionId = wormholeData.slice(index, nextLen);
+        index += nextLen;
 
-        end = wormholeData.indexOf(INTERDELIMITER, start);
-        data.soData.receiver = wormholeData.slice(start, end - start);
-        start = end + 1;
-        end = end + 1;
+        nextLen = uint256(wormholeData.toUint16(index));
+        index += 2;
+        data.soData.receiver = wormholeData.slice(index, nextLen);
+        index += nextLen;
 
-        end = wormholeData.indexOf(INTERDELIMITER, start);
-        data.soData.receivingAssetId = wormholeData.slice(start, end - start);
-        start = end + 1;
-        end = end + 1;
+        nextLen = uint256(wormholeData.toUint16(index));
+        index += 2;
+        data.soData.receivingAssetId = wormholeData.slice(index, nextLen);
+        index += nextLen;
 
-        if (start < wormholeData.length) {
-            end = wormholeData.indexOf(INTERDELIMITER, start);
+        if (index < wormholeData.length) {
+            nextLen = uint256(wormholeData.toUint16(index));
+            index += 2;
             uint256 swap_len = LibCross.deserializeU256WithHexStr(
-                wormholeData.slice(start, end - start)
+                wormholeData.slice(index, nextLen)
             );
-            start = end + 1;
-            end = end + 1;
+            index += nextLen;
 
             data.swapDataDst = new LibSwap.NormalizedSwapData[](swap_len);
             for (uint256 i = 0; i < swap_len; i++) {
-                end = wormholeData.indexOf(INTERDELIMITER, start);
-                data.swapDataDst[i].callTo = wormholeData.slice(
-                    start,
-                    end - start
-                );
+                nextLen = uint256(wormholeData.toUint16(index));
+                index += 2;
+                data.swapDataDst[i].callTo = wormholeData.slice(index, nextLen);
                 data.swapDataDst[i].approveTo = data.swapDataDst[i].callTo;
-                start = end + 1;
-                end = end + 1;
+                index += nextLen;
 
-                end = wormholeData.indexOf(INTERDELIMITER, start);
+                nextLen = uint256(wormholeData.toUint16(index));
+                index += 2;
                 data.swapDataDst[i].sendingAssetId = wormholeData.slice(
-                    start,
-                    end - start
+                    index,
+                    nextLen
                 );
-                start = end + 1;
-                end = end + 1;
+                index += nextLen;
 
-                end = wormholeData.indexOf(INTERDELIMITER, start);
+                nextLen = uint256(wormholeData.toUint16(index));
+                index += 2;
                 data.swapDataDst[i].receivingAssetId = wormholeData.slice(
-                    start,
-                    end - start
+                    index,
+                    nextLen
                 );
-                start = end + 1;
-                end = end + 1;
+                index += nextLen;
 
-                end = wormholeData.indexOf(INTERDELIMITER, start);
+                nextLen = uint256(wormholeData.toUint16(index));
+                index += 2;
                 data.swapDataDst[i].callData = wormholeData.slice(
-                    start,
-                    end - start
+                    index,
+                    nextLen
                 );
-                start = end + 1;
-                end = end + 1;
+                index += nextLen;
             }
         }
+        require(index == wormholeData.length, "LenErr");
         return (
             data.dstMaxGasPrice,
             data.dstMaxGas,
