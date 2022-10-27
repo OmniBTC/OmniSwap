@@ -15,7 +15,7 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-mainnet")
+package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-testnet")
 
 
 def get_signed_vaa(
@@ -151,12 +151,15 @@ def process_v1(
     local_logger.info("Starting process v1...")
     has_process = {}
     while True:
-        result = get_signed_vaa_by_to(dstWormholeChainId, url="http://wormhole-vaa.chainx.org")
+        if "test" in package.network or "test" == "goerli":
+            url = "http://wormhole-testnet.sherpax.io"
+        else:
+            url = "http://wormhole-vaa.chainx.org"
+        result = get_signed_vaa_by_to(dstWormholeChainId, url=url)
         result = [d for d in result if (int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
         local_logger.info(f"Get signed vaa by to length: {len(result)}")
         for d in result[::-1]:
             has_process[(int(d["emitterChainId"]), int(d["sequence"]))] = True
-
             try:
                 # Use bsc-test to decode, too slow may need to change bsc-mainnet
                 d["hexString"] = "0x" + d["hexString"]
@@ -223,8 +226,11 @@ def process_v2(
         for d in pending_data:
             has_process[(int(d["srcWormholeChainId"]), int(d["sequence"]))] = True
             try:
-                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]),
-                                     url="http://wormhole-vaa.chainx.org")
+                if "test" in package.network or "test" == "goerli":
+                    url = "http://wormhole-testnet.sherpax.io"
+                else:
+                    url = "http://wormhole-vaa.chainx.org"
+                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
                 if vaa is None:
                     continue
                 vaa = vaa["hexString"]
@@ -284,6 +290,7 @@ def process_v2(
 
 
 def main():
+    print(f'SoDiamond:{package.network_config["SoDiamond"]}')
     t1 = threading.Thread(target=process_v1, args=(22, package.network_config["SoDiamond"]))
     # t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
     t1.start()

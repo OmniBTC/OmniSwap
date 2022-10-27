@@ -66,6 +66,30 @@ module omniswap::serde {
         serialize_u128(buf, u256::as_truncate_u128(v));
     }
 
+    // [0, 9] --> ['0', '9']
+    // [10, 15] --> ['a', 'f']
+    public fun hex_str_to_ascii(v: u8): u8 {
+        if (v >= 0 && v <= 9) {
+            v + 48
+        }else if (v <= 15) {
+            v + 87
+        }else {
+            abort OVERFLOW
+        }
+    }
+
+    // ['0', '9'] --> [0, 9]
+    // ['a', 'f'] --> [10, 15]
+    public fun ascii_to_hex_str(v: u8): u8 {
+        if (v >= 48 && v <= 57) {
+            v - 48
+        }else if (v >= 97 && v <= 102) {
+            v - 87
+        }else {
+            abort OVERFLOW
+        }
+    }
+
     public fun serialize_u128_with_hex_str(buf: &mut vector<u8>, v: u128) {
         let data = vector::empty<u8>();
         serialize_u8(&mut data, ((v & 0xFF) as u8));
@@ -213,6 +237,25 @@ module omniswap::serde {
             i = i + 1;
         };
         slice
+    }
+
+    public fun vector_split<T: copy + drop>(vec: &vector<T>, e: T): vector<vector<T>> {
+        let split = vector::empty<vector<T>>();
+        let start = 0;
+        let end = 0;
+        while (end < vector::length(vec)) {
+            if (*vector::borrow(vec, end) == e) {
+                if (start < end) {
+                    vector::push_back(&mut split, vector_slice(vec, start, end));
+                };
+                start = end + 1;
+            };
+            end = end + 1;
+        };
+        if (start < end) {
+            vector::push_back(&mut split, vector_slice(vec, start, end));
+        };
+        split
     }
 
     #[test]

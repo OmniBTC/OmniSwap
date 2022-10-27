@@ -16,7 +16,7 @@ compiler:
 autofetch_sources: True
 dotenv: .env
 networks:
-  default: development
+  default: bsc-test
   aptos-testnet:
     omnibtc_chainid: 30001
     node_url: https://fullnode.testnet.aptoslabs.com/v1
@@ -154,7 +154,7 @@ networks:
   bsc-test:
     omnibtc_chainid: 30003
     chainid: 97
-    SoDiamond: "0xEB72c5679e924ed429cDb14E7b3E226d959240Aa"
+    SoDiamond: "0xFeEE07da1B3513BdfD5440562e962dfAac19566F"
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"

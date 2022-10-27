@@ -37,11 +37,11 @@ logger.setLevel("INFO")
 
 SUPPORTED_EVM = [
     {"dstWormholeChainId": 4,
-     "dstSoDiamond": "0x5C8DCfC739b78a964C8e9Db8B09d8EB42b1CC488",
+     "dstSoDiamond": "0xFeEE07da1B3513BdfD5440562e962dfAac19566F",
      "dstNet": "bsc-test"
      },
     {"dstWormholeChainId": 6,
-     "dstSoDiamond": "0x10Ae33b8D1c16461845BB1457BFe12B97b31E94f",
+     "dstSoDiamond": "0x3a208aaf7e5B516FF6ac762f09669Acb0b08cc51",
      "dstNet": "avax-test"
      },
 ]
@@ -53,10 +53,15 @@ def process_v1(
 ):
     local_logger = logger.getChild(f"[{network.show_active()}]")
     local_logger.info("Starting process v1...")
+    local_logger.info(f'SoDiamond:{dstSoDiamond}')
     has_process = {}
     while True:
         try:
-            result = get_signed_vaa_by_to(dstWormholeChainId, url="http://wormhole-vaa.chainx.org")
+            if "test" in network.show_active() or "test" == "goerli":
+                url = "http://wormhole-testnet.sherpax.io"
+            else:
+                url = "http://wormhole-vaa.chainx.org"
+            result = get_signed_vaa_by_to(dstWormholeChainId, url=url)
             result = [d for d in result if (
                 int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
         except Exception:
@@ -102,6 +107,7 @@ def process_v2(
 ):
     local_logger = logger.getChild(f"[{network.show_active()}]")
     local_logger.info("Starting process v2...")
+    local_logger.info(f'SoDiamond:{dstSoDiamond}')
     has_process = {}
     while True:
         pending_data = get_pending_data()
@@ -112,8 +118,12 @@ def process_v2(
             has_process[(int(d["srcWormholeChainId"]),
                          int(d["sequence"]))] = True
             try:
+                if "test" in network.show_active() or "test" == "goerli":
+                    url = "http://wormhole-testnet.sherpax.io"
+                else:
+                    url = "http://wormhole-vaa.chainx.org"
                 vaa = get_signed_vaa(
-                    int(d["sequence"]), int(d["srcWormholeChainId"]), url="http://wormhole-vaa.chainx.org")
+                    int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
                 if vaa is None:
                     continue
                 vaa = vaa["hexString"]

@@ -38,6 +38,9 @@ module omniswap::wormhole_facet {
 
     const SEED: vector<u8> = b"wormhole_facet";
 
+    // Data delimiter, represent ";"
+    const INTER_DELIMITER: u8 = 59;
+
     /// Errors Code
     const ENOT_DEPLOYED_ADDRESS: u64 = 0x00;
 
