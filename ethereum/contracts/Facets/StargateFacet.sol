@@ -209,7 +209,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         ISo.SoData calldata soData,
         LibSwap.SwapData[] memory swapDataDst
     ) external {
-        uint256 soFee = getSoFee(amount);
+        uint256 soFee = getStargateSoFee(amount);
         if (soFee < amount) {
             amount = amount.sub(soFee);
         }
@@ -384,7 +384,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     /// Public Methods ///
 
     /// @dev Get so fee
-    function getSoFee(uint256 amount) public view returns (uint256) {
+    function getStargateSoFee(uint256 amount) public view returns (uint256) {
         Storage storage s = getStorage();
         address soFee = appStorage.gatewaySoFeeSelectors[s.stargate];
         if (soFee == address(0x0)) {

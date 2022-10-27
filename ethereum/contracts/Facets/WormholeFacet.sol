@@ -259,7 +259,7 @@ contract WormholeFacet is Swapper {
             tokenAddress = LibAsset.NATIVE_ASSETID;
         }
 
-        uint256 soFee = getSoFee(amount);
+        uint256 soFee = getWromholeSoFee(amount);
         if (soFee > 0 && soFee < amount) {
             amount = amount.sub(soFee);
         }
@@ -446,7 +446,7 @@ contract WormholeFacet is Swapper {
     }
 
     /// @dev Get so fee
-    function getSoFee(uint256 amount) public view returns (uint256) {
+    function getWromholeSoFee(uint256 amount) public view returns (uint256) {
         Storage storage s = getStorage();
         address soFee = appStorage.gatewaySoFeeSelectors[s.tokenBridge];
         if (soFee == address(0x0)) {
