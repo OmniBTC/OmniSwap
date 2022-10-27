@@ -15,40 +15,36 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-SUPPORTED_EVM = [
-    {"dstWormholeChainId": 2,
-     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-     "dstNet": "mainnet"
-     },
-    {"dstWormholeChainId": 4,
-     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-     "dstNet": "bsc-main"
-     },
-    {"dstWormholeChainId": 5,
-     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-     "dstNet": "polygon-main"
-     },
-    {"dstWormholeChainId": 6,
-     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-     "dstNet": "avax-main"
-     },
-]
-
-
 # SUPPORTED_EVM = [
+#     {"dstWormholeChainId": 2,
+#      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+#      "dstNet": "mainnet"
+#      },
 #     {"dstWormholeChainId": 4,
-#      "dstSoDiamond": "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228",
-#      "dstNet": "bsc-test"
+#      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+#      "dstNet": "bsc-main"
 #      },
 #     {"dstWormholeChainId": 5,
-#      "dstSoDiamond": "0xBae5BeAdBaa65628eA9DC5A5c7F794b4865c8771",
-#      "dstNet": "polygon-test"
+#      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+#      "dstNet": "polygon-main"
 #      },
 #     {"dstWormholeChainId": 6,
-#      "dstSoDiamond": "0x802e05b91769342af3F0d13f9DC6Df03a54C2ac7",
-#      "dstNet": "avax-test"
+#      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+#      "dstNet": "avax-main"
 #      },
 # ]
+
+
+SUPPORTED_EVM = [
+    {"dstWormholeChainId": 4,
+     "dstSoDiamond": "0x5C8DCfC739b78a964C8e9Db8B09d8EB42b1CC488",
+     "dstNet": "bsc-test"
+     },
+    {"dstWormholeChainId": 6,
+     "dstSoDiamond": "0x10Ae33b8D1c16461845BB1457BFe12B97b31E94f",
+     "dstNet": "avax-test"
+     },
+]
 
 
 def process_v1(
