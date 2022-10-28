@@ -497,25 +497,6 @@
         "anonymous": false,
         "inputs": [
             {
-                "indexed": false,
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "SetApproveAmount",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
                 "indexed": true,
                 "internalType": "bytes32",
                 "name": "transactionId",
@@ -1339,24 +1320,6 @@
             }
         ],
         "name": "setAllowedAddress",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "setApproveAmount",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -2508,6 +2471,19 @@
         "inputs": [
             {
                 "internalType": "bytes",
+                "name": "encodeVm",
+                "type": "bytes"
+            }
+        ],
+        "name": "completeSoSwapByAdmin",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
                 "name": "wormholeData",
                 "type": "bytes"
             }
@@ -3126,6 +3102,30 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "transferToken",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "getWormholeFinalAmount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "getWormholeMessageFee",
         "outputs": [
@@ -3146,7 +3146,7 @@
                 "type": "uint256"
             }
         ],
-        "name": "getWromholeSoFee",
+        "name": "getWormholeSoFee",
         "outputs": [
             {
                 "internalType": "uint256",
