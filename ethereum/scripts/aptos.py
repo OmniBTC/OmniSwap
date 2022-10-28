@@ -358,6 +358,7 @@ def main():
     # load dst net project
     change_network(src_net)
 
+    # aptos gas: 16131
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
@@ -371,6 +372,7 @@ def main():
         src_func=SwapFunc.swapExactTokensForTokens
     )
 
+    # aptos gas: 29996
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
@@ -381,7 +383,7 @@ def main():
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens
     )
-
+    # aptos gas: 44854
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
@@ -398,6 +400,7 @@ def main():
         src_func=SwapFunc.swapExactTokensForTokens
     )
 
+    # aptos gas: 59295
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
@@ -416,6 +419,7 @@ def main():
         src_func=SwapFunc.swapExactTokensForTokens
     )
 
+    # aptos gas: 278545
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
