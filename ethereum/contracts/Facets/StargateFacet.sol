@@ -197,6 +197,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         ISo.SoData calldata soData,
         LibSwap.SwapData[] memory swapDataDst
     ) external {
+        require(msg.sender == address(this), "NotDiamond");
         uint256 soFee = getStargateSoFee(amount);
         if (soFee < amount) {
             amount = amount.sub(soFee);
@@ -279,6 +280,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
             amount = LibAsset.getOwnBalance(token);
         }
 
+        amount = amount.div(10);
         require(amount > 0, "LittleAmount");
         bytes memory payload = getSgReceiveForGasPayload(
             soDataNo,
