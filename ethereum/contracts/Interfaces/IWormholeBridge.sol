@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./IWETH.sol";
 import "./IWormhole.sol";
 
 interface IWormholeBridge {
@@ -275,10 +275,4 @@ interface IWormholeBridge {
     function isWrappedAsset(address token) external view returns (bool);
 
     function finality() external view returns (uint8);
-}
-
-interface IWETH is IERC20 {
-    function deposit() external payable;
-
-    function withdraw(uint256 amount) external;
 }

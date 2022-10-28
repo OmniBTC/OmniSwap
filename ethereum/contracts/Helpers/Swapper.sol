@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
+import {IWETH} from "../Interfaces/IWETH.sol";
 import {ISo} from "../Interfaces/ISo.sol";
 import {ICorrectSwap} from "../Interfaces/ICorrectSwap.sol";
 import {LibSwap} from "../Libraries/LibSwap.sol";
@@ -8,7 +9,6 @@ import {LibAsset} from "../Libraries/LibAsset.sol";
 import {LibUtil} from "../Libraries/LibUtil.sol";
 import {LibStorage} from "../Libraries/LibStorage.sol";
 import {LibAsset} from "../Libraries/LibAsset.sol";
-import {IStargateEthVault} from "../Interfaces/IStargateEthVault.sol";
 import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided, NotSupportedSwapRouter} from "../Errors/GenericErrors.sol";
 
 /// @title Swapper
@@ -67,9 +67,8 @@ contract Swapper is ISo {
 
     /// Internal Methods ///
 
-    /// @dev Convert to wrapped eth. As long as it is successful, it must be converted
-    ///      from the currentAssetId to the expectedAssetId of the amount.
-    function deposit(
+    /// @dev Convert eth to wrapped eth and Transfer.
+    function transferWrappedAsset(
         address currentAssetId,
         address expectAssetId,
         uint256 amount
@@ -77,7 +76,7 @@ contract Swapper is ISo {
         if (currentAssetId == expectAssetId) {
             require(
                 LibAsset.getOwnBalance(currentAssetId) >= amount,
-                "Deposit not enough"
+                "NotEnough"
             );
             return;
         }
@@ -85,29 +84,29 @@ contract Swapper is ISo {
         if (LibAsset.isNativeAsset(currentAssetId)) {
             // eth -> weth
             try
-                IStargateEthVault(expectAssetId).deposit{value: amount}()
+                IWETH(expectAssetId).deposit{value: amount}()
             {} catch {
-                revert("Deposit fail");
+                revert("DepositErr");
             }
         } else {
             // weth -> eth -> weth
             if (currentAssetId != expectAssetId) {
                 try
-                    IStargateEthVault(currentAssetId).withdraw(amount)
+                    IWETH(currentAssetId).withdraw(amount)
                 {} catch {
-                    revert("Deposit withdraw fail");
+                    revert("DepositWithdrawErr");
                 }
                 try
-                    IStargateEthVault(expectAssetId).deposit{value: amount}()
+                    IWETH(expectAssetId).deposit{value: amount}()
                 {} catch {
-                    revert("Withdraw deposit fail");
+                    revert("WithdrawDepositErr");
                 }
             }
         }
     }
 
     /// @dev Convert wrapped eth to eth and Transfer.
-    function withdraw(
+    function transferUnwrappedAsset(
         address currentAssetId,
         address expectAssetId,
         uint256 amount,
@@ -115,20 +114,19 @@ contract Swapper is ISo {
     ) internal {
         if (LibAsset.isNativeAsset(expectAssetId)) {
             if (currentAssetId != expectAssetId) {
-                // weth -> eth
                 try
-                    IStargateEthVault(currentAssetId).withdraw(amount)
+                    IWETH(currentAssetId).withdraw(amount)
                 {} catch {
-                    revert("Withdraw fail");
+                    revert("WithdrawErr");
                 }
             }
         } else {
-            require(currentAssetId == expectAssetId, "AssetId not match");
+            require(currentAssetId == expectAssetId, "AssetIdErr");
         }
         if (receiver != address(this)) {
             require(
                 LibAsset.getOwnBalance(expectAssetId) >= amount,
-                "Withdraw not enough"
+                "NotEnough"
             );
             LibAsset.transferAsset(expectAssetId, payable(receiver), amount);
         }
