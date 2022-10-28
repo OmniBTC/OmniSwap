@@ -126,7 +126,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
             LibAsset.depositAsset(soData.sendingAssetId, soData.amount);
         }
         if (swapDataSrc.length == 0) {
-            deposit(
+            transferWrappedAsset(
                 soData.sendingAssetId,
                 _getStargateTokenByPoolId(stargateData.srcStargatePoolId),
                 soData.amount
@@ -135,7 +135,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         } else {
             require(soData.amount == swapDataSrc[0].fromAmount, "AmountErr");
             bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
-            deposit(
+            transferWrappedAsset(
                 swapDataSrc[swapDataSrc.length - 1].receivingAssetId,
                 _getStargateTokenByPoolId(stargateData.srcStargatePoolId),
                 bridgeAmount
@@ -189,14 +189,14 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         try
             this.remoteSoSwap{gas: swapGas}(token, amount, soData, swapDataDst)
         {} catch Error(string memory revertReason) {
-            withdraw(token, token, amount, soData.receiver);
+            transferUnwrappedAsset(token, token, amount, soData.receiver);
             emit SoTransferFailed(
                 soData.transactionId,
                 revertReason,
                 bytes("")
             );
         } catch (bytes memory returnData) {
-            withdraw(token, token, amount, soData.receiver);
+            transferUnwrappedAsset(token, token, amount, soData.receiver);
             emit SoTransferFailed(soData.transactionId, "", returnData);
         }
     }
@@ -216,25 +216,30 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
 
         if (swapDataDst.length == 0) {
             if (soFee > 0) {
-                withdraw(
+                transferUnwrappedAsset(
                     token,
                     soData.receivingAssetId,
                     soFee,
                     LibDiamond.contractOwner()
                 );
             }
-            withdraw(token, soData.receivingAssetId, amount, soData.receiver);
+            transferUnwrappedAsset(
+                token,
+                soData.receivingAssetId,
+                amount,
+                soData.receiver
+            );
             emit SoTransferCompleted(soData.transactionId, amount);
         } else {
             if (soFee > 0) {
-                withdraw(
+                transferUnwrappedAsset(
                     token,
                     swapDataDst[0].sendingAssetId,
                     soFee,
                     LibDiamond.contractOwner()
                 );
             }
-            withdraw(
+            transferUnwrappedAsset(
                 token,
                 swapDataDst[0].sendingAssetId,
                 amount,
@@ -256,7 +261,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
                 soData,
                 swapDataDst
             );
-            withdraw(
+            transferUnwrappedAsset(
                 swapDataDst[swapDataDst.length - 1].receivingAssetId,
                 soData.receivingAssetId,
                 amountFinal,
