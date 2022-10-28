@@ -223,7 +223,12 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
                     LibDiamond.contractOwner()
                 );
             }
-            transferUnwrappedAsset(token, soData.receivingAssetId, amount, soData.receiver);
+            transferUnwrappedAsset(
+                token,
+                soData.receivingAssetId,
+                amount,
+                soData.receiver
+            );
             emit SoTransferCompleted(soData.transactionId, amount);
         } else {
             if (soFee > 0) {

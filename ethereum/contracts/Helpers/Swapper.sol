@@ -83,22 +83,16 @@ contract Swapper is ISo {
 
         if (LibAsset.isNativeAsset(currentAssetId)) {
             // eth -> weth
-            try
-                IWETH(expectAssetId).deposit{value: amount}()
-            {} catch {
+            try IWETH(expectAssetId).deposit{value: amount}() {} catch {
                 revert("DepositErr");
             }
         } else {
             // weth -> eth -> weth
             if (currentAssetId != expectAssetId) {
-                try
-                    IWETH(currentAssetId).withdraw(amount)
-                {} catch {
+                try IWETH(currentAssetId).withdraw(amount) {} catch {
                     revert("DepositWithdrawErr");
                 }
-                try
-                    IWETH(expectAssetId).deposit{value: amount}()
-                {} catch {
+                try IWETH(expectAssetId).deposit{value: amount}() {} catch {
                     revert("WithdrawDepositErr");
                 }
             }
@@ -114,9 +108,7 @@ contract Swapper is ISo {
     ) internal {
         if (LibAsset.isNativeAsset(expectAssetId)) {
             if (currentAssetId != expectAssetId) {
-                try
-                    IWETH(currentAssetId).withdraw(amount)
-                {} catch {
+                try IWETH(currentAssetId).withdraw(amount) {} catch {
                     revert("WithdrawErr");
                 }
             }
