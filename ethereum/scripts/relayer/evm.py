@@ -15,6 +15,7 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
+
 # SUPPORTED_EVM = [
 #     {"dstWormholeChainId": 2,
 #      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
