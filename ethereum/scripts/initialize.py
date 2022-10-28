@@ -266,6 +266,11 @@ def redeploy_stargate():
 
 
 def add_cut(contracts: list = None):
+    proxy_loupe = Contract.from_abi(
+        "DiamondLoupeFacet", SoDiamond[-1].address, DiamondLoupeFacet.abi)
+    all_facets = proxy_loupe.facets()
+    func_sigs = [d2 for d1 in all_facets for d2 in d1]
+
     if contracts is None:
         contracts = []
     account = get_account()
@@ -284,7 +289,8 @@ def add_cut(contracts: list = None):
                     register_funcs[func_name].append(reg_funcs[func_name])
             else:
                 register_funcs[func_name] = [reg_funcs[func_name]]
-        register_data.append([reg_facet, 0, list(reg_funcs.values())])
+        result = list(set(reg_funcs.values()) - set(func_sigs))
+        register_data.append([reg_facet, 0, result])
 
     if not register_data:
         return
