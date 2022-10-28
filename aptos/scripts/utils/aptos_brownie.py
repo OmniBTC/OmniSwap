@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import copy
 import functools
 import hashlib
 import os
@@ -10,7 +11,8 @@ from typing import Union, List, Dict, Any
 
 from aptos_sdk import account
 from aptos_sdk.account_address import AccountAddress
-from aptos_sdk.authenticator import Authenticator, Ed25519Authenticator
+from aptos_sdk.authenticator import Authenticator, Ed25519Authenticator, \
+    MultiAgentAuthenticator
 from aptos_sdk.bcs import Deserializer, Serializer
 from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload, SignedTransaction, \
     RawTransaction
@@ -364,6 +366,26 @@ class AptosPackage:
         )
         return SignedTransaction(raw_transaction, authenticator)
 
+    def simulate_submit_bcs_transaction(self, signed_transaction: SignedTransaction) -> dict:
+        signed_transaction = copy.deepcopy(signed_transaction)
+        if isinstance(signed_transaction.authenticator.authenticator, Ed25519Authenticator):
+            sl = len(signed_transaction.authenticator.authenticator.signature.signature)
+            signed_transaction.authenticator.authenticator.signature.signature = sl * bytes(1)
+        elif isinstance(signed_transaction.authenticator.authenticator, MultiAgentAuthenticator):
+            signed_transaction.authenticator.authenticator.secondary_signers = []
+        else:
+            raise Exception("Invalid type")
+
+        headers = {"Content-Type": "application/x.aptos.signed_transaction+bcs"}
+        response = self.rest_client.client.post(
+            f"{self.rest_client.base_url}/transactions/simulate",
+            headers=headers,
+            content=signed_transaction.bytes(),
+        )
+        if response.status_code >= 400:
+            raise ApiError(response.text, response.status_code)
+        return response.json()
+
     def submit_bcs_transaction(
             self, abi: EntryFunctionABI, *args, ty_args: List[str] = None, **kwargs,
     ) -> dict:
@@ -416,6 +438,15 @@ class AptosPackage:
         signed_transaction = self.create_single_signer_bcs_transaction(
             self.account, TransactionPayload(payload)
         )
+        try:
+            result = self.simulate_submit_bcs_transaction(signed_transaction)
+            if not result[0]["success"]:
+                print(result)
+                return {}
+        except Exception as e:
+            print(f"Simulate fail:\n {e}")
+            return {}
+
         txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)
         print(
             f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting...")

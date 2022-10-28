@@ -79,7 +79,7 @@ def main():
             package.network_config["wormhole"]["gas"][net]["per_byte_gas"])))
         print(f"Set wormhole gas for:{net}")
         package["wormhole_facet::set_wormhole_gas"](
-            package.network_config["wormhole"]["chainid"],
+            package.network_config["wormhole"]["gas"][net]["dst_chainid"],
             base_gas,
             gas_per_bytes
         )
