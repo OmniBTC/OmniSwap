@@ -343,8 +343,9 @@ def cross_swap(
 
 
 def main():
-    src_net = "polygon-main"
-    dst_net = "aptos-mainnet"
+    src_net = "bsc-test"
+    dst_net = "aptos-testnet"
+    print(f"src: {src_net}, dst: {dst_net}")
     assert dst_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
 
     # Prepare environment
@@ -357,12 +358,79 @@ def main():
     # load dst net project
     change_network(src_net)
 
+    # aptos gas: 16131
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
         dst_path=[
             "AptosCoin",
         ],
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
+        input_amount=int(100000),
+        src_router=SwapType.IUniswapV2Router02,
+        src_func=SwapFunc.swapExactTokensForTokens
+    )
+
+    # aptos gas: 29996
+    cross_swap(
+        package,
+        src_path=["AptosCoin_WORMHOLE"],
+        dst_path=["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"],
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
+        input_amount=int(100000),
+        src_router=SwapType.IUniswapV2Router02,
+        src_func=SwapFunc.swapExactTokensForTokens
+    )
+    # aptos gas: 44854
+    cross_swap(
+        package,
+        src_path=["AptosCoin_WORMHOLE"],
+        dst_path=["AptosCoin",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC",
+                  LiquidswapCurve.Uncorrelated,
+                  "USDT",
+                  ],
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
+        input_amount=int(100000),
+        src_router=SwapType.IUniswapV2Router02,
+        src_func=SwapFunc.swapExactTokensForTokens
+    )
+
+    # aptos gas: 59295
+    cross_swap(
+        package,
+        src_path=["AptosCoin_WORMHOLE"],
+        dst_path=["AptosCoin",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC",
+                  LiquidswapCurve.Uncorrelated,
+                  "USDT",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC"
+                  ],
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
+        input_amount=int(100000),
+        src_router=SwapType.IUniswapV2Router02,
+        src_func=SwapFunc.swapExactTokensForTokens
+    )
+
+    # aptos gas: 278545
+    cross_swap(
+        package,
+        src_path=["AptosCoin_WORMHOLE"],
+        dst_path=["AptosCoin",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC",
+                  LiquidswapCurve.Uncorrelated,
+                  "USDT",
+                  LiquidswapCurve.Stable,
+                  "USDC"
+                  ],
         receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
         dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
         input_amount=int(100000),

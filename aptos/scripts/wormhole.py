@@ -211,7 +211,6 @@ def estimate_wormhole_fee(
         wormhole_fee_resource,
         f"{str(package.account.account_address)}::so_fee_wormhole::PriceManager"
     )
-
     ratio = wormhole_price["data"]["price_data"]["current_price_ratio"]
 
     base_gas = package.network_config["wormhole"]["gas"][current_net]["base_gas"]
@@ -262,6 +261,17 @@ def generate_wormhole_data(
         wormholeFee=wormhole_fee,
         dstSoDiamond=package.config["networks"][dst_net]["SoDiamond"]
     )
+
+
+def generate_src_swap_path(
+        package: aptos_brownie.AptosPackage,
+        p: list):
+    assert len(p) == 3
+    return [
+        get_aptos_token(package)[p[0]]["address"],
+        get_aptos_token(package)[p[2]]["address"],
+        get_liquidswap_curve(package, p[1]),
+    ]
 
 
 def generate_src_swap_data(
@@ -407,7 +417,6 @@ def cross_swap(
     if len(src_path) > 1:
         src_swap_data = generate_src_swap_data(
             package, "liquidswap", src_path, input_amount)
-        print(src_swap_data)
         normal_src_swap_data = [d.format_to_contract() for d in src_swap_data]
         normal_src_swap_data = hex_str_to_vector_u8(
             str(serde.encodeNormalizedSwapData(normal_src_swap_data)))
@@ -432,7 +441,7 @@ def cross_swap(
         ty_args = [so_data.sendingAssetId] * 4
     elif len(src_swap_data) == 1:
         ty_args = [src_swap_data[0].sendingAssetId] + \
-            [src_swap_data[0].receivingAssetId] * 3
+                  [src_swap_data[0].receivingAssetId] * 3
     elif len(src_swap_data) == 2:
         ty_args = [src_swap_data[0].sendingAssetId, src_swap_data[1].sendingAssetId] + [
             src_swap_data[1].receivingAssetId] * 2
@@ -445,15 +454,15 @@ def cross_swap(
         raise ValueError
 
     payload_length = len(normal_so_data) + \
-        len(normal_wormhole_data) + len(normal_dst_swap_data)
+                     len(normal_wormhole_data) + len(normal_dst_swap_data)
 
     is_native = src_path[0] == "AptosCoin"
-    # if is_native:
-    #     wormhole_fee = input_amount
-    # else:
-    #     wormhole_fee = 0
     wormhole_fee = estimate_wormhole_fee(
         package, package.config["networks"][dst_net]["wormhole"]["chainid"], input_amount, is_native, payload_length, 0)
+    if is_native:
+        wormhole_fee = input_amount + wormhole_fee
+    else:
+        wormhole_fee = wormhole_fee
     print(f"Wormhole fee: {wormhole_fee}")
     wormhole_data = generate_wormhole_data(
         package,
@@ -473,9 +482,9 @@ def cross_swap(
 
 
 def main():
-    src_net = "aptos-mainnet"
+    src_net = "aptos-testnet"
     assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
-    dst_net = "polygon-main"
+    dst_net = "bsc-test"
 
     # Prepare environment
     # load src net aptos package
@@ -490,13 +499,26 @@ def main():
             network=src_net,
             package_path=omniswap_aptos_path.joinpath("mocks")
         )
-        package_mock["setup::setup_omniswap_enviroment"]()
-
+        package_mock["setup::add_liquidity"](
+            10000000,
+            100000000,
+            ty_args=generate_src_swap_path(package_mock, ["XBTC", LiquidswapCurve.Uncorrelated, "AptosCoin"]))
+        package_mock["setup::add_liquidity"](
+            20000 * 1000000000,
+            1000000000,
+            ty_args=generate_src_swap_path(package_mock, ["USDT", LiquidswapCurve.Uncorrelated, "XBTC"]))
+        package_mock["setup::add_liquidity"](
+            10000000000,
+            10000000000,
+            ty_args=generate_src_swap_path(package_mock, ["USDC", LiquidswapCurve.Stable, "USDT"]))
+        # gas: 9121
+        # package_mock["setup::setup_omniswap_enviroment"]()
     # load dst net project
     change_network(dst_net)
 
     ####################################################
 
+    # gas: 17770
     cross_swap(package,
                src_path=["AptosCoin"],
                dst_path=["AptosCoin_WORMHOLE"],
@@ -504,6 +526,7 @@ def main():
                input_amount=100000,
                )
 
+    # gas: 31181
     cross_swap(package,
                src_path=["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"],
                dst_path=["XBTC_WORMHOLE"],
@@ -511,6 +534,20 @@ def main():
                input_amount=10000000,
                )
 
+    # gas: 46160
+    cross_swap(package,
+               src_path=["AptosCoin",
+                         LiquidswapCurve.Uncorrelated,
+                         "XBTC",
+                         LiquidswapCurve.Uncorrelated,
+                         "USDT",
+                         ],
+               dst_path=["USDT_WORMHOLE"],
+               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+               input_amount=10000000,
+               )
+
+    # gas: 313761
     cross_swap(package,
                src_path=["AptosCoin",
                          LiquidswapCurve.Uncorrelated,
@@ -525,6 +562,7 @@ def main():
                input_amount=10000000,
                )
 
+    # gas: 35389
     cross_swap(
         package,
         src_path=["AptosCoin"],

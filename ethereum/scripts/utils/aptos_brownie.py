@@ -570,6 +570,7 @@ class AptosPackage:
             b = self.rest_client.account_balance(
                 str(self.account.account_address))
             amount = max(int(int(float(b) / 1e8) * 1e8 - 1e8), 0)
+            print(f"Old APT:{amount}, Address: {acc.account_address}")
             if amount > 0:
                 txn_hash = self.transfer(
                     self.account, acc.account_address, amount)

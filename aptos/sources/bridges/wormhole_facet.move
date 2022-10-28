@@ -26,15 +26,20 @@ module omniswap::wormhole_facet {
     use omniswap::u256::{U256, Self};
     use omniswap::u16::{U16, Self};
     use omniswap::serde;
-    use omniswap::cross::{NormalizedSoData, NormalizedSwapData};
-    use omniswap::serde::{serialize_vector_with_length, serialize_u256, deserialize_u256};
+    use omniswap::cross::{NormalizedSoData, NormalizedSwapData, padding_swap_data};
+    use omniswap::serde::{deserialize_u256, serialize_u256_with_hex_str, serialize_u16, serialize_u8};
     use omniswap::so_fee_wormhole;
     use omniswap::swap::right_type;
-    use aptos_framework::timestamp;
+    #[test_only]
+    use omniswap::cross::padding_so_data;
+
 
     const RAY: u64 = 100000000;
 
     const SEED: vector<u8> = b"wormhole_facet";
+
+    // Data delimiter, represent ";"
+    const INTER_DELIMITER: u8 = 59;
 
     /// Errors Code
     const ENOT_DEPLOYED_ADDRESS: u64 = 0x00;
@@ -70,12 +75,19 @@ module omniswap::wormhole_facet {
         dst_base_gas: Table<U16, U256>,
         // target chain gas per bytes
         dst_gas_per_bytes: Table<U16, U256>,
+        // Deprecated
         // track cross-chain swaps sent from this chain
         so_transfer_started_events: EventHandle<SoTransferStartedEvent>,
+        // Deprecated
         // track cross-chain swaps that reach the chain
         so_transfer_completed_events: EventHandle<SoTransferCompletedEvent>,
         // trace wormhole msg sent from this chain
         transfer_from_wormhole_events: EventHandle<TransferFromWormholeEvent>
+    }
+
+    struct SoTransferEventHandle has key {
+        so_transfer_started: EventHandle<SoTransferStarted>,
+        so_transfer_completed: EventHandle<SoTransferCompleted>
     }
 
     /// Some parameters needed to use wormhole
@@ -104,6 +116,7 @@ module omniswap::wormhole_facet {
         sequence: u64
     }
 
+    /// Deprecated
     struct SoTransferStartedEvent has store, drop {
         transaction_id: vector<u8>,
         bridge: address,
@@ -112,6 +125,7 @@ module omniswap::wormhole_facet {
         so_data: vector<u8>
     }
 
+    /// Deprecated
     struct SoTransferCompletedEvent has store, drop {
         transaction_id: vector<u8>,
         receiveing_asset_id: address,
@@ -119,6 +133,15 @@ module omniswap::wormhole_facet {
         receive_amount: u64,
         timestamp: u64,
         so_data: vector<u8>
+    }
+
+    struct SoTransferStarted has store, drop {
+        transaction_id: vector<u8>,
+    }
+
+    struct SoTransferCompleted has store, drop {
+        transaction_id: vector<u8>,
+        actual_receiving_amount: u64,
     }
 
     /// Helpers
@@ -213,11 +236,27 @@ module omniswap::wormhole_facet {
                 transfer_from_wormhole_events: account::new_event_handle(&resource_signer)
             });
         move_to(&resource_signer,
+            SoTransferEventHandle {
+                so_transfer_started: account::new_event_handle(&resource_signer),
+                so_transfer_completed: account::new_event_handle(&resource_signer)
+            });
+        move_to(&resource_signer,
             WormholeFee {
                 fee: 0,
                 beneficiary: @omniswap
             }
         );
+    }
+
+    public entry fun init_so_transfer_event(account: &signer) {
+        assert!(signer::address_of(account) == @omniswap, ENOT_DEPLOYED_ADDRESS);
+        assert!(!exists<SoTransferEventHandle>(signer::address_of(account)), EHAS_INITIALIZE);
+        let (resource_signer, _) = account::create_resource_account(account, SEED);
+        move_to(&resource_signer,
+            SoTransferEventHandle {
+                so_transfer_started: account::new_event_handle(&resource_signer),
+                so_transfer_completed: account::new_event_handle(&resource_signer)
+            });
     }
 
     public entry fun register_new_emitter(account: &signer) {
@@ -274,16 +313,15 @@ module omniswap::wormhole_facet {
         swap_data_src: vector<u8>,
         wormhole_data: vector<u8>,
         swap_data_dst: vector<u8>
-    ) acquires WormholeFacetManager, Storage {
+    ) acquires WormholeFacetManager, Storage, SoTransferEventHandle {
         assert!(is_initialize(), ENOT_INITIALIZE);
-        let emitter_cap = &borrow_global<WormholeFacetManager>(get_resource_address()).emitter_cap;
+        let resource_address = get_resource_address();
+        let emitter_cap = &borrow_global<WormholeFacetManager>(resource_address).emitter_cap;
 
         let so_data = cross::decode_normalized_so_data(&mut so_data);
         let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
 
-        let has_destination_swap = false;
         let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
-            has_destination_swap = true;
             cross::decode_normalized_swap_data(&mut swap_data_dst)
         }else {
             vector::empty()
@@ -302,9 +340,7 @@ module omniswap::wormhole_facet {
         let coin_aptos = coin::withdraw<AptosCoin>(account, fee);
 
         let sequence: u64;
-        let has_source_swap = false;
         if (vector::length(&swap_data_src) > 0) {
-            has_source_swap = true;
             let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
             if (vector::length(&swap_data_src) == 1) {
                 let coin_y = swap::swap_two_by_account<X, Y>(account, swap_data_src);
@@ -343,7 +379,7 @@ module omniswap::wormhole_facet {
                 abort EINVALID_LENGTH
             }
         }else {
-            let coin_val = u256::as_u64(cross::so_amount(so_data));
+            let coin_val = u256::as_u64(cross::so_amount(&so_data));
             let coin_x = coin::withdraw<X>(account, coin_val);
             sequence = transfer_tokens::transfer_tokens_with_payload(
                 emitter_cap,
@@ -355,17 +391,16 @@ module omniswap::wormhole_facet {
                 payload
             );
         };
-        let s = borrow_global_mut<Storage>(get_resource_address());
-        event::emit_event<SoTransferStartedEvent>(
-            &mut s.so_transfer_started_events,
-            SoTransferStartedEvent {
-                transaction_id: cross::so_transaction_id(so_data),
-                bridge: @token_bridge,
-                has_source_swap: has_source_swap,
-                has_destination_swap: has_destination_swap,
-                so_data: cross::encode_normalized_so_data(so_data)
+
+        let so_transfer_evnet_handle = borrow_global_mut<SoTransferEventHandle>(resource_address);
+        event::emit_event<SoTransferStarted>(
+            &mut so_transfer_evnet_handle.so_transfer_started,
+            SoTransferStarted {
+                transaction_id: cross::so_transaction_id(&so_data),
             }
         );
+
+        let s = borrow_global_mut<Storage>(resource_address);
         event::emit_event<TransferFromWormholeEvent>(
             &mut s.transfer_from_wormhole_events,
             TransferFromWormholeEvent {
@@ -378,11 +413,11 @@ module omniswap::wormhole_facet {
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
-    public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires WormholeFacetManager, Storage, WormholeFee {
+    public entry fun complete_so_swap<X, Y, Z, M>(vaa: vector<u8>) acquires WormholeFacetManager, WormholeFee, SoTransferEventHandle {
         assert!(is_initialize(), ENOT_INITIALIZE);
 
-
-        let emitter_cap = &borrow_global<WormholeFacetManager>(get_resource_address()).emitter_cap;
+        let resource_address = get_resource_address();
+        let emitter_cap = &borrow_global<WormholeFacetManager>(resource_address).emitter_cap;
         let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
 
         let x_val = coin::value(&coin_x);
@@ -395,28 +430,23 @@ module omniswap::wormhole_facet {
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
 
-        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiver = serde::deserialize_address(&cross::so_receiver(&so_data));
         let receiving_amount = coin::value(&coin_x);
-        let type_info = type_info::type_of<X>();
-
         if (vector::length(&swap_data_dst) > 0) {
             if (vector::length(&swap_data_dst) == 1) {
                 let coin_y = swap::swap_two_by_coin<X, Y>(coin_x, swap_data_dst);
-                type_info = type_info::type_of<Y>();
-                receiving_amount = coin::value(&coin_y);
 
+                receiving_amount = coin::value(&coin_y);
                 transfer(coin_y, receiver);
             }else if (vector::length(&swap_data_dst) == 2) {
                 let coin_z = swap::swap_three_by_coin<X, Y, Z>(coin_x, swap_data_dst);
-                type_info = type_info::type_of<Z>();
-                receiving_amount = coin::value(&coin_z);
 
+                receiving_amount = coin::value(&coin_z);
                 transfer(coin_z, receiver);
             }else if (vector::length(&swap_data_dst) == 3) {
                 let coin_m = swap::swap_four_by_coin<X, Y, Z, M>(coin_x, swap_data_dst);
-                receiving_amount = coin::value(&coin_m);
-                type_info = type_info::type_of<M>();
 
+                receiving_amount = coin::value(&coin_m);
                 transfer(coin_m, receiver);
             }else {
                 abort EINVALID_LENGTH
@@ -425,17 +455,12 @@ module omniswap::wormhole_facet {
             transfer(coin_x, receiver);
         };
 
-        let s = borrow_global_mut<Storage>(get_resource_address());
-        let receiving_asset_id = type_info::account_address(&type_info);
-        event::emit_event<SoTransferCompletedEvent>(
-            &mut s.so_transfer_completed_events,
-            SoTransferCompletedEvent {
-                transaction_id: cross::so_transaction_id(so_data),
-                receiveing_asset_id: receiving_asset_id,
-                receiver: receiver,
-                receive_amount: receiving_amount,
-                timestamp: timestamp::now_seconds(),
-                so_data: cross::encode_normalized_so_data(so_data)
+        let so_transfer_event_handle = borrow_global_mut<SoTransferEventHandle>(resource_address);
+        event::emit_event<SoTransferCompleted>(
+            &mut so_transfer_event_handle.so_transfer_completed,
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(&so_data),
+                actual_receiving_amount: receiving_amount
             }
         )
     }
@@ -507,8 +532,8 @@ module omniswap::wormhole_facet {
         src_fee = u256::div(src_fee, one);
         let comsume_value = u256::from_u64(state::get_message_fee());
 
-        if (right_type<AptosCoin>(cross::so_sending_asset_id(so_data))) {
-            comsume_value = u256::add(comsume_value, cross::so_amount(so_data));
+        if (right_type<AptosCoin>(cross::so_sending_asset_id(&so_data))) {
+            comsume_value = u256::add(comsume_value, cross::so_amount(&so_data));
         };
         comsume_value = u256::add(comsume_value, src_fee);
 
@@ -584,52 +609,167 @@ module omniswap::wormhole_facet {
         }
     }
 
+    /// CrossData
+    // 1. dst_max_gas_price INTER_DELIMITER
+    // 2. dst_max_gas INTER_DELIMITER
+    // 3. transactionId(SoData) INTER_DELIMITER
+    // 4. receiver(SoData) INTER_DELIMITER
+    // 5. receivingAssetId(SoData) INTER_DELIMITER
+    // 6. swapDataLength(u8) INTER_DELIMITER
+    // 7. callTo(SwapData) INTER_DELIMITER
+    // 8. sendingAssetId(SwapData) INTER_DELIMITER
+    // 9. receivingAssetId(SwapData) INTER_DELIMITER
+    // 10. callData(SwapData)
+    public fun encode_wormhole_payload(dst_max_gas_price: U256, dst_max_gas: U256, so_data: NormalizedSoData, swap_data_dst: vector<NormalizedSwapData>): vector<u8> {
+        let data = vector::empty<u8>();
+
+        let cache = vector::empty();
+        serialize_u256_with_hex_str(&mut cache, dst_max_gas_price);
+        serialize_u8(&mut data, (vector::length(&cache) as u8));
+        vector::append(&mut data, cache);
+
+
+        let cache = vector::empty();
+        serialize_u256_with_hex_str(&mut cache, dst_max_gas);
+        serialize_u8(&mut data, (vector::length(&cache) as u8));
+        vector::append(&mut data, cache);
+
+        let cache = cross::so_transaction_id(&so_data);
+        serialize_u8(&mut data, (vector::length(&cache) as u8));
+        vector::append(&mut data, cache);
+
+        let cache = cross::so_receiver(&so_data);
+        serialize_u8(&mut data, (vector::length(&cache) as u8));
+        vector::append(&mut data, cache);
+
+        let cache = cross::so_receiving_asset_id(&so_data);
+        serialize_u8(&mut data, (vector::length(&cache) as u8));
+        vector::append(&mut data, cache);
+
+        let swap_len = vector::length(&swap_data_dst);
+        if (swap_len > 0) {
+            let cache = vector::empty();
+            serialize_u256_with_hex_str(&mut cache, u256::from_u64(swap_len));
+            serialize_u8(&mut data, (vector::length(&cache) as u8));
+            vector::append(&mut data, cache);
+        };
+
+        vector::reverse(&mut swap_data_dst);
+        while (!vector::is_empty(&swap_data_dst)) {
+            let d = vector::pop_back(&mut swap_data_dst);
+
+            let cache = cross::swap_call_to(&d);
+            serialize_u8(&mut data, (vector::length(&cache) as u8));
+            vector::append(&mut data, cache);
+
+            let cache = cross::swap_sending_asset_id(&d);
+            serialize_u8(&mut data, (vector::length(&cache) as u8));
+            vector::append(&mut data, cache);
+
+            let cache = cross::swap_receiving_asset_id(&d);
+            serialize_u8(&mut data, (vector::length(&cache) as u8));
+            vector::append(&mut data, cache);
+
+            let cache = cross::swap_call_data(&d);
+            serialize_u16(&mut data, u16::from_u64(vector::length(&cache)));
+            vector::append(&mut data, cache);
+        };
+        data
+    }
+
+    public fun vector_copy(buf: &vector<u8>): vector<u8> {
+        let data = vector::empty<u8>();
+        let i = 0;
+        while (i < vector::length(buf)) {
+            vector::push_back(&mut data, *vector::borrow(buf, i));
+            i = i + 1;
+        };
+        data
+    }
+
+    /// CrossData
+    // 1. dst_max_gas_price INTER_DELIMITER
+    // 2. dst_max_gas INTER_DELIMITER
+    // 3. transactionId(SoData) INTER_DELIMITER
+    // 4. receiver(SoData) INTER_DELIMITER
+    // 5. receivingAssetId(SoData) INTER_DELIMITER
+    // 6. swapDataLength(u8) INTER_DELIMITER
+    // 7. callTo(SwapData) INTER_DELIMITER
+    // 8. sendingAssetId(SwapData) INTER_DELIMITER
+    // 9. receivingAssetId(SwapData) INTER_DELIMITER
+    // 10. callData(SwapData)
     public fun decode_wormhole_payload(data: &vector<u8>): (U256, U256, NormalizedSoData, vector<NormalizedSwapData>) {
         let len = vector::length(data);
         assert!(len > 0, EINVALID_LENGTH);
+
         let index = 0;
         let next_len;
 
-        next_len = 32;
-        let dst_max_gas_price = serde::deserialize_u256(&serde::vector_slice(data, index, index + next_len));
+        next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+        index = index + 1;
+        let dst_max_gas_price = serde::deserialize_u256_with_hex_str(&serde::vector_slice(data, index, index + next_len));
         index = index + next_len;
 
-        next_len = 32;
-        let dst_max_gas = serde::deserialize_u256(&serde::vector_slice(data, index, index + next_len));
+        next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+        index = index + 1;
+        let dst_max_gas = serde::deserialize_u256_with_hex_str(&serde::vector_slice(data, index, index + next_len));
         index = index + next_len;
 
-        next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
-        let so_data = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + next_len));
+        // SoData
+        next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+        index = index + 1;
+        let so_transaction_id = serde::vector_slice(data, index, index + next_len);
         index = index + next_len;
 
-        let so_data = cross::decode_normalized_so_data(&mut so_data);
+        next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+        index = index + 1;
+        let so_receiver = serde::vector_slice(data, index, index + next_len);
+        index = index + next_len;
 
-        if (index < len) {
-            next_len = 8 + serde::get_vector_length(&mut serde::vector_slice(data, index, index + 8));
-            let swap_data_dst = serde::deserialize_vector_with_length(&serde::vector_slice(data, index, index + next_len));
+        next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+        index = index + 1;
+        let so_receiving_asset_id = serde::vector_slice(data, index, index + next_len);
+        index = index + next_len;
+        let so_data = cross::padding_so_data(so_transaction_id, so_receiver, so_receiving_asset_id);
+
+        // Skip len
+        if (index < len){
+            next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+            index = index + 1;
+            index = index + next_len;
+        };
+
+        // Swap data
+        let swap_data = vector::empty<NormalizedSwapData>();
+        while (index < len) {
+            next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+            index = index + 1;
+            let swap_call_to = serde::vector_slice(data, index, index + next_len);
             index = index + next_len;
 
-            let swap_data_dst = cross::decode_normalized_swap_data(&mut swap_data_dst);
-            assert!(index == len, EINVALID_LENGTH);
-            (dst_max_gas_price, dst_max_gas, so_data, swap_data_dst)
-        }else {
-            assert!(index == len, EINVALID_LENGTH);
-            (dst_max_gas_price, dst_max_gas, so_data, vector::empty())
-        }
-    }
+            next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+            index = index + 1;
+            let swap_sending_asset_id = serde::vector_slice(data, index, index + next_len);
+            index = index + next_len;
 
-    public fun encode_wormhole_payload(dst_max_gas_price: U256, dst_max_gas: U256, so_data: NormalizedSoData, swap_data_dst: vector<NormalizedSwapData>): vector<u8> {
-        let data = vector::empty<u8>();
-        let so_data = cross::encode_normalized_so_data(so_data);
+            next_len = (serde::deserialize_u8(&mut serde::vector_slice(data, index, index + 1)) as u64);
+            index = index + 1;
+            let swap_receiving_asset_id = serde::vector_slice(data, index, index + next_len);
+            index = index + next_len;
 
-        serialize_u256(&mut data, dst_max_gas_price);
-        serialize_u256(&mut data, dst_max_gas);
-        serialize_vector_with_length(&mut data, so_data);
-        if (vector::length(&swap_data_dst) > 0) {
-            let swap_data_dst = cross::encode_normalized_swap_data(swap_data_dst);
-            serialize_vector_with_length(&mut data, swap_data_dst);
+            next_len = u16::to_u64(serde::deserialize_u16(&mut serde::vector_slice(data, index, index + 2)));
+            index = index + 2;
+            let swap_call_data = serde::vector_slice(data, index, index + next_len);
+            index = index + next_len;
+
+            vector::push_back(&mut swap_data,
+                padding_swap_data(
+                    swap_call_to,
+                    swap_sending_asset_id,
+                    swap_receiving_asset_id,
+                    swap_call_data));
         };
-        data
+        (dst_max_gas_price, dst_max_gas, so_data, swap_data)
     }
 
     #[test_only]
@@ -669,15 +809,46 @@ module omniswap::wormhole_facet {
         let data = x"000000000000000200000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
         let swap_data = cross::decode_normalized_swap_data(&data);
         let dst_max_gas_price = u256::from_u64(10000);
-        let dst_max_gas = u256::from_u64(99000);
-        let encode_data = encode_wormhole_payload(dst_max_gas_price, dst_max_gas, so_data, swap_data);
-        let data = x"000000000000000000000000000000000000000000000000000000000000271000000000000000000000000000000000000000000000000000000000000182b800000000000000a600000000000000204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0001000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00020000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000000000000000000000000000000000000000000000005f5e10000000000000001c4000000000000000200000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c8100000000000000204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00000000000000163078313a3a6f6d6e695f6272696467653a3a5842544300000000000000000000000000000000000000000000000000000002127b390000000000000000583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c617465640000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000014957eb0316f02ba4a9de3d308742eefd44a3c171900000000000000142514895c72f50d8bd4b4f9b1110f0d6bd2c975260000000000000014143db3ceefbdfe5631add3e50f7614b6ba708ba700000000000000000000000000000000000000000000000000000001caf4ad0000000000000000146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
+        let dst_max_gas = u256::from_u64(59);
 
+        // Not swap
+        let encode_data = encode_wormhole_payload(dst_max_gas_price, dst_max_gas, so_data, vector::empty());
+        let data = x"022710013b204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed142da7e3a7f21cce79efeb66f3b082196ea0a8b9af14957eb0316f02ba4a9de3d308742eefd44a3c1719";
         assert!(data == encode_data, 1);
         let (v1, v2, v3, v4) = decode_wormhole_payload(&data);
         assert!(v1 == dst_max_gas_price, 1);
         assert!(v2 == dst_max_gas, 1);
-        assert!(v3 == so_data, 1);
-        assert!(v4 == swap_data, 1);
+        assert!(v3 == padding_so_data(
+            cross::so_transaction_id(&so_data),
+            cross::so_receiver(&so_data),
+            cross::so_receiving_asset_id(&so_data)), 1);
+        assert!(v4 == vector::empty(), 1);
+
+
+        // With swap
+        let encode_data = encode_wormhole_payload(dst_max_gas_price, dst_max_gas, so_data, swap_data);
+        let data = x"022710013b204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed142da7e3a7f21cce79efeb66f3b082196ea0a8b9af14957eb0316f02ba4a9de3d308742eefd44a3c17190102204e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c811a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e163078313a3a6f6d6e695f6272696467653a3a5842544300583078346539666365303332383463306365306238366338386464356134366630353063616432663466333363346364643239643938663530313836383535386338313a3a6375727665733a3a556e636f7272656c6174656414957eb0316f02ba4a9de3d308742eefd44a3c1719142514895c72f50d8bd4b4f9b1110f0d6bd2c9752614143db3ceefbdfe5631add3e50f7614b6ba708ba700146ce9e2c8b59bbcf65da375d3d8ab503c8524caf7";
+        assert!(data == encode_data, 1);
+        let (v1, v2, v3, v4) = decode_wormhole_payload(&data);
+
+        let decode_swap_data = vector::empty<NormalizedSwapData>();
+        let i = 0;
+        while (i < vector::length(&v4)) {
+            vector::push_back(&mut decode_swap_data, padding_swap_data(
+                cross::swap_call_to(vector::borrow(&swap_data, i)),
+                cross::swap_sending_asset_id(vector::borrow(&swap_data, i)),
+                cross::swap_receiving_asset_id(vector::borrow(&swap_data, i)),
+                cross::swap_call_data(vector::borrow(&swap_data, i))
+            ));
+            i = i + 1;
+        } ;
+
+        assert!(v1 == dst_max_gas_price, 1);
+        assert!(v2 == dst_max_gas, 1);
+        assert!(v3 == padding_so_data(
+            cross::so_transaction_id(&so_data),
+            cross::so_receiver(&so_data),
+            cross::so_receiving_asset_id(&so_data)), 1);
+        assert!(v4 == decode_swap_data, 1);
     }
 }

@@ -23,7 +23,7 @@ import "../Libraries/LibBytes.sol";
 /// @title Stargate Facet
 /// @author OmniBTC
 /// @notice Provides functionality for bridging through Stargate
-contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
+contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     using SafeMath for uint256;
     using LibBytes for bytes;
 
@@ -31,6 +31,9 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
 
     bytes32 internal constant NAMESPACE =
         hex"2bd10e5dcb5694caec513d6d8fa1fd90f6a026e0e9320d7b6e2f8e49b93270d1"; //keccak256("com.so.facets.stargate");
+
+    // Data delimiter, represent ";"
+    uint8 public constant INTERDELIMITER = 59;
 
     struct Storage {
         address stargate; // The stargate route address
@@ -48,6 +51,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 minAmount; // The stargate min amount
         uint256 dstGasForSgReceive; // destination gas for sgReceive
         address payable dstSoDiamond; // destination SoDiamond address
+    }
+
+    struct CachePayload {
+        ISo.NormalizedSoData soData;
+        LibSwap.NormalizedSwapData[] swapDataDst;
     }
 
     /// Events ///
@@ -107,8 +115,6 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         StargateData calldata stargateData,
         LibSwap.NormalizedSwapData[] calldata swapDataDstNo
     ) external payable nonReentrant {
-        bool hasSourceSwap;
-        bool hasDestinationSwap;
         uint256 bridgeAmount;
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -126,36 +132,21 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 soData.amount
             );
             bridgeAmount = soData.amount;
-            hasSourceSwap = false;
         } else {
-            require(
-                soData.amount == swapDataSrc[0].fromAmount,
-                "soData and swapDataSrc amount not match!"
-            );
+            require(soData.amount == swapDataSrc[0].fromAmount, "AmountErr");
             bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
             deposit(
                 swapDataSrc[swapDataSrc.length - 1].receivingAssetId,
                 _getStargateTokenByPoolId(stargateData.srcStargatePoolId),
                 bridgeAmount
             );
-            hasSourceSwap = true;
         }
         uint256 stargateValue = _getStargateValue(soData);
         bytes memory payload = encodeStargatePayload(soDataNo, swapDataDstNo);
 
-        if (swapDataDstNo.length > 0) {
-            hasDestinationSwap = true;
-        }
-
         _startBridge(stargateData, stargateValue, bridgeAmount, payload);
 
-        emit SoTransferStarted(
-            soData.transactionId,
-            "Stargate",
-            hasSourceSwap,
-            hasDestinationSwap,
-            soData
-        );
+        emit SoTransferStarted(soData.transactionId);
     }
 
     /// @dev Overload sgReceive of IStargateReceiver, called by stargate router
@@ -173,11 +164,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         if (LibAsset.getOwnBalance(token) < amount) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
-                "Token error"
+                "TokenErr"
             );
             require(
                 LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= amount,
-                "Not enough"
+                "NotEnough"
             );
             token = LibAsset.NATIVE_ASSETID;
         }
@@ -202,12 +193,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             emit SoTransferFailed(
                 soData.transactionId,
                 revertReason,
-                bytes(""),
-                soData
+                bytes("")
             );
         } catch (bytes memory returnData) {
             withdraw(token, token, amount, soData.receiver);
-            emit SoTransferFailed(soData.transactionId, "", returnData, soData);
+            emit SoTransferFailed(soData.transactionId, "", returnData);
         }
     }
 
@@ -219,7 +209,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         ISo.SoData calldata soData,
         LibSwap.SwapData[] memory swapDataDst
     ) external {
-        uint256 soFee = getSoFee(amount);
+        uint256 soFee = getStargateSoFee(amount);
         if (soFee < amount) {
             amount = amount.sub(soFee);
         }
@@ -234,14 +224,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 );
             }
             withdraw(token, soData.receivingAssetId, amount, soData.receiver);
-            emit SoTransferCompleted(
-                soData.transactionId,
-                soData.receivingAssetId,
-                soData.receiver,
-                amount,
-                block.timestamp,
-                soData
-            );
+            emit SoTransferCompleted(soData.transactionId, amount);
         } else {
             if (soFee > 0) {
                 withdraw(
@@ -279,14 +262,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
                 amountFinal,
                 soData.receiver
             );
-            emit SoTransferCompleted(
-                soData.transactionId,
-                soData.receivingAssetId,
-                soData.receiver,
-                amountFinal,
-                block.timestamp,
-                soData
-            );
+            emit SoTransferCompleted(soData.transactionId, amountFinal);
         }
     }
 
@@ -303,7 +279,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         if (amount == 0) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
-                "Token error"
+                "TokenErr"
             );
             token = LibAsset.NATIVE_ASSETID;
             amount = LibAsset.getOwnBalance(token);
@@ -315,7 +291,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             ? approveAmount
             : amount;
 
-        require(amount > 0, "sgReceiveForGas need a little amount token!");
+        require(amount > 0, "LittleAmount");
         bytes memory payload = getSgReceiveForGasPayload(
             soDataNo,
             swapDataDstNo
@@ -325,11 +301,11 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         if (LibAsset.getOwnBalance(token) < amount) {
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
-                "Token error"
+                "TokenErr"
             );
             require(
                 LibAsset.getOwnBalance(LibAsset.NATIVE_ASSETID) >= amount,
-                "Not enough"
+                "NotEnough"
             );
             token = LibAsset.NATIVE_ASSETID;
         }
@@ -408,7 +384,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
     /// Public Methods ///
 
     /// @dev Get so fee
-    function getSoFee(uint256 amount) public view returns (uint256) {
+    function getStargateSoFee(uint256 amount) public view returns (uint256) {
         Storage storage s = getStorage();
         address soFee = appStorage.gatewaySoFeeSelectors[s.stargate];
         if (soFee == address(0x0)) {
@@ -452,20 +428,63 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         return encodeStargatePayload(soDataNo, swapDataDstNo);
     }
 
+    /// CrossData
+    // 1. length + transactionId(SoData)
+    // 2. length + receiver(SoData)
+    // 3. length + receivingAssetId(SoData)
+    // 4. length + swapDataLength(u8)
+    // 5. length + callTo(SwapData)
+    // 6. length + sendingAssetId(SwapData)
+    // 7. length + receivingAssetId(SwapData)
+    // 8. length + callData(SwapData)
     function encodeStargatePayload(
         ISo.NormalizedSoData memory soData,
         LibSwap.NormalizedSwapData[] memory swapDataDst
     ) public pure returns (bytes memory) {
-        bytes memory d1 = LibCross.encodeNormalizedSoData(soData);
-        bytes memory d2 = LibCross.encodeNormalizedSwapData(swapDataDst);
-        if (d2.length > 0) {
-            return
-                abi.encodePacked(uint64(d1.length), d1, uint64(d2.length), d2);
-        } else {
-            return abi.encodePacked(uint64(d1.length), d1);
+        bytes memory encodeData = abi.encodePacked(
+            uint8(soData.transactionId.length),
+            soData.transactionId,
+            uint8(soData.receiver.length),
+            soData.receiver,
+            uint8(soData.receivingAssetId.length),
+            soData.receivingAssetId
+        );
+
+        if (swapDataDst.length > 0) {
+            bytes memory swapLenBytes = LibCross.serializeU256WithHexStr(
+                swapDataDst.length
+            );
+            encodeData = encodeData.concat(
+                abi.encodePacked(uint8(swapLenBytes.length), swapLenBytes)
+            );
         }
+
+        for (uint256 i = 0; i < swapDataDst.length; i++) {
+            encodeData = encodeData.concat(
+                abi.encodePacked(
+                    uint8(swapDataDst[i].callTo.length),
+                    swapDataDst[i].callTo,
+                    uint8(swapDataDst[i].sendingAssetId.length),
+                    swapDataDst[i].sendingAssetId,
+                    uint8(swapDataDst[i].receivingAssetId.length),
+                    swapDataDst[i].receivingAssetId,
+                    uint16(swapDataDst[i].callData.length),
+                    swapDataDst[i].callData
+                )
+            );
+        }
+        return encodeData;
     }
 
+    /// CrossData
+    // 1. length + transactionId(SoData)
+    // 2. length + receiver(SoData)
+    // 3. length + receivingAssetId(SoData)
+    // 4. length + swapDataLength(u8)
+    // 5. length + callTo(SwapData)
+    // 6. length + sendingAssetId(SwapData)
+    // 7. length + receivingAssetId(SwapData)
+    // 8. length + callData(SwapData)
     function decodeStargatePayload(bytes memory stargatePayload)
         public
         pure
@@ -474,27 +493,71 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
             LibSwap.NormalizedSwapData[] memory swapDataDst
         )
     {
-        uint256 index = 0;
-        uint256 nextLen = 0;
+        CachePayload memory data;
+        uint256 index;
+        uint256 nextLen;
 
-        nextLen = uint256(stargatePayload.toUint64(index));
-        index += 8;
+        nextLen = uint256(stargatePayload.toUint8(index));
+        index += 1;
+        data.soData.transactionId = stargatePayload.slice(index, nextLen);
+        index += nextLen;
 
-        soData = LibCross.decodeNormalizedSoData(
-            stargatePayload.slice(index, nextLen)
-        );
+        nextLen = uint256(stargatePayload.toUint8(index));
+        index += 1;
+        data.soData.receiver = stargatePayload.slice(index, nextLen);
+        index += nextLen;
+
+        nextLen = uint256(stargatePayload.toUint8(index));
+        index += 1;
+        data.soData.receivingAssetId = stargatePayload.slice(index, nextLen);
         index += nextLen;
 
         if (index < stargatePayload.length) {
-            nextLen = uint256(stargatePayload.toUint64(index));
-            index += 8;
-            swapDataDst = LibCross.decodeNormalizedSwapData(
+            nextLen = uint256(stargatePayload.toUint8(index));
+            index += 1;
+            uint256 swap_len = LibCross.deserializeU256WithHexStr(
                 stargatePayload.slice(index, nextLen)
             );
             index += nextLen;
-        }
 
-        require(index == stargatePayload.length, "Length error");
+            data.swapDataDst = new LibSwap.NormalizedSwapData[](swap_len);
+            for (uint256 i = 0; i < swap_len; i++) {
+                nextLen = uint256(stargatePayload.toUint8(index));
+                index += 1;
+                data.swapDataDst[i].callTo = stargatePayload.slice(
+                    index,
+                    nextLen
+                );
+                data.swapDataDst[i].approveTo = data.swapDataDst[i].callTo;
+                index += nextLen;
+
+                nextLen = uint256(stargatePayload.toUint8(index));
+                index += 1;
+                data.swapDataDst[i].sendingAssetId = stargatePayload.slice(
+                    index,
+                    nextLen
+                );
+                index += nextLen;
+
+                nextLen = uint256(stargatePayload.toUint8(index));
+                index += 1;
+                data.swapDataDst[i].receivingAssetId = stargatePayload.slice(
+                    index,
+                    nextLen
+                );
+                index += nextLen;
+
+                nextLen = uint256(stargatePayload.toUint16(index));
+                index += 2;
+                data.swapDataDst[i].callData = stargatePayload.slice(
+                    index,
+                    nextLen
+                );
+                index += nextLen;
+            }
+        }
+        require(index == stargatePayload.length, "LenErr");
+        return (data.soData, data.swapDataDst);
     }
 
     /// Private Methods ///
@@ -545,7 +608,7 @@ contract StargateFacet is ISo, Swapper, ReentrancyGuard, IStargateReceiver {
         returns (uint256)
     {
         if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-            require(msg.value > soData.amount, "Stargate value is not enough!");
+            require(msg.value > soData.amount, "NotEnough");
             return msg.value.sub(soData.amount);
         } else {
             return msg.value;

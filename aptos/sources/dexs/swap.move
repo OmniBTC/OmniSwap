@@ -11,7 +11,7 @@ module omniswap::swap {
     use omniswap::cross::{NormalizedSwapData, Self};
 
     // Swap call data delimiter, represent ","
-    const DELIMITER: u8 = 44;
+    const INNER_DELIMITER: u8 = 44;
 
     /// Error Codes
     const EINVALID_LENGTH: u64 = 0x00;
@@ -35,15 +35,15 @@ module omniswap::swap {
 
     /// Coins are deducted directly from the user's account for swap.
     public fun swap_by_account<X, Y>(account: &signer, data: NormalizedSwapData): Coin<Y> {
-        if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
-            assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
-            assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
-            let coin_val = u256::as_u64(cross::swap_from_amount(data));
+        if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(&data))) {
+            assert!(right_type<X>(cross::swap_sending_asset_id(&data)), EINVALID_SWAP_TOKEN);
+            assert!(right_type<Y>(cross::swap_receiving_asset_id(&data)), EINVALID_SWAP_TOKEN);
+            let coin_val = u256::as_u64(cross::swap_from_amount(&data));
             let coin_x = coin::withdraw<X>(account, coin_val);
 
-            let raw_call_data = cross::swap_call_data(data);
+            let raw_call_data = cross::swap_call_data(&data);
             let min_amount = 0;
-            let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+            let (flag, index) = vector::index_of(&raw_call_data, &INNER_DELIMITER);
             let call_data;
             if (flag) {
                 call_data = serde::vector_slice(&raw_call_data, 0, index);
@@ -75,13 +75,13 @@ module omniswap::swap {
 
     /// Coins need to be removed from the account first and then swap using the coins.
     public fun swap_by_coin<X, Y>(coin_x: Coin<X>, data: NormalizedSwapData): Coin<Y> {
-        if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
-            assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
-            assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+        if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(&data))) {
+            assert!(right_type<X>(cross::swap_sending_asset_id(&data)), EINVALID_SWAP_TOKEN);
+            assert!(right_type<Y>(cross::swap_receiving_asset_id(&data)), EINVALID_SWAP_TOKEN);
 
-            let raw_call_data = cross::swap_call_data(data);
+            let raw_call_data = cross::swap_call_data(&data);
             let min_amount = 0;
-            let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+            let (flag, index) = vector::index_of(&raw_call_data, &INNER_DELIMITER);
             let call_data;
             if (flag) {
                 call_data = serde::vector_slice(&raw_call_data, 0, index);

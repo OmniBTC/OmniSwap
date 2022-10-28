@@ -14,10 +14,10 @@ deployer = "_"
 
 [dev-addresses]
 omniswap = "0x66"
-token_bridge = "0x4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed"
-wormhole = "0x251011524cd0f76881f16e7c2d822f0c1c9510bfd2430ba24e1b3d52796df204"
+token_bridge = "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+wormhole = "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
 wrapped_coin = "0xf4f53cc591e5190eddbc43940746e2b5deea6e0e1562b2bba765d488504842c7"
-deployer = "0x277fa055b6a73c42c0662d5236c65c864ccbf2d4abd21f174a30c8b786eab84b"
+deployer = "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
 
 [dependencies.TokenBridge]
 git = "https://github.com/OmniBTC/wormhole.git"

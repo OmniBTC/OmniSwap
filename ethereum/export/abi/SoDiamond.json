@@ -478,6 +478,44 @@
         "anonymous": false,
         "inputs": [
             {
+                "indexed": false,
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "isAllowed",
+                "type": "bool"
+            }
+        ],
+        "name": "SetAllowedList",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "SetApproveAmount",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
                 "indexed": true,
                 "internalType": "bytes32",
                 "name": "transactionId",
@@ -485,70 +523,9 @@
             },
             {
                 "indexed": false,
-                "internalType": "address",
-                "name": "receivingAssetId",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "receiver",
-                "type": "address"
-            },
-            {
-                "indexed": false,
                 "internalType": "uint256",
                 "name": "receiveAmount",
                 "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "timestamp",
-                "type": "uint256"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferCompleted",
@@ -574,49 +551,6 @@
                 "internalType": "bytes",
                 "name": "otherReason",
                 "type": "bytes"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferFailed",
@@ -630,67 +564,6 @@
                 "internalType": "bytes32",
                 "name": "transactionId",
                 "type": "bytes32"
-            },
-            {
-                "indexed": false,
-                "internalType": "string",
-                "name": "bridge",
-                "type": "string"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "hasSourceSwap",
-                "type": "bool"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "hasDestinationSwap",
-                "type": "bool"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferStarted",
@@ -714,6 +587,19 @@
         ],
         "name": "StargateInitialized",
         "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "INTERDELIMITER",
+        "outputs": [
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
         "inputs": [
@@ -806,29 +692,6 @@
             }
         ],
         "stateMutability": "pure",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_currentAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_expectAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "deposit",
-        "outputs": [],
-        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -1021,7 +884,7 @@
                     }
                 ],
                 "internalType": "struct ISo.SoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -1058,7 +921,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.SwapData[]",
-                "name": "_swapData",
+                "name": "swapData",
                 "type": "tuple[]"
             }
         ],
@@ -1188,25 +1051,6 @@
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "getSoFee",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "components": [
                     {
                         "internalType": "bytes",
@@ -1324,6 +1168,25 @@
             }
         ],
         "name": "getStargateFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "getStargateSoFee",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -1458,6 +1321,42 @@
             }
         ],
         "name": "remoteSoSwap",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "isAllowed",
+                "type": "bool"
+            }
+        ],
+        "name": "setAllowedAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "setApproveAmount",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -1756,34 +1655,6 @@
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "_currentAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_expectAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_receiver",
-                "type": "address"
-            }
-        ],
-        "name": "withdraw",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "uint256",
                 "name": "requested",
                 "type": "uint256"
@@ -2051,70 +1922,9 @@
             },
             {
                 "indexed": false,
-                "internalType": "address",
-                "name": "receivingAssetId",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "receiver",
-                "type": "address"
-            },
-            {
-                "indexed": false,
                 "internalType": "uint256",
                 "name": "receiveAmount",
                 "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "timestamp",
-                "type": "uint256"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferCompleted",
@@ -2140,49 +1950,6 @@
                 "internalType": "bytes",
                 "name": "otherReason",
                 "type": "bytes"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferFailed",
@@ -2196,67 +1963,6 @@
                 "internalType": "bytes32",
                 "name": "transactionId",
                 "type": "bytes32"
-            },
-            {
-                "indexed": false,
-                "internalType": "string",
-                "name": "bridge",
-                "type": "string"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "hasSourceSwap",
-                "type": "bool"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "hasDestinationSwap",
-                "type": "bool"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferStarted",
@@ -2265,29 +1971,6 @@
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "_currentAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_expectAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "deposit",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "components": [
                     {
                         "internalType": "bytes32",
@@ -2326,7 +2009,7 @@
                     }
                 ],
                 "internalType": "struct ISo.SoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -2363,7 +2046,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.SwapData[]",
-                "name": "_swapData",
+                "name": "swapData",
                 "type": "tuple[]"
             }
         ],
@@ -2466,34 +2149,6 @@
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_currentAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_expectAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_receiver",
-                "type": "address"
-            }
-        ],
-        "name": "withdraw",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
         "inputs": [],
         "name": "ContractCallNotAllowed",
         "type": "error"
@@ -2573,70 +2228,9 @@
             },
             {
                 "indexed": false,
-                "internalType": "address",
-                "name": "receivingAssetId",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "receiver",
-                "type": "address"
-            },
-            {
-                "indexed": false,
                 "internalType": "uint256",
                 "name": "receiveAmount",
                 "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "timestamp",
-                "type": "uint256"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferCompleted",
@@ -2662,49 +2256,6 @@
                 "internalType": "bytes",
                 "name": "otherReason",
                 "type": "bytes"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferFailed",
@@ -2718,67 +2269,6 @@
                 "internalType": "bytes32",
                 "name": "transactionId",
                 "type": "bytes32"
-            },
-            {
-                "indexed": false,
-                "internalType": "string",
-                "name": "bridge",
-                "type": "string"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "hasSourceSwap",
-                "type": "bool"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "hasDestinationSwap",
-                "type": "bool"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "transactionId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address payable",
-                        "name": "receiver",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "sourceChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "sendingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint16",
-                        "name": "destinationChainId",
-                        "type": "uint16"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "receivingAssetId",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "indexed": false,
-                "internalType": "struct ISo.SoData",
-                "name": "soData",
-                "type": "tuple"
             }
         ],
         "name": "SoTransferStarted",
@@ -3018,32 +2508,6 @@
         "inputs": [
             {
                 "internalType": "bytes",
-                "name": "encodeVm",
-                "type": "bytes"
-            }
-        ],
-        "name": "completeTransferAndUnwrapETHWithPayload",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "encodeVm",
-                "type": "bytes"
-            }
-        ],
-        "name": "completeTransferWithPayload",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
                 "name": "wormholeData",
                 "type": "bytes"
             }
@@ -3182,29 +2646,6 @@
             }
         ],
         "stateMutability": "pure",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_currentAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_expectAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "deposit",
-        "outputs": [],
-        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -3632,7 +3073,7 @@
                     }
                 ],
                 "internalType": "struct ISo.SoData",
-                "name": "_soData",
+                "name": "soData",
                 "type": "tuple"
             },
             {
@@ -3669,7 +3110,7 @@
                     }
                 ],
                 "internalType": "struct LibSwap.SwapData[]",
-                "name": "_swapData",
+                "name": "swapData",
                 "type": "tuple[]"
             }
         ],
@@ -3685,14 +3126,8 @@
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "getSoFee",
+        "inputs": [],
+        "name": "getWormholeMessageFee",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -3704,8 +3139,14 @@
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "getWormholeMessageFee",
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "getWromholeSoFee",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -3924,34 +3365,6 @@
         "name": "soSwapViaWormhole",
         "outputs": [],
         "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_currentAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_expectAssetId",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_receiver",
-                "type": "address"
-            }
-        ],
-        "name": "withdraw",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
     },
     {

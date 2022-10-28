@@ -16,12 +16,12 @@ compiler:
 autofetch_sources: True
 dotenv: .env
 networks:
-  default: arbitrum-main
+  default: bsc-test
   aptos-testnet:
     omnibtc_chainid: 30001
     node_url: https://fullnode.testnet.aptoslabs.com/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
-    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000004"
+    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000008"
     wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
     replace_address:
       deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
@@ -154,7 +154,7 @@ networks:
   bsc-test:
     omnibtc_chainid: 30003
     chainid: 97
-    SoDiamond: "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228"
+    SoDiamond: "0xFeEE07da1B3513BdfD5440562e962dfAac19566F"
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
@@ -250,7 +250,7 @@ networks:
   avax-test:
     omnibtc_chainid: 30004
     chainid: 43113
-    SoDiamond: "0x802e05b91769342af3F0d13f9DC6Df03a54C2ac7"
+    SoDiamond: "0xBb032459B39547908eDB8E690c030Dc4F31DA673"
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"

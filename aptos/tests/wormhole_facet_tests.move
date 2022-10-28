@@ -168,7 +168,7 @@ module omniswap::wormhole_facet_tests {
             b"0x11::test_coins::BTC",
             b"0x11::test_coins::USDT",
             u256::from_u64(btc_to_swap_val),
-            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated"
+            b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated"
         );
         let src_swap_data = vector<NormalizedSwapData>[swap_data];
 
@@ -287,7 +287,7 @@ module omniswap::wormhole_facet_tests {
             b"0x11::test_coins::BTC",
             b"0x11::test_coins::USDT",
             u256::from_u64(btc_to_swap_val),
-            b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated"
+            b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated"
         );
         let src_swap_data = vector<NormalizedSwapData>[swap_data];
 

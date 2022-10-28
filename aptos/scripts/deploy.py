@@ -21,6 +21,7 @@ def setup_mock(net: str = "aptos-testnet"):
 
 def main():
     net = "aptos-testnet"
+    print(f"Current aptos network:{net}")
     # deploy
     package = aptos_brownie.AptosPackage(
         project_path=omniswap_aptos_path,
@@ -50,6 +51,8 @@ def main():
         # Maybe has initialized
         package["wormhole_facet::init_wormhole"](
             package.network_config["wormhole"]["chainid"])
+
+        package["wormhole_facet::init_so_transfer_event"]()
     except:
         pass
 
@@ -81,4 +84,4 @@ def main():
             gas_per_bytes
         )
 
-    setup_mock(package.network)
+    # setup_mock(package.network)

@@ -43,7 +43,7 @@ library LibCross {
                 transactionId: data.transactionId.toBytes32(0),
                 receiver: payable(tryAddress(data.receiver)),
                 sourceChainId: data.sourceChainId,
-                sendingAssetId: data.sendingAssetId.toAddress(0),
+                sendingAssetId: tryAddress(data.sendingAssetId),
                 destinationChainId: data.destinationChainId,
                 receivingAssetId: tryAddress(data.receivingAssetId),
                 amount: data.amount
@@ -253,5 +253,34 @@ library LibCross {
         require(index == swapData.length, "Length error");
 
         return data;
+    }
+
+    function serializeU256WithHexStr(uint256 data)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        bytes memory encodeData = abi.encodePacked(uint8(data & 0xFF));
+        data = data >> 8;
+
+        while (data != 0) {
+            encodeData = abi.encodePacked(uint8(data & 0xFF)).concat(
+                encodeData
+            );
+            data = data >> 8;
+        }
+        return encodeData;
+    }
+
+    function deserializeU256WithHexStr(bytes memory data)
+        internal
+        pure
+        returns (uint256)
+    {
+        uint256 buf = 0;
+        for (uint256 i = 0; i < data.length; i++) {
+            buf = (buf << 8) + data.toUint8(i);
+        }
+        return buf;
     }
 }

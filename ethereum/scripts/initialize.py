@@ -1,3 +1,4 @@
+from pprint import pprint
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeStargateV1, MockToken, LibCorrectSwapV1, \
     WormholeFacet, SerdeFacet, LibSoFeeWormholeV1, web3
@@ -174,24 +175,25 @@ def redeploy_serde():
     add_cut(SerdeFacet)
 
 
+# Remove facet first at https://louper.dev/
 def redeploy_wormhole():
     account = get_account()
 
     WormholeFacet.deploy({'from': account})
-    add_cut(WormholeFacet)
+    add_cut([WormholeFacet])
     initialize_wormhole(account, SoDiamond[-1])
 
-    proxy_dex = Contract.from_abi(
-        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
 
-    so_fee = 1e-3
-    ray = 1e27
-    print("Deploy LibSoFeeWormholeV1...")
-    LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
-    print("AddFee ...")
-    proxy_dex.addFee(get_wormhole_bridge(),
-                     LibSoFeeWormholeV1[-1].address, {'from': account})
-    initialize_wormhole_fee(account)
+    # so_fee = 1e-3
+    # ray = 1e27
+    # print("Deploy LibSoFeeWormholeV1...")
+    # LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
+    # print("AddFee ...")
+    # proxy_dex.addFee(get_wormhole_bridge(),
+    #                  LibSoFeeWormholeV1[-1].address, {'from': account})
+    # initialize_wormhole_fee(account)
 
 
 def set_relayer_fee():
@@ -247,10 +249,12 @@ def redeploy_generic_swap():
 
 
 # redeploy and initialize
+# Remove facet first at https://louper.dev/
 def redeploy_stargate():
     account = get_account()
 
     StargateFacet.deploy({"from": account})
+    add_cut([StargateFacet])
     initialize_stargate(account, SoDiamond[-1])
 
 
@@ -265,9 +269,9 @@ def add_cut(contracts: list = None):
         reg_facet = contract[-1]
         reg_funcs = get_method_signature_by_abi(contract.abi)
         for func_name in list(reg_funcs.keys()):
-            if func_name == "remoteSoSwap":
-                continue
-            if func_name in register_funcs:
+            if func_name in ["remoteSoSwap", "executeAndCheckSwaps"]:
+                del reg_funcs[func_name]
+            elif func_name in register_funcs:
                 if reg_funcs[func_name] in register_funcs[func_name]:
                     print(f"function:{func_name} has been register!")
                     del reg_funcs[func_name]
@@ -276,7 +280,8 @@ def add_cut(contracts: list = None):
             else:
                 register_funcs[func_name] = [reg_funcs[func_name]]
         register_data.append([reg_facet, 0, list(reg_funcs.values())])
-    if len(register_data) == 0:
+
+    if not register_data:
         return
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)

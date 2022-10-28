@@ -6,7 +6,7 @@ from pathlib import Path
 from brownie import project, network
 import threading
 
-from scripts.helpful_scripts import get_account, change_network
+from scripts.helpful_scripts import get_account, change_network, padding_to_bytes
 from scripts.relayer.select import get_pending_data, get_signed_vaa, get_signed_vaa_by_to
 from scripts.serde import parse_vaa_to_wormhole_payload, get_wormhole_facet
 
@@ -15,40 +15,37 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-SUPPORTED_EVM = [
-    {"dstWormholeChainId": 2,
-     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-     "dstNet": "mainnet"
-     },
-    {"dstWormholeChainId": 4,
-     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-     "dstNet": "bsc-main"
-     },
-    {"dstWormholeChainId": 5,
-     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-     "dstNet": "polygon-main"
-     },
-    {"dstWormholeChainId": 6,
-     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-     "dstNet": "avax-main"
-     },
-]
-
 
 # SUPPORTED_EVM = [
+#     {"dstWormholeChainId": 2,
+#      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+#      "dstNet": "mainnet"
+#      },
 #     {"dstWormholeChainId": 4,
-#      "dstSoDiamond": "0xEe05F9e2651EBC5dbC66aD54241C6AB24E361228",
-#      "dstNet": "bsc-test"
+#      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+#      "dstNet": "bsc-main"
 #      },
 #     {"dstWormholeChainId": 5,
-#      "dstSoDiamond": "0xBae5BeAdBaa65628eA9DC5A5c7F794b4865c8771",
-#      "dstNet": "polygon-test"
+#      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+#      "dstNet": "polygon-main"
 #      },
 #     {"dstWormholeChainId": 6,
-#      "dstSoDiamond": "0x802e05b91769342af3F0d13f9DC6Df03a54C2ac7",
-#      "dstNet": "avax-test"
+#      "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+#      "dstNet": "avax-main"
 #      },
 # ]
+
+
+SUPPORTED_EVM = [
+    {"dstWormholeChainId": 4,
+     "dstSoDiamond": "0xFeEE07da1B3513BdfD5440562e962dfAac19566F",
+     "dstNet": "bsc-test"
+     },
+    {"dstWormholeChainId": 6,
+     "dstSoDiamond": "0xBb032459B39547908eDB8E690c030Dc4F31DA673",
+     "dstNet": "avax-test"
+     },
+]
 
 
 def process_v1(
@@ -57,10 +54,15 @@ def process_v1(
 ):
     local_logger = logger.getChild(f"[{network.show_active()}]")
     local_logger.info("Starting process v1...")
+    local_logger.info(f'SoDiamond:{dstSoDiamond}')
     has_process = {}
     while True:
         try:
-            result = get_signed_vaa_by_to(dstWormholeChainId, url="http://wormhole-vaa.chainx.org")
+            if "test" in network.show_active() or "test" == "goerli":
+                url = "http://wormhole-testnet.sherpax.io"
+            else:
+                url = "http://wormhole-vaa.chainx.org"
+            result = get_signed_vaa_by_to(dstWormholeChainId, url=url)
             result = [d for d in result if (
                 int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
         except Exception:
@@ -77,10 +79,11 @@ def process_v1(
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["emitterChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
-            if time.time() > int(vaa_data[1]) + 3 * 60 * 60:
+            interval = 3 * 60 * 60
+            if time.time() > int(vaa_data[1]) + interval:
                 local_logger.warning(
                     f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} '
-                    f'beyond 5min')
+                    f'beyond {int(interval / 60)}min')
                 continue
             if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(
@@ -105,6 +108,7 @@ def process_v2(
 ):
     local_logger = logger.getChild(f"[{network.show_active()}]")
     local_logger.info("Starting process v2...")
+    local_logger.info(f'SoDiamond:{dstSoDiamond}')
     has_process = {}
     while True:
         pending_data = get_pending_data()
@@ -115,8 +119,12 @@ def process_v2(
             has_process[(int(d["srcWormholeChainId"]),
                          int(d["sequence"]))] = True
             try:
+                if "test" in network.show_active() or "test" == "goerli":
+                    url = "http://wormhole-testnet.sherpax.io"
+                else:
+                    url = "http://wormhole-vaa.chainx.org"
                 vaa = get_signed_vaa(
-                    int(d["sequence"]), int(d["srcWormholeChainId"]), url="http://wormhole-vaa.chainx.org")
+                    int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
                 if vaa is None:
                     continue
                 vaa = vaa["hexString"]
@@ -132,11 +140,12 @@ def process_v2(
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
-            if time.time() > int(vaa_data[1]) + 3 * 60 * 60:
-                local_logger.warning(
-                    f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
-                    f'beyond 5min')
-                continue
+            # interval = 3 * 60 * 60
+            # if time.time() > int(vaa_data[1]) + interval:
+            #     local_logger.warning(
+            #         f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
+            #         f'beyond {int(interval / 60)}min')
+            #     continue
             if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(
                     f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '

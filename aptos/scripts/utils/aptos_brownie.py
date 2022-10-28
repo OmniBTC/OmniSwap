@@ -570,6 +570,7 @@ class AptosPackage:
             b = self.rest_client.account_balance(
                 str(self.account.account_address))
             amount = max(int(int(float(b) / 1e8) * 1e8 - 1e8), 0)
+            print(f"Old APT:{amount}, Address: {self.account}")
             if amount > 0:
                 txn_hash = self.transfer(
                     self.account, acc.account_address, amount)
@@ -623,3 +624,11 @@ class AptosPackage:
             "hash": txn_hash,
             "response": response
         }
+
+    def estimate_gas_price(self):
+        try:
+            result = self.rest_client.client.get(url=f"{self.rest_client.base_url}/estimate_gas_price").json()
+            return int(result["gas_estimate"])
+        except Exception as e:
+            print(f"Estimate gas price fail:{e}, using default 100")
+            return 100

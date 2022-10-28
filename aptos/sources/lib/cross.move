@@ -3,13 +3,8 @@ module omniswap::cross {
     use std::vector;
 
     use omniswap::serde;
-    use omniswap::u16::U16;
-    use omniswap::u256::{U256};
-
-    #[test_only]
-    use omniswap::u16;
-    #[test_only]
-    use omniswap::u256;
+    use omniswap::u16::{U16, Self};
+    use omniswap::u256::{U256, Self};
 
     const EINVALID_LENGTH: u64 = 0x00;
 
@@ -47,39 +42,43 @@ module omniswap::cross {
 
     /// Get Methods
 
-    public fun so_receiver(data: NormalizedSoData): vector<u8> {
+    public fun so_receiver(data: &NormalizedSoData): vector<u8> {
         data.receiver
     }
 
-    public fun so_amount(data: NormalizedSoData): U256 {
+    public fun so_amount(data: &NormalizedSoData): U256 {
         data.amount
     }
 
-    public fun so_transaction_id(data: NormalizedSoData): vector<u8> {
+    public fun so_transaction_id(data: &NormalizedSoData): vector<u8> {
         data.transaction_id
     }
 
-    public fun so_sending_asset_id(data: NormalizedSoData): vector<u8> {
+    public fun so_sending_asset_id(data: &NormalizedSoData): vector<u8> {
         data.sending_asset_id
     }
 
-    public fun swap_call_to(data: NormalizedSwapData): vector<u8> {
-        data.call_to
-    }
-
-    public fun swap_sending_asset_id(data: NormalizedSwapData): vector<u8> {
-        data.sending_asset_id
-    }
-
-    public fun swap_receiving_asset_id(data: NormalizedSwapData): vector<u8> {
+    public fun so_receiving_asset_id(data: &NormalizedSoData): vector<u8> {
         data.receiving_asset_id
     }
 
-    public fun swap_call_data(data: NormalizedSwapData): vector<u8> {
+    public fun swap_call_to(data: &NormalizedSwapData): vector<u8> {
+        data.call_to
+    }
+
+    public fun swap_sending_asset_id(data: &NormalizedSwapData): vector<u8> {
+        data.sending_asset_id
+    }
+
+    public fun swap_receiving_asset_id(data: &NormalizedSwapData): vector<u8> {
+        data.receiving_asset_id
+    }
+
+    public fun swap_call_data(data: &NormalizedSwapData): vector<u8> {
         data.call_data
     }
 
-    public fun swap_from_amount(data: NormalizedSwapData): U256 {
+    public fun swap_from_amount(data: &NormalizedSwapData): U256 {
         data.from_amount
     }
 
@@ -217,6 +216,33 @@ module omniswap::cross {
         swap_data
     }
 
+    public fun padding_so_data(transaction_id: vector<u8>, receiver: vector<u8>, receiving_asset_id: vector<u8>): NormalizedSoData {
+        NormalizedSoData {
+            transaction_id,
+            receiver,
+            source_chain_id: u16::zero(),
+            sending_asset_id: vector::empty(),
+            destination_chain_id: u16::zero(),
+            receiving_asset_id,
+            amount: u256::zero()
+        }
+    }
+
+    public fun padding_swap_data(
+        call_to: vector<u8>,
+        sending_asset_id: vector<u8>,
+        receiving_asset_id: vector<u8>,
+        call_data: vector<u8>): NormalizedSwapData {
+        NormalizedSwapData {
+            call_to,
+            approve_to: call_to,
+            sending_asset_id,
+            receiving_asset_id,
+            from_amount: u256::zero(),
+            call_data
+        }
+    }
+
     #[test_only]
     public fun construct_swap_data(
         call_to: vector<u8>,
@@ -227,14 +253,14 @@ module omniswap::cross {
         call_data: vector<u8>
     ): NormalizedSwapData {
         NormalizedSwapData {
-                call_to,
-                approve_to,
-                sending_asset_id,
-                receiving_asset_id,
-                from_amount,
-                // liquidswap curve
-                call_data
-            }
+            call_to,
+            approve_to,
+            sending_asset_id,
+            receiving_asset_id,
+            from_amount,
+            // liquidswap curve
+            call_data
+        }
     }
 
     #[test_only]

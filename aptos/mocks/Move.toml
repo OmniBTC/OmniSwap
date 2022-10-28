@@ -11,10 +11,10 @@ omniswap_mock = "_"
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "985f19d40457a5f09f2d741b1feca6bf7ba1f8a6"
+rev = "a2a3bf79b68823287f962bded2abfaefc688e71c"
 subdir = "aptos-move/framework/aptos-framework"
 
 [dependencies.Liquidswap]
 git = "https://github.com/pontem-network/liquidswap.git"
-rev = 'c360ff1c3328581a0c78ed3f74a1c53acd9bfbd3'
+rev = 'b89aed9adb96c0b083134765f75be814418be670'
 
