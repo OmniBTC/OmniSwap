@@ -248,8 +248,11 @@ contract WormholeFacet is Swapper {
                 wormholePayload.tokenAddress
             );
         }
+        uint256 amount = getWormholeFinalAmount(
+            tokenAddress,
+            wormholePayload.amount
+        );
 
-        uint256 amount = LibAsset.getOwnBalance(tokenAddress);
         require(amount > 0, "amount>0");
 
         IWETH weth = IWormholeBridge(bridge).WETH();
@@ -549,6 +552,21 @@ contract WormholeFacet is Swapper {
         return data;
     }
 
+    function getWormholeFinalAmount(address transferToken, uint256 amount)
+        public
+        view
+        returns (uint256)
+    {
+        // query decimals
+        (, bytes memory queriedDecimals) = transferToken.staticcall(
+            abi.encodeWithSignature("decimals()")
+        );
+        uint8 decimals = abi.decode(queriedDecimals, (uint8));
+
+        // adjust decimals
+        return _deNormalizeAmount(amount, decimals);
+    }
+
     /// CrossData
     // 1. length + dst_max_gas_price
     // 2. length + dst_max_gas
@@ -716,6 +734,17 @@ contract WormholeFacet is Swapper {
     }
 
     /// Internal Methods ///
+
+    function _deNormalizeAmount(uint256 amount, uint8 decimals)
+        internal
+        pure
+        returns (uint256)
+    {
+        if (decimals > 8) {
+            amount *= 10**(decimals - 8);
+        }
+        return amount;
+    }
 
     function _startBridge(
         NormalizedWormholeData calldata wormholeData,

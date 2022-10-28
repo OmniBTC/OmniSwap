@@ -276,9 +276,7 @@ def add_cut(contracts: list = None):
         reg_facet = contract[-1]
         reg_funcs = get_method_signature_by_abi(contract.abi)
         for func_name in list(reg_funcs.keys()):
-            if func_name in ["remoteSoSwap", "executeAndCheckSwaps"]:
-                del reg_funcs[func_name]
-            elif func_name in register_funcs:
+            if func_name in register_funcs:
                 if reg_funcs[func_name] in register_funcs[func_name]:
                     print(f"function:{func_name} has been register!")
                     del reg_funcs[func_name]

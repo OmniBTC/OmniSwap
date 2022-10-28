@@ -39,7 +39,6 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         address stargate; // The stargate route address
         uint16 srcStargateChainId; // The stargate chain id of the source/current chain
         mapping(address => bool) allowedList; // Permission to allow calls to sgReceive
-        mapping(address => uint256) approveAmount; // Use less than the amount of the transaction fee to estimate the dst gas
     }
 
     /// Types ///
@@ -61,7 +60,6 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     /// Events ///
 
     event StargateInitialized(address stargate, uint256 chainId);
-    event SetApproveAmount(address token, uint256 amount);
     event SetAllowedList(address router, bool isAllowed);
 
     /// Init ///
@@ -78,17 +76,6 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         s.allowedList[stargate] = true;
         s.allowedList[msg.sender] = true;
         emit StargateInitialized(stargate, chainId);
-    }
-
-    /// @dev Add a withdrawal limit for a token to prevent the interface
-    ///      used to estimate fees from being used for withdrawals.
-    /// @param token token address
-    /// @param amount approved amount
-    function setApproveAmount(address token, uint256 amount) external {
-        LibDiamond.enforceIsContractOwner();
-        Storage storage s = getStorage();
-        s.approveAmount[token] = amount;
-        emit SetApproveAmount(token, amount);
     }
 
     /// @dev Set permissions to control calls to sgReceive
@@ -162,6 +149,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         require(s.allowedList[msg.sender], "No permission");
 
         if (LibAsset.getOwnBalance(token) < amount) {
+            // judge eth
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
                 "TokenErr"
@@ -209,6 +197,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         ISo.SoData calldata soData,
         LibSwap.SwapData[] memory swapDataDst
     ) external {
+        require(msg.sender == address(this), "NotDiamond");
         uint256 soFee = getStargateSoFee(amount);
         if (soFee < amount) {
             amount = amount.sub(soFee);
@@ -282,6 +271,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         uint256 amount = LibAsset.getOwnBalance(token);
 
         if (amount == 0) {
+            // judge eth
             require(
                 !IStargateEthVault(token).noUnwrapTo(address(this)),
                 "TokenErr"
@@ -290,12 +280,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
             amount = LibAsset.getOwnBalance(token);
         }
 
-        Storage storage s = getStorage();
-        uint256 approveAmount = s.approveAmount[token];
-        amount = approveAmount < amount && approveAmount > 0
-            ? approveAmount
-            : amount;
-
+        amount = amount.div(10);
         require(amount > 0, "LittleAmount");
         bytes memory payload = getSgReceiveForGasPayload(
             soDataNo,
@@ -321,6 +306,10 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         ) = decodeStargatePayload(payload);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(_soDataNo);
+
+        // Not allow transfer to other
+        soData.receiver = payable(address(this));
+
         LibSwap.SwapData[] memory swapDataDst = LibCross.denormalizeSwapData(
             _swapDataDstNo
         );

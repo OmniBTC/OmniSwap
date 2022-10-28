@@ -55,6 +55,7 @@ contract Swapper is ISo {
         SoData memory soData,
         LibSwap.SwapData[] calldata swapData
     ) external returns (uint256) {
+        require(msg.sender == address(this), "NotDiamond");
         uint256 nSwaps = swapData.length;
         if (nSwaps == 0) revert NoSwapDataProvided();
         address finalTokenId = swapData[swapData.length - 1].receivingAssetId;
