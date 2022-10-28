@@ -381,4 +381,56 @@ def main():
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens
     )
+
+    cross_swap(
+        package,
+        src_path=["AptosCoin_WORMHOLE"],
+        dst_path=["AptosCoin",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC",
+                  LiquidswapCurve.Uncorrelated,
+                  "USDT",
+                  ],
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
+        input_amount=int(100000),
+        src_router=SwapType.IUniswapV2Router02,
+        src_func=SwapFunc.swapExactTokensForTokens
+    )
+
+    cross_swap(
+        package,
+        src_path=["AptosCoin_WORMHOLE"],
+        dst_path=["AptosCoin",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC",
+                  LiquidswapCurve.Uncorrelated,
+                  "USDT",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC"
+                  ],
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
+        input_amount=int(100000),
+        src_router=SwapType.IUniswapV2Router02,
+        src_func=SwapFunc.swapExactTokensForTokens
+    )
+
+    cross_swap(
+        package,
+        src_path=["AptosCoin_WORMHOLE"],
+        dst_path=["AptosCoin",
+                  LiquidswapCurve.Uncorrelated,
+                  "XBTC",
+                  LiquidswapCurve.Uncorrelated,
+                  "USDT",
+                  LiquidswapCurve.Stable,
+                  "USDC"
+                  ],
+        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
+        input_amount=int(100000),
+        src_router=SwapType.IUniswapV2Router02,
+        src_func=SwapFunc.swapExactTokensForTokens
+    )
     ####################################################
