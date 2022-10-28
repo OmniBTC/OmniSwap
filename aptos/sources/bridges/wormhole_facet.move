@@ -38,6 +38,8 @@ module omniswap::wormhole_facet {
 
     const SEED: vector<u8> = b"wormhole_facet";
 
+    const SEED_SO: vector<u8> = b"so_facet";
+
     // Data delimiter, represent ";"
     const INTER_DELIMITER: u8 = 59;
 
@@ -187,6 +189,10 @@ module omniswap::wormhole_facet {
         account::create_resource_address(&@omniswap, SEED)
     }
 
+    fun get_resource_address_so(): address {
+        account::create_resource_address(&@omniswap, SEED_SO)
+    }
+
     fun get_beneficiary_address(): address acquires WormholeFee {
         if (exists<WormholeFee>(get_resource_address())) {
             let manager = borrow_global_mut<WormholeFee>(get_resource_address());
@@ -236,11 +242,6 @@ module omniswap::wormhole_facet {
                 transfer_from_wormhole_events: account::new_event_handle(&resource_signer)
             });
         move_to(&resource_signer,
-            SoTransferEventHandle {
-                so_transfer_started: account::new_event_handle(&resource_signer),
-                so_transfer_completed: account::new_event_handle(&resource_signer)
-            });
-        move_to(&resource_signer,
             WormholeFee {
                 fee: 0,
                 beneficiary: @omniswap
@@ -251,7 +252,7 @@ module omniswap::wormhole_facet {
     public entry fun init_so_transfer_event(account: &signer) {
         assert!(signer::address_of(account) == @omniswap, ENOT_DEPLOYED_ADDRESS);
         assert!(!exists<SoTransferEventHandle>(signer::address_of(account)), EHAS_INITIALIZE);
-        let (resource_signer, _) = account::create_resource_account(account, SEED);
+        let (resource_signer, _) = account::create_resource_account(account, SEED_SO);
         move_to(&resource_signer,
             SoTransferEventHandle {
                 so_transfer_started: account::new_event_handle(&resource_signer),
@@ -392,7 +393,7 @@ module omniswap::wormhole_facet {
             );
         };
 
-        let so_transfer_evnet_handle = borrow_global_mut<SoTransferEventHandle>(resource_address);
+        let so_transfer_evnet_handle = borrow_global_mut<SoTransferEventHandle>(get_resource_address_so());
         event::emit_event<SoTransferStarted>(
             &mut so_transfer_evnet_handle.so_transfer_started,
             SoTransferStarted {
@@ -455,7 +456,7 @@ module omniswap::wormhole_facet {
             transfer(coin_x, receiver);
         };
 
-        let so_transfer_event_handle = borrow_global_mut<SoTransferEventHandle>(resource_address);
+        let so_transfer_event_handle = borrow_global_mut<SoTransferEventHandle>(get_resource_address_so());
         event::emit_event<SoTransferCompleted>(
             &mut so_transfer_event_handle.so_transfer_completed,
             SoTransferCompleted {
