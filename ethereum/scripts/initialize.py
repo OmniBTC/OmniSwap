@@ -102,6 +102,18 @@ def initialize_stargate(account, so_diamond):
     )
 
 
+def set_wormhole_gas():
+    so_diamond = SoDiamond[-1]
+    proxy_stargate = Contract.from_abi(
+        "WormholeFacet", so_diamond.address, WormholeFacet.abi)
+    proxy_stargate.setWormholeGas(
+        22,
+        70000,
+        68,
+        {'from': get_account()}
+    )
+
+
 def initialize_wormhole(account, so_diamond):
     proxy_stargate = Contract.from_abi(
         "WormholeFacet", so_diamond.address, WormholeFacet.abi)
@@ -251,7 +263,9 @@ def remove_facet(facet):
 
 def redeploy_generic_swap():
     account = get_account()
+    remove_facet(GenericSwapFacet)
     GenericSwapFacet.deploy({'from': account})
+    add_cut([GenericSwapFacet])
 
 
 # redeploy and initialize
@@ -265,11 +279,19 @@ def redeploy_stargate():
     initialize_stargate(account, SoDiamond[-1])
 
 
+def remove_dump(a: list, b: list):
+    result = []
+    for k in a:
+        if str(k.hex()) not in b:
+            result.append(k)
+    return result
+
+
 def add_cut(contracts: list = None):
     proxy_loupe = Contract.from_abi(
         "DiamondLoupeFacet", SoDiamond[-1].address, DiamondLoupeFacet.abi)
     all_facets = proxy_loupe.facets()
-    func_sigs = [d2 for d1 in all_facets for d2 in d1]
+    func_sigs = [str(d2) for d1 in all_facets for d2 in d1[1]]
 
     if contracts is None:
         contracts = []
@@ -289,7 +311,7 @@ def add_cut(contracts: list = None):
                     register_funcs[func_name].append(reg_funcs[func_name])
             else:
                 register_funcs[func_name] = [reg_funcs[func_name]]
-        result = list(set(reg_funcs.values()) - set(func_sigs))
+        result = remove_dump(reg_funcs.values(), func_sigs)
         register_data.append([reg_facet, 0, result])
 
     if not register_data:

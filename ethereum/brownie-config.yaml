@@ -565,7 +565,7 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 350000
+          base_gas: 70000
           per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
@@ -649,7 +649,7 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 350000
+          base_gas: 70000
           per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
@@ -725,7 +725,7 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 350000
+          base_gas: 70000
           per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
@@ -794,7 +794,7 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 350000
+          base_gas: 70000
           per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
