@@ -42,43 +42,43 @@ module omniswap::cross {
 
     /// Get Methods
 
-    public fun so_receiver(data: &NormalizedSoData): vector<u8> {
+    public fun so_receiver(data: NormalizedSoData): vector<u8> {
         data.receiver
     }
 
-    public fun so_amount(data: &NormalizedSoData): U256 {
+    public fun so_amount(data: NormalizedSoData): U256 {
         data.amount
     }
 
-    public fun so_transaction_id(data: &NormalizedSoData): vector<u8> {
+    public fun so_transaction_id(data: NormalizedSoData): vector<u8> {
         data.transaction_id
     }
 
-    public fun so_sending_asset_id(data: &NormalizedSoData): vector<u8> {
+    public fun so_sending_asset_id(data: NormalizedSoData): vector<u8> {
         data.sending_asset_id
     }
 
-    public fun so_receiving_asset_id(data: &NormalizedSoData): vector<u8> {
+    public fun so_receiving_asset_id(data: NormalizedSoData): vector<u8> {
         data.receiving_asset_id
     }
 
-    public fun swap_call_to(data: &NormalizedSwapData): vector<u8> {
+    public fun swap_call_to(data: NormalizedSwapData): vector<u8> {
         data.call_to
     }
 
-    public fun swap_sending_asset_id(data: &NormalizedSwapData): vector<u8> {
+    public fun swap_sending_asset_id(data: NormalizedSwapData): vector<u8> {
         data.sending_asset_id
     }
 
-    public fun swap_receiving_asset_id(data: &NormalizedSwapData): vector<u8> {
+    public fun swap_receiving_asset_id(data: NormalizedSwapData): vector<u8> {
         data.receiving_asset_id
     }
 
-    public fun swap_call_data(data: &NormalizedSwapData): vector<u8> {
+    public fun swap_call_data(data: NormalizedSwapData): vector<u8> {
         data.call_data
     }
 
-    public fun swap_from_amount(data: &NormalizedSwapData): U256 {
+    public fun swap_from_amount(data: NormalizedSwapData): U256 {
         data.from_amount
     }
 
