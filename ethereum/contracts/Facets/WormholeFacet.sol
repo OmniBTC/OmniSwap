@@ -333,6 +333,21 @@ contract WormholeFacet is Swapper {
         }
     }
 
+    /// @notice Admin manually call for cross-chain tokens
+    function completeSoSwapByAdmin(bytes memory encodeVm) public {
+        LibDiamond.enforceIsContractOwner();
+
+        Storage storage s = getStorage();
+        address bridge = s.tokenBridge;
+
+        bytes memory payload = IWormholeBridge(bridge)
+            .completeTransferWithPayload(encodeVm);
+
+        IWormholeBridge.TransferWithPayload
+            memory wormholePayload = IWormholeBridge(bridge)
+                .parseTransferWithPayload(payload);
+    }
+
     /// @dev Estimate the minimum gas to be consumed at the target chain
     /// @param soData used to encode into payload
     /// @param wormholeData used to encode into payload
