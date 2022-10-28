@@ -139,14 +139,13 @@ def process_v2(
                 local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
-            interval = 3 * 60 * 60
-            if time.time() > int(vaa_data[1]) + interval:
-                local_logger.warning(
-                    f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
-                    f'beyond {int(interval / 60)}min')
-                continue
-            if padding_to_bytes(transfer_data[4], padding="left").lower() != \
-                    padding_to_bytes(dstSoDiamond, padding="left").lower():
+            # interval = 3 * 60 * 60
+            # if time.time() > int(vaa_data[1]) + interval:
+            #     local_logger.warning(
+            #         f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
+            #         f'beyond {int(interval / 60)}min')
+            #     continue
+            if transfer_data[4] != dstSoDiamond:
                 local_logger.warning(
                     f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
                     f'dstSoDiamond: {dstSoDiamond} '

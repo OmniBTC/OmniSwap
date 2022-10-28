@@ -624,3 +624,11 @@ class AptosPackage:
             "hash": txn_hash,
             "response": response
         }
+
+    def estimate_gas_price(self):
+        try:
+            result = self.rest_client.client.get(url=f"{self.rest_client.base_url}/estimate_gas_price").json()
+            return int(result["gas_estimate"])
+        except Exception as e:
+            print(f"Estimate gas price fail:{e}, using default 100")
+            return 100
