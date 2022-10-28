@@ -1,6 +1,6 @@
 #[test_only]
 module omniswap::wormhole_facet_tests {
-    use omniswap::wormhole_facet::{init_wormhole, so_swap, encode_normalized_wormhole_data, construct_normalized_wormhole_data, set_wormhole_reserve, set_wormhole_gas, check_relayer_fee};
+    use omniswap::wormhole_facet::{init_wormhole, so_swap, encode_normalized_wormhole_data, construct_normalized_wormhole_data, set_wormhole_reserve, set_wormhole_gas, check_relayer_fee, init_so_transfer_event};
     use wormhole::wormhole::init_test;
     use omniswap::cross::{construct_so_data, encode_normalized_so_data, construct_swap_data, NormalizedSwapData, encode_normalized_swap_data};
     use omniswap::u16;
@@ -53,6 +53,7 @@ module omniswap::wormhole_facet_tests {
         set_price_ratio(omniswap, 2, 1 * RAY);
         // init wormhole facet
         init_wormhole(omniswap, 22);
+        init_so_transfer_event(omniswap);
         set_wormhole_reserve(omniswap, 1 * RAY, 1 * RAY);
         let base_gas = vector::empty<u8>();
         serialize_u256(&mut base_gas, u256::from_u64(1500000));
