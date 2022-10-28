@@ -642,7 +642,7 @@ module omniswap::wormhole_facet {
         serialize_u8(&mut data, (vector::length(&cache) as u8));
         vector::append(&mut data, cache);
 
-        let cache = cross::so_receiving_asset_id(&so_data);
+        let cache = cross::so_receiving_asset_id(so_data);
         serialize_u8(&mut data, (vector::length(&cache) as u8));
         vector::append(&mut data, cache);
 
@@ -658,7 +658,7 @@ module omniswap::wormhole_facet {
         while (!vector::is_empty(&swap_data_dst)) {
             let d = vector::pop_back(&mut swap_data_dst);
 
-            let cache = cross::so_sending_asset_id(d);
+            let cache = cross::swap_call_to(d);
             serialize_u8(&mut data, (vector::length(&cache) as u8));
             vector::append(&mut data, cache);
 
@@ -666,7 +666,7 @@ module omniswap::wormhole_facet {
             serialize_u8(&mut data, (vector::length(&cache) as u8));
             vector::append(&mut data, cache);
 
-            let cache = cross::swap_sending_asset_id(d);
+            let cache = cross::swap_receiving_asset_id(d);
             serialize_u8(&mut data, (vector::length(&cache) as u8));
             vector::append(&mut data, cache);
 
@@ -821,7 +821,7 @@ module omniswap::wormhole_facet {
         assert!(v3 == padding_so_data(
             cross::so_transaction_id(so_data),
             cross::so_receiver(so_data),
-            cross::so_receiving_asset_id(&so_data)), 1);
+            cross::so_receiving_asset_id(so_data)), 1);
         assert!(v4 == vector::empty(), 1);
 
 
@@ -835,10 +835,10 @@ module omniswap::wormhole_facet {
         let i = 0;
         while (i < vector::length(&v4)) {
             vector::push_back(&mut decode_swap_data, padding_swap_data(
-                cross::swap_call_to(vector::borrow(&swap_data, i)),
-                cross::swap_sending_asset_id(vector::borrow(&swap_data, i)),
-                cross::swap_receiving_asset_id(vector::borrow(&swap_data, i)),
-                cross::swap_call_data(vector::borrow(&swap_data, i))
+                cross::swap_call_to(*vector::borrow(&swap_data, i)),
+                cross::swap_sending_asset_id(*vector::borrow(&swap_data, i)),
+                cross::swap_receiving_asset_id(*vector::borrow(&swap_data, i)),
+                cross::swap_call_data(*vector::borrow(&swap_data, i))
             ));
             i = i + 1;
         } ;
@@ -848,7 +848,7 @@ module omniswap::wormhole_facet {
         assert!(v3 == padding_so_data(
             cross::so_transaction_id(so_data),
             cross::so_receiver(so_data),
-            cross::so_receiving_asset_id(&so_data)), 1);
+            cross::so_receiving_asset_id(so_data)), 1);
         assert!(v4 == decode_swap_data, 1);
     }
 }

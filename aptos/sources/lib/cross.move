@@ -58,6 +58,10 @@ module omniswap::cross {
         data.sending_asset_id
     }
 
+    public fun so_receiving_asset_id(data: NormalizedSoData): vector<u8> {
+        data.receiving_asset_id
+    }
+
     public fun swap_call_to(data: NormalizedSwapData): vector<u8> {
         data.call_to
     }
@@ -74,7 +78,7 @@ module omniswap::cross {
         data.call_data
     }
 
-    public fun swap_from_amount(data: &NormalizedSwapData): U256 {
+    public fun swap_from_amount(data: NormalizedSwapData): U256 {
         data.from_amount
     }
 
