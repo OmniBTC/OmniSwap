@@ -262,7 +262,7 @@ contract WormholeFacet is Swapper {
             tokenAddress = LibAsset.NATIVE_ASSETID;
         }
 
-        uint256 soFee = getWromholeSoFee(amount);
+        uint256 soFee = getWormholeSoFee(amount);
         if (soFee > 0 && soFee < amount) {
             amount = amount.sub(soFee);
         }
@@ -283,6 +283,7 @@ contract WormholeFacet is Swapper {
             );
             emit SoTransferCompleted(soData.transactionId, amount);
         } else {
+            require(swapDataDst[0].sendingAssetId == tokenAddress, "TokenErr");
             if (soFee > 0) {
                 LibAsset.transferAsset(
                     swapDataDst[0].sendingAssetId,
@@ -290,7 +291,6 @@ contract WormholeFacet is Swapper {
                     soFee
                 );
             }
-            require(swapDataDst[0].sendingAssetId == tokenAddress, "TokenErr");
 
             swapDataDst[0].fromAmount = amount;
 
@@ -306,15 +306,17 @@ contract WormholeFacet is Swapper {
             try this.executeAndCheckSwaps(soData, swapDataDst) returns (
                 uint256 amountFinal
             ) {
-                LibAsset.transferAsset(
+                // may swap to weth
+                transferUnwrappedAsset(
                     swapDataDst[swapDataDst.length - 1].receivingAssetId,
-                    soData.receiver,
-                    amountFinal
+                    soData.receivingAssetId,
+                    amountFinal,
+                    soData.receiver
                 );
                 emit SoTransferCompleted(soData.transactionId, amountFinal);
             } catch Error(string memory revertReason) {
                 LibAsset.transferAsset(
-                    soData.receivingAssetId,
+                    swapDataDst[0].sendingAssetId,
                     soData.receiver,
                     amount
                 );
@@ -325,13 +327,58 @@ contract WormholeFacet is Swapper {
                 );
             } catch (bytes memory returnData) {
                 LibAsset.transferAsset(
-                    soData.receivingAssetId,
+                    swapDataDst[0].sendingAssetId,
                     soData.receiver,
                     amount
                 );
                 emit SoTransferFailed(soData.transactionId, "", returnData);
             }
         }
+    }
+
+    /// @notice Admin manually call for cross-chain tokens
+    function completeSoSwapByAdmin(bytes memory encodeVm) public {
+        LibDiamond.enforceIsContractOwner();
+
+        Storage storage s = getStorage();
+        address bridge = s.tokenBridge;
+
+        bytes memory payload = IWormholeBridge(bridge)
+            .completeTransferWithPayload(encodeVm);
+
+        IWormholeBridge.TransferWithPayload
+            memory wormholePayload = IWormholeBridge(bridge)
+                .parseTransferWithPayload(payload);
+
+        address tokenAddress;
+        bool isOriginChain;
+        if (wormholePayload.tokenChain == IWormholeBridge(bridge).chainId()) {
+            tokenAddress = address(
+                uint160(uint256(wormholePayload.tokenAddress))
+            );
+            isOriginChain = true;
+        } else {
+            tokenAddress = IWormholeBridge(bridge).wrappedAsset(
+                wormholePayload.tokenChain,
+                wormholePayload.tokenAddress
+            );
+        }
+
+        uint256 amount = LibAsset.getOwnBalance(tokenAddress);
+        require(amount > 0, "amount>0");
+
+        IWETH weth = IWormholeBridge(bridge).WETH();
+
+        if (isOriginChain && address(weth) == tokenAddress) {
+            weth.withdraw(amount);
+            tokenAddress = LibAsset.NATIVE_ASSETID;
+        }
+
+        LibAsset.transferAsset(
+            tokenAddress,
+            payable(LibDiamond.contractOwner()),
+            amount
+        );
     }
 
     /// @dev Estimate the minimum gas to be consumed at the target chain
@@ -449,7 +496,7 @@ contract WormholeFacet is Swapper {
     }
 
     /// @dev Get so fee
-    function getWromholeSoFee(uint256 amount) public view returns (uint256) {
+    function getWormholeSoFee(uint256 amount) public view returns (uint256) {
         Storage storage s = getStorage();
         address soFee = appStorage.gatewaySoFeeSelectors[s.tokenBridge];
         if (soFee == address(0x0)) {

@@ -171,13 +171,15 @@ def initialize_little_token_for_stargate():
 
 
 def redeploy_serde():
+    remove_facet(SerdeFacet)
     SerdeFacet.deploy({'from': get_account()})
-    add_cut(SerdeFacet)
+    add_cut([SerdeFacet])
 
 
-# Remove facet first at https://louper.dev/
 def redeploy_wormhole():
     account = get_account()
+
+    remove_facet(WormholeFacet)
 
     WormholeFacet.deploy({'from': account})
     add_cut([WormholeFacet])
@@ -227,15 +229,19 @@ def set_relayer_fee():
                                              int(8 / 250 * decimal), {"from": get_account()})
 
 
-def remove_facet():
+def remove_facet(facet):
     account = get_account()
+
+    proxy_loupe = Contract.from_abi(
+        "DiamondLoupeFacet", SoDiamond[-1].address, DiamondLoupeFacet.abi)
+
+    funcs = proxy_loupe.facetFunctionSelectors(facet[-1].address)
+
+    register_data = [[zero_address(), 2, list(funcs)]]
+
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi)
-    register_data = [[zero_address(), 2, ["0x8340f549", "0xcd96eb9a", "0xf5c243f6",
-                                          "0x7e3c358b", "0x98d665b7", "0x519ef92e",
-                                          "0xaa73579f", "0x0e7e8ba2", "0xaf66a6d8",
-                                          "0x72c0d671", "0xab8236f3", "0x67b25169",
-                                          "0x205eefb0", "0x0e917f76", "0xa3583a88"]]]
+
     proxy_cut.diamondCut(register_data,
                          zero_address(),
                          b'',
@@ -249,9 +255,10 @@ def redeploy_generic_swap():
 
 
 # redeploy and initialize
-# Remove facet first at https://louper.dev/
 def redeploy_stargate():
     account = get_account()
+
+    remove_facet(StargateFacet)
 
     StargateFacet.deploy({"from": account})
     add_cut([StargateFacet])
