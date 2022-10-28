@@ -30,4 +30,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main('bsc-main')
+    main('mainnet')

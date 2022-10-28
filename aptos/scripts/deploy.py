@@ -28,7 +28,6 @@ def main():
         network=net
     )
     package.publish_package()
-    return
 
     # initialize
     # # fee

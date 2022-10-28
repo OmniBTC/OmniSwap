@@ -272,7 +272,7 @@ def redeploy_generic_swap():
 def redeploy_stargate():
     account = get_account()
 
-    remove_facet(StargateFacet)
+    # remove_facet(StargateFacet)
 
     StargateFacet.deploy({"from": account})
     add_cut([StargateFacet])
