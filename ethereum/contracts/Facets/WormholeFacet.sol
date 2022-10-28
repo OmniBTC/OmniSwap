@@ -346,6 +346,36 @@ contract WormholeFacet is Swapper {
         IWormholeBridge.TransferWithPayload
             memory wormholePayload = IWormholeBridge(bridge)
                 .parseTransferWithPayload(payload);
+
+        address tokenAddress;
+        bool isOriginChain;
+        if (wormholePayload.tokenChain == IWormholeBridge(bridge).chainId()) {
+            tokenAddress = address(
+                uint160(uint256(wormholePayload.tokenAddress))
+            );
+            isOriginChain = true;
+        } else {
+            tokenAddress = IWormholeBridge(bridge).wrappedAsset(
+                wormholePayload.tokenChain,
+                wormholePayload.tokenAddress
+            );
+        }
+
+        uint256 amount = LibAsset.getOwnBalance(tokenAddress);
+        require(amount > 0, "amount>0");
+
+        IWETH weth = IWormholeBridge(bridge).WETH();
+
+        if (isOriginChain && address(weth) == tokenAddress) {
+            weth.withdraw(amount);
+            tokenAddress = LibAsset.NATIVE_ASSETID;
+        }
+
+        LibAsset.transferAsset(
+            tokenAddress,
+            payable(LibDiamond.contractOwner()),
+            amount
+        );
     }
 
     /// @dev Estimate the minimum gas to be consumed at the target chain
