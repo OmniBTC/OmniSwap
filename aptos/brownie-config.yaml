@@ -48,7 +48,7 @@ networks:
     node_url: https://aptos-testnet.coming.chat/v1
     faucet_url: https://faucet.testnet.aptoslabs.com
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000008"
-    wormhole_facet_resource: "0xdcdeeb0a49a5afdeac6a32e96df53120e908744ba7dac68553e470bb5e825cf1"
+    wormhole_facet_resource: "0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f"
     replace_address:
       deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
