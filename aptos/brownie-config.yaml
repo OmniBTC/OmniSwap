@@ -1,7 +1,7 @@
 # automatically fetch contract sources from Etherscan
 dotenv: .env
 networks:
-  default: bsc-test
+  default: mainnet
   aptos-mainnet:
     omnibtc_chainid: 1
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"

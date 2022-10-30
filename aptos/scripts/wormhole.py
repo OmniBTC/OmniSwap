@@ -220,7 +220,7 @@ def estimate_wormhole_fee(
 
     dst_gas = base_gas + gas_per_bytes * payload_length
 
-    dst_fee = dst_gas * int(ratio) / RAY * estimate_reserve / RAY
+    dst_fee = dst_gas * int(ratio) / RAY * estimate_reserve / RAY * 1e8
 
     return int(dst_fee + wormhole_cross_fee + input_native_amount)
 
@@ -459,10 +459,6 @@ def cross_swap(
     is_native = src_path[0] == "AptosCoin"
     wormhole_fee = estimate_wormhole_fee(
         package, package.config["networks"][dst_net]["wormhole"]["chainid"], input_amount, is_native, payload_length, 0)
-    if is_native:
-        wormhole_fee = input_amount + wormhole_fee
-    else:
-        wormhole_fee = wormhole_fee
     print(f"Wormhole fee: {wormhole_fee}")
     wormhole_data = generate_wormhole_data(
         package,
@@ -482,9 +478,9 @@ def cross_swap(
 
 
 def main():
-    src_net = "aptos-testnet"
+    src_net = "aptos-mainnet"
     assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
-    dst_net = "bsc-test"
+    dst_net = "mainnet"
 
     # Prepare environment
     # load src net aptos package
