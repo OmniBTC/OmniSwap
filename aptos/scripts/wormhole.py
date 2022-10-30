@@ -169,6 +169,7 @@ def get_amounts_out_for_liquidswap(
 def estimate_wormhole_fee(
         package: aptos_brownie.AptosPackage,
         dst_chainid: int,
+        dst_gas_price: int,
         input_amount: int,
         is_native: bool,
         payload_length: int,
@@ -220,7 +221,7 @@ def estimate_wormhole_fee(
 
     dst_gas = base_gas + gas_per_bytes * payload_length
 
-    dst_fee = dst_gas * int(ratio) / RAY * estimate_reserve / RAY * 1e8
+    dst_fee = dst_gas * dst_gas_price / 1e10 * int(ratio) / RAY * estimate_reserve / RAY * 1e8
 
     return int(dst_fee + wormhole_cross_fee + input_native_amount)
 
@@ -458,7 +459,8 @@ def cross_swap(
 
     is_native = src_path[0] == "AptosCoin"
     wormhole_fee = estimate_wormhole_fee(
-        package, package.config["networks"][dst_net]["wormhole"]["chainid"], input_amount, is_native, payload_length, 0)
+        package, package.config["networks"][dst_net]["wormhole"]["chainid"], dst_gas_price, input_amount, is_native,
+        payload_length, 0)
     print(f"Wormhole fee: {wormhole_fee}")
     wormhole_data = generate_wormhole_data(
         package,

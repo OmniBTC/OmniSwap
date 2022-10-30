@@ -531,6 +531,10 @@ module omniswap::wormhole_facet {
         src_fee = u256::div(src_fee, one);
         src_fee = u256::mul(src_fee, u256::from_u64(actual_reserve));
         src_fee = u256::div(src_fee, one);
+
+        // Evm chain, decimal change
+        src_fee = u256::div(src_fee, u256::from_u64(10000000000));
+
         let comsume_value = u256::from_u64(state::get_message_fee());
 
         if (right_type<AptosCoin>(cross::so_sending_asset_id(so_data))) {
