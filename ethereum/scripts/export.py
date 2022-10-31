@@ -4,7 +4,7 @@
 import contextlib
 import json
 import os
-from pprint import pprint
+from pprint import pp, pprint
 
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, interface, Contract, ERC20, LibSwap, config, LibSoFeeStargateV1, LibCorrectSwapV1, \
@@ -232,6 +232,76 @@ def export_wormhole_chain_path(arg, wormhole_chain_path):
         except Exception:
             omni_swap_infos[net].append({"WormholeSupportToken": []})
             omni_swap_infos[net]["WormholeSupportToken"] = net_support_token
+    write_file(omni_swap_file, omni_swap_infos)
+
+
+def reexport_wormhole_chainpath():
+    omni_swap_infos = read_json(omni_swap_file)
+
+    support_tokens = {}
+    native_tokens = []
+    for net in ["mainnet", "aptos-mainnet", "bsc-main", "polygon-main", "avax-main"]:
+
+        tokens = []
+        for token in omni_swap_infos[net]["WormholeSupportToken"]:
+            if token["NativeToken"]:
+                native_tokens.append(token)
+                tokens.append(token)
+        support_tokens[net] = tokens
+
+    for net in ["mainnet", "aptos-mainnet", "bsc-main", "polygon-main", "avax-main"]:
+        wrapped_tokens = []
+        for native_token in native_tokens:
+            wrapped_chain_paths = []
+
+            for path in native_token["ChainPath"]:
+                dst_net = get_net_from_wormhole_chainid(
+                    path["DstWormholeChainId"])
+                if dst_net == net:
+                    wrapped_chain_paths.append({
+                        'DstTokenAddress': path['SrcTokenAddress'],
+                        'DstWormholeChainId': path['SrcWormholeChainId'],
+                        'SrcTokenAddress': path['DstTokenAddress'],
+                        'SrcWormholeChainId': path['DstWormholeChainId']
+                    })
+
+            if len(wrapped_chain_paths) > 0:
+                src_token_address = wrapped_chain_paths[0]['SrcTokenAddress']
+                src_wormhole_chain_id = wrapped_chain_paths[0]['SrcWormholeChainId']
+                for path in native_token["ChainPath"]:
+                    if src_wormhole_chain_id != path['DstWormholeChainId']:
+                        wrapped_chain_paths.append({
+                            'DstTokenAddress': path['DstTokenAddress'],
+                            'DstWormholeChainId': path['DstWormholeChainId'],
+                            'SrcTokenAddress': src_token_address,
+                            'SrcWormholeChainId': src_wormhole_chain_id
+                        })
+
+                token_name = native_token['TokenName']
+                native_net = get_net_from_wormhole_chainid(native_token[
+                    'ChainPath'][0]['SrcWormholeChainId'])
+                if token_name in ["USDT", "USDC"]:
+                    net_suffix = "eth"
+                    if native_net != "mainnet":
+                        net_suffix = native_net.split('-')[0]
+
+                    wrapped_tokens.append({
+                        'ChainPath': wrapped_chain_paths,
+                        'Decimal': native_token['Decimal'],
+                        'NativeToken': False,
+                        'TokenName': f'{token_name}{net_suffix}'
+                    })
+                else:
+                    wrapped_tokens.append({
+                        'ChainPath': wrapped_chain_paths,
+                        'Decimal': native_token['Decimal'],
+                        'NativeToken': False,
+                        'TokenName': f'W{token_name}'
+                    })
+        support_tokens[net].extend(wrapped_tokens)
+
+    for net in ["mainnet", "aptos-mainnet", "bsc-main", "polygon-main", "avax-main"]:
+        omni_swap_infos[net]["WormholeSupportToken"] = support_tokens[net]
     write_file(omni_swap_file, omni_swap_infos)
 
 

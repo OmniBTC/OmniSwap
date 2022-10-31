@@ -79,6 +79,8 @@ def get_net_from_wormhole_chainid(chainid):
         return "avax-main"
     elif chainid == 10:
         return "ftm-main"
+    elif chainid == 22:
+        return "aptos-mainnet"
 
 
 def get_native_token_name(net):
@@ -90,6 +92,8 @@ def get_native_token_name(net):
         return "FTM"
     elif "polygon" in net:
         return "MATIC"
+    elif "aptos" in net:
+        return "APT"
     else:
         return "ETH"
 
