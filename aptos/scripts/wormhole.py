@@ -483,9 +483,9 @@ def cross_swap(
 
 
 def main():
-    src_net = "aptos-mainnet"
+    src_net = "aptos-testnet"
     assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
-    dst_net = "mainnet"
+    dst_net = "bsc-test"
 
     # Prepare environment
     # load src net aptos package
@@ -534,6 +534,7 @@ def main():
                dst_path=["XBTC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
+               dst_gas_price=int(1 * 1e9)
                )
 
     # gas: 46160
@@ -547,6 +548,7 @@ def main():
                dst_path=["USDT_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
+               dst_gas_price=int(1 * 1e9)
                )
 
     # gas: 313761
@@ -562,6 +564,7 @@ def main():
                dst_path=["USDC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
+               dst_gas_price=int(1 * 1e9)
                )
 
     # gas: 35389
@@ -571,6 +574,7 @@ def main():
         dst_path=["AptosCoin_WORMHOLE", "USDT"],
         receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
         input_amount=10000000,
+        dst_gas_price=int(1 * 1e9),
         dst_router=EvmSwapType.IUniswapV2Router02,
         dst_func=EvmSwapFunc.swapExactTokensForTokens
     )
