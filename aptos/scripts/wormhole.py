@@ -166,6 +166,15 @@ def get_amounts_out_for_liquidswap(
     return amount_out
 
 
+def parse_u256(data):
+    output = 0
+    output = output + int(data["v3"])
+    output = (output << 64) + int(data["v2"])
+    output = (output << 64) + int(data["v1"])
+    output = (output << 64) + int(data["v0"])
+    return output
+
+
 def estimate_wormhole_fee(
         package: aptos_brownie.AptosPackage,
         dst_chainid: int,
@@ -177,51 +186,45 @@ def estimate_wormhole_fee(
 ):
     """
      wormhole_fee = wormhole_cross_fee + relayer_fee + input_native_amount
+    :param dst_gas_price:
+    :param dst_chainid:
+    :param payload_length:
     :param package:
     :param input_amount:
     :param is_native:
     :param wormhole_cross_fee: wormhole_cross_fee current is 0
-    :param wormhole_facet_resource:
-    :param wormhole_fee_resource:
     :return:
     """
 
     RAY = 100000000
-    current_net = network.show_active()
-    # serde = get_serde_facet(package, current_net)
 
     wormhole_fee_resource = package.get_resource_addr(
         str(package.account.account_address), bytes.fromhex(str(dst_chainid).zfill(16)).decode("ascii"))
-    # if wormhole_facet_resource is None:
-    #     wormhole_facet_resource = package.get_resource_addr(
-    #         str(package.account.account_address), "1")
-
-    # if wormhole_fee_resource is None:
-    #     wormhole_fee_resource = package.get_resource_addr(
-    #         str(package.account.account_address), "wormhole_fee")
-    # print("wormhole_facet_resource", wormhole_facet_resource)
-
-    # print("wormhole_fee_resource", wormhole_fee_resource)
 
     input_native_amount = input_amount if is_native else 0
-    # wormhole_facet_storage = package.account_resource(
-    #     wormhole_facet_resource,
-    #     f"{str(package.account.account_address)}::wormhole_facet::Storage"
-    # )
     wormhole_price = package.account_resource(
         wormhole_fee_resource,
         f"{str(package.account.account_address)}::so_fee_wormhole::PriceManager"
     )
     ratio = wormhole_price["data"]["price_data"]["current_price_ratio"]
-
-    base_gas = package.network_config["wormhole"]["gas"][current_net]["base_gas"]
-    gas_per_bytes = package.network_config["wormhole"]["gas"][current_net]["per_byte_gas"]
-    # actual_reserve = package.network_config["wormhole"]["actual_reserve"]
+    base_gas = package.get_table_item(package.network_config["dst_base_gas"]["table_handle"],
+                                      package.network_config["dst_base_gas"]["key_type"],
+                                      package.network_config["dst_base_gas"]["value_type"],
+                                      {"number": str(dst_chainid)})
+    base_gas = parse_u256(base_gas)
+    gas_per_bytes = package.get_table_item(package.network_config["dst_gas_per_bytes"]["table_handle"],
+                                           package.network_config["dst_gas_per_bytes"]["key_type"],
+                                           package.network_config["dst_gas_per_bytes"]["value_type"],
+                                           {"number": str(dst_chainid)})
+    gas_per_bytes = parse_u256(gas_per_bytes)
     estimate_reserve = package.network_config["wormhole"]["estimate_reserve"]
 
     dst_gas = base_gas + gas_per_bytes * payload_length
 
-    dst_fee = dst_gas * dst_gas_price / 1e10 * int(ratio) / RAY * estimate_reserve / RAY * 1e8
+    dst_fee = dst_gas * dst_gas_price / 1e10 * int(ratio) / RAY * estimate_reserve / RAY
+
+    # Change into aptos decimal
+    dst_fee = dst_fee * 1e8
 
     return int(dst_fee + wormhole_cross_fee + input_native_amount)
 
@@ -522,6 +525,7 @@ def main():
                dst_path=["AptosCoin_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=100000,
+               dst_gas_price=int(1 * 1e9)
                )
 
     # gas: 31181

@@ -23,6 +23,27 @@ networks:
     faucet_url: https://faucet.testnet.aptoslabs.com
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000008"
     wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
+    so_facet_resource: "0x717563269e9c31361ffae76ad6d9ca748606700d6448a1ae8daeb72dfc5a0bc8"
+    dst_base_gas:
+      table_handle: "0xd0fd5f4bf930c601ce30b28a3a0df7af500afa14d3c9aa599c9d10437126ac70"
+      key_type: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::u16::U16
+      value_type: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::u256::U256
+    dst_gas_per_bytes:
+      table_handle: "0x586b0dfb66565d48e281e6ddd4b87ccc790b7c9aba06cfb8f7a6f5e3af451bc"
+      key_type: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::u16::U16
+      value_type: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::u256::U256
+    so_transfer_started:
+      address: "0x717563269e9c31361ffae76ad6d9ca748606700d6448a1ae8daeb72dfc5a0bc8"
+      event_handle: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::wormhole_facet::SoTransferEventHandle
+      field_name: so_transfer_started
+    so_transfer_completed:
+      address: "0x717563269e9c31361ffae76ad6d9ca748606700d6448a1ae8daeb72dfc5a0bc8"
+      event_handle: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::wormhole_facet::SoTransferEventHandle
+      field_name: so_transfer_completed
+    transfer_from_wormhole_events:
+      address: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
+      event_handle: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::wormhole_facet::Storage
+      field_name: transfer_from_wormhole_events
     replace_address:
       deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"

@@ -663,3 +663,16 @@ class AptosPackage:
         except Exception as e:
             print(f"Estimate gas price fail:{e}, using default 100")
             return 100
+
+    def get_table_item(self, table_handle: str, key_type: str, value_str: str, key: dict):
+        return self.rest_client.get_table_item(table_handle, key_type, value_str, key)
+
+    def get_events(self, address: str, event_handle: str, field_name: str, limit: int = None):
+        if limit is not None:
+            url = f"{self.rest_client.base_url}/accounts/{address}/events/{event_handle}/{field_name}?limit={limit}"
+        else:
+            url = f"{self.rest_client.base_url}/accounts/{address}/events/{event_handle}/{field_name}"
+        response = self.rest_client.client.get(url)
+        if response.status_code >= 400:
+            raise ApiError(response.text, response.status_code)
+        return response.json()
