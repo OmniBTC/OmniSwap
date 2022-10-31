@@ -2,7 +2,10 @@ import json
 import logging
 import threading
 import time
+from datetime import datetime
+from pathlib import Path
 
+import pandas as pd
 import requests
 from brownie import network
 
@@ -15,7 +18,15 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-testnet")
+package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-mainnet")
+WORMHOLE_CHAINID_TO_NET = {
+    package.config["networks"][net]["wormhole"]["chainid"]: net
+    for net in package.config["networks"]
+    if "wormhole" in package.config["networks"][net]
+       and "chainid" in package.config["networks"][net]["wormhole"]
+    if ("main" in package.network and "main" in net)
+       or ("main" not in package.network and "main" not in net)
+}
 
 
 def get_signed_vaa(
@@ -143,6 +154,92 @@ def get_pending_data(url: str = None) -> list:
         return []
 
 
+def process_vaa(
+        dstSoDiamond: str,
+        vaa_str: str,
+        emitterChainId: str,
+        sequence: str,
+        local_logger,
+        inner_interval: int = None,
+        over_interval: int = None,
+) -> bool:
+    try:
+        # Use bsc-test to decode, too slow may need to change bsc-mainnet
+        vaa_str = vaa_str if "0x" in vaa_str else "0x" + vaa_str
+        vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(
+            package, network.show_active(),
+            vaa_str)
+        dst_max_gas = wormhole_data[1]
+        dst_max_gas_price = wormhole_data[0] / 1e10
+        if "main" in package.network:
+            assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
+    except Exception as e:
+        local_logger.error(f'Parse signed vaa for emitterChainId:{emitterChainId}, '
+                           f'sequence:{sequence} error: {e}')
+        return False
+    if inner_interval is not None and time.time() > int(vaa_data[1]) + inner_interval:
+        local_logger.warning(
+            f'For emitterChainId:{emitterChainId}, sequence:{sequence} '
+            f'need in {int(inner_interval / 60)}min')
+        return False
+
+    if over_interval is not None and time.time() <= int(vaa_data[1]) + over_interval:
+        local_logger.warning(
+            f'For emitterChainId:{emitterChainId}, sequence:{sequence} '
+            f'need out {int(over_interval / 60)}min')
+        return False
+
+    if transfer_data[4] != dstSoDiamond:
+        local_logger.warning(
+            f'For emitterChainId:{emitterChainId}, sequence:{sequence} dstSoDiamond: {dstSoDiamond} '
+            f'not match: {transfer_data[4]}')
+        return False
+
+    try:
+        final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
+        if len(wormhole_data[3]) == 0:
+            ty_args = [final_asset_id, final_asset_id, final_asset_id, final_asset_id]
+        elif len(wormhole_data[3]) == 1:
+            s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
+            s2 = final_asset_id
+            ty_args = [s1, s2, s2, s2]
+        elif len(wormhole_data[3]) == 2:
+            s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
+            s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
+            s3 = final_asset_id
+            ty_args = [s1, s2, s3, s3]
+        elif len(wormhole_data[3]) == 3:
+            s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
+            s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
+            s3 = decode_hex_to_ascii(wormhole_data[3][2][2])
+            s4 = final_asset_id
+            ty_args = [s1, s2, s3, s4]
+        else:
+            logger.error(f"Dst swap too much")
+            raise OverflowError
+        result = package["so_diamond::complete_so_swap"](
+            hex_str_to_vector_u8(vaa_str),
+            ty_args=ty_args,
+            gas_unit_price=dst_max_gas_price
+        )
+        if "response" in result and "gas_used" in result["response"]:
+            record_gas(
+                int(dst_max_gas),
+                int(dst_max_gas_price),
+                int(result["response"]["gas_used"]),
+                int(result["gas_unit_price"]),
+                src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
+                if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
+                dst_net=package.network
+            )
+    except Exception as e:
+        local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
+                           f'sequence:{sequence} error: {e}')
+        return False
+    logger.info(f'Process emitterChainId:{emitterChainId}, sequence:{sequence} success!')
+    return True
+
+
 def process_v1(
         dstWormholeChainId: int = 22,
         dstSoDiamond: str = None,
@@ -150,64 +247,24 @@ def process_v1(
     local_logger = logger.getChild(f"[{package.network}]")
     local_logger.info("Starting process v1...")
     has_process = {}
+    if "test" in package.network or "test" == "goerli":
+        url = "http://wormhole-testnet.sherpax.io"
+    else:
+        url = "http://wormhole-vaa.chainx.org"
     while True:
-        if "test" in package.network or "test" == "goerli":
-            url = "http://wormhole-testnet.sherpax.io"
-        else:
-            url = "http://wormhole-vaa.chainx.org"
         result = get_signed_vaa_by_to(dstWormholeChainId, url=url)
         result = [d for d in result if (int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
         local_logger.info(f"Get signed vaa by to length: {len(result)}")
         for d in result[::-1]:
             has_process[(int(d["emitterChainId"]), int(d["sequence"]))] = True
-            try:
-                # Use bsc-test to decode, too slow may need to change bsc-mainnet
-                d["hexString"] = "0x" + d["hexString"]
-                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, network.show_active(),
-                                                                                       d["hexString"])
-            except Exception as e:
-                local_logger.error(f'Parse signed vaa for emitterChainId:{d["emitterChainId"]}, '
-                                   f'sequence:{d["sequence"]} error: {e}')
-                continue
-            interval = 3 * 60 * 60
-            if time.time() > int(vaa_data[1]) + interval:
-                local_logger.warning(
-                    f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} '
-                    f'beyond {int(interval / 60)}min')
-                continue
-            if transfer_data[4] != dstSoDiamond:
-                local_logger.warning(
-                    f'For emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} dstSoDiamond: {dstSoDiamond} '
-                    f'not match: {transfer_data[4]}')
-                continue
-            try:
-                final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
-                if len(wormhole_data[3]) == 0:
-                    ty_args = [final_asset_id, final_asset_id, final_asset_id, final_asset_id]
-                elif len(wormhole_data[3]) == 1:
-                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
-                    s2 = final_asset_id
-                    ty_args = [s1, s2, s2, s2]
-                elif len(wormhole_data[3]) == 2:
-                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
-                    s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
-                    s3 = final_asset_id
-                    ty_args = [s1, s2, s3, s3]
-                elif len(wormhole_data[3]) == 3:
-                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
-                    s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
-                    s3 = decode_hex_to_ascii(wormhole_data[3][2][2])
-                    s4 = final_asset_id
-                    ty_args = [s1, s2, s3, s4]
-                else:
-                    logger.error(f"Dst swap too much")
-                    raise OverflowError
-                package["so_diamond::complete_so_swap"](hex_str_to_vector_u8(d["hexString"]), ty_args=ty_args)
-            except Exception as e:
-                local_logger.error(f'Complete so swap for emitterChainId:{d["emitterChainId"]}, '
-                                   f'sequence:{d["sequence"]} error: {e}')
-                continue
-            logger.info(f'Process emitterChainId:{d["emitterChainId"]}, sequence:{d["sequence"]} success!')
+            process_vaa(
+                dstSoDiamond,
+                d["hexString"],
+                d["emitterChainId"],
+                d["sequence"],
+                local_logger,
+                inner_interval=3 * 60 * 60
+            )
         time.sleep(60)
 
 
@@ -218,18 +275,20 @@ def process_v2(
     local_logger = logger.getChild(f"[{package.network}]")
     local_logger.info("Starting process v2...")
     has_process = {}
+    if "test" in package.network or "test" == "goerli":
+        url = "http://wormhole-testnet.sherpax.io"
+        pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+    else:
+        url = "http://wormhole-vaa.chainx.org"
+        pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     while True:
-        pending_data = get_pending_data()
+        pending_data = get_pending_data(url=pending_url)
         pending_data = [d for d in pending_data if
                         (int(d["srcWormholeChainId"]), int(d["sequence"])) not in has_process]
         local_logger.info(f"Get signed vaa length: {len(pending_data)}")
         for d in pending_data:
             has_process[(int(d["srcWormholeChainId"]), int(d["sequence"]))] = True
             try:
-                if "test" in package.network or "test" == "goerli":
-                    url = "http://wormhole-testnet.sherpax.io"
-                else:
-                    url = "http://wormhole-vaa.chainx.org"
                 vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
                 if vaa is None:
                     continue
@@ -238,65 +297,64 @@ def process_v2(
                 local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
-            try:
-                # Use bsc-test to decode, too slow may need to change bsc-mainnet
-                vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(package, network.show_active(),
-                                                                                       vaa)
-            except Exception as e:
-                local_logger.error(f'Parse signed vaa for emitterChainId:{d["srcWormholeChainId"]}, '
-                                   f'sequence:{d["sequence"]} error: {e}')
-                continue
-            interval = 3 * 60 * 60
-            if time.time() > int(vaa_data[1]) + interval:
-                local_logger.warning(
-                    f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
-                    f'beyond {int(interval / 60)}min')
-                continue
-            if transfer_data[4] != dstSoDiamond:
-                local_logger.warning(
-                    f'For emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} '
-                    f'dstSoDiamond: {dstSoDiamond} '
-                    f'not match: {transfer_data[4]}')
-                continue
-            try:
-                final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
-                if len(wormhole_data[3]) == 0:
-                    ty_args = [final_asset_id, final_asset_id, final_asset_id, final_asset_id]
-                elif len(wormhole_data[3]) == 1:
-                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
-                    s2 = final_asset_id
-                    ty_args = [s1, s2, s2, s2]
-                elif len(wormhole_data[3]) == 2:
-                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
-                    s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
-                    s3 = final_asset_id
-                    ty_args = [s1, s2, s3, s3]
-                elif len(wormhole_data[3]) == 3:
-                    s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
-                    s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
-                    s3 = decode_hex_to_ascii(wormhole_data[3][2][2])
-                    s4 = final_asset_id
-                    ty_args = [s1, s2, s3, s4]
-                else:
-                    logger.error(f"Dst swap too much")
-                    raise OverflowError
-                package["so_diamond::complete_so_swap"](hex_str_to_vector_u8(vaa), ty_args=ty_args)
-            except Exception as e:
-                local_logger.error(f'Complete so swap for emitterChainId:{d["srcWormholeChainId"]}, '
-                                   f'sequence:{d["sequence"]} error: {e}')
-                continue
-            logger.info(f'Process emitterChainId:{d["srcWormholeChainId"]}, sequence:{d["sequence"]} success!')
+            process_vaa(
+                dstSoDiamond,
+                vaa,
+                d["srcWormholeChainId"],
+                d["sequence"],
+                local_logger,
+                over_interval=3 * 60 * 60
+            )
         time.sleep(60)
+
+
+def record_gas(
+        sender_gas: int,
+        sender_gas_price: int,
+        actual_gas: int,
+        actual_gas_price: int,
+        src_net: str,
+        dst_net: str,
+        file_path=Path(__file__).parent.joinpath("gas"),
+):
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+    if not file_path.exists():
+        file_path.mkdir()
+    interval = 7 * 24 * 60 * 60
+    cur_timestamp = int(time.time())
+    uid = int(cur_timestamp / interval) * interval
+    period1 = str(datetime.fromtimestamp(uid))[:13]
+    period2 = str(datetime.fromtimestamp(uid + interval))[:13]
+    file_name = file_path.joinpath(f"{dst_net}_{period1}_{period2}.csv")
+    data = {
+        "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
+        "src_net": src_net,
+        "dst_net": dst_net,
+        "sender_gas": sender_gas,
+        "sender_gas_price": sender_gas_price,
+        "sender_value": sender_gas * sender_gas_price,
+        "actual_gas": actual_gas,
+        "actual_gas_price": actual_gas_price,
+        "actual_value": actual_gas * actual_gas_price,
+    }
+    columns = sorted(list(data.keys()))
+    data = pd.DataFrame([data])
+    data = data[columns]
+    if file_name.exists():
+        data.to_csv(str(file_name), index=False, header=False, mode='a')
+    else:
+        data.to_csv(str(file_name), index=False, header=True, mode='w')
 
 
 def main():
     print(f'SoDiamond:{package.network_config["SoDiamond"]}')
     t1 = threading.Thread(target=process_v1, args=(22, package.network_config["SoDiamond"]))
-    # t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
+    t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
     t1.start()
-    # t2.start()
+    t2.start()
     t1.join()
-    # t2.join()
+    t2.join()
 
 
 def single_process():

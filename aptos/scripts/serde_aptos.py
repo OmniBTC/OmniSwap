@@ -153,8 +153,8 @@ def parse_wormhole_payload(
     :param transfer_payload:
     :return:
         {
-            dstMaxGas,
             dstMaxGasPrice,
+            dstMaxGas,
             soData,
             dstSwapData
         }

@@ -20,7 +20,7 @@ def setup_mock(net: str = "aptos-testnet"):
 
 
 def main():
-    net = "aptos-mainnet"
+    net = "aptos-testnet"
     print(f"Current aptos network:{net}")
     # deploy
     package = aptos_brownie.AptosPackage(

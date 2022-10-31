@@ -348,14 +348,17 @@ class AptosPackage:
         return functools.partial(self.submit_bcs_transaction, self.abis[key])
 
     def create_single_signer_bcs_transaction(
-            self, sender: Account, payload: TransactionPayload, gas: int = 500000, gas_price: int = 100
+            self, sender: Account,
+            payload: TransactionPayload,
+            max_gas_amount: int = 500000,
+            gas_unit_price: int = 100
     ) -> SignedTransaction:
         raw_transaction = RawTransaction(
             sender.address(),
             self.rest_client.account_sequence_number(sender.address()),
             payload,
-            gas,
-            gas_price,
+            max_gas_amount,
+            gas_unit_price,
             int(time.time()) + 600,
             self.rest_client.chain_id,
         )
@@ -387,7 +390,13 @@ class AptosPackage:
         return response.json()
 
     def submit_bcs_transaction(
-            self, abi: EntryFunctionABI, *args, ty_args: List[str] = None, **kwargs,
+            self,
+            abi: EntryFunctionABI,
+            *args,
+            ty_args: List[str] = None,
+            max_gas_amount=500000,
+            gas_unit_price=100,
+            **kwargs,
     ) -> dict:
         if ty_args is None:
             ty_args = []
@@ -435,17 +444,21 @@ class AptosPackage:
                 for arg in normal_args
             ],
         )
+        need_gas_price = self.estimate_gas_price()
+        if need_gas_price < gas_unit_price:
+            gas_unit_price = int(need_gas_price)
         signed_transaction = self.create_single_signer_bcs_transaction(
-            self.account, TransactionPayload(payload)
+            sender=self.account,
+            payload=TransactionPayload(payload),
+            max_gas_amount=int(max_gas_amount),
+            gas_unit_price=int(gas_unit_price)
         )
         try:
             result = self.simulate_submit_bcs_transaction(signed_transaction)
             if not result[0]["success"]:
-                print(result)
-                return {}
+                assert False, result
         except Exception as e:
-            print(f"Simulate fail:\n {e}")
-            return {}
+            assert False, f"Simulate fail:\n {e}"
 
         txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)
         print(
@@ -454,6 +467,7 @@ class AptosPackage:
         print(f"Execute {abi.module.name}::{abi.name} Success.\n")
         return {
             "hash": txn_hash,
+            "gas_unit_price": gas_unit_price,
             "response": response
         }
 

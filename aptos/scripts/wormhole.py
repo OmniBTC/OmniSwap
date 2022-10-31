@@ -1,5 +1,3 @@
-from pathlib import Path
-from pprint import pprint
 from scripts.utils import aptos_brownie
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
     generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
@@ -483,9 +481,9 @@ def cross_swap(
 
 
 def main():
-    src_net = "aptos-mainnet"
+    src_net = "aptos-testnet"
     assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
-    dst_net = "mainnet"
+    dst_net = "bsc-test"
 
     # Prepare environment
     # load src net aptos package
@@ -500,18 +498,21 @@ def main():
             network=src_net,
             package_path=omniswap_aptos_path.joinpath("mocks")
         )
-        package_mock["setup::add_liquidity"](
-            10000000,
-            100000000,
-            ty_args=generate_src_swap_path(package_mock, ["XBTC", LiquidswapCurve.Uncorrelated, "AptosCoin"]))
-        package_mock["setup::add_liquidity"](
-            20000 * 1000000000,
-            1000000000,
-            ty_args=generate_src_swap_path(package_mock, ["USDT", LiquidswapCurve.Uncorrelated, "XBTC"]))
-        package_mock["setup::add_liquidity"](
-            10000000000,
-            10000000000,
-            ty_args=generate_src_swap_path(package_mock, ["USDC", LiquidswapCurve.Stable, "USDT"]))
+        try:
+            package_mock["setup::add_liquidity"](
+                10000000,
+                100000000,
+                ty_args=generate_src_swap_path(package_mock, ["XBTC", LiquidswapCurve.Uncorrelated, "AptosCoin"]))
+            package_mock["setup::add_liquidity"](
+                20000 * 1000000000,
+                1000000000,
+                ty_args=generate_src_swap_path(package_mock, ["USDT", LiquidswapCurve.Uncorrelated, "XBTC"]))
+            package_mock["setup::add_liquidity"](
+                10000000000,
+                10000000000,
+                ty_args=generate_src_swap_path(package_mock, ["USDC", LiquidswapCurve.Stable, "USDT"]))
+        except:
+            pass
         # gas: 9121
         # package_mock["setup::setup_omniswap_enviroment"]()
     # load dst net project
@@ -519,13 +520,15 @@ def main():
 
     ####################################################
 
+    dst_gas_price = 0
+
     # gas: 17770
     cross_swap(package,
                src_path=["AptosCoin"],
                dst_path=["AptosCoin_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=100000,
-               dst_gas_price=int(1 * 1e9)
+               dst_gas_price=dst_gas_price
                )
 
     # gas: 31181
@@ -534,6 +537,7 @@ def main():
                dst_path=["XBTC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
+               dst_gas_price=dst_gas_price
                )
 
     # gas: 46160
@@ -547,6 +551,7 @@ def main():
                dst_path=["USDT_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
+               dst_gas_price=dst_gas_price
                )
 
     # gas: 313761
@@ -562,6 +567,7 @@ def main():
                dst_path=["USDC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
+               dst_gas_price=dst_gas_price
                )
 
     # gas: 35389
@@ -571,6 +577,7 @@ def main():
         dst_path=["AptosCoin_WORMHOLE", "USDT"],
         receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
         input_amount=10000000,
+        dst_gas_price=dst_gas_price,
         dst_router=EvmSwapType.IUniswapV2Router02,
         dst_func=EvmSwapFunc.swapExactTokensForTokens
     )
