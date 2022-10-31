@@ -498,18 +498,21 @@ def main():
             network=src_net,
             package_path=omniswap_aptos_path.joinpath("mocks")
         )
-        package_mock["setup::add_liquidity"](
-            10000000,
-            100000000,
-            ty_args=generate_src_swap_path(package_mock, ["XBTC", LiquidswapCurve.Uncorrelated, "AptosCoin"]))
-        package_mock["setup::add_liquidity"](
-            20000 * 1000000000,
-            1000000000,
-            ty_args=generate_src_swap_path(package_mock, ["USDT", LiquidswapCurve.Uncorrelated, "XBTC"]))
-        package_mock["setup::add_liquidity"](
-            10000000000,
-            10000000000,
-            ty_args=generate_src_swap_path(package_mock, ["USDC", LiquidswapCurve.Stable, "USDT"]))
+        try:
+            package_mock["setup::add_liquidity"](
+                10000000,
+                100000000,
+                ty_args=generate_src_swap_path(package_mock, ["XBTC", LiquidswapCurve.Uncorrelated, "AptosCoin"]))
+            package_mock["setup::add_liquidity"](
+                20000 * 1000000000,
+                1000000000,
+                ty_args=generate_src_swap_path(package_mock, ["USDT", LiquidswapCurve.Uncorrelated, "XBTC"]))
+            package_mock["setup::add_liquidity"](
+                10000000000,
+                10000000000,
+                ty_args=generate_src_swap_path(package_mock, ["USDC", LiquidswapCurve.Stable, "USDT"]))
+        except:
+            pass
         # gas: 9121
         # package_mock["setup::setup_omniswap_enviroment"]()
     # load dst net project

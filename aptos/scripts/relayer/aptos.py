@@ -18,7 +18,7 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-testnet")
+package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-mainnet")
 WORMHOLE_CHAINID_TO_NET = {
     package.config["networks"][net]["wormhole"]["chainid"]: net
     for net in package.config["networks"]
