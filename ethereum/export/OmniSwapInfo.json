@@ -51,6 +51,12 @@
                         "DstWormholeChainId": 5,
                         "SrcTokenAddress": "0xc7160b1c2415d19a88add188ec726e62aab0045f0aed798106a2ef2994a9101e::coin::T",
                         "SrcWormholeChainId": 22
+                    },
+                    {
+                        "DstTokenAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0x5e156f1207d0ebfa19a9eeff00d62a282278fb8719f4fab3a586a0a2c0fffbea::coin::T",
+                        "SrcWormholeChainId": 22
                     }
                 ],
                 "Decimal": 6,
@@ -75,6 +81,19 @@
                 "Decimal": 8,
                 "NativeToken": false,
                 "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0xcc8a89c8dce9693d354449f1f73e60e14e347417854f029db5bc8e7454008abb::coin::T",
+                        "SrcWormholeChainId": 22
+                    }
+                ],
+                "Decimal": 8,
+                "NativeToken": false,
+                "TokenName": "WETH"
             }
         ]
     },
@@ -646,6 +665,19 @@
                 "Decimal": 18,
                 "NativeToken": false,
                 "TokenName": "WBNB"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0x8b82A291F83ca07Af22120ABa21632088fC92931",
+                        "SrcWormholeChainId": 6
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "WETH"
             },
             {
                 "ChainPath": [
@@ -1224,6 +1256,19 @@
                 "Decimal": 8,
                 "NativeToken": false,
                 "TokenName": "WAPT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0x4db5a66e937a9f4473fa95b1caf1d1e1d62e29ea",
+                        "SrcWormholeChainId": 4
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "WETH"
             },
             {
                 "ChainPath": [
@@ -2111,6 +2156,12 @@
                         "DstWormholeChainId": 4,
                         "SrcTokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
                         "SrcWormholeChainId": 2
+                    },
+                    {
+                        "DstTokenAddress": "0x5e156f1207d0ebfa19a9eeff00d62a282278fb8719f4fab3a586a0a2c0fffbea::coin::T",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        "SrcWormholeChainId": 2
                     }
                 ],
                 "Decimal": 6,
@@ -2203,7 +2254,32 @@
                 "TokenName": "WAPT"
             },
             {
-                "ChainPath": [],
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0xcc8a89c8dce9693d354449f1f73e60e14e347417854f029db5bc8e7454008abb::coin::T",
+                        "DstWormholeChainId": 22,
+                        "SrcTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "SrcWormholeChainId": 2
+                    },
+                    {
+                        "DstTokenAddress": "0x4db5a66e937a9f4473fa95b1caf1d1e1d62e29ea",
+                        "DstWormholeChainId": 4,
+                        "SrcTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "SrcWormholeChainId": 2
+                    },
+                    {
+                        "DstTokenAddress": "0x11cd37bb86f65419713f30673a480ea33c826872",
+                        "DstWormholeChainId": 5,
+                        "SrcTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "SrcWormholeChainId": 2
+                    },
+                    {
+                        "DstTokenAddress": "0x8b82A291F83ca07Af22120ABa21632088fC92931",
+                        "DstWormholeChainId": 6,
+                        "SrcTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "SrcWormholeChainId": 2
+                    }
+                ],
                 "Decimal": 18,
                 "NativeToken": true,
                 "TokenAddress": "0x0000000000000000000000000000000000000000",
@@ -2670,6 +2746,19 @@
                 "Decimal": 18,
                 "NativeToken": false,
                 "TokenName": "WBNB"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x0000000000000000000000000000000000000000",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0x11cd37bb86f65419713f30673a480ea33c826872",
+                        "SrcWormholeChainId": 5
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "WETH"
             },
             {
                 "ChainPath": [
