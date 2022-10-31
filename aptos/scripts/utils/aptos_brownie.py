@@ -444,6 +444,9 @@ class AptosPackage:
                 for arg in normal_args
             ],
         )
+        need_gas_price = self.estimate_gas_price()
+        if need_gas_price < gas_unit_price:
+            gas_unit_price = int(need_gas_price)
         signed_transaction = self.create_single_signer_bcs_transaction(
             sender=self.account,
             payload=TransactionPayload(payload),
@@ -464,6 +467,7 @@ class AptosPackage:
         print(f"Execute {abi.module.name}::{abi.name} Success.\n")
         return {
             "hash": txn_hash,
+            "gas_unit_price": gas_unit_price,
             "response": response
         }
 

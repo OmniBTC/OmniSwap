@@ -63,9 +63,12 @@ def process_vaa(
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
         vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(
             vaa_str)
-        dst_max_gas = wormhole_data[0]
-        dst_max_gas_price = wormhole_data[1] / 1e10
-        assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
+        dst_max_gas = wormhole_data[1]
+        dst_max_gas_price = int(wormhole_data[0])
+        if "main" in network.show_active():
+            assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
+        else:
+            dst_max_gas_price = int(10 * 1e9) if dst_max_gas_price == 0 else dst_max_gas_price
     except Exception as e:
         local_logger.error(f'Parse signed vaa for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
@@ -88,12 +91,12 @@ def process_vaa(
         return False
     try:
         result = get_wormhole_facet().completeSoSwap(
-            vaa_str, {"from": get_account()})
+            vaa_str, {"from": get_account(), "gas_price": dst_max_gas_price})
         record_gas(
             dst_max_gas,
             dst_max_gas_price,
             result.gas_used,
-            dst_max_gas_price,
+            result.gas_price,
             src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
             if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
             dst_net=network.show_active()

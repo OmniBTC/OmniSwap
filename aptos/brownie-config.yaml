@@ -1,7 +1,7 @@
 # automatically fetch contract sources from Etherscan
 dotenv: .env
 networks:
-  default: mainnet
+  default: bsc-test
   aptos-mainnet:
     omnibtc_chainid: 1
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
@@ -70,6 +70,26 @@ networks:
     faucet_url: https://faucet.testnet.aptoslabs.com
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000008"
     wormhole_facet_resource: "0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f"
+    dst_base_gas:
+      table_handle: "0xb9225706879ca9221fce010f82f61b0784cd3b1f63e92e9a3fffda69dcf99344"
+      key_type: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::u16::U16
+      value_type: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::u256::U256
+    dst_gas_per_bytes:
+      table_handle: "0xf6dabfb038f1eff263744a78665f22150d2a313a9bc1fb384909c5450297d94b"
+      key_type: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::u16::U16
+      value_type: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::u256::U256
+    so_transfer_started:
+      address: "0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f"
+      event_handle: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::wormhole_facet::SoTransferEventHandle
+      field_name: so_transfer_started
+    so_transfer_completed:
+      address: "0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f"
+      event_handle: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::wormhole_facet::SoTransferEventHandle
+      field_name: so_transfer_completed
+    transfer_from_wormhole_events:
+      address: "0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f"
+      event_handle: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::wormhole_facet::Storage
+      field_name: transfer_from_wormhole_events
     replace_address:
       deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"

@@ -1,5 +1,3 @@
-from pathlib import Path
-from pprint import pprint
 from scripts.utils import aptos_brownie
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
     generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
@@ -519,13 +517,15 @@ def main():
 
     ####################################################
 
+    dst_gas_price = 0
+
     # gas: 17770
     cross_swap(package,
                src_path=["AptosCoin"],
                dst_path=["AptosCoin_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=100000,
-               dst_gas_price=int(1 * 1e9)
+               dst_gas_price=dst_gas_price
                )
 
     # gas: 31181
@@ -534,7 +534,7 @@ def main():
                dst_path=["XBTC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
-               dst_gas_price=int(1 * 1e9)
+               dst_gas_price=dst_gas_price
                )
 
     # gas: 46160
@@ -548,7 +548,7 @@ def main():
                dst_path=["USDT_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
-               dst_gas_price=int(1 * 1e9)
+               dst_gas_price=dst_gas_price
                )
 
     # gas: 313761
@@ -564,7 +564,7 @@ def main():
                dst_path=["USDC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
-               dst_gas_price=int(1 * 1e9)
+               dst_gas_price=dst_gas_price
                )
 
     # gas: 35389
@@ -574,7 +574,7 @@ def main():
         dst_path=["AptosCoin_WORMHOLE", "USDT"],
         receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
         input_amount=10000000,
-        dst_gas_price=int(1 * 1e9),
+        dst_gas_price=dst_gas_price,
         dst_router=EvmSwapType.IUniswapV2Router02,
         dst_func=EvmSwapFunc.swapExactTokensForTokens
     )
