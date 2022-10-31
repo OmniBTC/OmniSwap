@@ -447,8 +447,8 @@ class AptosPackage:
         signed_transaction = self.create_single_signer_bcs_transaction(
             sender=self.account,
             payload=TransactionPayload(payload),
-            max_gas_amount=max_gas_amount,
-            gas_unit_price=gas_unit_price
+            max_gas_amount=int(max_gas_amount),
+            gas_unit_price=int(gas_unit_price)
         )
         try:
             result = self.simulate_submit_bcs_transaction(signed_transaction)
