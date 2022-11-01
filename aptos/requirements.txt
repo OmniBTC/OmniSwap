@@ -1,6 +1,8 @@
 aptos_sdk
 python-dotenv
 pathlib
-yaml
+pyyaml
 toml
 requests
+eth-brownie
+ccxt==1.72.64

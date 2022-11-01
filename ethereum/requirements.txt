@@ -1,2 +1,8 @@
-eth-brownie
+aptos_sdk
 python-dotenv
+pathlib
+pyyaml
+toml
+requests
+eth-brownie
+ccxt==1.72.64
