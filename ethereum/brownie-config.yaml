@@ -539,7 +539,7 @@ networks:
       gas:
         mainnet:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         bsc-main:
           dst_chainid: 4
@@ -658,7 +658,7 @@ networks:
       gas:
         mainnet:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-main:
           dst_chainid: 5
@@ -734,7 +734,7 @@ networks:
       gas:
         mainnet:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         bsc-main:
           dst_chainid: 4
@@ -807,7 +807,7 @@ networks:
       gas:
         mainnet:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         bsc-main:
           dst_chainid: 4
@@ -943,7 +943,7 @@ networks:
       gas:
         mainnet:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         bsc-main:
           dst_chainid: 4

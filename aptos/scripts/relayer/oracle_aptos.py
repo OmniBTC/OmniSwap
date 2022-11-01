@@ -17,11 +17,11 @@ def set_so_gas():
     nets = ["mainnet", "bsc-main", "avax-main", "polygon-main"]
 
     for net in nets:
-        base_gas = hex_str_to_vector_u8(str(serde.normalizeU256(
-            package.network_config["wormhole"]["gas"][net]["base_gas"])))
-        gas_per_bytes = hex_str_to_vector_u8(str(serde.normalizeU256(
-            package.network_config["wormhole"]["gas"][net]["per_byte_gas"])))
-        print(f"Set wormhole gas for:{net}")
+        base_gas = package.network_config["wormhole"]["gas"][net]["base_gas"]
+        gas_per_bytes = package.network_config["wormhole"]["gas"][net]["per_byte_gas"]
+        print(f"Set wormhole gas for:{net}, bas_gas:{base_gas}, gas_per_bytes:{gas_per_bytes}")
+        base_gas = hex_str_to_vector_u8(str(serde.normalizeU256(base_gas)))
+        gas_per_bytes = hex_str_to_vector_u8(str(serde.normalizeU256(gas_per_bytes)))
         package["wormhole_facet::set_wormhole_gas"](
             package.network_config["wormhole"]["gas"][net]["dst_chainid"],
             base_gas,
