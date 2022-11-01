@@ -99,7 +99,9 @@ def process_vaa(
             result.gas_price,
             src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
             if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
-            dst_net=network.show_active()
+            dst_net=network.show_active(),
+            payload_len=int(len(vaa_str) / 2 - 1),
+            swap_len=len(wormhole_data[3])
         )
     except Exception as e:
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
@@ -121,7 +123,7 @@ def process_v1(
         if ("main" in list(SUPPORTED_EVM)[0]["dstNet"] and "main" in net)
            or ("main" not in list(SUPPORTED_EVM)[0]["dstNet"] and "main" not in net)
     }
-    local_logger = logger.getChild(f"[{network.show_active()}]")
+    local_logger = logger.getChild(f"[v1|{network.show_active()}]")
     local_logger.info("Starting process v1...")
     local_logger.info(f'SoDiamond:{dstSoDiamond}')
     has_process = {}
@@ -163,7 +165,7 @@ def process_v2(
         if ("main" in list(SUPPORTED_EVM)[0]["dstNet"] and "main" in net)
            or ("main" not in list(SUPPORTED_EVM)[0]["dstNet"] and "main" not in net)
     }
-    local_logger = logger.getChild(f"[{network.show_active()}]")
+    local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
     local_logger.info(f'SoDiamond:{dstSoDiamond}')
     has_process = {}
@@ -258,6 +260,8 @@ def record_gas(
         actual_gas_price: int,
         src_net: str,
         dst_net: str,
+        payload_len=0,
+        swap_len=0,
         file_path=Path(__file__).parent.joinpath("gas"),
 ):
     if isinstance(file_path, str):
@@ -280,6 +284,8 @@ def record_gas(
         "actual_gas": actual_gas,
         "actual_gas_price": actual_gas_price,
         "actual_value": actual_gas * actual_gas_price,
+        "payload_len": payload_len,
+        "swap_len": swap_len
     }
     columns = sorted(list(data.keys()))
     data = pd.DataFrame([data])
