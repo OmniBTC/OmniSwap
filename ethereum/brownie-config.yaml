@@ -784,6 +784,10 @@ networks:
         name: PangolinV2
         router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
         token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
+#      IUniswapV2Router02AVAX:
+#        name: TraderJoeV2
+#        router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
+#        token_list: ""
   polygon-main:
     omnibtc_chainid: 5
     chainid: 137

@@ -459,6 +459,13 @@
         "RouterAddress": "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106",
         "TokenList": "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json",
         "Type": "IUniswapV2Router02AVAX"
+      },
+      {
+        "Name": "TraderJoeV2",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0x60aE616a2155Ee3d9A68541Ba4544862310933d4",
+        "TokenList": "",
+        "Type": "IUniswapV2Router02AVAX"
       }
     ],
     "WETH": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",

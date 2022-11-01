@@ -325,6 +325,12 @@ def add_cut(contracts: list = None):
                          )
 
 
+def add_dex():
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
+    proxy_dex.addDex("0x60aE616a2155Ee3d9A68541Ba4544862310933d4", {'from': get_account()})
+
+
 def reinitialize_dex(old_dex):
     account = get_account()
     proxy_dex = Contract.from_abi(
