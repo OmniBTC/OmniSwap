@@ -149,7 +149,11 @@ def get_pending_data(url: str = None) -> list:
         url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     try:
         response = requests.get(url)
-        return response.json()["record"]
+        result = response.json()["record"]
+        if isinstance(result, list):
+            return result
+        else:
+            return []
     except Exception as _e:
         return []
 
