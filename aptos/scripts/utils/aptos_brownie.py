@@ -457,6 +457,13 @@ class AptosPackage:
             result = self.simulate_submit_bcs_transaction(signed_transaction)
             if not result[0]["success"]:
                 assert False, result
+            if "gas_used" in result[0]:
+                signed_transaction = self.create_single_signer_bcs_transaction(
+                    sender=self.account,
+                    payload=TransactionPayload(payload),
+                    max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),
+                    gas_unit_price=int(gas_unit_price)
+                )
         except Exception as e:
             assert False, f"Simulate fail:\n {e}"
 
