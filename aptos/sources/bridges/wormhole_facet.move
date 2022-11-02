@@ -314,7 +314,7 @@ module omniswap::wormhole_facet {
         swap_data_src: vector<u8>,
         wormhole_data: vector<u8>,
         swap_data_dst: vector<u8>
-    ) acquires WormholeFacetManager, Storage, SoTransferEventHandle {
+    ) acquires WormholeFacetManager, Storage, SoTransferEventHandle, WormholeFee {
         assert!(is_initialize(), ENOT_INITIALIZE);
         let resource_address = get_resource_address();
         let emitter_cap = &borrow_global<WormholeFacetManager>(resource_address).emitter_cap;
@@ -338,7 +338,10 @@ module omniswap::wormhole_facet {
             swap_data_dst
         );
 
-        let coin_aptos = coin::withdraw<AptosCoin>(account, fee);
+        let coin_fees = coin::withdraw<AptosCoin>(account, fee);
+        transfer(coin_fees, get_beneficiary_address());
+
+        let wormhole_fee = coin::withdraw<AptosCoin>(account, state::get_message_fee());
 
         let sequence: u64;
         if (vector::length(&swap_data_src) > 0) {
@@ -348,7 +351,7 @@ module omniswap::wormhole_facet {
                 sequence = transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_y,
-                    coin_aptos,
+                    wormhole_fee,
                     wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
                     external_address::from_bytes(wormhole_data.dst_so_diamond),
                     0,
@@ -359,7 +362,7 @@ module omniswap::wormhole_facet {
                 sequence = transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_z,
-                    coin_aptos,
+                    wormhole_fee,
                     wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
                     external_address::from_bytes(wormhole_data.dst_so_diamond),
                     0,
@@ -370,7 +373,7 @@ module omniswap::wormhole_facet {
                 sequence = transfer_tokens::transfer_tokens_with_payload(
                     emitter_cap,
                     coin_m,
-                    coin_aptos,
+                    wormhole_fee,
                     wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
                     external_address::from_bytes(wormhole_data.dst_so_diamond),
                     0,
@@ -385,7 +388,7 @@ module omniswap::wormhole_facet {
             sequence = transfer_tokens::transfer_tokens_with_payload(
                 emitter_cap,
                 coin_x,
-                coin_aptos,
+                wormhole_fee,
                 wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
                 external_address::from_bytes(wormhole_data.dst_so_diamond),
                 0,
