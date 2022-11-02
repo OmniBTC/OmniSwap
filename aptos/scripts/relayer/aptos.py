@@ -242,7 +242,7 @@ def process_vaa(
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
         return False
-    logger.info(f'Process emitterChainId:{emitterChainId}, sequence:{sequence} success!')
+    local_logger.info(f'Process emitterChainId:{emitterChainId}, sequence:{sequence} success!')
     return True
 
 
