@@ -9,7 +9,7 @@ def set_so_gas():
     proxy_wormhole = Contract.from_abi(
         "WormholeFacet", SoDiamond[-1].address, WormholeFacet.abi)
 
-    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main"]
+    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "aptos-mainnet"]
 
     gas = get_wormhole_info()["gas"]
     for net in nets:
@@ -89,6 +89,14 @@ def set_so_price():
         if old_ratio < ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
                                                  ratio, {"from": get_account()})
+
+
+def set_so_gass():
+    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main"]
+    for net in nets:
+        print(f"Change net into {net}...")
+        change_network(net)
+        set_so_gas()
 
 
 def set_so_prices():
