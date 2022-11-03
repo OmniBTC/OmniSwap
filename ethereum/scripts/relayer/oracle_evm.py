@@ -1,7 +1,7 @@
 from brownie import network, Contract, SoDiamond, WormholeFacet, LibSoFeeWormholeV1
 import ccxt
 
-from scripts.helpful_scripts import get_wormhole_info, get_account
+from scripts.helpful_scripts import get_wormhole_info, get_account, change_network
 from scripts.utils import aptos_brownie
 
 
@@ -45,37 +45,55 @@ def set_so_price():
     if network.show_active() == "avax-main":
         # bnb
         dst_wormhole_id = 2
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["BNB/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
-        print(f"Set price ratio for bnb-main:{ratio}")
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
-                                             ratio, {"from": get_account()})
+        print(f"Set price ratio for bnb-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
+        if old_ratio < ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                                 ratio, {"from": get_account()})
         # aptos
         dst_wormhole_id = 22
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["APT/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
-        print(f"Set price ratio for aptos-mainnet:{ratio}")
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
-                                             ratio, {"from": get_account()})
+        print(f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
+        if old_ratio < ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                                 ratio, {"from": get_account()})
 
     if network.show_active() == "mainnet":
         # aptos
         dst_wormhole_id = 22
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["APT/USDT"] / prices["ETH/USDT"] * decimal * multiply)
-        print(f"Set price ratio for aptos-mainnet:{ratio}")
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
-                                             ratio, {"from": get_account()})
+        print(f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
+        if old_ratio < ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                                 ratio, {"from": get_account()})
 
     if network.show_active() == "polygon-main":
         # aptos
         dst_wormhole_id = 22
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["APT/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
-        print(f"Set price ratio for aptos-mainnet:{ratio}")
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
-                                             ratio, {"from": get_account()})
+        print(f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
+        if old_ratio < ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                                 ratio, {"from": get_account()})
 
     if network.show_active() == "bsc-main":
         # aptos
         dst_wormhole_id = 22
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["APT/USDT"] / prices["BNB/USDT"] * decimal * multiply)
-        print(f"Set price ratio for aptos-mainnet:{ratio}")
-        LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
-                                             ratio, {"from": get_account()})
+        print(f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
+        if old_ratio < ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(dst_wormhole_id,
+                                                 ratio, {"from": get_account()})
+
+
+def set_so_prices():
+    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main"]
+    for net in nets:
+        print(f"Change net into {net}...")
+        change_network(net)
+        set_so_price()
