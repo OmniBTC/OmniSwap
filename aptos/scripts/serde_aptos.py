@@ -2,7 +2,7 @@ import functools
 
 from brownie import Contract
 
-from scripts.struct import change_network, omniswap_ethereum_project
+from scripts.struct import change_network, omniswap_ethereum_project, padding_to_bytes, hex_str_to_vector_u8
 from scripts.utils import aptos_brownie
 
 
@@ -55,6 +55,18 @@ def get_wormhole(
         contract_name,
         package.config["networks"][net]["wormhole"]["wormhole"],
         omniswap_ethereum_project.interface.IWormhole.abi
+    )
+
+
+@functools.lru_cache()
+def get_price_resource(
+        package: aptos_brownie.AptosPackage,
+        account: str,
+        dst_chain_id: int
+):
+    return package.get_resource_addr(
+        account,
+        bytes(hex_str_to_vector_u8(padding_to_bytes(hex(dst_chain_id), padding="left", length=8))).decode("ascii")
     )
 
 
