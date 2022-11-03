@@ -44,7 +44,7 @@ def set_so_price():
     multiply = 1.1
     if network.show_active() == "avax-main":
         # bnb
-        dst_wormhole_id = 2
+        dst_wormhole_id = 4
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["BNB/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
         print(f"Set price ratio for bnb-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
