@@ -72,19 +72,19 @@ networks:
       gas:
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
   goerli:
     omnibtc_chainid: 30002
@@ -105,19 +105,19 @@ networks:
       gas:
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
     oracle:
       eth:
@@ -185,19 +185,19 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
     oracle:
       bsc:
@@ -281,19 +281,19 @@ networks:
       gas:
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
     oracle:
       avax:
@@ -366,19 +366,19 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         ftm-test:
           dst_chainid: 10
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
     oracle:
       matic:
@@ -473,19 +473,19 @@ networks:
       gas:
         avax-test:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         bsc-test:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         goerli:
           dst_chainid: 2
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-test:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
     stargate:
       router: "0xa73b0a56B29aD790595763e71505FCa2c1abb77f"
@@ -543,15 +543,15 @@ networks:
           per_byte_gas: 68
         bsc-main:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-main:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         avax-main:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
   mainnet:
     omnibtc_chainid: 2
@@ -574,15 +574,15 @@ networks:
       gas:
         bsc-main:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-main:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         avax-main:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
@@ -590,7 +590,7 @@ networks:
           per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
-#          base_gas: 220000
+#          base_gas: 700000
 #          per_byte_gas: 68
     oracle:
       eth:
@@ -662,11 +662,11 @@ networks:
           per_byte_gas: 68
         polygon-main:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         avax-main:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
@@ -674,7 +674,7 @@ networks:
           per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
-#          base_gas: 220000
+#          base_gas: 700000
 #          per_byte_gas: 68
     oracle:
       eth:
@@ -738,11 +738,11 @@ networks:
           per_byte_gas: 68
         bsc-main:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-main:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
@@ -750,7 +750,7 @@ networks:
           per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
-#          base_gas: 220000
+#          base_gas: 700000
 #          per_byte_gas: 68
     oracle:
       eth:
@@ -811,11 +811,11 @@ networks:
           per_byte_gas: 68
         bsc-main:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         avax-main:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
@@ -823,7 +823,7 @@ networks:
           per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
-#          base_gas: 220000
+#          base_gas: 700000
 #          per_byte_gas: 68
     oracle:
       eth:
@@ -947,15 +947,15 @@ networks:
           per_byte_gas: 68
         bsc-main:
           dst_chainid: 4
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         polygon-main:
           dst_chainid: 5
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
         avax-main:
           dst_chainid: 6
-          base_gas: 220000
+          base_gas: 700000
           per_byte_gas: 68
     oracle:
       eth:
