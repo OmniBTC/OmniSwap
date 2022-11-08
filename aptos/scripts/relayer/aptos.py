@@ -280,7 +280,6 @@ def process_v2(
 ):
     local_logger = logger.getChild(f"[v2|{package.network}]")
     local_logger.info("Starting process v2...")
-    has_process = {}
     if "test" in package.network or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
@@ -289,11 +288,8 @@ def process_v2(
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     while True:
         pending_data = get_pending_data(url=pending_url)
-        pending_data = [d for d in pending_data if
-                        (int(d["srcWormholeChainId"]), int(d["sequence"])) not in has_process]
         local_logger.info(f"Get signed vaa length: {len(pending_data)}")
         for d in pending_data:
-            has_process[(int(d["srcWormholeChainId"]), int(d["sequence"]))] = True
             try:
                 vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
                 if vaa is None:
@@ -311,7 +307,7 @@ def process_v2(
                 local_logger,
                 over_interval=3 * 60 * 60
             )
-        time.sleep(60)
+        time.sleep(3 * 60)
 
 
 def record_gas(
