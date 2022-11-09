@@ -29,7 +29,7 @@ With the help of OmniSwap:
 - [x] Aptos
 
 # Acknowledge
-Many thanks to [LayerZero](https://layerzero.network/) and [Stargate](https://stargate.finance/) for the secure and reliable lower layer construction. Many thanks, of course, to the authors and contributors of [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535).
+Many thanks to [Wormhole](https://wormhole.com/) and [Stargate](https://stargate.finance/) for the secure and reliable lower layer construction. Many thanks, of course, to the authors and contributors of [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535).
 
 # License
 [GPLv3](./LICENSE)
