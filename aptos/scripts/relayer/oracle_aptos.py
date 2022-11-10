@@ -43,7 +43,7 @@ def set_so_price():
         prices[symbol] = price
 
     ratio_decimal = 1e8
-    multiply = 1.1
+    multiply = 1.2
     package = aptos_brownie.AptosPackage(
         project_path=omniswap_aptos_path,
         network="aptos-mainnet"
@@ -59,7 +59,7 @@ def set_so_price():
         old_ratio = int(price_manage["data"]["price_data"]["current_price_ratio"])
         ratio = int(prices["ETH/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
-        if old_ratio < ratio:
+        if old_ratio < ratio or ratio * 1.1 < old_ratio:
             package["so_fee_wormhole::set_price_ratio"](wormhole_chain_id, ratio)
     if "bsc-main" in nets:
         wormhole_chain_id = 4
@@ -69,7 +69,7 @@ def set_so_price():
         old_ratio = int(price_manage["data"]["price_data"]["current_price_ratio"])
         ratio = int(prices["BNB/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for bsc-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
-        if old_ratio < ratio:
+        if old_ratio < ratio or ratio * 1.1 < old_ratio:
             package["so_fee_wormhole::set_price_ratio"](wormhole_chain_id, ratio)
     if "polygon-main" in nets:
         wormhole_chain_id = 5
@@ -79,7 +79,7 @@ def set_so_price():
         old_ratio = int(price_manage["data"]["price_data"]["current_price_ratio"])
         ratio = int(prices["MATIC/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for polygon-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
-        if old_ratio < ratio:
+        if old_ratio < ratio or ratio * 1.1 < old_ratio:
             package["so_fee_wormhole::set_price_ratio"](5, ratio)
     if "avax-main" in nets:
         wormhole_chain_id = 6
@@ -89,5 +89,5 @@ def set_so_price():
         old_ratio = int(price_manage["data"]["price_data"]["current_price_ratio"])
         ratio = int(prices["AVAX/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for avax-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
-        if old_ratio < ratio:
+        if old_ratio < ratio or ratio * 1.1 < old_ratio:
             package["so_fee_wormhole::set_price_ratio"](6, ratio)
