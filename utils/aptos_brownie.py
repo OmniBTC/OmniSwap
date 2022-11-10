@@ -183,6 +183,9 @@ class EntryFunctionABI:
     def key(self):
         return f"{self.module.name}::{self.name}"
 
+    def key_list(self):
+        return [self.module.name, self.name]
+
     def __repr__(self):
         return f'{"{"}"name": "{self.name}", "module": "{self.module}", "doc": "{self.doc}", ' \
                f'"ty_args": {self.ty_args}, "args": {self.args}{"}"}'
@@ -325,6 +328,20 @@ class AptosPackage:
                             abi = EntryFunctionABI.deserialize(
                                 Deserializer(data))
                             self.abis[abi.key()] = abi
+
+                            attr_list = abi.key_list()
+                            if len(attr_list):
+                                final_object = self
+                                for attr in attr_list[:-1]:
+                                    if hasattr(final_object, attr):
+                                        final_object = getattr(final_object, attr)
+                                    else:
+                                        ob = type(f"{self.__class__.__name__}_{attr}", (object,), dict())()
+                                        setattr(final_object, attr, ob)
+                                        final_object = ob
+                                func = functools.partial(self.submit_bcs_transaction, abi)
+                                setattr(func, "simulate", functools.partial(self.simulate_bcs_transaction, abi))
+                                setattr(final_object, attr_list[-1], func)
                         except:
                             print(f"Decode {v2} fail")
 
@@ -388,6 +405,82 @@ class AptosPackage:
         if response.status_code >= 400:
             raise ApiError(response.text, response.status_code)
         return response.json()
+
+    def simulate_bcs_transaction(
+            self,
+            abi: EntryFunctionABI,
+            *args,
+            ty_args: List[str] = None,
+            max_gas_amount=500000,
+            gas_unit_price=100,
+            **kwargs,
+    ) -> list:
+        if ty_args is None:
+            ty_args = []
+        assert isinstance(list(ty_args), list) and len(
+            abi.ty_args) == len(ty_args), f"ty_args error: {abi.ty_args}"
+        assert len(args) == len(abi.args) or len(
+            kwargs) == len(abi.args), f"args error: {abi.args}"
+
+        normal_args = []
+        if len(kwargs):
+            for function_arg in abi.args:
+                assert function_arg.name in kwargs, f"Param {function_arg.name} not found"
+                if function_arg.type_tag == StructTag:
+                    assert StructTag.from_str(
+                        kwargs[function_arg.name]), f"Param {function_arg} not match"
+                    value = StructTag.from_str(kwargs[function_arg.name])
+                else:
+                    assert function_arg.type_tag(
+                        kwargs[function_arg.name]), f"Param {function_arg} not match"
+                    value = function_arg.type_tag(kwargs[function_arg.name])
+                normal_args.append({
+                    "value": value,
+                    "abi": function_arg})
+        else:
+            for i, function_arg in enumerate(abi.args):
+                if function_arg.type_tag == StructTag:
+                    assert StructTag.from_str(
+                        args[i]), f"Param {function_arg} not match"
+                    value = StructTag.from_str(args[i])
+                else:
+                    assert function_arg.type_tag(
+                        args[i]), f"Param {function_arg} not match"
+                    value = function_arg.type_tag(args[i])
+
+                normal_args.append({
+                    "value": value,
+                    "abi": function_arg})
+
+        payload = EntryFunction.natural(
+            str(abi.module),
+            str(abi.name),
+            [TypeTag(StructTag.from_str(v)) for v in ty_args],
+            [
+                TransactionArgument(arg["value"], Serializer.struct)
+                for arg in normal_args
+            ],
+        )
+        need_gas_price = self.estimate_gas_price()
+        if need_gas_price < gas_unit_price:
+            gas_unit_price = int(need_gas_price)
+        signed_transaction = self.create_single_signer_bcs_transaction(
+            sender=self.account,
+            payload=TransactionPayload(payload),
+            max_gas_amount=int(max_gas_amount),
+            gas_unit_price=int(gas_unit_price)
+        )
+        try:
+            result = self.simulate_submit_bcs_transaction(signed_transaction)
+            if not result[0]["success"]:
+                assert False, result
+            changes = []
+            for d in result:
+                if "changes" in d:
+                    changes.extend(d["changes"])
+            return changes
+        except Exception as e:
+            assert False, f"Simulate fail:\n {e}"
 
     def submit_bcs_transaction(
             self,
@@ -475,105 +568,6 @@ class AptosPackage:
         return {
             "hash": txn_hash,
             "gas_unit_price": gas_unit_price,
-            "response": response
-        }
-
-    def submit_transaction(self, sender: Account, payload: Dict[str, Any]) -> str:
-        """
-        1) Generates a transaction request
-        2) submits that to produce a raw transaction
-        3) signs the raw transaction
-        4) submits the signed transaction
-        """
-
-        txn_request = {
-            "sender": f"{sender.address()}",
-            "sequence_number": str(self.rest_client.account_sequence_number(sender.address())),
-            "max_gas_amount": "500000",
-            "gas_unit_price": "100",
-            "expiration_timestamp_secs": str(int(time.time()) + 600),
-            "payload": payload,
-        }
-
-        response = self.rest_client.client.post(
-            f"{self.rest_client.base_url}/transactions/encode_submission", json=txn_request
-        )
-        if response.status_code >= 400:
-            raise ApiError(response.text, response.status_code)
-
-        to_sign = bytes.fromhex(response.json()[2:])
-        signature = sender.sign(to_sign)
-        txn_request["signature"] = {
-            "type": "ed25519_signature",
-            "public_key": f"{sender.public_key()}",
-            "signature": f"{signature}",
-        }
-
-        headers = {"Content-Type": "application/json"}
-        response = self.rest_client.client.post(
-            f"{self.rest_client.base_url}/transactions", headers=headers, json=txn_request
-        )
-        if response.status_code >= 400:
-            raise ApiError(response.text, response.status_code)
-        return response.json()["hash"]
-
-    def custom_submit_transaction(
-            self, abi: EntryFunctionABI, *args, ty_args: List[str] = None, **kwargs,
-    ) -> dict:
-        if ty_args is None:
-            ty_args = []
-        assert isinstance(list(ty_args), list) and len(
-            abi.ty_args) == len(ty_args), f"ty_args error: {abi.ty_args}"
-        assert len(args) == len(abi.args) or len(
-            kwargs) == len(abi.args), f"args error: {abi.args}"
-
-        normal_args = []
-        if len(kwargs):
-            for function_arg in abi.args:
-                assert function_arg.name in kwargs, f"Param {function_arg.name} not found"
-                if function_arg.type_tag == StructTag:
-                    assert StructTag.from_str(
-                        kwargs[function_arg.name]), f"Param {function_arg} not match"
-                    value = StructTag.from_str(kwargs[function_arg.name])
-                else:
-                    assert function_arg.type_tag(
-                        kwargs[function_arg.name]), f"Param {function_arg} not match"
-                    value = function_arg.type_tag(kwargs[function_arg.name])
-                normal_args.append({
-                    "value": value,
-                    "abi": function_arg})
-        else:
-            for i, function_arg in enumerate(abi.args):
-                if function_arg.type_tag == StructTag:
-                    assert StructTag.from_str(
-                        args[i]), f"Param {function_arg} not match"
-                    value = args[i]
-                else:
-                    assert function_arg.type_tag(
-                        args[i]), f"Param {function_arg} not match"
-                    value = args[i]
-                    if isinstance(value, list):
-                        value = "0x" + str(bytes(value).hex())
-
-                normal_args.append({
-                    "value": value,
-                    "abi": function_arg})
-        payload = {
-            "type": "entry_function_payload",
-            "function": f"{str(abi.module)}::{str(abi.name)}",
-            "type_arguments": [v for v in ty_args],
-            "arguments": [
-                arg["value"]
-                for arg in normal_args
-            ],
-        }
-        txn_hash = self.submit_transaction(self.account, payload)
-        print(
-            f"Execute {abi.module.name}::{abi.name}, transaction hash: {txn_hash}, waiting....")
-        response = self.wait_for_transaction(txn_hash)
-        print(f"Execute {abi.module.name}::{abi.name} Success.\n")
-        return {
-            "hash": txn_hash,
             "response": response
         }
 
