@@ -3,7 +3,7 @@ import functools
 from brownie import Contract
 
 from scripts.struct import change_network, omniswap_ethereum_project, padding_to_bytes, hex_str_to_vector_u8
-from scripts.utils import aptos_brownie
+import aptos_brownie
 
 
 @functools.lru_cache()

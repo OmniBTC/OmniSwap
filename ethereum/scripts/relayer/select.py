@@ -3,7 +3,7 @@ import logging
 
 import requests
 
-from scripts.utils import aptos_brownie
+import aptos_brownie
 
 
 def get_wormhole_info(package: aptos_brownie.AptosPackage) -> dict:

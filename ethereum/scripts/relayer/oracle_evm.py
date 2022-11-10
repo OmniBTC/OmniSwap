@@ -2,7 +2,7 @@ from brownie import network, Contract, SoDiamond, WormholeFacet, LibSoFeeWormhol
 import ccxt
 
 from scripts.helpful_scripts import get_wormhole_info, get_account, change_network
-from scripts.utils import aptos_brownie
+import aptos_brownie
 
 
 def set_so_gas():

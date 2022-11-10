@@ -3,7 +3,7 @@ import ccxt
 
 from scripts.serde_aptos import get_serde_facet, get_price_resource
 from scripts.struct import omniswap_aptos_path, hex_str_to_vector_u8
-from scripts.utils import aptos_brownie
+import aptos_brownie
 
 
 def set_so_gas():

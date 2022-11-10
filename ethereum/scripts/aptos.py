@@ -12,7 +12,7 @@ from brownie import network, Contract, project, config, SoDiamond, WormholeFacet
 from scripts.helpful_scripts import to_hex_str, get_token_address, zero_address, change_network, \
     get_account, padding_to_bytes
 from scripts.swap import SwapType, SwapFunc, View, SwapData, SoData
-from scripts.utils import aptos_brownie
+import aptos_brownie
 
 omniswap_ethereum_path = Path(__file__).parent.parent
 omniswap_ethereum_project = project.load(

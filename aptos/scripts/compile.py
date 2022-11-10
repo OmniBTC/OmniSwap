@@ -1,5 +1,5 @@
 from scripts.struct import omniswap_aptos_path
-from scripts.utils import aptos_brownie
+import aptos_brownie
 
 
 def main(net="aptos-testnet"):
