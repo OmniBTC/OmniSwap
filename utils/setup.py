@@ -1,12 +1,11 @@
 from setuptools import setup
-from codecs import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
 
 setup(
     name='aptos-brownie',
-    version='1.1.0',
+    version='1.3.0',
     description='Aptos Package Tool',
     long_description="This is an aptos python tool to quickly implement aptos calls",
     # The project's main homepage.

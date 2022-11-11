@@ -7,7 +7,7 @@ import hashlib
 import os
 import time
 from pathlib import Path
-from typing import Union, List, Dict, Any
+from typing import Union, List
 
 from aptos_sdk import account
 from aptos_sdk.account_address import AccountAddress
@@ -282,17 +282,6 @@ class AptosPackage:
         if is_compile:
             self.compile()
 
-    def compile(self):
-        # # # # # Compile
-        view = f"Compile {self.package_name}"
-        print("\n" + "-" * 50 + view + "-" * 50)
-        compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir " \
-                      f"{self.package_path} {self.replace_address}"
-        print(compile_cmd)
-        os.system(compile_cmd)
-        print("-" * (100 + len(view)))
-        print("\n")
-
         # # # # # Metadata
         self.build_path = self.package_path.joinpath(
             f"build/{self.package_name}")
@@ -344,6 +333,17 @@ class AptosPackage:
                                 setattr(final_object, attr_list[-1], func)
                         except:
                             print(f"Decode {v2} fail")
+
+    def compile(self):
+        # # # # # Compile
+        view = f"Compile {self.package_name}"
+        print("\n" + "-" * 50 + view + "-" * 50)
+        compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir " \
+                      f"{self.package_path} {self.replace_address}"
+        print(compile_cmd)
+        os.system(compile_cmd)
+        print("-" * (100 + len(view)))
+        print("\n")
 
     def publish_package(self):
         # # Sometimes: "Transaction Executed and Committed with Error LINKER_ERROR"
@@ -647,6 +647,20 @@ class AptosPackage:
         if isinstance(account_addr, str):
             account_addr = AccountAddress.from_hex(account_addr)
         return self.rest_client.account_resource(account_addr, resource_type)
+
+    def account_resources(self,
+                          account_addr: Union[str, AccountAddress],
+                          ):
+        if isinstance(account_addr, str):
+            account_addr = AccountAddress.from_hex(account_addr)
+        response = self.rest_client.client.get(
+            f"{self.rest_client.base_url}/accounts/{account_addr}/resources"
+        )
+        if response.status_code == 404:
+            return None
+        if response.status_code >= 400:
+            raise ApiError(f"{response.text} - {account_addr}", response.status_code)
+        return response.json()
 
     def register_coin(self, asset_id):
         """Register the receiver account to receive transfers for the new coin."""
