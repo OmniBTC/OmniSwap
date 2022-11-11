@@ -430,6 +430,11 @@ class AptosPackage:
                     assert StructTag.from_str(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
                     value = StructTag.from_str(kwargs[function_arg.name])
+                elif function_arg.type_tag == AccountAddressTag:
+                    if isinstance(kwargs[function_arg.name], str):
+                        value = function_arg.type_tag(AccountAddress.from_hex(kwargs[function_arg.name]))
+                    else:
+                        value = function_arg.type_tag(kwargs[function_arg.name])
                 else:
                     assert function_arg.type_tag(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
@@ -443,6 +448,11 @@ class AptosPackage:
                     assert StructTag.from_str(
                         args[i]), f"Param {function_arg} not match"
                     value = StructTag.from_str(args[i])
+                elif function_arg.type_tag == AccountAddressTag:
+                    if isinstance(args[i], str):
+                        value = function_arg.type_tag(AccountAddress.from_hex(args[i]))
+                    else:
+                        value = function_arg.type_tag(args[i])
                 else:
                     assert function_arg.type_tag(
                         args[i]), f"Param {function_arg} not match"
