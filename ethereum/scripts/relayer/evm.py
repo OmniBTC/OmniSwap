@@ -183,6 +183,8 @@ def process_v2(
                     int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
                 if vaa is None:
                     continue
+                if int(vaa.get("toChain", -1)) != dstSoDiamond:
+                    continue
                 vaa = vaa["hexString"]
             except Exception as e:
                 local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
