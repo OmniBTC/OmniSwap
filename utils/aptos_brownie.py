@@ -614,6 +614,22 @@ class AptosPackage:
         signed_transaction = self.rest_client.create_single_signer_bcs_transaction(
             sender, TransactionPayload(payload)
         )
+
+        try:
+            gas_unit_price = self.estimate_gas_price()
+            result = self.simulate_submit_bcs_transaction(signed_transaction)
+            if not result[0]["success"]:
+                assert False, result
+            if "gas_used" in result[0]:
+                signed_transaction = self.create_single_signer_bcs_transaction(
+                    sender=self.account,
+                    payload=TransactionPayload(payload),
+                    max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),
+                    gas_unit_price=int(gas_unit_price)
+                )
+        except Exception as e:
+            assert False, f"Simulate fail:\n {e}"
+
         return self.rest_client.submit_bcs_transaction(signed_transaction)
 
     def create_random_account(self):
@@ -685,6 +701,22 @@ class AptosPackage:
         signed_transaction = self.create_single_signer_bcs_transaction(
             self.account, TransactionPayload(payload)
         )
+
+        try:
+            gas_unit_price = self.estimate_gas_price()
+            result = self.simulate_submit_bcs_transaction(signed_transaction)
+            if not result[0]["success"]:
+                assert False, result
+            if "gas_used" in result[0]:
+                signed_transaction = self.create_single_signer_bcs_transaction(
+                    sender=self.account,
+                    payload=TransactionPayload(payload),
+                    max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),
+                    gas_unit_price=int(gas_unit_price)
+                )
+        except Exception as e:
+            assert False, f"Simulate fail:\n {e}"
+
         txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)
         print(
             f"Execute register coin, transaction hash: {txn_hash}, waiting...")
