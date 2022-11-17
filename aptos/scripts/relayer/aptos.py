@@ -275,7 +275,7 @@ def process_v1(
 
 
 def process_v2(
-        _dstWormholeChainId: int = 22,
+        dstWormholeChainId: int = 22,
         dstSoDiamond: str = None,
 ):
     local_logger = logger.getChild(f"[v2|{package.network}]")
@@ -294,7 +294,7 @@ def process_v2(
                 vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
                 if vaa is None:
                     continue
-                if int(vaa.get("toChain", -1)) != dstSoDiamond:
+                if int(vaa.get("toChain", -1)) != dstWormholeChainId:
                     continue
                 vaa = vaa["hexString"]
             except Exception as e:

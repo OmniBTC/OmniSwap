@@ -154,7 +154,7 @@ def process_v1(
 
 
 def process_v2(
-        _dstWormholeChainId: int,
+        dstWormholeChainId: int,
         dstSoDiamond: str,
 ):
     WORMHOLE_CHAINID_TO_NET = {
@@ -183,7 +183,7 @@ def process_v2(
                     int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
                 if vaa is None:
                     continue
-                if int(vaa.get("toChain", -1)) != dstSoDiamond:
+                if int(vaa.get("toChain", -1)) != dstWormholeChainId:
                     continue
                 vaa = vaa["hexString"]
             except Exception as e:
