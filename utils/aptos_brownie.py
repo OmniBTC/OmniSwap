@@ -413,8 +413,14 @@ class AptosPackage:
             ty_args: List[str] = None,
             max_gas_amount=500000,
             gas_unit_price=100,
+            return_types="storage",
             **kwargs,
-    ) -> list:
+    ) -> Union[list|int]:
+        """
+        return_types: storage|gas
+            storage: return storage changes
+            gas: return gas
+        """
         if ty_args is None:
             ty_args = []
         assert isinstance(list(ty_args), list) and len(
@@ -484,11 +490,15 @@ class AptosPackage:
             result = self.simulate_submit_bcs_transaction(signed_transaction)
             if not result[0]["success"]:
                 assert False, result
-            changes = []
-            for d in result:
-                if "changes" in d:
-                    changes.extend(d["changes"])
-            return changes
+            if return_types == "gas":
+                if "gas_used" in result[0]:
+                    return result[0]["gas_used"]
+            else:
+                changes = []
+                for d in result:
+                    if "changes" in d:
+                        changes.extend(d["changes"])
+                return changes
         except Exception as e:
             assert False, f"Simulate fail:\n {e}"
 
