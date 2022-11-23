@@ -469,6 +469,60 @@ module omniswap::wormhole_facet {
         )
     }
 
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_by_account<X, Y, Z, M>(account: &signer, vaa: vector<u8>) acquires WormholeFacetManager, WormholeFee, SoTransferEventHandle {
+        assert!(is_initialize(), ENOT_INITIALIZE);
+
+        let resource_address = get_resource_address();
+        let emitter_cap = &borrow_global<WormholeFacetManager>(resource_address).emitter_cap;
+        let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees() as u128) / (RAY as u128)) as u64);
+        let beneficiary = get_beneficiary_address();
+        if (so_fee > 0 && so_fee <= x_val && is_transfer<X>(beneficiary)) {
+            let coin_fee = coin::extract(&mut coin_x, so_fee);
+            transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_x);
+        if (vector::length(&swap_data_dst) > 0) {
+            if (vector::length(&swap_data_dst) == 1) {
+                let coin_y = swap::swap_two_by_coin_with_delegate<X, Y>(coin_x, swap_data_dst, account);
+
+                receiving_amount = coin::value(&coin_y);
+                transfer(coin_y, receiver);
+            }else if (vector::length(&swap_data_dst) == 2) {
+                let coin_z = swap::swap_three_by_coin_with_delegate<X, Y, Z>(coin_x, swap_data_dst, account);
+
+                receiving_amount = coin::value(&coin_z);
+                transfer(coin_z, receiver);
+            }else if (vector::length(&swap_data_dst) == 3) {
+                let coin_m = swap::swap_four_by_coin_with_delegate<X, Y, Z, M>(coin_x, swap_data_dst, account);
+
+                receiving_amount = coin::value(&coin_m);
+                transfer(coin_m, receiver);
+            }else {
+                abort EINVALID_LENGTH
+            }
+        }else {
+            transfer(coin_x, receiver);
+        };
+
+        let so_transfer_event_handle = borrow_global_mut<SoTransferEventHandle>(get_resource_address_so());
+        event::emit_event<SoTransferCompleted>(
+            &mut so_transfer_event_handle.so_transfer_completed,
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
+    }
+
     /// To avoid wormhole payload data construction errors, lock the token and allow the owner to handle
     /// it manually.
     public entry fun complete_so_swap_by_admin<X, Y, Z, M>(
