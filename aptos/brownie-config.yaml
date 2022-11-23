@@ -36,6 +36,8 @@ networks:
       liquidswap: "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12"
       liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
       omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+      deployer_aux: "0x5a5e124ea1f3fc5fcfae3c198765c3b4c8d72c7236ae97ef6e5a9bc7cfda549c"
+      aux: "0xbd35135844473187163ca197ca93b2ab014370587bb0ed3befff9e902d6bb541"
     wormhole:
       chainid: 22
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
@@ -58,6 +60,19 @@ networks:
           dst_chainid: 6
           base_gas: 700000
           per_byte_gas: 68
+    token:
+      AptosCoin:
+        name: AptosCoin
+        module: aptos_coin
+        address: "0x1"
+        decimal: 8
+        basic_value: 0.1
+      USDC_ETH_WORMHOLE:
+        name: T
+        module: coin
+        address: "0x5e156f1207d0ebfa19a9eeff00d62a282278fb8719f4fab3a586a0a2c0fffbea"
+        decimal: 6
+        basic_value: 1
   aptos-devnet:
     omnibtc_chainid: 30001
     node_url: https://fullnode.devnet.aptoslabs.com/v1
@@ -98,7 +113,15 @@ networks:
       liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
       omniswap: "0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327"
       omniswap_mock: "0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327"
+      deployer_aux: "0x27a5ed998335d3b74ee2329bdb803f25095ca1137015a115e748b366c44f73be"
+      aux: "0x8b7311d78d47e37d09435b8dc37c14afd977c5cfa74f974d45f0258d986eef53"
     token:
+      AptosCoin:
+        name: AptosCoin
+        module: aptos_coin
+        address: "0x1"
+        decimal: 8
+        basic_value: 0.1
       XBTC:
         module: setup
         address: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
@@ -388,6 +411,9 @@ networks:
         currency: USD
         address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
     token:
+      usdc_eth:
+        address: "0x4318CB63A2b8edf2De971E2F17F77097e499459D"
+        decimal: 6
       weth:
         address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
         decimal: 18
