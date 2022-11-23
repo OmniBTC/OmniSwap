@@ -60,6 +60,19 @@ networks:
           dst_chainid: 6
           base_gas: 700000
           per_byte_gas: 68
+    token:
+      AptosCoin:
+        name: AptosCoin
+        module: aptos_coin
+        address: "0x1"
+        decimal: 8
+        basic_value: 0.1
+      USDC_ETH_WORMHOLE:
+        name: T
+        module: coin
+        address: "0x5e156f1207d0ebfa19a9eeff00d62a282278fb8719f4fab3a586a0a2c0fffbea"
+        decimal: 6
+        basic_value: 1
   aptos-devnet:
     omnibtc_chainid: 30001
     node_url: https://fullnode.devnet.aptoslabs.com/v1
@@ -103,6 +116,12 @@ networks:
       deployer_aux: "0x27a5ed998335d3b74ee2329bdb803f25095ca1137015a115e748b366c44f73be"
       aux: "0x8b7311d78d47e37d09435b8dc37c14afd977c5cfa74f974d45f0258d986eef53"
     token:
+      AptosCoin:
+        name: AptosCoin
+        module: aptos_coin
+        address: "0x1"
+        decimal: 8
+        basic_value: 0.1
       XBTC:
         module: setup
         address: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
