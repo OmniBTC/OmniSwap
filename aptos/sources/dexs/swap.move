@@ -38,11 +38,15 @@ module omniswap::swap {
 
     /// Make sure the user has aptos coin, and help register if they don't.
     fun transfer_with_register<X>(coin_x: Coin<X>, to: &signer) {
-        let addr  = signer::address_of(to);
-        if (!is_account_registered<X>(addr) ) {
-            coin::register<X>(to);
-        };
-        coin::deposit(addr, coin_x);
+        if (coin::value(&coin_x) == 0) {
+            coin::destroy_zero(coin_x);
+        }else {
+            let addr = signer::address_of(to);
+            if (!is_account_registered<X>(addr)) {
+                coin::register<X>(to);
+            };
+            coin::deposit(addr, coin_x);
+        }
     }
 
     /// Coins are deducted directly from the user's account for swap.
@@ -231,7 +235,11 @@ module omniswap::swap {
         swap_by_coin<X, Y>(coins, *vector::borrow(&mut swap_data, 0))
     }
 
-    public fun swap_two_by_coin_with_delegate<X, Y>(coins: Coin<X>, swap_data: vector<NormalizedSwapData>, delegate: &signer): Coin<Y> {
+    public fun swap_two_by_coin_with_delegate<X, Y>(
+        coins: Coin<X>,
+        swap_data: vector<NormalizedSwapData>,
+        delegate: &signer
+    ): Coin<Y> {
         assert!(vector::length(&swap_data) == 1, EINVALID_LENGTH);
         swap_by_coin_with_delegate<X, Y>(coins, *vector::borrow(&mut swap_data, 0), delegate)
     }
@@ -248,7 +256,11 @@ module omniswap::swap {
         swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1))
     }
 
-    public fun swap_three_by_coin_with_delegate<X, Y, Z>(coins: Coin<X>, swap_data: vector<NormalizedSwapData>, delegate: &signer): Coin<Z> {
+    public fun swap_three_by_coin_with_delegate<X, Y, Z>(
+        coins: Coin<X>,
+        swap_data: vector<NormalizedSwapData>,
+        delegate: &signer
+    ): Coin<Z> {
         assert!(vector::length(&swap_data) == 2, EINVALID_LENGTH);
         let coin_y = swap_by_coin_with_delegate<X, Y>(coins, *vector::borrow(&mut swap_data, 0), delegate);
         swap_by_coin_with_delegate<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1), delegate)
@@ -268,7 +280,11 @@ module omniswap::swap {
         swap_by_coin<Z, M>(coin_z, *vector::borrow(&mut swap_data, 2))
     }
 
-    public fun swap_four_by_coin_with_delegate<X, Y, Z, M>(coins: Coin<X>, swap_data: vector<NormalizedSwapData>, delegate: &signer): Coin<M> {
+    public fun swap_four_by_coin_with_delegate<X, Y, Z, M>(
+        coins: Coin<X>,
+        swap_data: vector<NormalizedSwapData>,
+        delegate: &signer
+    ): Coin<M> {
         assert!(vector::length(&swap_data) == 3, EINVALID_LENGTH);
         let coin_y = swap_by_coin_with_delegate<X, Y>(coins, *vector::borrow(&mut swap_data, 0), delegate);
         let coin_z = swap_by_coin_with_delegate<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1), delegate);
