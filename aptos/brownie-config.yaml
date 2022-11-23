@@ -411,6 +411,9 @@ networks:
         currency: USD
         address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
     token:
+      usdc_eth:
+        address: "0x4318CB63A2b8edf2De971E2F17F77097e499459D"
+        decimal: 6
       weth:
         address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
         decimal: 18

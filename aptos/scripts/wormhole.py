@@ -136,7 +136,8 @@ class LiquidswapCurve(Enum):
 def get_amounts_out_for_liquidswap(
         package: aptos_brownie.AptosPackage,
         path: list,
-        x_amount: int
+        x_amount: int,
+        router: AptosSwapType = AptosSwapType.Liquidswap
 ):
     """
     Unlike solidity, which requires off-chain simulation of on-chain code, manually written.
@@ -144,34 +145,58 @@ def get_amounts_out_for_liquidswap(
     1. move-to-ts: https://github.com/hippospace/move-to-ts
     2. move-to-go: https://github.com/Lundalogik/move-to-go
 
+    :param router:
     :param package:
     :param path:
     :param x_amount:
     :return:
     """
     amount_out = 0
-    resource_addr = package.network_config["replace_address"]["liquidswap_pool_account"]
-    for i in range(len(path) - 2):
-        x_type = get_aptos_token(package)[path[i]]["address"]
-        y_type = get_aptos_token(package)[path[i + 2]]["address"]
-        curve_type = get_liquidswap_curve(package, path[i + 1])
-        p1 = f'{package.network_config["replace_address"]["liquidswap"]}::liquidity_pool::LiquidityPool<' \
-             f'{x_type},{y_type},{curve_type}>'
-        p2 = f'{package.network_config["replace_address"]["liquidswap"]}::liquidity_pool::LiquidityPool<' \
-             f'{y_type},{x_type},{curve_type}>'
-        data = package.account_resource(resource_addr, p1)
-        if data is None:
-            data = package.account_resource(resource_addr, p2)
-            x_val = int(data["data"]["coin_y_reserve"]["value"])
-            y_val = int(data["data"]["coin_x_reserve"]["value"])
-        else:
-            x_val = int(data["data"]["coin_x_reserve"]["value"])
-            y_val = int(data["data"]["coin_y_reserve"]["value"])
-        fee = float(data["data"]["fee"]) / 10000
-        x_amount_after_fee = x_amount * (1 - fee)
-        amount_out = x_amount_after_fee * y_val / (x_amount_after_fee + x_val)
-        x_amount = amount_out
-    return amount_out
+    if router == AptosSwapType.Liquidswap:
+        resource_addr = package.network_config["replace_address"]["liquidswap_pool_account"]
+        for i in range(len(path) - 2):
+            x_type = get_aptos_token(package)[path[i]]["address"]
+            y_type = get_aptos_token(package)[path[i + 2]]["address"]
+            curve_type = get_liquidswap_curve(package, path[i + 1])
+            p1 = f'{package.network_config["replace_address"]["liquidswap"]}::liquidity_pool::LiquidityPool<' \
+                 f'{x_type},{y_type},{curve_type}>'
+            p2 = f'{package.network_config["replace_address"]["liquidswap"]}::liquidity_pool::LiquidityPool<' \
+                 f'{y_type},{x_type},{curve_type}>'
+            data = package.account_resource(resource_addr, p1)
+            if data is None:
+                data = package.account_resource(resource_addr, p2)
+                x_val = int(data["data"]["coin_y_reserve"]["value"])
+                y_val = int(data["data"]["coin_x_reserve"]["value"])
+            else:
+                x_val = int(data["data"]["coin_x_reserve"]["value"])
+                y_val = int(data["data"]["coin_y_reserve"]["value"])
+            fee = float(data["data"]["fee"]) / 10000
+            x_amount_after_fee = x_amount * (1 - fee)
+            amount_out = x_amount_after_fee * y_val / (x_amount_after_fee + x_val)
+            x_amount = amount_out
+        return amount_out
+    else:
+        resource_addr = package.network_config["replace_address"]["aux"]
+        for i in range(len(path) - 1):
+            x_type = get_aptos_token(package)[path[i]]["address"]
+            y_type = get_aptos_token(package)[path[i + 1]]["address"]
+            p1 = f'{package.network_config["replace_address"]["aux"]}::amm::Pool<' \
+                 f'{x_type},{y_type}>'
+            p2 = f'{package.network_config["replace_address"]["aux"]}::amm::Pool<' \
+                 f'{y_type},{x_type}>'
+            data = package.account_resource(resource_addr, p1)
+            if data is None:
+                data = package.account_resource(resource_addr, p2)
+                x_val = int(data["data"]["y_reserve"]["value"])
+                y_val = int(data["data"]["x_reserve"]["value"])
+            else:
+                x_val = int(data["data"]["x_reserve"]["value"])
+                y_val = int(data["data"]["y_reserve"]["value"])
+            fee = float(data["data"]["fee_bps"]) / 10000
+            x_amount_after_fee = x_amount * (1 - fee)
+            amount_out = x_amount_after_fee * y_val / (x_amount_after_fee + x_val)
+            x_amount = amount_out
+        return amount_out
 
 
 def parse_u256(data):
@@ -505,9 +530,9 @@ def cross_swap(
 
 
 def main():
-    src_net = "aptos-mainnet"
+    src_net = "aptos-testnet"
     assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
-    dst_net = "polygon-main"
+    dst_net = "bsc-test"
 
     # Prepare environment
     # load src net aptos package
@@ -606,11 +631,15 @@ def main():
             dst_func=EvmSwapFunc.swapExactTokensForTokens
         )
     else:
-        dst_gas_price = 30*1e9
+        dst_gas_price = 30 * 1e9
+        print("estimate out:", get_amounts_out_for_liquidswap(package,
+                                                              ["AptosCoin", "USDC_ETH_WORMHOLE"],
+                                                              10000000,
+                                                              AptosSwapType.Aux))
         cross_swap(
             package,
             src_path=["AptosCoin", "USDC_ETH_WORMHOLE"],
-            dst_path=["usdc"],
+            dst_path=["usdc_eth"],
             receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
             input_amount=10000000,
             dst_gas_price=dst_gas_price,
@@ -618,4 +647,3 @@ def main():
             dst_func=EvmSwapFunc.swapExactTokensForTokens,
             src_router=AptosSwapType.Aux
         )
-
