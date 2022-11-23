@@ -1,6 +1,7 @@
 {
     "aptos-mainnet": {
         "LiquidSwap": "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12",
+        "aux": "0xbd35135844473187163ca197ca93b2ab014370587bb0ed3befff9e902d6bb541",
         "OmniBtcChainId": 1,
         "SoDiamond": "0x0000000000000000000000000000000000000000000000000000000000000002",
         "WormholeBridge": "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f",
@@ -228,6 +229,7 @@
     },
     "aptos-testnet": {
         "LiquidSwap": "0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
+        "aux": "0x8b7311d78d47e37d09435b8dc37c14afd977c5cfa74f974d45f0258d986eef53",
         "OmniBtcChainId": 30001,
         "SoDiamond": "0x0000000000000000000000000000000000000000000000000000000000000004",
         "WormholeBridge": "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f",
