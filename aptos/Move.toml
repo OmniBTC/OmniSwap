@@ -37,3 +37,11 @@ subdir = "aptos-move/framework/aptos-framework"
 [dependencies.Liquidswap]
 git = "https://github.com/pontem-network/liquidswap.git"
 rev = 'b89aed9adb96c0b083134765f75be814418be670'
+
+[dependencies.aux]
+git = "https://github.com/OmniBTC/aux-exchange.git"
+rev = 'b54e4a50493e8bcb471aaf9d1214a4d55f960b37'
+
+[dependencies.PancakeSwap]
+git = "https://github.com/OmniBTC/aux-exchange.git"
+rev = '81d8c95b60bf2e18ffc5f8dc5367e5f9fc9fce06'
