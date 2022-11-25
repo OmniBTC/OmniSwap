@@ -588,6 +588,10 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+        arbitrum-main:
+          dst_chainid: 23
+          base_gas: 700000
+          per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
 #          base_gas: 700000
@@ -672,6 +676,10 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+        arbitrum-main:
+          dst_chainid: 23
+          base_gas: 700000
+          per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
 #          base_gas: 700000
@@ -748,6 +756,10 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+        arbitrum-main:
+          dst_chainid: 23
+          base_gas: 700000
+          per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
 #          base_gas: 700000
@@ -821,6 +833,10 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+        arbitrum-main:
+          dst_chainid: 23
+          base_gas: 700000
+          per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
 #          base_gas: 700000
@@ -875,12 +891,40 @@ networks:
   arbitrum-main:
     omnibtc_chainid: 6
     chainid: 42161
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
       chainid: 110
       poolid:
         usdc: 1
         weth: 13
+    wormhole:
+      chainid: 23
+      token_bridge: "0x0b2402144Bb366A632D14B83F244D2e0e21bD39c"
+      wormhole: "0xa5f208e072434bc67592e4c49c1b991ba79bca46"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 700000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 700000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 700000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 80000
+          per_byte_gas: 68
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
@@ -955,6 +999,10 @@ networks:
           per_byte_gas: 68
         avax-main:
           dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        arbitrum-main:
+          dst_chainid: 23
           base_gas: 700000
           per_byte_gas: 68
     oracle:
