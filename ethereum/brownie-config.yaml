@@ -613,6 +613,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
+      arbitrum:
+        chainid: 23
+        currency: USD
+        address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
 #      ftm:
 #        chainid: 10
 #        currency: ETH
@@ -701,6 +705,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
+      arbitrum:
+        chainid: 23
+        currency: USD
+        address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
 #      ftm:
 #        chainid: 10
 #        currency: USD
@@ -777,6 +785,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0x0A77230d17318075983913bC2145DB16C7366156"
+      arbitrum:
+        chainid: 23
+        currency: USD
+        address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
 #      ftm:
 #        chainid: 10
 #        currency: USD
@@ -858,6 +870,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
+      arbitrum:
+        chainid: 23
+        currency: USD
+        address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
 #      ftm:
 #        chainid: 10
 #        currency: USD
@@ -925,6 +941,27 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+    oracle:
+      eth:
+        chainid: 2
+        currency: USD
+        address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+      bsc:
+        chainid: 4
+        currency: USD
+        address: "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A"
+      polygon:
+        chainid: 5
+        currency: USD
+        address: "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
+      avax:
+        chainid: 6
+        currency: USD
+        address: "0x8bf61728eeDCE2F32c456454d87B5d6eD6150208"
+      arbitrum:
+        chainid: 23
+        currency: USD
+        address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
@@ -1018,6 +1055,10 @@ networks:
         chainid: 10
         currency: USD
         address: "0xf4766552D15AE4d256Ad41B6cf2933482B0680dc"
+      arbitrum:
+        chainid: 23
+        currency: USD
+        address: "0x11DdD3d147E5b83D01cee7070027092397d63658"
     swap:
       IUniswapV2Router02:
         name: SpookyswapV2
