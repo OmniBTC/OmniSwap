@@ -269,7 +269,7 @@ def process_v1(
                 d["emitterChainId"],
                 d["sequence"],
                 local_logger,
-                inner_interval=3 * 60 * 60
+                inner_interval=30 * 60
             )
         time.sleep(60)
 
@@ -307,7 +307,7 @@ def process_v2(
                 d["srcWormholeChainId"],
                 d["sequence"],
                 local_logger,
-                over_interval=3 * 60 * 60
+                over_interval=10 * 60,
             )
         time.sleep(3 * 60)
 
