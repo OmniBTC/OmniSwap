@@ -247,7 +247,7 @@ module omniswap::swap {
     public fun swap_three_by_account<X, Y, Z>(account: &signer, swap_data: vector<NormalizedSwapData>): Coin<Z> {
         assert!(vector::length(&swap_data) == 2, EINVALID_LENGTH);
         let coin_y = swap_by_account<X, Y>(account, *vector::borrow(&mut swap_data, 0));
-        swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1))
+        swap_by_coin_with_delegate<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1), account)
     }
 
     public fun swap_three_by_coin<X, Y, Z>(coins: Coin<X>, swap_data: vector<NormalizedSwapData>): Coin<Z> {
@@ -269,8 +269,8 @@ module omniswap::swap {
     public fun swap_four_by_account<X, Y, Z, M>(account: &signer, swap_data: vector<NormalizedSwapData>): Coin<M> {
         assert!(vector::length(&swap_data) == 3, EINVALID_LENGTH);
         let coin_y = swap_by_account<X, Y>(account, *vector::borrow(&mut swap_data, 0));
-        let coin_z = swap_by_coin<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1));
-        swap_by_coin<Z, M>(coin_z, *vector::borrow(&mut swap_data, 2))
+        let coin_z = swap_by_coin_with_delegate<Y, Z>(coin_y, *vector::borrow(&mut swap_data, 1), account);
+        swap_by_coin_with_delegate<Z, M>(coin_z, *vector::borrow(&mut swap_data, 2), account)
     }
 
     public fun swap_four_by_coin<X, Y, Z, M>(coins: Coin<X>, swap_data: vector<NormalizedSwapData>): Coin<M> {
