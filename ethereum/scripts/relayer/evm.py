@@ -57,7 +57,8 @@ def process_vaa(
         local_logger,
         inner_interval: int = None,
         over_interval: int = None,
-        WORMHOLE_CHAINID_TO_NET: dict = None
+        WORMHOLE_CHAINID_TO_NET: dict = None,
+        limit_gas_price=True
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
@@ -90,8 +91,15 @@ def process_vaa(
             f'not match: {transfer_data[4]}')
         return False
     try:
-        result = get_wormhole_facet().completeSoSwap(
-            vaa_str, {"from": get_account(), "gas_price": dst_max_gas_price})
+        if limit_gas_price:
+            result = get_wormhole_facet().completeSoSwap(
+                vaa_str, {"from": get_account(),
+                          "gas_price": dst_max_gas_price,
+                          "required_confs": 0,
+                          })
+        else:
+            result = get_wormhole_facet().completeSoSwap(
+                vaa_str, {"from": get_account(), "required_confs": 0})
         record_gas(
             dst_max_gas,
             dst_max_gas_price,
@@ -148,7 +156,7 @@ def process_v1(
                 d["sequence"],
                 local_logger,
                 inner_interval=30 * 60,
-                WORMHOLE_CHAINID_TO_NET=WORMHOLE_CHAINID_TO_NET
+                WORMHOLE_CHAINID_TO_NET=WORMHOLE_CHAINID_TO_NET,
             )
         time.sleep(60)
 
@@ -168,6 +176,7 @@ def process_v2(
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
     local_logger.info(f'SoDiamond:{dstSoDiamond}')
+    has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
@@ -178,6 +187,12 @@ def process_v2(
         pending_data = get_pending_data(url=pending_url)
         local_logger.info(f"Get signed vaa length: {len(pending_data)}")
         for d in pending_data:
+            has_key = (int(d["srcWormholeChainId"]), int(d["sequence"]))
+            if has_key in has_process and (time.time() - has_process[has_key]) <= 10 * 60:
+                local_logger.warning(f'{d["srcWormholeChainId"]} sequence:{d["sequence"]} inner 10min has process!')
+                continue
+            else:
+                has_process[has_key] = time.time()
             try:
                 vaa = get_signed_vaa(
                     int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
@@ -190,6 +205,13 @@ def process_v2(
                 local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
+            try:
+                if (time.time() - d["blockTimestamp"]) >= 60 * 60:
+                    limit_gas_price = False
+                else:
+                    limit_gas_price = True
+            except:
+                limit_gas_price = True
             process_vaa(
                 dstSoDiamond,
                 vaa,
@@ -197,9 +219,10 @@ def process_v2(
                 d["sequence"],
                 local_logger,
                 over_interval=10 * 60,
-                WORMHOLE_CHAINID_TO_NET=WORMHOLE_CHAINID_TO_NET
+                WORMHOLE_CHAINID_TO_NET=WORMHOLE_CHAINID_TO_NET,
+                limit_gas_price=limit_gas_price
             )
-        time.sleep(3 * 60)
+        time.sleep(2 * 60)
 
 
 class Session(Process):
@@ -307,4 +330,4 @@ def main():
 
 
 def single_process():
-    process_v1(SUPPORTED_EVM[0]["dstWormholeChainId"], SUPPORTED_EVM[0]["dstSoDiamond"])
+    process_v2(SUPPORTED_EVM[2]["dstWormholeChainId"], SUPPORTED_EVM[2]["dstSoDiamond"])

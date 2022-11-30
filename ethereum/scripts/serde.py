@@ -29,6 +29,17 @@ def get_wormhole_facet():
 
 
 @functools.lru_cache()
+def get_stargate_facet():
+    contract_name = "StargateFacet"
+    net = network.show_active()
+    return Contract.from_abi(
+        contract_name,
+        config["networks"][net]["SoDiamond"],
+        omniswap_ethereum_project[contract_name].abi
+    )
+
+
+@functools.lru_cache()
 def get_token_bridge():
     contract_name = "TokenBridge"
     net = network.show_active()
