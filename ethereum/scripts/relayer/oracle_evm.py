@@ -109,7 +109,7 @@ def set_so_prices():
 
 def allow_sg_receive():
     addr = "0x429b786a05de2175C041a4C1A273a187D376E9ff"
-    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main"]
+    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main", "arbitrum-main", "optimism-main"]
     for net in nets:
         print(f"Change net into {net}...")
         change_network(net)
