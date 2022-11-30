@@ -5,9 +5,10 @@ from multiprocessing import Process, set_start_method
 from pathlib import Path
 
 import pandas as pd
-from brownie import project, network, config
+from brownie import project, network, config, chain
 import threading
 
+from brownie.network.transaction import TransactionReceipt
 from scripts.helpful_scripts import get_account, change_network, padding_to_bytes
 from scripts.relayer.select import get_pending_data, get_signed_vaa, get_signed_vaa_by_to
 from scripts.serde import parse_vaa_to_wormhole_payload, get_wormhole_facet
@@ -98,9 +99,14 @@ def process_vaa(
                           "required_confs": 0,
                           })
         else:
-            result = get_wormhole_facet().completeSoSwap(
+            result: TransactionReceipt = get_wormhole_facet().completeSoSwap(
                 vaa_str, {"from": get_account(), "required_confs": 0})
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
+        time.sleep(5)
+        try:
+            result = chain.get_transaction(result.txid)
+        except:
+            pass
         record_gas(
             dst_max_gas,
             dst_max_gas_price,
