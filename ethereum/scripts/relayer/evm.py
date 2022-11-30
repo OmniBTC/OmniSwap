@@ -187,12 +187,6 @@ def process_v2(
         pending_data = get_pending_data(url=pending_url)
         local_logger.info(f"Get signed vaa length: {len(pending_data)}")
         for d in pending_data:
-            has_key = (int(d["srcWormholeChainId"]), int(d["sequence"]))
-            if has_key in has_process and (time.time() - has_process[has_key]) <= 10 * 60:
-                local_logger.warning(f'{d["srcWormholeChainId"]} sequence:{d["sequence"]} inner 10min has process!')
-                continue
-            else:
-                has_process[has_key] = time.time()
             try:
                 vaa = get_signed_vaa(
                     int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
@@ -202,7 +196,7 @@ def process_v2(
                     continue
                 vaa = vaa["hexString"]
             except Exception as e:
-                local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
+                local_logger.error(f'Get signed vaa for: emitterChainId: {d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
             try:
@@ -212,6 +206,13 @@ def process_v2(
                     limit_gas_price = True
             except:
                 limit_gas_price = True
+            has_key = (int(d["srcWormholeChainId"]), int(d["sequence"]))
+            if has_key in has_process and (time.time() - has_process[has_key]) <= 10 * 60:
+                local_logger.warning(f'emitterChainId:{d["srcWormholeChainId"]} sequence:{d["sequence"]} '
+                                     f'inner 10min has process!')
+                continue
+            else:
+                has_process[has_key] = time.time()
             process_vaa(
                 dstSoDiamond,
                 vaa,
