@@ -100,6 +100,7 @@ def process_vaa(
         else:
             result = get_wormhole_facet().completeSoSwap(
                 vaa_str, {"from": get_account(), "required_confs": 0})
+        local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}!')
         record_gas(
             dst_max_gas,
             dst_max_gas_price,
