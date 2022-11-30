@@ -286,6 +286,10 @@ def record_gas(
         swap_len=0,
         file_path=Path(__file__).parent.joinpath("gas"),
 ):
+    if not isinstance(actual_gas, int):
+        actual_gas = sender_gas
+    if not isinstance(actual_gas_price, int):
+        actual_gas_price = sender_gas_price
     if isinstance(file_path, str):
         file_path = Path(file_path)
     if not file_path.exists():
