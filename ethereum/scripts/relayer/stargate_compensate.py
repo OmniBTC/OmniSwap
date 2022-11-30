@@ -55,24 +55,19 @@ def get_stargate_pending_data(url: str = None) -> list:
     """
     Get data for pending relayer
     :return: list
-        [{'chainName': 'bsc-test',
-        'extrinsicHash': '0x63942108e3e0b4ca70ba331acc1c7419ffc43ebcc10e75abe4b0c05a4ce2e2d5',
-        'srcWormholeChainId': 0,
-        'dstWormholeChainId': 0,
-        'sequence': 2110, '
-        blockTimestamp': 0}]
+        {"data":[
+        {"srcTransactionId":"0x3699e57b13369133701148e2b9a14ef143ac06270e2f51b15eac37002345642a",
+        "dstTransactionId":"0x6ef714d2c38a201db45c2b4614c955e802d132378ef1dfcf0e17c04035d01e9d",
+        "srcNet":"binance",
+        "dstNet":"arbitrum",
+        "srcChainId":56,
+        "dstChainId":42161}]}
     """
-    return [{
-        "srcTransactionId": "0x4d971c82f9ab4aaf88a4182e50ae0d6964c18a9291b062ab849ab6db17cdd35c",
-        "dstTransactionId": "0x4d971c82f9ab4aaf88a4182e50ae0d6964c18a9291b062ab849ab6db17cdd35c",
-        "srcNet": "",
-        "dstChainId": 137
-    }]
     if url is None:
-        url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+        url = "https://crossswap-pre.coming.chat/v1/getUnhandleStargateTransfer"
     try:
         response = requests.get(url)
-        result = response.json()["record"]
+        result = response.json()["data"]
         if isinstance(result, list):
             return result
         else:
@@ -90,9 +85,9 @@ def process_v2(
     local_logger.info("Starting process v2...")
     local_logger.info(f'SoDiamond:{dstSoDiamond}')
     if "test" in network.show_active() or "test" == "goerli":
-        pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+        pending_url = "https://crossswap-pre.coming.chat/v1/getUnhandleStargateTransfer"
     else:
-        pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+        pending_url = "https://crossswap.coming.chat/v1/getUnhandleStargateTransfer"
     while True:
         pending_data = get_stargate_pending_data(url=pending_url)
         local_logger.info(f"Get length: {len(pending_data)}")
