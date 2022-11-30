@@ -115,7 +115,6 @@ def process_v2(
                 d["srcNet"],
                 dst_net=network.show_active(),
             )
-        break
         time.sleep(3 * 60)
 
 
