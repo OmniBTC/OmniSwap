@@ -1,4 +1,4 @@
-from brownie import network, Contract, SoDiamond, WormholeFacet, LibSoFeeWormholeV1
+from brownie import network, Contract, SoDiamond, WormholeFacet, LibSoFeeWormholeV1, StargateFacet
 import ccxt
 
 from scripts.helpful_scripts import get_wormhole_info, get_account, change_network
@@ -105,3 +105,16 @@ def set_so_prices():
         print(f"Change net into {net}...")
         change_network(net)
         set_so_price()
+
+
+def allow_sg_receive():
+    addr = "0x429b786a05de2175C041a4C1A273a187D376E9ff"
+    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main"]
+    for net in nets:
+        print(f"Change net into {net}...")
+        change_network(net)
+        proxy_stargate = Contract.from_abi(
+            "StargateFacet", SoDiamond[-1].address, StargateFacet.abi)
+
+        proxy_stargate.setAllowedAddress(addr, True, {"from": get_account()})
+
