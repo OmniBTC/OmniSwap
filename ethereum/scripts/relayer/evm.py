@@ -101,23 +101,24 @@ def process_vaa(
         else:
             result: TransactionReceipt = get_wormhole_facet().completeSoSwap(
                 vaa_str, {"from": get_account(), "required_confs": 0})
-        local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
+        local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}...')
         time.sleep(5)
         try:
             result = chain.get_transaction(result.txid)
         except:
             pass
-        record_gas(
-            dst_max_gas,
-            dst_max_gas_price,
-            result.gas_used,
-            result.gas_price,
-            src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
-            if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
-            dst_net=network.show_active(),
-            payload_len=int(len(vaa_str) / 2 - 1),
-            swap_len=len(wormhole_data[3])
-        )
+        if isinstance(result.gas_used, int) and isinstance(result.gas_price, int):
+            record_gas(
+                dst_max_gas,
+                dst_max_gas_price,
+                result.gas_used,
+                result.gas_price,
+                src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
+                if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
+                dst_net=network.show_active(),
+                payload_len=int(len(vaa_str) / 2 - 1),
+                swap_len=len(wormhole_data[3])
+            )
     except Exception as e:
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
