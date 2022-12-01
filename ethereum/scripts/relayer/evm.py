@@ -119,6 +119,9 @@ def process_vaa(
                 payload_len=int(len(vaa_str) / 2 - 1),
                 swap_len=len(wormhole_data[3])
             )
+        else:
+            local_logger.info(f'Process emitterChainId:{emitterChainId}, sequence:{sequence} pending!')
+            return False
     except Exception as e:
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
