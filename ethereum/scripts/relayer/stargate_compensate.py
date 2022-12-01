@@ -90,10 +90,9 @@ def process_v2(
         pending_url = "https://crossswap.coming.chat/v1/getUnhandleStargateTransfer"
     while True:
         pending_data = get_stargate_pending_data(url=pending_url)
+        pending_data = [d for d in pending_data if int(d["dstChainId"]) == int(chain.id)]
         local_logger.info(f"Get length: {len(pending_data)}")
         for d in pending_data:
-            if int(d["dstChainId"]) != int(chain.id):
-                continue
             tx = chain.get_transaction(d["dstTransactionId"])
             info = tx.events["CachedSwapSaved"]
             proxy_diamond = get_stargate_facet()
