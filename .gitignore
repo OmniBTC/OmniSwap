@@ -139,3 +139,4 @@ aptos/interfaces
 gas/
 *egg-info/
 .pypirc
+bug/
