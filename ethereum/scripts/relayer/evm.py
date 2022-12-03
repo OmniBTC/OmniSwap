@@ -162,7 +162,7 @@ def process_v1(
                 d["emitterChainId"],
                 d["sequence"],
                 local_logger,
-                inner_interval=30 * 60,
+                inner_interval=10 * 60,
                 WORMHOLE_CHAINID_TO_NET=WORMHOLE_CHAINID_TO_NET,
             )
         time.sleep(60)
