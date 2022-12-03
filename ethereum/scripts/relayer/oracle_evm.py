@@ -1,3 +1,5 @@
+import functools
+
 from brownie import network, Contract, SoDiamond, WormholeFacet, LibSoFeeWormholeV1, StargateFacet
 import ccxt
 
@@ -27,18 +29,21 @@ def set_so_gas():
         )
 
 
-def set_so_price():
-    api = ccxt.binance()
-    symbols = ["ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT"]
+@functools.lru_cache()
+def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT")):
+    api = ccxt.kucoin()
     prices = {}
 
     for symbol in symbols:
-        result = api.fetch_ohlcv(symbol=symbol,
-                                 timeframe="1m",
-                                 limit=1)
-        price = result[-1][4]
+        result = api.fetch_ticker(symbol=symbol)
+        price = result["close"]
         print(f"Symbol:{symbol}, price:{price}")
         prices[symbol] = price
+    return prices
+
+
+def set_so_price():
+    prices = get_prices()
 
     decimal = 1e27
     multiply = 1.2
@@ -117,4 +122,3 @@ def allow_sg_receive():
             "StargateFacet", SoDiamond[-1].address, StargateFacet.abi)
 
         proxy_stargate.setAllowedAddress(addr, True, {"from": get_account()})
-
