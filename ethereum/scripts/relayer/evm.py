@@ -92,6 +92,7 @@ def process_vaa(
             f'not match: {transfer_data[4]}')
         return False
     try:
+        local_logger.info(f'Start execute emitterChainId:{emitterChainId}, sequence:{sequence}')
         if limit_gas_price:
             result = get_wormhole_facet().completeSoSwap(
                 vaa_str, {"from": get_account(),
@@ -100,7 +101,6 @@ def process_vaa(
         else:
             result: TransactionReceipt = get_wormhole_facet().completeSoSwap(
                 vaa_str, {"from": get_account()})
-        local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}...')
         if isinstance(result.gas_used, int) and isinstance(result.gas_price, int):
             record_gas(
                 dst_max_gas,
@@ -113,14 +113,16 @@ def process_vaa(
                 payload_len=int(len(vaa_str) / 2 - 1),
                 swap_len=len(wormhole_data[3])
             )
+            local_logger.info(f'Process emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}'
+                              f' success!')
         else:
-            local_logger.info(f'Process emitterChainId:{emitterChainId}, sequence:{sequence} pending!')
+            local_logger.info(f'Process emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}'
+                              f' pending!')
             return False
     except Exception as e:
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
         return False
-    local_logger.info(f'Process emitterChainId:{emitterChainId}, sequence:{sequence} success!')
     return True
 
 
@@ -138,7 +140,7 @@ def process_v1(
     }
     local_logger = logger.getChild(f"[v1|{network.show_active()}]")
     local_logger.info("Starting process v1...")
-    local_logger.info(f'SoDiamond:{dstSoDiamond}')
+    local_logger.info(f'SoDiamond:{dstSoDiamond}, acc:{get_account().address}')
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
@@ -180,7 +182,7 @@ def process_v2(
     }
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
-    local_logger.info(f'SoDiamond:{dstSoDiamond}')
+    local_logger.info(f'SoDiamond:{dstSoDiamond}, acc:{get_account().address}')
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
