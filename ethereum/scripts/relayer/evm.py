@@ -95,18 +95,12 @@ def process_vaa(
         if limit_gas_price:
             result = get_wormhole_facet().completeSoSwap(
                 vaa_str, {"from": get_account(),
-                          "gas_price": dst_max_gas_price,
-                          "required_confs": 0,
+                          "gas_price": dst_max_gas_price
                           })
         else:
             result: TransactionReceipt = get_wormhole_facet().completeSoSwap(
-                vaa_str, {"from": get_account(), "required_confs": 0})
+                vaa_str, {"from": get_account()})
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}...')
-        time.sleep(5)
-        try:
-            result = chain.get_transaction(result.txid)
-        except:
-            pass
         if isinstance(result.gas_used, int) and isinstance(result.gas_price, int):
             record_gas(
                 dst_max_gas,
