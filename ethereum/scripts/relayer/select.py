@@ -139,6 +139,7 @@ def get_pending_data(url: str = None) -> list:
         response = requests.get(url)
         result = response.json()["record"]
         if isinstance(result, list):
+            result.sort(key=lambda x: x["sequence"])
             return result
         else:
             return []
