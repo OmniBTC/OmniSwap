@@ -927,6 +927,10 @@ networks:
         name: ZipSwapV2
         router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
         token_list: ""
+#      IUniswapV2Router02:
+#        name: ZipSwapV2
+#        router: "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
+#        token_list: ""
   ftm-main:
     omnibtc_chainid: 8
     chainid: 250
