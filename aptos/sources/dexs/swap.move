@@ -3,7 +3,7 @@ module omniswap::swap {
 
     use aptos_framework::coin::{Self, Coin, is_account_registered};
 
-    use liquidswap::router;
+    use liquidswap::router_v2;
     use liquidswap::curves::{Stable, Uncorrelated};
 
     use omniswap::u256;
@@ -72,12 +72,12 @@ module omniswap::swap {
             };
 
             if (right_type<Stable>(call_data)) {
-                router::swap_exact_coin_for_coin<X, Y, Stable>(
+                router_v2::swap_exact_coin_for_coin<X, Y, Stable>(
                     coin_x,
                     min_amount,
                 )
             }else if (right_type<Uncorrelated>(call_data)) {
-                router::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
+                router_v2::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
                     coin_x,
                     min_amount,
                 )
@@ -140,12 +140,12 @@ module omniswap::swap {
             };
 
             if (right_type<Stable>(call_data)) {
-                router::swap_exact_coin_for_coin<X, Y, Stable>(
+                router_v2::swap_exact_coin_for_coin<X, Y, Stable>(
                     coin_x,
                     min_amount,
                 )
             }else if (right_type<Uncorrelated>(call_data)) {
-                router::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
+                router_v2::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
                     coin_x,
                     min_amount,
                 )
@@ -178,12 +178,12 @@ module omniswap::swap {
             };
 
             if (right_type<Stable>(call_data)) {
-                router::swap_exact_coin_for_coin<X, Y, Stable>(
+                router_v2::swap_exact_coin_for_coin<X, Y, Stable>(
                     coin_x,
                     min_amount,
                 )
             }else if (right_type<Uncorrelated>(call_data)) {
-                router::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
+                router_v2::swap_exact_coin_for_coin<X, Y, Uncorrelated>(
                     coin_x,
                     min_amount,
                 )

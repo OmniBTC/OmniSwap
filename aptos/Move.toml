@@ -42,6 +42,11 @@ subdir = "aptos-move/framework/aptos-framework"
 git = "https://github.com/pontem-network/liquidswap.git"
 rev = 'b89aed9adb96c0b083134765f75be814418be670'
 
+[dependencies.LiquidswapRouterV2]
+git = "https://github.com/pontem-network/liquidswap.git"
+subdir = "liquidswap_router_v2"
+rev = 'b89aed9adb96c0b083134765f75be814418be670'
+
 [dependencies.aux]
 git = "https://github.com/OmniBTC/aux-exchange.git"
 rev = '3d2c71f26a5b073f9587647b5ba7001d04a6e193'
