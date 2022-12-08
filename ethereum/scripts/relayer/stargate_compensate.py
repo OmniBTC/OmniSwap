@@ -4,6 +4,7 @@
 
 import logging
 import time
+import traceback
 from datetime import datetime
 from multiprocessing import Process, set_start_method
 from pathlib import Path
@@ -93,27 +94,31 @@ def process_v2(
         pending_data = [d for d in pending_data if int(d["dstChainId"]) == int(chain.id)]
         local_logger.info(f"Get length: {len(pending_data)}")
         for d in pending_data:
-            tx = chain.get_transaction(d["dstTransactionId"])
-            info = tx.events["CachedSwapSaved"]
-            proxy_diamond = get_stargate_facet()
-            result: TransactionReceipt = proxy_diamond.sgReceive(
-                info["chainId"],
-                info["srcAddress"],
-                info["nonce"],
-                info["token"],
-                info["amountLD"],
-                info["payload"],
-                {"from": account}
-            )
-            record_gas(
-                d["srcTransactionId"],
-                d["dstTransactionId"],
-                result.txid,
-                result.gas_used,
-                result.gas_price,
-                d["srcNet"],
-                dst_net=network.show_active(),
-            )
+            try:
+                tx = chain.get_transaction(d["dstTransactionId"])
+                info = tx.events["CachedSwapSaved"]
+                proxy_diamond = get_stargate_facet()
+                result: TransactionReceipt = proxy_diamond.sgReceive(
+                    info["chainId"],
+                    info["srcAddress"],
+                    info["nonce"],
+                    info["token"],
+                    info["amountLD"],
+                    info["payload"],
+                    {"from": account}
+                )
+                record_gas(
+                    d["srcTransactionId"],
+                    d["dstTransactionId"],
+                    result.txid,
+                    result.gas_used,
+                    result.gas_price,
+                    d["srcNet"],
+                    dst_net=network.show_active(),
+                )
+            except:
+                traceback.print_exc()
+                continue
         time.sleep(3 * 60)
 
 
