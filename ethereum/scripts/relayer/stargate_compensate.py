@@ -1,10 +1,11 @@
 # @Time    : 2022/11/30 15:34
 # @Author  : WeiDai
 # @FileName: stargate_compensate.py
-
+import json
 import logging
 import time
 import traceback
+from collections import OrderedDict
 from datetime import datetime
 from multiprocessing import Process, set_start_method
 from pathlib import Path
@@ -77,6 +78,42 @@ def get_stargate_pending_data(url: str = None) -> list:
         return []
 
 
+def read_json(file) -> dict:
+    try:
+        with open(file, "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+
+def write_json(file, data: dict):
+    with open(file, "w") as f:
+        return json.dump(data, f)
+
+
+class RWDict(OrderedDict):
+    def __init__(self, file, *args, **kwargs):
+        file_path = Path(__file__).parent.joinpath("gas")
+        if not file_path.exists():
+            file_path.mkdir()
+        file_file = file_path.joinpath(file)
+        self.file = file_file
+        super(RWDict, self).__init__(*args, **kwargs)
+        self.read_data()
+
+    def read_data(self):
+        data = read_json(self.file)
+        for k in data:
+            self[k] = data[k]
+
+    def __setitem__(self, key, value):
+        super(RWDict, self).__setitem__(key, value)
+        write_json(self.file, self)
+
+
+HAS_PROCESSED = RWDict("processed_stargate.json")
+
+
 def process_v2(
         dstSoDiamond: str,
 ):
@@ -97,6 +134,12 @@ def process_v2(
             try:
                 tx = chain.get_transaction(d["dstTransactionId"])
                 info = tx.events["CachedSwapSaved"]
+                dv = f'{info["chainId"]}|{info["srcAddress"]}|{info["nonce"]}|' \
+                     f'{info["token"]}|{info["amountLD"]}|{info["payload"]}'
+                dk = hash(dv)
+                if dk in HAS_PROCESSED:
+                    continue
+                HAS_PROCESSED[dk] = dv
                 proxy_diamond = get_stargate_facet()
                 result: TransactionReceipt = proxy_diamond.sgReceive(
                     info["chainId"],
