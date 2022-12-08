@@ -1,6 +1,7 @@
 # @Time    : 2022/11/30 15:34
 # @Author  : WeiDai
 # @FileName: stargate_compensate.py
+import hashlib
 import json
 import logging
 import time
@@ -88,7 +89,7 @@ def read_json(file) -> dict:
 
 def write_json(file, data: dict):
     with open(file, "w") as f:
-        return json.dump(data, f)
+        return json.dump(data, f, indent=1, separators=(',', ':'))
 
 
 class RWDict(OrderedDict):
@@ -136,7 +137,7 @@ def process_v2(
                 info = tx.events["CachedSwapSaved"]
                 dv = f'{info["chainId"]}|{info["srcAddress"]}|{info["nonce"]}|' \
                      f'{info["token"]}|{info["amountLD"]}|{info["payload"]}'
-                dk = hash(dv)
+                dk = str(hashlib.sha3_256(dv.encode()).digest().hex())
                 if dk in HAS_PROCESSED:
                     continue
                 HAS_PROCESSED[dk] = dv
