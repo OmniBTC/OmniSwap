@@ -58,6 +58,11 @@ class VectorBoolTag(VectorTag):
 
 class VectorU8Tag(VectorTag):
     def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
         assert isinstance(list(value), list), "value must sequence"
         super().__init__([U8Tag(v) for v in value])
 
@@ -67,6 +72,11 @@ class VectorU8Tag(VectorTag):
 
 class VectorU64Tag(VectorTag):
     def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
         assert isinstance(list(value), list), "value must sequence"
         super().__init__([U64Tag(v) for v in value])
 
@@ -76,6 +86,11 @@ class VectorU64Tag(VectorTag):
 
 class VectorU128Tag(VectorTag):
     def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
         assert isinstance(list(value), list), "value must sequence"
         super().__init__([U128Tag(v) for v in value])
 
