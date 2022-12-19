@@ -17,7 +17,7 @@ from aptos_sdk.bcs import Deserializer, Serializer
 from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload, SignedTransaction, \
     RawTransaction
 from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U128Tag, U64Tag, U8Tag, BoolTag
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 from aptos_sdk.account import Account
 from aptos_sdk.client import RestClient, FaucetClient, ApiError
 
@@ -249,8 +249,8 @@ class AptosPackage:
         with self.config_path.open() as fp:
             self.config = yaml.safe_load(fp)
         try:
-            load_dotenv(self.project_path.joinpath(self.config["dotenv"]))
-            self.private_key = os.getenv("PRIVATE_KEY")
+            env = dotenv_values(self.project_path.joinpath(self.config["dotenv"]))
+            self.private_key = env.get("PRIVATE_KEY", None)
             if self.private_key is None:
                 raise EnvironmentError
         except Exception as e:
