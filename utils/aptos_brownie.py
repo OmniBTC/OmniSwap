@@ -250,9 +250,14 @@ class AptosPackage:
             self.config = yaml.safe_load(fp)
         try:
             env = dotenv_values(self.project_path.joinpath(self.config["dotenv"]))
-            self.private_key = env.get("PRIVATE_KEY", None)
-            if self.private_key is None:
+            self.private_key = None
+            if env.get("PRIVATE_KEY_APTOS", None) is not None:
+                self.private_key = env.get("PRIVATE_KEY_APTOS")
+            elif env.get("PRIVATE_KEY", None) is not None:
+                self.private_key = env.get("PRIVATE_KEY")
+            else:
                 raise EnvironmentError
+
         except Exception as e:
             raise e
         self.account = Account.load_key(self.private_key)
