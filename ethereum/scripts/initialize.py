@@ -246,7 +246,9 @@ def remove_facet(facet):
 
     proxy_loupe = Contract.from_abi(
         "DiamondLoupeFacet", SoDiamond[-1].address, DiamondLoupeFacet.abi)
-
+    if len(facet) == 0:
+        print("Not found facet")
+        return
     funcs = proxy_loupe.facetFunctionSelectors(facet[-1].address)
 
     register_data = [[zero_address(), 2, list(funcs)]]
