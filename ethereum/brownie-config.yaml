@@ -588,6 +588,10 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+        optimism-main:
+          dst_chainid: 24
+          base_gas: 700000
+          per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
 #          base_gas: 700000
@@ -609,6 +613,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
+      optimism:
+        chainid: 24
+        currency: USD
+        address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
 #      ftm:
 #        chainid: 10
 #        currency: ETH
@@ -672,6 +680,10 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+        optimism-main:
+          dst_chainid: 24
+          base_gas: 700000
+          per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
 #          base_gas: 700000
@@ -693,6 +705,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
+      optimism:
+        chainid: 24
+        currency: USD
+        address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
 #      ftm:
 #        chainid: 10
 #        currency: USD
@@ -748,6 +764,10 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+        optimism-main:
+          dst_chainid: 24
+          base_gas: 700000
+          per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
 #          base_gas: 700000
@@ -765,6 +785,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0x0A77230d17318075983913bC2145DB16C7366156"
+      optimism:
+        chainid: 24
+        currency: USD
+        address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
 #      ftm:
 #        chainid: 10
 #        currency: USD
@@ -821,6 +845,10 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+        optimism-main:
+          dst_chainid: 24
+          base_gas: 700000
+          per_byte_gas: 68
 #        ftm-main:
 #          dst_chainid: 10
 #          base_gas: 700000
@@ -842,6 +870,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
+      optimism:
+        chainid: 24
+        currency: USD
+        address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
 #      ftm:
 #        chainid: 10
 #        currency: USD
@@ -904,6 +936,55 @@ networks:
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    wormhole:
+      chainid: 24
+      token_bridge: "0x1D68124e65faFC907325e3EDbF8c4d84499DAa8b"
+      wormhole: "0xEe91C335eab126dF5fDB3797EA9d6aD93aeC9722"
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 700000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 700000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 700000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 80000
+          per_byte_gas: 68
+      oracle:
+        eth:
+          chainid: 2
+          currency: USD
+          address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+        bsc:
+          chainid: 4
+          currency: USD
+          address: "0xD38579f7cBD14c22cF1997575eA8eF7bfe62ca2c"
+        polygon:
+          chainid: 5
+          currency: USD
+          address: "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828"
+        avax:
+          chainid: 6
+          currency: USD
+          address: "0x5087Dc69Fd3907a016BD42B38022F7f024140727"
+        optimism:
+          chainid: 24
+          currency: USD
+          address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
     stargate:
       router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
       chainid: 111
@@ -957,6 +1038,10 @@ networks:
           dst_chainid: 6
           base_gas: 700000
           per_byte_gas: 68
+        optimism-main:
+          dst_chainid: 24
+          base_gas: 700000
+          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -970,6 +1055,10 @@ networks:
         chainid: 10
         currency: USD
         address: "0xf4766552D15AE4d256Ad41B6cf2933482B0680dc"
+      optimism:
+        chainid: 24
+        currency: USD
+        address: "0x11DdD3d147E5b83D01cee7070027092397d63658"
     swap:
       IUniswapV2Router02:
         name: SpookyswapV2
