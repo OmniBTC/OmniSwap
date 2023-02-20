@@ -2,20 +2,21 @@
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
+import "../Errors/GenericErrors.sol";
 import "../Libraries/LibDiamond.sol";
 import "../Libraries/LibBytes.sol";
 import "../Libraries/LibCross.sol";
 import "../Interfaces/ISo.sol";
 import "../Interfaces/ILibPrice.sol";
-import "../Helpers/Swapper.sol";
 import "../Interfaces/IWormholeBridge.sol";
 import "../Interfaces/ILibSoFee.sol";
+import "../Helpers/Swapper.sol";
+import "../Helpers/ReentrancyGuard.sol";
 
 /// @title Wormhole Facet
 /// @author OmniBTC
 /// @notice Provides functionality for bridging through Wormhole
-contract WormholeFacet is Swapper {
+contract WormholeFacet is Swapper, ReentrancyGuard {
     using SafeMath for uint256;
     using LibBytes for bytes;
 
@@ -208,7 +209,7 @@ contract WormholeFacet is Swapper {
             cache.payload
         );
 
-        emit ISo.SoTransferStarted(soData.transactionId);
+        emit SoTransferStarted(soData.transactionId);
     }
 
     /// @notice Users can manually call for cross-chain tokens
@@ -754,6 +755,9 @@ contract WormholeFacet is Swapper {
     ) internal {
         Storage storage s = getStorage();
         address bridge = s.tokenBridge;
+
+        if (s.srcWormholeChainId == wormholeData.dstWormholeChainId)
+            revert CannotBridgeToSameNetwork();
 
         bytes32 dstSoDiamond;
         if (wormholeData.dstSoDiamond.length == 20) {

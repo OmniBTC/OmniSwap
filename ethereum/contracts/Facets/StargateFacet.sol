@@ -282,7 +282,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
 
         amount = amount.div(10);
         require(amount > 0, "LittleAmount");
-        bytes memory payload = getSgReceiveForGasPayload(
+        bytes memory payload = encodeStargatePayload(
             soDataNo,
             swapDataDstNo
         );
@@ -412,14 +412,6 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         } else {
             return ILibSoFee(soFee).getTransferForGas();
         }
-    }
-
-    /// @dev Get SgReceive for gas payload
-    function getSgReceiveForGasPayload(
-        ISo.NormalizedSoData calldata soDataNo,
-        LibSwap.NormalizedSwapData[] calldata swapDataDstNo
-    ) public pure returns (bytes memory) {
-        return encodeStargatePayload(soDataNo, swapDataDstNo);
     }
 
     /// CrossData
