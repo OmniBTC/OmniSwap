@@ -240,6 +240,21 @@ def get_native_oracle_address():
             return oracles[oracle]["address"]
 
 
+def get_celer_info():
+    return get_current_net_info()["celer"]
+
+
+def get_celer_message_bus():
+    try:
+        return get_celer_info()["message_bus"]
+    except:
+        return ""
+
+
+def get_celer_chain_id():
+    return get_celer_info()["chainid"]
+
+
 def get_stargate_info():
     return get_current_net_info()["stargate"]
 

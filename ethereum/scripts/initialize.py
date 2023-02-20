@@ -1,14 +1,14 @@
 from pprint import pprint
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeStargateV1, MockToken, LibCorrectSwapV1, \
-    WormholeFacet, SerdeFacet, LibSoFeeWormholeV1, web3
+    WormholeFacet, SerdeFacet, LibSoFeeWormholeV1, web3, CelerFacet, LibSoFeeCelerV1
 from brownie.network import priority_fee
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_native_oracle_address, get_oracles, \
     get_wormhole_actual_reserve, get_wormhole_bridge, \
     get_wormhole_chainid, get_wormhole_estimate_reserve, get_wormhole_info, \
     zero_address, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal, \
-    get_stargate_info
+    get_stargate_info, get_celer_chain_id, get_celer_message_bus
 
 
 def main():
@@ -25,6 +25,10 @@ def main():
         initialize_stargate(account, so_diamond)
     except Exception as e:
         print(f"initialize_stargate fail:{e}")
+    try:
+        initialize_celer(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_celer fail:{e}")
     try:
         initialize_wormhole(account, so_diamond)
     except Exception as e:
@@ -65,7 +69,7 @@ def initialize_cut(account, so_diamond):
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", so_diamond.address, DiamondCutFacet.abi)
     register_funcs = {}
-    register_contract = [DiamondLoupeFacet, DexManagerFacet, OwnershipFacet,
+    register_contract = [DiamondLoupeFacet, DexManagerFacet, OwnershipFacet, CelerFacet,
                          StargateFacet, WormholeFacet, WithdrawFacet, GenericSwapFacet,
                          SerdeFacet]
     register_data = []
@@ -101,6 +105,16 @@ def initialize_stargate(account, so_diamond):
         {'from': account}
     )
 
+def initialize_celer(account, so_diamond):
+    proxy_celer = Contract.from_abi(
+        "CelerFacet", so_diamond.address, CelerFacet.abi)
+    net = network.show_active()
+    print(f"network:{net}, init celer...")
+    proxy_celer.initCeler(
+        get_celer_message_bus(),
+        get_celer_chain_id(),
+        {'from': account}
+    )
 
 def set_wormhole_gas():
     so_diamond = SoDiamond[-1]
@@ -169,6 +183,8 @@ def initialize_dex_manager(account, so_diamond):
                      LibSoFeeStargateV1[-1].address, {'from': account})
     proxy_dex.addFee(get_wormhole_bridge(),
                      LibSoFeeWormholeV1[-1].address, {'from': account})
+    proxy_dex.addFee(get_celer_message_bus(),
+                     LibSoFeeCelerV1[-1].address, {'from': account})
 
 
 def initialize_little_token_for_stargate():
@@ -277,6 +293,17 @@ def redeploy_stargate():
     StargateFacet.deploy({"from": account})
     add_cut([StargateFacet])
     initialize_stargate(account, SoDiamond[-1])
+
+
+# redeploy and initialize
+def redeploy_celer():
+    account = get_account()
+
+    # remove_facet(CelerFacet)
+
+    CelerFacet.deploy({"from": account})
+    add_cut([CelerFacet])
+    initialize_celer(account, SoDiamond[-1])
 
 
 def remove_dump(a: list, b: list):

@@ -89,13 +89,18 @@ networks:
   goerli:
     omnibtc_chainid: 30002
     chainid: 5
-    SoDiamond: "0x12479EEF3EF33687f6b79d59aC6E387C7bc75A3F"
+    SoDiamond: "0x43bBc3Be3FD1a26F62CA319E2eDEB5aB40d0e1D8"
     stargate:
+# https://stargateprotocol.gitbook.io/stargate/developers/contract-addresses/testnet
+      router: "0x7612aE2a34E5A363E137De748801FB4c86499152"
       # Will be deployed soon
       chainid: 10121
       poolid:
         usdc: 1
         weth: 13
+    celer:
+      chainid: 5
+      message_bus: "0xF25170F86E4291a99a9A560032Fe9948b8BcFBB2"
     wormhole:
       chainid: 2
       token_bridge: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7"
@@ -128,6 +133,9 @@ networks:
       usdt:
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 18
+      celer-usdc:
+        address: "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28"
+        decimal: 6
       bsc-usdt:
         address: "0xa512c06d85004930526b1Ab0452fDD3F5F0fC665"
         decimal: 18
@@ -271,7 +279,7 @@ networks:
   avax-test:
     omnibtc_chainid: 30004
     chainid: 43113
-    SoDiamond: "0xBb032459B39547908eDB8E690c030Dc4F31DA673"
+    SoDiamond: "0xE68508c61c4f979B828cd1c8383676d93583Cae5"
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
@@ -309,9 +317,15 @@ networks:
       chainid: 10106
       poolid:
         usdc: 1
+    celer:
+      chainid: 43113
+      message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
     token:
       usdc:
         address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
+        decimal: 6
+      celer-usdc:
+        address: "0x2979a1cb90EEB9e75d7fB4f9813FCC40E4a7fD8b"
         decimal: 6
       weth:
         # Wormhole used weth
