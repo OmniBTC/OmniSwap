@@ -105,7 +105,7 @@ def change_network(dst_net):
     if network.is_connected():
         network.disconnect()
     network.connect(dst_net)
-    if dst_net in ["rinkeby"]:
+    if dst_net in ["rinkeby", "goerli"]:
         priority_fee("2 gwei")
 
 

@@ -117,13 +117,14 @@ def soSwapViaStargate(so_data,
     )
 
 
-def soSwapViaCeler(so_data,
-                   src_swap_data,
-                   celer_data,
-                   dst_swap_data,
-                   input_eth_amount: int,
-                   p: Project = None
-                   ):
+def soSwapViaCeler(
+    so_data,
+    src_swap_data,
+    celer_data,
+    dst_swap_data,
+    input_eth_amount: int,
+    p: Project = None,
+):
     so_data = so_data.format_to_contract()
     if src_swap_data is None:
         src_swap_data = []
@@ -135,21 +136,21 @@ def soSwapViaCeler(so_data,
     else:
         dst_swap_data = [dst_swap_data.format_to_contract()]
     proxy_diamond = Contract.from_abi(
-        "CelerFacet", p["SoDiamond"][-1].address, p["CelerFacet"].abi)
-
-    celer_cross_fee = proxy_diamond.getCelerMessageFee1(
-        so_data,
-        dst_swap_data
+        "CelerFacet", p["SoDiamond"][-1].address, p["CelerFacet"].abi
     )
 
-    print(f"celer cross fee: {celer_cross_fee / get_token_decimal('eth')}, "
-          f"input eth: {input_eth_amount / get_token_decimal('eth')}")
+    celer_cross_fee = proxy_diamond.getCelerMessageFee1(so_data, dst_swap_data)
+
+    print(
+        f"celer cross fee: {celer_cross_fee / get_token_decimal('eth')}, "
+        f"input eth: {input_eth_amount / get_token_decimal('eth')}"
+    )
     proxy_diamond.soSwapViaCeler(
         so_data,
         src_swap_data,
         celer_data,
         dst_swap_data,
-        {'from': get_account(), 'value': int(celer_cross_fee + input_eth_amount)}
+        {"from": get_account(), "value": int(celer_cross_fee + input_eth_amount)},
     )
 
 
@@ -393,15 +394,16 @@ class StargateData(View):
 
 
 class CelerData(View):
-    def __init__(self,
-                 maxSlippage,
-                 dstCelerChainId,
-                 dstSoDiamond,
-                 srcBridgeToken,
-                 srcBridgeTokenDecimal,
-                 dstBridgeToken,
-                 dstBridgeTokenDecimal
-                 ):
+    def __init__(
+        self,
+        maxSlippage,
+        dstCelerChainId,
+        dstSoDiamond,
+        srcBridgeToken,
+        srcBridgeTokenDecimal,
+        dstBridgeToken,
+        dstBridgeTokenDecimal,
+    ):
         # slippage tolerance, 10000 -> 1%
         self.maxSlippage = maxSlippage
         # destination chain id
@@ -415,13 +417,22 @@ class CelerData(View):
 
     def format_to_contract(self):
         """Get the Celer data passed into the contract interface"""
-        return [self.maxSlippage,
-                self.dstCelerChainId,
-                self.srcBridgeToken,
-                self.dstSoDiamond]
+        return [
+            self.maxSlippage,
+            self.dstCelerChainId,
+            self.srcBridgeToken,
+            self.dstSoDiamond,
+        ]
 
     @classmethod
-    def create(cls, src_session, dst_session, max_slippage: int, srcBridgeToken: str, dstBridgeToken: str):
+    def create(
+        cls,
+        src_session,
+        dst_session,
+        max_slippage: int,
+        srcBridgeToken: str,
+        dstBridgeToken: str,
+    ):
         """Create CelerData class
 
         Args:
@@ -436,15 +447,20 @@ class CelerData(View):
             maxSlippage=max_slippage,
             dstCelerChainId=dst_session.put_task(func=get_celer_chain_id),
             dstSoDiamond=dst_session.put_task(
-                get_contract_address, args=("SoDiamond",), with_project=True),
+                get_contract_address, args=("SoDiamond",), with_project=True
+            ),
             srcBridgeToken=src_session.put_task(
-                func=get_token_address, args=(srcBridgeToken,)),
+                func=get_token_address, args=(srcBridgeToken,)
+            ),
             srcBridgeTokenDecimal=src_session.put_task(
-                func=get_token_decimal, args=(srcBridgeToken,)),
+                func=get_token_decimal, args=(srcBridgeToken,)
+            ),
             dstBridgeToken=dst_session.put_task(
-                func=get_token_address, args=(dstBridgeToken,)),
+                func=get_token_address, args=(dstBridgeToken,)
+            ),
             dstBridgeTokenDecimal=dst_session.put_task(
-                func=get_token_decimal, args=(dstBridgeToken,)),
+                func=get_token_decimal, args=(dstBridgeToken,)
+            ),
         )
 
     @staticmethod
@@ -465,9 +481,11 @@ class CelerData(View):
 
         final_amount = 0
 
-        print(f"  Celer cross: token {celer_data.srcBridgeToken}, "
-              f"amount:{amount / celer_data.srcBridgeTokenDecimal} -> token {celer_data.dstBridgeToken}, "
-              f"amount {final_amount / celer_data.srcStargateTokenDecimal}")
+        print(
+            f"  Celer cross: token {celer_data.srcBridgeToken}, "
+            f"amount:{amount / celer_data.srcBridgeTokenDecimal} -> token {celer_data.dstBridgeToken}, "
+            f"amount {final_amount / celer_data.srcStargateTokenDecimal}"
+        )
         return final_amount
 
     @staticmethod
@@ -1083,8 +1101,7 @@ def cross_swap_via_stargate(
 
 
 def celer_estimate_amount(
-        amount: int,
-        slippage_tolerance=10000  # 1%, follow maxSlippage
+    amount: int, slippage_tolerance=10000  # 1%, follow maxSlippage
 ):
     src_chain_id = 5
     dst_chain_id = 43113
@@ -1093,115 +1110,124 @@ def celer_estimate_amount(
     # main_base_url = "https://cbridge-prod2.celer.app/v2/estimateAmt"
 
     params = {
-        'src_chain_id': src_chain_id,
-        'dst_chain_id': dst_chain_id,
-        'token_symbol': token_symbol,
-        'usr_addr': 0x0,
-        'slippage_tolerance': slippage_tolerance,
-        'amt': amount,
-        'is_pegged': 'false'
+        "src_chain_id": src_chain_id,
+        "dst_chain_id": dst_chain_id,
+        "token_symbol": token_symbol,
+        "usr_addr": 0x0,
+        "slippage_tolerance": slippage_tolerance,
+        "amt": amount,
+        "is_pegged": "false",
     }
 
-    url = test_base_url + '?' + urllib.parse.urlencode(params)
+    url = test_base_url + "?" + urllib.parse.urlencode(params)
     response = requests.get(url)
     data = json.loads(response.text)
 
-    estimated_amount = int(data['estimated_receive_amt'])
-    max_slippage = int(data['max_slippage'])
+    estimated_amount = int(data["estimated_receive_amt"])
+    max_slippage = int(data["max_slippage"])
 
     return estimated_amount, max_slippage
 
 
 def celer_estimate_final_token_amount(
-        src_session,
-        dst_session,
-        amount: int,
-        slippage_tolerance,
-        src_swap_data: SwapData,
-        dst_swap_data: SwapData,
+    src_session,
+    dst_session,
+    amount: int,
+    slippage_tolerance,
+    src_swap_data: SwapData,
+    dst_swap_data: SwapData,
 ):
     """Estimate source swap output"""
     print("Estimate final token amount:")
     if src_swap_data is not None:
-        amount = src_session.put_task(SwapData.estimate_out,
-                                      args=(amount,
-                                            src_swap_data.swapType,
-                                            src_swap_data.swapPath),
-                                      with_project=True
-                                      )
+        amount = src_session.put_task(
+            SwapData.estimate_out,
+            args=(amount, src_swap_data.swapType, src_swap_data.swapPath),
+            with_project=True,
+        )
 
-    amount, max_slippage = src_session.put_task(celer_estimate_amount, args=(amount, slippage_tolerance),
-                                  with_project=False)
-    so_fee = dst_session.put_task(CelerData.estimate_so_fee, args=(amount,), with_project=True)
+    amount, max_slippage = src_session.put_task(
+        celer_estimate_amount, args=(amount, slippage_tolerance), with_project=False
+    )
+    so_fee = dst_session.put_task(
+        CelerData.estimate_so_fee, args=(amount,), with_project=True
+    )
     amount = amount - so_fee
 
     if dst_swap_data is not None:
-        amount = dst_session.put_task(SwapData.estimate_out,
-                                      args=(amount,
-                                            dst_swap_data.swapType,
-                                            dst_swap_data.swapPath),
-                                      with_project=True
-                                      )
+        amount = dst_session.put_task(
+            SwapData.estimate_out,
+            args=(amount, dst_swap_data.swapType, dst_swap_data.swapPath),
+            with_project=True,
+        )
 
     print(f"Final amount: {amount}, so fee: {so_fee}")
 
     return amount, max_slippage
 
+
 def celer_estimate_min_amount(
-        dst_session,
-        final_amount: int,
-        slippage: float,
-        dst_swap_data: SwapData
+    dst_session, final_amount: int, slippage: float, dst_swap_data: SwapData
 ):
     print(f"Estimate min amount: slippage {slippage * 100}%")
     expect_min_amount = int(final_amount * (1 - slippage))
     if dst_swap_data is not None:
         dst_swap_min_amount = expect_min_amount
-        stargate_min_amount = dst_session.put_task(SwapData.estimate_in,
-                                                   args=(expect_min_amount,
-                                                         dst_swap_data.swapType,
-                                                         # note revert!
-                                                         dst_swap_data.swapPath,
-                                                         ),
-                                                   with_project=True
-                                                   )
-        stargate_min_amount = dst_session.put_task(StargateData.estimate_before_so_fee,
-                                                   args=(stargate_min_amount,),
-                                                   with_project=True
-                                                   )
+        stargate_min_amount = dst_session.put_task(
+            SwapData.estimate_in,
+            args=(
+                expect_min_amount,
+                dst_swap_data.swapType,
+                # note revert!
+                dst_swap_data.swapPath,
+            ),
+            with_project=True,
+        )
+        stargate_min_amount = dst_session.put_task(
+            StargateData.estimate_before_so_fee,
+            args=(stargate_min_amount,),
+            with_project=True,
+        )
     else:
         dst_swap_min_amount = None
-        stargate_min_amount = dst_session.put_task(StargateData.estimate_before_so_fee,
-                                                   args=(expect_min_amount,),
-                                                   with_project=True
-                                                   )
+        stargate_min_amount = dst_session.put_task(
+            StargateData.estimate_before_so_fee,
+            args=(expect_min_amount,),
+            with_project=True,
+        )
     return dst_swap_min_amount, stargate_min_amount
 
+
 def cross_swap_via_celer(
-        src_session,
-        dst_session,
-        inputAmount,
-        sourceTokenName,  # celer
-        destinationTokenName,  # celer
-        sourceSwapType,
-        sourceSwapFunc,
-        sourceSwapPath,
-        sourceBridgeToken,
-        destinationBridgeToken,
-        destinationSwapType,
-        destinationSwapFunc,
-        destinationSwapPath,
-        slippage: float
+    src_session,
+    dst_session,
+    inputAmount,
+    sourceTokenName,  # celer
+    destinationTokenName,  # celer
+    sourceSwapType,
+    sourceSwapFunc,
+    sourceSwapPath,
+    sourceBridgeToken,
+    destinationBridgeToken,
+    destinationSwapType,
+    destinationSwapFunc,
+    destinationSwapPath,
+    slippage: float,
 ):
-    print(f"{'-' * 100}\nSwap from: network {src_session.net}, token {sourceTokenName} "
-          f"-> celer {sourceBridgeToken} -> {destinationBridgeToken} to: network "
-          f"{dst_session.net}, token: {destinationTokenName}")
-    src_diamond_address = src_session.put_task(
-        get_contract_address, args=("SoDiamond",), with_project=True)
-    dst_diamond_address = dst_session.put_task(
-        get_contract_address, args=("SoDiamond",), with_project=True)
     print(
-        f"Source diamond address: {src_diamond_address}. Destination diamond address: {dst_diamond_address}")
+        f"{'-' * 100}\nSwap: {sourceTokenName}({src_session.net}) "
+        f"-> {sourceBridgeToken}({src_session.net}) -> {destinationBridgeToken}({dst_session.net}) "
+        f"-> {destinationTokenName}({dst_session.net})\n"
+    )
+    src_diamond_address = src_session.put_task(
+        get_contract_address, args=("SoDiamond",), with_project=True
+    )
+    dst_diamond_address = dst_session.put_task(
+        get_contract_address, args=("SoDiamond",), with_project=True
+    )
+    print(
+        f"Source diamond address: {src_diamond_address}. Destination diamond address: {dst_diamond_address}"
+    )
 
     so_data = SoData.create(
         src_session,
@@ -1209,72 +1235,89 @@ def cross_swap_via_celer(
         src_session.put_task(get_account_address),
         amount=inputAmount,
         sendingTokenName=sourceTokenName,
-        receiveTokenName=destinationTokenName)
+        receiveTokenName=destinationTokenName,
+    )
     print("SoData\n", so_data)
 
     if sourceSwapType is not None:
-        src_swap_data = src_session.put_task(SwapData.create,
-                                             args=(sourceSwapType,
-                                                   sourceSwapFunc,
-                                                   inputAmount,
-                                                   sourceSwapPath),
-                                             with_project=True
-                                             )
+        src_swap_data = src_session.put_task(
+            SwapData.create,
+            args=(sourceSwapType, sourceSwapFunc, inputAmount, sourceSwapPath),
+            with_project=True,
+        )
         print("SourceSwapData:\n", src_swap_data)
     else:
         src_swap_data = None
 
     if destinationSwapType is not None:
-        dst_swap_data: SwapData = dst_session.put_task(SwapData.create,
-                                                       args=(destinationSwapType,
-                                                             destinationSwapFunc,
-                                                             inputAmount,
-                                                             destinationSwapPath),
-                                                       with_project=True
-                                                       )
+        dst_swap_data: SwapData = dst_session.put_task(
+            SwapData.create,
+            args=(
+                destinationSwapType,
+                destinationSwapFunc,
+                inputAmount,
+                destinationSwapPath,
+            ),
+            with_project=True,
+        )
     else:
         dst_swap_data: SwapData = None
 
     final_amount, max_slippage = celer_estimate_final_token_amount(
-        src_session, dst_session, inputAmount, int(slippage * 1000000), src_swap_data, dst_swap_data)
+        src_session,
+        dst_session,
+        inputAmount,
+        int(slippage * 1000000),
+        src_swap_data,
+        dst_swap_data,
+    )
 
     celer_data = CelerData.create(
-        src_session, dst_session, max_slippage, sourceBridgeToken, destinationBridgeToken)
+        src_session,
+        dst_session,
+        max_slippage,
+        sourceBridgeToken,
+        destinationBridgeToken,
+    )
 
     dst_swap_min_amount = int(final_amount * (1 - slippage))
 
     print("CelerData:\n", celer_data)
 
     if dst_swap_data is not None:
-        dst_swap_data.callData = dst_session.put_task(SwapData.reset_min_amount,
-                                                      args=(dst_swap_data.callData,
-                                                            dst_swap_data.swapType,
-                                                            dst_swap_data.swapFuncName,
-                                                            dst_swap_min_amount
-                                                            ),
-                                                      with_project=True
-                                                      )
+        dst_swap_data.callData = dst_session.put_task(
+            SwapData.reset_min_amount,
+            args=(
+                dst_swap_data.callData,
+                dst_swap_data.swapType,
+                dst_swap_data.swapFuncName,
+                dst_swap_min_amount,
+            ),
+            with_project=True,
+        )
         print("DestinationSwapData:\n", dst_swap_data)
 
     if sourceTokenName != "eth":
-        src_session.put_task(token_approve,
-                             args=(sourceTokenName,
-                                   src_session.put_task(get_contract_address, args=(
-                                       "SoDiamond",), with_project=True),
-                                   inputAmount),
-                             with_project=True)
+        src_session.put_task(
+            token_approve,
+            args=(
+                sourceTokenName,
+                src_session.put_task(
+                    get_contract_address, args=("SoDiamond",), with_project=True
+                ),
+                inputAmount,
+            ),
+            with_project=True,
+        )
         input_eth_amount = 0
     else:
         input_eth_amount = inputAmount
 
-    src_session.put_task(soSwapViaCeler,
-                         args=(so_data,
-                               src_swap_data,
-                               celer_data,
-                               dst_swap_data,
-                               input_eth_amount
-                               ),
-                         with_project=True)
+    src_session.put_task(
+        soSwapViaCeler,
+        args=(so_data, src_swap_data, celer_data, dst_swap_data, input_eth_amount),
+        with_project=True,
+    )
 
 
 def single_swap(
@@ -1385,20 +1428,24 @@ def main(src_net="goerli", dst_net="avax-test", bridge="celer"):
 
     elif bridge == "celer":
         # celer swap
-        cross_swap_via_celer(src_session=src_session,
-                             dst_session=dst_session,
-                             inputAmount=int(100 * src_session.put_task(get_token_decimal, args=("celer-usdc",))),
-                             sourceTokenName="celer-usdc",
-                             destinationTokenName="celer-usdc",
-                             sourceSwapType=None,
-                             sourceSwapFunc=SwapFunc.swapExactAVAXForTokens,
-                             sourceSwapPath=("weth", "usdc"),
-                             sourceBridgeToken="celer-usdc",
-                             destinationBridgeToken="celer-usdc",
-                             destinationSwapType=None,
-                             destinationSwapFunc=SwapFunc.swapExactTokensForETH,
-                             destinationSwapPath=("usdc", "weth"),
-                             slippage=0.01)
+        cross_swap_via_celer(
+            src_session=src_session,
+            dst_session=dst_session,
+            inputAmount=int(
+                10 * src_session.put_task(get_token_decimal, args=("celer-usdc",))
+            ),
+            sourceTokenName="celer-usdc",
+            destinationTokenName="eth",
+            sourceSwapType=None,
+            sourceSwapFunc=None,
+            sourceSwapPath=None,
+            sourceBridgeToken="celer-usdc",
+            destinationBridgeToken="celer-usdc",
+            destinationSwapType=SwapType.IUniswapV2Router02AVAX,
+            destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+            destinationSwapPath=("celer-usdc", "celer-eth"),
+            slippage=0.01,
+        )
 
     elif bridge == "swap":
         # single swap

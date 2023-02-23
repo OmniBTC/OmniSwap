@@ -55,3 +55,33 @@ def create_pair_and_add_liquidity(token1_address, token2_address):
     token2.approve(router_address, token2_amount, {"from": account})
     router.addLiquidity(token1_address, token2_address, token1_amount, token2_amount, 0, 0, account, int(time.time() + 3000),
                         {"from": account})
+
+
+def create_pair_and_add_liquidity_for_celer():
+    if network.show_active() not in ["avax-test"]:
+        print("Only support avax-test")
+        return
+
+    account = get_account()
+    token1_address = "0x2979a1cb90EEB9e75d7fB4f9813FCC40E4a7fD8b" # celer-usdc
+    token2_address = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c" # wavax
+
+    router_address = "0x6D481b9F59b22B6eB097b986fC06E438d585c039"
+    router = Contract.from_abi(
+        "Router", router_address, interface.IUniswapV2Router02.abi)
+    factory_address = router.factory()
+    factory = Contract.from_abi(
+        "Factory", factory_address, interface.IUniswapV2Factory.abi)
+    with contextlib.suppress(Exception):
+        factory.createPair(token1_address, token2_address, {"from": account})
+    # approve
+    token1 = Contract.from_abi("ERC20", token1_address, ERC20.abi)
+    token1_amount = int(100 * 10 ** token1.decimals())
+    token1.approve(router_address, token1_amount, {"from": account})
+
+    token2 = Contract.from_abi("ERC20", token2_address, ERC20.abi)
+    token2_amount = int(1 * 10 ** token2.decimals())
+    token2.approve(router_address, token2_amount, {"from": account})
+
+    router.addLiquidity(token1_address, token2_address, token1_amount, token2_amount, 0, 0, account, int(time.time() + 3000),
+                        {"from": account})
