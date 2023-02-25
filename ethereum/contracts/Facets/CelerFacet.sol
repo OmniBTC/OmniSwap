@@ -11,6 +11,7 @@ import "../Interfaces/ISo.sol";
 import "../Interfaces/ICelerMessageBus.sol";
 import "../Interfaces/ICelerBridge.sol";
 import "../Interfaces/ILibSoFee.sol";
+import "../Interfaces/ILibPriceV2.sol";
 import "../Helpers/Swapper.sol";
 import "../Helpers/ReentrancyGuard.sol";
 import "../Helpers/CelerMessageReceiver.sol";
@@ -27,23 +28,62 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     bytes32 internal constant NAMESPACE =
         hex"5a7c277686f4a9ab3396ccbfbeac4866fb97785944f0661a3f0935d16bc9848b"; // keccak256("com.so.facets.celer")
 
+    uint256 public constant RAY = 1e27;
+
     struct Storage {
-        uint64  nextNonce; // The next nonce for celer bridge
-        uint64  srcCelerChainId; // The Celer chain id of the source/current chain
         address messageBus; // The Celer MessageBus address
-        mapping(address => bool) allowedList; // Permission to allow calls to sgReceive
+        uint64 nextNonce; // The next nonce for celer bridge
+        uint64 srcCelerChainId; // The Celer chain id of the source/current chain
+        uint256 actualReserve; // [RAY]
+        uint256 estimateReserve; // [RAY]
+        mapping(uint64 => uint256) dstBaseGas;
+        mapping(uint64 => uint256) dstGasPerBytes;
+        mapping(address => bool) allowedList; // Permission to allow calls to executeMessageWithTransfer
     }
 
     /// Types ///
 
     struct CelerData {
-        uint32  maxSlippage;  // The max slippage accepted
-        uint64  dstCelerChainId; // The celer chain id of the destination chain
+        uint32 maxSlippage;  // The max slippage accepted
+        uint64 dstCelerChainId; // The celer chain id of the destination chain
         address bridgeToken; // The bridge token address
-        address payable dstSoDiamond; // destination SoDiamond address
+        uint256 dstMaxGasPriceInWeiForExecutor; // The gas price on destination chain
+        uint256 estimateCost; // The msg.value = message fee(for SGN) + executor fee(for executor) + native_gas(optional)
+        address payable dstSoDiamond; // The destination SoDiamond address
+    }
+
+    struct CacheSrcSoSwap {
+        bool flag;
+        uint256 srcMessageFee;
+        uint256 srcExecutorFee;
+        uint256 srcMaybeInput;
+        uint256 dstMaxGasForExecutor;
+        uint256 bridgeAmount;
+        bytes payload;
+    }
+
+    struct CacheCheck {
+        bool flag;
+        uint256 srcExecutorFee;
+        uint256 userInput;
+        uint256 dstMaxGasForExecutor;
+        uint256 srsMessageFee;
+        uint256 consumeValue;
+    }
+
+    struct CacheEstimate {
+        ILibPriceV2 oracle;
+        uint256 ratio;
+        bytes message;
+        uint256 srcMessageFee;
+        uint256 dstExecutorGas;
+        uint256 dstExecutorFee;
+        uint256 srcExecutorFee;
     }
 
     struct CachePayload {
+        uint256 dstMaxGasPrice;
+        uint256 dstMaxGas;
         ISo.NormalizedSoData soDataNo;
         LibSwap.NormalizedSwapData[] swapDataDstNo;
     }
@@ -53,7 +93,14 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     event CelerInitialized(address indexed messageBus, uint256 chainId);
     event SetMessageBus(address indexed messageBus);
     event SetAllowedList(address indexed messageBus, bool isAllowed);
-    event CelerTransferId(bytes32 indexed transferId);
+    event UpdateCelerReserve(uint256 actualReserve, uint256 estimateReserve);
+    event UpdateCelerGas(uint64 dstCelerChainId, uint256 baseGas, uint256 gasPerBytes);
+    event TransferFromCeler(
+        bytes32 indexed celerTransferId,
+        uint64 srcCelerChainId,
+        uint64 dstCelerChainId,
+        uint64 nonce
+    );
 
     /// Init ///
 
@@ -97,6 +144,44 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         emit SetMessageBus(messageBus);
     }
 
+    /// @dev Set new nonce
+    /// Avoid celer revert "transfer exists" after redeploy this contract
+    function setNonce(uint64 nonce) external
+    {
+        LibDiamond.enforceIsContractOwner();
+
+        Storage storage s = getStorage();
+        s.nextNonce = nonce;
+    }
+
+    /// @dev Sets the scale to be used when calculating executor fees
+    /// @param actualReserve percentage of actual use of executor fees, expressed as RAY
+    /// @param estimateReserve estimated percentage of use at the time of call, expressed as RAY
+    function setCelerReserve(uint256 actualReserve, uint256 estimateReserve) external
+    {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.actualReserve = actualReserve;
+        s.estimateReserve = estimateReserve;
+        emit UpdateCelerReserve(actualReserve, estimateReserve);
+    }
+
+    /// @dev Set the minimum gas to be spent on the destination chain
+    /// @param dstCelerChainId destination chain celer chain id
+    /// @param baseGas basic fee for a successful transaction
+    /// @param gasPerBytes the amount of gas needed to transfer each byte of the payload
+    function setCelerGas(
+        uint16 dstCelerChainId,
+        uint256 baseGas,
+        uint256 gasPerBytes
+    ) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.dstBaseGas[dstCelerChainId] = baseGas;
+        s.dstGasPerBytes[dstCelerChainId] = gasPerBytes;
+        emit UpdateCelerGas(dstCelerChainId, baseGas, gasPerBytes);
+    }
+
     /// External Methods ///
 
     /// @notice Bridges tokens via Celer (support chainid [1,65535])
@@ -106,20 +191,39 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     /// transactions on the source chain side
     /// @param celerData Data used to call Celer Message Bus for swap
     /// @param swapDataDstNo Contains a set of Swap transaction data executed
-    /// on the target chain.
+    /// on the destination chain.
     function soSwapViaCeler(
         ISo.NormalizedSoData calldata soDataNo,
         LibSwap.NormalizedSwapData[] calldata swapDataSrcNo,
         CelerData calldata celerData,
         LibSwap.NormalizedSwapData[] calldata swapDataDstNo
     ) external payable nonReentrant {
-        uint256 bridgeAmount;
+        require(msg.value == celerData.estimateCost, "FeeErr");
+
+        CacheSrcSoSwap memory cache;
 
         // decode soDataNo and swapDataSrcNo
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
         LibSwap.SwapData[] memory swapDataSrc = LibCross.denormalizeSwapData(
             swapDataSrcNo
         );
+
+        (
+            cache.flag,
+            cache.srcExecutorFee,
+            cache.dstMaxGasForExecutor,
+            cache.srcMaybeInput
+        ) = checkExecutorFee(soDataNo, celerData, swapDataDstNo);
+
+        require(cache.flag, "CheckFail");
+
+        if (cache.srcExecutorFee > 0) {
+            LibAsset.transferAsset(
+                LibAsset.NATIVE_ASSETID,
+                payable(LibDiamond.contractOwner()),
+                cache.srcExecutorFee
+            );
+        }
 
         // deposit erc20 tokens to this contract
         if (!LibAsset.isNativeAsset(soData.sendingAssetId)) {
@@ -129,32 +233,63 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         // calculate bridgeAmount
         if (swapDataSrc.length == 0) {
             // direct bridge
-            bridgeAmount = soData.amount;
+            cache.bridgeAmount = soData.amount;
             transferWrappedAsset(
                 soData.sendingAssetId,
                 celerData.bridgeToken,
-                bridgeAmount
+                cache.bridgeAmount
             );
         } else {
             // bridge after swap
             require(soData.amount == swapDataSrc[0].fromAmount, "AmountErr");
-            bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
-            transferWrappedAsset(
-                swapDataSrc[swapDataSrc.length - 1].receivingAssetId,
-                celerData.bridgeToken,
-                bridgeAmount
-            );
+            try this.executeAndCheckSwaps(soData, swapDataSrc) returns (
+                uint256 bridgeAmount
+            ) {
+                cache.bridgeAmount = bridgeAmount;
+                transferWrappedAsset(
+                    swapDataSrc[swapDataSrc.length - 1].receivingAssetId,
+                    celerData.bridgeToken,
+                    cache.bridgeAmount
+                );
+            } catch (bytes memory lowLevelData) {
+                // Rethrowing exception
+                assembly {
+                    let start := add(lowLevelData, 0x20)
+                    let end := add(lowLevelData, mload(lowLevelData))
+                    revert(start, end)
+                }
+            }
         }
 
-        uint256 messageFee = getCelerValue(soData);
-        bytes memory payload = encodeCelerPayload(soDataNo, swapDataDstNo);
+        cache.payload = encodeCelerPayload(
+            celerData.dstMaxGasPriceInWeiForExecutor,
+            cache.dstMaxGasForExecutor,
+            soDataNo,
+            swapDataDstNo
+        );
+
+        cache.srcMessageFee = getCelerMessageFee2(cache.payload);
 
         startBridge(
             celerData,
-            messageFee,
-            bridgeAmount,
-            payload
+            cache.srcMessageFee,
+            cache.bridgeAmount,
+            cache.payload
         );
+
+        uint256 returnValue = msg.value
+            .sub(cache.srcMessageFee)
+            .sub(cache.srcExecutorFee)
+            .sub(cache.srcMaybeInput);
+
+        // return the redundant msg.value
+        if (returnValue > 0) {
+            LibAsset.transferAsset(
+                LibAsset.NATIVE_ASSETID,
+                payable(msg.sender),
+                returnValue
+            );
+        }
 
         emit SoTransferStarted(soData.transactionId);
     }
@@ -183,6 +318,8 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         }
 
         (
+            ,
+            ,
             ISo.NormalizedSoData memory soDataNo,
             LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeCelerPayload(message);
@@ -199,20 +336,74 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
 
     /// Public Methods ///
 
+    /// @dev Check if enough value is passed in for payment
+    function checkExecutorFee(
+        ISo.NormalizedSoData calldata soData,
+        CelerData calldata celerData,
+        LibSwap.NormalizedSwapData[] calldata swapDataDst
+    ) public returns (bool, uint256, uint256, uint256)
+    {
+        CacheCheck memory data;
+        Storage storage s = getStorage();
+
+        require(appStorage.gatewaySoFeeSelectors[s.messageBus] != address(0), "SoFeeEmpty");
+        ILibPriceV2 oracle = ILibPriceV2(appStorage.gatewaySoFeeSelectors[s.messageBus]);
+
+        oracle.updatePriceRatio(celerData.dstCelerChainId);
+
+        (
+            data.srsMessageFee,
+            data.dstMaxGasForExecutor,
+            data.srcExecutorFee
+        ) = estCelerMessageFeeAndExecutorFee(
+            celerData.dstCelerChainId,
+            celerData.dstMaxGasPriceInWeiForExecutor,
+            soData,
+            swapDataDst
+        );
+
+        if (LibAsset.isNativeAsset(soData.sendingAssetId.toAddress(0))) {
+            data.userInput = soData.amount;
+        }
+
+        data.consumeValue = data.srsMessageFee.add(data.srcExecutorFee).add(data.userInput);
+
+        if (data.consumeValue <= celerData.estimateCost) {
+            data.flag = true;
+        }
+
+        return (data.flag, data.srcExecutorFee, data.dstMaxGasForExecutor, data.userInput);
+    }
+
     /// CrossData
-    // 1. length + transactionId(SoData)
-    // 2. length + receiver(SoData)
-    // 3. length + receivingAssetId(SoData)
-    // 4. length + swapDataLength(u8)
-    // 5. length + callTo(SwapData)
-    // 6. length + sendingAssetId(SwapData)
-    // 7. length + receivingAssetId(SwapData)
-    // 8. length + callData(SwapData)
+    // 1. length + dst_max_gas_price
+    // 2. length + dst_max_gas
+    // 3. length + transactionId(SoData)
+    // 4. length + receiver(SoData)
+    // 5. length + receivingAssetId(SoData)
+    // 6. length + swapDataLength(u8)
+    // 7. length + callTo(SwapData)
+    // 8. length + sendingAssetId(SwapData)
+    // 9. length + receivingAssetId(SwapData)
+    // 10. length + callData(SwapData)
     function encodeCelerPayload(
+        uint256 dstMaxGasPrice,
+        uint256 dstMaxGas,
         ISo.NormalizedSoData memory soDataNo,
         LibSwap.NormalizedSwapData[] memory swapDataDstNo
     ) public pure returns (bytes memory) {
+        bytes memory dstMaxGasPriceByte = LibCross.serializeU256WithHexStr(
+            dstMaxGasPrice
+        );
+        bytes memory dstMaxGasByte = LibCross.serializeU256WithHexStr(
+            dstMaxGas
+        );
+
         bytes memory encodeData = abi.encodePacked(
+            uint8(dstMaxGasPriceByte.length),
+            dstMaxGasPriceByte,
+            uint8(dstMaxGasByte.length),
+            dstMaxGasByte,
             uint8(soDataNo.transactionId.length),
             soDataNo.transactionId,
             uint8(soDataNo.receiver.length),
@@ -248,17 +439,21 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     }
 
     /// CrossData
-    // 1. length + transactionId(SoData)
-    // 2. length + receiver(SoData)
-    // 3. length + receivingAssetId(SoData)
-    // 4. length + swapDataLength(u8)
-    // 5. length + callTo(SwapData)
-    // 6. length + sendingAssetId(SwapData)
-    // 7. length + receivingAssetId(SwapData)
-    // 8. length + callData(SwapData)
+    // 1. length + dst_max_gas_price
+    // 2. length + dst_max_gas
+    // 3. length + transactionId(SoData)
+    // 4. length + receiver(SoData)
+    // 5. length + receivingAssetId(SoData)
+    // 6. length + swapDataLength(u8)
+    // 7. length + callTo(SwapData)
+    // 8. length + sendingAssetId(SwapData)
+    // 9. length + receivingAssetId(SwapData)
+    // 10. length + callData(SwapData)
     function decodeCelerPayload(
         bytes memory celerPayload
     ) public pure returns (
+        uint256,
+        uint256,
         ISo.NormalizedSoData memory soDataNo,
         LibSwap.NormalizedSwapData[] memory swapDataDstNo
     )
@@ -266,6 +461,20 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         CachePayload memory data;
         uint256 index;
         uint256 nextLen;
+
+        nextLen = uint256(celerPayload.toUint8(index));
+        index += 1;
+        data.dstMaxGasPrice = LibCross.deserializeU256WithHexStr(
+            celerPayload.slice(index, nextLen)
+        );
+        index += nextLen;
+
+        nextLen = uint256(celerPayload.toUint8(index));
+        index += 1;
+        data.dstMaxGas = LibCross.deserializeU256WithHexStr(
+            celerPayload.slice(index, nextLen)
+        );
+        index += nextLen;
 
         nextLen = uint256(celerPayload.toUint8(index));
         index += 1;
@@ -327,26 +536,66 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
             }
         }
         require(index == celerPayload.length, "LenErr");
-        return (data.soDataNo, data.swapDataDstNo);
+
+        return (
+            data.dstMaxGasPrice,
+            data.dstMaxGas,
+            data.soDataNo,
+            data.swapDataDstNo
+        );
     }
 
-    /// @dev Used to obtain celer cross-chain message fee
-    function getCelerMessageFee1(
+    /// @dev Estimate celer cross-chain message fee and executor fee
+    function estCelerMessageFeeAndExecutorFee(
+        uint64 dstCelerChainId,
+        uint256 dstMaxGasPriceInWeiForExecutor,
         ISo.NormalizedSoData calldata soDataNo,
         LibSwap.NormalizedSwapData[] calldata swapDataDstNo
-    ) public view returns (uint256) {
+    ) public view returns (uint256, uint256, uint256) {
+        CacheEstimate memory c;
         Storage storage s = getStorage();
-        bytes memory message = encodeCelerPayload(soDataNo, swapDataDstNo);
 
-        return ICelerMessageBus(s.messageBus).calcFee(message);
+        require(appStorage.gatewaySoFeeSelectors[s.messageBus] != address(0), "SoFeeEmpty");
+        c.oracle = ILibPriceV2(appStorage.gatewaySoFeeSelectors[s.messageBus]);
+
+        (c.ratio, ) = c.oracle.getPriceRatio(dstCelerChainId);
+
+        // Only for estimate gas
+        c.message = encodeCelerPayload(
+            type(uint256).max, type(uint256).max, soDataNo, swapDataDstNo
+        );
+
+        c.srcMessageFee = getCelerMessageFee1(s.messageBus, c.message);
+
+        // estimate >= real
+        c.dstExecutorGas = s.dstBaseGas[dstCelerChainId]
+            .add(s.dstGasPerBytes[dstCelerChainId].mul(c.message.length));
+
+        c.dstExecutorFee = c.dstExecutorGas.mul(dstMaxGasPriceInWeiForExecutor);
+
+        c.srcExecutorFee = c.dstExecutorFee
+            .mul(c.ratio)
+            .div(c.oracle.RAY())
+            .mul(s.actualReserve)
+            .div(RAY);
+
+        return (c.srcMessageFee, c.dstExecutorGas, c.dstExecutorFee);
+    }
+
+    /// @dev Calculate celer message fee
+    function getCelerMessageFee1(
+        address messageBus,
+        bytes memory message
+    ) public view returns (uint256) {
+        return ICelerMessageBus(messageBus).calcFee(message);
     }
 
     /// @dev Calculate celer message fee
     function getCelerMessageFee2(
-        address messageBus,
-        bytes calldata message
+        bytes memory message
     ) public view returns (uint256) {
-        return ICelerMessageBus(messageBus).calcFee(message);
+        Storage storage s = getStorage();
+        return getCelerMessageFee1(s.messageBus, message);
     }
 
     /// @dev Get celer native wrap address
@@ -462,7 +711,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         CelerData memory celerData,
         address messageBus,
         uint256 bridgeAmount
-    ) private {
+    ) private view {
         address bridge = ICelerMessageBus(messageBus).liquidityBridge();
         uint256 minSend = ICelerBridge(bridge).minSend(celerData.bridgeToken);
         uint256 maxSend = ICelerBridge(bridge).maxSend(celerData.bridgeToken);
@@ -486,7 +735,6 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
             revert CannotBridgeToSameNetwork();
 
         checkBridge(celerData, messageBus, bridgeAmount);
-        require(messageFee >= this.getCelerMessageFee2(messageBus, payload), "messageFeeErr");
 
         // 2023.02: only evm chains
         bytes32 transferId = LibCelerMessageSender.sendMessageWithTransfer(
@@ -500,20 +748,16 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
             messageBus,
             messageFee
         );
+
+        emit TransferFromCeler(
+            transferId,
+            s.srcCelerChainId,
+            celerData.dstCelerChainId,
+            s.nextNonce
+        );
+
         // Update nonce
         s.nextNonce = s.nextNonce + 1;
-
-        emit CelerTransferId(transferId);
-    }
-
-    /// @dev Separate celer message fee from msg.value
-    function getCelerValue(SoData memory soData) private view returns (uint256) {
-        if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-            require(msg.value > soData.amount, "NotEnough");
-            return msg.value.sub(soData.amount);
-        } else {
-            return msg.value;
-        }
     }
 
     /// @dev fetch local storage

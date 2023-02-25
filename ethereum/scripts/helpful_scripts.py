@@ -11,7 +11,7 @@ from brownie import (
     web3
 )
 from brownie.network.web3 import Web3
-from brownie.network import priority_fee
+from brownie.network import priority_fee, max_fee
 from multiprocessing import Queue, Process, set_start_method
 
 from brownie.project import get_loaded_projects
@@ -106,6 +106,7 @@ def change_network(dst_net):
         network.disconnect()
     network.connect(dst_net)
     if dst_net in ["rinkeby", "goerli"]:
+        max_fee("200 gwei")
         priority_fee("2 gwei")
 
 
@@ -254,6 +255,18 @@ def get_celer_message_bus():
 def get_celer_chain_id():
     return get_celer_info()["chainid"]
 
+def get_celer_native_oracle_address():
+    oracles = get_oracles()
+    chainid = get_celer_chain_id()
+    for oracle in oracles:
+        if chainid == oracles[oracle]["celer_chainid"]:
+            return oracles[oracle]["address"]
+
+def get_celer_actual_reserve():
+    return get_celer_info()["actual_reserve"]
+
+def get_celer_estimate_reserve():
+    return get_celer_info()["estimate_reserve"]
 
 def get_stargate_info():
     return get_current_net_info()["stargate"]

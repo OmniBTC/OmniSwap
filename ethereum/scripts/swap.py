@@ -130,7 +130,6 @@ def soSwapViaCeler(
         src_swap_data = []
     else:
         src_swap_data = [src_swap_data.format_to_contract()]
-    celer_data = celer_data.format_to_contract()
     if dst_swap_data is None:
         dst_swap_data = []
     else:
@@ -139,18 +138,41 @@ def soSwapViaCeler(
         "CelerFacet", p["SoDiamond"][-1].address, p["CelerFacet"].abi
     )
 
-    celer_cross_fee = proxy_diamond.getCelerMessageFee1(so_data, dst_swap_data)
+    dst_max_gas_price = celer_data.dstMaxGasPriceInWeiForExecutor
+    (
+        src_message_fee,
+        dst_executor_gas,
+        src_executor_fee
+    ) = proxy_diamond.estCelerMessageFeeAndExecutorFee(
+        celer_data.dstCelerChainId,
+        dst_max_gas_price,
+        so_data,
+        dst_swap_data
+    )
+
+    estimate_cost = src_message_fee + src_executor_fee + input_eth_amount
+
+    celer_data.update_estimate_cost(estimate_cost)
+    celer_data = celer_data.format_to_contract()
 
     print(
-        f"celer cross fee: {celer_cross_fee / get_token_decimal('eth')}, "
-        f"input eth: {input_eth_amount / get_token_decimal('eth')}"
+        f"dst_max_gas_price: {dst_max_gas_price}\n"
+        f"dst_executor_gas: {dst_executor_gas}\n"
+        f"src_executor_fee: {src_executor_fee / get_token_decimal('eth')}\n"
+        f"src_message_fee: {src_message_fee / get_token_decimal('eth')}\n"
+        f"estimate_cost: {estimate_cost / get_token_decimal('eth')}\n"
+        f"input eth: {input_eth_amount / get_token_decimal('eth')}\n"
+    )
+
+    print(
+        f"CelerData: {celer_data}\n"
     )
     proxy_diamond.soSwapViaCeler(
         so_data,
         src_swap_data,
         celer_data,
         dst_swap_data,
-        {"from": get_account(), "value": int(celer_cross_fee + input_eth_amount)},
+        {"from": get_account(), "value": int(estimate_cost)},
     )
 
 
@@ -401,8 +423,10 @@ class CelerData(View):
         dstSoDiamond,
         srcBridgeToken,
         srcBridgeTokenDecimal,
+        estimateCost,
         dstBridgeToken,
         dstBridgeTokenDecimal,
+        dstMaxGasPriceInWeiForExecutor
     ):
         # slippage tolerance, 10000 -> 1%
         self.maxSlippage = maxSlippage
@@ -412,8 +436,13 @@ class CelerData(View):
         self.dstSoDiamond = dstSoDiamond
         self.srcBridgeToken = srcBridgeToken
         self.srcBridgeTokenDecimal = srcBridgeTokenDecimal
+        self.estimateCost = estimateCost
         self.dstBridgeToken = dstBridgeToken
         self.dstBridgeTokenDecimal = dstBridgeTokenDecimal
+        self.dstMaxGasPriceInWeiForExecutor = dstMaxGasPriceInWeiForExecutor
+
+    def update_estimate_cost(self, estimateCost):
+        self.estimateCost = estimateCost
 
     def format_to_contract(self):
         """Get the Celer data passed into the contract interface"""
@@ -421,6 +450,8 @@ class CelerData(View):
             self.maxSlippage,
             self.dstCelerChainId,
             self.srcBridgeToken,
+            self.dstMaxGasPriceInWeiForExecutor,
+            self.estimateCost,
             self.dstSoDiamond,
         ]
 
@@ -431,14 +462,18 @@ class CelerData(View):
         dst_session,
         max_slippage: int,
         srcBridgeToken: str,
+        estimateCost: int,
         dstBridgeToken: str,
+        dstMaxGasPriceInWeiForExecutor: int,
     ):
         """Create CelerData class
 
         Args:
             maxSlippage (int): The celer slippage on the target chain
             srcBridgeToken (str): Name of the bridge token on the source chain
+            estimateCost (int): The estimateCost = message fee(for SGN) + executor fee(for executor) + native_gas(optional)
             dstBridgeToken (str): Name of the receive token on the target chain
+            dstMaxGasPriceInWeiForExecutor (int): The max gas price on destination chain
 
         Returns:
             CelerData: CelerData class
@@ -455,38 +490,15 @@ class CelerData(View):
             srcBridgeTokenDecimal=src_session.put_task(
                 func=get_token_decimal, args=(srcBridgeToken,)
             ),
+            estimateCost = estimateCost,
             dstBridgeToken=dst_session.put_task(
                 func=get_token_address, args=(dstBridgeToken,)
             ),
             dstBridgeTokenDecimal=dst_session.put_task(
                 func=get_token_decimal, args=(dstBridgeToken,)
             ),
+            dstMaxGasPriceInWeiForExecutor=dstMaxGasPriceInWeiForExecutor
         )
-
-    @staticmethod
-    def estimate_celer_final_amount(celer_data, amount, maxSlippage, p: Project = None):
-        """Estimated amount of tokens to be acquired from celer in the target chain
-
-        Args:
-            celer_data (_type_): CelerData class
-            amount (_type_): Amount of tokens sent to Celer in the source chain
-            p (Project, optional): Load brownie project config. Defaults to None.
-
-        Returns:
-            final_amount: Amount of tokens after processing decimal
-        """
-
-        # Call https://cbridge-docs.celer.network/developer/api-reference/gateway-estimateamt
-        # Get estimated_receive_amt
-
-        final_amount = 0
-
-        print(
-            f"  Celer cross: token {celer_data.srcBridgeToken}, "
-            f"amount:{amount / celer_data.srcBridgeTokenDecimal} -> token {celer_data.dstBridgeToken}, "
-            f"amount {final_amount / celer_data.srcStargateTokenDecimal}"
-        )
-        return final_amount
 
     @staticmethod
     def estimate_so_fee(amount, p: Project = None):
@@ -1120,6 +1132,9 @@ def celer_estimate_amount(
     }
 
     url = test_base_url + "?" + urllib.parse.urlencode(params)
+
+    print(f"\n  {url}\n")
+
     response = requests.get(url)
     data = json.loads(response.text)
 
@@ -1272,12 +1287,16 @@ def cross_swap_via_celer(
         dst_swap_data,
     )
 
+    dstMaxGasPriceInWeiForExecutor = 25000000000  # todo: get gas price
+
     celer_data = CelerData.create(
         src_session,
         dst_session,
         max_slippage,
         sourceBridgeToken,
+        0,
         destinationBridgeToken,
+        dstMaxGasPriceInWeiForExecutor
     )
 
     dst_swap_min_amount = int(final_amount * (1 - slippage))
@@ -1432,16 +1451,19 @@ def main(src_net="goerli", dst_net="avax-test", bridge="celer"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
+                # 0.01 * src_session.put_task(get_token_decimal, args=("eth",))
                 10 * src_session.put_task(get_token_decimal, args=("celer-usdc",))
             ),
+            # sourceTokenName="eth",
             sourceTokenName="celer-usdc",
-            destinationTokenName="eth",
+            destinationTokenName="celer-usdc",
+            # sourceSwapType=SwapType.IUniswapV2Router02,
             sourceSwapType=None,
-            sourceSwapFunc=None,
-            sourceSwapPath=None,
+            sourceSwapFunc=SwapFunc.swapExactETHForTokens,
+            sourceSwapPath=("weth","celer-usdc"),
             sourceBridgeToken="celer-usdc",
             destinationBridgeToken="celer-usdc",
-            destinationSwapType=SwapType.IUniswapV2Router02AVAX,
+            destinationSwapType=None,
             destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
             destinationSwapPath=("celer-usdc", "celer-eth"),
             slippage=0.01,

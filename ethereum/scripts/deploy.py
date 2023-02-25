@@ -24,20 +24,19 @@ def deploy_contracts(account):
     print("deploy SoDiamond.sol...")
     SoDiamond.deploy(account, DiamondCutFacet[-1], {'from': account})
 
-    print("deploy LibSoFeeStargateV1.sol...")
     so_fee = 1e-3
+
+    print("deploy LibSoFeeStargateV1.sol...")
     transfer_for_gas = 30000
     LibSoFeeStargateV1.deploy(
         int(so_fee * 1e18), transfer_for_gas, {'from': account})
 
+    ray = 1e27
+
     print("deploy LibSoFeeCelerV1.sol...")
-    so_fee = 1e-3
-    transfer_for_gas = 30000
-    LibSoFeeCelerV1.deploy(
-        int(so_fee * 1e18), transfer_for_gas, {'from': account})
+    LibSoFeeCelerV1.deploy(int(so_fee * ray), {'from': account})
 
     print("deploy LibSoFeeWormholeV1.sol...")
-    ray = 1e27
     LibSoFeeWormholeV1.deploy(int(so_fee * ray), {'from': account})
 
     print("deploy LibCorrectSwapV1...")

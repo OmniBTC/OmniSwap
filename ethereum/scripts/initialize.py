@@ -2,13 +2,14 @@ from pprint import pprint
 from brownie import DiamondCutFacet, SoDiamond, DiamondLoupeFacet, DexManagerFacet, StargateFacet, WithdrawFacet, \
     OwnershipFacet, GenericSwapFacet, Contract, network, interface, LibSoFeeStargateV1, MockToken, LibCorrectSwapV1, \
     WormholeFacet, SerdeFacet, LibSoFeeWormholeV1, web3, CelerFacet, LibSoFeeCelerV1
-from brownie.network import priority_fee
+from brownie.network import priority_fee, max_fee
 
 from scripts.helpful_scripts import get_account, get_method_signature_by_abi, get_native_oracle_address, get_oracles, \
     get_wormhole_actual_reserve, get_wormhole_bridge, \
     get_wormhole_chainid, get_wormhole_estimate_reserve, get_wormhole_info, \
     zero_address, get_stargate_router, get_stargate_chain_id, get_token_address, get_swap_info, get_token_decimal, \
-    get_stargate_info, get_celer_chain_id, get_celer_message_bus
+    get_stargate_info, get_celer_chain_id, get_celer_message_bus, get_celer_actual_reserve, get_celer_estimate_reserve, \
+    get_celer_info
 
 
 def main():
@@ -29,6 +30,10 @@ def main():
         initialize_celer(account, so_diamond)
     except Exception as e:
         print(f"initialize_celer fail:{e}")
+    try:
+        initialize_celer_fee(account)
+    except Exception as e:
+        print(f"initialize_celer_fee fail: {e}")
     try:
         initialize_wormhole(account, so_diamond)
     except Exception as e:
@@ -63,6 +68,46 @@ def initialize_wormhole_fee(account):
             LibSoFeeWormholeV1[-1].setPriceConfig(oracles[token]["chainid"], [
                 [oracles[token]["address"], False]
             ], 60, {'from': account})
+
+
+def initialize_celer_fee(account):
+    # initialize oracle
+    oracles = get_oracles()
+    chainid = get_celer_chain_id()
+
+    native_oracle_address = ""
+    for token in oracles:
+        if chainid == oracles[token]["celer_chainid"]:
+            native_oracle_address = oracles[token]["address"]
+
+    for token in oracles:
+        if chainid == oracles[token]["celer_chainid"]:
+            continue
+        print(f'initialize_celer_fee oracle: {token}')
+        if oracles[token]["currency"] == "USD":
+            LibSoFeeCelerV1[-1].setPriceConfig(
+                oracles[token]["celer_chainid"],
+                [
+                    [oracles[token]["address"], False],
+                    [native_oracle_address, True]
+                ],
+                60,
+                {'from': account}
+            )
+        elif oracles[token]["currency"] == "ETH":
+            LibSoFeeCelerV1[-1].setPriceConfig(
+                oracles[token]["celer_chainid"],
+                [
+                    [oracles[token]["address"], False]
+                ],
+                60,
+                {'from': account}
+            )
+
+
+    # LibSoFeeCelerV1[-1].updatePriceRatio(5, {'from': account})
+
+    # LibSoFeeCelerV1[-1].setPriceRatio(5, 10, {'from': account})
 
 
 def initialize_cut(account, so_diamond):
@@ -115,6 +160,30 @@ def initialize_celer(account, so_diamond):
         get_celer_chain_id(),
         {'from': account}
     )
+
+    # proxy_celer.setNonce(
+    #     5,
+    #     {'from': account}
+    # )
+
+    ray = 1e27
+    # setCelerReserve
+    print(f"network:{net}, set celer reserve...")
+    proxy_celer.setCelerReserve(
+        int(get_celer_actual_reserve() * ray),
+        int(get_celer_estimate_reserve() * ray),
+        {'from': account}
+    )
+    # setCelerGas
+    gas = get_celer_info()["gas"]
+    for chain in gas:
+        print(f"network:{net}, set dst chain {chain} celer gas...")
+        proxy_celer.setCelerGas(
+            gas[chain]["dst_chainid"],
+            gas[chain]["base_gas"],
+            gas[chain]["per_byte_gas"],
+            {'from': account}
+        )
 
 def set_wormhole_gas():
     so_diamond = SoDiamond[-1]
@@ -299,11 +368,33 @@ def redeploy_stargate():
 def redeploy_celer():
     account = get_account()
 
-    # remove_facet(CelerFacet)
+    if network.show_active() in ["rinkeby", "goerli"]:
+        max_fee("200 gwei")
+        priority_fee("2 gwei")
+
+    remove_facet(CelerFacet)
 
     CelerFacet.deploy({"from": account})
     add_cut([CelerFacet])
+
     initialize_celer(account, SoDiamond[-1])
+
+    proxy_dex = Contract.from_abi("DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi)
+
+    so_fee = 1e-3
+    ray = 1e27
+
+    print("Deploy LibSoFeeCelerV1...")
+    LibSoFeeCelerV1.deploy(int(so_fee * ray), {'from': account})
+
+    print("AddFee ...")
+    proxy_dex.addFee(get_celer_message_bus(),LibSoFeeCelerV1[-1].address, {'from': account})
+
+    print("Initialize celer fee...")
+    initialize_celer_fee(account)
+
+    # LibSoFeeCelerV1[-1].setPriceRatio(5, 10, {'from': account})
+    # LibSoFeeCelerV1[-1].updatePriceRatio(5, {'from': account})
 
 
 def remove_dump(a: list, b: list):
