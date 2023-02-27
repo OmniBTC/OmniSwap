@@ -23,6 +23,7 @@ from brownie import (
 )
 from brownie.network import priority_fee, max_fee
 
+
 from scripts.helpful_scripts import (
     get_account,
     get_method_signature_by_abi,
@@ -109,7 +110,6 @@ def initialize_wormhole_fee(account):
                 60,
                 {"from": account},
             )
-
 
 def initialize_celer_fee(account):
     # initialize oracle
@@ -286,6 +286,7 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.addFee(
         get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
     )
+
     proxy_dex.addFee(
         get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
     )

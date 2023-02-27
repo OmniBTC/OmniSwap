@@ -55,11 +55,12 @@ def deploy_contracts(account):
     LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {"from": account})
 
     ray = 1e27
-
+    
     print("deploy LibSoFeeCelerV1.sol...")
     LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
 
     print("deploy LibSoFeeWormholeV1.sol...")
+
     LibSoFeeWormholeV1.deploy(int(so_fee * ray), {"from": account})
 
     print("deploy LibCorrectSwapV1...")
