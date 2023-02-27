@@ -579,7 +579,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
             .mul(s.actualReserve)
             .div(RAY);
 
-        return (c.srcMessageFee, c.dstExecutorGas, c.dstExecutorFee);
+        return (c.srcMessageFee, c.dstExecutorGas, c.srcExecutorFee);
     }
 
     /// @dev Calculate celer message fee
