@@ -4,7 +4,9 @@ from pathlib import Path
 from brownie import Contract, network, config, project
 
 omniswap_ethereum_path = Path(__file__).parent.parent
-omniswap_ethereum_project = project.load(str(omniswap_ethereum_path), raise_if_loaded=False)
+omniswap_ethereum_project = project.load(
+    str(omniswap_ethereum_path), raise_if_loaded=False
+)
 
 
 @functools.lru_cache()
@@ -13,7 +15,7 @@ def get_serde_facet():
     return Contract.from_abi(
         contract_name,
         config["networks"][network.show_active()]["SoDiamond"],
-        omniswap_ethereum_project[contract_name].abi
+        omniswap_ethereum_project[contract_name].abi,
     )
 
 
@@ -24,7 +26,7 @@ def get_wormhole_facet():
     return Contract.from_abi(
         contract_name,
         config["networks"][net]["SoDiamond"],
-        omniswap_ethereum_project[contract_name].abi
+        omniswap_ethereum_project[contract_name].abi,
     )
 
 
@@ -35,7 +37,7 @@ def get_stargate_facet():
     return Contract.from_abi(
         contract_name,
         config["networks"][net]["SoDiamond"],
-        omniswap_ethereum_project[contract_name].abi
+        omniswap_ethereum_project[contract_name].abi,
     )
 
 
@@ -46,7 +48,7 @@ def get_token_bridge():
     return Contract.from_abi(
         contract_name,
         config["networks"][net]["wormhole"]["token_bridge"],
-        omniswap_ethereum_project.interface.IWormholeBridge.abi
+        omniswap_ethereum_project.interface.IWormholeBridge.abi,
     )
 
 
@@ -57,13 +59,11 @@ def get_wormhole():
     return Contract.from_abi(
         contract_name,
         config["networks"][net]["wormhole"]["wormhole"],
-        omniswap_ethereum_project.interface.IWormhole.abi
+        omniswap_ethereum_project.interface.IWormhole.abi,
     )
 
 
-def parse_vaa(
-        vaa: str
-):
+def parse_vaa(vaa: str):
     """
     Decode vaa
     :param vaa:
@@ -87,9 +87,7 @@ def parse_vaa(
     return get_wormhole().parseVM(vaa)
 
 
-def parse_transfer_with_payload(
-        vaa_payload: str
-):
+def parse_transfer_with_payload(vaa_payload: str):
     """
 
     :param vaa_payload:
@@ -110,9 +108,7 @@ def parse_transfer_with_payload(
     return get_token_bridge().parseTransferWithPayload(vaa_payload)
 
 
-def parse_transfer(
-        vaa_payload: str
-):
+def parse_transfer(vaa_payload: str):
     """
 
     :param vaa_payload:
@@ -132,9 +128,7 @@ def parse_transfer(
     return get_token_bridge().parseTransfer(vaa_payload)
 
 
-def parse_wormhole_payload(
-        transfer_payload: str
-):
+def parse_wormhole_payload(transfer_payload: str):
     """
 
     :param transfer_payload:
@@ -168,9 +162,7 @@ def parse_wormhole_payload(
     return get_wormhole_facet().decodeWormholePayload(transfer_payload)
 
 
-def parse_vaa_to_wormhole_payload(
-        vaa: str
-):
+def parse_vaa_to_wormhole_payload(vaa: str):
     vaa_data = parse_vaa(vaa)
     transfer_data = parse_transfer_with_payload(vaa_data[-4])
     wormhole_data = parse_wormhole_payload(transfer_data[-1])

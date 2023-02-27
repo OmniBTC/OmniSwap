@@ -21,35 +21,32 @@ from brownie.network.transaction import TransactionReceipt
 from scripts.helpful_scripts import get_account, change_network
 from scripts.serde import get_stargate_facet
 
-FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
+FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
 SUPPORTED_EVM = [
+    {"dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820", "dstNet": "mainnet"},
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "mainnet"
+        "dstNet": "bsc-main",
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "bsc-main"
+        "dstNet": "polygon-main",
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "polygon-main"
+        "dstNet": "avax-main",
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "avax-main"
+        "dstNet": "arbitrum-main",
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "arbitrum-main"
-    },
-    {
-        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "optimism-main"
+        "dstNet": "optimism-main",
     },
 ]
 
@@ -89,7 +86,7 @@ def read_json(file) -> dict:
 
 def write_json(file, data: dict):
     with open(file, "w") as f:
-        return json.dump(data, f, indent=1, separators=(',', ':'))
+        return json.dump(data, f, indent=1, separators=(",", ":"))
 
 
 class RWDict(OrderedDict):
@@ -116,27 +113,31 @@ HAS_PROCESSED = RWDict("processed_stargate.json")
 
 
 def process_v2(
-        dstSoDiamond: str,
+    dstSoDiamond: str,
 ):
     account = get_account()
 
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
-    local_logger.info(f'SoDiamond:{dstSoDiamond}')
+    local_logger.info(f"SoDiamond:{dstSoDiamond}")
     if "test" in network.show_active() or "test" == "goerli":
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnhandleStargateTransfer"
     else:
         pending_url = "https://crossswap.coming.chat/v1/getUnhandleStargateTransfer"
     while True:
         pending_data = get_stargate_pending_data(url=pending_url)
-        pending_data = [d for d in pending_data if int(d["dstChainId"]) == int(chain.id)]
+        pending_data = [
+            d for d in pending_data if int(d["dstChainId"]) == int(chain.id)
+        ]
         local_logger.info(f"Get length: {len(pending_data)}")
         for d in pending_data:
             try:
                 tx = chain.get_transaction(d["dstTransactionId"])
                 info = tx.events["CachedSwapSaved"]
-                dv = f'{info["chainId"]}|{info["srcAddress"]}|{info["nonce"]}|' \
-                     f'{info["token"]}|{info["amountLD"]}|{info["payload"]}'
+                dv = (
+                    f'{info["chainId"]}|{info["srcAddress"]}|{info["nonce"]}|'
+                    f'{info["token"]}|{info["amountLD"]}|{info["payload"]}'
+                )
                 dk = str(hashlib.sha3_256(dv.encode()).digest().hex())
                 if dk in HAS_PROCESSED:
                     continue
@@ -149,7 +150,7 @@ def process_v2(
                     info["token"],
                     info["amountLD"],
                     info["payload"],
-                    {"from": account}
+                    {"from": account},
                 )
                 record_gas(
                     d["srcTransactionId"],
@@ -167,23 +168,21 @@ def process_v2(
 
 
 class Session(Process):
-    def __init__(self,
-                 dstSoDiamond: str,
-                 dstNet: str,
-                 project_path: str,
-                 group=None,
-                 name=None,
-                 daemon=None
-                 ):
+    def __init__(
+        self,
+        dstSoDiamond: str,
+        dstNet: str,
+        project_path: str,
+        group=None,
+        name=None,
+        daemon=None,
+    ):
         self.dstSoDiamond = dstSoDiamond
         self.dstNet = dstNet
         self.project_path = project_path
         super().__init__(
-            group=group,
-            target=self.worker,
-            name=name,
-            args=(),
-            daemon=daemon)
+            group=group, target=self.worker, name=name, args=(), daemon=daemon
+        )
         self.start()
 
     def worker(self):
@@ -205,14 +204,14 @@ class Session(Process):
 
 
 def record_gas(
-        src_transaction: str,
-        dst_transaction1: str,
-        dst_transaction2: str,
-        actual_gas: int,
-        actual_gas_price: int,
-        src_net: str,
-        dst_net: str,
-        file_path=Path(__file__).parent.joinpath("gas"),
+    src_transaction: str,
+    dst_transaction1: str,
+    dst_transaction2: str,
+    actual_gas: int,
+    actual_gas_price: int,
+    src_net: str,
+    dst_net: str,
+    file_path=Path(__file__).parent.joinpath("gas"),
 ):
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -239,9 +238,9 @@ def record_gas(
     data = pd.DataFrame([data])
     data = data[columns]
     if file_name.exists():
-        data.to_csv(str(file_name), index=False, header=False, mode='a')
+        data.to_csv(str(file_name), index=False, header=False, mode="a")
     else:
-        data.to_csv(str(file_name), index=False, header=True, mode='w')
+        data.to_csv(str(file_name), index=False, header=True, mode="w")
 
 
 def main():
@@ -249,11 +248,12 @@ def main():
     project_path = Path(__file__).parent.parent.parent
     logger.info(f"Loading project...")
     for d in SUPPORTED_EVM:
-        Session(dstSoDiamond=d["dstSoDiamond"],
-                dstNet=d["dstNet"],
-                name=d["dstNet"],
-                project_path=str(project_path)
-                )
+        Session(
+            dstSoDiamond=d["dstSoDiamond"],
+            dstNet=d["dstNet"],
+            name=d["dstNet"],
+            project_path=str(project_path),
+        )
 
 
 def single_process():

@@ -3,21 +3,14 @@ import json
 from pathlib import Path
 from typing import Union, List
 
-from brownie import (
-    network,
-    accounts,
-    config,
-    project,
-    web3
-)
+from brownie import network, accounts, config, project, web3
 from brownie.network.web3 import Web3
 from brownie.network import priority_fee
 from multiprocessing import Queue, Process, set_start_method
 
 from brownie.project import get_loaded_projects
 
-NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS = [
-    "hardhat", "development", "ganache"]
+NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["hardhat", "development", "ganache"]
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "mainnet-fork",
     "binance-fork",
@@ -46,7 +39,7 @@ def to_hex_str(data: str):
     if judge_hex_str(data):
         return data
     else:
-        return str("0x") + str(bytes(data, 'ascii').hex())
+        return str("0x") + str(bytes(data, "ascii").hex())
 
 
 def get_account(index=None, id=None):
@@ -63,15 +56,15 @@ def get_func_prototype(data):
     func_prototype = ""
     for index1, params in enumerate(data):
         if index1 > 0:
-            func_prototype += ','
-        if params['type'] in ['tuple', 'tuple[]']:
-            func_prototype += '('
-            func_prototype += get_func_prototype(params['components'])
-            func_prototype += ')'
-            if params['type'] == 'tuple[]':
+            func_prototype += ","
+        if params["type"] in ["tuple", "tuple[]"]:
+            func_prototype += "("
+            func_prototype += get_func_prototype(params["components"])
+            func_prototype += ")"
+            if params["type"] == "tuple[]":
                 func_prototype += "[]"
         else:
-            func_prototype += params['type']
+            func_prototype += params["type"]
     return func_prototype
 
 
@@ -150,14 +143,16 @@ class TaskType:
 
 
 class Session(Process):
-    def __init__(self,
-                 net: str,
-                 project_path: Union[Path, str, None],
-                 group=None,
-                 name=None,
-                 kwargs={},
-                 *,
-                 daemon=None):
+    def __init__(
+        self,
+        net: str,
+        project_path: Union[Path, str, None],
+        group=None,
+        name=None,
+        kwargs={},
+        *,
+        daemon=None,
+    ):
         self.net = net
         self.project_path = project_path
         try:
@@ -173,13 +168,11 @@ class Session(Process):
             name=name,
             args=(self.task_queue, self.result_queue),
             kwargs=kwargs,
-            daemon=daemon
+            daemon=daemon,
         )
         self.start()
 
-    def work(self,
-             task_queue: Queue,
-             result_queue: Queue):
+    def work(self, task_queue: Queue, result_queue: Queue):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
         change_network(self.net)
@@ -276,7 +269,7 @@ def get_token_address(token_name: str):
 
 def get_token_decimal(token_name: str):
     if token_name == "eth":
-        return 10 ** 18
+        return 10**18
     else:
         return 10 ** get_token_info(token_name)["decimal"]
 

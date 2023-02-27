@@ -17,11 +17,7 @@ def get_wormhole_info(package: aptos_brownie.AptosPackage) -> dict:
     return info
 
 
-def get_signed_vaa(
-        sequence: int,
-        src_wormhole_id: int = None,
-        url: str = None
-):
+def get_signed_vaa(sequence: int, src_wormhole_id: int = None, url: str = None):
     """
     Get signed vaa
     :param src_wormhole_id:
@@ -50,7 +46,7 @@ def get_signed_vaa(
             "method": "GetSignedVAA",
             "params": [
                 str(sequence),
-            ]
+            ],
         }
     else:
         data = {
@@ -58,18 +54,18 @@ def get_signed_vaa(
             "params": [
                 str(sequence),
                 src_wormhole_id,
-            ]
+            ],
         }
-    headers = {'content-type': 'application/json'}
+    headers = {"content-type": "application/json"}
     response = requests.post(url, data=json.dumps(data), headers=headers)
     return response.json()
 
 
 def get_signed_vaa_by_to(
-        to_chain: int,
-        to: str = None,
-        count: int = None,
-        url: str = None,
+    to_chain: int,
+    to: str = None,
+    count: int = None,
+    url: str = None,
 ):
     """
     Get signed vaa
@@ -98,23 +94,11 @@ def get_signed_vaa_by_to(
     if count is None:
         count = 10
     if to is None:
-        data = {
-            "method": "GetSignedVAAByTo",
-            "params": [
-                to_chain
-            ]
-        }
+        data = {"method": "GetSignedVAAByTo", "params": [to_chain]}
     else:
-        data = {
-            "method": "GetSignedVAAByTo",
-            "params": [
-                to_chain,
-                str(to),
-                count
-            ]
-        }
+        data = {"method": "GetSignedVAAByTo", "params": [to_chain, str(to), count]}
     try:
-        headers = {'content-type': 'application/json'}
+        headers = {"content-type": "application/json"}
         response = requests.post(url, data=json.dumps(data), headers=headers)
         return response.json()
     except:

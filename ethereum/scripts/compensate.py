@@ -8,14 +8,18 @@ from scripts.helpful_scripts import get_account, get_stargate_router
 
 def compensate_v1():
     account = get_account()
-    tx = chain.get_transaction("0x756ef4f47aacce1cace0c9b3558f140d61abd4835f11c9783f3eea6246a9324a")
+    tx = chain.get_transaction(
+        "0x756ef4f47aacce1cace0c9b3558f140d61abd4835f11c9783f3eea6246a9324a"
+    )
     try:
         info = tx.events["CachedSwapSaved"]
     except:
         info = tx.events["CachedSgReceive"]
 
     so_diamond = SoDiamond[-1]
-    proxy_diamond = Contract.from_abi("StargateFacet", so_diamond.address, StargateFacet.abi)
+    proxy_diamond = Contract.from_abi(
+        "StargateFacet", so_diamond.address, StargateFacet.abi
+    )
     proxy_diamond.sgReceive(
         info["chainId"],
         info["srcAddress"],
@@ -23,7 +27,7 @@ def compensate_v1():
         info["token"],
         info["amountLD"],
         info["payload"],
-        {"from": account}
+        {"from": account},
     )
 
 
