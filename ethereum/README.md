@@ -15,6 +15,19 @@ Brownie is a Python-based development and testing framework for smart contracts 
 pip install -r requirements.txt
 ~~~
 
+## Format 
+[Black](https://github.com/psf/black) is the uncompromising Python code formatter.
+
+To get started right away with sensible defaults:
+```shell
+black {source_file_or_directory}
+```
+
+You can run Black as a package if running it as a script doesn't work:
+```shell
+python -m black {source_file_or_directory}
+```
+
 ## Environment
 
 You can add your environment variables to a `.env` file. You can use the [.env.exmple](./.env.example) as a template, just fill in the values and rename it to '.env'. 
