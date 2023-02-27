@@ -20,7 +20,12 @@ def main(net: str = None):
     p = project.load(root_path, name=net)
     p.load_config()
     change_network(net)
-    deployed_contract = ["StargateFacet","GenericSwapFacet", "WormholeFacet", "SerdeFacet"]
+    deployed_contract = [
+        "StargateFacet",
+        "GenericSwapFacet",
+        "WormholeFacet",
+        "SerdeFacet",
+    ]
     for c in deployed_contract:
         print(f"network:{net} publish source: {c}")
         try:
@@ -30,4 +35,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main('mainnet')
+    main("mainnet")

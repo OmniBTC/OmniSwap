@@ -7,7 +7,12 @@ import time
 
 from brownie import interface, Contract, network, ERC20
 from brownie.network import priority_fee
-from scripts.helpful_scripts import get_account, get_token_address, get_swap_info, read_json
+from scripts.helpful_scripts import (
+    get_account,
+    get_token_address,
+    get_swap_info,
+    read_json,
+)
 from scripts.wormhole import get_stable_coin_address
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -17,7 +22,7 @@ omni_swap_file = os.path.join(root_path, "export/OmniSwapInfo.json")
 def batch_add_liquidity():
     current_net = network.show_active()
     if current_net in ["goerli"]:
-        priority_fee('2 gwei')
+        priority_fee("2 gwei")
     omni_swap_infos = read_json(omni_swap_file)
     (_, stable_coin_address) = get_stable_coin_address(current_net)
 
@@ -27,7 +32,8 @@ def batch_add_liquidity():
             for chain_path in token["ChainPath"]:
                 wrapped_token_address = chain_path["SrcTokenAddress"]
                 create_pair_and_add_liquidity(
-                    stable_coin_address, wrapped_token_address)
+                    stable_coin_address, wrapped_token_address
+                )
 
 
 def create_pair_and_add_liquidity(token1_address, token2_address):
@@ -39,10 +45,12 @@ def create_pair_and_add_liquidity(token1_address, token2_address):
 
     router_address = get_swap_info()["IUniswapV2Router02"]["router"]
     router = Contract.from_abi(
-        "Router", router_address, interface.IUniswapV2Router02.abi)
+        "Router", router_address, interface.IUniswapV2Router02.abi
+    )
     factory_address = router.factory()
     factory = Contract.from_abi(
-        "Factory", factory_address, interface.IUniswapV2Factory.abi)
+        "Factory", factory_address, interface.IUniswapV2Factory.abi
+    )
     with contextlib.suppress(Exception):
         factory.createPair(token1_address, token2_address, {"from": account})
     # approve
@@ -53,8 +61,17 @@ def create_pair_and_add_liquidity(token1_address, token2_address):
     token2 = Contract.from_abi("ERC20", token2_address, ERC20.abi)
     token2_amount = int(10000 * 10 ** token2.decimals())
     token2.approve(router_address, token2_amount, {"from": account})
-    router.addLiquidity(token1_address, token2_address, token1_amount, token2_amount, 0, 0, account, int(time.time() + 3000),
-                        {"from": account})
+    router.addLiquidity(
+        token1_address,
+        token2_address,
+        token1_amount,
+        token2_amount,
+        0,
+        0,
+        account,
+        int(time.time() + 3000),
+        {"from": account},
+    )
 
 
 def create_pair_and_add_liquidity_for_celer():
@@ -63,15 +80,17 @@ def create_pair_and_add_liquidity_for_celer():
         return
 
     account = get_account()
-    token1_address = "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28" # celer-usdc
-    token2_address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6" # weth
+    token1_address = "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28"  # celer-usdc
+    token2_address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"  # weth
 
     router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
     router = Contract.from_abi(
-        "Router", router_address, interface.IUniswapV2Router02.abi)
+        "Router", router_address, interface.IUniswapV2Router02.abi
+    )
     factory_address = router.factory()
     factory = Contract.from_abi(
-        "Factory", factory_address, interface.IUniswapV2Factory.abi)
+        "Factory", factory_address, interface.IUniswapV2Factory.abi
+    )
     with contextlib.suppress(Exception):
         factory.createPair(token1_address, token2_address, {"from": account})
     # approve
@@ -83,5 +102,14 @@ def create_pair_and_add_liquidity_for_celer():
     token2_amount = int(0.1 * 10 ** token2.decimals())
     token2.approve(router_address, token2_amount, {"from": account})
 
-    router.addLiquidity(token1_address, token2_address, token1_amount, token2_amount, 0, 0, account, int(time.time() + 3000),
-                        {"from": account})
+    router.addLiquidity(
+        token1_address,
+        token2_address,
+        token1_amount,
+        token2_amount,
+        0,
+        0,
+        account,
+        int(time.time() + 3000),
+        {"from": account},
+    )

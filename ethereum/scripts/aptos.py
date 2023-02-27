@@ -9,40 +9,48 @@ from typing import List
 import requests
 from brownie import network, Contract, project, config, SoDiamond, WormholeFacet
 
-from scripts.helpful_scripts import to_hex_str, get_token_address, zero_address, change_network, \
-    get_account, padding_to_bytes
+from scripts.helpful_scripts import (
+    to_hex_str,
+    get_token_address,
+    zero_address,
+    change_network,
+    get_account,
+    padding_to_bytes,
+)
 from scripts.swap import SwapType, SwapFunc, View, SwapData, SoData
 import aptos_brownie
 
 omniswap_ethereum_path = Path(__file__).parent.parent
 omniswap_ethereum_project = project.load(
-    str(omniswap_ethereum_path), raise_if_loaded=False)
+    str(omniswap_ethereum_path), raise_if_loaded=False
+)
 
 omniswap_aptos_path = Path(__file__).parent.parent.parent.joinpath("aptos")
 
 
 @functools.lru_cache()
 def get_aptos_token(package: aptos_brownie.AptosPackage):
-    out = {"AptosCoin": {"address": "0x1::aptos_coin::AptosCoin",
-                         "decimal": 8}}
+    out = {"AptosCoin": {"address": "0x1::aptos_coin::AptosCoin", "decimal": 8}}
     if "token" not in package.network_config:
         return out
     for t, v in package.network_config["token"].items():
-        out[t] = {"address": f"{v['address']}::{v['module']}::{t}",
-                  "decimal": v['decimal']
-                  }
+        out[t] = {
+            "address": f"{v['address']}::{v['module']}::{t}",
+            "decimal": v["decimal"],
+        }
     return out
 
 
 class WormholeData(View):
     """Constructing wormhole data"""
 
-    def __init__(self,
-                 dstWormholeChainId,
-                 dstMaxGasPriceInWeiForRelayer,
-                 wormholeFee,
-                 dstSoDiamond,
-                 ):
+    def __init__(
+        self,
+        dstWormholeChainId,
+        dstMaxGasPriceInWeiForRelayer,
+        wormholeFee,
+        dstSoDiamond,
+    ):
         self.dstWormholeChainId = dstWormholeChainId
         self.dstMaxGasPriceInWeiForRelayer = dstMaxGasPriceInWeiForRelayer
         self.wormholeFee = wormholeFee
@@ -50,47 +58,51 @@ class WormholeData(View):
 
     def format_to_contract(self):
         """Returns the data used to pass into the contract interface"""
-        return [self.dstWormholeChainId,
-                self.dstMaxGasPriceInWeiForRelayer,
-                self.wormholeFee,
-                to_hex_str(self.dstSoDiamond)]
+        return [
+            self.dstWormholeChainId,
+            self.dstMaxGasPriceInWeiForRelayer,
+            self.wormholeFee,
+            to_hex_str(self.dstSoDiamond),
+        ]
 
 
 get_evm_token_address = get_token_address
 
 
 def generate_so_data(
-        package: aptos_brownie.AptosPackage,
-        src_token: str,
-        src_net: str,
-        dst_token: str,
-        receiver: str,
-        amount: int
+    package: aptos_brownie.AptosPackage,
+    src_token: str,
+    src_net: str,
+    dst_token: str,
+    receiver: str,
+    amount: int,
 ) -> SoData:
     so_data = SoData(
         transactionId=SoData.generate_random_bytes32(),
         receiver=receiver,
         sourceChainId=package.config["networks"][src_net]["omnibtc_chainid"],
         sendingAssetId=get_evm_token_address(src_token),
-        destinationChainId=package.config["networks"][package.network]["omnibtc_chainid"],
+        destinationChainId=package.config["networks"][package.network][
+            "omnibtc_chainid"
+        ],
         receivingAssetId=get_aptos_token(package)[dst_token]["address"],
-        amount=amount
+        amount=amount,
     )
     return so_data
 
 
 def generate_wormhole_data(
-        package: aptos_brownie.AptosPackage,
-        dst_net: str,
-        dst_gas_price: int,
-        wormhole_fee: int,
-        dst_so_diamond: str
+    package: aptos_brownie.AptosPackage,
+    dst_net: str,
+    dst_gas_price: int,
+    wormhole_fee: int,
+    dst_so_diamond: str,
 ) -> WormholeData:
     wormhole_data = WormholeData(
         dstWormholeChainId=package.config["networks"][dst_net]["wormhole"]["chainid"],
         dstMaxGasPriceInWeiForRelayer=dst_gas_price,
         wormholeFee=wormhole_fee,
-        dstSoDiamond=dst_so_diamond
+        dstSoDiamond=dst_so_diamond,
     )
     return wormhole_data
 
@@ -100,16 +112,18 @@ class LiquidswapCurve(Enum):
     Stable = "Stable"
 
 
-def get_liquidswap_curve(package: aptos_brownie.AptosPackage, curve_name: LiquidswapCurve):
+def get_liquidswap_curve(
+    package: aptos_brownie.AptosPackage, curve_name: LiquidswapCurve
+):
     assert curve_name.value in ["Uncorrelated", "Stable"]
     return f"{package.network_config['replace_address']['liquidswap']}::curves::{curve_name.value}"
 
 
 def generate_dst_swap_data(
-        package: aptos_brownie.AptosPackage,
-        router: str,
-        path: list,
-        amount: int,
+    package: aptos_brownie.AptosPackage,
+    router: str,
+    path: list,
+    amount: int,
 ) -> List[SwapData]:
     out = []
     i = 0
@@ -120,7 +134,7 @@ def generate_dst_swap_data(
             sendingAssetId=get_aptos_token(package)[path[i]]["address"],
             receivingAssetId=get_aptos_token(package)[path[i + 2]]["address"],
             fromAmount=amount,
-            callData=get_liquidswap_curve(package, path[i + 1])
+            callData=get_liquidswap_curve(package, path[i + 1]),
         )
         out.append(swap_data)
         i += 2
@@ -131,13 +145,13 @@ evm_zero_address = zero_address
 
 
 def generate_src_swap_data(
-        package: aptos_brownie.AptosPackage,
-        src_net: str,
-        router: str,
-        func: str,
-        input_amount: int,
-        min_amount: int,
-        path: list
+    package: aptos_brownie.AptosPackage,
+    src_net: str,
+    router: str,
+    func: str,
+    input_amount: int,
+    min_amount: int,
+    path: list,
 ) -> List[SwapData]:
     """Evm only test one swap"""
     out = []
@@ -168,32 +182,38 @@ def generate_src_swap_data(
     swap_contract = Contract.from_abi(
         router,
         package.config["networks"][src_net]["swap"][router]["router"],
-        getattr(omniswap_ethereum_project.interface, router).abi)
+        getattr(omniswap_ethereum_project.interface, router).abi,
+    )
 
     fromAmount = input_amount
-    if func in [SwapFunc.swapExactTokensForETH, SwapFunc.swapExactTokensForAVAX,
-                SwapFunc.swapExactTokensForTokens]:
+    if func in [
+        SwapFunc.swapExactTokensForETH,
+        SwapFunc.swapExactTokensForAVAX,
+        SwapFunc.swapExactTokensForTokens,
+    ]:
         callData = getattr(swap_contract, func).encode_input(
             fromAmount,
             min_amount,
             path_address,
             package.config["networks"][src_net]["SoDiamond"],
-            int(time.time() + 3000)
+            int(time.time() + 3000),
         )
     elif func == SwapFunc.exactInput:
-        callData = getattr(swap_contract, func).encode_input([
-            path_address,
-            package.config["networks"][src_net]["SoDiamond"],
-            int(time.time() + 3000),
-            fromAmount,
-            min_amount]
+        callData = getattr(swap_contract, func).encode_input(
+            [
+                path_address,
+                package.config["networks"][src_net]["SoDiamond"],
+                int(time.time() + 3000),
+                fromAmount,
+                min_amount,
+            ]
         )
     elif func in [SwapFunc.swapExactETHForTokens, SwapFunc.swapExactAVAXForTokens]:
         callData = getattr(swap_contract, func).encode_input(
             min_amount,
             path_address,
             package.config["networks"][src_net]["SoDiamond"],
-            int(time.time() + 3000)
+            int(time.time() + 3000),
         )
     else:
         raise ValueError("Not support")
@@ -204,20 +224,19 @@ def generate_src_swap_data(
         sendingAssetId=sendingAssetId,
         receivingAssetId=receivingAssetId,
         fromAmount=input_amount,
-        callData=callData
+        callData=callData,
     )
     out.append(swap_data)
     return out
 
 
 @functools.lru_cache()
-def get_token_bridge(
-        net: str):
+def get_token_bridge(net: str):
     contract_name = "TokenBridge"
     return Contract.from_abi(
         contract_name,
         config["networks"][net]["wormhole"]["token_bridge"],
-        omniswap_ethereum_project.interface.IWormholeBridge.abi
+        omniswap_ethereum_project.interface.IWormholeBridge.abi,
     )
 
 
@@ -227,20 +246,17 @@ def get_wormhole_facet():
     return Contract.from_abi(
         contract_name,
         omniswap_ethereum_project["SoDiamond"][-1].address,
-        omniswap_ethereum_project["WormholeFacet"].abi
+        omniswap_ethereum_project["WormholeFacet"].abi,
     )
 
 
 def create_wrapped_token():
     vaa = "0x010000000001007f8398176ce200b8898dbd670d553b4209940bd601701bd54d129a3a9661e30a14b31c26512571aafb036abbba5c963bc364f1fd316d9579261469073a1cd7b101634ff6be0000000000160000000000000000000000000000000000000000000000000000000000000001000000000000003600020847d1d277d811e4ae86632a9123234fbf09a3a5773d515d894fea6cf5fa9f3b00160855534443000000000000000000000000000000000000000000000000000000005553444300000000000000000000000000000000000000000000000000000000"
-    get_token_bridge(network.show_active()).createWrapped(
-        vaa, {"from": get_account()})
+    get_token_bridge(network.show_active()).createWrapped(vaa, {"from": get_account()})
     vaa = "0x010000000001004799c1a6f6481806bab0d7476687ee460262ba6fb2a1c5ba1c215dc5ff0880b8072dde20edc3df3e32d1acdf754daed80f47d23a6bfb67930325052cee934f2800634ff6b8000000000016000000000000000000000000000000000000000000000000000000000000000100000000000000350002fe8192228f7991b052e121fc2c233a6779e56639a3d5d1fd2aba3d40dc11409900160855534454000000000000000000000000000000000000000000000000000000005553445400000000000000000000000000000000000000000000000000000000"
-    get_token_bridge(network.show_active()).createWrapped(
-        vaa, {"from": get_account()})
+    get_token_bridge(network.show_active()).createWrapped(vaa, {"from": get_account()})
     vaa = "0x010000000001000d1fba22fbbd1f37c8c5f0e1be13fcccb5bfc6f890281fc5def58d9c71b9b1f37e276c68269f51c7552f66b91c27db3e0bd46a97a6f1a0018457b131928fae2a00634ff6b3000000000016000000000000000000000000000000000000000000000000000000000000000100000000000000340002f8976066a3be9afad831d08b2fabf2b959de224a5df7399f38a2efaa3782760100160858425443000000000000000000000000000000000000000000000000000000005842544300000000000000000000000000000000000000000000000000000000"
-    get_token_bridge(network.show_active()).createWrapped(
-        vaa, {"from": get_account()})
+    get_token_bridge(network.show_active()).createWrapped(vaa, {"from": get_account()})
 
 
 def complete_so_swap():
@@ -251,16 +267,16 @@ def complete_so_swap():
 
 
 def cross_swap(
-        package: aptos_brownie.AptosPackage,
-        src_path: list,
-        dst_path: list,
-        receiver: str,
-        dst_so_diamond: str,
-        input_amount: int,
-        dst_gas_price: int = 100 * 1e10,
-        src_router: str = None,
-        src_func: str = None,
-        src_min_amount: int = 0,
+    package: aptos_brownie.AptosPackage,
+    src_path: list,
+    dst_path: list,
+    receiver: str,
+    dst_so_diamond: str,
+    input_amount: int,
+    dst_gas_price: int = 100 * 1e10,
+    src_router: str = None,
+    src_func: str = None,
+    src_min_amount: int = 0,
 ):
     assert len(src_path) > 0
     assert len(dst_path) > 0
@@ -269,7 +285,7 @@ def cross_swap(
     wormhole = Contract.from_abi(
         "WormholeFacet",
         config["networks"][src_net]["SoDiamond"],
-        omniswap_ethereum_project["WormholeFacet"].abi
+        omniswap_ethereum_project["WormholeFacet"].abi,
     )
 
     # construct wormhole data
@@ -278,7 +294,7 @@ def cross_swap(
         dst_net=dst_net,
         dst_gas_price=dst_gas_price,
         wormhole_fee=0,
-        dst_so_diamond=dst_so_diamond
+        dst_so_diamond=dst_so_diamond,
     )
     wormhole_data = wormhole_data.format_to_contract()
 
@@ -289,14 +305,16 @@ def cross_swap(
         src_net=src_net,
         dst_token=dst_path[-1],
         receiver=receiver,
-        amount=input_amount)
+        amount=input_amount,
+    )
     so_data = so_data.format_to_contract()
 
     # construct src data
     dst_swap_data = []
     if len(dst_path) > 1:
         dst_swap_data = generate_dst_swap_data(
-            package, "liquidswap", dst_path, input_amount)
+            package, "liquidswap", dst_path, input_amount
+        )
 
         dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
 
@@ -310,22 +328,25 @@ def cross_swap(
             src_func,
             input_amount,
             src_min_amount,
-            src_path
+            src_path,
         )
         src_swap_data = [d.format_to_contract() for d in src_swap_data]
 
     if src_path[0] != "eth":
         token_name = src_path[0]
-        token = Contract.from_abi(token_name.upper(),
-                                  get_token_address(token_name),
-                                  omniswap_ethereum_project.interface.IERC20.abi
-                                  )
+        token = Contract.from_abi(
+            token_name.upper(),
+            get_token_address(token_name),
+            omniswap_ethereum_project.interface.IERC20.abi,
+        )
         token.approve(wormhole.address, so_data[-1], {"from": get_account()})
 
     proxy_diamond = Contract.from_abi(
-        "WormholeFacet", SoDiamond[-1].address, WormholeFacet.abi)
+        "WormholeFacet", SoDiamond[-1].address, WormholeFacet.abi
+    )
     relayer_fee = proxy_diamond.estimateRelayerFee(
-        so_data, wormhole_data, dst_swap_data)
+        so_data, wormhole_data, dst_swap_data
+    )
     print(f"Relayer fee: {relayer_fee}")
     if src_path[0] != "eth":
         wormhole_fee = relayer_fee
@@ -338,7 +359,7 @@ def cross_swap(
         src_swap_data,
         wormhole_data,
         dst_swap_data,
-        {"from": get_account(), "value": wormhole_data[2]}
+        {"from": get_account(), "value": wormhole_data[2]},
     )
 
 
@@ -351,8 +372,7 @@ def main():
     # Prepare environment
     # load src net aptos package
     package = aptos_brownie.AptosPackage(
-        project_path=omniswap_aptos_path,
-        network=dst_net
+        project_path=omniswap_aptos_path, network=dst_net
     )
 
     # load dst net project
@@ -369,7 +389,7 @@ def main():
         dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
         input_amount=int(100000),
         src_router=SwapType.IUniswapV2Router02,
-        src_func=SwapFunc.swapExactTokensForTokens
+        src_func=SwapFunc.swapExactTokensForTokens,
     )
 
     # aptos gas: 29996
@@ -381,60 +401,63 @@ def main():
         dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
         input_amount=int(100000),
         src_router=SwapType.IUniswapV2Router02,
-        src_func=SwapFunc.swapExactTokensForTokens
+        src_func=SwapFunc.swapExactTokensForTokens,
     )
     # aptos gas: 44854
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
-        dst_path=["AptosCoin",
-                  LiquidswapCurve.Uncorrelated,
-                  "XBTC",
-                  LiquidswapCurve.Uncorrelated,
-                  "USDT",
-                  ],
+        dst_path=[
+            "AptosCoin",
+            LiquidswapCurve.Uncorrelated,
+            "XBTC",
+            LiquidswapCurve.Uncorrelated,
+            "USDT",
+        ],
         receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
         dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
         input_amount=int(100000),
         src_router=SwapType.IUniswapV2Router02,
-        src_func=SwapFunc.swapExactTokensForTokens
+        src_func=SwapFunc.swapExactTokensForTokens,
     )
 
     # aptos gas: 59295
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
-        dst_path=["AptosCoin",
-                  LiquidswapCurve.Uncorrelated,
-                  "XBTC",
-                  LiquidswapCurve.Uncorrelated,
-                  "USDT",
-                  LiquidswapCurve.Uncorrelated,
-                  "XBTC"
-                  ],
+        dst_path=[
+            "AptosCoin",
+            LiquidswapCurve.Uncorrelated,
+            "XBTC",
+            LiquidswapCurve.Uncorrelated,
+            "USDT",
+            LiquidswapCurve.Uncorrelated,
+            "XBTC",
+        ],
         receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
         dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
         input_amount=int(100000),
         src_router=SwapType.IUniswapV2Router02,
-        src_func=SwapFunc.swapExactTokensForTokens
+        src_func=SwapFunc.swapExactTokensForTokens,
     )
 
     # aptos gas: 278545
     cross_swap(
         package,
         src_path=["AptosCoin_WORMHOLE"],
-        dst_path=["AptosCoin",
-                  LiquidswapCurve.Uncorrelated,
-                  "XBTC",
-                  LiquidswapCurve.Uncorrelated,
-                  "USDT",
-                  LiquidswapCurve.Stable,
-                  "USDC"
-                  ],
+        dst_path=[
+            "AptosCoin",
+            LiquidswapCurve.Uncorrelated,
+            "XBTC",
+            LiquidswapCurve.Uncorrelated,
+            "USDT",
+            LiquidswapCurve.Stable,
+            "USDC",
+        ],
         receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
         dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
         input_amount=int(100000),
         src_router=SwapType.IUniswapV2Router02,
-        src_func=SwapFunc.swapExactTokensForTokens
+        src_func=SwapFunc.swapExactTokensForTokens,
     )
     ####################################################
