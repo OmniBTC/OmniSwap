@@ -111,6 +111,7 @@ def initialize_wormhole_fee(account):
                 {"from": account},
             )
 
+
 def initialize_celer_fee(account):
     # initialize oracle
     oracles = get_oracles()

@@ -73,6 +73,7 @@ def create_pair_and_add_liquidity(token1_address, token2_address):
         {"from": account},
     )
 
+
 def create_pair_and_add_liquidity_for_celer():
     if network.show_active() not in ["goerli"]:
         print("Only support avax-test")
