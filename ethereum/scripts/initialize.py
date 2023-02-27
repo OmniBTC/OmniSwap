@@ -199,11 +199,6 @@ def initialize_celer(account, so_diamond):
         get_celer_message_bus(), get_celer_chain_id(), {"from": account}
     )
 
-    # proxy_celer.setNonce(
-    #     5,
-    #     {'from': account}
-    # )
-
     ray = 1e27
     # setCelerReserve
     print(f"network:{net}, set celer reserve...")
@@ -419,6 +414,10 @@ def redeploy_celer():
         max_fee("200 gwei")
         priority_fee("2 gwei")
 
+    proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
+    lastNonce = proxy_celer.getNonce()
+    print(f"last nonce: {lastNonce}")
+
     remove_facet(CelerFacet)
 
     CelerFacet.deploy({"from": account})
@@ -426,23 +425,26 @@ def redeploy_celer():
 
     initialize_celer(account, SoDiamond[-1])
 
-    proxy_dex = Contract.from_abi(
-        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    )
+    proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
+    proxy_celer.setNonce(lastNonce, {"from": account})
 
-    so_fee = 1e-3
-    ray = 1e27
-
-    print("Deploy LibSoFeeCelerV1...")
-    LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
-
-    print("AddFee ...")
-    proxy_dex.addFee(
-        get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
-    )
-
-    print("Initialize celer fee...")
-    initialize_celer_fee(account)
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    #
+    # so_fee = 1e-3
+    # ray = 1e27
+    #
+    # print("Deploy LibSoFeeCelerV1...")
+    # LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
+    #
+    # print("AddFee ...")
+    # proxy_dex.addFee(
+    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    # )
+    #
+    # print("Initialize celer fee...")
+    # initialize_celer_fee(account)
 
     # LibSoFeeCelerV1[-1].setPriceRatio(5, 10, {'from': account})
     # LibSoFeeCelerV1[-1].updatePriceRatio(5, {'from': account})

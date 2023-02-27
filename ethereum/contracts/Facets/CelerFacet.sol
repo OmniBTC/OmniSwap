@@ -99,6 +99,8 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         bytes32 indexed celerTransferId,
         uint64 srcCelerChainId,
         uint64 dstCelerChainId,
+        address bridgeToken,
+        uint256 bridgeAmount,
         uint64 nonce
     );
 
@@ -616,6 +618,12 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         }
     }
 
+    /// @dev Get nonce
+    function getNonce() public view returns (uint64) {
+        Storage storage s = getStorage();
+        return s.nextNonce;
+    }
+
     /// Private Methods ///
 
     /// @dev swap on destination chain
@@ -753,6 +761,8 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
             transferId,
             s.srcCelerChainId,
             celerData.dstCelerChainId,
+            celerData.bridgeToken,
+            bridgeAmount,
             s.nextNonce
         );
 
