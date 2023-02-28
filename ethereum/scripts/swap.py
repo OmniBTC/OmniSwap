@@ -1421,7 +1421,7 @@ def cross_swap_via_celer(
     celer_data = CelerData.create(
         src_session,
         dst_session,
-        1,
+        max_slippage, # set max_slippage=1 for refund token tests
         sourceBridgeToken,
         0,
         destinationBridgeToken,
