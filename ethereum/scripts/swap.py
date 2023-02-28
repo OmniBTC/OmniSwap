@@ -26,6 +26,8 @@ from scripts.helpful_scripts import (
     to_hex_str,
 )
 
+from scripts.celer_tx_status import get_celer_transfer_status
+
 uniswap_v3_fee_decimal = 1e6
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -182,13 +184,23 @@ def soSwapViaCeler(
     )
 
     print(f"CelerData: {celer_data}\n")
-    proxy_diamond.soSwapViaCeler(
+    tx = proxy_diamond.soSwapViaCeler(
         so_data,
         src_swap_data,
         celer_data,
         dst_swap_data,
         {"from": get_account(), "value": int(estimate_cost)},
     )
+
+    print(tx.info())
+
+    celer_transfer_id = tx.events["Send"]["transferId"].hex()
+    print("celer transferId: ", celer_transfer_id)
+
+    print("wait 30s for celer gateway")
+    time.sleep(30)
+
+    get_celer_transfer_status(celer_transfer_id)
 
 
 def swapTokensGeneric(so_data, src_swap_data, input_eth_amount: int, p: Project = None):
@@ -459,6 +471,7 @@ class StargateData(View):
 class CelerData(View):
     def __init__(
         self,
+        sender,
         maxSlippage,
         dstCelerChainId,
         dstSoDiamond,
@@ -470,6 +483,7 @@ class CelerData(View):
         dstMaxGasPriceInWeiForExecutor,
     ):
         # slippage tolerance, 10000 -> 1%
+        self.sender = sender
         self.maxSlippage = maxSlippage
         # destination chain id
         self.dstCelerChainId = dstCelerChainId
@@ -488,6 +502,7 @@ class CelerData(View):
     def format_to_contract(self):
         """Get the Celer data passed into the contract interface"""
         return [
+            to_hex_str(self.sender),
             self.maxSlippage,
             self.dstCelerChainId,
             self.srcBridgeToken,
@@ -520,6 +535,7 @@ class CelerData(View):
             CelerData: CelerData class
         """
         return CelerData(
+            sender=src_session.put_task(get_account_address),
             maxSlippage=max_slippage,
             dstCelerChainId=dst_session.put_task(func=get_celer_chain_id),
             dstSoDiamond=dst_session.put_task(
@@ -1405,7 +1421,7 @@ def cross_swap_via_celer(
     celer_data = CelerData.create(
         src_session,
         dst_session,
-        max_slippage,
+        1,
         sourceBridgeToken,
         0,
         destinationBridgeToken,
