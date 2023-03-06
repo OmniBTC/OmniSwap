@@ -80,6 +80,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         uint256 dstExecutorGas;
         uint256 dstExecutorFee;
         uint256 srcExecutorFee;
+        uint256 reserve;
     }
 
     struct CachePayload {
@@ -395,7 +396,8 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
             celerData.dstCelerChainId,
             celerData.dstMaxGasPriceInWeiForExecutor,
             soData,
-            swapDataDst
+            swapDataDst,
+            true
         );
 
         if (LibAsset.isNativeAsset(soData.sendingAssetId.toAddress(0))) {
@@ -567,7 +569,8 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         uint64 dstCelerChainId,
         uint256 dstMaxGasPriceInWeiForExecutor,
         ISo.NormalizedSoData calldata soDataNo,
-        LibSwap.NormalizedSwapData[] calldata swapDataDstNo
+        LibSwap.NormalizedSwapData[] calldata swapDataDstNo,
+        bool is_actual
     ) public view returns (uint256, uint256, uint256) {
         CacheEstimate memory c;
         Storage storage s = getStorage();
@@ -591,10 +594,16 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
 
         c.dstExecutorFee = c.dstExecutorGas.mul(dstMaxGasPriceInWeiForExecutor);
 
+        if (is_actual) {
+            c.reserve = s.actualReserve;
+        } else {
+            c.reserve = s.estimateReserve;
+        }
+
         c.srcExecutorFee = c.dstExecutorFee
             .mul(c.ratio)
             .div(c.oracle.RAY())
-            .mul(s.actualReserve)
+            .mul(c.reserve)
             .div(RAY);
 
         return (c.srcMessageFee, c.dstExecutorGas, c.srcExecutorFee);

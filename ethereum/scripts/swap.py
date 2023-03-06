@@ -166,7 +166,7 @@ def soSwapViaCeler(
         dst_executor_gas,
         src_executor_fee,
     ) = proxy_diamond.estCelerMessageFeeAndExecutorFee(
-        celer_data.dstCelerChainId, dst_max_gas_price, so_data, dst_swap_data
+        celer_data.dstCelerChainId, dst_max_gas_price, so_data, dst_swap_data, False
     )
 
     estimate_cost = src_message_fee + src_executor_fee + input_eth_amount
@@ -1308,38 +1308,6 @@ def celer_estimate_final_token_amount(
     print(f"Final amount: {amount}, so fee: {so_fee}")
 
     return amount, max_slippage
-
-
-def celer_estimate_min_amount(
-    dst_session, final_amount: int, slippage: float, dst_swap_data: SwapData
-):
-    print(f"Estimate min amount: slippage {slippage * 100}%")
-    expect_min_amount = int(final_amount * (1 - slippage))
-    if dst_swap_data is not None:
-        dst_swap_min_amount = expect_min_amount
-        stargate_min_amount = dst_session.put_task(
-            SwapData.estimate_in,
-            args=(
-                expect_min_amount,
-                dst_swap_data.swapType,
-                # note revert!
-                dst_swap_data.swapPath,
-            ),
-            with_project=True,
-        )
-        stargate_min_amount = dst_session.put_task(
-            StargateData.estimate_before_so_fee,
-            args=(stargate_min_amount,),
-            with_project=True,
-        )
-    else:
-        dst_swap_min_amount = None
-        stargate_min_amount = dst_session.put_task(
-            StargateData.estimate_before_so_fee,
-            args=(expect_min_amount,),
-            with_project=True,
-        )
-    return dst_swap_min_amount, stargate_min_amount
 
 
 def cross_swap_via_celer(

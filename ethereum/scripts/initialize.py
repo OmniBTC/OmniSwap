@@ -23,6 +23,9 @@ from brownie import (
 )
 from brownie.network import priority_fee, max_fee
 
+FacetCutAction_ADD = 0
+FacetCutAction_REPLACE = 1
+FacetCutAction_REMOVE = 2
 
 from scripts.helpful_scripts import (
     get_account,
@@ -176,7 +179,7 @@ def initialize_cut(account, so_diamond):
                     register_funcs[func_name].append(reg_funcs[func_name])
             else:
                 register_funcs[func_name] = [reg_funcs[func_name]]
-        register_data.append([reg_facet, 0, list(reg_funcs.values())])
+        register_data.append([reg_facet, FacetCutAction_ADD, list(reg_funcs.values())])
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
@@ -446,8 +449,8 @@ def redeploy_celer():
     # print("Initialize celer fee...")
     # initialize_celer_fee(account)
 
-    # LibSoFeeCelerV1[-1].setPriceRatio(5, 10, {'from': account})
-    # LibSoFeeCelerV1[-1].updatePriceRatio(5, {'from': account})
+    # LibSoFeeCelerV1[-1].setPriceRatio(43113, ray, {'from': account})
+    # LibSoFeeCelerV1[-1].updatePriceRatio(43113, {'from': account})
 
 
 def remove_dump(a: list, b: list):
