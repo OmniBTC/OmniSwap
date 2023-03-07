@@ -7,3 +7,7 @@ def main(net="aptos-testnet"):
         project_path=omniswap_aptos_path,
         network=net
     )
+
+
+if __name__ == '__main__':
+    main()
