@@ -98,16 +98,6 @@ networks:
       poolid:
         usdc: 1
         weth: 13
-    celer:
-      chainid: 5
-      message_bus: "0xF25170F86E4291a99a9A560032Fe9948b8BcFBB2"
-      actual_reserve: 1.1
-      estimate_reserve: 1.2
-      gas:
-        avax-test:
-          dst_chainid: 43113
-          base_gas: 700000
-          per_byte_gas: 68
     wormhole:
       chainid: 2
       token_bridge: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7"
@@ -141,9 +131,6 @@ networks:
       usdt:
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 18
-      celer-usdc:
-        address: "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28"
-        decimal: 6
       bsc-usdt:
         address: "0xa512c06d85004930526b1Ab0452fDD3F5F0fC665"
         decimal: 18
@@ -178,6 +165,29 @@ networks:
         # wormhole aptos wrapped coin. todo! need to fix
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 8
+    bridges:
+      celer:
+        chainid: 5
+        message_bus: "0xF25170F86E4291a99a9A560032Fe9948b8BcFBB2"
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+          avax-test:
+            dst_chainid: 43113
+            base_gas: 700000
+            per_byte_gas: 68
+        token:
+          usdc:
+            address: "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28"
+            decimal: 6
+          weth:
+            address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+            decimal: 18
+        oracle:
+          eth:
+            chainid: 5
+            currency: USD
+            address: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
     swap:
       ISwapRouter:
         name: UniswapV3
@@ -331,16 +341,39 @@ networks:
       chainid: 10106
       poolid:
         usdc: 1
-    celer:
-      chainid: 43113
-      message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
-      actual_reserve: 1.1
-      estimate_reserve: 1.2
-      gas:
-        goerli:
-          dst_chainid: 5
-          base_gas: 700000
-          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 43113
+        message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+          goerli:
+            dst_chainid: 5
+            base_gas: 700000
+            per_byte_gas: 68
+        token:
+          usdc:
+            address: "0x2979a1cb90EEB9e75d7fB4f9813FCC40E4a7fD8b"
+            decimal: 6
+          weth:
+            # Different from DexLot's weth
+            # Just for celer test
+            address: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
+            decimal: 18
+        oracle:
+          avax:
+            chainid: 43113
+            currency: USD
+            address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
+          matic:
+            chainid: 80001
+            currency: USD
+            address: "0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0"
+          eth:
+            chainid: 5
+            currency: USD
+            address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     token:
       usdc:
         address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"

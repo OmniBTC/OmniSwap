@@ -45,6 +45,7 @@ from scripts.helpful_scripts import (
     get_token_decimal,
     get_stargate_info,
     get_celer_chain_id,
+    get_celer_oracles,
     get_celer_message_bus,
     get_celer_actual_reserve,
     get_celer_estimate_reserve,
@@ -117,28 +118,28 @@ def initialize_wormhole_fee(account):
 
 def initialize_celer_fee(account):
     # initialize oracle
-    oracles = get_oracles()
+    oracles = get_celer_oracles()
     chainid = get_celer_chain_id()
 
     native_oracle_address = ""
     for token in oracles:
-        if chainid == oracles[token]["celer_chainid"]:
+        if chainid == oracles[token]["chainid"]:
             native_oracle_address = oracles[token]["address"]
 
     for token in oracles:
-        if chainid == oracles[token]["celer_chainid"]:
+        if chainid == oracles[token]["chainid"]:
             continue
         print(f"initialize_celer_fee oracle: {token}")
         if oracles[token]["currency"] == "USD":
             LibSoFeeCelerV1[-1].setPriceConfig(
-                oracles[token]["celer_chainid"],
+                oracles[token]["chainid"],
                 [[oracles[token]["address"], False], [native_oracle_address, True]],
                 60,
                 {"from": account},
             )
         elif oracles[token]["currency"] == "ETH":
             LibSoFeeCelerV1[-1].setPriceConfig(
-                oracles[token]["celer_chainid"],
+                oracles[token]["chainid"],
                 [[oracles[token]["address"], False]],
                 60,
                 {"from": account},

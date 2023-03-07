@@ -26,6 +26,8 @@ from brownie import (
     LibSoFeeWormholeV1,
     SerdeFacet,
     network,
+    CelerFacet,
+    LibSoFeeCelerV1,
 )
 
 from scripts.helpful_scripts import (
@@ -38,6 +40,8 @@ from scripts.helpful_scripts import (
     get_token_address,
     get_swap_info,
     get_stargate_chain_id,
+    get_celer_chain_id,
+    get_celer_message_bus,
 )
 from scripts.wormhole import (
     get_all_warpped_token,
@@ -397,6 +401,7 @@ def export_deployed():
         DiamondLoupeFacet,
         DexManagerFacet,
         StargateFacet,
+        CelerFacet,
         WormholeFacet,
         WithdrawFacet,
         OwnershipFacet,
@@ -404,6 +409,7 @@ def export_deployed():
         SoDiamond,
         LibSoFeeStargateV1,
         LibSoFeeWormholeV1,
+        LibSoFeeCelerV1,
         LibCorrectSwapV1,
         SerdeFacet,
     ]
@@ -509,6 +515,7 @@ def export(*arg):
         GenericSwapFacet,
         WormholeFacet,
         SerdeFacet,
+        CelerFacet,
     ]
     libs = [LibSwap]
     so_diamond_abi = []
@@ -524,3 +531,11 @@ def export(*arg):
     write_file(os.path.join(root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
     export_wormhole_chain_path(arg, wormhole_chain_path)
     get_stargate_chain_path()
+
+
+def export_celer():
+    deployed_contracts = {}
+    for net in ["goerli", "avax-test"]:
+        change_network(net)
+        deployed_contracts[net] = export_deployed()
+    write_file("celer_test_contracts.json", deployed_contracts)
