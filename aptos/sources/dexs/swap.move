@@ -25,6 +25,8 @@ module omniswap::swap {
 
     const EINVALID_SWAP_CURVE: u64 = 0x03;
 
+    const EINVALID_SWAP_ROUTER_DELEGATE: u64 = 0x04;
+
     /// Ensuring the origin of tokens
     public fun right_type<X>(token: vector<u8>): bool {
         let data = vector::empty();
@@ -153,7 +155,7 @@ module omniswap::swap {
                 abort EINVALID_SWAP_CURVE
             }
         }else {
-            abort EINVALID_SWAP_ROUTER
+            abort EINVALID_SWAP_ROUTER_DELEGATE
         }
     }
 
