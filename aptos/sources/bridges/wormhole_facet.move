@@ -208,7 +208,8 @@ module omniswap::wormhole_facet {
         manager.fee = fee;
     }
 
-    public entry fun get_so_fees(): u64 acquires WormholeFee {
+    #[view]
+    public fun get_so_fees(): u64 acquires WormholeFee {
         if (exists<WormholeFee>(get_resource_address())) {
             let manager = borrow_global_mut<WormholeFee>(get_resource_address());
             manager.fee
