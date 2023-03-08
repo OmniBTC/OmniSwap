@@ -365,7 +365,7 @@ class AptosPackage:
         print("-" * (100 + len(view)))
         print("\n")
         test_cmd = f"aptos move test {self.package_path} {self.replace_address}"
-        os.system(compile_cmd)
+        os.system(test_cmd)
 
     def publish_package(self):
         # # Sometimes: "Transaction Executed and Committed with Error LINKER_ERROR"
