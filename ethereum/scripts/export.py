@@ -4,7 +4,6 @@
 import contextlib
 import json
 import os
-from pprint import pp, pprint
 
 from brownie import (
     DiamondCutFacet,
@@ -61,6 +60,7 @@ mainnet_swap_file = os.path.join(root_path, "export/mainnet/OmniSwapInfo.json")
 
 
 def write_file(file: str, data):
+    print("save to:", file)
     with open(file, "w") as f:
         json.dump(data, f, indent=4, sort_keys=True)
 
@@ -84,7 +84,8 @@ def fit_mainnet_stargate_chain_path():
 def get_stragate_pool_infos():
     stargate_router_address = get_stargate_router()
     if stargate_router_address == "":
-        return []
+        return [], []
+
     stargate_router = Contract.from_abi(
         "IStargate", stargate_router_address, interface.IStargate.abi
     )
@@ -289,9 +290,18 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
     return net_support_token
 
 
-def export_wormhole_chain_path(arg, wormhole_chain_path):
+def export_wormhole_chain_path(networks):
+    wormhole_chain_path = []
+    for net in networks:
+        print(f"[export_wormhole_chain_path] current net: {net}")
+        try:
+            change_network(net)
+            wormhole_chain_path.extend(get_all_warpped_token())
+        except Exception:
+            continue
+
     omni_swap_infos = read_json(omni_swap_file)
-    for net in arg:
+    for net in networks:
         if "aptos" in net:
             continue
         net_support_token = get_wormhole_chain_path(net, wormhole_chain_path)
@@ -455,10 +465,7 @@ def export(*arg):
             continue
         deployed_contracts[net] = export_deployed()
 
-        if get_stragate_pool_infos() == []:
-            pool_info, stargate_info = ([], [])
-        else:
-            pool_info, stargate_info = get_stragate_pool_infos()
+        pool_info, stargate_info = get_stragate_pool_infos()
         stargate_infos[net] = stargate_info
         try:
             weth = get_token_address("weth")
@@ -523,14 +530,207 @@ def export(*arg):
         so_diamond_abi += f.abi
 
     write_file(deployed_file, deployed_contracts)
-    write_file(omni_swap_file, omni_swap_infos)
-    write_file(stragate_file, stargate_infos)
+
+
+def new_export(*args):
+    networks = select_networks(args)
+
+    export_so_diamond_abi()
+    export_stargate_abi()
+    export_celer_abi()
+    export_swap_abi(networks)
+    export_deployed_contracts(networks)
+
+    export_stargate_info(networks)
+    export_omniswap_info(networks)
+
+
+def export_so_diamond_abi():
+    contrats = [
+        # facets
+        DiamondCutFacet,
+        DiamondLoupeFacet,
+        DexManagerFacet,
+        StargateFacet,
+        WithdrawFacet,
+        OwnershipFacet,
+        GenericSwapFacet,
+        WormholeFacet,
+        SerdeFacet,
+        CelerFacet,
+        # libs
+        LibSwap,
+    ]
+
+    so_diamond_abi = []
+    for c in contrats:
+        so_diamond_abi += c.abi
+
+    write_file(os.path.join(root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
+
+
+def export_stargate_abi():
     write_file(
         os.path.join(root_path, "export/abi/IStargate.json"), interface.IStargate.abi
     )
-    write_file(os.path.join(root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
-    export_wormhole_chain_path(arg, wormhole_chain_path)
-    get_stargate_chain_path()
+
+
+def export_celer_abi():
+    write_file(
+        os.path.join(root_path, "export/abi/ICelerBridge.json"),
+        interface.ICelerBridge.abi,
+    )
+
+
+def export_swap_abi(networks):
+    swap_types = {}
+
+    for net in networks:
+        print(f"[export_swap_abi] current net: {net}")
+
+        try:
+            change_network(net)
+        except:
+            continue
+
+        with contextlib.suppress(Exception):
+            swap_info = get_swap_info()
+
+            for swap_type in swap_info:
+                if swap_type not in swap_types:
+                    write_file(
+                        os.path.join(root_path, f"export/abi/{swap_type}.json"),
+                        getattr(interface, swap_type).abi,
+                    )
+                swap_types[swap_type] = True
+
+    write_file(
+        os.path.join(root_path, "export/abi/IQuoter.json"),
+        getattr(interface, "IQuoter").abi,
+    )
+
+
+def export_deployed_contracts(networks):
+    deployed_contracts = {}
+
+    for net in networks:
+        print(f"[export_deployed_contracts] current net: {net}")
+
+        try:
+            change_network(net)
+            deployed_contracts[net] = export_deployed()
+        except:
+            continue
+
+    write_file(deployed_file, deployed_contracts)
+
+
+def export_stargate_info(networks):
+    stargate_infos = {}
+    for net in networks:
+        print(f"[export_stargate_info] current net: {net}")
+
+        try:
+            change_network(net)
+            _pool_info, stargate_info = get_stragate_pool_infos()
+            stargate_infos[net] = stargate_info
+        except:
+            continue
+
+    write_file(stragate_file, stargate_infos)
+
+
+def export_omniswap_info(networks):
+    omni_swap_infos = {}
+
+    for net in networks:
+        print(f"[export_omniswap_info] current net: {net}")
+
+        try:
+            change_network(net)
+            so_diamond = SoDiamond[-1]
+            pool_info, _stargate_info = get_stragate_pool_infos()
+        except:
+            continue
+
+        try:
+            weth = get_token_address("weth")
+        except:
+            weth = ""
+
+        swap_router = []
+        with contextlib.suppress(Exception):
+            swap_info = get_swap_info()
+            for swap_type in swap_info:
+                cur_swap = swap_info[swap_type]
+                swap_router_address = cur_swap["router"]
+                swap_token_list = cur_swap.get("token_list", "")
+                quoter_address = cur_swap.get("quoter", "")
+                swap_name = cur_swap.get("name", "")
+
+                swap_router.append(
+                    {
+                        "Name": swap_name,
+                        "RouterAddress": swap_router_address,
+                        "Type": swap_type,
+                        "TokenList": swap_token_list,
+                        "QuoterAddressForUniswapV3": quoter_address,
+                    }
+                )
+
+        bridges = {}
+        with contextlib.suppress(Exception):
+            bridges["Celer"] = get_celer_info()
+
+        omni_swap_infos[net] = {
+            "OmniBtcChainId": config["networks"][net]["omnibtc_chainid"],
+            "SoDiamond": so_diamond.address,
+            "ChainId": config["networks"][net]["chainid"],
+            "WormholeBridge": get_wormhole_bridge(),
+            "WormholeChainId": get_wormhole_chainid(),
+            "WormholeSupportToken": get_wormhole_support_token(net),
+            "StargateRouter": get_stargate_router(),
+            "StargateChainId": get_stargate_chain_id(),
+            "StargatePool": pool_info,
+            "WETH": weth,
+            "UniswapRouter": swap_router,
+            "Bridges": bridges,
+        }
+
+    write_file(omni_swap_file, omni_swap_infos)
+
+
+def get_celer_info():
+    message_bus_address = get_celer_message_bus()
+    message_bus = Contract.from_abi(
+        "ICelerMessageBus", message_bus_address, interface.ICelerMessageBus.abi
+    )
+    bridge_address = message_bus.liquidityBridge()
+    support_tokens = get_celer_support_token(network.show_active())
+
+    return {
+        "MessageBus": message_bus_address,
+        "Bridge": bridge_address,
+        "SupportToken": support_tokens,
+    }
+
+
+def get_celer_support_token(net):
+    if "bridges" in config["networks"][net].keys():
+        return [
+            {
+                "ChainPath": [],
+                "TokenName": token.upper(),
+                "TokenAddress": config["networks"][net]["bridges"]["celer"]["token"][
+                    token
+                ]["address"],
+                "Decimal": config["networks"][net]["bridges"]["celer"]["token"][token][
+                    "decimal"
+                ],
+            }
+            for token in config["networks"][net]["bridges"]["celer"]["token"]
+            if token in ["usdt", "usdc"]
+        ]
 
 
 def export_celer():
@@ -539,3 +739,41 @@ def export_celer():
         change_network(net)
         deployed_contracts[net] = export_deployed()
     write_file("celer_test_contracts.json", deployed_contracts)
+
+
+def select_networks(args):
+    main_networks = [
+        "aptos-mainnet",
+        "mainnet",
+        "bsc-main",
+        "avax-main",
+        "polygon-main",
+        "arbitrum-main",
+        "optimism-main",
+        "ftm-main",
+    ]
+
+    test_networks = [
+        "aptos-testnet",
+        "goerli",
+        "bsc-test",
+        "avax-test",
+        "polygon-test",
+        "arbitrum-test",
+        "optimism-test",
+        "ftm-test",
+    ]
+
+    export_networks = []
+
+    if len(args) != 0 and args[0] == "main":
+        export_networks.extend(main_networks)
+    elif len(args) != 0 and args[0] == "test":
+        export_networks.extend(test_networks)
+    else:
+        export_networks.extend(main_networks)
+        export_networks.extend(test_networks)
+
+    print(export_networks)
+
+    return export_networks
