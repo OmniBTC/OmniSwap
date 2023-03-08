@@ -364,6 +364,8 @@ class AptosPackage:
         os.system(compile_cmd)
         print("-" * (100 + len(view)))
         print("\n")
+        test_cmd = f"aptos move test {self.package_path} {self.replace_address}"
+        os.system(compile_cmd)
 
     def publish_package(self):
         # # Sometimes: "Transaction Executed and Committed with Error LINKER_ERROR"
@@ -435,7 +437,7 @@ class AptosPackage:
             gas_unit_price=100,
             return_types="storage",
             **kwargs,
-    ) -> Union[list|int]:
+    ) -> Union[list | int]:
         """
         return_types: storage|gas
             storage: return storage changes
