@@ -104,7 +104,12 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         uint256 bridgeAmount,
         uint64 nonce
     );
-    event RefundCelerToken(address indexed token, address sender, uint256 amount);
+    event RefundCelerToken(
+        address indexed token,
+        address sender,
+        uint256 amount,
+        bytes32 srcTxId
+    );
 
     /// Init ///
 
@@ -352,8 +357,10 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
 
         (
             address sender,
-            ,
+            ISo.NormalizedSoData memory soDataNo,
         ) = decodeCelerPayload(message);
+
+        ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
 
         if (sender != address(0)) {
             LibAsset.transferAsset(
@@ -366,7 +373,8 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         emit RefundCelerToken(
             token,
             sender,
-            amount
+            amount,
+            soData.transactionId
         );
 
         return ExecutionStatus.Success;
