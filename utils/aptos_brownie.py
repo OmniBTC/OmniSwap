@@ -364,7 +364,7 @@ class AptosPackage:
         os.system(compile_cmd)
         print("-" * (100 + len(view)))
         print("\n")
-        test_cmd = f"aptos move test {self.package_path} {self.replace_address}"
+        test_cmd = f"aptos move test --package-dir {self.package_path} {self.replace_address}"
         os.system(test_cmd)
 
     def publish_package(self):
