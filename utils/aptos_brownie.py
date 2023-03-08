@@ -358,14 +358,15 @@ class AptosPackage:
         # # # # # Compile
         view = f"Compile {self.package_name}"
         print("\n" + "-" * 50 + view + "-" * 50)
+        test_cmd = f"aptos move test --package-dir {self.package_path} {self.replace_address}"
+        print(test_cmd)
+        os.system(test_cmd)
         compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir " \
                       f"{self.package_path} {self.replace_address}"
         print(compile_cmd)
         os.system(compile_cmd)
         print("-" * (100 + len(view)))
         print("\n")
-        test_cmd = f"aptos move test --package-dir {self.package_path} {self.replace_address}"
-        os.system(test_cmd)
 
     def publish_package(self):
         # # Sometimes: "Transaction Executed and Committed with Error LINKER_ERROR"
