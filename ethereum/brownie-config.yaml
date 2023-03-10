@@ -169,13 +169,6 @@ networks:
       celer:
         chainid: 5
         message_bus: "0xF25170F86E4291a99a9A560032Fe9948b8BcFBB2"
-        actual_reserve: 1.1
-        estimate_reserve: 1.2
-        gas:
-          avax-test:
-            dst_chainid: 43113
-            base_gas: 700000
-            per_byte_gas: 68
         token:
           usdc:
             address: "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28"
@@ -183,11 +176,13 @@ networks:
           weth:
             address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
             decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 5 # goerli
+            - 43113 # avax-test
         oracle:
-          eth:
-            chainid: 5
-            currency: USD
-            address: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
+          # manual set avax/eth ratio
     swap:
       ISwapRouter:
         name: UniswapV3
@@ -345,13 +340,6 @@ networks:
       celer:
         chainid: 43113
         message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
-        actual_reserve: 1.1
-        estimate_reserve: 1.2
-        gas:
-          goerli:
-            dst_chainid: 5
-            base_gas: 700000
-            per_byte_gas: 68
         token:
           usdc:
             address: "0x2979a1cb90EEB9e75d7fB4f9813FCC40E4a7fD8b"
@@ -361,15 +349,16 @@ networks:
             # Just for celer test
             address: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
             decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 5 # goerli
+            - 43113 # avax-test
         oracle:
           avax:
             chainid: 43113
             currency: USD
             address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
-          matic:
-            chainid: 80001
-            currency: USD
-            address: "0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0"
           eth:
             chainid: 5
             currency: USD
@@ -679,9 +668,15 @@ networks:
           weth:
             address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
             decimal: 18
-        actual_reserve: 1.1
-        estimate_reserve: 1.2
         gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
         oracle:
     oracle:
       eth:
@@ -781,9 +776,15 @@ networks:
           weth:
             address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8"
             decimal: 18
-        actual_reserve: 1.1
-        estimate_reserve: 1.2
         gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
         oracle:
     oracle:
       eth:
@@ -875,9 +876,15 @@ networks:
           weth:
             address: "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB"
             decimal: 18
-        actual_reserve: 1.1
-        estimate_reserve: 1.2
         gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
         oracle:
     oracle:
       eth:
@@ -966,9 +973,15 @@ networks:
           weth:
             address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"
             decimal: 18
-        actual_reserve: 1.1
-        estimate_reserve: 1.2
         gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
         oracle:
     oracle:
       eth:
@@ -1043,6 +1056,14 @@ networks:
         actual_reserve: 1.1
         estimate_reserve: 1.2
         gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
         oracle:
     token:
       usdt:
@@ -1087,9 +1108,15 @@ networks:
           weth:
             address: "0x4200000000000000000000000000000000000006"
             decimal: 18
-        actual_reserve: 1.1
-        estimate_reserve: 1.2
         gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
         oracle:
     token:
       weth:
