@@ -3,6 +3,18 @@
 pragma solidity 0.8.13;
 
 interface ICelerBridge {
+    // liquidity events
+    event Send(
+        bytes32 transferId,
+        address sender,
+        address receiver,
+        address token,
+        uint256 amount,
+        uint64 dstChainId,
+        uint64 nonce,
+        uint32 maxSlippage
+    );
+
     function send(
         address _receiver,
         address _token,

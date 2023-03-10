@@ -107,6 +107,7 @@ def soSwapViaCeler(
 
     print(tx.info())
 
+    # Contract.from_abi("ICelerBridge", bridge_address, interface.ICelerBridge.abi)
     celer_transfer_id = tx.events["Send"]["transferId"].hex()
     print("celer transferId: ", celer_transfer_id)
 
