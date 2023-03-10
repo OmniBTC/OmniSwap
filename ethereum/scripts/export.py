@@ -179,7 +179,7 @@ def get_stargate_chain_path():
             if net1 == net2:
                 continue
             if ("main" in net1 and "main" not in net2) or (
-                "main" not in net1 and "main" in net2
+                    "main" not in net1 and "main" in net2
             ):
                 continue
             get_stargate_pair_chain_path(omni_swap_infos, net1, net2)
@@ -211,8 +211,8 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
     wrapped_chain_path = []
     for chain_path in net_chain_path:
         if (
-            chain_path["SrcTokenAddress"] == zero_address()
-            and chain_path["DstTokenAddress"] == zero_address()
+                chain_path["SrcTokenAddress"] == zero_address()
+                and chain_path["DstTokenAddress"] == zero_address()
         ):
             continue
         if chain_path["SrcTokenAddress"] == zero_address():
@@ -541,8 +541,8 @@ def new_export(*args):
     export_swap_abi(networks)
     export_deployed_contracts(networks)
 
-    export_stargate_info(networks)
-    export_omniswap_info(networks)
+    # export_stargate_info(networks)
+    # export_omniswap_info(networks)
 
 
 def export_so_diamond_abi():
@@ -678,10 +678,6 @@ def export_omniswap_info(networks):
                     }
                 )
 
-        bridges = {}
-        with contextlib.suppress(Exception):
-            bridges["Celer"] = get_celer_info()
-
         omni_swap_infos[net] = {
             "OmniBtcChainId": config["networks"][net]["omnibtc_chainid"],
             "SoDiamond": so_diamond.address,
@@ -694,43 +690,9 @@ def export_omniswap_info(networks):
             "StargatePool": pool_info,
             "WETH": weth,
             "UniswapRouter": swap_router,
-            "Bridges": bridges,
         }
 
     write_file(omni_swap_file, omni_swap_infos)
-
-
-def get_celer_info():
-    message_bus_address = get_celer_message_bus()
-    message_bus = Contract.from_abi(
-        "ICelerMessageBus", message_bus_address, interface.ICelerMessageBus.abi
-    )
-    bridge_address = message_bus.liquidityBridge()
-    support_tokens = get_celer_support_token(network.show_active())
-
-    return {
-        "MessageBus": message_bus_address,
-        "Bridge": bridge_address,
-        "SupportToken": support_tokens,
-    }
-
-
-def get_celer_support_token(net):
-    if "bridges" in config["networks"][net].keys():
-        return [
-            {
-                "ChainPath": [],
-                "TokenName": token.upper(),
-                "TokenAddress": config["networks"][net]["bridges"]["celer"]["token"][
-                    token
-                ]["address"],
-                "Decimal": config["networks"][net]["bridges"]["celer"]["token"][token][
-                    "decimal"
-                ],
-            }
-            for token in config["networks"][net]["bridges"]["celer"]["token"]
-            if token in ["usdt", "usdc"]
-        ]
 
 
 def export_celer():
@@ -771,7 +733,6 @@ def select_networks(args):
     elif len(args) != 0 and args[0] == "test":
         export_networks.extend(test_networks)
     else:
-        export_networks.extend(main_networks)
         export_networks.extend(test_networks)
 
     print(export_networks)

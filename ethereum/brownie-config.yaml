@@ -665,6 +665,24 @@ networks:
 #          dst_chainid: 10
 #          base_gas: 700000
 #          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 1
+        message_bus: "0x4066d196a423b2b3b8b054f4f40efb47a74e200c"
+        token:
+          usdc:
+            address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+            decimal: 6
+          usdt:
+            address: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+            decimal: 6
+          weth:
+            address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+            decimal: 18
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+        oracle:
     oracle:
       eth:
         chainid: 2
@@ -749,6 +767,24 @@ networks:
 #          dst_chainid: 10
 #          base_gas: 700000
 #          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 56
+        message_bus: "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b"
+        token:
+          usdc:
+            address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+            decimal: 18
+          usdt:
+            address: "0x55d398326f99059fF775485246999027B3197955"
+            decimal: 18
+          weth:
+            address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8"
+            decimal: 18
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+        oracle:
     oracle:
       eth:
         chainid: 2
@@ -825,6 +861,24 @@ networks:
 #          dst_chainid: 10
 #          base_gas: 700000
 #          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 43114
+        message_bus: "0x5a926eeeafc4d217add17e9641e8ce23cd01ad57"
+        token:
+          usdc:
+            address: "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664"
+            decimal: 6
+          usdt:
+            address: "0xc7198437980c041c805A1EDcbA50c1Ce5db95118"
+            decimal: 6
+          weth:
+            address: "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB"
+            decimal: 18
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+        oracle:
     oracle:
       eth:
         chainid: 2
@@ -898,6 +952,24 @@ networks:
 #          dst_chainid: 10
 #          base_gas: 700000
 #          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 137
+        message_bus: "0xaFDb9C40C7144022811F034EE07Ce2E110093fe6"
+        token:
+          usdc:
+            address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+            decimal: 6
+          usdt:
+            address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+            decimal: 6
+          weth:
+            address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"
+            decimal: 18
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+        oracle:
     oracle:
       eth:
         chainid: 2
@@ -954,6 +1026,24 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      celer:
+        chainid: 42161
+        message_bus: "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f"
+        token:
+          usdc:
+            address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+            decimal: 6
+          usdt:
+            address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+            decimal: 6
+          weth:
+            address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+            decimal: 18
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+        oracle:
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
@@ -983,6 +1073,24 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      celer:
+        chainid: 10
+        message_bus: "0x0D71D18126E03646eb09FEc929e2ae87b7CAE69d"
+        token:
+          usdc:
+            address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+            decimal: 6
+          usdt:
+            address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
+            decimal: 6
+          weth:
+            address: "0x4200000000000000000000000000000000000006"
+            decimal: 18
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+        oracle:
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"
