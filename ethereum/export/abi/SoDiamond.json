@@ -4140,31 +4140,6 @@
         "inputs": [
             {
                 "indexed": false,
-                "internalType": "uint64",
-                "name": "dstCelerChainId",
-                "type": "uint64"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "baseGas",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "gasPerBytes",
-                "type": "uint256"
-            }
-        ],
-        "name": "UpdateCelerGas",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
                 "internalType": "uint256",
                 "name": "actualReserve",
                 "type": "uint256"
@@ -4178,6 +4153,19 @@
         ],
         "name": "UpdateCelerReserve",
         "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "GasPerByte",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
         "inputs": [],
@@ -4942,6 +4930,25 @@
     {
         "inputs": [
             {
+                "internalType": "uint64",
+                "name": "dstChainId",
+                "type": "uint64"
+            }
+        ],
+        "name": "getBaseGas",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "messageBus",
                 "type": "address"
@@ -5072,22 +5079,17 @@
     {
         "inputs": [
             {
-                "internalType": "uint16",
-                "name": "dstCelerChainId",
-                "type": "uint16"
+                "internalType": "uint64[]",
+                "name": "dstChainIds",
+                "type": "uint64[]"
             },
             {
                 "internalType": "uint256",
-                "name": "baseGas",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "gasPerBytes",
+                "name": "dstBaseGas",
                 "type": "uint256"
             }
         ],
-        "name": "setCelerGas",
+        "name": "setBaseGas",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -5106,19 +5108,6 @@
             }
         ],
         "name": "setCelerReserve",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "messageBus",
-                "type": "address"
-            }
-        ],
-        "name": "setMessageBus",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

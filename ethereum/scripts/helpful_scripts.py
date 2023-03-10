@@ -5,7 +5,7 @@ from typing import Union, List
 
 from brownie import network, accounts, config, project, web3
 from brownie.network.web3 import Web3
-from brownie.network import priority_fee, max_fee
+from brownie.network import priority_fee
 from multiprocessing import Queue, Process, set_start_method
 
 from brownie.project import get_loaded_projects
@@ -99,7 +99,6 @@ def change_network(dst_net):
         network.disconnect()
     network.connect(dst_net)
     if dst_net in ["rinkeby", "goerli"]:
-        max_fee("200 gwei")
         priority_fee("2 gwei")
 
 

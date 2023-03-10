@@ -1,12 +1,12 @@
 {
     "avax-test": {
-        "CelerFacet": "0xD8CA6b3aAC6f1169b4acff726249ec7C8f03C429",
+        "CelerFacet": "0xB88bA492499dF344106DFAEea36bD9d0498f347b",
         "DexManagerFacet": "0x748E69591Fe651f7a8564577fB0A8A6DC294C663",
         "DiamondCutFacet": "0x66a820c5e74d935785AcCFcC0Cb90e9823756ddc",
         "DiamondLoupeFacet": "0x8D2c8173f35F49a196D003207AB67235eA0DD2Df",
         "GenericSwapFacet": "0x3b3a6bE42b8eeF544FB61555D02d44fc3487562F",
         "LibCorrectSwapV1": "0x5052CfBfEc1fbbF12613de12319716e1f3a1990c",
-        "LibSoFeeCelerV1": "0x52290bEC628322C910dcA4Bfc1b9c3F2593b2855",
+        "LibSoFeeCelerV1": "0x0a5926E5C279eB21130214092d835c7BBFa18dF9",
         "LibSoFeeWormholeV1": "0xD9a4ae73A2A5C684cd64f8204bc93BCd0C730253",
         "OwnershipFacet": "0x6A146B07AaA86925B5aec255C5C914a5Fd940C54",
         "SerdeFacet": "0x65430554edE8609aFb6bE7b89d9dC61E8D7F1AAb",
@@ -16,13 +16,13 @@
         "WormholeFacet": "0xB1BC748cF66C5DD6613D5Db2De8a42232cd3484d"
     },
     "goerli": {
-        "CelerFacet": "0xe0617Bb05b8f2Ed395aC8cf164E3a6bAc122925d",
+        "CelerFacet": "0xb46042C5e49a299c5AEBf452848Bd63A04Cbcc05",
         "DexManagerFacet": "0xCDCF1cEB666461B78e9EF21221919f214096531a",
         "DiamondCutFacet": "0x9bEd1F12eEcCD332962fE43B4599b03AFD8487A1",
         "DiamondLoupeFacet": "0xA3D3d2211efaBCDA923be957B54e3D036F29b92A",
         "GenericSwapFacet": "0xC5267C7D9413514B97CeC899FdEF5E9b8Ac87b01",
         "LibCorrectSwapV1": "0xA3FE86363dD6Cc3fDecF3C55fBF14E9C084bd07b",
-        "LibSoFeeCelerV1": "0x8Bd3DbD7964eaADeB6e3180dC53e6AD647425ce7",
+        "LibSoFeeCelerV1": "0x448c2e298a09BA15aA2921D1340808C8eED7A804",
         "LibSoFeeWormholeV1": "0x77b269daB025A0aeBb198D06D3AEB8b56F44E517",
         "OwnershipFacet": "0xC7DE1DB2F085388c70F4391B8453183420472EA7",
         "SerdeFacet": "0xcE30FABEbe2007857d7Dc47c477f26eDDeb11437",

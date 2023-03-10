@@ -21,7 +21,7 @@ from brownie import (
     CelerFacet,
     LibSoFeeCelerV1,
 )
-from brownie.network import priority_fee, max_fee
+from brownie.network import priority_fee
 
 FacetCutAction_ADD = 0
 FacetCutAction_REPLACE = 1
@@ -119,6 +119,9 @@ def initialize_wormhole_fee(account):
 def initialize_celer_fee(account):
     # initialize oracle
     oracles = get_celer_oracles()
+    if oracles is None:
+        return
+
     chainid = get_celer_chain_id()
 
     native_oracle_address = ""
@@ -134,13 +137,6 @@ def initialize_celer_fee(account):
             LibSoFeeCelerV1[-1].setPriceConfig(
                 oracles[token]["chainid"],
                 [[oracles[token]["address"], False], [native_oracle_address, True]],
-                60,
-                {"from": account},
-            )
-        elif oracles[token]["currency"] == "ETH":
-            LibSoFeeCelerV1[-1].setPriceConfig(
-                oracles[token]["chainid"],
-                [[oracles[token]["address"], False]],
                 60,
                 {"from": account},
             )
@@ -203,24 +199,14 @@ def initialize_celer(account, so_diamond):
         get_celer_message_bus(), get_celer_chain_id(), {"from": account}
     )
 
-    ray = 1e27
-    # setCelerReserve
-    print(f"network:{net}, set celer reserve...")
-    proxy_celer.setCelerReserve(
-        int(get_celer_actual_reserve() * ray),
-        int(get_celer_estimate_reserve() * ray),
-        {"from": account},
-    )
-    # setCelerGas
+    # setBaseGas
     gas = get_celer_info()["gas"]
-    for chain in gas:
-        print(f"network:{net}, set dst chain {chain} celer gas...")
-        proxy_celer.setCelerGas(
-            gas[chain]["dst_chainid"],
-            gas[chain]["base_gas"],
-            gas[chain]["per_byte_gas"],
-            {"from": account},
-        )
+    base_gas = gas["base_gas"]
+    dst_chains = gas["dst_chainid"]
+
+    print(f"network:{net}, set base gas: {base_gas}, {dst_chains}")
+
+    proxy_celer.setBaseGas(dst_chains,base_gas,{"from": account})
 
 
 def set_wormhole_gas():
@@ -415,7 +401,6 @@ def redeploy_celer():
     account = get_account()
 
     if network.show_active() in ["rinkeby", "goerli"]:
-        max_fee("200 gwei")
         priority_fee("2 gwei")
 
     proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
@@ -432,23 +417,23 @@ def redeploy_celer():
     proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
     proxy_celer.setNonce(lastNonce, {"from": account})
 
-    # proxy_dex = Contract.from_abi(
-    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    # )
-    #
-    # so_fee = 1e-3
-    # ray = 1e27
-    #
-    # print("Deploy LibSoFeeCelerV1...")
-    # LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
-    #
-    # print("AddFee ...")
-    # proxy_dex.addFee(
-    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
-    # )
-    #
-    # print("Initialize celer fee...")
-    # initialize_celer_fee(account)
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+
+    so_fee = 1e-3
+    ray = 1e27
+
+    print("Deploy LibSoFeeCelerV1...")
+    LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
+
+    print("AddFee ...")
+    proxy_dex.addFee(
+        get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    )
+
+    print("Initialize celer fee...")
+    initialize_celer_fee(account)
 
     # LibSoFeeCelerV1[-1].setPriceRatio(43113, ray, {'from': account})
     # LibSoFeeCelerV1[-1].updatePriceRatio(43113, {'from': account})

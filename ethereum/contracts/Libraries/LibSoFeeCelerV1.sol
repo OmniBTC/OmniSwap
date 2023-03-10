@@ -41,8 +41,8 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
     uint256 public soFee;
 
     // Destination celer chain id => Oracle config
-    mapping(uint64 => PriceConfig) priceConfig;
-    mapping(uint64 => PriceData) priceData;
+    mapping(uint64 => PriceConfig) public priceConfig;
+    mapping(uint64 => PriceData) public priceData;
 
     //---------------------------------------------------------------------------
     // EVENT

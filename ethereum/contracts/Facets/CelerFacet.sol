@@ -29,6 +29,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         hex"5a7c277686f4a9ab3396ccbfbeac4866fb97785944f0661a3f0935d16bc9848b"; // keccak256("com.so.facets.celer")
 
     uint256 public constant RAY = 1e27;
+    uint256 public constant GasPerByte = 68;
 
     struct Storage {
         address messageBus; // The Celer MessageBus address
@@ -36,8 +37,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         uint64 srcCelerChainId; // The Celer chain id of the source/current chain
         uint256 actualReserve; // [RAY]
         uint256 estimateReserve; // [RAY]
-        mapping(uint64 => uint256) dstBaseGas;
-        mapping(uint64 => uint256) dstGasPerBytes;
+        mapping(uint64 => uint256) dstBaseGas; // For estimate destination chain execute gas
         mapping(address => bool) allowedList; // Permission to allow calls to executeMessageWithTransfer
     }
 
@@ -95,7 +95,6 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     event SetMessageBus(address indexed messageBus);
     event SetAllowedList(address indexed messageBus, bool isAllowed);
     event UpdateCelerReserve(uint256 actualReserve, uint256 estimateReserve);
-    event UpdateCelerGas(uint64 dstCelerChainId, uint256 baseGas, uint256 gasPerBytes);
     event TransferFromCeler(
         bytes32 indexed celerTransferId,
         uint64 srcCelerChainId,
@@ -125,6 +124,8 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         s.nextNonce = 1;
         s.messageBus = messageBus;
         s.srcCelerChainId = chainId;
+        s.actualReserve = (RAY).mul(11).div(10); // 110%
+        s.estimateReserve = (RAY).mul(12).div(10); // 120%
         s.allowedList[messageBus] = true;
         s.allowedList[msg.sender] = true;
 
@@ -139,18 +140,6 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         s.allowedList[messageBus] = isAllowed;
 
         emit SetAllowedList(messageBus, isAllowed);
-    }
-
-    /// @dev Set new messageBus
-    function setMessageBus(address messageBus) external
-    {
-        LibDiamond.enforceIsContractOwner();
-
-        Storage storage s = getStorage();
-        s.messageBus = messageBus;
-        s.allowedList[messageBus] = true;
-
-        emit SetMessageBus(messageBus);
     }
 
     /// @dev Set new nonce
@@ -170,25 +159,26 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
+
         s.actualReserve = actualReserve;
         s.estimateReserve = estimateReserve;
+
         emit UpdateCelerReserve(actualReserve, estimateReserve);
     }
 
     /// @dev Set the minimum gas to be spent on the destination chain
-    /// @param dstCelerChainId destination chain celer chain id
-    /// @param baseGas basic fee for a successful transaction
-    /// @param gasPerBytes the amount of gas needed to transfer each byte of the payload
-    function setCelerGas(
-        uint16 dstCelerChainId,
-        uint256 baseGas,
-        uint256 gasPerBytes
+    /// @param dstChainIds  a batch of destination chain id
+    /// @param dstBaseGas  base gas for destination chain
+    function setBaseGas(
+        uint64[] calldata dstChainIds,
+        uint256 dstBaseGas
     ) external {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
-        s.dstBaseGas[dstCelerChainId] = baseGas;
-        s.dstGasPerBytes[dstCelerChainId] = gasPerBytes;
-        emit UpdateCelerGas(dstCelerChainId, baseGas, gasPerBytes);
+
+        for (uint64 i; i < dstChainIds.length; i++ ) {
+            s.dstBaseGas[dstChainIds[i]] = dstBaseGas;
+        }
     }
 
     /// External Methods ///
@@ -598,7 +588,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         c.srcMessageFee = getCelerMessageFee1(s.messageBus, c.message);
 
         c.dstExecutorGas = s.dstBaseGas[dstCelerChainId]
-            .add(s.dstGasPerBytes[dstCelerChainId].mul(c.message.length));
+            .add(GasPerByte.mul(c.message.length));
 
         c.dstExecutorFee = c.dstExecutorGas.mul(dstMaxGasPriceInWeiForExecutor);
 
@@ -655,6 +645,12 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     function getNonce() public view returns (uint64) {
         Storage storage s = getStorage();
         return s.nextNonce;
+    }
+
+    /// @dev Get base gas of destination chain
+    function getBaseGas(uint64 dstChainId) public view returns(uint256) {
+        Storage storage s = getStorage();
+        return s.dstBaseGas[dstChainId];
     }
 
     /// Private Methods ///
