@@ -137,10 +137,7 @@ def initialize_celer_fee(account):
 
         LibSoFeeCelerV1[-1].setPriceConfig(
             chain_oracles[chain]["chainid"],
-            [
-                [chain_oracles[chain]["address"], False],
-                [native_oracle_address, True]
-            ],
+            [[chain_oracles[chain]["address"], False], [native_oracle_address, True]],
             60,
             {"from": account},
         )
@@ -210,7 +207,7 @@ def initialize_celer(account, so_diamond):
 
     print(f"network:{net}, set base gas: {base_gas}, {dst_chains}")
 
-    proxy_celer.setBaseGas(dst_chains,base_gas,{"from": account})
+    proxy_celer.setBaseGas(dst_chains, base_gas, {"from": account})
 
 
 def set_wormhole_gas():

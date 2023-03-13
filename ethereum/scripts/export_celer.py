@@ -5,7 +5,11 @@ import requests
 
 from brownie import Contract, config, interface
 
-from scripts.helpful_scripts import get_celer_message_bus, change_network, get_celer_oracles
+from scripts.helpful_scripts import (
+    get_celer_message_bus,
+    change_network,
+    get_celer_oracles,
+)
 
 CELER_GATEWAY = "https://cbridge-prod2.celer.app/v2/"
 
@@ -29,14 +33,14 @@ def read_json(file):
 
 
 def check_bridge_token(
-        src_chain_id: str,
-        dst_chain_id: str,
-        symbol: str,
-        src_decimal: int,
-        dst_decimal: int
+    src_chain_id: str,
+    dst_chain_id: str,
+    symbol: str,
+    src_decimal: int,
+    dst_decimal: int,
 ):
-    fixed_amount = 10 ** src_decimal
-    pegged_amount = 10 ** dst_decimal
+    fixed_amount = 10**src_decimal
+    pegged_amount = 10**dst_decimal
 
     if symbol != "WETH":
         fixed_amount = 500 * fixed_amount
@@ -72,41 +76,17 @@ def check_bridge_token(
 def simple_check_bridge_tokens():
     chain_tokens = {
         # Ethereum
-        "1": {
-            "USDC": 6,
-            "USDT": 6,
-            "WETH": 18
-        },
+        "1": {"USDC": 6, "USDT": 6, "WETH": 18},
         # Optimism
-        "10": {
-            "USDC": 6,
-            "USDT": 6,
-            "WETH": 18
-        },
+        "10": {"USDC": 6, "USDT": 6, "WETH": 18},
         # BSC
-        "56": {
-            "USDC": 18,
-            "USDT": 18,
-            "WETH": 18
-        },
+        "56": {"USDC": 18, "USDT": 18, "WETH": 18},
         # Polygon
-        "137": {
-            "USDC": 6,
-            "USDT": 6,
-            "WETH": 18
-        },
+        "137": {"USDC": 6, "USDT": 6, "WETH": 18},
         # Arbitrum
-        "42161": {
-            "USDC": 6,
-            "USDT": 6,
-            "WETH": 18
-        },
+        "42161": {"USDC": 6, "USDT": 6, "WETH": 18},
         # Avalanche
-        "43114": {
-            "USDC": 6,
-            "USDT": 6,
-            "WETH": 18
-        }
+        "43114": {"USDC": 6, "USDT": 6, "WETH": 18},
     }
 
     for chain1, tokens1 in chain_tokens.items():
@@ -115,9 +95,19 @@ def simple_check_bridge_tokens():
                 continue
             for token, decimal in tokens1.items():
                 if check_bridge_token(chain1, chain2, token, decimal, tokens2[token]):
-                    print(chain1, "===>>===", chain2, ":", token, decimal, tokens2[token])
+                    print(
+                        chain1, "===>>===", chain2, ":", token, decimal, tokens2[token]
+                    )
                 else:
-                    print(chain1, "===/////===", chain2, ":", token, decimal, tokens2[token])
+                    print(
+                        chain1,
+                        "===/////===",
+                        chain2,
+                        ":",
+                        token,
+                        decimal,
+                        tokens2[token],
+                    )
 
 
 def check_celer_bridge_tokens(bridge_tokens):
@@ -162,7 +152,7 @@ def get_celer_bridge_tokens():
                 del token["token"]["xfer_disabled"]
                 filter_tokens[token["token"]["symbol"]] = {
                     "decimal": int(token["token"]["decimal"]),
-                    "address": token["token"]["address"]
+                    "address": token["token"]["address"],
                 }
 
         bridge_tokens[chain] = filter_tokens
@@ -183,28 +173,28 @@ def export_main_celer_chain_path():
     celer_contracts = {
         "1": {
             "cBridge": "0x5427FEFA711Eff984124bFBB1AB6fbf5E3DA1820",
-            "MessageBus": "0x4066d196a423b2b3b8b054f4f40efb47a74e200c"
+            "MessageBus": "0x4066d196a423b2b3b8b054f4f40efb47a74e200c",
         },
         "10": {
             "cBridge": "0x9D39Fc627A6d9d9F8C831c16995b209548cc3401",
-            "MessageBus": "0x0D71D18126E03646eb09FEc929e2ae87b7CAE69d"
+            "MessageBus": "0x0D71D18126E03646eb09FEc929e2ae87b7CAE69d",
         },
         "56": {
             "cBridge": "0xdd90E5E87A2081Dcf0391920868eBc2FFB81a1aF",
-            "MessageBus": "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b"
+            "MessageBus": "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b",
         },
         "137": {
             "cBridge": "0x88DCDC47D2f83a99CF0000FDF667A468bB958a78",
-            "MessageBus": "0xaFDb9C40C7144022811F034EE07Ce2E110093fe6"
+            "MessageBus": "0xaFDb9C40C7144022811F034EE07Ce2E110093fe6",
         },
         "42161": {
             "cBridge": "0x1619DE6B6B20eD217a58d00f37B9d47C7663feca",
-            "MessageBus": "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f"
+            "MessageBus": "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f",
         },
         "43114": {
             "cBridge": "0xef3c714c9425a8F3697A9C969Dc1af30ba82e5d4",
-            "MessageBus": "0x5a926eeeafc4d217add17e9641e8ce23cd01ad57"
-        }
+            "MessageBus": "0x5a926eeeafc4d217add17e9641e8ce23cd01ad57",
+        },
     }
 
     chain_names = {
@@ -213,7 +203,7 @@ def export_main_celer_chain_path():
         "56": "bsc-main",
         "137": "polygon-main",
         "42161": "arbitrum-main",
-        "43114": "avax-main"
+        "43114": "avax-main",
     }
 
     chain_paths = {}
@@ -227,22 +217,24 @@ def export_main_celer_chain_path():
 
                 # print(chain1, token, "===>>===", chain2, tokens2[token]["address"], tokens2[token]["decimal"])
 
-                paths.append({
-                    "CelerChainId": int(chain2),
-                    "Address": tokens2[token]["address"],
-                    "Decimal": tokens2[token]["decimal"]
-                })
+                paths.append(
+                    {
+                        "CelerChainId": int(chain2),
+                        "Address": tokens2[token]["address"],
+                        "Decimal": tokens2[token]["decimal"],
+                    }
+                )
             token_paths[token] = {
                 "Address": tokens1[token]["address"],
                 "Decimal": tokens1[token]["decimal"],
-                "ChainPath": paths
+                "ChainPath": paths,
             }
 
         chain_paths[chain_names[chain1]] = {
             "CelerChainId": chain1,
             "Bridge": celer_contracts[chain1]["cBridge"],
             "MessageBus": celer_contracts[chain1]["MessageBus"],
-            "SupportToken": token_paths
+            "SupportToken": token_paths,
         }
 
     # print(json.dumps(chain_paths))
@@ -260,9 +252,9 @@ def get_celer_support_token(net):
                     "Address": config["networks"][net]["bridges"]["celer"]["token"][
                         token
                     ]["address"],
-                    "Decimal": config["networks"][net]["bridges"]["celer"]["token"][token][
-                        "decimal"
-                    ],
+                    "Decimal": config["networks"][net]["bridges"]["celer"]["token"][
+                        token
+                    ]["decimal"],
                 }
 
         return tokens
@@ -293,7 +285,15 @@ def check_celer_contracts(net, net_config):
         min_send = bridge.minSend(token_address)
         max_send = bridge.maxSend(token_address)
 
-        print(net, ":", token, "min=", min_send / 10 ** decimal, "max=", max_send / 10 ** decimal)
+        print(
+            net,
+            ":",
+            token,
+            "min=",
+            min_send / 10**decimal,
+            "max=",
+            max_send / 10**decimal,
+        )
 
 
 def check_main_celer_config():
@@ -325,9 +325,7 @@ def check_main_celer_config():
 
 def get_price(contract):
     price_feed = Contract.from_abi(
-        "IAggregatorV3Interface",
-        contract,
-        interface.IAggregatorV3Interface.abi
+        "IAggregatorV3Interface", contract, interface.IAggregatorV3Interface.abi
     )
 
     decimals = price_feed.decimals()
@@ -338,10 +336,10 @@ def get_price(contract):
         price,
         _started,
         _updated,
-        _answeredInRound
+        _answeredInRound,
     ) = price_feed.latestRoundData()
 
-    print("price:", float(price/10**decimals))
+    print("price:", float(price / 10**decimals))
     print("=====================================")
 
 
@@ -357,35 +355,35 @@ def check_main_oracles():
             "ETHUSD": "0x13e3Ee699D1909E989722E753853AE30b17e08c5",
             "AVAXUSD": "0x5087Dc69Fd3907a016BD42B38022F7f024140727",
             "BNBUSD": "0xD38579f7cBD14c22cF1997575eA8eF7bfe62ca2c",
-            "MATICUSD": "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828"
+            "MATICUSD": "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828",
         },
         "bsc-main": {
             "ETHUSD": "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e",
             "AVAXUSD": "0x5974855ce31EE8E1fff2e76591CbF83D7110F151",
             "BNBUSD": "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE",
-            "MATICUSD": "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
+            "MATICUSD": "0x7CA57b0cA6367191c94C8914d7Df09A57655905f",
         },
         "polygon-main": {
             "ETHUSD": "0xF9680D99D6C9589e2a93a78A04A279e509205945",
             "AVAXUSD": "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10",
             "BNBUSD": "0x82a6c4AF830caa6c97bb504425f6A66165C2c26e",
-            "MATICUSD": "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
+            "MATICUSD": "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0",
         },
         "arbitrum-main": {
             "ETHUSD": "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
             "AVAXUSD": "0x8bf61728eeDCE2F32c456454d87B5d6eD6150208",
             "BNBUSD": "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A",
-            "MATICUSD": "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
+            "MATICUSD": "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6",
         },
         "avax-main": {
             "ETHUSD": "0x976B3D034E162d8bD72D6b9C989d545b839003b0",
             "AVAXUSD": "0x0A77230d17318075983913bC2145DB16C7366156",
             # "BNBUSD": "",
-            "MATICUSD": "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
-        }
+            "MATICUSD": "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73",
+        },
     }
 
-    for net,oracles in main_chain_oracles.items():
+    for net, oracles in main_chain_oracles.items():
         print(f"[check_oracles] current net: {net}")
 
         change_network(net)
