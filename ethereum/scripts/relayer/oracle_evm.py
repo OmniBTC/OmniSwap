@@ -7,6 +7,7 @@ from brownie import (
     WormholeFacet,
     LibSoFeeWormholeV1,
     StargateFacet,
+    LibSoFeeCelerV1,
 )
 import ccxt
 
@@ -52,6 +53,18 @@ def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/
     return prices
 
 
+def set_celer_bnb_price_on_avax(ratio):
+    # bnb
+    dst_celer_id = 56
+    old_ratio = int(LibSoFeeCelerV1[-1].getPriceRatio(dst_celer_id)[0])
+    print(
+        f"[set_celer_bnb_price_on_avax]: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+    )
+
+    if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        LibSoFeeCelerV1[-1].setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
+
+
 def set_so_price():
     prices = get_prices()
 
@@ -69,6 +82,9 @@ def set_so_price():
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
+
+        set_celer_bnb_price_on_avax(ratio)
+
         # aptos
         dst_wormhole_id = 22
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
