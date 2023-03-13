@@ -33,6 +33,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
 
     struct Storage {
         address messageBus; // The Celer MessageBus address
+        address executorFeeTo; // The receiver of the executor fee.
         uint64 nextNonce; // The next nonce for celer bridge
         uint64 srcCelerChainId; // The Celer chain id of the source/current chain
         uint256 actualReserve; // [RAY]
@@ -123,6 +124,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
 
         s.nextNonce = 1;
         s.messageBus = messageBus;
+        s.executorFeeTo = LibDiamond.contractOwner();
         s.srcCelerChainId = chainId;
         s.actualReserve = (RAY).mul(11).div(10); // 110%
         s.estimateReserve = (RAY).mul(12).div(10); // 120%
@@ -150,6 +152,15 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
 
         Storage storage s = getStorage();
         s.nextNonce = nonce;
+    }
+
+    /// @dev Set new receiver of the executor fee
+    function setExecutorFeeTo(address feeTo) external
+    {
+        LibDiamond.enforceIsContractOwner();
+
+        Storage storage s = getStorage();
+        s.executorFeeTo = feeTo;
     }
 
     /// @dev Sets the scale to be used when calculating executor fees
@@ -220,7 +231,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         if (cache.srcExecutorFee > 0) {
             LibAsset.transferAsset(
                 LibAsset.NATIVE_ASSETID,
-                payable(LibDiamond.contractOwner()),
+                payable(getExecutorFeeTo()),
                 cache.srcExecutorFee
             );
         }
@@ -651,6 +662,12 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     function getBaseGas(uint64 dstChainId) public view returns(uint256) {
         Storage storage s = getStorage();
         return s.dstBaseGas[dstChainId];
+    }
+
+    /// @dev Get the receiver of the executor fee
+    function getExecutorFeeTo() public view returns(address) {
+        Storage storage s = getStorage();
+        return s.executorFeeTo;
     }
 
     /// Private Methods ///

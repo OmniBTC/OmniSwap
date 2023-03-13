@@ -404,19 +404,19 @@ def redeploy_celer():
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("2 gwei")
 
-    proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
-    lastNonce = proxy_celer.getNonce()
-    print(f"last nonce: {lastNonce}")
-
-    remove_facet(CelerFacet)
+    # proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
+    # lastNonce = proxy_celer.getNonce()
+    # print(f"last nonce: {lastNonce}")
+    #
+    # remove_facet(CelerFacet)
 
     CelerFacet.deploy({"from": account})
     add_cut([CelerFacet])
 
     initialize_celer(account, SoDiamond[-1])
 
-    proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
-    proxy_celer.setNonce(lastNonce, {"from": account})
+    # proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
+    # proxy_celer.setNonce(lastNonce, {"from": account})
 
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
