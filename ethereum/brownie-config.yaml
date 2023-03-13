@@ -357,11 +357,11 @@ networks:
         oracle:
           avax:
             chainid: 43113
-            currency: USD
+            pair: AVAXUSD
             address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
           eth:
             chainid: 5
-            currency: USD
+            pair: ETHUSD
             address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     token:
       usdc:
@@ -678,6 +678,30 @@ networks:
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676"
     oracle:
       eth:
         chainid: 2
@@ -786,6 +810,30 @@ networks:
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
     oracle:
       eth:
         chainid: 2
@@ -886,6 +934,29 @@ networks:
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x0A77230d17318075983913bC2145DB16C7366156"
+
+          # BNBUSD by manual
+
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
     oracle:
       eth:
         chainid: 2
@@ -983,6 +1054,30 @@ networks:
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x82a6c4AF830caa6c97bb504425f6A66165C2c26e"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
     oracle:
       eth:
         chainid: 2
@@ -1065,6 +1160,30 @@ networks:
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x8bf61728eeDCE2F32c456454d87B5d6eD6150208"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
@@ -1118,6 +1237,30 @@ networks:
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x5087Dc69Fd3907a016BD42B38022F7f024140727"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0xD38579f7cBD14c22cF1997575eA8eF7bfe62ca2c"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828"
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"

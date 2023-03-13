@@ -118,28 +118,32 @@ def initialize_wormhole_fee(account):
 
 def initialize_celer_fee(account):
     # initialize oracle
-    oracles = get_celer_oracles()
-    if oracles is None:
+    chain_oracles = get_celer_oracles()
+    if chain_oracles is None:
         return
 
     chainid = get_celer_chain_id()
 
     native_oracle_address = ""
-    for token in oracles:
-        if chainid == oracles[token]["chainid"]:
-            native_oracle_address = oracles[token]["address"]
+    for chain in chain_oracles:
+        if chainid == chain_oracles[chain]["chainid"]:
+            native_oracle_address = chain_oracles[chain]["address"]
 
-    for token in oracles:
-        if chainid == oracles[token]["chainid"]:
+    for chain in chain_oracles:
+        if chainid == chain_oracles[chain]["chainid"]:
             continue
-        print(f"initialize_celer_fee oracle: {token}")
-        if oracles[token]["currency"] == "USD":
-            LibSoFeeCelerV1[-1].setPriceConfig(
-                oracles[token]["chainid"],
-                [[oracles[token]["address"], False], [native_oracle_address, True]],
-                60,
-                {"from": account},
-            )
+        print(f"initialize_celer_fee destination chain: {chain}")
+        print("pair:", chain_oracles[chain]["pair"])
+
+        LibSoFeeCelerV1[-1].setPriceConfig(
+            chain_oracles[chain]["chainid"],
+            [
+                [chain_oracles[chain]["address"], False],
+                [native_oracle_address, True]
+            ],
+            60,
+            {"from": account},
+        )
 
     # LibSoFeeCelerV1[-1].updatePriceRatio(5, {'from': account})
 

@@ -5,7 +5,7 @@ import requests
 
 from brownie import Contract, config, interface
 
-from scripts.helpful_scripts import get_celer_message_bus, change_network
+from scripts.helpful_scripts import get_celer_message_bus, change_network, get_celer_oracles
 
 CELER_GATEWAY = "https://cbridge-prod2.celer.app/v2/"
 
@@ -323,5 +323,80 @@ def check_main_celer_config():
         check_celer_contracts(net, chain_path[net])
 
 
+def get_price(contract):
+    price_feed = Contract.from_abi(
+        "IAggregatorV3Interface",
+        contract,
+        interface.IAggregatorV3Interface.abi
+    )
+
+    decimals = price_feed.decimals()
+    print(price_feed.description(), "decimas:", decimals)
+
+    (
+        _round_id,
+        price,
+        _started,
+        _updated,
+        _answeredInRound
+    ) = price_feed.latestRoundData()
+
+    print("price:", float(price/10**decimals))
+    print("=====================================")
+
+
+def check_main_oracles():
+    main_chain_oracles = {
+        "mainnet": {
+            "ETHUSD": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+            "AVAXUSD": "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7",
+            "BNBUSD": "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A",
+            "MATICUSD": "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676",
+        },
+        "optimism-main": {
+            "ETHUSD": "0x13e3Ee699D1909E989722E753853AE30b17e08c5",
+            "AVAXUSD": "0x5087Dc69Fd3907a016BD42B38022F7f024140727",
+            "BNBUSD": "0xD38579f7cBD14c22cF1997575eA8eF7bfe62ca2c",
+            "MATICUSD": "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828"
+        },
+        "bsc-main": {
+            "ETHUSD": "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e",
+            "AVAXUSD": "0x5974855ce31EE8E1fff2e76591CbF83D7110F151",
+            "BNBUSD": "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE",
+            "MATICUSD": "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
+        },
+        "polygon-main": {
+            "ETHUSD": "0xF9680D99D6C9589e2a93a78A04A279e509205945",
+            "AVAXUSD": "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10",
+            "BNBUSD": "0x82a6c4AF830caa6c97bb504425f6A66165C2c26e",
+            "MATICUSD": "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
+        },
+        "arbitrum-main": {
+            "ETHUSD": "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
+            "AVAXUSD": "0x8bf61728eeDCE2F32c456454d87B5d6eD6150208",
+            "BNBUSD": "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A",
+            "MATICUSD": "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
+        },
+        "avax-main": {
+            "ETHUSD": "0x976B3D034E162d8bD72D6b9C989d545b839003b0",
+            "AVAXUSD": "0x0A77230d17318075983913bC2145DB16C7366156",
+            # "BNBUSD": "",
+            "MATICUSD": "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
+        }
+    }
+
+    for net,oracles in main_chain_oracles.items():
+        print(f"[check_oracles] current net: {net}")
+
+        change_network(net)
+        # from config
+        chain_oracles = get_celer_oracles()
+
+        for oracle in chain_oracles.values():
+            assert oracle["address"] == oracles[oracle["pair"]]
+            get_price(oracle["address"])
+
+
 def main():
     check_main_celer_config()
+    check_main_oracles()
