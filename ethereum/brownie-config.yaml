@@ -367,14 +367,6 @@ networks:
       usdc:
         address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
         decimal: 6
-      celer-usdc:
-        address: "0x2979a1cb90EEB9e75d7fB4f9813FCC40E4a7fD8b"
-        decimal: 6
-      celer-eth:
-        # Different from DexLot's weth
-        # Just for celer test
-        address: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
-        decimal: 18
       weth:
         # Wormhole used weth
         address: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
