@@ -98,7 +98,7 @@ def change_network(dst_net):
     if network.is_connected():
         network.disconnect()
     network.connect(dst_net)
-    if dst_net in ["rinkeby"]:
+    if dst_net in ["rinkeby", "goerli"]:
         priority_fee("2 gwei")
 
 
@@ -233,6 +233,41 @@ def get_native_oracle_address():
             return oracles[oracle]["address"]
 
 
+def get_celer_info():
+    return get_current_net_info()["bridges"]["celer"]
+
+
+def get_celer_message_bus():
+    try:
+        return get_celer_info()["message_bus"]
+    except:
+        return ""
+
+
+def get_celer_chain_id():
+    return get_celer_info()["chainid"]
+
+
+def get_celer_oracles():
+    return get_celer_info()["oracle"]
+
+
+def get_celer_native_oracle_address():
+    oracles = get_celer_oracles()
+    chainid = get_celer_chain_id()
+    for oracle in oracles:
+        if chainid == oracles[oracle]["chainid"]:
+            return oracles[oracle]["address"]
+
+
+def get_celer_actual_reserve():
+    return get_celer_info()["actual_reserve"]
+
+
+def get_celer_estimate_reserve():
+    return get_celer_info()["estimate_reserve"]
+
+
 def get_stargate_info():
     return get_current_net_info()["stargate"]
 
@@ -272,6 +307,24 @@ def get_token_decimal(token_name: str):
         return 10**18
     else:
         return 10 ** get_token_info(token_name)["decimal"]
+
+
+def get_bridge_token_info(bridge: str, token_name: str):
+    return get_current_net_info()["bridges"][bridge]["token"][token_name]
+
+
+def get_bridge_token_address(bridge: str, token_name: str):
+    if token_name == "eth":
+        return zero_address()
+    else:
+        return get_bridge_token_info(bridge, token_name)["address"]
+
+
+def get_bridge_token_decimal(bridge: str, token_name: str):
+    if token_name == "eth":
+        return 10**18
+    else:
+        return 10 ** get_bridge_token_info(bridge, token_name)["decimal"]
 
 
 def get_account_address():

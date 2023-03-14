@@ -25,6 +25,7 @@ def main(net: str = None):
         "GenericSwapFacet",
         "WormholeFacet",
         "SerdeFacet",
+        "CelerFacet",
     ]
     for c in deployed_contract:
         print(f"network:{net} publish source: {c}")

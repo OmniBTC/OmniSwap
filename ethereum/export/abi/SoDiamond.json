@@ -3973,6 +3973,1435 @@
     },
     {
         "inputs": [],
+        "name": "CannotBridgeToSameNetwork",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "ContractCallNotAllowed",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidAmount",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidConfig",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidContract",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NativeAssetTransferFailed",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NoSwapDataProvided",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NoSwapFromZeroBalance",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NoTransferToNullAddress",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotSupportedSwapRouter",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NullAddrIsNotAValidSpender",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NullAddrIsNotAnERC20Token",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "ReentrancyError",
+        "type": "error"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "messageBus",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "chainId",
+                "type": "uint256"
+            }
+        ],
+        "name": "CelerInitialized",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes32",
+                "name": "srcTxId",
+                "type": "bytes32"
+            }
+        ],
+        "name": "RefundCelerToken",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "messageBus",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "isAllowed",
+                "type": "bool"
+            }
+        ],
+        "name": "SetAllowedList",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "messageBus",
+                "type": "address"
+            }
+        ],
+        "name": "SetMessageBus",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "receiveAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "SoTransferCompleted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "revertReason",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes",
+                "name": "otherReason",
+                "type": "bytes"
+            }
+        ],
+        "name": "SoTransferFailed",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            }
+        ],
+        "name": "SoTransferStarted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "celerTransferId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint64",
+                "name": "srcCelerChainId",
+                "type": "uint64"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint64",
+                "name": "dstCelerChainId",
+                "type": "uint64"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "bridgeToken",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "bridgeAmount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint64",
+                "name": "nonce",
+                "type": "uint64"
+            }
+        ],
+        "name": "TransferFromCeler",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "actualReserve",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "estimateReserve",
+                "type": "uint256"
+            }
+        ],
+        "name": "UpdateCelerReserve",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "GasPerByte",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "RAY",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "maxSlippage",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint64",
+                        "name": "dstCelerChainId",
+                        "type": "uint64"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "bridgeToken",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "dstMaxGasPriceInWeiForExecutor",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "estimateCost",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "dstSoDiamond",
+                        "type": "address"
+                    }
+                ],
+                "internalType": "struct CelerFacet.CelerData",
+                "name": "celerData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "swapDataDst",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "checkExecutorFee",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "celerPayload",
+                "type": "bytes"
+            }
+        ],
+        "name": "decodeCelerPayload",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "soDataNo",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "swapDataDstNo",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "soDataNo",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "swapDataDstNo",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "encodeCelerPayload",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint64",
+                "name": "dstCelerChainId",
+                "type": "uint64"
+            },
+            {
+                "internalType": "uint256",
+                "name": "dstMaxGasPriceInWeiForExecutor",
+                "type": "uint256"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "soDataNo",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "swapDataDstNo",
+                "type": "tuple[]"
+            },
+            {
+                "internalType": "bool",
+                "name": "is_actual",
+                "type": "bool"
+            }
+        ],
+        "name": "estCelerMessageFeeAndExecutorFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "transactionId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.SoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData[]",
+                "name": "swapData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "executeAndCheckSwaps",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "_sender",
+                "type": "bytes"
+            },
+            {
+                "internalType": "uint64",
+                "name": "_srcChainId",
+                "type": "uint64"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_message",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "_executor",
+                "type": "address"
+            }
+        ],
+        "name": "executeMessage",
+        "outputs": [
+            {
+                "internalType": "enum ICelerMessageReceiver.ExecutionStatus",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_sender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint64",
+                "name": "_srcChainId",
+                "type": "uint64"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_message",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "_executor",
+                "type": "address"
+            }
+        ],
+        "name": "executeMessage",
+        "outputs": [
+            {
+                "internalType": "enum ICelerMessageReceiver.ExecutionStatus",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint64",
+                "name": "",
+                "type": "uint64"
+            },
+            {
+                "internalType": "bytes",
+                "name": "message",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "executeMessageWithTransfer",
+        "outputs": [
+            {
+                "internalType": "enum ICelerMessageReceiver.ExecutionStatus",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_sender",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint64",
+                "name": "_srcChainId",
+                "type": "uint64"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_message",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "_executor",
+                "type": "address"
+            }
+        ],
+        "name": "executeMessageWithTransferFallback",
+        "outputs": [
+            {
+                "internalType": "enum ICelerMessageReceiver.ExecutionStatus",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "message",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "executeMessageWithTransferRefund",
+        "outputs": [
+            {
+                "internalType": "enum ICelerMessageReceiver.ExecutionStatus",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint64",
+                "name": "dstChainId",
+                "type": "uint64"
+            }
+        ],
+        "name": "getBaseGas",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "messageBus",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "message",
+                "type": "bytes"
+            }
+        ],
+        "name": "getCelerMessageFee1",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "message",
+                "type": "bytes"
+            }
+        ],
+        "name": "getCelerMessageFee2",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "getCelerSoFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getExecutorFeeTo",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "messageBus",
+                "type": "address"
+            }
+        ],
+        "name": "getNativeWrap",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getNonce",
+        "outputs": [
+            {
+                "internalType": "uint64",
+                "name": "",
+                "type": "uint64"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "messageBus",
+                "type": "address"
+            },
+            {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+            }
+        ],
+        "name": "initCeler",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "messageBus",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "isAllowed",
+                "type": "bool"
+            }
+        ],
+        "name": "setAllowedAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint64[]",
+                "name": "dstChainIds",
+                "type": "uint64[]"
+            },
+            {
+                "internalType": "uint256",
+                "name": "dstBaseGas",
+                "type": "uint256"
+            }
+        ],
+        "name": "setBaseGas",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "actualReserve",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "estimateReserve",
+                "type": "uint256"
+            }
+        ],
+        "name": "setCelerReserve",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "feeTo",
+                "type": "address"
+            }
+        ],
+        "name": "setExecutorFeeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint64",
+                "name": "nonce",
+                "type": "uint64"
+            }
+        ],
+        "name": "setNonce",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "soDataNo",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "swapDataSrcNo",
+                "type": "tuple[]"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint32",
+                        "name": "maxSlippage",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "uint64",
+                        "name": "dstCelerChainId",
+                        "type": "uint64"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "bridgeToken",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "dstMaxGasPriceInWeiForExecutor",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "estimateCost",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "dstSoDiamond",
+                        "type": "address"
+                    }
+                ],
+                "internalType": "struct CelerFacet.CelerData",
+                "name": "celerData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "swapDataDstNo",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "soSwapViaCeler",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "NoSwapFromZeroBalance",
         "type": "error"
     },

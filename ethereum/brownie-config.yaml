@@ -89,8 +89,10 @@ networks:
   goerli:
     omnibtc_chainid: 30002
     chainid: 5
-    SoDiamond: "0x12479EEF3EF33687f6b79d59aC6E387C7bc75A3F"
+    SoDiamond: "0x43bBc3Be3FD1a26F62CA319E2eDEB5aB40d0e1D8"
     stargate:
+# https://stargateprotocol.gitbook.io/stargate/developers/contract-addresses/testnet
+      router: "0x7612aE2a34E5A363E137De748801FB4c86499152"
       # Will be deployed soon
       chainid: 10121
       poolid:
@@ -122,6 +124,7 @@ networks:
     oracle:
       eth:
         chainid: 2
+        celer_chainid: 5
         currency: USD
         address: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
     token:
@@ -162,6 +165,24 @@ networks:
         # wormhole aptos wrapped coin. todo! need to fix
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 8
+    bridges:
+      celer:
+        chainid: 5
+        message_bus: "0xF25170F86E4291a99a9A560032Fe9948b8BcFBB2"
+        token:
+          usdc:
+            address: "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28"
+            decimal: 6
+          weth:
+            address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 5 # goerli
+            - 43113 # avax-test
+        oracle:
+          # manual set avax/eth ratio
     swap:
       ISwapRouter:
         name: UniswapV3
@@ -271,7 +292,7 @@ networks:
   avax-test:
     omnibtc_chainid: 30004
     chainid: 43113
-    SoDiamond: "0xBb032459B39547908eDB8E690c030Dc4F31DA673"
+    SoDiamond: "0xE68508c61c4f979B828cd1c8383676d93583Cae5"
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
@@ -298,17 +319,50 @@ networks:
     oracle:
       avax:
         chainid: 6
+        celer_chainid: 43113
         currency: USD
         address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
       matic:
         chainid: 5
+        celer_chainid: 80001
         currency: USD
         address: "0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0"
+      eth:
+        celer_chainid: 5
+        currency: USD
+        address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     stargate:
       router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
       chainid: 10106
       poolid:
         usdc: 1
+    bridges:
+      celer:
+        chainid: 43113
+        message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
+        token:
+          usdc:
+            address: "0x2979a1cb90EEB9e75d7fB4f9813FCC40E4a7fD8b"
+            decimal: 6
+          weth:
+            # Different from DexLot's weth
+            # Just for celer test
+            address: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 5 # goerli
+            - 43113 # avax-test
+        oracle:
+          avax:
+            chainid: 43113
+            pair: AVAXUSD
+            address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
+          eth:
+            chainid: 5
+            pair: ETHUSD
+            address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     token:
       usdc:
         address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
@@ -592,6 +646,54 @@ networks:
 #          dst_chainid: 10
 #          base_gas: 700000
 #          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 1
+        message_bus: "0x4066d196a423b2b3b8b054f4f40efb47a74e200c"
+        token:
+          usdc:
+            address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+            decimal: 6
+          usdt:
+            address: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+            decimal: 6
+          weth:
+            address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676"
     oracle:
       eth:
         chainid: 2
@@ -676,6 +778,54 @@ networks:
 #          dst_chainid: 10
 #          base_gas: 700000
 #          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 56
+        message_bus: "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b"
+        token:
+          usdc:
+            address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+            decimal: 18
+          usdt:
+            address: "0x55d398326f99059fF775485246999027B3197955"
+            decimal: 18
+          weth:
+            address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
     oracle:
       eth:
         chainid: 2
@@ -752,6 +902,53 @@ networks:
 #          dst_chainid: 10
 #          base_gas: 700000
 #          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 43114
+        message_bus: "0x5a926eeeafc4d217add17e9641e8ce23cd01ad57"
+        token:
+          usdc:
+            address: "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664"
+            decimal: 6
+          usdt:
+            address: "0xc7198437980c041c805A1EDcbA50c1Ce5db95118"
+            decimal: 6
+          weth:
+            address: "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x0A77230d17318075983913bC2145DB16C7366156"
+
+          # BNBUSD by manual
+
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
     oracle:
       eth:
         chainid: 2
@@ -825,6 +1022,54 @@ networks:
 #          dst_chainid: 10
 #          base_gas: 700000
 #          per_byte_gas: 68
+    bridges:
+      celer:
+        chainid: 137
+        message_bus: "0xaFDb9C40C7144022811F034EE07Ce2E110093fe6"
+        token:
+          usdc:
+            address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+            decimal: 6
+          usdt:
+            address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+            decimal: 6
+          weth:
+            address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x82a6c4AF830caa6c97bb504425f6A66165C2c26e"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
     oracle:
       eth:
         chainid: 2
@@ -881,6 +1126,56 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      celer:
+        chainid: 42161
+        message_bus: "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f"
+        token:
+          usdc:
+            address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+            decimal: 6
+          usdt:
+            address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+            decimal: 6
+          weth:
+            address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+            decimal: 18
+        actual_reserve: 1.1
+        estimate_reserve: 1.2
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x8bf61728eeDCE2F32c456454d87B5d6eD6150208"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
@@ -910,6 +1205,54 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      celer:
+        chainid: 10
+        message_bus: "0x0D71D18126E03646eb09FEc929e2ae87b7CAE69d"
+        token:
+          usdc:
+            address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+            decimal: 6
+          usdt:
+            address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
+            decimal: 6
+          weth:
+            address: "0x4200000000000000000000000000000000000006"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x5087Dc69Fd3907a016BD42B38022F7f024140727"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0xD38579f7cBD14c22cF1997575eA8eF7bfe62ca2c"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828"
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"

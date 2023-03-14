@@ -6,4 +6,4 @@ toml
 requests
 eth-brownie
 aptos-brownie
-ccxt==1.72.64
+ccxt
