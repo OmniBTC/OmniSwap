@@ -4,6 +4,7 @@
 import contextlib
 import json
 import os
+import traceback
 
 from brownie import (
     DiamondCutFacet,
@@ -434,7 +435,10 @@ def export_deployed():
             ]:
                 out[v._name] = "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
             continue
-        out[v._name] = v[-1].address
+        try:
+            out[v._name] = v[-1].address
+        except:
+            continue
     return out
 
 
@@ -620,7 +624,7 @@ def export_deployed_contracts(networks):
             change_network(net)
             deployed_contracts[net] = export_deployed()
         except:
-            continue
+            traceback.print_exc()
 
     write_file(deployed_file, deployed_contracts)
 
@@ -705,25 +709,25 @@ def export_celer():
 
 def select_networks(args):
     main_networks = [
-        "aptos-mainnet",
+        # "aptos-mainnet",
         "mainnet",
         "bsc-main",
         "avax-main",
         "polygon-main",
         "arbitrum-main",
         "optimism-main",
-        "ftm-main",
+        # "ftm-main",
     ]
 
     test_networks = [
-        "aptos-testnet",
+        # "aptos-testnet",
         "goerli",
-        "bsc-test",
+        # "bsc-test",
         "avax-test",
-        "polygon-test",
-        "arbitrum-test",
-        "optimism-test",
-        "ftm-test",
+        # "polygon-test",
+        # "arbitrum-test",
+        # "optimism-test",
+        # "ftm-test",
     ]
 
     export_networks = []
