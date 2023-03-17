@@ -19,7 +19,8 @@ from scripts.helpful_scripts import (
     get_chain_id,
     get_account_address,
     get_swap_info,
-    to_hex_str, get_multichain_id,
+    to_hex_str,
+    get_multichain_id,
 )
 
 uniswap_v3_fee_decimal = 1e6
@@ -39,7 +40,7 @@ def get_contract_address(contract_name: str, p: Project = None):
 
 
 def token_approve(
-        token_name: str, aprrove_address: str, amount: int, p: Project = None
+    token_name: str, aprrove_address: str, amount: int, p: Project = None
 ):
     token = Contract.from_abi(
         token_name.upper(),
@@ -50,12 +51,12 @@ def token_approve(
 
 
 def soSwapViaMultiChain(
-        so_data,
-        src_swap_data,
-        multichain_data,
-        dst_swap_data,
-        input_eth_amount: int,
-        p: Project = None,
+    so_data,
+    src_swap_data,
+    multichain_data,
+    dst_swap_data,
+    input_eth_amount: int,
+    p: Project = None,
 ):
     so_data = so_data.format_to_contract()
     if src_swap_data is None:
@@ -82,10 +83,11 @@ def soSwapViaMultiChain(
         src_swap_data,
         multichain_data.format_to_contract(),
         dst_swap_data,
-        {"from": get_account()}, # "allow_revert":True, "gas_limit": 1000000
+        {"from": get_account()},  # "allow_revert":True, "gas_limit": 1000000
     )
 
     print(tx.info())
+
 
 def swapTokensGeneric(so_data, src_swap_data, input_eth_amount: int, p: Project = None):
     so_data = so_data.format_to_contract()
@@ -114,14 +116,14 @@ class View:
 
 class SoData(View):
     def __init__(
-            self,
-            transactionId,
-            receiver,
-            sourceChainId,
-            sendingAssetId,
-            destinationChainId,
-            receivingAssetId,
-            amount,
+        self,
+        transactionId,
+        receiver,
+        sourceChainId,
+        sendingAssetId,
+        destinationChainId,
+        receivingAssetId,
+        amount,
     ):
         # unique identification id
         self.transactionId = transactionId
@@ -169,13 +171,13 @@ class SoData(View):
 
     @classmethod
     def create(
-            cls,
-            src_session,
-            dst_session,
-            receiver: str,
-            amount: int,
-            sendingTokenName: str,
-            receiveTokenName: str,
+        cls,
+        src_session,
+        dst_session,
+        receiver: str,
+        amount: int,
+        sendingTokenName: str,
+        receiveTokenName: str,
     ):
         """Create SoData class
 
@@ -214,13 +216,13 @@ class SoData(View):
 
 class MultiChainData(View):
     def __init__(
-            self,
-            dstChainId,
-            dstSoDiamond,
-            srcBridgeToken,
-            srcBridgeTokenDecimal,
-            dstBridgeToken,
-            dstBridgeTokenDecimal,
+        self,
+        dstChainId,
+        dstSoDiamond,
+        srcBridgeToken,
+        srcBridgeTokenDecimal,
+        dstBridgeToken,
+        dstBridgeTokenDecimal,
     ):
         self.dstChainId = dstChainId
         self.dstSoDiamond = dstSoDiamond
@@ -234,16 +236,16 @@ class MultiChainData(View):
         return [
             self.dstChainId,
             self.srcBridgeToken,
-            str("0x") + str(bytes(self.dstSoDiamond, "ascii").hex())
+            str("0x") + str(bytes(self.dstSoDiamond, "ascii").hex()),
         ]
 
     @classmethod
     def create(
-            cls,
-            src_session,
-            dst_session,
-            srcBridgeToken: str,
-            dstBridgeToken: str,
+        cls,
+        src_session,
+        dst_session,
+        srcBridgeToken: str,
+        dstBridgeToken: str,
     ):
         return MultiChainData(
             dstChainId=dst_session.put_task(func=get_multichain_id),
@@ -322,17 +324,17 @@ class SwapData(View):
     """Constructing data for calling UniswapLike"""
 
     def __init__(
-            self,
-            callTo,
-            approveTo,
-            sendingAssetId,
-            receivingAssetId,
-            fromAmount,
-            callData,
-            swapType: str = None,
-            swapFuncName: str = None,
-            swapPath: list = None,
-            swapEncodePath: list = None,
+        self,
+        callTo,
+        approveTo,
+        sendingAssetId,
+        receivingAssetId,
+        fromAmount,
+        callData,
+        swapType: str = None,
+        swapFuncName: str = None,
+        swapPath: list = None,
+        swapEncodePath: list = None,
     ):
         # The swap address
         self.callTo = callTo
@@ -364,12 +366,12 @@ class SwapData(View):
 
     @classmethod
     def create(
-            cls,
-            swapType: str,
-            swapFuncName: str,
-            fromAmount: int,
-            swapPath: list,
-            p: Project = None,
+        cls,
+        swapType: str,
+        swapFuncName: str,
+        fromAmount: int,
+        swapPath: list,
+        p: Project = None,
     ):
         """Create SwapData class
 
@@ -458,11 +460,11 @@ class SwapData(View):
 
     @staticmethod
     def reset_min_amount(
-            callData: str,
-            swapType: str,
-            swapFuncName: str,
-            minAmount: int,
-            p: Project = None,
+        callData: str,
+        swapType: str,
+        swapFuncName: str,
+        minAmount: int,
+        p: Project = None,
     ):
         """Resetting the min amount of dst swap based on the results of the overall slippage calculation
 
@@ -488,7 +490,7 @@ class SwapData(View):
             params[4] = minAmount
             return getattr(swap_contract, swapFuncName).encode_input(params)
         elif swapType.startswith("IUniswapV2") and swapFuncName.startswith(
-                "swapExactTokens"
+            "swapExactTokens"
         ):
             (fromAmount, _, path, to, deadline) = getattr(
                 swap_contract, swapFuncName
@@ -497,8 +499,8 @@ class SwapData(View):
                 fromAmount, minAmount, path, to, deadline
             )
         elif swapType.startswith("IUniswapV2") and (
-                swapFuncName.startswith("swapExactETH")
-                or swapFuncName.startswith("swapExactAVAX")
+            swapFuncName.startswith("swapExactETH")
+            or swapFuncName.startswith("swapExactAVAX")
         ):
             (_, path, to, deadline) = getattr(swap_contract, swapFuncName).decode_input(
                 callData
@@ -627,11 +629,11 @@ def multichain_estimate_amount(amount: int):
 
 
 def multichain_estimate_final_token_amount(
-        src_session,
-        dst_session,
-        amount: int,
-        src_swap_data: SwapData,
-        dst_swap_data: SwapData,
+    src_session,
+    dst_session,
+    amount: int,
+    src_swap_data: SwapData,
+    dst_swap_data: SwapData,
 ):
     """Estimate source swap output"""
     print("Estimate final token amount:")
@@ -663,20 +665,20 @@ def multichain_estimate_final_token_amount(
 
 
 def cross_swap_via_multichain(
-        src_session,
-        dst_session,
-        inputAmount,
-        sourceTokenName,  # multichain
-        destinationTokenName,  # multichain
-        sourceSwapType,
-        sourceSwapFunc,
-        sourceSwapPath,
-        sourceBridgeToken,
-        destinationBridgeToken,
-        destinationSwapType,
-        destinationSwapFunc,
-        destinationSwapPath,
-        slippage: float,
+    src_session,
+    dst_session,
+    inputAmount,
+    sourceTokenName,  # multichain
+    destinationTokenName,  # multichain
+    sourceSwapType,
+    sourceSwapFunc,
+    sourceSwapPath,
+    sourceBridgeToken,
+    destinationBridgeToken,
+    destinationSwapType,
+    destinationSwapFunc,
+    destinationSwapPath,
+    slippage: float,
 ):
     print(
         f"{'-' * 100}\nSwap: {sourceTokenName}({src_session.net}) "
@@ -783,14 +785,14 @@ def cross_swap_via_multichain(
 
 
 def single_swap(
-        src_session,
-        dst_session,
-        inputAmount,
-        sendingTokenName,
-        receiveTokenName,
-        sourceSwapType,
-        sourceSwapFunc,
-        sourceSwapPath,
+    src_session,
+    dst_session,
+    inputAmount,
+    sendingTokenName,
+    receiveTokenName,
+    sourceSwapType,
+    sourceSwapFunc,
+    sourceSwapPath,
 ):
     print(
         f"{'-' * 100}\nnetwork {src_session.net}, single swap: token {sendingTokenName} -> {receiveTokenName}"
@@ -848,7 +850,8 @@ def main(src_net="bsc-test", dst_net="polygon-test", bridge="multichain"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                10 * src_session.put_task(
+                10
+                * src_session.put_task(
                     get_bridge_token_decimal,
                     args=(
                         "multichain",

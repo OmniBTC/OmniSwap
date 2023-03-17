@@ -394,47 +394,36 @@ def check_main_oracles():
             assert oracle["address"] == oracles[oracle["pair"]]
             get_price(oracle["address"])
 
+
 def check_main_online_oracles():
     chain_oracles = {
-        "arbitrum-main":{
-            "address":"0x937AfcA1bb914405D37D55130184ac900ce5961f",
-            "dst_chain": [
-                1,10,56,137,43114
-            ]
+        "arbitrum-main": {
+            "address": "0x937AfcA1bb914405D37D55130184ac900ce5961f",
+            "dst_chain": [1, 10, 56, 137, 43114],
         },
-        "avax-main":{
-            "address":"0x7e482c0DA0481414311097cF058f0E64B20c9D6C",
-            "dst_chain": [
-                1,10,56,137,42161
-            ]
+        "avax-main": {
+            "address": "0x7e482c0DA0481414311097cF058f0E64B20c9D6C",
+            "dst_chain": [1, 10, 56, 137, 42161],
         },
-        "bsc-main":{
-            "address":"0xD7eC4E3DaC58e537Eb24fef4c3F7B011aeA50f30",
-            "dst_chain": [
-                1,10,137,42161,43114
-            ]
+        "bsc-main": {
+            "address": "0xD7eC4E3DaC58e537Eb24fef4c3F7B011aeA50f30",
+            "dst_chain": [1, 10, 137, 42161, 43114],
         },
         "mainnet": {
-            "address":"0xf5110f6211a9202c257602CdFb055B161163a99d",
-            "dst_chain": [
-                10,56,137,42161,43114
-            ]
+            "address": "0xf5110f6211a9202c257602CdFb055B161163a99d",
+            "dst_chain": [10, 56, 137, 42161, 43114],
         },
         "optimism-main": {
-            "address":"0x19370bE0D726A88d3e6861301418f3daAe3d798E",
-            "dst_chain": [
-                1,56,137,42161,43114
-            ]
+            "address": "0x19370bE0D726A88d3e6861301418f3daAe3d798E",
+            "dst_chain": [1, 56, 137, 42161, 43114],
         },
         "polygon-main": {
-            "address":"0xb7e02565426d47174fF4231D490Ff6B827306377",
-            "dst_chain": [
-                1,10,56,42161,43114
-            ]
-        }
+            "address": "0xb7e02565426d47174fF4231D490Ff6B827306377",
+            "dst_chain": [1, 10, 56, 42161, 43114],
+        },
     }
 
-    for net,oracle in chain_oracles.items():
+    for net, oracle in chain_oracles.items():
         print(f"[check_main_online_oracles] current net: {net}")
         change_network(net)
 
@@ -442,14 +431,13 @@ def check_main_online_oracles():
 
         print(oracle["address"])
         contract = Contract.from_abi(
-            "LibSoFeeCelerV1",
-            oracle["address"],
-            json.loads(abi_str)
+            "LibSoFeeCelerV1", oracle["address"], json.loads(abi_str)
         )
 
         for dst_chain in oracle["dst_chain"]:
             print("dst chain:", dst_chain)
             print(contract.getPriceRatio(dst_chain))
+
 
 def main():
     check_main_celer_config()

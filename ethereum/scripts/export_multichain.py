@@ -39,7 +39,7 @@ def get_multichain_bridge_tokens():
         "56": "bsc-main",
         "137": "polygon-main",
         "42161": "arbitrum-main",
-        "43114": "avax-main"
+        "43114": "avax-main",
     }
 
     select_tokens = ["ETH", "OETH", "WETH", "WETH.e", "USDC", "USDC.e"]
@@ -50,7 +50,7 @@ def get_multichain_bridge_tokens():
         "56": "0x400b971099e0ebfda2c03a3063739cb5398734a6",
         "137": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3",
         "42161": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3",
-        "43114": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        "43114": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3",
     }
 
     chain_path = {}
@@ -71,18 +71,29 @@ def get_multichain_bridge_tokens():
                     continue
 
                 for token in tokens.values():
-                    if token["type"] == "FAST_ROUTER_V7" and token["router"].lower() == select_routers[chain].lower():
-                        bridge_token[token_info["symbol"]]["AnyAddress"] = token["fromanytoken"]["address"]
-                        bridge_token[token_info["symbol"]]["AnyDecimal"] = token["fromanytoken"]["decimals"]
-                        bridge_token[token_info["symbol"]]["UnderlyingAddress"] = token_info["address"]
-                        bridge_token[token_info["symbol"]]["UnderlyingDecimal"] = token_info["decimals"]
+                    if (
+                        token["type"] == "FAST_ROUTER_V7"
+                        and token["router"].lower() == select_routers[chain].lower()
+                    ):
+                        bridge_token[token_info["symbol"]]["AnyAddress"] = token[
+                            "fromanytoken"
+                        ]["address"]
+                        bridge_token[token_info["symbol"]]["AnyDecimal"] = token[
+                            "fromanytoken"
+                        ]["decimals"]
+                        bridge_token[token_info["symbol"]][
+                            "UnderlyingAddress"
+                        ] = token_info["address"]
+                        bridge_token[token_info["symbol"]][
+                            "UnderlyingDecimal"
+                        ] = token_info["decimals"]
 
                         any_to = {
                             "ChainId": dest,
                             "AnyAddress": token["anytoken"]["address"],
                             "AnyDecimal": token["anytoken"]["decimals"],
                             "UnderlyingAddress": token["underlying"]["address"],
-                            "UnderlyingDecimal": token["underlying"]["decimals"]
+                            "UnderlyingDecimal": token["underlying"]["decimals"],
                         }
 
                         bridge_token[token_info["symbol"]]["ChainPath"].append(any_to)
@@ -96,9 +107,17 @@ def get_multichain_bridge_tokens():
                             fee.append(token["SwapFeeRatePerMillion"] + "%")
 
                         print(
-                            "src:", chain, "dst:", dest, token_info["symbol"],
-                            "Min:", token["MinimumSwap"], "Max:", token["BigValueThreshold"],
-                            "Fee: ", fee
+                            "src:",
+                            chain,
+                            "dst:",
+                            dest,
+                            token_info["symbol"],
+                            "Min:",
+                            token["MinimumSwap"],
+                            "Max:",
+                            token["BigValueThreshold"],
+                            "Fee: ",
+                            fee,
                         )
 
             if not is_valid:
@@ -107,7 +126,7 @@ def get_multichain_bridge_tokens():
         chain_path[select_chains[chain]] = {
             "ChainId": chain,
             "FAST_ROUTER_V7": select_routers[chain].upper(),
-            "SupportToken": bridge_token
+            "SupportToken": bridge_token,
         }
 
         # print(json.dumps(chain_path))

@@ -219,7 +219,9 @@ def initialize_celer(account, so_diamond):
 
 
 def initialize_multichain(account, so_diamond):
-    proxy_multichain = Contract.from_abi("MultiChainFacet", so_diamond.address, MultiChainFacet.abi)
+    proxy_multichain = Contract.from_abi(
+        "MultiChainFacet", so_diamond.address, MultiChainFacet.abi
+    )
     net = network.show_active()
 
     print(f"network:{net}, init multichain...")
@@ -228,7 +230,7 @@ def initialize_multichain(account, so_diamond):
     )
 
     print(f"network:{net}, init multichain: updateAddressMappings")
-    test_token = get_bridge_token_info("multichain","test")
+    test_token = get_bridge_token_info("multichain", "test")
 
     print(test_token)
     proxy_multichain.updateAddressMappings([test_token["anytoken"]], {"from": account})
@@ -482,6 +484,7 @@ def redeploy_multichain():
     add_cut([MultiChainFacet])
 
     initialize_multichain(account, SoDiamond[-1])
+
 
 def remove_dump(a: list, b: list):
     result = []
