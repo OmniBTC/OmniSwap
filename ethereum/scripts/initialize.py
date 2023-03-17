@@ -20,6 +20,8 @@ from brownie import (
     web3,
     CelerFacet,
     LibSoFeeCelerV1,
+    MultiChainFacet,
+    LibSoFeeMultiChainV1,
 )
 from brownie.network import priority_fee
 
@@ -47,9 +49,10 @@ from scripts.helpful_scripts import (
     get_celer_chain_id,
     get_celer_oracles,
     get_celer_message_bus,
-    get_celer_actual_reserve,
-    get_celer_estimate_reserve,
     get_celer_info,
+    get_multichain_router,
+    get_multichain_id,
+    get_bridge_token_info,
 )
 
 
@@ -75,6 +78,10 @@ def main():
         initialize_celer_fee(account)
     except Exception as e:
         print(f"initialize_celer_fee fail: {e}")
+    try:
+        initialize_multichain(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_multichain fail:{e}")
     try:
         initialize_wormhole(account, so_diamond)
     except Exception as e:
@@ -157,6 +164,7 @@ def initialize_cut(account, so_diamond):
         DexManagerFacet,
         OwnershipFacet,
         CelerFacet,
+        MultiChainFacet,
         StargateFacet,
         WormholeFacet,
         WithdrawFacet,
@@ -208,6 +216,25 @@ def initialize_celer(account, so_diamond):
     print(f"network:{net}, set base gas: {base_gas}, {dst_chains}")
 
     proxy_celer.setBaseGas(dst_chains, base_gas, {"from": account})
+
+
+def initialize_multichain(account, so_diamond):
+    proxy_multichain = Contract.from_abi("MultiChainFacet", so_diamond.address, MultiChainFacet.abi)
+    net = network.show_active()
+
+    print(f"network:{net}, init multichain...")
+    proxy_multichain.initMultiChain(
+        get_multichain_router(), get_multichain_id(), {"from": account}
+    )
+
+    print(f"network:{net}, init multichain: updateAddressMappings")
+    test_token = get_bridge_token_info("multichain","test")
+
+    print(test_token)
+    proxy_multichain.updateAddressMappings([test_token["anytoken"]], {"from": account})
+
+    is_valid = proxy_multichain.isValidMultiChainConfig()
+    print("isValidMultiChainConfig:", is_valid)
 
 
 def set_wormhole_gas():
@@ -273,7 +300,9 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.addFee(
         get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
     )
-
+    proxy_dex.addFee(
+        get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    )
     proxy_dex.addFee(
         get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
     )
@@ -418,27 +447,41 @@ def redeploy_celer():
     # proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
     # proxy_celer.setNonce(lastNonce, {"from": account})
 
-    proxy_dex = Contract.from_abi(
-        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    )
-
-    so_fee = 1e-3
-    ray = 1e27
-
-    print("Deploy LibSoFeeCelerV1...")
-    LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
-
-    print("AddFee ...")
-    proxy_dex.addFee(
-        get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
-    )
-
-    print("Initialize celer fee...")
-    initialize_celer_fee(account)
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    #
+    # so_fee = 1e-3
+    # ray = 1e27
+    #
+    # print("Deploy LibSoFeeCelerV1...")
+    # LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
+    #
+    # print("AddFee ...")
+    # proxy_dex.addFee(
+    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    # )
+    #
+    # print("Initialize celer fee...")
+    # initialize_celer_fee(account)
 
     # LibSoFeeCelerV1[-1].setPriceRatio(43113, ray, {'from': account})
     # LibSoFeeCelerV1[-1].updatePriceRatio(43113, {'from': account})
 
+
+# redeploy and initialize
+def redeploy_multichain():
+    account = get_account()
+
+    if network.show_active() in ["rinkeby", "goerli"]:
+        priority_fee("2 gwei")
+
+    remove_facet(MultiChainFacet)
+
+    MultiChainFacet.deploy({"from": account})
+    add_cut([MultiChainFacet])
+
+    initialize_multichain(account, SoDiamond[-1])
 
 def remove_dump(a: list, b: list):
     result = []

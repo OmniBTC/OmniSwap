@@ -238,6 +238,15 @@ networks:
       chainid: 10102
       poolid:
         usdt: 2
+    bridges:
+      multichain:
+        chainid: 97
+        fast_router: "0xaB9c7c8326B7e90339c23766EDAdF36C17c83ba2"
+        token:
+          test:
+            address: "0x75A2df47F2c30cc90B27f3c83C86e42B01466410"
+            decimal: 6
+            anytoken: "0x0c03988027d7ae2b1dacb8CB0afce698a906DEe9"
     token:
       usdt:
         address: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
@@ -444,6 +453,15 @@ networks:
       chainid: 10109
       poolid:
         usdc: 1
+    bridges:
+      multichain:
+        chainid: 80001
+        fast_router: "0x8E680018D67C57889083c23786C225F730C54Fb5"
+        token:
+          test:
+            address: "0x29b46EF6DeE70Cbe051895E77DeE19Dba23a282c"
+            decimal: 18
+            anytoken: "0xb576C9403f39829565BD6051695E2AC7Ecf850E2"
     token:
       usdc:
         address: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
