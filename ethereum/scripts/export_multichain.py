@@ -2,6 +2,8 @@ import json
 import os
 import requests
 
+from brownie import config
+
 MULTICHAIN_URL = "https://bridgeapi.multichain.org/v4/tokenlistv4/"
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -54,7 +56,7 @@ def get_multichain_bridge_tokens():
     }
 
     chain_path = {}
-    for chain in select_chains.keys():
+    for chain, net in select_chains.items():
         all_tokens_info = get_all_tokens_info(chain)
         bridge_token = {}
         for token_info in all_tokens_info.values():
@@ -123,9 +125,11 @@ def get_multichain_bridge_tokens():
             if not is_valid:
                 del bridge_token[token_info["symbol"]]
 
+        check_main_multichain_config(net, chain, select_routers[chain], bridge_token)
+
         chain_path[select_chains[chain]] = {
             "ChainId": chain,
-            "FAST_ROUTER_V7": select_routers[chain].upper(),
+            "FAST_ROUTER_V7": select_routers[chain],
             "SupportToken": bridge_token,
         }
 
@@ -133,5 +137,29 @@ def get_multichain_bridge_tokens():
     write_file(multi_chain_path, chain_path)
 
 
-if __name__ == "__main__":
+def get_multichain_info(mainnet):
+    return config["networks"][mainnet]["bridges"]["multichain"]
+
+
+def check_main_multichain_config(net, chainId, router, bridgeToken):
+    multichain_info = get_multichain_info(net)
+
+    print(multichain_info)
+
+    assert multichain_info["chainid"] == int(chainId)
+    assert multichain_info["fast_router"] == router
+
+    for name, info in multichain_info["token"].items():
+        assert info["anytoken"] == bridgeToken[name]["AnyAddress"], bridgeToken[name][
+            "AnyAddress"
+        ]
+        assert info["address"] == bridgeToken[name]["UnderlyingAddress"], bridgeToken[
+            name
+        ]["UnderlyingAddress"]
+        assert info["decimal"] == bridgeToken[name]["UnderlyingDecimal"], bridgeToken[
+            name
+        ]["UnderlyingDecimal"]
+
+
+def main():
     get_multichain_bridge_tokens()
