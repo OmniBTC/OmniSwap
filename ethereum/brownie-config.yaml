@@ -245,8 +245,11 @@ networks:
         token:
           test:
             address: "0x75A2df47F2c30cc90B27f3c83C86e42B01466410"
-            decimal: 6
+            decimal: 18
             anytoken: "0x0c03988027d7ae2b1dacb8CB0afce698a906DEe9"
+          routerNative:
+            address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
+            decimal: 18
     token:
       usdt:
         address: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"

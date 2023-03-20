@@ -191,6 +191,17 @@ class SoData(View):
             SoData: SoData class
         """
         transactionId = cls.generate_random_bytes32()
+
+        if receiveTokenName == "routerNative":
+            receivingAssetId = zero_address()
+        else:
+            receivingAssetId = dst_session.put_task(
+                func=get_bridge_token_address,
+                args=(
+                    "multichain",
+                    receiveTokenName,
+                ),
+            )
         return SoData(
             transactionId=transactionId,
             receiver=receiver,
@@ -203,13 +214,7 @@ class SoData(View):
                 ),
             ),
             destinationChainId=dst_session.put_task(func=get_chain_id),
-            receivingAssetId=dst_session.put_task(
-                func=get_bridge_token_address,
-                args=(
-                    "multichain",
-                    receiveTokenName,
-                ),
-            ),
+            receivingAssetId=receivingAssetId,
             amount=amount,
         )
 
@@ -623,9 +628,12 @@ class SwapData(View):
 
 
 def multichain_estimate_amount(amount: int):
-    # TODO: 10 - 1000 USDC
 
-    return int(amount * (1 - 0.001))
+    amount = amount / 10**18
+
+    assert 10 <= amount <= 1000
+
+    return amount * 0.999 * 10**18
 
 
 def multichain_estimate_final_token_amount(
@@ -834,7 +842,7 @@ def single_swap(
     )
 
 
-def main(src_net="bsc-test", dst_net="polygon-test", bridge="multichain"):
+def main(src_net="polygon-test", dst_net="bsc-test", bridge="multichain"):
     global src_session
     global dst_session
     src_session = Session(
@@ -860,38 +868,38 @@ def main(src_net="bsc-test", dst_net="polygon-test", bridge="multichain"):
                 )
             ),
             sourceTokenName="test",
-            destinationTokenName="test",
+            destinationTokenName="routerNative",
             sourceSwapType=None,
             sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
             sourceSwapPath=("weth", "usdc"),
             sourceBridgeToken="test",
             destinationBridgeToken="test",
-            destinationSwapType=None,
+            destinationSwapType=SwapType.IUniswapV2Router02,
             destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-            destinationSwapPath=("usdc", "weth"),
+            destinationSwapPath=("test", "routerNative"),
             slippage=0.01,
         )
 
     else:
         # single swap
         single_swap(
-            src_session=src_session,
-            dst_session=src_session,
+            src_session=dst_session,
+            dst_session=dst_session,
             inputAmount=int(
-                0.001
-                * src_session.put_task(
+                10
+                * dst_session.put_task(
                     get_bridge_token_decimal,
                     args=(
                         "multichain",
-                        "weth",
+                        "test",
                     ),
                 )
             ),
-            sendingTokenName="weth",
-            receiveTokenName="usdc",
+            sendingTokenName="test",
+            receiveTokenName="routerNative",
             sourceSwapType=SwapType.IUniswapV2Router02,
             sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-            sourceSwapPath=("weth", "usdc"),
+            sourceSwapPath=("test", "routerNative"),
         )
 
     src_session.terminate()
