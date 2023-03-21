@@ -52,7 +52,7 @@ from scripts.helpful_scripts import (
     get_celer_info,
     get_multichain_router,
     get_multichain_id,
-    get_bridge_token_info,
+    get_multichain_info,
 )
 
 
@@ -230,10 +230,14 @@ def initialize_multichain(account, so_diamond):
     )
 
     print(f"network:{net}, init multichain: updateAddressMappings")
-    test_token = get_bridge_token_info("multichain", "test")
 
-    print(test_token)
-    proxy_multichain.updateAddressMappings([test_token["anytoken"]], {"from": account})
+    bridge_tokens = get_multichain_info()["token"]
+
+    for name,token_info in bridge_tokens.items():
+        if "anytoken" not in token_info:
+            continue
+        print(token_info)
+        proxy_multichain.updateAddressMappings([token_info["anytoken"]], {"from": account})
 
     is_valid = proxy_multichain.isValidMultiChainConfig()
     print("isValidMultiChainConfig:", is_valid)
@@ -478,8 +482,7 @@ def redeploy_multichain():
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("2 gwei")
 
-    remove_facet(MultiChainFacet)
-
+    # remove_facet(MultiChainFacet)
     MultiChainFacet.deploy({"from": account})
     add_cut([MultiChainFacet])
 

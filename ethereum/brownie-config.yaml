@@ -1189,6 +1189,7 @@ networks:
   arbitrum-main:
     omnibtc_chainid: 6
     chainid: 42161
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
       chainid: 110
@@ -1280,6 +1281,7 @@ networks:
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
       chainid: 111
