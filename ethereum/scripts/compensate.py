@@ -1,7 +1,7 @@
 # @Time    : 2022/7/15 16:40
 # @Author  : WeiDai
 # @FileName: compensate.py
-from brownie import network, interface, SoDiamond, Contract, chain, StargateFacet
+from brownie import network, interface, SoDiamond, Contract, chain, StargateFacet, WithdrawFacet
 
 from scripts.helpful_scripts import get_account, get_stargate_router
 
@@ -44,3 +44,14 @@ def compensate_v2():
     cached_info = stragate.cachedSwapLookup(_srcChainId, _srcAddress, _nonce)
     print("cached_info:", cached_info)
     stragate.clearCachedSwap.call(_srcChainId, _srcAddress, _nonce, {"from": account})
+
+
+def withdraw():
+    account = get_account()
+    withdraw_contract = Contract.from_abi("WithdrawFacet", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+                                          WithdrawFacet.abi)
+    withdraw_contract.withdraw("0x0000000000000000000000000000000000000000",
+                               "0x3A9788D3E5B644b97A997DC5aC29736C388af9A3",
+                               70032067045653004,
+                               {"from": account}
+                               )

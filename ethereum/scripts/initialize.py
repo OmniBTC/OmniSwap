@@ -488,8 +488,13 @@ def add_dex():
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
-    proxy_dex.addDex(
-        "0xc873fEcbd354f5A56E00E710B90EF4201db2448d", {"from": get_account()}
+    # proxy_dex.addDex(
+    #     "0xc873fEcbd354f5A56E00E710B90EF4201db2448d", {"from": get_account()}
+    # )
+    proxy_dex.batchSetFunctionApprovalBySignature(
+        [v + "0" * 56 for v in list(interface.ICamelotRouter.selectors.keys())],
+        True,
+        {"from": get_account()}
     )
 
 
