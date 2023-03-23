@@ -1196,6 +1196,10 @@ networks:
         name: SushiswapV2
         router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
         token_list: ""
+#      IUniswapV2Router02:
+#        name: CamelotV2
+#        router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
+#        token_list: ""
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10

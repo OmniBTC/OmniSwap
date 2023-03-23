@@ -353,6 +353,13 @@
         "RouterAddress": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
         "TokenList": "",
         "Type": "IUniswapV2Router02"
+      },
+      {
+        "Name": "CamelotV2",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0xc873fEcbd354f5A56E00E710B90EF4201db2448d",
+        "TokenList": "",
+        "Type": "ICamelotRouter"
       }
     ],
     "WETH": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
