@@ -238,6 +238,18 @@ networks:
       chainid: 10102
       poolid:
         usdt: 2
+    bridges:
+      multichain:
+        chainid: 97
+        fast_router: "0xaB9c7c8326B7e90339c23766EDAdF36C17c83ba2"
+        token:
+          test:
+            address: "0x75A2df47F2c30cc90B27f3c83C86e42B01466410"
+            decimal: 18
+            anytoken: "0x0c03988027d7ae2b1dacb8CB0afce698a906DEe9"
+          routerNative:
+            address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
+            decimal: 18
     token:
       usdt:
         address: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
@@ -444,6 +456,15 @@ networks:
       chainid: 10109
       poolid:
         usdc: 1
+    bridges:
+      multichain:
+        chainid: 80001
+        fast_router: "0x8E680018D67C57889083c23786C225F730C54Fb5"
+        token:
+          test:
+            address: "0x29b46EF6DeE70Cbe051895E77DeE19Dba23a282c"
+            decimal: 18
+            anytoken: "0xb576C9403f39829565BD6051695E2AC7Ecf850E2"
     token:
       usdc:
         address: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
@@ -694,6 +715,18 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676"
+      multichain:
+        chainid: 1
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC:
+            address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            decimal: 6
+            anytoken: "0x007eb026dfb445f9a94ed5242d646a9a406e0694"
+          ETH:
+            address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            decimal: 18
+            anytoken: "0xb3c381871ba849e9d4d1f096baf7a48415d56c25"
     oracle:
       eth:
         chainid: 2
@@ -826,6 +859,18 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
+      multichain:
+        chainid: 56
+        fast_router: "0x400b971099e0ebfda2c03a3063739cb5398734a6"
+        token:
+          USDC:
+            address: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"
+            decimal: 18
+            anytoken: "0xff4e21a5dc31dad11ec93fbeffbef41a4e5070ec"
+          ETH:
+            address: "0x2170ed0880ac9a755fd29b2688956bd959f933f8"
+            decimal: 18
+            anytoken: "0xc22d2b2be62a741d5c616a713b88ca597b709390"
     oracle:
       eth:
         chainid: 2
@@ -949,6 +994,18 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
+      multichain:
+        chainid: 43114
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC.e:
+            address: "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664"
+            decimal: 6
+            anytoken: "0xc15fe51adc41e377ac64c2a695f66de26c97afe6"
+          WETH.e:
+            address: "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab"
+            decimal: 18
+            anytoken: "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a"
     oracle:
       eth:
         chainid: 2
@@ -1070,6 +1127,18 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
+      multichain:
+        chainid: 137
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC:
+            address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
+            decimal: 6
+            anytoken: "0x8d59c725f558a6739285580290b4eab602e2e0e5"
+          WETH:
+            address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+            decimal: 18
+            anytoken: "0x106a4cb3db8abe4fff73263dea55e56770ce62f3"
     oracle:
       eth:
         chainid: 2
@@ -1120,6 +1189,7 @@ networks:
   arbitrum-main:
     omnibtc_chainid: 6
     chainid: 42161
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
       chainid: 110
@@ -1176,6 +1246,18 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
+      multichain:
+        chainid: 42161
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC:
+            address: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+            decimal: 6
+            anytoken: "0xa9cad0165c155f3998b0001b3ef30bca0aa6b591"
+          ETH:
+            address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+            decimal: 18
+            anytoken: "0x758d08864fb6cce3062667225ca10b8f00496cc2"
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
@@ -1203,6 +1285,7 @@ networks:
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     stargate:
       router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
       chainid: 111
@@ -1257,6 +1340,18 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828"
+      multichain:
+        chainid: 10
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC:
+            address: "0x7f5c764cbc14f9669b88837ca1490cca17c31607"
+            decimal: 6
+            anytoken: "0x2823d10da533d9ee873fed7b16f4a962b2b7f181"
+          OETH:
+            address: "0x4200000000000000000000000000000000000006"
+            decimal: 18
+            anytoken: "0x5fcb9de282af6122ce3518cde28b7089c9f97b26"
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"

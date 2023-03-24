@@ -15,6 +15,8 @@ from brownie import (
     network,
     LibSoFeeCelerV1,
     CelerFacet,
+    MultiChainFacet,
+    LibSoFeeMultiChainV1,
 )
 from brownie.network import priority_fee
 
@@ -35,6 +37,7 @@ def deploy_contracts(account):
         DexManagerFacet,
         StargateFacet,
         CelerFacet,
+        MultiChainFacet,
         WormholeFacet,
         WithdrawFacet,
         OwnershipFacet,
@@ -58,6 +61,9 @@ def deploy_contracts(account):
 
     print("deploy LibSoFeeCelerV1.sol...")
     LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
+
+    print("deploy LibSoFeeMultiChainV1.sol...")
+    LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
 
     print("deploy LibSoFeeWormholeV1.sol...")
 

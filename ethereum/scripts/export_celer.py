@@ -395,6 +395,51 @@ def check_main_oracles():
             get_price(oracle["address"])
 
 
+def check_main_online_oracles():
+    chain_oracles = {
+        "arbitrum-main": {
+            "address": "0x937AfcA1bb914405D37D55130184ac900ce5961f",
+            "dst_chain": [1, 10, 56, 137, 43114],
+        },
+        "avax-main": {
+            "address": "0x7e482c0DA0481414311097cF058f0E64B20c9D6C",
+            "dst_chain": [1, 10, 56, 137, 42161],
+        },
+        "bsc-main": {
+            "address": "0xD7eC4E3DaC58e537Eb24fef4c3F7B011aeA50f30",
+            "dst_chain": [1, 10, 137, 42161, 43114],
+        },
+        "mainnet": {
+            "address": "0xf5110f6211a9202c257602CdFb055B161163a99d",
+            "dst_chain": [10, 56, 137, 42161, 43114],
+        },
+        "optimism-main": {
+            "address": "0x19370bE0D726A88d3e6861301418f3daAe3d798E",
+            "dst_chain": [1, 56, 137, 42161, 43114],
+        },
+        "polygon-main": {
+            "address": "0xb7e02565426d47174fF4231D490Ff6B827306377",
+            "dst_chain": [1, 10, 56, 42161, 43114],
+        },
+    }
+
+    for net, oracle in chain_oracles.items():
+        print(f"[check_main_online_oracles] current net: {net}")
+        change_network(net)
+
+        abi_str = '[{"inputs":[{"internalType":"uint256","name":"_soFee","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"ReentrancyError","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint64","name":"chainId","type":"uint64"},{"components":[{"internalType":"address","name":"router","type":"address"},{"internalType":"bool","name":"flag","type":"bool"}],"indexed":false,"internalType":"struct LibSoFeeCelerV1.ChainlinkConfig[]","name":"chainlink","type":"tuple[]"},{"indexed":false,"internalType":"uint256","name":"interval","type":"uint256"}],"name":"UpdatePriceConfig","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint64","name":"chainId","type":"uint64"},{"indexed":false,"internalType":"uint256","name":"interval","type":"uint256"}],"name":"UpdatePriceInterval","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"sender","type":"address"},{"indexed":false,"internalType":"uint256","name":"currentRatio","type":"uint256"}],"name":"UpdatePriceRatio","type":"event"},{"inputs":[],"name":"RAY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_amountIn","type":"uint256"}],"name":"getFees","outputs":[{"internalType":"uint256","name":"s","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint64","name":"_chainId","type":"uint64"}],"name":"getPriceRatio","outputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint64","name":"_chainId","type":"uint64"},{"components":[{"components":[{"internalType":"address","name":"router","type":"address"},{"internalType":"bool","name":"flag","type":"bool"}],"internalType":"struct LibSoFeeCelerV1.ChainlinkConfig[]","name":"chainlink","type":"tuple[]"},{"internalType":"uint256","name":"interval","type":"uint256"}],"internalType":"struct LibSoFeeCelerV1.PriceConfig","name":"_config","type":"tuple"}],"name":"getPriceRatioByChainlink","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_amountIn","type":"uint256"}],"name":"getRestoredAmount","outputs":[{"internalType":"uint256","name":"r","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getTransferForGas","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVersion","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint64","name":"","type":"uint64"}],"name":"priceConfig","outputs":[{"internalType":"uint256","name":"interval","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint64","name":"","type":"uint64"}],"name":"priceData","outputs":[{"internalType":"uint256","name":"currentPriceRatio","type":"uint256"},{"internalType":"uint256","name":"lastUpdateTimestamp","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_soFee","type":"uint256"}],"name":"setFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint64","name":"_chainId","type":"uint64"},{"components":[{"internalType":"address","name":"router","type":"address"},{"internalType":"bool","name":"flag","type":"bool"}],"internalType":"struct LibSoFeeCelerV1.ChainlinkConfig[]","name":"_chainlink","type":"tuple[]"},{"internalType":"uint256","name":"_interval","type":"uint256"}],"name":"setPriceConfig","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint64","name":"_chainId","type":"uint64"},{"internalType":"uint256","name":"_interval","type":"uint256"}],"name":"setPriceInterval","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint64","name":"_chainId","type":"uint64"},{"internalType":"uint256","name":"_ratio","type":"uint256"}],"name":"setPriceRatio","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"soFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint64","name":"_chainId","type":"uint64"}],"name":"updatePriceRatio","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]'
+
+        print(oracle["address"])
+        contract = Contract.from_abi(
+            "LibSoFeeCelerV1", oracle["address"], json.loads(abi_str)
+        )
+
+        for dst_chain in oracle["dst_chain"]:
+            print("dst chain:", dst_chain)
+            print(contract.getPriceRatio(dst_chain))
+
+
 def main():
     check_main_celer_config()
     check_main_oracles()
+    check_main_online_oracles()

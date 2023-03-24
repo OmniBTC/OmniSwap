@@ -28,6 +28,8 @@ from brownie import (
     network,
     CelerFacet,
     LibSoFeeCelerV1,
+    MultiChainFacet,
+    LibSoFeeMultiChainV1,
 )
 
 from scripts.helpful_scripts import (
@@ -40,14 +42,11 @@ from scripts.helpful_scripts import (
     get_token_address,
     get_swap_info,
     get_stargate_chain_id,
-    get_celer_chain_id,
-    get_celer_message_bus,
 )
 from scripts.wormhole import (
     get_all_warpped_token,
     get_native_token_name,
     get_net_from_wormhole_chainid,
-    get_stable_coin_address,
     get_usdc_address,
     get_usdt_address,
 )
@@ -413,6 +412,7 @@ def export_deployed():
         DexManagerFacet,
         StargateFacet,
         CelerFacet,
+        MultiChainFacet,
         WormholeFacet,
         WithdrawFacet,
         OwnershipFacet,
@@ -421,6 +421,7 @@ def export_deployed():
         LibSoFeeStargateV1,
         LibSoFeeWormholeV1,
         LibSoFeeCelerV1,
+        LibSoFeeMultiChainV1,
         LibCorrectSwapV1,
         SerdeFacet,
     ]
@@ -527,6 +528,7 @@ def export(*arg):
         WormholeFacet,
         SerdeFacet,
         CelerFacet,
+        MultiChainFacet,
     ]
     libs = [LibSwap]
     so_diamond_abi = []
@@ -542,6 +544,7 @@ def new_export(*args):
     export_so_diamond_abi()
     export_stargate_abi()
     export_celer_abi()
+    export_multichain_abi()
     export_swap_abi(networks)
     export_deployed_contracts(networks)
 
@@ -562,6 +565,7 @@ def export_so_diamond_abi():
         WormholeFacet,
         SerdeFacet,
         CelerFacet,
+        MultiChainFacet,
         # libs
         LibSwap,
     ]
@@ -583,6 +587,13 @@ def export_celer_abi():
     write_file(
         os.path.join(root_path, "export/abi/ICelerBridge.json"),
         interface.ICelerBridge.abi,
+    )
+
+
+def export_multichain_abi():
+    write_file(
+        os.path.join(root_path, "export/abi/IMultiChainV7Router.json"),
+        interface.IMultiChainV7Router.abi,
     )
 
 
@@ -721,10 +732,10 @@ def select_networks(args):
 
     test_networks = [
         # "aptos-testnet",
-        "goerli",
-        # "bsc-test",
-        "avax-test",
-        # "polygon-test",
+        # "goerli",
+        "bsc-test",
+        # "avax-test",
+        "polygon-test",
         # "arbitrum-test",
         # "optimism-test",
         # "ftm-test",

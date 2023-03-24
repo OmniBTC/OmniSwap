@@ -116,6 +116,46 @@ def create_pair_and_add_liquidity_for_celer():
     )
 
 
+def create_pair_and_add_liquidity_for_multichain():
+    if network.show_active() not in ["bsc-test"]:
+        print("Only support bsc-test")
+        return
+
+    account = get_account()
+
+    token1_address = "0x75A2df47F2c30cc90B27f3c83C86e42B01466410"  # Y1
+    token2_address = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd"  # wbnb
+    router_address = "0xD99D1c33F9fC3444f8101754aBC46c52416550D1"
+
+    router = Contract.from_abi(
+        "Router", router_address, interface.IUniswapV2Router02.abi
+    )
+    factory_address = router.factory()
+    factory = Contract.from_abi(
+        "Factory", factory_address, interface.IUniswapV2Factory.abi
+    )
+    with contextlib.suppress(Exception):
+        factory.createPair(token1_address, token2_address, {"from": account})
+    # approve
+    token1 = Contract.from_abi("ERC20", token1_address, ERC20.abi)
+    token1_amount = int(1000 * 10 ** token1.decimals())
+    token1.approve(router_address, token1_amount, {"from": account})
+
+    token2 = Contract.from_abi("ERC20", token2_address, ERC20.abi)
+    token2_amount = int(0.01 * 10 ** token2.decimals())
+    token2.approve(router_address, token2_amount, {"from": account})
+
+    router.addLiquidityETH(
+        token1_address,
+        token1_amount,
+        0,
+        0,
+        account,
+        int(time.time() + 3000),
+        {"from": account, "value": token2_amount},
+    )
+    
+    
 def camelot():
     account = get_account()
     camelot_contract = Contract.from_abi("ICamelotRouter", "0xc873fEcbd354f5A56E00E710B90EF4201db2448d",

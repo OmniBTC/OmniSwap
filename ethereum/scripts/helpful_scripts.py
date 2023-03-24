@@ -268,6 +268,21 @@ def get_celer_estimate_reserve():
     return get_celer_info()["estimate_reserve"]
 
 
+def get_multichain_info():
+    return get_current_net_info()["bridges"]["multichain"]
+
+
+def get_multichain_router():
+    try:
+        return get_multichain_info()["fast_router"]
+    except:
+        return ""
+
+
+def get_multichain_id():
+    return get_multichain_info()["chainid"]
+
+
 def get_stargate_info():
     return get_current_net_info()["stargate"]
 
