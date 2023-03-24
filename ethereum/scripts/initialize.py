@@ -233,11 +233,13 @@ def initialize_multichain(account, so_diamond):
 
     bridge_tokens = get_multichain_info()["token"]
 
-    for name,token_info in bridge_tokens.items():
+    for name, token_info in bridge_tokens.items():
         if "anytoken" not in token_info:
             continue
         print(token_info)
-        proxy_multichain.updateAddressMappings([token_info["anytoken"]], {"from": account})
+        proxy_multichain.updateAddressMappings(
+            [token_info["anytoken"]], {"from": account}
+        )
 
     is_valid = proxy_multichain.isValidMultiChainConfig()
     print("isValidMultiChainConfig:", is_valid)
@@ -487,6 +489,20 @@ def redeploy_multichain():
     add_cut([MultiChainFacet])
 
     initialize_multichain(account, SoDiamond[-1])
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+
+    so_fee = 1e-3
+    ray = 1e27
+    
+    print("Deploy LibSoFeeMultiChainV1...")
+    LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
+    print("AddFee ...")
+    proxy_dex.addFee(
+        get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    )
 
 
 def remove_dump(a: list, b: list):
