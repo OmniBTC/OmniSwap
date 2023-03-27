@@ -431,7 +431,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         IMultiChainV7Router.ProxyInfo memory proxyInfo =
             IMultiChainV7Router(s.fastRouter).anycallProxyInfo(address(this));
 
-        return proxyInfo.supported && !proxyInfo.acceptAnyToken;
+        return proxyInfo.supported && proxyInfo.acceptAnyToken;
     }
 
     /// @dev get the anyToken address
