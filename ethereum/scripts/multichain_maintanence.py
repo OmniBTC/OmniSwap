@@ -1,0 +1,51 @@
+from brownie import MultiChainFacet, Contract, SoDiamond, network
+
+from scripts.helpful_scripts import get_account
+
+
+def callAnySwapOut():
+    account = get_account()
+    proxy_multichain = Contract.from_abi(
+        "MultiChainFacet", SoDiamond[-1], MultiChainFacet.abi
+    )
+
+    net = network.show_active()
+    print(f"network:{net}, callAnySwapOut...")
+
+    proxy_multichain.anySwapOut(
+        "0x106a4Cb3Db8aBe4ffF73263dEa55E56770Ce62f3",  # anyWETH
+        "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",  # receiver
+        9196563613287978,  # amount
+        42161,  # fromChainId
+        {"from": account},
+    )
+
+
+def callRetrySwapinAndExec():
+    account = get_account()
+    proxy_multichain = Contract.from_abi(
+        "MultiChainFacet", SoDiamond[-1], MultiChainFacet.abi
+    )
+
+    net = network.show_active()
+    print(f"network:{net}, callAnySwapOut...")
+
+    proxy_multichain.retrySwapinAndExec(
+        str("0x")
+        + str(
+            bytes(
+                "42161:0xfef8747127e85572db5d3031d0a598074643ab328366b259e2eac139436baf37:11",
+                "ascii",
+            ).hex()
+        ),
+        [
+            "0x79A75121FD80B93DE62DA1199AA4A0D03EF02EE6B8D287857FC4A4BD027FDED3",
+            "0x106a4cb3db8abe4fff73263dea55e56770ce62f3",
+            "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+            9196563613287978,
+            42161,
+        ],
+        "0x2001E91E80411E1501C7A42112E03236B700000000641D21A703FD1F402D77B1DF140E9D66A7008CA39AE759569AD1E911D29547E892140000000000000000000000000000000000000000010114E592427A0AECE92DE3EDEE1F18E0157C05861564147CEB23FD6BC0ADD59E62AC25578270CFF1B9F619140D500B1D8E8EF31E21C99D1DB9A6444D3ADF12700124C04B8D59000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000A00000000000000000000000002967E7BB9DAA5711AC332CAF874BD47EF99B382000000000000000000000000000000000000000000000000000000000641D2FB90000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ED701AED6AD65724000000000000000000000000000000000000000000000000000000000000002B7CEB23FD6BC0ADD59E62AC25578270CFF1B9F6190001F40D500B1D8E8EF31E21C99D1DB9A6444D3ADF1270000000000000000000000000000000000000000000",
+        False,
+        {"from": account},
+    )

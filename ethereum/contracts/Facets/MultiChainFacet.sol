@@ -202,9 +202,82 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
             swapDataDstNo
         );
 
-        remoteSoSwap(token, amount, soData, swapDataDst);
+        if (LibAsset.getOwnBalance(token) >= amount) {
+            remoteSoSwap(token, amount, soData, swapDataDst);
 
-        return (true, "");
+            return (true, "");
+        } else {
+            address anyToken = s.tokenMap[token];
+            require(anyToken != address(0), "AnyTokenErr");
+
+            try IMultiChainV7Router(s.fastRouter).anySwapOut(
+                anyToken,
+                LibBytes.addressToString(soData.receiver),
+                amount,
+                uint256(soData.sourceChainId)
+            ) {}
+            catch (bytes memory lowLevelData) {
+                // Rethrowing exception
+                assembly {
+                    let start := add(lowLevelData, 0x20)
+                    let end := add(lowLevelData, mload(lowLevelData))
+                    revert(start, end)
+                }
+            }
+
+            return (false, "BackSourceChain");
+        }
+    }
+
+    function anySwapOut(
+        address anyToken,
+        address receiver,
+        uint256 amount,
+        uint256 sourceChainId
+    ) external  {
+        Storage storage s = getStorage();
+        require(s.allowedList[msg.sender], "No permission");
+
+        try IMultiChainV7Router(s.fastRouter).anySwapOut(
+            anyToken,
+            LibBytes.addressToString(receiver),
+            amount,
+            sourceChainId
+        ) {}
+        catch (bytes memory lowLevelData) {
+            // Rethrowing exception
+            assembly {
+                let start := add(lowLevelData, 0x20)
+                let end := add(lowLevelData, mload(lowLevelData))
+                revert(start, end)
+            }
+        }
+    }
+
+    function retrySwapinAndExec(
+        string calldata swapID,
+        IMultiChainV7Router.SwapInfo calldata swapInfo,
+        bytes calldata data,
+        bool dontExec
+    ) external {
+        Storage storage s = getStorage();
+        require(s.allowedList[msg.sender], "No permission");
+
+        try IMultiChainV7Router(s.fastRouter).retrySwapinAndExec(
+            swapID,
+            swapInfo,
+            address(this),
+            data,
+            dontExec
+        ) {}
+        catch (bytes memory lowLevelData) {
+            // Rethrowing exception
+            assembly {
+                let start := add(lowLevelData, 0x20)
+                let end := add(lowLevelData, mload(lowLevelData))
+                revert(start, end)
+            }
+        }
     }
 
     /// Public Methods ///

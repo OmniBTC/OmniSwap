@@ -8,6 +8,14 @@ interface IMultiChainV7Router {
         bool acceptAnyToken;
     }
 
+    struct SwapInfo {
+        bytes32 swapoutID;
+        address token;
+        address receiver;
+        uint256 amount;
+        uint256 fromChainID;
+    }
+
     event LogAnySwapOutAndCall(
         bytes32 indexed swapoutID,
         address indexed token,
@@ -64,5 +72,25 @@ interface IMultiChainV7Router {
         uint256 toChainID,
         string calldata anycallProxy,
         bytes calldata data
+    ) external;
+
+    // Swaps `amount` `token` from this chain to `toChainID` chain with recipient `to`
+    function anySwapOut(
+        address token,
+        string calldata to,
+        uint256 amount,
+        uint256 toChainID
+    ) external;
+
+    // should be called only by the `receiver` or `admin`
+    // @param dontExec
+    // if `true` transfer the underlying token to the `receiver`,
+    // if `false` retry swapin and execute in normal way.
+    function retrySwapinAndExec(
+        string calldata swapID,
+        SwapInfo calldata swapInfo,
+        address anycallProxy,
+        bytes calldata data,
+        bool dontExec
     ) external;
 }

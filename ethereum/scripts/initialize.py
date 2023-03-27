@@ -484,25 +484,25 @@ def redeploy_multichain():
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("2 gwei")
 
-    # remove_facet(MultiChainFacet)
+    remove_facet(MultiChainFacet)
     MultiChainFacet.deploy({"from": account})
     add_cut([MultiChainFacet])
 
     initialize_multichain(account, SoDiamond[-1])
 
-    proxy_dex = Contract.from_abi(
-        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    )
-
-    so_fee = 1e-3
-    ray = 1e27
-    
-    print("Deploy LibSoFeeMultiChainV1...")
-    LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
-    print("AddFee ...")
-    proxy_dex.addFee(
-        get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
-    )
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    #
+    # so_fee = 1e-3
+    # ray = 1e27
+    #
+    # print("Deploy LibSoFeeMultiChainV1...")
+    # LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
+    # print("AddFee ...")
+    # proxy_dex.addFee(
+    #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    # )
 
 
 def remove_dump(a: list, b: list):
@@ -559,7 +559,7 @@ def add_dex():
     proxy_dex.batchSetFunctionApprovalBySignature(
         [v + "0" * 56 for v in list(interface.ICamelotRouter.selectors.keys())],
         True,
-        {"from": get_account()}
+        {"from": get_account()},
     )
 
 
