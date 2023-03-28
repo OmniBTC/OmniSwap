@@ -222,6 +222,7 @@ class SoData(View):
 class MultiChainData(View):
     def __init__(
         self,
+        sender,
         dstChainId,
         dstSoDiamond,
         srcBridgeToken,
@@ -229,6 +230,7 @@ class MultiChainData(View):
         dstBridgeToken,
         dstBridgeTokenDecimal,
     ):
+        self.sender = sender
         self.dstChainId = dstChainId
         self.dstSoDiamond = dstSoDiamond
         self.srcBridgeToken = srcBridgeToken
@@ -239,6 +241,7 @@ class MultiChainData(View):
     def format_to_contract(self):
         """Get the MultiChain data passed into the contract interface"""
         return [
+            self.sender,
             self.dstChainId,
             self.srcBridgeToken,
             str("0x") + str(bytes(self.dstSoDiamond, "ascii").hex()),
@@ -253,6 +256,7 @@ class MultiChainData(View):
         dstBridgeToken: str,
     ):
         return MultiChainData(
+            sender=src_session.put_task(get_account_address),
             dstChainId=dst_session.put_task(func=get_multichain_id),
             dstSoDiamond=dst_session.put_task(
                 get_contract_address, args=("SoDiamond",), with_project=True

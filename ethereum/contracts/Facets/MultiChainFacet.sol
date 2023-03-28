@@ -37,6 +37,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     /// Types ///
 
     struct MultiChainData {
+        address sender;
         uint64 dstChainId; // The multichain chain id of the destination chain
         address bridgeToken; // The underlying token address of the anytoken
         string dstSoDiamond; // The destination SoDiamond address
@@ -48,6 +49,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     }
 
     struct CachePayload {
+        address sender;
         ISo.NormalizedSoData soDataNo;
         LibSwap.NormalizedSwapData[] swapDataDstNo;
     }
@@ -56,6 +58,12 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     event MultiChainInitialized(address fastRouter, uint64 chainId);
     event SetAllowedList(address account, bool isAllowed);
     event AnyMappingUpdated(address[] anyTokens);
+    event BackSourceChain(
+        address indexed token,
+        address sender,
+        uint256 amount,
+        uint16  chainId
+    );
 
     /// Init ///
 
@@ -167,10 +175,10 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         }
 
         cache.payload = encodeMultiChainPayload(
+            multiChainData.sender,
             soDataNo,
             swapDataDstNo
         );
-
 
         startBridge(
             multiChainData,
@@ -193,6 +201,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         require(s.allowedList[msg.sender], "No permission");
 
         (
+            address sender,
             ISo.NormalizedSoData memory soDataNo,
             LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeMultiChainPayload(message);
@@ -212,7 +221,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
 
             try IMultiChainV7Router(s.fastRouter).anySwapOut(
                 anyToken,
-                LibBytes.addressToString(soData.receiver),
+                LibBytes.addressToString(sender),
                 amount,
                 uint256(soData.sourceChainId)
             ) {}
@@ -224,6 +233,13 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
                     revert(start, end)
                 }
             }
+
+            emit BackSourceChain(
+                token,
+                sender,
+                amount,
+                soData.sourceChainId
+            );
 
             return (false, "BackSourceChain");
         }
@@ -283,19 +299,25 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     /// Public Methods ///
 
     /// CrossData
-    // 1. length + transactionId(SoData)
-    // 2. length + receiver(SoData)
-    // 3. length + receivingAssetId(SoData)
-    // 4. length + swapDataLength(u8)
-    // 5. length + callTo(SwapData)
-    // 6. length + sendingAssetId(SwapData)
-    // 7. length + receivingAssetId(SwapData)
-    // 8. length + callData(SwapData)
+    // 1. length + sender
+    // 2. length + transactionId(SoData)
+    // 3. length + receiver(SoData)
+    // 4. length + receivingAssetId(SoData)
+    // 5. length + swapDataLength(u8)
+    // 6. length + callTo(SwapData)
+    // 7. length + sendingAssetId(SwapData)
+    // 8. length + receivingAssetId(SwapData)
+    // 9. length + callData(SwapData)
     function encodeMultiChainPayload(
+        address sender,
         ISo.NormalizedSoData memory soDataNo,
         LibSwap.NormalizedSwapData[] memory swapDataDstNo
     ) public pure returns (bytes memory) {
+        bytes memory senderByte = abi.encodePacked(sender);
+
         bytes memory encodeData = abi.encodePacked(
+            uint8(senderByte.length),
+            senderByte,
             uint8(soDataNo.transactionId.length),
             soDataNo.transactionId,
             uint8(soDataNo.receiver.length),
@@ -331,17 +353,19 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     }
 
     /// CrossData
-    // 1. length + transactionId(SoData)
-    // 2. length + receiver(SoData)
-    // 3. length + receivingAssetId(SoData)
-    // 4. length + swapDataLength(u8)
-    // 5. length + callTo(SwapData)
-    // 6. length + sendingAssetId(SwapData)
-    // 7. length + receivingAssetId(SwapData)
-    // 8. length + callData(SwapData)
+    // 1. length + sender
+    // 2. length + transactionId(SoData)
+    // 3. length + receiver(SoData)
+    // 4. length + receivingAssetId(SoData)
+    // 5. length + swapDataLength(u8)
+    // 6. length + callTo(SwapData)
+    // 7. length + sendingAssetId(SwapData)
+    // 8. length + receivingAssetId(SwapData)
+    // 9. length + callData(SwapData)
     function decodeMultiChainPayload(
         bytes memory multiChainPayload
     ) public pure returns (
+        address,
         ISo.NormalizedSoData memory soDataNo,
         LibSwap.NormalizedSwapData[] memory swapDataDstNo
     )
@@ -349,6 +373,13 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         CachePayload memory data;
         uint256 index;
         uint256 nextLen;
+
+        nextLen = uint256(multiChainPayload.toUint8(index));
+        index += 1;
+        data.sender = LibCross.tryAddress(
+            multiChainPayload.slice(index, nextLen)
+        );
+        index += nextLen;
 
         nextLen = uint256(multiChainPayload.toUint8(index));
         index += 1;
@@ -411,7 +442,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         }
         require(index == multiChainPayload.length, "LenErr");
 
-        return (data.soDataNo, data.swapDataDstNo);
+        return (data.sender, data.soDataNo, data.swapDataDstNo);
     }
 
     /// @dev Get so fee
