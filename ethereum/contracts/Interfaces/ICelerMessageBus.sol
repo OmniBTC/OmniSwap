@@ -5,6 +5,16 @@ pragma solidity 0.8.13;
 import "../Libraries/LibCelerMsgDataTypes.sol";
 
 interface ICelerMessageBus {
+    event MessageWithTransfer(
+        address indexed sender,
+        address receiver,
+        uint256 dstChainId,
+        address bridge,
+        bytes32 srcTransferId,
+        bytes message,
+        uint256 fee
+    );
+
     /**
      * @notice Send a message to a contract on another chain.
      * Sender needs to make sure the uniqueness of the message Id, which is computed as

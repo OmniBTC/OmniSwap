@@ -1,4 +1,5 @@
 import json
+import urllib
 import polling
 import requests
 import base64
@@ -41,6 +42,7 @@ XferStatus = [
     "BAD_XFER_DISABLED",
     "BAD_DEST_CHAIN",
 ]
+
 
 # https://cbridge-docs.celer.network/developer/api-reference/contract-pool-based-transfer-refund
 def convert_parameters(data):
@@ -101,7 +103,52 @@ def get_celer_transfer_status(transfer_id):
     )
 
 
+def celer_estimate_amount(src_chain_id, dst_chain_id, token):
+    amount = 10 ** 8
+    if token == "WETH":
+        amount = 10 ** 18
+    elif src_chain_id == 56:
+        amount = 10 ** 21
+
+    main_base_url = "https://cbridge-prod2.celer.app/v2/estimateAmt"
+
+    params = {
+        "src_chain_id": src_chain_id,
+        "dst_chain_id": dst_chain_id,
+        "token_symbol": token,
+        "usr_addr": 0x0,
+        "slippage_tolerance": 10000,
+        "amt": amount,
+        "is_pegged": "false",
+    }
+
+    url = main_base_url + "?" + urllib.parse.urlencode(params)
+
+    print(f"\n  {url}\n")
+
+    response = requests.get(url)
+    data = json.loads(response.text)
+
+    bridge_rate = data["bridge_rate"]
+    if bridge_rate == 1:
+        print(src_chain_id, dst_chain_id, token, bridge_rate)
+
+
+def estimate_amount():
+    chains = [1, 10, 56, 137, 42161, 43114]
+    tokens = ["USDC", "USDT", "WETH"]
+
+    for token in tokens:
+        for from_chain in chains:
+            for to_chain in chains:
+                if from_chain == to_chain:
+                    continue
+                # print(from_chain, to_chain, token)
+                celer_estimate_amount(from_chain, to_chain, token)
+
+
 if __name__ == "__main__":
-    get_celer_transfer_status(
-        "0xa9e4ca82b2ccff7506fe13eae3cbb8066d28fb8f23010ee8d58383d826ab2107"
-    )
+    # get_celer_transfer_status(
+    #     "0xa9e4ca82b2ccff7506fe13eae3cbb8066d28fb8f23010ee8d58383d826ab2107"
+    # )
+    estimate_amount()
