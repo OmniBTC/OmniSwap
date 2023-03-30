@@ -141,6 +141,8 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         // deposit erc20 tokens to this contract
         if (!LibAsset.isNativeAsset(soData.sendingAssetId)) {
             LibAsset.depositAsset(soData.sendingAssetId, soData.amount);
+        } else {
+            require(msg.value >= soData.amount, "ValueErr");
         }
 
         // calculate bridgeAmount
