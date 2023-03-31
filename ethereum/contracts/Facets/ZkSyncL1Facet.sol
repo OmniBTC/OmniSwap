@@ -35,6 +35,7 @@ contract ZkSyncL1Facet is Swapper, ReentrancyGuard {
     /// Events ///
 
     event ZkSync(address _zksync);
+    event DepositToZkSync(address from, address zkSyncAddress, uint256 amount);
 
     /// Init ///
 
@@ -182,6 +183,8 @@ contract ZkSyncL1Facet is Swapper, ReentrancyGuard {
         Storage storage s = getStorage();
 
         IZkSyncDeposit(s.zksync).depositETH{value: bridgeAmount}(receiver);
+
+        emit DepositToZkSync(msg.sender, receiver, bridgeAmount);
     }
 
     /// @dev fetch local storage
