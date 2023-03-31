@@ -183,6 +183,15 @@ networks:
             - 43113 # avax-test
         oracle:
           # manual set avax/eth ratio
+      zksync_l1:
+        address: "0x2540cC3140063c9D552BdC6A13B59C07270A4C2E"
+        token:
+          usdc:
+            address: "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28"
+            decimal: 6
+          weth:
+            address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+            decimal: 18
     swap:
       ISwapRouter:
         name: UniswapV3
@@ -727,6 +736,8 @@ networks:
             address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
             decimal: 18
             anytoken: "0xb3c381871ba849e9d4d1f096baf7a48415d56c25"
+      zksync_l1:
+        address: "0xaBEA9132b05A70803a4E85094fD0e1800777fBEF"
     oracle:
       eth:
         chainid: 2

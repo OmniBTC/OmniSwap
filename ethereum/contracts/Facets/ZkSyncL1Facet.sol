@@ -22,8 +22,9 @@ contract ZkSyncL1Facet is Swapper, ReentrancyGuard {
     bytes32 internal constant NAMESPACE =
         hex"46ff6c894ac415d823c8753087396e2b810e7dee3a4a9c1b0db2e309384e36f5"; // keccak256("com.so.facets.zksync")
 
-    uint256 public constant RAY = 1e27;
-    address public constant NATIVE_ASSETID= address(0);
+    uint256 internal constant RAY = 1e27;
+    address internal constant NATIVE_ASSETID= address(0);
+    address internal constant SPECIAL_ACCOUNT_ADDRESS = address(0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF);
 
     /// Type ///
 
@@ -45,7 +46,7 @@ contract ZkSyncL1Facet is Swapper, ReentrancyGuard {
         LibDiamond.enforceIsContractOwner();
         if (zksync == address(0)) revert InvalidConfig();
 
-        require(IZkSyncDeposit(zksync).isReadyForUpgrade(), "InvalidZkSync");
+        require(!IZkSyncDeposit(zksync).exodusMode(), "InvalidZkSync");
 
         Storage storage s = getStorage();
         s.zksync = zksync;
@@ -60,7 +61,7 @@ contract ZkSyncL1Facet is Swapper, ReentrancyGuard {
         LibDiamond.enforceIsContractOwner();
         if (zksync == address(0)) revert InvalidConfig();
 
-        require(IZkSyncDeposit(zksync).isReadyForUpgrade(), "InvalidZkSync");
+        require(!IZkSyncDeposit(zksync).exodusMode(), "InvalidZkSync");
 
         Storage storage s = getStorage();
         s.zksync = zksync;
@@ -127,9 +128,6 @@ contract ZkSyncL1Facet is Swapper, ReentrancyGuard {
             }
         }
 
-        // Zero-value deposits are forbidden by zkSync rollup logic
-        require(bridgeAmount > 0, "ZeroValue");
-
         // unwrap to eth
 
         uint256 soFee = getZkSyncSoFee(bridgeAmount);
@@ -181,6 +179,12 @@ contract ZkSyncL1Facet is Swapper, ReentrancyGuard {
         uint256 bridgeAmount
     ) private {
         Storage storage s = getStorage();
+
+        // Zero-value deposits are forbidden by zkSync rollup logic
+        require(bridgeAmount > 0, "ZeroValue");
+        // exodus mode activated
+        require(!IZkSyncDeposit(s.zksync).exodusMode(), "InActive");
+        require(receiver != SPECIAL_ACCOUNT_ADDRESS, "InvalidAddress");
 
         IZkSyncDeposit(s.zksync).depositETH{value: bridgeAmount}(receiver);
 

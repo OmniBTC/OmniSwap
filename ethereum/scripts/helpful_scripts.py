@@ -283,6 +283,10 @@ def get_multichain_id():
     return get_multichain_info()["chainid"]
 
 
+def get_zksync_l1_address():
+    return get_current_net_info()["bridges"]["zksync_l1"]["address"]
+
+
 def get_stargate_info():
     return get_current_net_info()["stargate"]
 

@@ -30,6 +30,7 @@ from brownie import (
     LibSoFeeCelerV1,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
+    ZkSyncL1Facet,
 )
 
 from scripts.helpful_scripts import (
@@ -424,6 +425,7 @@ def export_deployed():
         LibSoFeeMultiChainV1,
         LibCorrectSwapV1,
         SerdeFacet,
+        ZkSyncL1Facet,
     ]
     out = {}
     for v in deployed_contract:
@@ -566,6 +568,7 @@ def export_so_diamond_abi():
         SerdeFacet,
         CelerFacet,
         MultiChainFacet,
+        ZkSyncL1Facet,
         # libs
         LibSwap,
     ]
@@ -732,10 +735,10 @@ def select_networks(args):
 
     test_networks = [
         # "aptos-testnet",
-        # "goerli",
-        "bsc-test",
+        "goerli",
+        # "bsc-test",
         # "avax-test",
-        "polygon-test",
+        # "polygon-test",
         # "arbitrum-test",
         # "optimism-test",
         # "ftm-test",

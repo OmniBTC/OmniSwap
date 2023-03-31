@@ -154,32 +154,40 @@ def create_pair_and_add_liquidity_for_multichain():
         int(time.time() + 3000),
         {"from": account, "value": token2_amount},
     )
-    
-    
+
+
 def camelot():
     account = get_account()
-    camelot_contract = Contract.from_abi("ICamelotRouter", "0xc873fEcbd354f5A56E00E710B90EF4201db2448d",
-                                         interface.ICamelotRouter.abi)
+    camelot_contract = Contract.from_abi(
+        "ICamelotRouter",
+        "0xc873fEcbd354f5A56E00E710B90EF4201db2448d",
+        interface.ICamelotRouter.abi,
+    )
     eth_amount = int(0.0001 * 1e18)
 
     gas = camelot_contract.swapExactETHForTokensSupportingFeeOnTransferTokens.estimate_gas(
         0,
-        ["0x82af49447d8a07e3bd95bd0d56f35241523fbab1", "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"],
+        [
+            "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+            "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        ],
         account,
         zero_address(),
         int(time.time() + 1800),
-        {"from": account,
-         "value": eth_amount
-         }
+        {"from": account, "value": eth_amount},
     )
     print(gas)
 
-    genericswapfacet = Contract.from_abi("SoDiamond", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
-                                         GenericSwapFacet.abi)
+    genericswapfacet = Contract.from_abi(
+        "SoDiamond", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820", GenericSwapFacet.abi
+    )
 
     calldata = camelot_contract.swapExactETHForTokensSupportingFeeOnTransferTokens.encode_input(
         0,
-        ["0x82af49447d8a07e3bd95bd0d56f35241523fbab1", "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"],
+        [
+            "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+            "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        ],
         genericswapfacet.address,
         zero_address(),
         int(time.time() + 1800),
@@ -193,7 +201,7 @@ def camelot():
         zero_address(),
         0,
         "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
-        eth_amount
+        eth_amount,
     ]
     swapDataNo = [
         [
@@ -202,7 +210,7 @@ def camelot():
             zero_address(),
             "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
             eth_amount,
-            calldata
+            calldata,
         ]
     ]
 
@@ -210,10 +218,11 @@ def camelot():
     tx = genericswapfacet.swapTokensGeneric(
         soDataNo,
         swapDataNo,
-        {"from": account,
-         "value": eth_amount,
-         "gas_limit": int(300 * 1e4),
-         # "allow_revert": True,
-         }
+        {
+            "from": account,
+            "value": eth_amount,
+            "gas_limit": int(300 * 1e4),
+            # "allow_revert": True,
+        },
     )
     print(tx)

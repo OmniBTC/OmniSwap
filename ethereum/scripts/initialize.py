@@ -22,6 +22,7 @@ from brownie import (
     LibSoFeeCelerV1,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
+    ZkSyncL1Facet,
 )
 from brownie.network import priority_fee
 
@@ -53,6 +54,7 @@ from scripts.helpful_scripts import (
     get_multichain_router,
     get_multichain_id,
     get_multichain_info,
+    get_zksync_l1_address,
 )
 
 
@@ -496,13 +498,34 @@ def redeploy_multichain():
 
     so_fee = 1e-3
     ray = 1e27
-    
+
     print("Deploy LibSoFeeMultiChainV1...")
     LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
     print("AddFee ...")
     proxy_dex.addFee(
         get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
     )
+
+
+def redeploy_zksync_l1():
+    account = get_account()
+    net = network.show_active()
+
+    if net in ["goerli"]:
+        priority_fee("2 gwei")
+
+    # remove_facet(ZkSyncL1Facet)
+    ZkSyncL1Facet.deploy({"from": account})
+    add_cut([ZkSyncL1Facet])
+
+    proxy_zksync_l1 = Contract.from_abi(
+        "ZkSyncL1Facet", SoDiamond[-1].address, ZkSyncL1Facet.abi
+    )
+
+    print(f"network:{net}, init zksync L1...")
+
+    zksync = get_zksync_l1_address()
+    proxy_zksync_l1.initZkSync(zksync, {"from": account})
 
 
 def remove_dump(a: list, b: list):
@@ -559,7 +582,7 @@ def add_dex():
     proxy_dex.batchSetFunctionApprovalBySignature(
         [v + "0" * 56 for v in list(interface.ICamelotRouter.selectors.keys())],
         True,
-        {"from": get_account()}
+        {"from": get_account()},
     )
 
 

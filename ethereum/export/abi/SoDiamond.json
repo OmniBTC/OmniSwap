@@ -6152,6 +6152,417 @@
     },
     {
         "inputs": [],
+        "name": "ContractCallNotAllowed",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidAmount",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidConfig",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidContract",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NativeAssetTransferFailed",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NoSwapDataProvided",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NoSwapFromZeroBalance",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NoTransferToNullAddress",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotSupportedSwapRouter",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NullAddrIsNotAValidSpender",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NullAddrIsNotAnERC20Token",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "ReentrancyError",
+        "type": "error"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "zkSyncAddress",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "DepositToZkSync",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "receiveAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "SoTransferCompleted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "revertReason",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes",
+                "name": "otherReason",
+                "type": "bytes"
+            }
+        ],
+        "name": "SoTransferFailed",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            }
+        ],
+        "name": "SoTransferStarted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_zksync",
+                "type": "address"
+            }
+        ],
+        "name": "ZkSync",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "transactionId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.SoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData[]",
+                "name": "swapData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "executeAndCheckSwaps",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getZkSyncConfig",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_amountIn",
+                "type": "uint256"
+            }
+        ],
+        "name": "getZkSyncSoFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "zksync",
+                "type": "address"
+            }
+        ],
+        "name": "initZkSync",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "soFee",
+                "type": "uint256"
+            }
+        ],
+        "name": "setZkSyncSoFee",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "transactionId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receiver",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.NormalizedSoData",
+                "name": "soDataNo",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes",
+                        "name": "callTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "approveTo",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sendingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "receivingAssetId",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.NormalizedSwapData[]",
+                "name": "swapDataSrcNo",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "soSwapViaZkSyncL1",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "zksync",
+                "type": "address"
+            }
+        ],
+        "name": "updateZkSync",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "NoSwapFromZeroBalance",
         "type": "error"
     },

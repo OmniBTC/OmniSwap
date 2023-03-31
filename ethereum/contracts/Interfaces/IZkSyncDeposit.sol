@@ -5,7 +5,7 @@ interface IZkSyncDeposit {
     /// @notice Deposit ETH to Layer 2 - transfer ether from user into contract, validate it, register deposit
     /// @param _zkSyncAddress The receiver Layer 2 address
     function depositETH(address _zkSyncAddress) external payable;
-    /// @notice Checks that contract is ready for upgrade
-    /// @return bool flag indicating that contract is ready for upgrade
-    function isReadyForUpgrade() external view returns (bool);
+    /// @dev Flag indicates that exodus (mass exit) mode is triggered
+    /// @dev Once it was raised, it can not be cleared again, and all users must exit
+    function exodusMode() external view returns (bool);
 }

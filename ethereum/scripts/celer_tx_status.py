@@ -104,11 +104,11 @@ def get_celer_transfer_status(transfer_id):
 
 
 def celer_estimate_amount(src_chain_id, dst_chain_id, token):
-    amount = 10 ** 8
+    amount = 10**8
     if token == "WETH":
-        amount = 10 ** 18
+        amount = 10**18
     elif src_chain_id == 56:
-        amount = 10 ** 21
+        amount = 10**21
 
     main_base_url = "https://cbridge-prod2.celer.app/v2/estimateAmt"
 
