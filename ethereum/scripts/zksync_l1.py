@@ -69,7 +69,10 @@ def soSwapViaZkSyncL1(
     tx = proxy_diamond.soSwapViaZkSyncL1(
         so_data,
         src_swap_data,
-        {"from": get_account()},  # "allow_revert":True, "gas_limit": 1000000
+        {
+            "from": get_account(),
+            "value": input_eth_amount,
+        },  # "allow_revert":True, "gas_limit": 1000000
     )
 
     print(tx.info())
@@ -165,17 +168,20 @@ class SoData(View):
     ):
         transactionId = cls.generate_random_bytes32()
 
-        return SoData(
-            transactionId=transactionId,
-            receiver=receiver,
-            sourceChainId=src_session.put_task(func=get_chain_id),
-            sendingAssetId=src_session.put_task(
+        sendingAssetId = zero_address()
+        if sendingTokenName != "eth":
+            sendingAssetId = src_session.put_task(
                 func=get_bridge_token_address,
                 args=(
                     "zksync_l1",
                     sendingTokenName,
                 ),
-            ),
+            )
+        return SoData(
+            transactionId=transactionId,
+            receiver=receiver,
+            sourceChainId=src_session.put_task(func=get_chain_id),
+            sendingAssetId=sendingAssetId,
             destinationChainId=0,
             receivingAssetId=zero_address(),
             amount=amount,
@@ -583,6 +589,8 @@ def cross_swap_via_zksync_l1(
     else:
         input_eth_amount = inputAmount
 
+    print("input_eth_amount:", input_eth_amount)
+
     src_session.put_task(
         soSwapViaZkSyncL1,
         args=(so_data, src_swap_data, input_eth_amount),
@@ -600,17 +608,17 @@ def main(src_net="goerli"):
     cross_swap_via_zksync_l1(
         src_session=src_session,
         inputAmount=int(
-            10
+            0.001
             * src_session.put_task(
                 get_bridge_token_decimal,
                 args=(
                     "zksync_l1",
-                    "usdc",
+                    "weth",
                 ),
             )
         ),
-        sourceTokenName="usdc",
-        sourceSwapType=SwapType.IUniswapV2Router02,
+        sourceTokenName="eth",
+        sourceSwapType=None,
         sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
         sourceSwapPath=("usdc", "weth"),
     )
