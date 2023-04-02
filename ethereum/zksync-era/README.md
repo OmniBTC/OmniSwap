@@ -13,6 +13,8 @@ yarn hardhat compile
 ## deploy
 ```bash
 yarn hardhat deploy-zksync
+
+yarn hardhat deploy-zksync --network zkMainnet
 ```
 
 ## initialize
