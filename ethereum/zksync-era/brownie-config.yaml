@@ -1,0 +1,36 @@
+# exclude SafeMath when calculating test coverage
+# https://eth-brownie.readthedocs.io/en/v1.10.3/config.html#exclude_paths
+reports:
+  exclude_contracts:
+    - SafeMath
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.6.0
+  - Uniswap/v3-core@1.0.0
+compiler:
+  solc:
+    version: 0.8.13
+    remappings:
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.6.0"
+      - "@uniswap/v3-core=Uniswap/v3-core@1.0.0"
+# automatically fetch contract sources from Etherscan
+autofetch_sources: True
+dotenv: ../.env
+networks:
+  default: zksync2-test
+  zksync2-test:
+    stargate:
+      # TODO: replace here mock datas
+      router: "0x7612aE2a34E5A363E137De748801FB4c86499152"
+      chainid: 10121
+      poolid:
+        usdc: 1
+        weth: 13
+    swap:
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1"
+        token_list: ""
+
+wallets:
+  from_key: ${PRIVATE_KEY}
+  from_mnemonic: ${MNEMONIC}

@@ -140,3 +140,5 @@ gas/
 *egg-info/
 .pypirc
 bug/
+/ethereum/zksync-era/artifacts-zk/
+/ethereum/zksync-era/cache-zk/
