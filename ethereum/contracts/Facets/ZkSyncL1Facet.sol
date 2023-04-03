@@ -19,8 +19,9 @@ contract ZkSyncL1Facet is Swapper, ReentrancyGuard {
 
     /// Storage ///
 
+    // keccak256("com.so.facets.zksync.l1")
     bytes32 internal constant NAMESPACE =
-        hex"46ff6c894ac415d823c8753087396e2b810e7dee3a4a9c1b0db2e309384e36f5"; // keccak256("com.so.facets.zksync")
+        hex"03e874f6bc55cf63253e86f34f708bf2253a89b5ebc53d7170d6178542bfe42e";
 
     uint256 internal constant RAY = 1e27;
     address internal constant NATIVE_ASSETID= address(0);

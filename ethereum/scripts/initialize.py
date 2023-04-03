@@ -409,7 +409,7 @@ def remove_facet(facet):
 
     funcs = proxy_loupe.facetFunctionSelectors(facet[-1].address)
 
-    register_data = [[zero_address(), 2, list(funcs)]]
+    register_data = [[zero_address(), FacetCutAction_REMOVE, list(funcs)]]
 
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi
@@ -562,7 +562,7 @@ def add_cut(contracts: list = None):
             else:
                 register_funcs[func_name] = [reg_funcs[func_name]]
         result = remove_dump(reg_funcs.values(), func_sigs)
-        register_data.append([reg_facet, 0, result])
+        register_data.append([reg_facet, FacetCutAction_ADD, result])
 
     if not register_data:
         return
