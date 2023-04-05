@@ -166,6 +166,7 @@ def process_vaa(
         local_logger,
         inner_interval: int = None,
         over_interval: int = None,
+        is_admin: bool = False
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
@@ -222,11 +223,21 @@ def process_vaa(
             logger.error(f"Dst swap too much")
             raise OverflowError
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
-        result = package["so_diamond::complete_so_swap_by_account"](
-            hex_str_to_vector_u8(vaa_str),
-            ty_args=ty_args,
-            gas_unit_price=dst_max_gas_price
-        )
+        if not is_admin:
+            result = package["so_diamond::complete_so_swap_by_account"](
+                hex_str_to_vector_u8(vaa_str),
+                ty_args=ty_args,
+                gas_unit_price=dst_max_gas_price
+            )
+        else:
+            receiver = wormhole_data[2][1]
+            local_logger.info(f"Compensate to:{receiver}")
+            result = package["wormhole_facet::complete_so_swap_by_admin"](
+                hex_str_to_vector_u8(vaa_str),
+                str(receiver),
+                ty_args=ty_args,
+                gas_unit_price=dst_max_gas_price
+            )
         if "response" in result and "gas_used" in result["response"]:
             record_gas(
                 int(dst_max_gas),
@@ -313,6 +324,48 @@ def process_v2(
         time.sleep(3 * 60)
 
 
+def compensate(
+        sequences: list,
+        dstWormholeChainId: int = 22,
+        dstSoDiamond: str = None,
+):
+    local_logger = logger.getChild(f"[v2|{package.network}]")
+    local_logger.info("Starting process v2...")
+    if "test" in package.network or "test" == "goerli":
+        url = "http://wormhole-testnet.sherpax.io"
+        pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+    else:
+        url = "http://wormhole-vaa.chainx.org"
+        pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+    while True:
+        pending_data = get_pending_data(url=pending_url)
+        local_logger.info(f"Get signed vaa length: {len(pending_data)}")
+        for d in pending_data:
+            try:
+                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
+                if vaa is None:
+                    continue
+                if int(vaa.get("toChain", -1)) != dstWormholeChainId:
+                    continue
+                if int(d["sequence"]) not in sequences:
+                    continue
+                vaa = vaa["hexString"]
+            except Exception as e:
+                local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
+                                   f'sequence:{d["sequence"]} error: {e}')
+                continue
+            process_vaa(
+                dstSoDiamond,
+                vaa,
+                d["srcWormholeChainId"],
+                d["sequence"],
+                local_logger,
+                over_interval=10 * 60,
+                is_admin=True
+            )
+        time.sleep(3 * 60)
+
+
 def record_gas(
         sender_gas: int,
         sender_gas_price: int,
@@ -367,4 +420,4 @@ def main():
 
 
 def single_process():
-    process_v1(22, package.network_config["SoDiamond"])
+    compensate([96378, 96375], 22, package.network_config["SoDiamond"])
