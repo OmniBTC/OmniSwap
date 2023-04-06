@@ -46,8 +46,6 @@ contract ZkSyncL2Facet is Swapper, ReentrancyGuard {
         LibDiamond.enforceIsContractOwner();
         if (zksync == address(0)) revert InvalidConfig();
 
-        require(IEthToken(zksync).name() == "Ether", "InvalidZkSync");
-
         Storage storage s = getStorage();
         s.zksync = zksync;
         s.soFee = RAY / 1000; // 0.1 %
@@ -60,8 +58,6 @@ contract ZkSyncL2Facet is Swapper, ReentrancyGuard {
     function updateZkSync(address zksync) external {
         LibDiamond.enforceIsContractOwner();
         if (zksync == address(0)) revert InvalidConfig();
-
-        require(IEthToken(zksync).name() == "Ether", "InvalidZkSync");
 
         Storage storage s = getStorage();
         s.zksync = zksync;

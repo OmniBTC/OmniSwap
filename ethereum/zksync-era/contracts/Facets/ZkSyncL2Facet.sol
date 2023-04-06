@@ -21,7 +21,7 @@ contract ZkSyncL2Facet is Swapper, ReentrancyGuard {
 
     // keccak256("com.so.facets.zksync.l2")
     bytes32 internal constant NAMESPACE =
-        hex"6e3facbae6cdff03182dbc3ca4d537ea75524bc0fcdca4ba5aea8ab7fb53c9d6";
+    hex"6e3facbae6cdff03182dbc3ca4d537ea75524bc0fcdca4ba5aea8ab7fb53c9d6";
 
     uint256 public constant RAY = 1e27;
     address public constant NATIVE_ASSETID= address(0);
@@ -46,8 +46,6 @@ contract ZkSyncL2Facet is Swapper, ReentrancyGuard {
         LibDiamond.enforceIsContractOwner();
         if (zksync == address(0)) revert InvalidConfig();
 
-        require(IEthToken(zksync).name() == "Ether", "InvalidZkSync");
-
         Storage storage s = getStorage();
         s.zksync = zksync;
         s.soFee = RAY / 1000; // 0.1 %
@@ -60,8 +58,6 @@ contract ZkSyncL2Facet is Swapper, ReentrancyGuard {
     function updateZkSync(address zksync) external {
         LibDiamond.enforceIsContractOwner();
         if (zksync == address(0)) revert InvalidConfig();
-
-        require(IEthToken(zksync).name() == "Ether", "InvalidZkSync");
 
         Storage storage s = getStorage();
         s.zksync = zksync;
