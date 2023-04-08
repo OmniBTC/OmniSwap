@@ -14,9 +14,9 @@ from aptos_sdk.account_address import AccountAddress
 from aptos_sdk.authenticator import Authenticator, Ed25519Authenticator, \
     MultiAgentAuthenticator
 from aptos_sdk.bcs import Deserializer, Serializer
-from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload, SignedTransaction, \
-    RawTransaction
-from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U128Tag, U64Tag, U8Tag, BoolTag
+from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload, \
+    SignedTransaction, RawTransaction
+from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U256Tag, U128Tag, U64Tag, U16Tag, U8Tag, BoolTag
 from dotenv import dotenv_values
 from aptos_sdk.account import Account
 from aptos_sdk.client import RestClient, FaucetClient, ApiError
@@ -24,7 +24,7 @@ from aptos_sdk.client import RestClient, FaucetClient, ApiError
 import yaml
 import toml
 
-Tag = Union[BoolTag, U8Tag, U64Tag, U128Tag, AccountAddressTag, StructTag]
+Tag = Union[BoolTag, U8Tag, U16Tag, U64Tag, U128Tag, U256Tag, AccountAddressTag, StructTag]
 
 
 class VectorTag(metaclass=abc.ABCMeta):
@@ -70,6 +70,20 @@ class VectorU8Tag(VectorTag):
         return deserializer.sequence(U8Tag.deserialize)
 
 
+class VectorU16Tag(VectorTag):
+    def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
+        assert isinstance(list(value), list), "value must sequence"
+        super().__init__([U16Tag(v) for v in value])
+
+    def deserialize(deserializer: Deserializer) -> VectorU16Tag:
+        return deserializer.sequence(U16Tag.deserialize)
+
+
 class VectorU64Tag(VectorTag):
     def __init__(self, value):
         if isinstance(value, str):
@@ -96,6 +110,20 @@ class VectorU128Tag(VectorTag):
 
     def deserialize(deserializer: Deserializer) -> VectorU128Tag:
         return deserializer.sequence(U128Tag.deserialize)
+
+
+class VectorU256Tag(VectorTag):
+    def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
+        assert isinstance(list(value), list), "value must sequence"
+        super().__init__([U256Tag(v) for v in value])
+
+    def deserialize(deserializer: Deserializer) -> VectorU256Tag:
+        return deserializer.sequence(U256Tag.deserialize)
 
 
 class VectorAccountAddressTag(VectorTag):
@@ -139,10 +167,14 @@ class ArgumentABI:
             return BoolTag
         elif variant == TypeTag.U8:
             return U8Tag
+        elif variant == TypeTag.U16:
+            return U16Tag
         elif variant == TypeTag.U64:
             return U64Tag
         elif variant == TypeTag.U128:
             return U128Tag
+        elif variant == TypeTag.U256:
+            return U256Tag
         elif variant == TypeTag.ACCOUNT_ADDRESS:
             return AccountAddressTag
         elif variant == TypeTag.SIGNER:
@@ -159,10 +191,14 @@ class ArgumentABI:
             return VectorBoolTag
         elif tag == U8Tag:
             return VectorU8Tag
+        elif tag == U16Tag:
+            return VectorU16Tag
         elif tag == U64Tag:
             return VectorU64Tag
         elif tag == U128Tag:
             return VectorU128Tag
+        elif tag == U256Tag:
+            return VectorU256Tag
         elif tag == AccountAddressTag:
             return VectorAccountAddressTag
         elif tag == VectorTag:
@@ -358,6 +394,9 @@ class AptosPackage:
         # # # # # Compile
         view = f"Compile {self.package_name}"
         print("\n" + "-" * 50 + view + "-" * 50)
+        test_cmd = f"aptos move test --package-dir {self.package_path} {self.replace_address}"
+        print(test_cmd)
+        os.system(test_cmd)
         compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir " \
                       f"{self.package_path} {self.replace_address}"
         print(compile_cmd)
@@ -384,7 +423,7 @@ class AptosPackage:
         assert key in self.abis, f"key not found in abi"
         return functools.partial(self.submit_bcs_transaction, self.abis[key])
 
-    def create_single_signer_bcs_transaction(
+    def create_bcs_signed_transaction(
             self, sender: Account,
             payload: TransactionPayload,
             max_gas_amount: int = 500000,
@@ -435,7 +474,7 @@ class AptosPackage:
             gas_unit_price=100,
             return_types="storage",
             **kwargs,
-    ) -> Union[list|int]:
+    ) -> Union[list | int]:
         """
         return_types: storage|gas
             storage: return storage changes
@@ -500,7 +539,7 @@ class AptosPackage:
         need_gas_price = self.estimate_gas_price()
         if need_gas_price < gas_unit_price:
             gas_unit_price = int(need_gas_price)
-        signed_transaction = self.create_single_signer_bcs_transaction(
+        signed_transaction = self.create_bcs_signed_transaction(
             sender=self.account,
             payload=TransactionPayload(payload),
             max_gas_amount=int(max_gas_amount),
@@ -590,7 +629,7 @@ class AptosPackage:
         need_gas_price = self.estimate_gas_price()
         if need_gas_price < gas_unit_price:
             gas_unit_price = int(need_gas_price)
-        signed_transaction = self.create_single_signer_bcs_transaction(
+        signed_transaction = self.create_bcs_signed_transaction(
             sender=self.account,
             payload=TransactionPayload(payload),
             max_gas_amount=int(max_gas_amount),
@@ -651,7 +690,7 @@ class AptosPackage:
             transaction_arguments,
         )
 
-        signed_transaction = self.rest_client.create_single_signer_bcs_transaction(
+        signed_transaction = self.rest_client.create_bcs_signed_transaction(
             sender, TransactionPayload(payload)
         )
 
@@ -661,7 +700,7 @@ class AptosPackage:
             if not result[0]["success"]:
                 assert False, result
             if "gas_used" in result[0]:
-                signed_transaction = self.create_single_signer_bcs_transaction(
+                signed_transaction = self.create_bcs_signed_transaction(
                     sender=self.account,
                     payload=TransactionPayload(payload),
                     max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),
@@ -738,7 +777,7 @@ class AptosPackage:
                 asset_id))],
             [],
         )
-        signed_transaction = self.create_single_signer_bcs_transaction(
+        signed_transaction = self.create_bcs_signed_transaction(
             self.account, TransactionPayload(payload)
         )
 
@@ -748,7 +787,7 @@ class AptosPackage:
             if not result[0]["success"]:
                 assert False, result
             if "gas_used" in result[0]:
-                signed_transaction = self.create_single_signer_bcs_transaction(
+                signed_transaction = self.create_bcs_signed_transaction(
                     sender=self.account,
                     payload=TransactionPayload(payload),
                     max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),

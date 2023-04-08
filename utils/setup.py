@@ -5,7 +5,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='aptos-brownie',
-    version='2.0.1',
+    version='2.6.0',
     description='Aptos Package Tool',
     long_description="This is an aptos python tool to quickly implement aptos calls",
     # The project's main homepage.
