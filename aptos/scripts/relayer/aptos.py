@@ -420,4 +420,4 @@ def main():
 
 
 def single_process():
-    compensate([96378, 96375], 22, package.network_config["SoDiamond"])
+    process_v2(22, package.network_config["SoDiamond"])

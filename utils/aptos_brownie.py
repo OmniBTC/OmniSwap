@@ -647,7 +647,10 @@ class AptosPackage:
             #         gas_unit_price=int(gas_unit_price)
             #     )
         except Exception as e:
-            assert False, f"Simulate fail:\n {e}"
+            if "MISSING_DEPENDENCY" not in str(e):
+                assert False, f"Simulate fail:\n {e}"
+            else:
+                print(f"Simulate warning:MISSING_DEPENDENCY")
 
         txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)
         print(
