@@ -18,8 +18,16 @@ from brownie import (
     SerdeFacet,
     LibSoFeeWormholeV1,
     web3,
+    CelerFacet,
+    LibSoFeeCelerV1,
+    MultiChainFacet,
+    LibSoFeeMultiChainV1,
 )
 from brownie.network import priority_fee
+
+FacetCutAction_ADD = 0
+FacetCutAction_REPLACE = 1
+FacetCutAction_REMOVE = 2
 
 from scripts.helpful_scripts import (
     get_account,
@@ -38,6 +46,13 @@ from scripts.helpful_scripts import (
     get_swap_info,
     get_token_decimal,
     get_stargate_info,
+    get_celer_chain_id,
+    get_celer_oracles,
+    get_celer_message_bus,
+    get_celer_info,
+    get_multichain_router,
+    get_multichain_id,
+    get_multichain_info,
 )
 
 
@@ -55,6 +70,18 @@ def main():
         initialize_stargate(account, so_diamond)
     except Exception as e:
         print(f"initialize_stargate fail:{e}")
+    try:
+        initialize_celer(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_celer fail:{e}")
+    try:
+        initialize_celer_fee(account)
+    except Exception as e:
+        print(f"initialize_celer_fee fail: {e}")
+    try:
+        initialize_multichain(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_multichain fail:{e}")
     try:
         initialize_wormhole(account, so_diamond)
     except Exception as e:
@@ -96,6 +123,37 @@ def initialize_wormhole_fee(account):
             )
 
 
+def initialize_celer_fee(account):
+    # initialize oracle
+    chain_oracles = get_celer_oracles()
+    if chain_oracles is None:
+        return
+
+    chainid = get_celer_chain_id()
+
+    native_oracle_address = ""
+    for chain in chain_oracles:
+        if chainid == chain_oracles[chain]["chainid"]:
+            native_oracle_address = chain_oracles[chain]["address"]
+
+    for chain in chain_oracles:
+        if chainid == chain_oracles[chain]["chainid"]:
+            continue
+        print(f"initialize_celer_fee destination chain: {chain}")
+        print("pair:", chain_oracles[chain]["pair"])
+
+        LibSoFeeCelerV1[-1].setPriceConfig(
+            chain_oracles[chain]["chainid"],
+            [[chain_oracles[chain]["address"], False], [native_oracle_address, True]],
+            60,
+            {"from": account},
+        )
+
+    # LibSoFeeCelerV1[-1].updatePriceRatio(5, {'from': account})
+
+    # LibSoFeeCelerV1[-1].setPriceRatio(5, 10, {'from': account})
+
+
 def initialize_cut(account, so_diamond):
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", so_diamond.address, DiamondCutFacet.abi
@@ -105,6 +163,8 @@ def initialize_cut(account, so_diamond):
         DiamondLoupeFacet,
         DexManagerFacet,
         OwnershipFacet,
+        CelerFacet,
+        MultiChainFacet,
         StargateFacet,
         WormholeFacet,
         WithdrawFacet,
@@ -125,7 +185,7 @@ def initialize_cut(account, so_diamond):
                     register_funcs[func_name].append(reg_funcs[func_name])
             else:
                 register_funcs[func_name] = [reg_funcs[func_name]]
-        register_data.append([reg_facet, 0, list(reg_funcs.values())])
+        register_data.append([reg_facet, FacetCutAction_ADD, list(reg_funcs.values())])
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
@@ -138,6 +198,51 @@ def initialize_stargate(account, so_diamond):
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
     )
+
+
+def initialize_celer(account, so_diamond):
+    proxy_celer = Contract.from_abi("CelerFacet", so_diamond.address, CelerFacet.abi)
+    net = network.show_active()
+    print(f"network:{net}, init celer...")
+    proxy_celer.initCeler(
+        get_celer_message_bus(), get_celer_chain_id(), {"from": account}
+    )
+
+    # setBaseGas
+    gas = get_celer_info()["gas"]
+    base_gas = gas["base_gas"]
+    dst_chains = gas["dst_chainid"]
+
+    print(f"network:{net}, set base gas: {base_gas}, {dst_chains}")
+
+    proxy_celer.setBaseGas(dst_chains, base_gas, {"from": account})
+
+
+def initialize_multichain(account, so_diamond):
+    proxy_multichain = Contract.from_abi(
+        "MultiChainFacet", so_diamond.address, MultiChainFacet.abi
+    )
+    net = network.show_active()
+
+    print(f"network:{net}, init multichain...")
+    proxy_multichain.initMultiChain(
+        get_multichain_router(), get_multichain_id(), {"from": account}
+    )
+
+    print(f"network:{net}, init multichain: updateAddressMappings")
+
+    bridge_tokens = get_multichain_info()["token"]
+
+    for name, token_info in bridge_tokens.items():
+        if "anytoken" not in token_info:
+            continue
+        print(token_info)
+        proxy_multichain.updateAddressMappings(
+            [token_info["anytoken"]], {"from": account}
+        )
+
+    is_valid = proxy_multichain.isValidMultiChainConfig()
+    print("isValidMultiChainConfig:", is_valid)
 
 
 def set_wormhole_gas():
@@ -202,6 +307,12 @@ def initialize_dex_manager(account, so_diamond):
     )
     proxy_dex.addFee(
         get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
+    )
+    proxy_dex.addFee(
+        get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    )
+    proxy_dex.addFee(
+        get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
     )
 
 
@@ -323,6 +434,77 @@ def redeploy_stargate():
     initialize_stargate(account, SoDiamond[-1])
 
 
+# redeploy and initialize
+def redeploy_celer():
+    account = get_account()
+
+    if network.show_active() in ["rinkeby", "goerli"]:
+        priority_fee("2 gwei")
+
+    # proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
+    # lastNonce = proxy_celer.getNonce()
+    # print(f"last nonce: {lastNonce}")
+    #
+    # remove_facet(CelerFacet)
+
+    CelerFacet.deploy({"from": account})
+    add_cut([CelerFacet])
+
+    initialize_celer(account, SoDiamond[-1])
+
+    # proxy_celer = Contract.from_abi("CelerFacet", SoDiamond[-1].address, CelerFacet.abi)
+    # proxy_celer.setNonce(lastNonce, {"from": account})
+
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    #
+    # so_fee = 1e-3
+    # ray = 1e27
+    #
+    # print("Deploy LibSoFeeCelerV1...")
+    # LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
+    #
+    # print("AddFee ...")
+    # proxy_dex.addFee(
+    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    # )
+    #
+    # print("Initialize celer fee...")
+    # initialize_celer_fee(account)
+
+    # LibSoFeeCelerV1[-1].setPriceRatio(43113, ray, {'from': account})
+    # LibSoFeeCelerV1[-1].updatePriceRatio(43113, {'from': account})
+
+
+# redeploy and initialize
+def redeploy_multichain():
+    account = get_account()
+
+    if network.show_active() in ["rinkeby", "goerli"]:
+        priority_fee("2 gwei")
+
+    # remove_facet(MultiChainFacet)
+    MultiChainFacet.deploy({"from": account})
+    add_cut([MultiChainFacet])
+
+    initialize_multichain(account, SoDiamond[-1])
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+
+    so_fee = 1e-3
+    ray = 1e27
+    
+    print("Deploy LibSoFeeMultiChainV1...")
+    LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
+    print("AddFee ...")
+    proxy_dex.addFee(
+        get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    )
+
+
 def remove_dump(a: list, b: list):
     result = []
     for k in a:
@@ -371,8 +553,13 @@ def add_dex():
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
-    proxy_dex.addDex(
-        "0x9c12939390052919aF3155f41Bf4160Fd3666A6f", {"from": get_account()}
+    # proxy_dex.addDex(
+    #     "0xc873fEcbd354f5A56E00E710B90EF4201db2448d", {"from": get_account()}
+    # )
+    proxy_dex.batchSetFunctionApprovalBySignature(
+        [v + "0" * 56 for v in list(interface.ICamelotRouter.selectors.keys())],
+        True,
+        {"from": get_account()}
     )
 
 
