@@ -37,27 +37,6 @@ interface IMultiChainV7Router {
         bool success,
         bytes result
     );
-    event LogRetryExecRecord(
-        string swapID,
-        bytes32 swapoutID,
-        address token,
-        address receiver,
-        uint256 amount,
-        uint256 fromChainID,
-        address anycallProxy,
-        bytes data
-    );
-    event LogRetrySwapInAndExec(
-        string swapID,
-        bytes32 swapoutID,
-        address token,
-        address receiver,
-        uint256 amount,
-        uint256 fromChainID,
-        bool dontExec,
-        bool success,
-        bytes result
-    );
 
     function anycallExecutor() external view returns (address);
 
@@ -88,17 +67,5 @@ interface IMultiChainV7Router {
         string calldata to,
         uint256 amount,
         uint256 toChainID
-    ) external;
-
-    // should be called only by the `receiver` or `admin`
-    // @param dontExec
-    // if `true` transfer the underlying token to the `receiver`,
-    // if `false` retry swapin and execute in normal way.
-    function retrySwapinAndExec(
-        string calldata swapID,
-        SwapInfo calldata swapInfo,
-        address anycallProxy,
-        bytes calldata data,
-        bool dontExec
     ) external;
 }
