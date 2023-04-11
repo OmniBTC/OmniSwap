@@ -5482,6 +5482,37 @@
         "anonymous": false,
         "inputs": [
             {
+                "indexed": true,
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint16",
+                "name": "chainId",
+                "type": "uint16"
+            }
+        ],
+        "name": "BackSourceChain",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
                 "indexed": false,
                 "internalType": "address",
                 "name": "fastRouter",
@@ -5576,6 +5607,34 @@
     {
         "inputs": [
             {
+                "internalType": "address",
+                "name": "anyToken",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sourceChainId",
+                "type": "uint256"
+            }
+        ],
+        "name": "anySwapOut",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "bytes",
                 "name": "multiChainPayload",
                 "type": "bytes"
@@ -5583,6 +5642,11 @@
         ],
         "name": "decodeMultiChainPayload",
         "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
             {
                 "components": [
                     {
@@ -5668,6 +5732,11 @@
     },
     {
         "inputs": [
+            {
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
             {
                 "components": [
                     {
@@ -5976,6 +6045,61 @@
     {
         "inputs": [
             {
+                "internalType": "string",
+                "name": "swapID",
+                "type": "string"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "swapoutID",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "token",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromChainID",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct IMultiChainV7Router.SwapInfo",
+                "name": "swapInfo",
+                "type": "tuple"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            },
+            {
+                "internalType": "bool",
+                "name": "dontExec",
+                "type": "bool"
+            }
+        ],
+        "name": "retrySwapinAndExec",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "account",
                 "type": "address"
@@ -6074,6 +6198,11 @@
             },
             {
                 "components": [
+                    {
+                        "internalType": "address",
+                        "name": "sender",
+                        "type": "address"
+                    },
                     {
                         "internalType": "uint64",
                         "name": "dstChainId",
