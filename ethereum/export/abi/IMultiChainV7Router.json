@@ -228,6 +228,61 @@
     {
         "inputs": [
             {
+                "internalType": "string",
+                "name": "swapID",
+                "type": "string"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "swapoutID",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "token",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromChainID",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct IMultiChainV7Router.SwapInfo",
+                "name": "swapInfo",
+                "type": "tuple"
+            },
+            {
+                "internalType": "address",
+                "name": "anycallProxy",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "anySwapInUnderlyingAndExec",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "token",
                 "type": "address"
