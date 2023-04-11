@@ -1,0 +1,23 @@
+[package]
+name = "OmniSwap"
+version = "0.1.0"
+
+[addresses]
+sui = "0x2"
+omniswap = "0x0"
+wormhole = "0x0"
+
+[dependencies.Sui]
+git = "https://github.com/MystenLabs/sui.git"
+subdir = "crates/sui-framework/packages/sui-framework"
+rev = "a63f425b9999c7fdfe483598720a9effc0acdc9e"
+
+[dependencies.Wormhole]
+git = "https://github.com/OmniBTC/wormhole.git"
+subdir = "sui/wormhole"
+rev = "d0e0d1743df2430d874459bd870f590f660f0ae8"
+
+[dependencies.TokenBridge]
+git = "https://github.com/OmniBTC/wormhole.git"
+subdir = "sui/token_bridge"
+rev = "d0e0d1743df2430d874459bd870f590f660f0ae8"
