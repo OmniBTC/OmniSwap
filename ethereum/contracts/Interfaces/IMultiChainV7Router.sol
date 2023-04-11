@@ -74,6 +74,14 @@ interface IMultiChainV7Router {
         bytes calldata data
     ) external;
 
+    // Swaps `amount` `token` in `fromChainID` to `to` on this chainID with `to` receiving `underlying`
+    function anySwapInUnderlyingAndExec(
+        string calldata swapID,
+        SwapInfo calldata swapInfo,
+        address anycallProxy,
+        bytes calldata data
+    ) external;
+
     // Swaps `amount` `token` from this chain to `toChainID` chain with recipient `to`
     function anySwapOut(
         address token,

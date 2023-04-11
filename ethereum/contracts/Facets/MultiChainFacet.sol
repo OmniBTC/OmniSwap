@@ -213,16 +213,15 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
             swapDataDstNo
         );
 
-        address anyToken = s.tokenMap[token];
-        require(anyToken != address(0), "AnyTokenErr");
-
-        if (token != anyToken) {
+        if (s.tokenMap[token] != address(0)) {
+            // Handle token
             remoteSoSwap(token, amount, soData, swapDataDst);
 
             return (true, "");
         } else {
+            // Handle anyToken
             try IMultiChainV7Router(s.fastRouter).anySwapOut(
-                anyToken,
+                token,
                 LibBytes.addressToString(sender),
                 amount,
                 uint256(soData.sourceChainId)
