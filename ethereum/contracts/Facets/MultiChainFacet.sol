@@ -61,8 +61,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     event BackSourceChain(
         address token,
         address sender,
-        uint256 amount,
-        uint16  chainId
+        uint256 amount
     );
 
     /// Init ///
@@ -223,8 +222,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
             emit BackSourceChain(
                 token, // anyToken
                 sender,
-                amount,
-                soData.sourceChainId
+                amount
             );
 
             return (false, "BackSourceChain");
