@@ -59,10 +59,12 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     event SetAllowedList(address account, bool isAllowed);
     event AnyMappingUpdated(address[] anyTokens);
     event BackSourceChain(
+        bytes32 txId,
         address token,
         address sender,
         uint256 amount
     );
+    event HandledBackSourceChain(bytes32 txId);
 
     /// Init ///
 
@@ -220,6 +222,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         } else {
             // Handle anyToken
             emit BackSourceChain(
+                soData.transactionId,
                 token, // anyToken
                 sender,
                 amount
@@ -230,6 +233,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     }
 
     function anySwapOut(
+        bytes32 txId,
         address anyToken,
         address receiver,
         uint256 amount,
@@ -258,6 +262,8 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
                 revert(start, end)
             }
         }
+
+        emit HandledBackSourceChain(txId);
     }
 
     /// Public Methods ///

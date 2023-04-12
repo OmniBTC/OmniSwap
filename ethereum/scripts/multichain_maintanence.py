@@ -48,12 +48,14 @@ def callAnySwapOutByTxHash():
         print(tx.events["BackSourceChain"])
         print("fromChainID", int(fromChainID))
 
+        txId = tx.events["BackSourceChain"]["txId"]
         anyToken = tx.events["BackSourceChain"]["token"]
         receiver = tx.events["BackSourceChain"]["sender"]
         amount = tx.events["BackSourceChain"]["amount"]
 
         if amount > int(0.0062 * 1e18):
             proxy_multichain.anySwapOut(
+                txId,
                 anyToken,
                 receiver,
                 amount,
