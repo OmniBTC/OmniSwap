@@ -1,3 +1,6 @@
+import json
+import os
+
 from brownie import MultiChainFacet, Contract, SoDiamond, network, chain
 
 from scripts.helpful_scripts import get_account
@@ -22,6 +25,9 @@ def callAnySwapOut():
 
 
 def callAnySwapOutByTxHash():
+    cmd = "curl --silent https://scanapi.multichain.org/v3/tx/{tx}"
+    txs = ["0xcbfb2a0563eb08662324f87f251e72d6a83f56a9e276337e28a00693328fb640"]
+
     account = get_account()
     proxy_multichain = Contract.from_abi(
         "MultiChainFacet", SoDiamond[-1], MultiChainFacet.abi
@@ -30,23 +36,29 @@ def callAnySwapOutByTxHash():
     net = network.show_active()
     print(f"network:{net}, callAnySwapOutByTxHash...")
 
-    txHash = ""
-    tx = chain.get_transaction(txHash)
+    for src_txid in txs:
+        curl_cmd = cmd.replace("{tx}", src_txid)
+        with os.popen(curl_cmd) as f:
+            result = json.load(f)
+            swaptx = result["info"]["swaptx"]
+            fromChainID = result["info"]["fromChainID"]
 
-    print(tx.events["BackSourceChain"])
+        tx = chain.get_transaction(swaptx)
 
-    anyToken = tx.events["BackSourceChain"]["token"]
-    receiver = tx.events["BackSourceChain"]["sender"]
-    amount = tx.events["BackSourceChain"]["amount"]
-    chainId = tx.events["BackSourceChain"]["chainId"]
+        print(tx.events["BackSourceChain"])
+        print("fromChainID", int(fromChainID))
 
-    if amount > int(0.0062 * 1e18):
-        proxy_multichain.anySwapOut(
-            anyToken,
-            receiver,
-            amount,
-            chainId,  # fromChainId
-            {"from": account},
-        )
-    else:
-        print("less 0.0062 eth")
+        anyToken = tx.events["BackSourceChain"]["token"]
+        receiver = tx.events["BackSourceChain"]["sender"]
+        amount = tx.events["BackSourceChain"]["amount"]
+
+        if amount > int(0.0062 * 1e18):
+            proxy_multichain.anySwapOut(
+                anyToken,
+                receiver,
+                amount,
+                int(fromChainID),
+                {"from": account},
+            )
+        else:
+            print("less 0.0062 eth")
