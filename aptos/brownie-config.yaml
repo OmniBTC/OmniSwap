@@ -5,7 +5,7 @@ networks:
   aptos-mainnet:
     omnibtc_chainid: 1
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
-    node_url: https://aptos.coming.chat/v1
+    node_url: https://fullnode.mainnet.aptoslabs.com/v1
     faucet_url: https://faucet.mainnet.aptoslabs.com
     wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
     so_facet_resource: "0x717563269e9c31361ffae76ad6d9ca748606700d6448a1ae8daeb72dfc5a0bc8"
