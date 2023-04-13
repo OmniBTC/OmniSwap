@@ -9,7 +9,7 @@ from brownie import web3, network, project
 omniswap_ethereum_path = Path(__file__).parent.parent.parent.joinpath("ethereum")
 omniswap_ethereum_project = project.load(str(omniswap_ethereum_path), raise_if_loaded=False)
 
-omniswap_aptos_path = Path(__file__).parent.parent
+omniswap_sui_path = Path(__file__).parent.parent
 
 
 def generate_random_bytes32():

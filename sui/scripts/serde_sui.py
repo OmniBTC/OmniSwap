@@ -3,81 +3,78 @@ import functools
 from brownie import Contract
 
 from scripts.struct import change_network, omniswap_ethereum_project, padding_to_bytes, hex_str_to_vector_u8
-import aptos_brownie
+import sui_brownie
 
 
 @functools.lru_cache()
 def get_serde_facet(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str):
     change_network(net)
     contract_name = "SerdeFacet"
     return Contract.from_abi(
         contract_name,
-        package.config["networks"][net]["SoDiamond"],
+        project.config["networks"][net]["SoDiamond"],
         omniswap_ethereum_project[contract_name].abi
     )
 
 
 @functools.lru_cache()
 def get_wormhole_facet(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str):
     change_network(net)
     contract_name = "WormholeFacet"
     return Contract.from_abi(
         contract_name,
-        package.config["networks"][net]["SoDiamond"],
+        project.config["networks"][net]["SoDiamond"],
         omniswap_ethereum_project[contract_name].abi
     )
 
 
 @functools.lru_cache()
 def get_token_bridge(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str):
     change_network(net)
     contract_name = "TokenBridge"
     return Contract.from_abi(
         contract_name,
-        package.config["networks"][net]["wormhole"]["token_bridge"],
+        project.config["networks"][net]["wormhole"]["token_bridge"],
         omniswap_ethereum_project.interface.IWormholeBridge.abi
     )
 
 
 @functools.lru_cache()
 def get_wormhole(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str):
     change_network(net)
     contract_name = "Wormhole"
     return Contract.from_abi(
         contract_name,
-        package.config["networks"][net]["wormhole"]["wormhole"],
+        project.config["networks"][net]["wormhole"]["wormhole"],
         omniswap_ethereum_project.interface.IWormhole.abi
     )
 
 
 @functools.lru_cache()
-def get_price_resource(
-        package: aptos_brownie.AptosPackage,
-        account: str,
+def get_price_ratio(
+        package: sui_brownie.SuiPackage,
         dst_chain_id: int
 ):
-    return package.get_resource_addr(
-        account,
-        bytes(hex_str_to_vector_u8(padding_to_bytes(hex(dst_chain_id), padding="left", length=8))).decode("ascii")
-    )
+    # todo! fix
+    return 1
 
 
 def parse_vaa(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str,
         vaa: str
 ):
     """
     Decode vaa
-    :param package:
+    :param project:
     :param net:
     :param vaa:
     :return:
@@ -97,17 +94,17 @@ def parse_vaa(
     """
     if not str(vaa).startswith("0x"):
         vaa = "0x" + vaa
-    return get_wormhole(package, net).parseVM(vaa)
+    return get_wormhole(project, net).parseVM(vaa)
 
 
 def parse_transfer_with_payload(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str,
         vaa_payload: str
 ):
     """
 
-    :param package:
+    :param project:
     :param net:
     :param vaa_payload:
     :return:
@@ -124,17 +121,17 @@ def parse_transfer_with_payload(
     """
     if not str(vaa_payload).startswith("0x"):
         vaa_payload = "0x" + vaa_payload
-    return get_token_bridge(package, net).parseTransferWithPayload(vaa_payload)
+    return get_token_bridge(project, net).parseTransferWithPayload(vaa_payload)
 
 
 def parse_transfer(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str,
         vaa_payload: str
 ):
     """
 
-    :param package:
+    :param project:
     :param net:
     :param vaa_payload:
     :return:
@@ -150,17 +147,17 @@ def parse_transfer(
     """
     if not str(vaa_payload).startswith("0x"):
         vaa_payload = "0x" + vaa_payload
-    return get_token_bridge(package, net).parseTransfer(vaa_payload)
+    return get_token_bridge(project, net).parseTransfer(vaa_payload)
 
 
 def parse_wormhole_payload(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str,
         transfer_payload: str
 ):
     """
 
-    :param package:
+    :param project:
     :param net:
     :param transfer_payload:
     :return:
@@ -190,15 +187,15 @@ def parse_wormhole_payload(
     """
     if not str(transfer_payload).startswith("0x"):
         transfer_payload = "0x" + transfer_payload
-    return get_wormhole_facet(package, net).decodeWormholePayload(transfer_payload)
+    return get_wormhole_facet(project, net).decodeWormholePayload(transfer_payload)
 
 
 def parse_vaa_to_wormhole_payload(
-        package: aptos_brownie.AptosPackage,
+        project: sui_brownie.SuiProject,
         net: str,
         vaa: str
 ):
-    vaa_data = parse_vaa(package, net, vaa)
-    transfer_data = parse_transfer_with_payload(package, net, vaa_data[-4])
-    wormhole_data = parse_wormhole_payload(package, net, transfer_data[-1])
+    vaa_data = parse_vaa(project, net, vaa)
+    transfer_data = parse_transfer_with_payload(project, net, vaa_data[-4])
+    wormhole_data = parse_wormhole_payload(project, net, transfer_data[-1])
     return vaa_data, transfer_data, wormhole_data

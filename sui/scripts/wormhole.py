@@ -1,8 +1,8 @@
 import aptos_brownie
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
-    generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
+    generate_aptos_coin_address_in_wormhole, omniswap_sui_path, omniswap_ethereum_project, generate_random_bytes32, \
     WormholeData, SwapData, padding_to_bytes
-from scripts.serde_aptos import get_serde_facet, get_wormhole_facet, get_token_bridge
+from scripts.serde_sui import get_serde_facet, get_wormhole_facet, get_token_bridge
 import functools
 import time
 from enum import Enum
@@ -537,15 +537,15 @@ def main():
     # Prepare environment
     # load src net aptos package
     package = aptos_brownie.AptosPackage(
-        project_path=omniswap_aptos_path,
+        project_path=omniswap_sui_path,
         network=src_net
     )
 
     if "test" in src_net and "test" in dst_net:
         package_mock = aptos_brownie.AptosPackage(
-            project_path=omniswap_aptos_path,
+            project_path=omniswap_sui_path,
             network=src_net,
-            package_path=omniswap_aptos_path.joinpath("mocks")
+            package_path=omniswap_sui_path.joinpath("mocks")
         )
         try:
             package_mock["setup::add_liquidity"](

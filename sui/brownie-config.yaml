@@ -1,13 +1,13 @@
 # automatically fetch contract sources from Etherscan
 dotenv: .env
 networks:
-  default: bsc-test
-  sui-devnet:
-    node_url: "https://fullnode.devnet.sui.io:443"
+  default: bsc-main
   sui-testnet:
     #    node_url: "https://fullnode.testnet.sui.io:443"
     #    node_url: "https://suinode-testnet.belaunch.io:443"
     node_url: "https://sui-testnet-wave3.coming.chat:443"
+    wormhole:
+      chainid: 22
   sui-localnet:
     node_url: "http://127.0.0.1:9000"
   aptos-mainnet:

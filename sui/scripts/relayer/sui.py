@@ -9,24 +9,103 @@ import pandas as pd
 import requests
 from brownie import network
 
-from scripts.serde_aptos import parse_vaa_to_wormhole_payload
-from scripts.struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
-import aptos_brownie
+from scripts.serde_sui import parse_vaa_to_wormhole_payload
+from scripts.struct import omniswap_sui_path, decode_hex_to_ascii, hex_str_to_vector_u8
+from sui_brownie import SuiProject, SuiPackage
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-mainnet")
-WORMHOLE_CHAINID_TO_NET = {
-    package.config["networks"][net]["wormhole"]["chainid"]: net
-    for net in package.config["networks"]
-    if "wormhole" in package.config["networks"][net]
-       and "chainid" in package.config["networks"][net]["wormhole"]
-    if ("main" in package.network and "main" in net)
-       or ("main" not in package.network and "main" not in net)
+net = "sui-testnet"
+sui_project = SuiProject(omniswap_sui_path, network=net)
+if "main" in net:
+    package_id = ""
+else:
+    package_id = ""
+sui_package = SuiPackage(package_id=package_id, package_name="OmniSwap")
+
+NET_TO_WORMHOLE_CHAINID = {
+    # mainnet
+    "mainnet": 2,
+    "bsc-main": 4,
+    "polygon-main": 5,
+    "avax-main": 6,
+    "optimism-main": 24,
+    "arbitrum-main": 23,
+    "aptos-mainnet": 22,
+    "sui-mainnet": 22,
+    # testnet
+    "goerli": 2,
+    "bsc-test": 4,
+    "polygon-test": 5,
+    "avax-test": 6,
+    "optimism-test": 24,
+    "arbitrum-test": 23,
+    "aptos-testnet": 22,
+    "sui-testnet": 22,
 }
+
+WORMHOLE_CHAINID_TO_NET = {
+    chainid: net
+    for net, chainid in NET_TO_WORMHOLE_CHAINID.items()
+    if ("main" in sui_project.network and "main" in net)
+       or ("main" not in sui_project.network and "main" not in net)
+}
+
+TOKEN_BRIDGE_EMITTER_ADDRESS = {
+    # mainnet
+    "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
+    "bsc-main": "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
+    "polygon-main": "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE",
+    "avax-main": "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
+    "optimism-main": "0x0b2402144Bb366A632D14B83F244D2e0e21bD39c",
+    "arbitrum-main": "0x1D68124e65faFC907325e3EDbF8c4d84499DAa8b",
+    "aptos-mainnet": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "sui-mainnet": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    # testnet
+    "goerli": "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
+    "bsc-test": "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
+    "polygon-test": "0x377D55a7928c046E18eEbb61977e714d2a76472a",
+    "avax-test": "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
+    "optimism-test": "0xC7A204bDBFe983FCD8d8E61D02b475D4073fF97e",
+    "arbitrum-test": "0x23908A62110e21C04F3A4e011d24F901F911744A",
+    "aptos-testnet": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "sui-testnet": "0x0000000000000000000000000000000000000000000000000000000000000001",
+}
+
+
+def get_wormhole_url(related_net):
+    if "main" not in related_net:
+        return "https://wormhole-v2-testnet-api.certus.one"
+    else:
+        return "https://wormhole-v2-mainnet-api.certus.one"
+
+
+def format_emitter_address(addr):
+    addr = addr.replace("0x", "")
+    if len(addr) < 64:
+        addr = "0" * (64 - len(addr)) + addr
+    return addr
+
+
+def get_signed_vaa_by_wormhole(
+        sequence: int,
+        src_net: int = None
+):
+    """
+    Get signed vaa
+    :param src_net:
+    :param sequence:
+    :return: dict
+        {'vaaBytes': 'AQAAAAEOAGUI...'}
+    """
+    emitter_address = format_emitter_address(TOKEN_BRIDGE_EMITTER_ADDRESS[src_net])
+    emitter_chainid = NET_TO_WORMHOLE_CHAINID[src_net]
+    url = f"{get_wormhole_url(src_net)}/v1/signed_vaa/{emitter_chainid}/{emitter_address}/{sequence}"
+    response = requests.get(url)
+    return response.json()
 
 
 def get_signed_vaa(
@@ -172,11 +251,11 @@ def process_vaa(
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
         vaa_str = vaa_str if "0x" in vaa_str else "0x" + vaa_str
         vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(
-            package, network.show_active(),
+            sui_project, network.show_active(),
             vaa_str)
         dst_max_gas = wormhole_data[1]
         dst_max_gas_price = wormhole_data[0] / 1e10
-        if "main" in package.network:
+        if "main" in sui_project.network:
             assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
     except Exception as e:
         local_logger.error(f'Parse signed vaa for emitterChainId:{emitterChainId}, '
@@ -224,7 +303,7 @@ def process_vaa(
             raise OverflowError
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
         if not is_admin:
-            result = package["so_diamond::complete_so_swap_by_account"](
+            result = sui_package.so_diamond.complete_so_swap_by_account(
                 hex_str_to_vector_u8(vaa_str),
                 ty_args=ty_args,
                 gas_unit_price=dst_max_gas_price
@@ -232,7 +311,7 @@ def process_vaa(
         else:
             receiver = wormhole_data[2][1]
             local_logger.info(f"Compensate to:{receiver}")
-            result = package["wormhole_facet::complete_so_swap_by_admin"](
+            result = sui_package.wormhole_facet.complete_so_swap_by_admin(
                 hex_str_to_vector_u8(vaa_str),
                 str(receiver),
                 ty_args=ty_args,
@@ -246,7 +325,7 @@ def process_vaa(
                 int(result["gas_unit_price"]),
                 src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
                 if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
-                dst_net=package.network,
+                dst_net=sui_project.network,
                 payload_len=int(len(vaa_str) / 2 - 1),
                 swap_len=len(wormhole_data[3])
             )
@@ -262,10 +341,10 @@ def process_v1(
         dstWormholeChainId: int = 22,
         dstSoDiamond: str = None,
 ):
-    local_logger = logger.getChild(f"[v1|{package.network}]")
+    local_logger = logger.getChild(f"[v1|{sui_project.network}]")
     local_logger.info("Starting process v1...")
     has_process = {}
-    if "test" in package.network or "test" == "goerli":
+    if "test" in sui_project.network or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
     else:
         url = "http://wormhole-vaa.chainx.org"
@@ -290,9 +369,9 @@ def process_v2(
         dstWormholeChainId: int = 22,
         dstSoDiamond: str = None,
 ):
-    local_logger = logger.getChild(f"[v2|{package.network}]")
+    local_logger = logger.getChild(f"[v2|{sui_project.network}]")
     local_logger.info("Starting process v2...")
-    if "test" in package.network or "test" == "goerli":
+    if "test" in sui_project.network or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
     else:
@@ -329,9 +408,9 @@ def compensate(
         dstWormholeChainId: int = 22,
         dstSoDiamond: str = None,
 ):
-    local_logger = logger.getChild(f"[v2|{package.network}]")
-    local_logger.info("Starting process v2...")
-    if "test" in package.network or "test" == "goerli":
+    local_logger = logger.getChild(f"[compensate|{sui_project.network}]")
+    local_logger.info("Starting process compensate...")
+    if "test" in sui_project.network or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
     else:
@@ -410,9 +489,9 @@ def record_gas(
 
 
 def main():
-    print(f'SoDiamond:{package.network_config["SoDiamond"]}')
-    t1 = threading.Thread(target=process_v1, args=(22, package.network_config["SoDiamond"]))
-    t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
+    print(f'SoDiamond:{sui_project.network_config["SoDiamond"]}')
+    t1 = threading.Thread(target=process_v1, args=(22, sui_project.network_config["SoDiamond"]))
+    t2 = threading.Thread(target=process_v2, args=(22, sui_project.network_config["SoDiamond"]))
     t1.start()
     t2.start()
     t1.join()
@@ -420,4 +499,4 @@ def main():
 
 
 def single_process():
-    process_v2(22, package.network_config["SoDiamond"])
+    process_v2(22, sui_project.network_config["SoDiamond"])

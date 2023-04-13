@@ -1,5 +1,5 @@
-from scripts.serde_aptos import get_serde_facet
-from scripts.struct import omniswap_aptos_path, hex_str_to_vector_u8
+from scripts.serde_sui import get_serde_facet
+from scripts.struct import omniswap_sui_path, hex_str_to_vector_u8
 import aptos_brownie
 
 
@@ -7,9 +7,9 @@ def setup_mock(net: str = "aptos-testnet"):
     if net not in ["aptos-testnet", "aptos-devnet"]:
         return
     package_mock = aptos_brownie.AptosPackage(
-        project_path=omniswap_aptos_path,
+        project_path=omniswap_sui_path,
         network=net,
-        package_path=omniswap_aptos_path.joinpath("mocks")
+        package_path=omniswap_sui_path.joinpath("mocks")
     )
     package_mock.publish_package()
     try:
@@ -24,7 +24,7 @@ def main():
     print(f"Current aptos network:{net}")
     # deploy
     package = aptos_brownie.AptosPackage(
-        project_path=omniswap_aptos_path,
+        project_path=omniswap_sui_path,
         network=net
     )
     package.publish_package()
