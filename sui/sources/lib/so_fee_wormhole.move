@@ -1,21 +1,30 @@
 module omniswap::so_fee_wormhole {
-    use omniswap::serde::serialize_u64;
+
+    use sui::object::UID;
+    use sui::table::Table;
+    use sui::tx_context::TxContext;
+    use sui::transfer;
+    use sui::tx_context;
+    use sui::object;
+    use sui::table;
+    use sui::clock::Clock;
+    use sui::clock;
 
     const RAY: u64 = 100000000;
 
     /// Error Codes
 
-    const ENOT_DEPLOYED_ADDRESS: u64 = 0x00;
+    const ENOT_DEPLOYED_ADDRESS: u64 = 0;
 
-    const EHAS_INITIALIZE: u64 = 0x01;
+    const EHAS_INITIALIZE: u64 = 1;
 
-    const ENOT_INITIAL: u64 = 0x02;
+    const ENOT_INITIAL: u64 = 2;
 
-    const EINVALID_LENGTH: u64 = 0x03;
+    const EINVALID_LENGTH: u64 = 3;
 
-    const EINVALID_ACCOUNT: u64 = 0x04;
+    const EINVALID_ACCOUNT: u64 = 4;
 
-    const EINVALID_CHAIN_ID: u64 = 0x04;
+    const EINVALID_CHAIN_ID: u64 = 5;
 
     struct PriceData has store, drop {
         // The currnet price ratio of native coins
@@ -25,66 +34,46 @@ module omniswap::so_fee_wormhole {
     }
 
     struct PriceManager has key {
-        price_data: PriceData,
+        id: UID,
+        price_data: Table<u16, PriceData>,
         owner: address
     }
 
-    public fun is_initialize(dst_chain_id: u64): bool {
-        exists<PriceManager>(get_resource_address(dst_chain_id))
-    }
-
-    fun is_owner(account: address, dst_chain_id: u64): bool acquires PriceManager {
-        let manager = borrow_global<PriceManager>(get_resource_address(dst_chain_id));
-        return manager.owner == account
-    }
-
-    public entry fun transfer_owner(account: &signer, dst_chain_id: u64, to: address) acquires PriceManager {
-        assert!(is_owner(signer::address_of(account), dst_chain_id), EINVALID_ACCOUNT);
-        let manager = borrow_global_mut<PriceManager>(get_resource_address(dst_chain_id));
-        manager.owner = to;
-    }
-
-    fun get_resource_address(dst_chain_id: u64): address {
-        let seed = vector::empty<u8>();
-        serialize_u64(&mut seed, dst_chain_id);
-        account::create_resource_address(&@omniswap, seed)
-    }
-
-    public entry fun initialize(account: &signer, dst_chain_id: u64) {
-        assert!(signer::address_of(account) == @omniswap, ENOT_DEPLOYED_ADDRESS);
-        assert!(!is_initialize(dst_chain_id), EHAS_INITIALIZE);
-
-        let seed = vector::empty<u8>();
-        serialize_u64(&mut seed, dst_chain_id);
-        let (resource_signer, _) = account::create_resource_account(account, seed);
-
-        move_to(&resource_signer, PriceManager {
-            price_data: PriceData{
-                current_price_ratio: 0,
-                last_update_timestamp: timestamp::now_seconds()
-            },
-            owner: @omniswap
+    fun init(ctx: &mut TxContext) {
+        transfer::share_object(PriceManager {
+            id: object::new(ctx),
+            price_data: table::new(ctx),
+            owner: tx_context::sender(ctx)
         })
     }
 
-    #[legacy_entry_fun]
-    public entry fun update_price_ratio(chain_id: u64): u64 acquires PriceManager {
-        get_price_ratio(chain_id)
+    public fun get_timestamp(clock: &Clock): u64 {
+        clock::timestamp_ms(clock) / 1000
     }
 
-    public entry fun set_price_ratio(account: &signer, chain_id: u64, ratio: u64) acquires PriceManager {
-        assert!(is_initialize(chain_id), EHAS_INITIALIZE);
-        assert!(is_owner(signer::address_of(account), chain_id), EINVALID_ACCOUNT);
-
-        let manager = borrow_global_mut<PriceManager>(get_resource_address(chain_id));
-        manager.price_data.current_price_ratio = ratio;
-        manager.price_data.last_update_timestamp = timestamp::now_seconds();
+    public fun get_price_ratio(price_manager: &mut PriceManager, chain_id: u16): u64 {
+        if (table::contains(&price_manager.price_data, chain_id)) {
+            let price_data = table::borrow(&price_manager.price_data, chain_id);
+            price_data.current_price_ratio
+        } else {
+            0
+        }
     }
 
-    #[legacy_entry_fun]
-    public entry fun get_price_ratio(chain_id: u64): u64 acquires PriceManager {
-        assert!(is_initialize(chain_id), EHAS_INITIALIZE);
-        let manager = borrow_global_mut<PriceManager>(get_resource_address(chain_id));
-        manager.price_data.current_price_ratio
+    public entry fun transfer_owner(price_manager: &mut PriceManager, to: address, ctx: &mut TxContext) {
+        assert!(price_manager.owner == tx_context::sender(ctx), EINVALID_ACCOUNT);
+        price_manager.owner = to;
+    }
+
+    public entry fun set_price_ratio(clock: &Clock, price_manager: &mut PriceManager, chain_id: u16, ratio: u64) {
+        if (!table::contains(&price_manager.price_data, chain_id)) {
+            table::add(&mut price_manager.price_data, chain_id, PriceData {
+                current_price_ratio: ratio,
+                last_update_timestamp: get_timestamp(clock)
+            });
+        };
+        let price_data = table::borrow_mut(&mut price_manager.price_data, chain_id);
+        price_data.current_price_ratio = ratio;
+        price_data.last_update_timestamp = get_timestamp(clock);
     }
 }

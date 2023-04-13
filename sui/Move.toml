@@ -6,6 +6,7 @@ version = "0.1.0"
 sui = "0x2"
 omniswap = "0x0"
 wormhole = "0x0"
+token_bridge = "0x0"
 
 [dependencies.Sui]
 git = "https://github.com/MystenLabs/sui.git"

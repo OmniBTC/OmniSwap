@@ -1,7 +1,6 @@
 module omniswap::swap {
-    use omniswap::u256;
-    use omniswap::serde;
     use omniswap::cross::{NormalizedSwapData, Self};
+    use std::type_name;
 
     // Swap call data delimiter, represent ","
     const DELIMITER: u8 = 44;
@@ -19,8 +18,9 @@ module omniswap::swap {
 
     /// Ensuring the origin of tokens
     public fun right_type<X>(token: vector<u8>): bool {
-        let data = vector::empty();
-        serde::serialize_type<X>(&mut data);
+        let data = type_name::get<X>();
+        let data = type_name::into_string(data);
+        let data = std::ascii::into_bytes(data);
         if (data == token) {
             true
         }else {

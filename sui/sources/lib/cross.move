@@ -1,9 +1,8 @@
 module omniswap::cross {
-    use omniswap::serde;
-    use omniswap::u16::{U16, Self};
-    use omniswap::u256::{U256, Self};
+    use std::vector;
+    use serde::serde;
 
-    const EINVALID_LENGTH: u64 = 0x00;
+    const EINVALID_LENGTH: u64 = 0;
 
     struct NormalizedSoData has drop, copy {
         // Unique identification id. length is 32.
@@ -11,15 +10,15 @@ module omniswap::cross {
         // Token receiving account. length is 20, 32.
         receiver: vector<u8>,
         // Source chain id
-        source_chain_id: U16,
+        source_chain_id: u16,
         // The starting token address of the source chain
         sending_asset_id: vector<u8>,
         // Destination chain id
-        destination_chain_id: U16,
+        destination_chain_id: u16,
         // The final token address of the destination chain
         receiving_asset_id: vector<u8>,
         // User enters amount
-        amount: U256
+        amount: u256
     }
 
     struct NormalizedSwapData has drop, copy {
@@ -32,7 +31,7 @@ module omniswap::cross {
         // The swap final token address
         receiving_asset_id: vector<u8>,
         // The swap start token amount
-        from_amount: U256,
+        from_amount: u256,
         // The swap callData
         call_data: vector<u8>
     }
@@ -43,7 +42,7 @@ module omniswap::cross {
         data.receiver
     }
 
-    public fun so_amount(data: NormalizedSoData): U256 {
+    public fun so_amount(data: NormalizedSoData): u256 {
         data.amount
     }
 
@@ -75,7 +74,7 @@ module omniswap::cross {
         data.call_data
     }
 
-    public fun swap_from_amount(data: NormalizedSwapData): U256 {
+    public fun swap_from_amount(data: NormalizedSwapData): u256 {
         data.from_amount
     }
 
@@ -116,7 +115,7 @@ module omniswap::cross {
 
     public fun decode_normalized_so_data(data: &vector<u8>): NormalizedSoData {
         let len = vector::length(data);
-        assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
+        assert!(len > 0, EINVALID_LENGTH);
 
         let index = 0;
         let next_len;
@@ -164,7 +163,7 @@ module omniswap::cross {
 
     public fun decode_normalized_swap_data(data: &vector<u8>): vector<NormalizedSwapData> {
         let len = vector::length(data);
-        assert!(len > 0, error::invalid_argument(EINVALID_LENGTH));
+        assert!(len > 0, EINVALID_LENGTH);
         let index = 0;
         let next_len;
         let swap_data = vector::empty<NormalizedSwapData>();
@@ -217,11 +216,11 @@ module omniswap::cross {
         NormalizedSoData {
             transaction_id,
             receiver,
-            source_chain_id: u16::zero(),
+            source_chain_id: 0,
             sending_asset_id: vector::empty(),
-            destination_chain_id: u16::zero(),
+            destination_chain_id: 0,
             receiving_asset_id,
-            amount: u256::zero()
+            amount: 0
         }
     }
 
@@ -229,13 +228,14 @@ module omniswap::cross {
         call_to: vector<u8>,
         sending_asset_id: vector<u8>,
         receiving_asset_id: vector<u8>,
-        call_data: vector<u8>): NormalizedSwapData {
+        call_data: vector<u8>
+    ): NormalizedSwapData {
         NormalizedSwapData {
             call_to,
             approve_to: call_to,
             sending_asset_id,
             receiving_asset_id,
-            from_amount: u256::zero(),
+            from_amount: 0,
             call_data
         }
     }
@@ -246,7 +246,7 @@ module omniswap::cross {
         approve_to: vector<u8>,
         sending_asset_id: vector<u8>,
         receiving_asset_id: vector<u8>,
-        from_amount: U256,
+        from_amount: u256,
         call_data: vector<u8>
     ): NormalizedSwapData {
         NormalizedSwapData {
@@ -264,11 +264,11 @@ module omniswap::cross {
     public fun construct_so_data(
         transaction_id: vector<u8>,
         receiver: vector<u8>,
-        source_chain_id: U16,
+        source_chain_id: u16,
         sending_asset_id: vector<u8>,
-        destination_chain_id: U16,
+        destination_chain_id: u16,
         receiving_asset_id: vector<u8>,
-        amount: U256
+        amount: u256
     ): NormalizedSoData {
         NormalizedSoData {
             transaction_id,
@@ -286,11 +286,11 @@ module omniswap::cross {
         let so_data = NormalizedSoData {
             transaction_id: x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
             receiver: x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-            source_chain_id: u16::from_u64(1),
+            source_chain_id: 1,
             sending_asset_id: b"0x1::aptos_coin::AptosCoin",
-            destination_chain_id: u16::from_u64(2),
+            destination_chain_id: 2,
             receiving_asset_id: x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-            amount: u256::from_u64(100000000)
+            amount: 100000000
         };
         let encode_data = encode_normalized_so_data(so_data);
         let data = x"00000000000000204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0001000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00020000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000000000000000000000000000000000000000000000005f5e100";
@@ -306,7 +306,7 @@ module omniswap::cross {
                 approve_to: x"4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81",
                 sending_asset_id: b"0x1::aptos_coin::AptosCoin",
                 receiving_asset_id: b"0x1::omni_bridge::XBTC",
-                from_amount: u256::from_u64(8900000000),
+                from_amount: 8900000000,
                 // liquidswap curve
                 call_data: b"0x4e9fce03284c0ce0b86c88dd5a46f050cad2f4f33c4cdd29d98f501868558c81::curves::Uncorrelated"
             },
@@ -315,7 +315,7 @@ module omniswap::cross {
                 approve_to: x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
                 sending_asset_id: x"2514895c72f50d8bd4b4f9b1110f0d6bd2c97526",
                 receiving_asset_id: x"143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7",
-                from_amount: u256::from_u64(7700000000),
+                from_amount: 7700000000,
                 // liquidswap curve
                 call_data: x"6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
             }
