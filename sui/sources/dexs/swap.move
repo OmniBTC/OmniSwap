@@ -56,7 +56,7 @@ module omniswap::swap {
             call_data = raw_call_data;
         };
 
-        pool::swap_token_x(pool, input_coin, ctx)
+        pool::swap_token_x(pool, input_coin, min_amount, ctx)
     }
 
     public fun swap_two_by_coin<X, Y>(pool: &mut Pool<OmniSwapMock, X, Y>, coins: Coin<X>, swap_data: vector<NormalizedSwapData>, ctx: &mut TxContext): Coin<Y> {

@@ -326,7 +326,7 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
-        let sequence = 0;
+        let sequence;
         if (vector::length(&swap_data_src) > 0) {
             let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
             if (vector::length(&swap_data_src) == 1) {
