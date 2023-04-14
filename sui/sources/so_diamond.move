@@ -56,10 +56,4 @@ module omniswap::so_diamond {
     ) {
         wormhole_facet::complete_so_swap<X, Y, Z, M>(storage, token_bridge_state, wormhole_state, wormhole_fee, vaa, clock, ctx);
     }
-
-    // /// To complete a cross-chain transaction, it needs to be called manually by the
-    // /// user or automatically by Relayer for the tokens to be sent to the user.
-    // public entry fun complete_so_swap_by_account<X, Y, Z, M>(account: &signer, vaa: vector<u8>) {
-    //     wormhole_facet::complete_so_swap_by_account<X, Y, Z, M>(account, vaa);
-    // }
 }
