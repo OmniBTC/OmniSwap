@@ -32,6 +32,9 @@ module omniswap::wormhole_facet {
     use wormhole::bytes32;
     use sui::clock::Clock;
     use sui::event;
+    use omniswap_mock::setup::OmniSwapMock;
+    use omniswap_mock::pool::Pool;
+    use omniswap::swap;
 
 
     const RAY: u64 = 100000000;
@@ -63,6 +66,8 @@ module omniswap::wormhole_facet {
     const EAMOUNT_NOT_NEAT: u64 = 9;
 
     const ETYPE: u64 = 10;
+
+    const ESWAP_LENGTH: u64 = 11;
 
     /// Storage
 
@@ -272,8 +277,11 @@ module omniswap::wormhole_facet {
         clock: &Clock,
         price_manager: &mut PriceManager,
         wromhole_fee: &mut WormholeFee,
+        pool_xy: &mut Pool<OmniSwapMock, X, Y>,
+        pool_yz: &mut Pool<OmniSwapMock, Y, Z>,
+        pool_zm: &mut Pool<OmniSwapMock, Z, M>,
         so_data: vector<u8>,
-        _swap_data_src: vector<u8>,
+        swap_data_src: vector<u8>,
         wormhole_data: vector<u8>,
         swap_data_dst: vector<u8>,
         coins_x: vector<Coin<X>>,
@@ -318,61 +326,76 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
-        // let sequence: u64;
-        // if (vector::length(&swap_data_src) > 0) {
-        //     let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
-        //     if (vector::length(&swap_data_src) == 1) {
-        //         let coin_y = swap::swap_two_by_account<X, Y>(account, swap_data_src);
-        //         sequence = transfer_tokens::transfer_tokens_with_payload(
-        //             emitter_cap,
-        //             coin_y,
-        //             wormhole_fee,
-        //             wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
-        //             external_address::from_bytes(wormhole_data.dst_so_diamond),
-        //             0,
-        //             payload
-        //         );
-        //     }else if (vector::length(&swap_data_src) == 2) {
-        //         let coin_z = swap::swap_three_by_account<X, Y, Z>(account, swap_data_src);
-        //         sequence = transfer_tokens::transfer_tokens_with_payload(
-        //             emitter_cap,
-        //             coin_z,
-        //             wormhole_fee,
-        //             wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
-        //             external_address::from_bytes(wormhole_data.dst_so_diamond),
-        //             0,
-        //             payload
-        //         );
-        //     }else if (vector::length(&swap_data_src) == 3) {
-        //         let coin_m = swap::swap_four_by_account<X, Y, Z, M>(account, swap_data_src);
-        //         sequence = transfer_tokens::transfer_tokens_with_payload(
-        //             emitter_cap,
-        //             coin_m,
-        //             wormhole_fee,
-        //             wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
-        //             external_address::from_bytes(wormhole_data.dst_so_diamond),
-        //             0,
-        //             payload
-        //         );
-        //     }else {
-        //         abort EINVALID_LENGTH
-        //     }
-        // }else {
-        let (sequence, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
-            token_bridge_state,
-            &storage.emitter_cap,
-            wormhole_state,
-            coin_x,
-            wormhole_fee_coin,
-            wormhole_data.dst_wormhole_chain_id,
-            external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
-            payload,
-            0,
-            clock
-        );
-        coin::destroy_zero(dust);
-        // };
-        //
+        let sequence = 0;
+        if (vector::length(&swap_data_src) > 0) {
+            let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+            if (vector::length(&swap_data_src) == 1) {
+                let coin_y = swap::swap_two_by_coin<X, Y>(pool_xy, coin_x, swap_data_src, ctx);
+                let (s, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
+                    token_bridge_state,
+                    &storage.emitter_cap,
+                    wormhole_state,
+                    coin_y,
+                    wormhole_fee_coin,
+                    wormhole_data.dst_wormhole_chain_id,
+                    external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
+                    payload,
+                    0,
+                    clock
+                );
+                sequence = s;
+                coin::destroy_zero(dust);
+            }else if (vector::length(&swap_data_src) == 2) {
+                let coin_z = swap::swap_three_by_coin<X, Y, Z>(pool_xy, pool_yz, coin_x,swap_data_src, ctx);
+                let (s, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
+                    token_bridge_state,
+                    &storage.emitter_cap,
+                    wormhole_state,
+                    coin_z,
+                    wormhole_fee_coin,
+                    wormhole_data.dst_wormhole_chain_id,
+                    external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
+                    payload,
+                    0,
+                    clock
+                );
+                sequence = s;
+                coin::destroy_zero(dust);
+            }else {
+                assert!(vector::length(&swap_data_dst) == 3, ESWAP_LENGTH);
+                let coin_m = swap::swap_four_by_coin<X, Y, Z, M>(pool_xy, pool_yz, pool_zm,coin_x,swap_data_src, ctx);
+                let (s, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
+                    token_bridge_state,
+                    &storage.emitter_cap,
+                    wormhole_state,
+                    coin_m,
+                    wormhole_fee_coin,
+                    wormhole_data.dst_wormhole_chain_id,
+                    external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
+                    payload,
+                    0,
+                    clock
+                );
+                sequence = s;
+                coin::destroy_zero(dust);
+            }
+        } else {
+            let (s, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
+                token_bridge_state,
+                &storage.emitter_cap,
+                wormhole_state,
+                coin_x,
+                wormhole_fee_coin,
+                wormhole_data.dst_wormhole_chain_id,
+                external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
+                payload,
+                0,
+                clock
+            );
+            sequence = s;
+            coin::destroy_zero(dust);
+        };
+
         event::emit(
             SoTransferStarted {
                 transaction_id: cross::so_transaction_id(so_data),
@@ -515,6 +538,9 @@ module omniswap::wormhole_facet {
         token_bridge_state: &mut TokenBridgeState,
         wormhole_state: &WormholeState,
         wormhole_fee: &mut WormholeFee,
+        pool_xy: &mut Pool<OmniSwapMock, X, Y>,
+        pool_yz: &mut Pool<OmniSwapMock, Y, Z>,
+        pool_zm: &mut Pool<OmniSwapMock, Z, M>,
         vaa: vector<u8>,
         clock: &Clock,
         ctx: &mut TxContext
@@ -536,32 +562,31 @@ module omniswap::wormhole_facet {
             transfer::public_transfer(coin_fee, beneficiary);
         };
 
-        let (_, _, so_data, _) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_x);
-        // if (vector::length(&swap_data_dst) > 0) {
-        //     if (vector::length(&swap_data_dst) == 1) {
-        //         let coin_y = swap::swap_two_by_coin<X, Y>(coin_x, swap_data_dst);
-        //
-        //         receiving_amount = coin::value(&coin_y);
-        //         transfer(coin_y, receiver);
-        //     }else if (vector::length(&swap_data_dst) == 2) {
-        //         let coin_z = swap::swap_three_by_coin<X, Y, Z>(coin_x, swap_data_dst);
-        //
-        //         receiving_amount = coin::value(&coin_z);
-        //         transfer(coin_z, receiver);
-        //     }else if (vector::length(&swap_data_dst) == 3) {
-        //         let coin_m = swap::swap_four_by_coin<X, Y, Z, M>(coin_x, swap_data_dst);
-        //
-        //         receiving_amount = coin::value(&coin_m);
-        //         transfer(coin_m, receiver);
-        //     }else {
-        //         abort EINVALID_LENGTH
-        //     }
-        // }else {
-        transfer::public_transfer(coin_x, receiver);
-        // };
+        if (vector::length(&swap_data_dst) > 0) {
+            if (vector::length(&swap_data_dst) == 1) {
+                let coin_y = swap::swap_two_by_coin<X, Y>(pool_xy, coin_x, swap_data_dst, ctx);
+
+                receiving_amount = coin::value(&coin_y);
+                transfer::public_transfer(coin_y, receiver);
+            }else if (vector::length(&swap_data_dst) == 2) {
+                let coin_z = swap::swap_three_by_coin<X, Y, Z>(pool_xy,pool_yz,coin_x, swap_data_dst,ctx);
+
+                receiving_amount = coin::value(&coin_z);
+                transfer::public_transfer(coin_z, receiver);
+            }else {
+                assert!(vector::length(&swap_data_dst) == 3, ESWAP_LENGTH);
+                let coin_m = swap::swap_four_by_coin<X, Y, Z, M>(pool_xy, pool_yz, pool_zm, coin_x, swap_data_dst, ctx);
+
+                receiving_amount = coin::value(&coin_m);
+                transfer::public_transfer(coin_m, receiver);
+            };
+        } else {
+            transfer::public_transfer(coin_x, receiver);
+        };
 
         event::emit(
             SoTransferCompleted {
