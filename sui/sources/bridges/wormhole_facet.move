@@ -101,7 +101,8 @@ module omniswap::wormhole_facet {
     /// Own wormhole emitter capability
     struct WormholeFacetManager has key {
         id: UID,
-        owner: address
+        owner: address,
+        relayer: address
     }
 
     /// Events
@@ -124,7 +125,8 @@ module omniswap::wormhole_facet {
     fun init(ctx: &mut TxContext) {
         transfer::share_object(WormholeFacetManager {
             id: object::new(ctx),
-            owner: tx_context::sender(ctx)
+            owner: tx_context::sender(ctx),
+            relayer: tx_context::sender(ctx),
         })
     }
 
@@ -138,6 +140,11 @@ module omniswap::wormhole_facet {
     public entry fun transfer_beneficiary(wormhole_fee: &mut WormholeFee, to: address, ctx: &mut TxContext) {
         assert!(wormhole_fee.beneficiary == tx_context::sender(ctx), EINVALID_ACCOUNT);
         wormhole_fee.beneficiary = to;
+    }
+
+    public entry fun set_relayer(facet_manager: &mut WormholeFacetManager, relayer: address, ctx: &mut TxContext) {
+        assert!(tx_context::sender(ctx) == facet_manager.owner, EINVALID_ACCOUNT);
+        facet_manager.relayer = relayer;
     }
 
     public fun merge_coin<CoinType>(
@@ -173,7 +180,7 @@ module omniswap::wormhole_facet {
         }
     }
 
-    public entry fun set_so_fees(wormhole_fee: &mut WormholeFee, fee: u64, ctx: &mut TxContext)  {
+    public entry fun set_so_fees(wormhole_fee: &mut WormholeFee, fee: u64, ctx: &mut TxContext) {
         assert!(wormhole_fee.beneficiary == tx_context::sender(ctx), EINVALID_ACCOUNT);
         wormhole_fee.fee = fee;
     }
@@ -185,7 +192,12 @@ module omniswap::wormhole_facet {
     /// Inits
 
     /// Set the wormhole chain id used by the current chain
-    public entry fun init_wormhole(facet_manager: &mut WormholeFacetManager, state: &mut WormholeState,wormhole_chain_id: u16, ctx: &mut TxContext) {
+    public entry fun init_wormhole(
+        facet_manager: &mut WormholeFacetManager,
+        state: &mut WormholeState,
+        wormhole_chain_id: u16,
+        ctx: &mut TxContext
+    ) {
         assert!(tx_context::sender(ctx) == facet_manager.owner, ENOT_DEPLOYED_ADDRESS);
         let deployer = tx_context::sender(ctx);
         transfer::share_object(Storage {
@@ -273,7 +285,14 @@ module omniswap::wormhole_facet {
             vector::empty()
         };
 
-        let (flag, fee, _, dst_max_gas) = check_relayer_fee(storage,wormhole_state,price_manager ,so_data, wormhole_data, swap_data_dst);
+        let (flag, fee, _, dst_max_gas) = check_relayer_fee(
+            storage,
+            wormhole_state,
+            price_manager,
+            so_data,
+            wormhole_data,
+            swap_data_dst
+        );
         assert!(flag, ECHECK_FEE_FAIL);
 
         let payload = encode_wormhole_payload(
@@ -370,7 +389,7 @@ module omniswap::wormhole_facet {
         vaa: vector<u8>,
         clock: &Clock,
         ctx: &mut TxContext
-    )  {
+    ) {
         let (coin_x, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
             token_bridge_state,
             &storage.emitter_cap,
@@ -435,7 +454,7 @@ module omniswap::wormhole_facet {
         to: address,
         clock: &Clock,
         ctx: &mut TxContext
-    )  {
+    ) {
         assert!(facet_manager.owner == tx_context::sender(ctx), EINVALID_ACCOUNT);
         let (coin_x, _, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
             token_bridge_state,
@@ -457,26 +476,41 @@ module omniswap::wormhole_facet {
         transfer::public_transfer(coin_x, to);
     }
 
-    // public entry fun complete_so_swap_by_emitter<X, Y, Z, M>(
-    //     account: &signer,
-    //     vaa: vector<u8>,
-    //     to: address
-    // ) acquires WormholeFacetManager, WormholeFee {
-    //     assert!(is_initialize(), ENOT_INITIALIZE);
-    //
-    //     let emitter_cap = &borrow_global<WormholeFacetManager>(signer::address_of(account)).emitter_cap;
-    //     let (coin_x, _) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
-    //
-    //     let x_val = coin::value(&coin_x);
-    //     let so_fee = (((x_val as u128) * (get_so_fees() as u128) / (RAY as u128)) as u64);
-    //     let beneficiary = get_beneficiary_address();
-    //     if (so_fee > 0 && so_fee <= x_val && is_transfer<X>(beneficiary)) {
-    //         let coin_fee = coin::extract(&mut coin_x, so_fee);
-    //         transfer(coin_fee, beneficiary);
-    //     };
-    //
-    //     transfer(coin_x, to);
-    // }
+    /// To avoid swap min amount errors, allow relayer to compensate
+    public entry fun complete_so_swap_by_relayer<X, Y, Z, M>(
+        storage: &mut Storage,
+        facet_manager: &mut WormholeFacetManager,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        assert!(tx_context::sender(ctx) == facet_manager.relayer, EINVALID_ACCOUNT);
+        let (coin_x, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
+            token_bridge_state,
+            &storage.emitter_cap,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= x_val) {
+            let coin_fee = coin::split<X>(&mut coin_x, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, _) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+
+        transfer::public_transfer(coin_x, receiver);
+    }
 
     /// Swap Helpers
 
