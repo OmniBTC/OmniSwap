@@ -118,8 +118,8 @@ module omniswap_mock::pool {
 
         let output_amount = get_input_price(
             balance::value(&tok_balance),
-            y_reserve,
             x_reserve,
+            y_reserve,
             pool.fee_percent
         );
 
@@ -150,8 +150,8 @@ module omniswap_mock::pool {
 
         let output_amount = get_input_price(
             balance::value(&tok_balance),
-            x_reserve,
             y_reserve,
+            x_reserve,
             pool.fee_percent
         );
 

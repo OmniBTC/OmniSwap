@@ -7,6 +7,7 @@ sui = "0x2"
 omniswap = "0x0"
 wormhole = "0x0"
 token_bridge = "0x1"
+omniswap_mock = "0x3"
 
 [dependencies.Sui]
 git = "https://github.com/MystenLabs/sui.git"
@@ -22,3 +23,6 @@ rev = "d26d9407fb6a4f17db29e1028202bb1c9f76cf8b"
 git = "https://github.com/OmniBTC/wormhole.git"
 subdir = "sui/token_bridge"
 rev = "d26d9407fb6a4f17db29e1028202bb1c9f76cf8b"
+
+[dependencies.OmniSwapMock]
+local = "./mocks"

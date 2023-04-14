@@ -3,7 +3,7 @@ name = "OmniSwapMock"
 version = "0.1.0"
 
 [addresses]
-omniswap_mock = "0x0"
+omniswap_mock = "0x3"
 sui = "0x2"
 
 [dependencies.Sui]
