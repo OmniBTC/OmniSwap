@@ -403,6 +403,7 @@ module omniswap::wormhole_facet {
         ctx: &mut TxContext
     ) {
         let so_data = cross::decode_normalized_so_data(&mut so_data);
+        assert!(right_type<SUI>(cross::so_sending_asset_id(so_data)), ETYPE);
         let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
 
         let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {

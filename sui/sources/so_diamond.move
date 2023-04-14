@@ -9,6 +9,8 @@ module omniswap::so_diamond {
     use sui::coin::Coin;
     use sui::sui::SUI;
     use sui::tx_context::TxContext;
+    use std::type_name;
+    use std::vector;
 
     /// Cross-swap via wormhole
     ///  * so_data Track user data across the chain and record the final destination of tokens
@@ -29,10 +31,16 @@ module omniswap::so_diamond {
         wormhole_data: vector<u8>,
         swap_data_dst: vector<u8>,
         coins_x: vector<Coin<X>>,
-        brige_fee_coins: vector<Coin<SUI>>,
+        coins_sui: vector<Coin<SUI>>,
         ctx: &mut TxContext
     ) {
-        wormhole_facet::so_swap<X, Y, Z, M>(wormhole_state, token_bridge_state, storage, clock, price_manager, wromhole_fee, so_data, swap_data_src, wormhole_data, swap_data_dst, coins_x, brige_fee_coins, ctx);
+        if (type_name::get<X>() != type_name::get<SUI>()){
+            wormhole_facet::so_swap<X, Y, Z, M>(wormhole_state, token_bridge_state, storage, clock, price_manager, wromhole_fee, so_data, swap_data_src, wormhole_data, swap_data_dst, coins_x, coins_sui, ctx);
+        }else{
+            vector::destroy_empty(coins_x);
+            wormhole_facet::so_swap_from_sui<Y, Z, M>(wormhole_state, token_bridge_state, storage, clock, price_manager, wromhole_fee, so_data, swap_data_src, wormhole_data, swap_data_dst, coins_sui, ctx);
+        }
+
     }
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
