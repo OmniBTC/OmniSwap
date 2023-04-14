@@ -66,6 +66,10 @@ module omniswap::wormhole_facet {
         beneficiary: address
     }
 
+    struct WormholeRelayer has key {
+        relayer: address
+    }
+
     struct Storage has key {
         // current wormhole chain id, aptos 22
         src_wormhole_chain_id: U16,
@@ -166,6 +170,23 @@ module omniswap::wormhole_facet {
         let manager = borrow_global_mut<WormholeFee>(get_resource_address());
         assert!(manager.beneficiary == signer::address_of(account), EINVALID_ACCOUNT);
         manager.beneficiary = to;
+    }
+
+    public entry fun set_relayer(account: &signer, relayer: address) acquires WormholeRelayer {
+        assert!(is_initialize(), ENOT_INITIALIZE);
+        assert!(signer::address_of(account) == @omniswap, EINVALID_ACCOUNT);
+        if (exists<WormholeRelayer>(@omniswap)) {
+            let wormhole_relayer = borrow_global_mut<WormholeRelayer>(@omniswap);
+            wormhole_relayer.relayer = relayer;
+        }else {
+            move_to(account, WormholeRelayer {
+                relayer
+            });
+        }
+    }
+
+    public fun get_relayer(): address acquires WormholeRelayer {
+        borrow_global<WormholeRelayer>(@omniswap).relayer
     }
 
 
@@ -572,6 +593,32 @@ module omniswap::wormhole_facet {
         };
 
         transfer(coin_x, to);
+    }
+
+    /// To avoid swap min amount errors, allow relayer to compensate
+    public entry fun complete_so_swap_by_relayer<X, Y, Z, M>(
+        account: &signer,
+        vaa: vector<u8>,
+    ) acquires WormholeFacetManager, WormholeFee, WormholeRelayer {
+        assert!(is_initialize(), ENOT_INITIALIZE);
+        assert!(signer::address_of(account) == get_relayer(), EINVALID_ACCOUNT);
+
+        let emitter_cap = &borrow_global<WormholeFacetManager>(get_resource_address()).emitter_cap;
+        let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees() as u128) / (RAY as u128)) as u64);
+        let beneficiary = get_beneficiary_address();
+        if (so_fee > 0 && so_fee <= x_val && is_transfer<X>(beneficiary)) {
+            let coin_fee = coin::extract(&mut coin_x, so_fee);
+            transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, _) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+
+        transfer(coin_x, receiver);
     }
 
     /// Swap Helpers

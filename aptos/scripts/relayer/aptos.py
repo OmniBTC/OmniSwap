@@ -224,11 +224,23 @@ def process_vaa(
             raise OverflowError
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
         if not is_admin:
-            result = package["so_diamond::complete_so_swap_by_account"](
-                hex_str_to_vector_u8(vaa_str),
-                ty_args=ty_args,
-                gas_unit_price=dst_max_gas_price
-            )
+            try:
+                result = package["so_diamond::complete_so_swap_by_account"](
+                    hex_str_to_vector_u8(vaa_str),
+                    ty_args=ty_args,
+                    gas_unit_price=dst_max_gas_price
+                )
+            except Exception as e:
+                if time.time() > vaa_data[1] + 60 * 60:
+                    local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
+                                       f'sequence:{sequence}, start compensate for error: {e}')
+                    result = package["wormhole_facet::complete_so_swap_by_relayer"](
+                        hex_str_to_vector_u8(vaa_str),
+                        ty_args=ty_args,
+                        gas_unit_price=dst_max_gas_price
+                    )
+                else:
+                    raise e
         else:
             receiver = wormhole_data[2][1]
             local_logger.info(f"Compensate to:{receiver}")
