@@ -26,7 +26,7 @@ def callAnySwapOut():
 
 def callAnySwapOutByTxHash():
     cmd = "curl --silent https://scanapi.multichain.org/v3/tx/{tx}"
-    txs = ["0xcbfb2a0563eb08662324f87f251e72d6a83f56a9e276337e28a00693328fb640"]
+    txs = ["0x18feae158dc3ca3145bcd05ba1e620b63fe5da01c2be8a137ed5209597ec64ac"]
 
     account = get_account()
     proxy_multichain = Contract.from_abi(
