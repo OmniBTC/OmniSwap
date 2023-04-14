@@ -668,7 +668,7 @@ module omniswap::wormhole_facet {
             flag = true;
             return_value = wormhole_fee - comsume_value;
         };
-        (flag, src_fee, return_value, dst_max_gas)
+        (flag, src_fee, comsume_value, dst_max_gas)
     }
 
     public fun estimate_complete_soswap_gas(

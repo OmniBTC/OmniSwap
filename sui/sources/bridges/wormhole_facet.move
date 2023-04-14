@@ -60,6 +60,10 @@ module omniswap::wormhole_facet {
 
     const EAMOUNT_MUST_ZERO: u64 = 8;
 
+    const EAMOUNT_NOT_NEAT: u64 = 9;
+
+    const ETYPE: u64 = 10;
+
     /// Storage
 
     /// The so fee of cross token
@@ -273,10 +277,12 @@ module omniswap::wormhole_facet {
         wormhole_data: vector<u8>,
         swap_data_dst: vector<u8>,
         coins_x: vector<Coin<X>>,
-        brige_fee_coins: vector<Coin<SUI>>,
+        coins_sui: vector<Coin<SUI>>,
         ctx: &mut TxContext
     ) {
         let so_data = cross::decode_normalized_so_data(&mut so_data);
+        assert!(!right_type<SUI>(cross::so_sending_asset_id(so_data)), ETYPE);
+
         let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
 
         let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
@@ -285,7 +291,7 @@ module omniswap::wormhole_facet {
             vector::empty()
         };
 
-        let (flag, fee, _, dst_max_gas) = check_relayer_fee(
+        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
             storage,
             wormhole_state,
             price_manager,
@@ -302,10 +308,15 @@ module omniswap::wormhole_facet {
             swap_data_dst
         );
 
-        let brigde_fees = merge_coin(brige_fee_coins, fee, ctx);
-        let wormhole_fee_coin = coin::split<SUI>(&mut brigde_fees, state::message_fee(wormhole_state), ctx);
-        let relay_fee_coin = brigde_fees;
+        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
+        let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
         transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
+
+        let coin_val = (cross::so_amount(so_data) as u64);
+        assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
+        coin::destroy_zero(comsume_sui);
+        let coin_x = merge_coin(coins_x, coin_val, ctx);
 
         // let sequence: u64;
         // if (vector::length(&swap_data_src) > 0) {
@@ -347,8 +358,125 @@ module omniswap::wormhole_facet {
         //         abort EINVALID_LENGTH
         //     }
         // }else {
+        let (sequence, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
+            token_bridge_state,
+            &storage.emitter_cap,
+            wormhole_state,
+            coin_x,
+            wormhole_fee_coin,
+            wormhole_data.dst_wormhole_chain_id,
+            external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
+            payload,
+            0,
+            clock
+        );
+        coin::destroy_zero(dust);
+        // };
+        //
+        event::emit(
+            SoTransferStarted {
+                transaction_id: cross::so_transaction_id(so_data),
+            }
+        );
+
+        event::emit(
+            TransferFromWormholeEvent {
+                src_wormhole_chain_id: storage.src_wormhole_chain_id,
+                dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
+                sequence
+            }
+        );
+    }
+
+    public entry fun so_swap_from_sui<Y, Z, M>(
+        wormhole_state: &mut WormholeState,
+        token_bridge_state: &mut TokenBridgeState,
+        storage: &mut Storage,
+        clock: &Clock,
+        price_manager: &mut PriceManager,
+        wromhole_fee: &mut WormholeFee,
+        so_data: vector<u8>,
+        _swap_data_src: vector<u8>,
+        wormhole_data: vector<u8>,
+        swap_data_dst: vector<u8>,
+        coins_sui: vector<Coin<SUI>>,
+        ctx: &mut TxContext
+    ) {
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
+        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
+
+        let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
+            cross::decode_normalized_swap_data(&mut swap_data_dst)
+        }else {
+            vector::empty()
+        };
+
+        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
+            storage,
+            wormhole_state,
+            price_manager,
+            so_data,
+            wormhole_data,
+            swap_data_dst
+        );
+        assert!(flag, ECHECK_FEE_FAIL);
+
+        let payload = encode_wormhole_payload(
+            wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+            dst_max_gas,
+            so_data,
+            swap_data_dst
+        );
+
+        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
+        let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
+        transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
+
         let coin_val = (cross::so_amount(so_data) as u64);
-        let coin_x = merge_coin(coins_x, coin_val, ctx);
+        assert!(coin::value(&comsume_sui) == coin_val, EAMOUNT_NOT_NEAT);
+        let coin_x = comsume_sui;
+
+        // let sequence: u64;
+        // if (vector::length(&swap_data_src) > 0) {
+        //     let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+        //     if (vector::length(&swap_data_src) == 1) {
+        //         let coin_y = swap::swap_two_by_account<X, Y>(account, swap_data_src);
+        //         sequence = transfer_tokens::transfer_tokens_with_payload(
+        //             emitter_cap,
+        //             coin_y,
+        //             wormhole_fee,
+        //             wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
+        //             external_address::from_bytes(wormhole_data.dst_so_diamond),
+        //             0,
+        //             payload
+        //         );
+        //     }else if (vector::length(&swap_data_src) == 2) {
+        //         let coin_z = swap::swap_three_by_account<X, Y, Z>(account, swap_data_src);
+        //         sequence = transfer_tokens::transfer_tokens_with_payload(
+        //             emitter_cap,
+        //             coin_z,
+        //             wormhole_fee,
+        //             wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
+        //             external_address::from_bytes(wormhole_data.dst_so_diamond),
+        //             0,
+        //             payload
+        //         );
+        //     }else if (vector::length(&swap_data_src) == 3) {
+        //         let coin_m = swap::swap_four_by_account<X, Y, Z, M>(account, swap_data_src);
+        //         sequence = transfer_tokens::transfer_tokens_with_payload(
+        //             emitter_cap,
+        //             coin_m,
+        //             wormhole_fee,
+        //             wormhole_u16::from_u64(u16::to_u64(wormhole_data.dst_wormhole_chain_id)),
+        //             external_address::from_bytes(wormhole_data.dst_so_diamond),
+        //             0,
+        //             payload
+        //         );
+        //     }else {
+        //         abort EINVALID_LENGTH
+        //     }
+        // }else {
         let (sequence, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
             token_bridge_state,
             &storage.emitter_cap,
@@ -559,14 +687,14 @@ module omniswap::wormhole_facet {
         comsume_value = comsume_value + src_fee;
 
         let flag = false;
-        let return_value = 0;
+        // let return_value = 0;
 
         let wormhole_fee = (wormhole_data.wormhole_fee as u64);
         if (comsume_value <= wormhole_fee) {
             flag = true;
-            return_value = wormhole_fee - comsume_value;
+            // return_value = wormhole_fee - comsume_value;
         };
-        (flag, src_fee, return_value, dst_max_gas)
+        (flag, src_fee, comsume_value, dst_max_gas)
     }
 
     public fun estimate_complete_soswap_gas(
