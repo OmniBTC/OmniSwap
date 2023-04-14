@@ -65,16 +65,23 @@ module omniswap::so_fee_wormhole {
         price_manager.owner = to;
     }
 
-    public entry fun set_price_ratio(clock: &Clock, price_manager: &mut PriceManager, chain_id: u16, ratio: u64, ctx: &mut TxContext) {
+    public entry fun set_price_ratio(
+        clock: &Clock,
+        price_manager: &mut PriceManager,
+        chain_id: u16,
+        ratio: u64,
+        ctx: &mut TxContext
+    ) {
         assert!(price_manager.owner == tx_context::sender(ctx), EINVALID_ACCOUNT);
         if (!table::contains(&price_manager.price_data, chain_id)) {
             table::add(&mut price_manager.price_data, chain_id, PriceData {
                 current_price_ratio: ratio,
                 last_update_timestamp: get_timestamp(clock)
             });
+        }else {
+            let price_data = table::borrow_mut(&mut price_manager.price_data, chain_id);
+            price_data.current_price_ratio = ratio;
+            price_data.last_update_timestamp = get_timestamp(clock);
         };
-        let price_data = table::borrow_mut(&mut price_manager.price_data, chain_id);
-        price_data.current_price_ratio = ratio;
-        price_data.last_update_timestamp = get_timestamp(clock);
     }
 }

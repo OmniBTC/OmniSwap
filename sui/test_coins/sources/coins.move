@@ -1,13 +1,13 @@
 // Copyright (c) OmniBTC, Inc.
 // SPDX-License-Identifier: GPL-3.0
-module omniswap_mock::coins {
+module test_coins::coins {
     use std::type_name::{into_string, get};
 
     use sui::bag::{Self, Bag};
     use sui::balance;
     use sui::tx_context::TxContext;
 
-    friend omniswap_mock::faucet;
+    friend test_coins::faucet;
 
     ////////////////////////////////////
     struct USDT has drop {}

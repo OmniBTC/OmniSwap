@@ -1,15 +1,17 @@
-module omniswap_mock::faucet {
+// Copyright (c) OmniBTC, Inc.
+// SPDX-License-Identifier: GPL-3.0
+module test_coins::faucet {
     use std::ascii::String;
     use std::type_name;
 
     use sui::bag::{Self, Bag};
     use sui::balance::{Self, Supply};
-    use sui::coin::{Self, TreasuryCap, Coin};
+    use sui::coin::{Self, TreasuryCap};
     use sui::object::{Self, UID};
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
     use sui::vec_set::{Self, VecSet};
-    use omniswap_mock::coins;
+    use test_coins::coins::get_coins;
 
     const ONE_COIN: u64 = 100000000;
 
@@ -30,7 +32,7 @@ module omniswap_mock::faucet {
         transfer::share_object(
             Faucet {
                 id: object::new(ctx),
-                coins: coins::get_coins(ctx),
+                coins: get_coins(ctx),
                 creator: tx_context::sender(ctx),
                 admins
             }
@@ -99,19 +101,6 @@ module omniswap_mock::faucet {
         amount: u64,
         ctx: &mut TxContext,
     ) {
-        let coin = force_mint<T>(faucet, amount, ctx);
-        let operator = tx_context::sender(ctx);
-        transfer::public_transfer(
-            coin,
-            operator
-        )
-    }
-
-    public fun force_mint<T>(
-        faucet: &mut Faucet,
-        amount: u64,
-        ctx: &mut TxContext,
-    ): Coin<T> {
         let operator = tx_context::sender(ctx);
         assert!(
             faucet.creator == operator
@@ -135,6 +124,9 @@ module omniswap_mock::faucet {
             amount * ONE_COIN
         );
 
-        coin::from_balance(minted_balance, ctx)
+        transfer::public_transfer(
+            coin::from_balance(minted_balance, ctx),
+            operator
+        )
     }
 }
