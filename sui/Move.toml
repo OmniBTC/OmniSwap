@@ -6,7 +6,7 @@ version = "0.1.0"
 sui = "0x2"
 omniswap = "0x0"
 wormhole = "0x0"
-token_bridge = "0x0"
+token_bridge = "0x1"
 
 [dependencies.Sui]
 git = "https://github.com/MystenLabs/sui.git"
@@ -16,9 +16,9 @@ rev = "a63f425b9999c7fdfe483598720a9effc0acdc9e"
 [dependencies.Wormhole]
 git = "https://github.com/OmniBTC/wormhole.git"
 subdir = "sui/wormhole"
-rev = "d0e0d1743df2430d874459bd870f590f660f0ae8"
+rev = "d26d9407fb6a4f17db29e1028202bb1c9f76cf8b"
 
 [dependencies.TokenBridge]
 git = "https://github.com/OmniBTC/wormhole.git"
 subdir = "sui/token_bridge"
-rev = "d0e0d1743df2430d874459bd870f590f660f0ae8"
+rev = "d26d9407fb6a4f17db29e1028202bb1c9f76cf8b"

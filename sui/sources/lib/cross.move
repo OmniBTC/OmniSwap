@@ -1,6 +1,6 @@
 module omniswap::cross {
     use std::vector;
-    use serde::serde;
+    use omniswap::serde;
 
     const EINVALID_LENGTH: u64 = 0;
 

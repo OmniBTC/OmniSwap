@@ -1,8 +1,10 @@
 module omniswap::external_interface {
     use omniswap::wormhole_facet;
     use omniswap::wormhole_facet::Storage;
+    use sui::object::UID;
 
     struct DstGas has key {
+        id: UID,
         dst_base_gas: u256,
         dst_gas_per_bytes: u256
     }

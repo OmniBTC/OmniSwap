@@ -1,7 +1,7 @@
 // Copyright (c) OmniBTC, Inc.
 // SPDX-License-Identifier: GPL-3.0
 
-module serde::serde {
+module omniswap::serde {
     use std::ascii;
     use std::bcs;
     use std::type_name;
