@@ -647,6 +647,7 @@ module omniswap::wormhole_facet {
         src_fee = u256::div(src_fee, one);
 
         // Evm chain, decimal change
+        // todo! 专门处理sui
         src_fee = u256::div(src_fee, u256::from_u64(10000000000));
 
         let comsume_value = u256::from_u64(state::get_message_fee());

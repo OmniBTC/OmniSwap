@@ -541,8 +541,13 @@ module omniswap::wormhole_facet {
         src_fee = src_fee * (actual_reserve as u256);
         src_fee = src_fee / one;
 
-        // Evm chain, decimal change
-        src_fee = src_fee / 10000000000;
+        if (wormhole_data.dst_wormhole_chain_id == 22) {
+            // Aptos chain, decimal * 10
+            src_fee = src_fee * 10;
+        }else {
+            // Evm chain, decimal / 1e9
+            src_fee = src_fee / 1000000000;
+        };
 
         let comsume_value = state::message_fee(state);
 
