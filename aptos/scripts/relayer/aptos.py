@@ -232,6 +232,8 @@ def process_vaa(
                 )
             except Exception as e:
                 if time.time() > vaa_data[1] + 60 * 60:
+                    local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
+                                       f'sequence:{sequence}, start compensate for error: {e}')
                     result = package["wormhole_facet::complete_so_swap_by_relayer"](
                         hex_str_to_vector_u8(vaa_str),
                         ty_args=ty_args,
