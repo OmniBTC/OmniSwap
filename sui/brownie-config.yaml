@@ -7,11 +7,27 @@ networks:
     #    node_url: "https://suinode-testnet.belaunch.io:443"
     node_url: "https://sui-testnet-wave3.coming.chat:443"
     wormhole:
-      chain_id: 22
+      chainid: 22
+      WormholeState: ""
+      TokenBridgeState: ""
+      Clock: "0x6"
+      Storage: ""
+      PriceManager: ""
+      WormholeFee: ""
+      WormholeFacetManager: ""
+      default_pool: ""
   sui-devnet:
     node_url: "https://fullnode.devnet.sui.io:443"
     wormhole:
-      chain_id: 21
+      chainid: 21
+    WormholeState: ""
+    TokenBridgeState: ""
+    Clock: "0x6"
+    Storage: ""
+    PriceManager: ""
+    WormholeFee: ""
+    WormholeFacetManager: ""
+    default_pool: ""
   sui-localnet:
     node_url: "http://127.0.0.1:9000"
   aptos-mainnet:

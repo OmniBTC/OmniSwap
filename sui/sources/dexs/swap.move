@@ -24,6 +24,9 @@ module omniswap::swap {
 
     const EINVALID_SWAP_ROUTER_DELEGATE: u64 = 0x04;
 
+    /// Swap Name
+    const OMNIMOCK_SWAP: vector<u8> = b"OmniSwapMock";
+
     /// Ensuring the origin of tokens
     public fun right_type<X>(token: vector<u8>): bool {
         let data = type_name::get<X>();
@@ -37,41 +40,66 @@ module omniswap::swap {
     }
 
     /// Coins need to be removed from the account first and then swap using the coins.
-    public fun swap_by_coin<X, Y>(pool: &mut Pool<OmniSwapMock, X, Y> , input_coin: Coin<X>, data: NormalizedSwapData, ctx: &mut TxContext): Coin<Y> {
-        assert!(@omniswap_mock == serde::deserialize_address(&cross::swap_call_to(data)), EINVALID_SWAP_ROUTER);
+    public fun swap_by_coin<X, Y>(
+        pool: &mut Pool<OmniSwapMock, X, Y>,
+        input_coin: Coin<X>,
+        data: NormalizedSwapData,
+        ctx: &mut TxContext
+    ): Coin<Y> {
         assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
         assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
 
         let raw_call_data = cross::swap_call_data(data);
         let min_amount = 0;
         let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
-        let call_data;
+        let swap_name;
         if (flag) {
-            call_data = serde::vector_slice(&raw_call_data, 0, index);
+            swap_name = serde::vector_slice(&raw_call_data, 0, index);
             let len = vector::length(&raw_call_data);
             if (index + 1 < len) {
                 min_amount = ascii_to_u64(serde::vector_slice(&raw_call_data, index + 1, len));
             }
         }else {
-            call_data = raw_call_data;
+            swap_name = raw_call_data;
         };
-
-        pool::swap_token_x(pool, input_coin, min_amount, ctx)
+        if (swap_name == OMNIMOCK_SWAP) {
+            pool::swap_token_x(pool, input_coin, min_amount, ctx)
+        }else {
+            abort EINVALID_SWAP_ROUTER
+        }
     }
 
-    public fun swap_two_by_coin<X, Y>(pool: &mut Pool<OmniSwapMock, X, Y>, coins: Coin<X>, swap_data: vector<NormalizedSwapData>, ctx: &mut TxContext): Coin<Y> {
+    public fun swap_two_by_coin<X, Y>(
+        pool: &mut Pool<OmniSwapMock, X, Y>,
+        coins: Coin<X>,
+        swap_data: vector<NormalizedSwapData>,
+        ctx: &mut TxContext
+    ): Coin<Y> {
         assert!(vector::length(&swap_data) == 1, EINVALID_LENGTH);
         swap_by_coin<X, Y>(pool, coins, *vector::borrow(&mut swap_data, 0), ctx)
     }
 
-    public fun swap_three_by_coin<X, Y, Z>(pool_xy: &mut Pool<OmniSwapMock, X, Y>, pool_yz: &mut Pool<OmniSwapMock, Y, Z>,coins: Coin<X>, swap_data: vector<NormalizedSwapData>, ctx: &mut TxContext): Coin<Z> {
+    public fun swap_three_by_coin<X, Y, Z>(
+        pool_xy: &mut Pool<OmniSwapMock, X, Y>,
+        pool_yz: &mut Pool<OmniSwapMock, Y, Z>,
+        coins: Coin<X>,
+        swap_data: vector<NormalizedSwapData>,
+        ctx: &mut TxContext
+    ): Coin<Z> {
         assert!(vector::length(&swap_data) == 2, EINVALID_LENGTH);
         let coin_y = swap_by_coin<X, Y>(pool_xy, coins, *vector::borrow(&mut swap_data, 0), ctx);
         swap_by_coin<Y, Z>(pool_yz, coin_y, *vector::borrow(&mut swap_data, 1), ctx)
     }
 
 
-    public fun swap_four_by_coin<X, Y, Z, M>(pool_xy: &mut Pool<OmniSwapMock, X, Y>, pool_yz: &mut Pool<OmniSwapMock, Y, Z>, pool_zm: &mut Pool<OmniSwapMock, Z,M>, coins: Coin<X>, swap_data: vector<NormalizedSwapData>, ctx: &mut TxContext): Coin<M> {
+    public fun swap_four_by_coin<X, Y, Z, M>(
+        pool_xy: &mut Pool<OmniSwapMock, X, Y>,
+        pool_yz: &mut Pool<OmniSwapMock, Y, Z>,
+        pool_zm: &mut Pool<OmniSwapMock, Z, M>,
+        coins: Coin<X>,
+        swap_data: vector<NormalizedSwapData>,
+        ctx: &mut TxContext
+    ): Coin<M> {
         assert!(vector::length(&swap_data) == 3, EINVALID_LENGTH);
         let coin_y = swap_by_coin<X, Y>(pool_xy, coins, *vector::borrow(&mut swap_data, 0), ctx);
         let coin_z = swap_by_coin<Y, Z>(pool_yz, coin_y, *vector::borrow(&mut swap_data, 1), ctx);

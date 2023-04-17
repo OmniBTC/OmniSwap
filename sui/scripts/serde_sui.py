@@ -57,10 +57,10 @@ def get_wormhole(
 @functools.lru_cache()
 def get_price_ratio(
         package: sui_brownie.SuiPackage,
+        price_manager,
         dst_chain_id: int
 ):
-    # todo! fix
-    return 1
+    return package.so_fee_wormhole.get_price_ratio.inspect(price_manager, dst_chain_id)
 
 
 def parse_vaa(

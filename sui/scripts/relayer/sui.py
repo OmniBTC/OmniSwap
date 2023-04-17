@@ -282,30 +282,51 @@ def process_vaa(
     try:
         final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
         if len(wormhole_data[3]) == 0:
-            ty_args = [final_asset_id, final_asset_id, final_asset_id, final_asset_id]
+            default_pool = sui_project.network_config["default_pool"][final_asset_id]
+            pool_package_id = default_pool["package_id"]
+            other_asset_id = default_pool["other_asset_id"]
+            ty_args = [final_asset_id, other_asset_id, final_asset_id, other_asset_id]
+            pool_ids = [pool_package_id] * 3
         elif len(wormhole_data[3]) == 1:
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
             s2 = final_asset_id
-            ty_args = [s1, s2, s2, s2]
+            ty_args = [s1, s2, s1, s2]
+            pool_ids = [wormhole_data[3][0][0]] * 3
         elif len(wormhole_data[3]) == 2:
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
             s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
             s3 = final_asset_id
-            ty_args = [s1, s2, s3, s3]
+            ty_args = [s1, s2, s3, s2]
+            pool_ids = [wormhole_data[3][0][0], wormhole_data[3][1][0], wormhole_data[3][1][0]]
         elif len(wormhole_data[3]) == 3:
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
             s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
             s3 = decode_hex_to_ascii(wormhole_data[3][2][2])
             s4 = final_asset_id
             ty_args = [s1, s2, s3, s4]
+            pool_ids = [wormhole_data[3][0][0], wormhole_data[3][1][0], wormhole_data[3][2][0]]
         else:
             logger.error(f"Dst swap too much")
             raise OverflowError
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
+        storage = sui_project.network_config["Storage"]
+        token_bridge_state = sui_project.network_config["TokenBridgeState"]
+        wormhole_state = sui_project.network_config["WormholeState"]
+        wormhole_fee = sui_project.network_config["WormholeFee"]
+        clock = sui_project.network_config["Clock"]
+        facet_manager = sui_project.network_config["WormholeFacetManager"]
         if not is_admin:
             try:
-                result = sui_package.so_diamond.complete_so_swap_by_account(
+                result = sui_package.so_diamond.complete_so_swap(
+                    storage,
+                    token_bridge_state,
+                    wormhole_state,
+                    wormhole_fee,
+                    pool_ids[0],
+                    pool_ids[1],
+                    pool_ids[2],
                     hex_str_to_vector_u8(vaa_str),
+                    clock,
                     ty_args=ty_args,
                     gas_unit_price=dst_max_gas_price
                 )
@@ -314,7 +335,13 @@ def process_vaa(
                     local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                                        f'sequence:{sequence}, start compensate for error: {e}')
                     result = sui_package.wormhole_facet.complete_so_swap_by_relayer(
+                        storage,
+                        facet_manager,
+                        token_bridge_state,
+                        wormhole_state,
+                        wormhole_fee,
                         hex_str_to_vector_u8(vaa_str),
+                        clock,
                         ty_args=ty_args,
                         gas_unit_price=dst_max_gas_price
                     )
@@ -324,8 +351,14 @@ def process_vaa(
             receiver = wormhole_data[2][1]
             local_logger.info(f"Compensate to:{receiver}")
             result = sui_package.wormhole_facet.complete_so_swap_by_admin(
+                storage,
+                facet_manager,
+                token_bridge_state,
+                wormhole_state,
+                wormhole_fee,
                 hex_str_to_vector_u8(vaa_str),
                 str(receiver),
+                clock,
                 ty_args=ty_args,
                 gas_unit_price=dst_max_gas_price
             )
