@@ -1,4 +1,5 @@
-from sui_brownie import SuiPackage, sui_brownie
+import yaml
+from sui_brownie import SuiPackage, sui_brownie, SuiObject
 
 from scripts import sui_project
 from scripts.struct import omniswap_sui_path
@@ -75,8 +76,12 @@ def setup_wormhole(net: str = "sui-testnet"):
 
 
 def load_wormhole():
+    if 'Wormhole' in sui_project.network_config['objects']:
+        package_id = sui_project.network_config['objects']['Wormhole']
+    else:
+        package_id = sui_project.Wormhole[-1]
     return SuiPackage(
-        package_id=sui_project.Wormhole[-1],
+        package_id,
         package_name="Wormhole",
     )
 
@@ -128,8 +133,12 @@ def setup_token_bridge(net: str = "sui-testnet"):
 
 
 def load_token_bridge():
+    if 'TokenBridge' in sui_project.network_config['objects']:
+        package_id = sui_project.network_config['objects']['TokenBridge']
+    else:
+        package_id = sui_project.TokenBridge[-1]
     return SuiPackage(
-        package_id=sui_project.TokenBridge[-1],
+        package_id,
         package_name="TokenBridge",
     )
 
@@ -163,6 +172,83 @@ def init_mock(net: str = "sui-testnet"):
     omniswap_mock = load_omniswap_mock()
     test_coins = load_test_coins()
     omniswap_mock.setup.setup_pool(test_coins.faucet.Faucet[-1])
+
+
+def pool(x_type, y_type):
+    return f"{sui_project.OmniSwapMock[-1]}::pool::Pool<{sui_project.OmniSwapMock[-1]}::setup::OmniSwapMock, {x_type}, {y_type}>"
+
+
+def usdt():
+    return f"{sui_project.TestCoins[-1]}::coins::USDT"
+
+
+def usdc():
+    return f"{sui_project.TestCoins[-1]}::coins::USDC"
+
+
+def btc():
+    return f"{sui_project.TestCoins[-1]}::coins::BTC"
+
+
+def export_testnet():
+    # load brownie config file
+    with open("brownie-config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+
+    packages = {
+        "OmniSwap": sui_project.OmniSwap[-1],
+        "OmniSwapMock": sui_project.OmniSwapMock[-1],
+        "Wormhole": sui_project.Wormhole[-1],
+        "TokenBridge": sui_project.TokenBridge[-1],
+        "TestCoins": sui_project.TestCoins[-1],
+    }
+
+    if "packages" not in config["networks"]["sui-testnet"]:
+        config["networks"]["sui-testnet"]["packages"] = {}
+
+
+    for package_name in packages:
+        config["networks"]["sui-testnet"]["packages"][package_name] = packages[package_name]
+
+    wormhole = load_wormhole()
+    token_bridge = load_token_bridge()
+    test_coins = load_test_coins()
+    omniswap = load_omniswap()
+    objects = {
+        "WormholeState": wormhole.state.State[-1],
+        "TokenBridgeState": token_bridge.state.State[-1],
+        "Clock": "0x0000000000000000000000000000000000000000000000000000000000000006",
+        "FacetStorage": omniswap.wormhole_facet.Storage[-1],
+        "PriceManager": omniswap.so_fee_wormhole.PriceManager[-1],
+        "WormholeFee": omniswap.wormhole_facet.WormholeFee[-1],
+        "FacetManager": omniswap.wormhole_facet.WormholeFacetManager[-1],
+        # for testnet
+        "Faucet": test_coins.faucet.Faucet[-1],
+        "Pool<OmniSwapMock, USDT, USDC>": sui_project[SuiObject.from_type(pool(usdt(), usdc()))][-1],
+        "Pool<OmniSwapMock, BTC, USDT>": sui_project[SuiObject.from_type(pool(btc(), usdt()))][-1],
+        "Pool<OmniSwapMock, USDC, BTC>": sui_project[SuiObject.from_type(pool(usdc(), btc()))][-1]
+    }
+
+    if "objects" not in config["networks"]["sui-testnet"]:
+        config["networks"]["sui-testnet"]["objects"] = {}
+
+    for obj in objects:
+        config["networks"]["sui-testnet"]["objects"][obj] = objects[obj]
+
+    # write config to config file
+    with open("brownie-config.yaml", "w") as f:
+        yaml.safe_dump(config, f)
+
+
+def load_omniswap():
+    if 'OmniSwap' in sui_project.network_config['objects']:
+        package_id = sui_project.network_config['objects']['OmniSwap']
+    else:
+        package_id = sui_project.OmniSwap[-1]
+    return SuiPackage(
+        package_id,
+        package_name="OmniSwap",
+    )
 
 
 def main():
