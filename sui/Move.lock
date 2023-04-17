@@ -20,6 +20,7 @@ source = { local = "mocks" }
 
 dependencies = [
   { name = "Sui" },
+  { name = "TestCoins" },
 ]
 
 [[move.package]]
@@ -28,6 +29,14 @@ source = { git = "https://github.com/MystenLabs/sui.git", rev = "a63f425b9999c7f
 
 dependencies = [
   { name = "MoveStdlib" },
+]
+
+[[move.package]]
+name = "TestCoins"
+source = { local = "test_coins" }
+
+dependencies = [
+  { name = "Sui" },
 ]
 
 [[move.package]]

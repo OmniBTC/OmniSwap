@@ -18,7 +18,7 @@ module omniswap_mock::setup {
     //  The pool provider's identifier.
     struct OmniSwapMock has drop {}
 
-    public fun setup_pool(faucet: &mut Faucet, ctx: &mut TxContext) {
+    public entry fun setup_pool(faucet: &mut Faucet, ctx: &mut TxContext) {
         let usdt = faucet::force_mint<USDT>(faucet, 100000, ctx);
         let usdc = faucet::force_mint<USDC>(faucet, 100000, ctx);
         let usdc_usdt_lp = create_pool<OmniSwapMock, USDT, USDC>(OmniSwapMock{},usdt, usdc,3, ctx);

@@ -19,6 +19,26 @@ networks:
         "":
           package_id: ""
           other_asset_id: ""
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        goerli:
+          dst_chainid: 2
+          base_gas: 700000
+          per_byte_gas: 68
+        bsc-test:
+          dst_chainid: 4
+          base_gas: 700000
+          per_byte_gas: 68
+        polygon-test:
+          dst_chainid: 5
+          base_gas: 700000
+          per_byte_gas: 68
+        avax-test:
+          dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+>>>>>>> Stashed changes
   sui-devnet:
     node_url: "https://fullnode.devnet.sui.io:443"
     wormhole:

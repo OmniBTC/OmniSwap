@@ -6,7 +6,7 @@ module test_coins::faucet {
 
     use sui::bag::{Self, Bag};
     use sui::balance::{Self, Supply};
-    use sui::coin::{Self, TreasuryCap};
+    use sui::coin::{Self, TreasuryCap, Coin};
     use sui::object::{Self, UID};
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
