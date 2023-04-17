@@ -1,5 +1,6 @@
 from sui_brownie import SuiProject, SuiPackage
 
+from scripts import sui_project
 from scripts.struct import omniswap_sui_path
 
 
@@ -20,9 +21,28 @@ def load_test_coins(package_id):
     )
 
 
+def setup_omniswap_mock(net: str = "sui-testnet"):
+    if net not in ["sui-testnet", "sui-devnet"]:
+        return
+    omniswap_mock = SuiPackage(
+        package_path=omniswap_sui_path.joinpath("omniswap_mock")
+    )
+    omniswap_mock.publish_package(replace_address=dict(test_coins=None))
+
+    faucet = sui_project.network_config["Faucet"]
+    omniswap_mock.setup.setup_pool(faucet)
+
+
+def load_omniswap_mock():
+    return SuiPackage(
+        package_id=sui_project.network_config["omniswap_mock"],
+        package_name="OmniSwapMock",
+    )
+
+
 def main():
     net = "sui-mainnet"
-    print(f"Current aptos network:{net}")
+    print(f"Current sui network:{net}")
     # deploy
     sui_project = SuiProject(omniswap_sui_path, network=net)
     sui_package = SuiPackage(package_path=omniswap_sui_path)

@@ -129,4 +129,35 @@ module test_coins::faucet {
             operator
         )
     }
+
+    public fun force_mint<T>(
+        faucet: &mut Faucet,
+        amount: u64,
+        ctx: &mut TxContext,
+    ): Coin<T> {
+        let operator = tx_context::sender(ctx);
+        assert!(
+            faucet.creator == operator
+                || vec_set::contains(&faucet.admins, &operator),
+            ERR_NO_PERMISSIONS
+        );
+
+        let coin_name = type_name::into_string(type_name::get<T>());
+        assert!(
+            bag::contains_with_type<String, Supply<T>>(&faucet.coins, coin_name),
+            ERR_NOT_ENOUGH_COINS
+        );
+
+        let mut_supply = bag::borrow_mut<String, Supply<T>>(
+            &mut faucet.coins,
+            coin_name
+        );
+
+        let minted_balance = balance::increase_supply(
+            mut_supply,
+            amount * ONE_COIN
+        );
+
+        coin::from_balance(minted_balance, ctx)
+    }
 }

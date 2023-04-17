@@ -1,46 +1,42 @@
 import functools
 
 from brownie import Contract
+from brownie.project.main import Project
 
+from scripts import sui_project
 from scripts.struct import change_network, omniswap_ethereum_project, padding_to_bytes, hex_str_to_vector_u8
 import sui_brownie
 
 
 @functools.lru_cache()
-def get_serde_facet(
-        project: sui_brownie.SuiProject,
-        net: str):
+def get_serde_facet(net: str):
     change_network(net)
     contract_name = "SerdeFacet"
     return Contract.from_abi(
         contract_name,
-        project.config["networks"][net]["SoDiamond"],
+        sui_project.config["networks"][net]["SoDiamond"],
         omniswap_ethereum_project[contract_name].abi
     )
 
 
 @functools.lru_cache()
-def get_wormhole_facet(
-        project: sui_brownie.SuiProject,
-        net: str):
+def get_wormhole_facet(net: str):
     change_network(net)
     contract_name = "WormholeFacet"
     return Contract.from_abi(
         contract_name,
-        project.config["networks"][net]["SoDiamond"],
+        sui_project.config["networks"][net]["SoDiamond"],
         omniswap_ethereum_project[contract_name].abi
     )
 
 
 @functools.lru_cache()
-def get_token_bridge(
-        project: sui_brownie.SuiProject,
-        net: str):
+def get_token_bridge(net: str):
     change_network(net)
     contract_name = "TokenBridge"
     return Contract.from_abi(
         contract_name,
-        project.config["networks"][net]["wormhole"]["token_bridge"],
+        sui_project.config["networks"][net]["wormhole"]["token_bridge"],
         omniswap_ethereum_project.interface.IWormholeBridge.abi
     )
 

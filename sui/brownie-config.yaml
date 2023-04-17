@@ -1,13 +1,17 @@
 # automatically fetch contract sources from Etherscan
 dotenv: .env
 networks:
-  default: bsc-main
+  default: polygon-test
   sui-testnet:
     #    node_url: "https://fullnode.testnet.sui.io:443"
     #    node_url: "https://suinode-testnet.belaunch.io:443"
     node_url: "https://sui-testnet-wave3.coming.chat:443"
     wormhole:
-      chainid: 22
+      chain_id: 22
+  sui-devnet:
+    node_url: "https://fullnode.devnet.sui.io:443"
+    wormhole:
+      chain_id: 21
   sui-localnet:
     node_url: "http://127.0.0.1:9000"
   aptos-mainnet:
@@ -517,4 +521,5 @@ networks:
         token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
 sui_wallets:
   from_mnemonic:
+    TestAccount: ${TEST_ACCOUNT_MNEMONIC}
     Relayer: ${RELAYER_MNEMONIC}
