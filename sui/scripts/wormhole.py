@@ -2,6 +2,7 @@ import sui_brownie
 from sui_brownie import SuiObject
 
 from scripts import sui_project
+from scripts import deploy
 from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
     generate_aptos_coin_address_in_wormhole, omniswap_sui_path, omniswap_ethereum_project, generate_random_bytes32, \
     WormholeData, SwapData, padding_to_bytes
@@ -143,8 +144,12 @@ class LiquidswapCurve(Enum):
     Stable = "Stable"
 
 
-def pool(x_type, y_type):
-    return f"{sui_project.OmniSwapMock[-1]}::pool::Pool<{sui_project.OmniSwapMock[-1]}::setup::OmniSwapMock,{x_type},{y_type}>"
+def get_token_name(token: str):
+    return token.split('::')[-1]
+
+
+def pool(x_token, y_token):
+    return f"Pool<OmniSwapMock, {get_token_name(x_token)}, {get_token_name(y_token)}>"
 
 
 def clock():
@@ -389,6 +394,7 @@ def cross_swap(
         src_router: SuiSwapType = SuiSwapType.OmniswapMock
 ):
     dst_net = network.show_active()
+    # ethereum facet
     serde = get_serde_facet(dst_net)
     wormhole = get_wormhole_facet(dst_net)
 
@@ -438,7 +444,9 @@ def cross_swap(
 
     if len(src_swap_data) == 0:
         ty_args = [so_data.sendingAssetId] * 4
-        x_type = y_type = z_type = m_type = ty_args[0]
+        # use default pool
+        x_type = deploy.usdt()
+        y_type = z_type = m_type = deploy.usdc()
     elif len(src_swap_data) == 1:
         ty_args = [src_swap_data[0].sendingAssetId] + \
                   [src_swap_data[0].receivingAssetId] * 3
@@ -464,7 +472,7 @@ def cross_swap(
 
     payload_length = len(normal_so_data) + len(normal_wormhole_data) + len(normal_dst_swap_data)
 
-    is_native = src_path[0] == "SuiCoin"
+    is_native = src_path[0] == "SUI"
     wormhole_fee = estimate_wormhole_fee(
         package, sui_project.config["networks"][dst_net]["wormhole"]["chainid"], dst_gas_price, input_amount, is_native,
         payload_length, 0)
@@ -477,14 +485,14 @@ def cross_swap(
     normal_wormhole_data = hex_str_to_vector_u8(
         str(wormhole.encodeNormalizedWormholeData(wormhole_data.format_to_contract())))
 
-    wormhole_state = sui_project.config["networks"]["wormhole_state"]
-    token_bridge_state = sui_project.config["networks"]["token_bridge_state"]
-    storage = package.wormhole_facet.Storage[-1]
-    price_manager = package.so_fee_manager.PriceManager[-1]
-    wormhole_fee = package.wormhole_facet.WormholeFee[-1]
-    pool_xy = pool(x_type, y_type)
-    pool_yz = pool(y_type, z_type)
-    pool_zm = pool(z_type, m_type)
+    wormhole_state = sui_project.config["networks"]["objects"]["WormholeState"]
+    token_bridge_state = sui_project.config["networks"]["objects"]["TokenBridgeState"]
+    storage = sui_project.config["networks"]["objects"]["FacetStorage"]
+    price_manager = sui_project.config["networks"]["objects"]["PriceManager"]
+    wormhole_fee = sui_project.config["networks"]["objects"]["WormholeFee"]
+    pool_xy = sui_project.config["networks"]["objects"][pool(x_type, y_type)]
+    pool_yz = sui_project.config["networks"]["objects"][pool(y_type, z_type)]
+    pool_zm = sui_project.config["networks"]["objects"][pool(z_type, m_type)]
     coin_x = [sui_project[SuiObject.from_type(
         coin(f"0x{x_type}"))][-1]]
     coin_sui = sui_project.get_account_sui().keys()
@@ -513,9 +521,9 @@ def cross_swap_for_testnet(package):
 
     # gas: 17770
     cross_swap(package,
-               src_path=["AptosCoin"],
-               dst_path=["AptosCoin_WORMHOLE"],
-               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+               src_path=["USDT"],
+               dst_path=["USDC"],
+               receiver="0xa65b84b73c857082b680a148b7b25327306d93cc7862bae0edfa7628b0342392",
                input_amount=100000,
                dst_gas_price=dst_gas_price
                )
@@ -573,16 +581,12 @@ def main():
 
     # Prepare environment
     # load src net aptos package
-    package = sui_brownie.SuiPackage(
-        package_path=omniswap_sui_path
-    )
+    omniswap = deploy.load_omniswap()
 
     if "test" in src_net and "test" in dst_net:
-        package_mock = sui_brownie.SuiPackage(
-            package_path=omniswap_sui_path.joinpath("mocks"),
-        )
-        package_mock.setup.setup_pool(
-            package_mock.faucet.Faucet[-1]
+        omniswap_mock = deploy.load_omniswap_mock()
+        omniswap_mock.setup.setup_pool(
+            omniswap_mock.faucet.Faucet[-1]
         )
         # gas: 9121
         # package_mock["setup::setup_omniswap_enviroment"]()
@@ -590,14 +594,14 @@ def main():
     change_network(dst_net)
 
     ####################################################
-    if package.network in ["sui-testnet", "sui-devnet"]:
-        cross_swap_for_testnet(package)
+    if sui_project.network in ["sui-testnet", "sui-devnet"]:
+        cross_swap_for_testnet(omniswap)
     else:
         dst_gas_price = 30 * 1e9
-        print("estimate out:", get_amounts_out(package, ["AptosCoin", "USDC_ETH_WORMHOLE"],
+        print("estimate out:", get_amounts_out(omniswap, ["AptosCoin", "USDC_ETH_WORMHOLE"],
                                                10000000))
         cross_swap(
-            package,
+            omniswap,
             src_path=["AptosCoin", "USDC_ETH_WORMHOLE"],
             dst_path=["usdc_eth"],
             receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",

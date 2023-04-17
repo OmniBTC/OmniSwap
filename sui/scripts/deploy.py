@@ -206,7 +206,6 @@ def export_testnet():
     if "packages" not in config["networks"]["sui-testnet"]:
         config["networks"]["sui-testnet"]["packages"] = {}
 
-
     for package_name in packages:
         config["networks"]["sui-testnet"]["packages"][package_name] = packages[package_name]
 
@@ -234,6 +233,33 @@ def export_testnet():
 
     for obj in objects:
         config["networks"]["sui-testnet"]["objects"][obj] = objects[obj]
+
+    tokens = {
+        "SUI": {"name": "SUI",
+                "address": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "decimal": 9},
+        "USDT": {
+            "name": "USDT",
+            "address": str(usdt()),
+            "decimal": 8
+        },
+        "USDC": {
+            "name": "USDC",
+            "address": str(usdc()),
+            "decimal": 8
+        },
+        "BTC": {
+            "name": "BTC",
+            "address": str(btc()),
+            "decimal": 8
+        }
+    }
+
+    if "tokens" not in config["networks"]["sui-testnet"]:
+        config["networks"]["sui-testnet"]["tokens"] = {}
+
+    for token in tokens:
+        config["networks"]["sui-testnet"]["tokens"][token] = tokens[token]
 
     # write config to config file
     with open("brownie-config.yaml", "w") as f:
