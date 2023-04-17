@@ -910,6 +910,11 @@ networks:
         name: PancakeSwapV2
         router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
         token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
+      ISwapRouter:
+        name: PancakeSwapV3
+        router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+        token_list: ""
+        quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
   avax-main:
     omnibtc_chainid: 4
     chainid: 43114
