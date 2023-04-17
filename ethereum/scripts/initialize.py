@@ -496,7 +496,7 @@ def redeploy_multichain():
 
     so_fee = 1e-3
     ray = 1e27
-    
+
     print("Deploy LibSoFeeMultiChainV1...")
     LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
     print("AddFee ...")
@@ -553,11 +553,11 @@ def add_dex():
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
-    # proxy_dex.addDex(
-    #     "0xc873fEcbd354f5A56E00E710B90EF4201db2448d", {"from": get_account()}
-    # )
+    proxy_dex.addDex(
+        "0x1b81D678ffb9C0263b24A97847620C99d213eB14", {"from": get_account()}
+    )
     proxy_dex.batchSetFunctionApprovalBySignature(
-        [v + "0" * 56 for v in list(interface.ICamelotRouter.selectors.keys())],
+        [v + "0" * 56 for v in list(interface.ISwapRouter.selectors.keys())],
         True,
         {"from": get_account()}
     )
