@@ -15,7 +15,10 @@ networks:
       PriceManager: ""
       WormholeFee: ""
       WormholeFacetManager: ""
-      default_pool: ""
+      default_pool:
+        "":
+          package_id: ""
+          other_asset_id: ""
   sui-devnet:
     node_url: "https://fullnode.devnet.sui.io:443"
     wormhole:

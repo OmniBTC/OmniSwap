@@ -17,8 +17,7 @@ sui_package = SuiPackage(package_id=package_id, package_name="OmniSwap")
 
 
 def set_so_gas():
-
-    serde = get_serde_facet(sui_project, network.show_active())
+    serde = get_serde_facet(network.show_active())
 
     nets = ["mainnet", "bsc-main", "avax-main", "polygon-main"]
     storage = sui_project.network_config["Storage"]
@@ -64,38 +63,36 @@ def set_so_price():
 
     if "mainnet" in nets:
         wormhole_chain_id = 2
-        old_ratio = int(get_price_ratio(sui_package, wormhole_chain_id))
+        old_ratio = int(get_price_ratio(sui_package, price_manager, wormhole_chain_id))
         ratio = int(prices["ETH/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             sui_package.so_fee_wormhole.set_price_ratio(clock, price_manager, wormhole_chain_id, ratio)
     if "bsc-main" in nets:
         wormhole_chain_id = 4
-        old_ratio = int(get_price_ratio(sui_package, wormhole_chain_id))
+        old_ratio = int(get_price_ratio(sui_package, price_manager, wormhole_chain_id))
         ratio = int(prices["BNB/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for bsc-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             sui_package.so_fee_wormhole.set_price_ratio(clock, price_manager, wormhole_chain_id, ratio)
     if "polygon-main" in nets:
         wormhole_chain_id = 5
-        old_ratio = int(get_price_ratio(sui_package, wormhole_chain_id))
+        old_ratio = int(get_price_ratio(sui_package, price_manager, wormhole_chain_id))
         ratio = int(prices["MATIC/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for polygon-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             sui_package.so_fee_wormhole.set_price_ratio(clock, price_manager, wormhole_chain_id, ratio)
     if "avax-main" in nets:
         wormhole_chain_id = 6
-        old_ratio = int(get_price_ratio(sui_package, wormhole_chain_id))
+        old_ratio = int(get_price_ratio(sui_package, price_manager, wormhole_chain_id))
         ratio = int(prices["AVAX/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for avax-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             sui_package.so_fee_wormhole.set_price_ratio(clock, price_manager, wormhole_chain_id, ratio)
     if "aptos-mainnet" in nets:
         wormhole_chain_id = 22
-        old_ratio = int(get_price_ratio(sui_package, wormhole_chain_id))
+        old_ratio = int(get_price_ratio(sui_package, price_manager, wormhole_chain_id))
         ratio = int(prices["APT/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             sui_package.so_fee_wormhole.set_price_ratio(clock, price_manager, wormhole_chain_id, ratio)
-
-
