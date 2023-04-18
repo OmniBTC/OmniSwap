@@ -3,7 +3,7 @@ from sui_brownie import SuiObject
 
 from scripts import sui_project
 from scripts import deploy
-from scripts.struct import SoData, change_network, hex_str_to_vector_u8, \
+from scripts.struct_sui import SoData, change_network, hex_str_to_vector_u8, \
     generate_aptos_coin_address_in_wormhole, omniswap_sui_path, omniswap_ethereum_project, generate_random_bytes32, \
     WormholeData, SwapData, padding_to_bytes
 from scripts.serde_sui import get_serde_facet, get_wormhole_facet, get_token_bridge

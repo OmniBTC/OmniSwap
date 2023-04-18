@@ -4,7 +4,7 @@ from brownie import network
 import ccxt
 
 from scripts.serde_sui import get_serde_facet, get_price_ratio
-from scripts.struct import omniswap_sui_path, hex_str_to_vector_u8
+from scripts.struct_sui import omniswap_sui_path, hex_str_to_vector_u8
 from sui_brownie import SuiProject, SuiPackage
 
 net = "sui-testnet"

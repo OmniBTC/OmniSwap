@@ -2,7 +2,7 @@ import yaml
 from sui_brownie import SuiPackage, sui_brownie, SuiObject
 
 from scripts import sui_project
-from scripts.struct import omniswap_sui_path
+from scripts.struct_sui import omniswap_sui_path
 
 from pathlib import Path
 
@@ -348,3 +348,7 @@ def main():
             base_gas,
             gas_per_bytes
         )
+
+
+if __name__ == "__main__":
+    main()

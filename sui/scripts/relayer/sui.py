@@ -10,7 +10,7 @@ import requests
 from brownie import network
 
 from scripts.serde_sui import parse_vaa_to_wormhole_payload
-from scripts.struct import omniswap_sui_path, decode_hex_to_ascii, hex_str_to_vector_u8
+from scripts.struct_sui import omniswap_sui_path, decode_hex_to_ascii, hex_str_to_vector_u8
 from sui_brownie import SuiProject, SuiPackage
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'

@@ -4,7 +4,7 @@ from brownie import Contract
 from brownie.project.main import Project
 
 from scripts import sui_project
-from scripts.struct import change_network, omniswap_ethereum_project, padding_to_bytes, hex_str_to_vector_u8
+from scripts.struct_sui import change_network, omniswap_ethereum_project, padding_to_bytes, hex_str_to_vector_u8
 import sui_brownie
 
 
