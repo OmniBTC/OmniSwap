@@ -464,8 +464,6 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         }
 
         if (swapDataDst.length == 0) {
-            require(token == soData.receivingAssetId, "TokenErr");
-
             if (soFee > 0) {
                 transferUnwrappedAsset(
                     token,
