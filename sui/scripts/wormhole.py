@@ -187,16 +187,23 @@ def get_amounts_out(
 
 
 def parse_u256(data):
+    assert len(data) == 32
     output = 0
-    output = output + int(data["v3"])
-    output = (output << 64) + int(data["v2"])
-    output = (output << 64) + int(data["v1"])
-    output = (output << 64) + int(data["v0"])
+    for i in range(32):
+        output = (output << 8) + int(data[31 - i])
+    return output
+
+
+def parse_u64(data):
+    assert len(data) == 8
+    output = 0
+    for i in range(8):
+        output = (output << 8) + int(data[7 - i])
     return output
 
 
 def estimate_wormhole_fee(
-        package: sui_brownie.SuiPackage,
+        omniswap: sui_brownie.SuiPackage,
         dst_chainid: int,
         dst_gas_price: int,
         input_amount: int,
@@ -218,17 +225,20 @@ def estimate_wormhole_fee(
     ray = 100000000
 
     input_native_amount = input_amount if is_native else 0
-    ratio = package.so_fee_wormhole.get_price_ratio.inspect(
-        package.so_fee_wormhole.PriceManager[-1],
+    result = omniswap.so_fee_wormhole.get_price_ratio.inspect(
+        sui_project.network_config['objects']['PriceManager'],
+        dst_chainid
+    )
+    ratio = parse_u64(result['results'][0]['returnValues'][0][0])
+
+    result = omniswap.wormhole_facet.get_dst_gas.inspect(
+        sui_project.network_config['objects']['FacetStorage'],
         dst_chainid
     )
 
-    (base_gas, gas_per_bytes) = package.womrhole_facet.get_dst_gas.inspect(
-        package.wormhole_facet.Storage[-1],
-        dst_chainid
-    )
-    estimate_reserve = package.network_config["wormhole"]["estimate_reserve"]
-
+    estimate_reserve = sui_project.network_config["wormhole"]["estimate_reserve"]
+    base_gas = parse_u256(result['results'][0]['returnValues'][0][0])
+    gas_per_bytes = parse_u256(result['results'][0]['returnValues'][1][0])
     dst_gas = base_gas + gas_per_bytes * payload_length
 
     dst_fee = dst_gas * dst_gas_price / 1e10 * int(ratio) / ray * estimate_reserve / ray
