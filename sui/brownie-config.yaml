@@ -519,26 +519,26 @@ networks:
     node_url: https://sui-testnet-wave3.coming.chat:443
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
-      FacetManager: '0x19fd1a30e2fa21aea340be9220b551aa317f95b5eba01c6f73bc8feb9211fa85'
-      FacetStorage: '0x9bd72c555f6dd364dbf2c0d57ae792de3af8916783f868f8f689758eeac255d3'
-      Faucet: '0x5a1eeedabc93f53e38a59f0ef8c281cb94e8cb202969e4c901403b67074a1e82'
-      Pool<OmniSwapMock, BTC, USDT>: '0x2d907ed2adf41158831139a89465fe1b44161e9eb2e868dfc392df677af12e35'
-      Pool<OmniSwapMock, USDC, BTC>: '0x32a7285c5be17758b60c40f6ca388155b046aa4feebae7772953a2809e788866'
-      Pool<OmniSwapMock, USDT, USDC>: '0xa1c4862daccc31b1bc18d446fc005d9b079357fa024136557b8e06f7c7dc25fc'
-      PriceManager: '0xb630c1eb96c7b51a85191db27509d82f19dff938ec6c1d9dc15e0e4b550d82e3'
+      FacetManager: '0xba6e019e0d9e06029e7dc8f677f950df19817f4417eb4b2b2e4130e9bac65eb9'
+      FacetStorage: '0xf6c07a6f75f04cce78a54d6da0f51d103155344406bfff0df8374054826f433c'
+      Faucet: '0x1bf9020c0a3c37d17bd31bf0b582bde3e7d1828471aaee301c7dc20b4ccd476b'
+      Pool<OmniSwapMock, BTC, USDT>: '0x9c30dd1f6d9a3ff7a4c2b0bd17f01b1f5953a9b7832ac5b05d31efdd2963fab6'
+      Pool<OmniSwapMock, USDC, BTC>: '0xc4a9755657b99e7e545648db23aca6ef7e1133fd76782db805fb338d680983c5'
+      Pool<OmniSwapMock, USDT, USDC>: '0x77b93f1832376392168240c67c23f1e8d2c52873bc3f4f0e5b3adca1ceace4ca'
+      PriceManager: '0x1daa1d96a9986c90a0a12bf23dd6a0048186d093c682a11d4909772740127cae'
       TokenBridgeState: '0x245e1cdf6315c459900d9a6c21962e39b7384c685abfcb3b98dc460601af11e0'
-      WormholeFee: '0xcd5eb957b85b95d8caa82802c7371a4bcce05408986dd6f7c8b260f92130686d'
+      WormholeFee: '0xe8b6ab63e97cbb19e5e5c83d7a7050c7b8b339507d9b2216c521bc3526b490f2'
       WormholeState: '0x47a135d958b160503fd215534647815d9aa4f3fb8a3e5c0b2384f2b0460dcccf'
     omnibtc_chainid: 21
     packages:
-      OmniSwap: '0x7f431b5898b6c7a3b6570d06a4eefef273c19b2c86d59a7c5d7cad7da58fc7c9'
-      OmniSwapMock: '0x5bf305ee643dc4a45a12be3b4f3b93e574499bc618f8be296d73643fb91977d5'
-      TestCoins: '0x6062ac59c9a90fcb3d789f72f5b47b471aa4bb6107f0cdfb6005496b4b0298ac'
+      OmniSwap: '0x8526ef4c46acc3ab4a86e8045ee59b2ad6be16f1aee9674c3f78941f5fa4bd49'
+      OmniSwapMock: '0x3054311606d131cc73c366c600ffadc0fe51826a23b4aab7a9823f0c3d4bfef0'
+      TestCoins: '0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b'
       TokenBridge: '0xd8d9059c67ea3a767eda86f9fb29cfa2ab3ea9cf59490793cf8d2eb7f2c1389d'
       Wormhole: '0x64a317d0441b0e7b1a41c7ea7cc0cbbf90fab1e0989799e8135a9901c95b90b1'
     tokens:
       BTC:
-        address: 6062ac59c9a90fcb3d789f72f5b47b471aa4bb6107f0cdfb6005496b4b0298ac::coins::BTC
+        address: 86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::btc::BTC
         decimal: 8
         name: BTC
       SUI:
@@ -546,12 +546,12 @@ networks:
         decimal: 9
         name: SUI
       USDC:
-        address: 6062ac59c9a90fcb3d789f72f5b47b471aa4bb6107f0cdfb6005496b4b0298ac::coins::USDC
-        decimal: 8
+        address: 86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdc::USDC
+        decimal: 6
         name: USDC
       USDT:
-        address: 6062ac59c9a90fcb3d789f72f5b47b471aa4bb6107f0cdfb6005496b4b0298ac::coins::USDT
-        decimal: 8
+        address: 86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdt::USDT
+        decimal: 6
         name: USDT
     wormhole:
       Clock: '0x6'

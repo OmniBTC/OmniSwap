@@ -221,7 +221,8 @@ def clock():
 
 def export_testnet():
     # load brownie config file
-    with open("brownie-config.yaml", "r") as f:
+    path = Path(__file__).parent.parent.joinpath("brownie-config.yaml")
+    with open(path, "r") as f:
         config = yaml.safe_load(f)
 
     packages = {
@@ -272,12 +273,12 @@ def export_testnet():
         "USDT": {
             "name": "USDT",
             "address": str(usdt().replace("0x", "")),
-            "decimal": 8
+            "decimal": 6
         },
         "USDC": {
             "name": "USDC",
             "address": str(usdc().replace("0x", "")),
-            "decimal": 8
+            "decimal": 6
         },
         "BTC": {
             "name": "BTC",
@@ -293,7 +294,7 @@ def export_testnet():
         config["networks"]["sui-testnet"]["tokens"][token] = tokens[token]
 
     # write config to config file
-    with open("brownie-config.yaml", "w") as f:
+    with open(path, "w") as f:
         yaml.safe_dump(config, f)
 
 

@@ -1,12 +1,11 @@
 module omniswap_mock::setup {
-
-    use test_coins::faucet::Faucet;
-    use sui::tx_context::TxContext;
     use omniswap_mock::pool::create_pool;
-    use test_coins::coins::{USDC, USDT, BTC};
-    use test_coins::faucet;
     use sui::transfer;
-    use sui::tx_context;
+    use sui::tx_context::{Self, TxContext};
+    use test_coins::btc::BTC;
+    use test_coins::faucet::{Self, Faucet};
+    use test_coins::usdc::USDC;
+    use test_coins::usdt::USDT;
 
     const MUST_DEPLOYER: u64 = 0;
 
@@ -21,15 +20,15 @@ module omniswap_mock::setup {
     public entry fun setup_pool(faucet: &mut Faucet, ctx: &mut TxContext) {
         let usdt = faucet::force_mint<USDT>(faucet, 100000, ctx);
         let usdc = faucet::force_mint<USDC>(faucet, 100000, ctx);
-        let usdc_usdt_lp = create_pool<OmniSwapMock, USDT, USDC>(OmniSwapMock{},usdt, usdc,3, ctx);
+        let usdc_usdt_lp = create_pool<OmniSwapMock, USDT, USDC>(OmniSwapMock {}, usdt, usdc, 3, ctx);
 
         let btc = faucet::force_mint<BTC>(faucet, 3, ctx);
         let usdt = faucet::force_mint<USDT>(faucet, 100000, ctx);
-        let btc_usdt_lp = create_pool<OmniSwapMock, BTC, USDT>(OmniSwapMock{}, btc, usdt, 3, ctx);
+        let btc_usdt_lp = create_pool<OmniSwapMock, BTC, USDT>(OmniSwapMock {}, btc, usdt, 3, ctx);
 
         let usdc = faucet::force_mint<USDC>(faucet, 100000, ctx);
         let btc = faucet::force_mint<BTC>(faucet, 3, ctx);
-        let usdc_btc_lp = create_pool<OmniSwapMock, USDC, BTC>(OmniSwapMock{}, usdc, btc, 3, ctx);
+        let usdc_btc_lp = create_pool<OmniSwapMock, USDC, BTC>(OmniSwapMock {}, usdc, btc, 3, ctx);
 
         let deployer = tx_context::sender(ctx);
         transfer::public_transfer(usdc_usdt_lp, deployer);

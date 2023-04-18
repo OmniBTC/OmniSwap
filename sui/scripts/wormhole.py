@@ -1,24 +1,22 @@
-import pprint
-
-import sui_brownie
-from sui_brownie import SuiObject
-
-from scripts import sui_project
-from scripts import deploy
-from scripts.struct_sui import SoData, change_network, hex_str_to_vector_u8, \
-    generate_aptos_coin_address_in_wormhole, omniswap_sui_path, omniswap_ethereum_project, generate_random_bytes32, \
-    WormholeData, SwapData, padding_to_bytes
-from scripts.serde_sui import get_serde_facet, get_wormhole_facet, get_token_bridge
 import functools
 import time
 from enum import Enum
 from typing import List
 
+import sui_brownie
 from brownie import (
     Contract,
     network, web3,
 )
 from brownie.project.main import Project
+from sui_brownie import SuiObject
+
+from scripts import deploy
+from scripts import sui_project
+from scripts.serde_sui import get_serde_facet, get_wormhole_facet, get_token_bridge
+from scripts.struct_sui import SoData, change_network, hex_str_to_vector_u8, \
+    generate_aptos_coin_address_in_wormhole, omniswap_ethereum_project, generate_random_bytes32, \
+    WormholeData, SwapData, padding_to_bytes
 
 
 class SuiSwapType(Enum):
@@ -224,6 +222,7 @@ def estimate_wormhole_fee(
         package.so_fee_wormhole.PriceManager[-1],
         dst_chainid
     )
+
     (base_gas, gas_per_bytes) = package.womrhole_facet.get_dst_gas.inspect(
         package.wormhole_facet.Storage[-1],
         dst_chainid
@@ -471,10 +470,10 @@ def cross_swap(
     payload_length = len(normal_so_data) + len(normal_wormhole_data) + len(normal_dst_swap_data)
 
     is_native = src_path[0] == "SUI"
-    # wormhole_fee = estimate_wormhole_fee(
-    #     package, sui_project.config["networks"][dst_net]["wormhole"]["chainid"], dst_gas_price, input_amount, is_native,
-    #     payload_length, 0)
-    wormhole_fee = 0
+    wormhole_fee = estimate_wormhole_fee(
+        package, sui_project.config["networks"][dst_net]["wormhole"]["chainid"], dst_gas_price, input_amount, is_native,
+        payload_length, 0)
+
     print(f"Wormhole fee: {wormhole_fee}")
     wormhole_data = generate_wormhole_data(
         dst_net=dst_net,
