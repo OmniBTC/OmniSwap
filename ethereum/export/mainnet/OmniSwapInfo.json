@@ -942,6 +942,13 @@
         "RouterAddress": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
         "TokenList": "https://tokens.pancakeswap.finance/pancakeswap-top-100.json",
         "Type": "IUniswapV2Router02"
+      },
+      {
+        "Name": "PancakeSwapV3",
+        "QuoterAddressForUniswapV3": "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
+        "RouterAddress": "0x1b81D678ffb9C0263b24A97847620C99d213eB14",
+        "TokenList": "https://tokens.pancakeswap.finance/pancakeswap-top-100.json",
+        "Type": "ISwapRouter"
       }
     ],
     "WETH": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",

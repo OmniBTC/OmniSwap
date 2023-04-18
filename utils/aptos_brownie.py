@@ -829,3 +829,14 @@ class AptosPackage:
         if response.status_code >= 400:
             raise ApiError(response.text, response.status_code)
         return response.json()
+
+
+def get_account_balance(node_url, account_address, coin_type):
+    rest_client = RestClient(node_url)
+    resource_type = f"0x1::coin::CoinStore<{coin_type}>"
+    response = rest_client.client.get(
+        f"{node_url}/accounts/{account_address}/resource/{resource_type}"
+    )
+    if response.status_code >= 400:
+        raise ApiError(f"{response.text} - {account_address}", response.status_code)
+    return int(response.json()["data"]["coin"]["value"])

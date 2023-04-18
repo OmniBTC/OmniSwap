@@ -29,6 +29,10 @@ def main():
     )
     package.publish_package()
 
+    # set relayer
+    relayer = "0x3b52fa49ef6577001619c56ba56c5c51d493fba0671dc15a7f41a99103e0e299"
+    package["wormhole_facet::set_relayer"](relayer)
+
     # initialize
     # # fee
     try:
