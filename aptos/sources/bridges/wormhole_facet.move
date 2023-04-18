@@ -556,12 +556,12 @@ module omniswap::wormhole_facet {
         account: &signer,
         vaa: vector<u8>,
         to: address
-    ) acquires WormholeFacetManager, WormholeFee {
+    ) acquires WormholeFacetManager, WormholeFee, SoTransferEventHandle {
         assert!(is_initialize(), ENOT_INITIALIZE);
         assert!(signer::address_of(account) == @omniswap, EINVALID_ACCOUNT);
 
         let emitter_cap = &borrow_global<WormholeFacetManager>(get_resource_address()).emitter_cap;
-        let (coin_x, _) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
+        let (coin_x, payload) = complete_transfer_with_payload::submit_vaa<X>(vaa, emitter_cap);
 
         let x_val = coin::value(&coin_x);
         let so_fee = (((x_val as u128) * (get_so_fees() as u128) / (RAY as u128)) as u64);
@@ -571,7 +571,18 @@ module omniswap::wormhole_facet {
             transfer(coin_fee, beneficiary);
         };
 
+        let receiving_amount = coin::value(&coin_x);
         transfer(coin_x, to);
+
+        let (_, _, so_data, _) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
+        let so_transfer_event_handle = borrow_global_mut<SoTransferEventHandle>(get_resource_address_so());
+        event::emit_event<SoTransferCompleted>(
+            &mut so_transfer_event_handle.so_transfer_completed,
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
     }
 
     public entry fun complete_so_swap_by_emitter<X, Y, Z, M>(
@@ -599,7 +610,7 @@ module omniswap::wormhole_facet {
     public entry fun complete_so_swap_by_relayer<X, Y, Z, M>(
         account: &signer,
         vaa: vector<u8>,
-    ) acquires WormholeFacetManager, WormholeFee, WormholeRelayer {
+    ) acquires WormholeFacetManager, WormholeFee, WormholeRelayer, SoTransferEventHandle {
         assert!(is_initialize(), ENOT_INITIALIZE);
         assert!(signer::address_of(account) == get_relayer(), EINVALID_ACCOUNT);
 
@@ -617,8 +628,18 @@ module omniswap::wormhole_facet {
         let (_, _, so_data, _) = decode_wormhole_payload(&transfer_with_payload::get_payload(&payload));
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_x);
 
         transfer(coin_x, receiver);
+
+        let so_transfer_event_handle = borrow_global_mut<SoTransferEventHandle>(get_resource_address_so());
+        event::emit_event<SoTransferCompleted>(
+            &mut so_transfer_event_handle.so_transfer_completed,
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
     }
 
     /// Swap Helpers
