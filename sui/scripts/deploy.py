@@ -1,10 +1,10 @@
+from pathlib import Path
+
 import yaml
 from sui_brownie import SuiPackage, sui_brownie, SuiObject
 
 from scripts import sui_project
 from scripts.struct_sui import omniswap_sui_path
-
-from pathlib import Path
 
 
 def get_upgrade_cap_info(upgrade_cap_ids: tuple):
@@ -38,6 +38,23 @@ def setup_test_coins(net: str = "sui-testnet"):
         package_path=omniswap_sui_path.joinpath("test_coins")
     )
     test_coins.publish_package()
+
+    faucet = test_coins.faucet.Faucet[-1]
+    test_coins.faucet.add_supply(
+        faucet,
+        sui_project[SuiObject.from_type(treasury_cap(usdt()))][-1],
+        type_arguments=[usdt()]
+    )
+    test_coins.faucet.add_supply(
+        faucet,
+        sui_project[SuiObject.from_type(treasury_cap(usdc()))][-1],
+        type_arguments=[usdc()]
+    )
+    test_coins.faucet.add_supply(
+        faucet,
+        sui_project[SuiObject.from_type(treasury_cap(btc()))][-1],
+        type_arguments=[btc()]
+    )
 
 
 def load_test_coins():
@@ -178,16 +195,28 @@ def pool(x_type, y_type):
     return f"{sui_project.OmniSwapMock[-1]}::pool::Pool<{sui_project.OmniSwapMock[-1]}::setup::OmniSwapMock, {x_type}, {y_type}>"
 
 
+def treasury_cap(coin_type):
+    return f"0x2::coin::TreasuryCap<{coin_type}>"
+
+
+def coin_metadata(coin_type):
+    return f"0x2::coin::CoinMetadata<{coin_type}>"
+
+
 def usdt():
-    return f"{sui_project.TestCoins[-1]}::coins::USDT"
+    return f"{sui_project.TestCoins[-1]}::usdt::USDT"
 
 
 def usdc():
-    return f"{sui_project.TestCoins[-1]}::coins::USDC"
+    return f"{sui_project.TestCoins[-1]}::usdc::USDC"
 
 
 def btc():
-    return f"{sui_project.TestCoins[-1]}::coins::BTC"
+    return f"{sui_project.TestCoins[-1]}::btc::BTC"
+
+
+def clock():
+    return "0x0000000000000000000000000000000000000000000000000000000000000006"
 
 
 def export_testnet():
@@ -279,6 +308,31 @@ def load_omniswap():
     )
 
 
+def attest_token(coin_type):
+    token_bridge = load_token_bridge()
+    wormhole = load_wormhole()
+
+    result = sui_project.pay_sui([0])
+    zero_coin = result['objectChanges'][-1]['objectId']
+    metadata = sui_project[SuiObject.from_type(coin_metadata(coin_type))][-1]
+    token_bridge.token_bridge.attest_token(
+        token_bridge.state.State[-1],
+        wormhole.state.State[-1],
+        zero_coin,
+        metadata,
+        0,
+        clock(),
+        type_arguments=[coin_type]
+    )
+
+
+# for testnet
+def register_wormhole_token():
+    attest_token(usdt())
+    attest_token(usdc())
+    attest_token(btc())
+
+
 def main():
     net = "sui-testnet"
     print(f"Current sui network:{net}")
@@ -291,6 +345,7 @@ def main():
     setup_token_bridge(net)
     init_token_bridge()
     init_mock(net)
+    register_wormhole_token()
 
     # deploy
     omniswap_package = SuiPackage(package_path=omniswap_sui_path)
@@ -351,4 +406,4 @@ def main():
 
 
 if __name__ == "__main__":
-    get_dst_gas()
+    main()
