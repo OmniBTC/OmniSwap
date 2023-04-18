@@ -12,17 +12,17 @@ omniswap_mock = "0x3"
 [dependencies.Sui]
 git = "https://github.com/MystenLabs/sui.git"
 subdir = "crates/sui-framework/packages/sui-framework"
-rev = "a63f425b9999c7fdfe483598720a9effc0acdc9e"
+rev = "cab7e9762d4d75126a78fdd009b405745657fe57"
 
 [dependencies.Wormhole]
 git = "https://github.com/OmniBTC/wormhole.git"
 subdir = "sui/wormhole"
-rev = "d26d9407fb6a4f17db29e1028202bb1c9f76cf8b"
+rev = "f88f836e5fdb80ee8804b061d749620480ae2615"
 
 [dependencies.TokenBridge]
 git = "https://github.com/OmniBTC/wormhole.git"
 subdir = "sui/token_bridge"
-rev = "d26d9407fb6a4f17db29e1028202bb1c9f76cf8b"
+rev = "f88f836e5fdb80ee8804b061d749620480ae2615"
 
 [dependencies.OmniSwapMock]
 local = "./mocks"
