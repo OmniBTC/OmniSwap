@@ -497,7 +497,7 @@ def cross_swap(
     coin_x = [c["coinObjectId"] for c in result["data"]]
     # split zero sui coin to pay bridge fee
     result = sui_project.pay_sui([0])
-    coin_sui = result['objectChanges'][-1]['objectId']
+    coin_sui = [result['objectChanges'][-1]['objectId']]
     # ty_args = [ty.replace("0x", "") for ty in ty_args]
     package.so_diamond.so_swap_via_wormhole(
         wormhole_state,
@@ -512,7 +512,7 @@ def cross_swap(
         normal_so_data,
         normal_src_swap_data,
         normal_wormhole_data,
-        normal_wormhole_data,
+        normal_dst_swap_data,
         coin_x,
         coin_sui,
         type_arguments=ty_args,
