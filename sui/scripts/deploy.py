@@ -293,7 +293,7 @@ def main():
     init_mock(net)
 
     # deploy
-    omniswap_package = SuiPackage(package_path=omniswap_sui_path, package_id=sui_project.OmniSwap[-1])
+    omniswap_package = SuiPackage(package_path=omniswap_sui_path)
     omniswap_package.publish_package(gas_budget=500000000, replace_address=dict(
         test_coins=None,
         omniswap_mock=None,
@@ -351,4 +351,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    get_dst_gas()
