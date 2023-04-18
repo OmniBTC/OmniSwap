@@ -493,8 +493,9 @@ def cross_swap(
     pool_xy = sui_project.config["networks"]["objects"][pool(x_type, y_type)]
     pool_yz = sui_project.config["networks"]["objects"][pool(y_type, z_type)]
     pool_zm = sui_project.config["networks"]["objects"][pool(z_type, m_type)]
-    coin_x = [sui_project[SuiObject.from_type(
-        coin(f"0x{x_type}"))][-1]]
+
+    result = sui_project.client.suix_getCoins(sui_project.account.account_address, f"0x{x_type}", None, None)
+    coin_x = [c["coinObjectId"] for c in result["data"]]
     coin_sui = sui_project.get_account_sui().keys()
     package.so_diamond.so_swap_via_wormhole(
         wormhole_state,

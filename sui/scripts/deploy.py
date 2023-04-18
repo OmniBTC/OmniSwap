@@ -76,8 +76,8 @@ def setup_wormhole(net: str = "sui-testnet"):
 
 
 def load_wormhole():
-    if 'Wormhole' in sui_project.network_config['objects']:
-        package_id = sui_project.network_config['objects']['Wormhole']
+    if "packages" in sui_project.network_config and 'Wormhole' in sui_project.network_config['packages']:
+        package_id = sui_project.network_config['packages']['Wormhole']
     else:
         package_id = sui_project.Wormhole[-1]
     return SuiPackage(
@@ -133,8 +133,8 @@ def setup_token_bridge(net: str = "sui-testnet"):
 
 
 def load_token_bridge():
-    if 'TokenBridge' in sui_project.network_config['objects']:
-        package_id = sui_project.network_config['objects']['TokenBridge']
+    if 'packages' in sui_project.network_config and 'TokenBridge' in sui_project.network_config['packages']:
+        package_id = sui_project.network_config['packages']['TokenBridge']
     else:
         package_id = sui_project.TokenBridge[-1]
     return SuiPackage(
@@ -235,22 +235,24 @@ def export_testnet():
         config["networks"]["sui-testnet"]["objects"][obj] = objects[obj]
 
     tokens = {
-        "SUI": {"name": "SUI",
-                "address": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-                "decimal": 9},
+        "SUI": {
+            "name": "SUI",
+            "address": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "decimal": 9
+        },
         "USDT": {
             "name": "USDT",
-            "address": str(usdt()),
+            "address": str(usdt().replace("0x", "")),
             "decimal": 8
         },
         "USDC": {
             "name": "USDC",
-            "address": str(usdc()),
+            "address": str(usdc().replace("0x", "")),
             "decimal": 8
         },
         "BTC": {
             "name": "BTC",
-            "address": str(btc()),
+            "address": str(btc().replace("0x", "")),
             "decimal": 8
         }
     }
@@ -267,8 +269,8 @@ def export_testnet():
 
 
 def load_omniswap():
-    if 'OmniSwap' in sui_project.network_config['objects']:
-        package_id = sui_project.network_config['objects']['OmniSwap']
+    if "packages" in sui_project.network_config and 'OmniSwap' in sui_project.network_config['packages']:
+        package_id = sui_project.network_config['packages']['OmniSwap']
     else:
         package_id = sui_project.OmniSwap[-1]
     return SuiPackage(
