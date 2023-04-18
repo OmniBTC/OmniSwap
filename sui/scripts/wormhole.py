@@ -1,3 +1,5 @@
+import pprint
+
 import sui_brownie
 from sui_brownie import SuiObject
 
@@ -100,20 +102,12 @@ def attest_token(
 
 @functools.lru_cache()
 def get_sui_token():
-    if "token" not in sui_project.network_config:
+    if "tokens" not in sui_project.network_config:
         return {"SUI": {"address": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
                         "decimal": 8, "name": "SUI",
                         }}
-    out = {}
-    for t, v in sui_project.network_config["token"].items():
-        if "name" in v:
-            name = v["name"]
-        else:
-            name = t
-        out[t] = {"address": f"{v['address']}::{v['module']}::{name}",
-                  "decimal": v['decimal']
-                  }
-    return out
+
+    return sui_project.network_config["tokens"]
 
 
 @functools.lru_cache()
@@ -256,7 +250,7 @@ def generate_so_data(
     return SoData(
         transactionId=generate_random_bytes32(),
         receiver=receiver,
-        sourceChainId=sui_project.config["networks"][sui_project.network]["omnibtc_chainid"],
+        sourceChainId=sui_project.network_config["omnibtc_chainid"],
         sendingAssetId=get_sui_token()[src_token]["address"],
         destinationChainId=sui_project.config["networks"][dst_net]["omnibtc_chainid"],
         receivingAssetId=get_evm_token(dst_net)[dst_token]["address"],
@@ -442,11 +436,15 @@ def cross_swap(
         normal_dst_swap_data = hex_str_to_vector_u8(
             str(serde.encodeNormalizedSwapData(normal_dst_swap_data)))
 
+    # todo: process type arguments
     if len(src_swap_data) == 0:
-        ty_args = [so_data.sendingAssetId] * 4
+        # ty_args = [so_data.sendingAssetId] * 4
         # use default pool
         x_type = deploy.usdt()
-        y_type = z_type = m_type = deploy.usdc()
+        y_type = deploy.usdc()
+        z_type = deploy.btc()
+        m_type = deploy.usdt()
+        ty_args = [x_type, y_type, z_type, m_type]
     elif len(src_swap_data) == 1:
         ty_args = [src_swap_data[0].sendingAssetId] + \
                   [src_swap_data[0].receivingAssetId] * 3
@@ -473,9 +471,10 @@ def cross_swap(
     payload_length = len(normal_so_data) + len(normal_wormhole_data) + len(normal_dst_swap_data)
 
     is_native = src_path[0] == "SUI"
-    wormhole_fee = estimate_wormhole_fee(
-        package, sui_project.config["networks"][dst_net]["wormhole"]["chainid"], dst_gas_price, input_amount, is_native,
-        payload_length, 0)
+    # wormhole_fee = estimate_wormhole_fee(
+    #     package, sui_project.config["networks"][dst_net]["wormhole"]["chainid"], dst_gas_price, input_amount, is_native,
+    #     payload_length, 0)
+    wormhole_fee = 0
     print(f"Wormhole fee: {wormhole_fee}")
     wormhole_data = generate_wormhole_data(
         dst_net=dst_net,
@@ -485,18 +484,21 @@ def cross_swap(
     normal_wormhole_data = hex_str_to_vector_u8(
         str(wormhole.encodeNormalizedWormholeData(wormhole_data.format_to_contract())))
 
-    wormhole_state = sui_project.config["networks"]["objects"]["WormholeState"]
-    token_bridge_state = sui_project.config["networks"]["objects"]["TokenBridgeState"]
-    storage = sui_project.config["networks"]["objects"]["FacetStorage"]
-    price_manager = sui_project.config["networks"]["objects"]["PriceManager"]
-    wormhole_fee = sui_project.config["networks"]["objects"]["WormholeFee"]
-    pool_xy = sui_project.config["networks"]["objects"][pool(x_type, y_type)]
-    pool_yz = sui_project.config["networks"]["objects"][pool(y_type, z_type)]
-    pool_zm = sui_project.config["networks"]["objects"][pool(z_type, m_type)]
+    wormhole_state = sui_project.network_config["objects"]["WormholeState"]
+    token_bridge_state = sui_project.network_config["objects"]["TokenBridgeState"]
+    storage = sui_project.network_config["objects"]["FacetStorage"]
+    price_manager = sui_project.network_config["objects"]["PriceManager"]
+    wormhole_fee = sui_project.network_config["objects"]["WormholeFee"]
+    pool_xy = sui_project.network_config["objects"][pool(x_type, y_type)]
+    pool_yz = sui_project.network_config["objects"][pool(y_type, z_type)]
+    pool_zm = sui_project.network_config["objects"][pool(z_type, m_type)]
 
-    result = sui_project.client.suix_getCoins(sui_project.account.account_address, f"0x{x_type}", None, None)
+    result = sui_project.client.suix_getCoins(sui_project.account.account_address, x_type, None, None)
     coin_x = [c["coinObjectId"] for c in result["data"]]
-    coin_sui = sui_project.get_account_sui().keys()
+    # split zero sui coin to pay bridge fee
+    result = sui_project.pay_sui([0])
+    coin_sui = result['objectChanges'][-1]['objectId']
+    # ty_args = [ty.replace("0x", "") for ty in ty_args]
     package.so_diamond.so_swap_via_wormhole(
         wormhole_state,
         token_bridge_state,
@@ -513,7 +515,15 @@ def cross_swap(
         normal_wormhole_data,
         coin_x,
         coin_sui,
-        type_argument=ty_args,
+        type_arguments=ty_args,
+    )
+
+
+def claim_faucet(coin_type):
+    test_coins = deploy.load_test_coins()
+    test_coins.faucet.claim(
+        test_coins.faucet.Faucet[-1],
+        type_arguments=[coin_type],
     )
 
 
@@ -523,8 +533,8 @@ def cross_swap_for_testnet(package):
     # gas: 17770
     cross_swap(package,
                src_path=["USDT"],
-               dst_path=["USDC"],
-               receiver="0xa65b84b73c857082b680a148b7b25327306d93cc7862bae0edfa7628b0342392",
+               dst_path=["USDT"],
+               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=100000,
                dst_gas_price=dst_gas_price
                )
@@ -584,13 +594,6 @@ def main():
     # load src net aptos package
     omniswap = deploy.load_omniswap()
 
-    if "test" in src_net and "test" in dst_net:
-        omniswap_mock = deploy.load_omniswap_mock()
-        omniswap_mock.setup.setup_pool(
-            omniswap_mock.faucet.Faucet[-1]
-        )
-        # gas: 9121
-        # package_mock["setup::setup_omniswap_enviroment"]()
     # load dst net project
     change_network(dst_net)
 
@@ -612,3 +615,7 @@ def main():
             dst_func=EvmSwapFunc.swapExactTokensForTokens,
             src_router=SuiSwapType.OmniswapMock
         )
+
+
+if __name__ == '__main__':
+    main()
