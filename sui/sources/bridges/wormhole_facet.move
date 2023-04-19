@@ -403,10 +403,11 @@ module omniswap::wormhole_facet {
         let coin_y = merge_coin(coins_y, coin_val, ctx);
 
         let sequence;
-        assert!(vector::length(&swap_data_src) == 1, ESWAP_LENGTH);
         // X is quote asset, Y is base asset
         // use base asset to cross chain
         let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+
+        assert!(vector::length(&swap_data_src) == 1, ESWAP_LENGTH);
         let (coin_x, left_coin_x, _) = swap::swap_for_base_asset<X, Y>(
             pool_xy,
             coin_y,

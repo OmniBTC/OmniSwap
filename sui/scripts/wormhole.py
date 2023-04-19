@@ -297,12 +297,12 @@ def generate_src_swap_data(
 
     while i < len(path) - 1:
         swap_data = SwapData(
-            callTo=sui_project.network_config["replace_address"][router.value],
-            approveTo=sui_project.network_config["replace_address"][router.value],
+            callTo=sui_project.network_config['packages']['DeepBook'],
+            approveTo=sui_project.network_config['packages']['DeepBook'],
             sendingAssetId=get_sui_token()[path[i]]["address"],
             receivingAssetId=get_sui_token()[path[i + 1]]["address"],
             fromAmount=amount,
-            callData="OmniswapMock" + ",0"
+            callData="DeepBook" + ",0"
         )
         out.append(swap_data)
         i += 1
@@ -494,8 +494,7 @@ def cross_swap(
             gas_budget=1000000000
         )
     elif len(src_swap_data) == 1:
-        y_type = src_swap_data[1].sendingAssetId
-        ty_args = [x_type, y_type]
+        y_type = src_swap_data[0].receivingAssetId
 
         pools = sui_project.network_config['pools']
 
@@ -507,6 +506,8 @@ def cross_swap(
                 pool_name = pool
         assert pool_id != ""
         if pool_name.split('-')[0] in x_type:
+            ty_args = [x_type, y_type]
+
             # x coin is base asset
             package.wormhole_facet.so_swap_for_deepbook_quote_asset(
                 wormhole_state,
@@ -526,6 +527,7 @@ def cross_swap(
                 gas_budget=1000000000
             )
         else:
+            ty_args = [y_type, x_type]
             # x coin is quote asset
             package.wormhole_facet.so_swap_for_deepbook_base_asset(
                 wormhole_state,
@@ -559,24 +561,24 @@ def claim_faucet(coin_type):
 def cross_swap_for_testnet(package):
     dst_gas_price = 0
 
-    # gas: 17770
+    # # gas: 17770
+    # cross_swap(package,
+    #            src_path=["USDT"],
+    #            dst_path=["USDT"],
+    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+    #            input_amount=100000,
+    #            dst_gas_price=dst_gas_price
+    #            )
+
+    # gas: 31181
     cross_swap(package,
-               src_path=["USDT"],
-               dst_path=["USDT"],
+               src_path=["USDC", "BTC"],
+               dst_path=["XBTC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=100000,
+               input_amount=10000000,
                dst_gas_price=dst_gas_price
                )
 
-    # # gas: 31181
-    # cross_swap(package,
-    #            src_path=["AptosCoin", "XBTC"],
-    #            dst_path=["XBTC_WORMHOLE"],
-    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    #            input_amount=10000000,
-    #            dst_gas_price=dst_gas_price
-    #            )
-    #
     # # gas: 46160
     # cross_swap(package,
     #            src_path=["AptosCoin",

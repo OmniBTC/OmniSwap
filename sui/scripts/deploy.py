@@ -230,6 +230,7 @@ def export_testnet():
         "Wormhole": sui_project.Wormhole[-1],
         "TokenBridge": sui_project.TokenBridge[-1],
         "TestCoins": sui_project.TestCoins[-1],
+        "DeepBook": "0x000000000000000000000000000000000000000000000000000000000000dee9"
     }
 
     if "packages" not in config["networks"]["sui-testnet"]:

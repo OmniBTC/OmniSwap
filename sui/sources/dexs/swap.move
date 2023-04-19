@@ -49,8 +49,8 @@ module omniswap::swap {
         clock: &Clock,
         ctx: &mut TxContext
     ): (Coin<BaseAsset>, Coin<QuoteAsset>, u64) {
-        assert!(right_type<QuoteAsset>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
-        assert!(right_type<BaseAsset>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+        // assert!(right_type<QuoteAsset>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+        // assert!(right_type<BaseAsset>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
 
         let raw_call_data = cross::swap_call_data(data);
         let min_amount = 0;
@@ -92,8 +92,8 @@ module omniswap::swap {
         clock: &Clock,
         ctx: &mut TxContext
     ): (Coin<BaseAsset>, Coin<QuoteAsset>, u64) {
-        assert!(right_type<BaseAsset>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
-        assert!(right_type<QuoteAsset>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+        // assert!(right_type<BaseAsset>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+        // assert!(right_type<QuoteAsset>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
 
         let raw_call_data = cross::swap_call_data(data);
         let min_amount = 0;
