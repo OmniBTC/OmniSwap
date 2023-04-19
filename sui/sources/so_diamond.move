@@ -19,14 +19,13 @@ module omniswap::so_diamond {
     ///  * swap_data_dst Swap data at destination chain
     ///
     /// The parameters passed in are serialized.
-    public entry fun so_swap_via_wormhole<X, Y>(
+    public entry fun so_swap_via_wormhole<X>(
         wormhole_state: &mut WormholeState,
         token_bridge_state: &mut TokenBridgeState,
         storage: &mut Storage,
         clock: &Clock,
         price_manager: &mut PriceManager,
         wromhole_fee: &mut WormholeFee,
-        pool_yx: &mut Pool<Y, X>,
         so_data: vector<u8>,
         swap_data_src: vector<u8>,
         wormhole_data: vector<u8>,
@@ -36,14 +35,13 @@ module omniswap::so_diamond {
         ctx: &mut TxContext
     ) {
         if (type_name::get<X>() != type_name::get<SUI>()) {
-            wormhole_facet::so_swap<X, Y>(
+            wormhole_facet::so_swap_without_swap<X>(
                 wormhole_state,
                 token_bridge_state,
                 storage,
                 clock,
                 price_manager,
                 wromhole_fee,
-                pool_yx,
                 so_data,
                 swap_data_src,
                 wormhole_data,
@@ -54,7 +52,7 @@ module omniswap::so_diamond {
             );
         }else {
             vector::destroy_empty(coins_x);
-            wormhole_facet::so_swap_from_sui<Y>(
+            wormhole_facet::so_swap_from_sui(
                 wormhole_state,
                 token_bridge_state,
                 storage,

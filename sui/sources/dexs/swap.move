@@ -9,19 +9,23 @@ module omniswap::swap {
     use sui::coin::{Self, Coin};
     use sui::tx_context::TxContext;
 
+    const RAY: u64 = 100000000;
+
     // Swap call data delimiter, represent ","
     const DELIMITER: u8 = 44;
 
     /// Error Codes
-    const EINVALID_LENGTH: u64 = 0x00;
+    const EINVALID_LENGTH: u64 = 0;
 
-    const EINVALID_SWAP_ROUTER: u64 = 0x01;
+    const EINVALID_SWAP_ROUTER: u64 = 1;
 
-    const EINVALID_SWAP_TOKEN: u64 = 0x02;
+    const EINVALID_SWAP_TOKEN: u64 = 2;
 
-    const EINVALID_SWAP_CURVE: u64 = 0x03;
+    const EINVALID_SWAP_CURVE: u64 = 3;
 
-    const EINVALID_SWAP_ROUTER_DELEGATE: u64 = 0x04;
+    const EINVALID_SWAP_ROUTER_DELEGATE: u64 = 4;
+
+    const ESWAP_AMOUNT_TOO_LOW: u64 = 5;
 
     /// Swap Name
     const DEEPBOOK_SWAP: vector<u8> = b"DeepBook";
@@ -63,13 +67,19 @@ module omniswap::swap {
         };
 
         if (swap_name == DEEPBOOK_SWAP) {
-            clob::swap_exact_quote_for_base(
+            let input_quote_amount = coin::value(&input_coin);
+            let (base_asset, quote_asset, swap_amount) = clob::swap_exact_quote_for_base(
                 pool,
-                coin::value(&input_coin),
+                input_quote_amount,
                 clock,
                 input_coin,
                 ctx
-            )
+            );
+            let left_quote_amount = coin::value(&quote_asset);
+            let swap_quote_amount = input_quote_amount - left_quote_amount;
+            let min_amount = swap_quote_amount * RAY / input_quote_amount * min_amount / RAY;
+            assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
+            (base_asset, quote_asset, swap_amount)
         } else {
             abort EINVALID_SWAP_ROUTER
         }
@@ -100,15 +110,21 @@ module omniswap::swap {
         };
 
         if (swap_name == DEEPBOOK_SWAP) {
+            let input_base_amount = coin::value(&input_coin);
             let quote_coin = coin::zero<QuoteAsset>(ctx);
-            clob::swap_exact_base_for_quote(
+            let (base_asset, quote_asset, swap_amount) = clob::swap_exact_base_for_quote(
                 pool,
-                coin::value(&input_coin),
+                input_base_amount,
                 input_coin,
                 quote_coin,
                 clock,
                 ctx
-            )
+            );
+            let left_base_amount = coin::value(&base_asset);
+            let swap_base_amount = input_base_amount - left_base_amount;
+            let min_amount = swap_base_amount * RAY / input_base_amount * min_amount / RAY;
+            assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
+            (base_asset, quote_asset, swap_amount)
         } else {
             abort EINVALID_SWAP_ROUTER
         }
