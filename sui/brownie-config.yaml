@@ -516,7 +516,7 @@ networks:
   sui-localnet:
     node_url: http://127.0.0.1:9000
   sui-testnet:
-    node_url: https://sui-testnet-wave3.coming.chat:443
+    node_url: https://fullnode.testnet.sui.io:443
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
       FacetManager: '0xba6e019e0d9e06029e7dc8f677f950df19817f4417eb4b2b2e4130e9bac65eb9'
@@ -553,6 +553,9 @@ networks:
         address: 86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdt::USDT
         decimal: 6
         name: USDT
+    pools:
+      BTC-USDC:
+        pool_id: 0x43c422371538cedbea7daad60cc997702877370cd6a24edcac425f0eee99566e
     wormhole:
       Clock: '0x6'
       PriceManager: ''
