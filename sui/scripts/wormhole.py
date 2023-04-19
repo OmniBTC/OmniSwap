@@ -445,38 +445,6 @@ def cross_swap(
         normal_dst_swap_data = hex_str_to_vector_u8(
             str(serde.encodeNormalizedSwapData(normal_dst_swap_data)))
 
-    # todo: process type arguments
-    if len(src_swap_data) == 0:
-        # ty_args = [so_data.sendingAssetId] * 4
-        # use default pool
-        x_type = deploy.usdt()
-        y_type = deploy.usdc()
-        z_type = deploy.btc()
-        m_type = deploy.usdt()
-        ty_args = [x_type, y_type, z_type, m_type]
-    elif len(src_swap_data) == 1:
-        ty_args = [src_swap_data[0].sendingAssetId] + \
-                  [src_swap_data[0].receivingAssetId] * 3
-        x_type = ty_args[0]
-        y_type = z_type = m_type = ty_args[1]
-    elif len(src_swap_data) == 2:
-        ty_args = [src_swap_data[0].sendingAssetId, src_swap_data[1].sendingAssetId] + [
-            src_swap_data[1].receivingAssetId] * 2
-        x_type = ty_args[0]
-        y_type = ty_args[1]
-        z_type = m_type = ty_args[2]
-    elif len(src_swap_data) == 3:
-        ty_args = [src_swap_data[0].sendingAssetId,
-                   src_swap_data[1].sendingAssetId,
-                   src_swap_data[2].sendingAssetId,
-                   ] + [src_swap_data[2].receivingAssetId]
-        x_type = ty_args[0]
-        y_type = ty_args[1]
-        z_type = ty_args[2]
-        m_type = ty_args[3]
-    else:
-        raise ValueError
-
     payload_length = len(normal_so_data) + len(normal_wormhole_data) + len(normal_dst_swap_data)
 
     is_native = src_path[0] == "SUI"
@@ -498,34 +466,86 @@ def cross_swap(
     storage = sui_project.network_config["objects"]["FacetStorage"]
     price_manager = sui_project.network_config["objects"]["PriceManager"]
     wormhole_fee = sui_project.network_config["objects"]["WormholeFee"]
-    pool_xy = sui_project.network_config["objects"][pool(x_type, y_type)]
-    pool_yz = sui_project.network_config["objects"][pool(y_type, z_type)]
-    pool_zm = sui_project.network_config["objects"][pool(z_type, m_type)]
 
+    # input coin
+    x_type = so_data.sendingAssetId
     result = sui_project.client.suix_getCoins(sui_project.account.account_address, x_type, None, None)
     coin_x = [c["coinObjectId"] for c in result["data"]]
+
     # split zero sui coin to pay bridge fee
     result = sui_project.pay_sui([0])
     coin_sui = [result['objectChanges'][-1]['objectId']]
-    # ty_args = [ty.replace("0x", "") for ty in ty_args]
-    package.so_diamond.so_swap_via_wormhole(
-        wormhole_state,
-        token_bridge_state,
-        storage,
-        clock(),
-        price_manager,
-        wormhole_fee,
-        pool_xy,
-        pool_yz,
-        pool_zm,
-        normal_so_data,
-        normal_src_swap_data,
-        normal_wormhole_data,
-        normal_dst_swap_data,
-        coin_x,
-        coin_sui,
-        type_arguments=ty_args,
-    )
+
+    if len(src_swap_data) == 0:
+        package.wormhole_facet.so_swap_without_swap(
+            wormhole_state,
+            token_bridge_state,
+            storage,
+            clock(),
+            price_manager,
+            wormhole_fee,
+            normal_so_data,
+            normal_src_swap_data,
+            normal_wormhole_data,
+            normal_dst_swap_data,
+            coin_x,
+            coin_sui,
+            type_arguments=[x_type],
+            gas_budget=1000000000
+        )
+    elif len(src_swap_data) == 1:
+        y_type = src_swap_data[1].sendingAssetId
+        ty_args = [x_type, y_type]
+
+        pools = sui_project.network_config['pools']
+
+        pool_id = ""
+        pool_name = ""
+        for pool in pools:
+            if x_type.split('::')[-1] in pool.split('-') and y_type.split('::')[-1] in pool.split('-'):
+                pool_id = pools[pool]['pool_id']
+                pool_name = pool
+        assert pool_id != ""
+        if pool_name.split('-')[0] in x_type:
+            # x coin is base asset
+            package.wormhole_facet.so_swap_for_deepbook_quote_asset(
+                wormhole_state,
+                token_bridge_state,
+                storage,
+                clock(),
+                price_manager,
+                wormhole_fee,
+                pool_id,
+                normal_so_data,
+                normal_src_swap_data,
+                normal_wormhole_data,
+                normal_dst_swap_data,
+                coin_x,
+                coin_sui,
+                type_arguments=ty_args,
+                gas_budget=1000000000
+            )
+        else:
+            # x coin is quote asset
+            package.wormhole_facet.so_swap_for_deepbook_base_asset(
+                wormhole_state,
+                token_bridge_state,
+                storage,
+                clock(),
+                price_manager,
+                wormhole_fee,
+                pool_id,
+                normal_so_data,
+                normal_src_swap_data,
+                normal_wormhole_data,
+                normal_dst_swap_data,
+                coin_x,
+                coin_sui,
+                type_arguments=ty_args,
+                gas_budget=1000000000
+            )
+    else:
+        raise ValueError
 
 
 def claim_faucet(coin_type):
@@ -548,51 +568,51 @@ def cross_swap_for_testnet(package):
                dst_gas_price=dst_gas_price
                )
 
-    # gas: 31181
-    cross_swap(package,
-               src_path=["AptosCoin", "XBTC"],
-               dst_path=["XBTC_WORMHOLE"],
-               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=10000000,
-               dst_gas_price=dst_gas_price
-               )
-
-    # gas: 46160
-    cross_swap(package,
-               src_path=["AptosCoin",
-                         "XBTC",
-                         "USDT",
-                         ],
-               dst_path=["USDT_WORMHOLE"],
-               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=10000000,
-               dst_gas_price=dst_gas_price
-               )
-
-    # gas: 313761
-    cross_swap(package,
-               src_path=["AptosCoin",
-                         "XBTC",
-                         "USDT",
-                         "USDC"
-                         ],
-               dst_path=["USDC_WORMHOLE"],
-               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=10000000,
-               dst_gas_price=dst_gas_price
-               )
-
-    # gas: 35389
-    cross_swap(
-        package,
-        src_path=["AptosCoin"],
-        dst_path=["AptosCoin_WORMHOLE", "USDT"],
-        receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-        input_amount=10000000,
-        dst_gas_price=dst_gas_price,
-        dst_router=EvmSwapType.IUniswapV2Router02,
-        dst_func=EvmSwapFunc.swapExactTokensForTokens
-    )
+    # # gas: 31181
+    # cross_swap(package,
+    #            src_path=["AptosCoin", "XBTC"],
+    #            dst_path=["XBTC_WORMHOLE"],
+    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+    #            input_amount=10000000,
+    #            dst_gas_price=dst_gas_price
+    #            )
+    #
+    # # gas: 46160
+    # cross_swap(package,
+    #            src_path=["AptosCoin",
+    #                      "XBTC",
+    #                      "USDT",
+    #                      ],
+    #            dst_path=["USDT_WORMHOLE"],
+    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+    #            input_amount=10000000,
+    #            dst_gas_price=dst_gas_price
+    #            )
+    #
+    # # gas: 313761
+    # cross_swap(package,
+    #            src_path=["AptosCoin",
+    #                      "XBTC",
+    #                      "USDT",
+    #                      "USDC"
+    #                      ],
+    #            dst_path=["USDC_WORMHOLE"],
+    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+    #            input_amount=10000000,
+    #            dst_gas_price=dst_gas_price
+    #            )
+    #
+    # # gas: 35389
+    # cross_swap(
+    #     package,
+    #     src_path=["AptosCoin"],
+    #     dst_path=["AptosCoin_WORMHOLE", "USDT"],
+    #     receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+    #     input_amount=10000000,
+    #     dst_gas_price=dst_gas_price,
+    #     dst_router=EvmSwapType.IUniswapV2Router02,
+    #     dst_func=EvmSwapFunc.swapExactTokensForTokens
+    # )
 
 
 def main():

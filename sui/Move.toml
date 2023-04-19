@@ -5,9 +5,9 @@ version = "0.1.0"
 [addresses]
 sui = "0x2"
 omniswap = "0x0"
-wormhole = "0x0"
-token_bridge = "0x1"
-omniswap_mock = "0x3"
+wormhole = "0x64a317d0441b0e7b1a41c7ea7cc0cbbf90fab1e0989799e8135a9901c95b90b1"
+token_bridge = "0xd8d9059c67ea3a767eda86f9fb29cfa2ab3ea9cf59490793cf8d2eb7f2c1389d"
+omniswap_mock = "0x3054311606d131cc73c366c600ffadc0fe51826a23b4aab7a9823f0c3d4bfef0"
 deepbook = "0xdee9"
 
 [dependencies.Sui]

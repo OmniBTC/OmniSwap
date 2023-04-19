@@ -227,7 +227,6 @@ def export_testnet():
 
     packages = {
         "OmniSwap": sui_project.OmniSwap[-1],
-        "OmniSwapMock": sui_project.OmniSwapMock[-1],
         "Wormhole": sui_project.Wormhole[-1],
         "TokenBridge": sui_project.TokenBridge[-1],
         "TestCoins": sui_project.TestCoins[-1],
@@ -252,10 +251,7 @@ def export_testnet():
         "WormholeFee": omniswap.wormhole_facet.WormholeFee[-1],
         "FacetManager": omniswap.wormhole_facet.WormholeFacetManager[-1],
         # for testnet
-        "Faucet": test_coins.faucet.Faucet[-1],
-        "Pool<OmniSwapMock, USDT, USDC>": sui_project[SuiObject.from_type(pool(usdt(), usdc()))][-1],
-        "Pool<OmniSwapMock, BTC, USDT>": sui_project[SuiObject.from_type(pool(btc(), usdt()))][-1],
-        "Pool<OmniSwapMock, USDC, BTC>": sui_project[SuiObject.from_type(pool(usdc(), btc()))][-1]
+        "Faucet": test_coins.faucet.Faucet[-1]
     }
 
     if "objects" not in config["networks"]["sui-testnet"]:
@@ -339,23 +335,23 @@ def main():
     print(f"Current sui network:{net}")
 
     # for testnet
-    setup_test_coins(net)
-    setup_omniswap_mock(net)
-    setup_wormhole(net)
-    init_wormhole()
-    setup_token_bridge(net)
-    init_token_bridge()
-    init_mock(net)
-    register_wormhole_token()
+    # setup_omniswap_mock(net)
+    # setup_wormhole(net)
+    # init_wormhole()
+    # setup_token_bridge(net)
+    # init_token_bridge()
+    # init_mock(net)
+    # register_wormhole_token()
 
     # deploy
-    omniswap_package = SuiPackage(package_path=omniswap_sui_path)
-    omniswap_package.publish_package(gas_budget=500000000, replace_address=dict(
-        test_coins=None,
-        omniswap_mock=None,
-        wormhole=None,
-        token_bridge=None,
-    ))
+    # omniswap_package = SuiPackage(package_path=omniswap_sui_path)
+    # omniswap_package.publish_package(gas_budget=5000000000, replace_address=dict(
+    #     test_coins=None,
+    #     omniswap_mock=None,
+    #     wormhole=None,
+    #     token_bridge=None,
+    # ))
+    omniswap_package = load_omniswap()
 
     wormhole = load_wormhole()
     wormhole_state = wormhole.state.State[-1]
@@ -366,7 +362,8 @@ def main():
     omniswap_package.wormhole_facet.init_wormhole(
         facet_manager,
         wormhole_state,
-        sui_project.network_config["wormhole"]["chainid"]
+        sui_project.network_config["wormhole"]["chainid"],
+        gas_budget=1000000000
     )
 
     wormhole_fee = omniswap_package.wormhole_facet.WormholeFee[-1]
@@ -379,7 +376,8 @@ def main():
 
     # set so fee
     so_fee_decimal = 1e8
-    omniswap_package.wormhole_facet.set_so_fees(wormhole_fee, int(1e-3 * so_fee_decimal))
+    omniswap_package.wormhole_facet.set_so_fees(wormhole_fee, int(1e-3 * so_fee_decimal),
+                                                gas_budget=1000000000)
 
     # set reserve
     reserve_decimal = 1e8
@@ -387,7 +385,8 @@ def main():
         facet_manager,
         storage,
         int(sui_project.network_config["wormhole"]["actual_reserve"] * reserve_decimal),
-        int(sui_project.network_config["wormhole"]["estimate_reserve"] * reserve_decimal)
+        int(sui_project.network_config["wormhole"]["estimate_reserve"] * reserve_decimal),
+        gas_budget=1000000000
     )
 
     # set gas
@@ -402,7 +401,8 @@ def main():
             facet_manager,
             sui_project.network_config["wormhole"]["gas"][net]["dst_chainid"],
             base_gas,
-            gas_per_bytes
+            gas_per_bytes,
+            gas_budget=1000000000
         )
 
 

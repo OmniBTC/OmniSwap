@@ -519,23 +519,22 @@ networks:
     node_url: https://fullnode.testnet.sui.io:443
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
-      FacetManager: '0xba6e019e0d9e06029e7dc8f677f950df19817f4417eb4b2b2e4130e9bac65eb9'
-      FacetStorage: '0xf6c07a6f75f04cce78a54d6da0f51d103155344406bfff0df8374054826f433c'
+      FacetManager: '0xaddea313d2184fae04a1182cfba815e4f0cd59c270a2945fd56f15109baaf7dd'
+      FacetStorage: '0x58a180edfeabc6604d81c7710810f1f3008890f10c3df4baeecb7cf3db8ef3e9'
       Faucet: '0x1bf9020c0a3c37d17bd31bf0b582bde3e7d1828471aaee301c7dc20b4ccd476b'
-      Pool<OmniSwapMock, BTC, USDT>: '0x9c30dd1f6d9a3ff7a4c2b0bd17f01b1f5953a9b7832ac5b05d31efdd2963fab6'
-      Pool<OmniSwapMock, USDC, BTC>: '0xc4a9755657b99e7e545648db23aca6ef7e1133fd76782db805fb338d680983c5'
-      Pool<OmniSwapMock, USDT, USDC>: '0x77b93f1832376392168240c67c23f1e8d2c52873bc3f4f0e5b3adca1ceace4ca'
-      PriceManager: '0x1daa1d96a9986c90a0a12bf23dd6a0048186d093c682a11d4909772740127cae'
+      PriceManager: '0xaaa0aebf2f75186f7f8b3d209361e3cef75ea44af23de900069ed419847580af'
       TokenBridgeState: '0x245e1cdf6315c459900d9a6c21962e39b7384c685abfcb3b98dc460601af11e0'
-      WormholeFee: '0xe8b6ab63e97cbb19e5e5c83d7a7050c7b8b339507d9b2216c521bc3526b490f2'
+      WormholeFee: '0x5335d5166477501c638f96572cfb4fbb55ed5112dfcbb97da85a8aa27abacd9b'
       WormholeState: '0x47a135d958b160503fd215534647815d9aa4f3fb8a3e5c0b2384f2b0460dcccf'
     omnibtc_chainid: 21
     packages:
-      OmniSwap: '0x8526ef4c46acc3ab4a86e8045ee59b2ad6be16f1aee9674c3f78941f5fa4bd49'
-      OmniSwapMock: '0x3054311606d131cc73c366c600ffadc0fe51826a23b4aab7a9823f0c3d4bfef0'
+      OmniSwap: '0x3d64db6e536c6ea10ab18569b78e30bc959ce1a33166bc6853c8ad01ea369131'
       TestCoins: '0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b'
       TokenBridge: '0xd8d9059c67ea3a767eda86f9fb29cfa2ab3ea9cf59490793cf8d2eb7f2c1389d'
       Wormhole: '0x64a317d0441b0e7b1a41c7ea7cc0cbbf90fab1e0989799e8135a9901c95b90b1'
+    pools:
+      BTC-USDC:
+        pool_id: 30651499024183196520579301582000107894925229194432550506948090863740274693742
     tokens:
       BTC:
         address: 86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::btc::BTC
@@ -553,9 +552,6 @@ networks:
         address: 86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdt::USDT
         decimal: 6
         name: USDT
-    pools:
-      BTC-USDC:
-        pool_id: 0x43c422371538cedbea7daad60cc997702877370cd6a24edcac425f0eee99566e
     wormhole:
       Clock: '0x6'
       PriceManager: ''
@@ -566,10 +562,6 @@ networks:
       WormholeState: ''
       actual_reserve: 1.1
       chainid: 21
-      default_pool:
-        ? ''
-        : other_asset_id: ''
-          package_id: ''
       estimate_reserve: 1.2
       gas:
         avax-test:
