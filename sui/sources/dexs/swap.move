@@ -1,14 +1,13 @@
 module omniswap::swap {
     use std::type_name;
     use std::vector;
+
+    use deepbook::clob::{Self, Pool};
+    use omniswap::cross::{Self, NormalizedSwapData};
     use omniswap::serde;
-    use omniswap::cross;
-    use sui::coin::Coin;
-    use omniswap::cross::NormalizedSwapData;
-    use omniswap_mock::pool;
-    use omniswap_mock::pool::Pool;
+    use sui::clock::Clock;
+    use sui::coin::{Self, Coin};
     use sui::tx_context::TxContext;
-    use omniswap_mock::setup::OmniSwapMock;
 
     // Swap call data delimiter, represent ","
     const DELIMITER: u8 = 44;
@@ -25,7 +24,7 @@ module omniswap::swap {
     const EINVALID_SWAP_ROUTER_DELEGATE: u64 = 0x04;
 
     /// Swap Name
-    const OMNIMOCK_SWAP: vector<u8> = b"OmniSwapMock";
+    const DEEPBOOK_SWAP: vector<u8> = b"DeepBook";
 
     /// Ensuring the origin of tokens
     public fun right_type<X>(token: vector<u8>): bool {
@@ -39,15 +38,15 @@ module omniswap::swap {
         }
     }
 
-    /// Coins need to be removed from the account first and then swap using the coins.
-    public fun swap_by_coin<X, Y>(
-        pool: &mut Pool<OmniSwapMock, X, Y>,
-        input_coin: Coin<X>,
+    public fun swap_for_base_asset<BaseAsset, QuoteAsset>(
+        pool: &mut Pool<BaseAsset, QuoteAsset>,
+        input_coin: Coin<QuoteAsset>,
         data: NormalizedSwapData,
+        clock: &Clock,
         ctx: &mut TxContext
-    ): Coin<Y> {
-        assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
-        assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+    ): (Coin<BaseAsset>, Coin<QuoteAsset>, u64) {
+        assert!(right_type<QuoteAsset>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+        assert!(right_type<BaseAsset>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
 
         let raw_call_data = cross::swap_call_data(data);
         let min_amount = 0;
@@ -62,48 +61,57 @@ module omniswap::swap {
         }else {
             swap_name = raw_call_data;
         };
-        if (swap_name == OMNIMOCK_SWAP) {
-            pool::swap_token_x(pool, input_coin, min_amount, ctx)
-        }else {
+
+        if (swap_name == DEEPBOOK_SWAP) {
+            clob::swap_exact_quote_for_base(
+                pool,
+                coin::value(&input_coin),
+                clock,
+                input_coin,
+                ctx
+            )
+        } else {
             abort EINVALID_SWAP_ROUTER
         }
     }
 
-    public fun swap_two_by_coin<X, Y>(
-        pool: &mut Pool<OmniSwapMock, X, Y>,
-        coins: Coin<X>,
-        swap_data: vector<NormalizedSwapData>,
+    public fun swap_for_quote_asset<BaseAsset, QuoteAsset>(
+        pool: &mut Pool<BaseAsset, QuoteAsset>,
+        input_coin: Coin<BaseAsset>,
+        data: NormalizedSwapData,
+        clock: &Clock,
         ctx: &mut TxContext
-    ): Coin<Y> {
-        assert!(vector::length(&swap_data) == 1, EINVALID_LENGTH);
-        swap_by_coin<X, Y>(pool, coins, *vector::borrow(&mut swap_data, 0), ctx)
-    }
+    ): (Coin<BaseAsset>, Coin<QuoteAsset>, u64) {
+        assert!(right_type<BaseAsset>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+        assert!(right_type<QuoteAsset>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
 
-    public fun swap_three_by_coin<X, Y, Z>(
-        pool_xy: &mut Pool<OmniSwapMock, X, Y>,
-        pool_yz: &mut Pool<OmniSwapMock, Y, Z>,
-        coins: Coin<X>,
-        swap_data: vector<NormalizedSwapData>,
-        ctx: &mut TxContext
-    ): Coin<Z> {
-        assert!(vector::length(&swap_data) == 2, EINVALID_LENGTH);
-        let coin_y = swap_by_coin<X, Y>(pool_xy, coins, *vector::borrow(&mut swap_data, 0), ctx);
-        swap_by_coin<Y, Z>(pool_yz, coin_y, *vector::borrow(&mut swap_data, 1), ctx)
-    }
+        let raw_call_data = cross::swap_call_data(data);
+        let min_amount = 0;
+        let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+        let swap_name;
+        if (flag) {
+            swap_name = serde::vector_slice(&raw_call_data, 0, index);
+            let len = vector::length(&raw_call_data);
+            if (index + 1 < len) {
+                min_amount = ascii_to_u64(serde::vector_slice(&raw_call_data, index + 1, len));
+            }
+        }else {
+            swap_name = raw_call_data;
+        };
 
-
-    public fun swap_four_by_coin<X, Y, Z, M>(
-        pool_xy: &mut Pool<OmniSwapMock, X, Y>,
-        pool_yz: &mut Pool<OmniSwapMock, Y, Z>,
-        pool_zm: &mut Pool<OmniSwapMock, Z, M>,
-        coins: Coin<X>,
-        swap_data: vector<NormalizedSwapData>,
-        ctx: &mut TxContext
-    ): Coin<M> {
-        assert!(vector::length(&swap_data) == 3, EINVALID_LENGTH);
-        let coin_y = swap_by_coin<X, Y>(pool_xy, coins, *vector::borrow(&mut swap_data, 0), ctx);
-        let coin_z = swap_by_coin<Y, Z>(pool_yz, coin_y, *vector::borrow(&mut swap_data, 1), ctx);
-        swap_by_coin<Z, M>(pool_zm, coin_z, *vector::borrow(&mut swap_data, 2), ctx)
+        if (swap_name == DEEPBOOK_SWAP) {
+            let quote_coin = coin::zero<QuoteAsset>(ctx);
+            clob::swap_exact_base_for_quote(
+                pool,
+                coin::value(&input_coin),
+                input_coin,
+                quote_coin,
+                clock,
+                ctx
+            )
+        } else {
+            abort EINVALID_SWAP_ROUTER
+        }
     }
 
     public fun ascii_to_u64(data: vector<u8>): u64 {

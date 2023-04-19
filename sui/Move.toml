@@ -8,10 +8,16 @@ omniswap = "0x0"
 wormhole = "0x0"
 token_bridge = "0x1"
 omniswap_mock = "0x3"
+deepbook = "0xdee9"
 
 [dependencies.Sui]
 git = "https://github.com/MystenLabs/sui.git"
 subdir = "crates/sui-framework/packages/sui-framework"
+rev = "cab7e9762d4d75126a78fdd009b405745657fe57"
+
+[dependencies.DeepBook]
+git = "https://github.com/MystenLabs/sui.git"
+subdir = "crates/sui-framework/packages/deepbook"
 rev = "cab7e9762d4d75126a78fdd009b405745657fe57"
 
 [dependencies.Wormhole]
@@ -23,6 +29,3 @@ rev = "f88f836e5fdb80ee8804b061d749620480ae2615"
 git = "https://github.com/OmniBTC/wormhole.git"
 subdir = "sui/token_bridge"
 rev = "f88f836e5fdb80ee8804b061d749620480ae2615"
-
-[dependencies.OmniSwapMock]
-local = "./mocks"

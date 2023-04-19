@@ -1,18 +1,16 @@
 module omniswap::so_diamond {
+    use std::type_name;
+    use std::vector;
 
-    use omniswap::wormhole_facet;
-    use wormhole::state::State as WormholeState;
-    use token_bridge::state::State as TokenBridgeState;
-    use omniswap::wormhole_facet::{Storage, WormholeFee};
-    use sui::clock::Clock;
+    use deepbook::clob::Pool;
     use omniswap::so_fee_wormhole::PriceManager;
+    use omniswap::wormhole_facet::{Self, Storage, WormholeFee};
+    use sui::clock::Clock;
     use sui::coin::Coin;
     use sui::sui::SUI;
     use sui::tx_context::TxContext;
-    use std::type_name;
-    use std::vector;
-    use omniswap_mock::pool::Pool;
-    use omniswap_mock::setup::OmniSwapMock;
+    use token_bridge::state::State as TokenBridgeState;
+    use wormhole::state::State as WormholeState;
 
     /// Cross-swap via wormhole
     ///  * so_data Track user data across the chain and record the final destination of tokens
@@ -21,16 +19,14 @@ module omniswap::so_diamond {
     ///  * swap_data_dst Swap data at destination chain
     ///
     /// The parameters passed in are serialized.
-    public entry fun so_swap_via_wormhole<X, Y, Z, M>(
+    public entry fun so_swap_via_wormhole<X, Y>(
         wormhole_state: &mut WormholeState,
         token_bridge_state: &mut TokenBridgeState,
         storage: &mut Storage,
         clock: &Clock,
         price_manager: &mut PriceManager,
         wromhole_fee: &mut WormholeFee,
-        pool_xy: &mut Pool<OmniSwapMock, X, Y>,
-        pool_yz: &mut Pool<OmniSwapMock, Y, Z>,
-        pool_zm: &mut Pool<OmniSwapMock, Z, M>,
+        pool_yx: &mut Pool<Y, X>,
         so_data: vector<u8>,
         swap_data_src: vector<u8>,
         wormhole_data: vector<u8>,
@@ -39,28 +35,63 @@ module omniswap::so_diamond {
         coins_sui: vector<Coin<SUI>>,
         ctx: &mut TxContext
     ) {
-        if (type_name::get<X>() != type_name::get<SUI>()){
-            wormhole_facet::so_swap<X, Y, Z, M>(wormhole_state, token_bridge_state, storage, clock, price_manager, wromhole_fee, pool_xy,pool_yz,pool_zm,so_data, swap_data_src, wormhole_data, swap_data_dst, coins_x, coins_sui, ctx);
-        }else{
+        if (type_name::get<X>() != type_name::get<SUI>()) {
+            wormhole_facet::so_swap<X, Y>(
+                wormhole_state,
+                token_bridge_state,
+                storage,
+                clock,
+                price_manager,
+                wromhole_fee,
+                pool_yx,
+                so_data,
+                swap_data_src,
+                wormhole_data,
+                swap_data_dst,
+                coins_x,
+                coins_sui,
+                ctx
+            );
+        }else {
             vector::destroy_empty(coins_x);
-            wormhole_facet::so_swap_from_sui<Y, Z, M>(wormhole_state, token_bridge_state, storage, clock, price_manager, wromhole_fee, so_data, swap_data_src, wormhole_data, swap_data_dst, coins_sui, ctx);
+            wormhole_facet::so_swap_from_sui<Y>(
+                wormhole_state,
+                token_bridge_state,
+                storage,
+                clock,
+                price_manager,
+                wromhole_fee,
+                so_data,
+                swap_data_src,
+                wormhole_data,
+                swap_data_dst,
+                coins_sui,
+                ctx
+            );
         }
     }
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
-    public entry fun complete_so_swap<X, Y, Z, M>(
+    public entry fun complete_so_swap<X, Y>(
         storage: &mut Storage,
         token_bridge_state: &mut TokenBridgeState,
         wormhole_state: &WormholeState,
         wormhole_fee: &mut WormholeFee,
-        pool_xy: &mut Pool<OmniSwapMock, X, Y>,
-        pool_yz: &mut Pool<OmniSwapMock, Y, Z>,
-        pool_zm: &mut Pool<OmniSwapMock, Z, M>,
+        pool_xy: &mut Pool<X, Y>,
         vaa: vector<u8>,
         clock: &Clock,
         ctx: &mut TxContext
     ) {
-        wormhole_facet::complete_so_swap<X, Y, Z, M>(storage, token_bridge_state, wormhole_state, wormhole_fee, pool_xy,pool_yz,pool_zm,vaa, clock, ctx);
+        wormhole_facet::complete_so_swap<X, Y>(
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            wormhole_fee,
+            pool_xy,
+            vaa,
+            clock,
+            ctx
+        );
     }
 }
