@@ -645,3 +645,12 @@ def reset_so_gas():
     gas = 30000
     LibSoFeeStargateV1[-1].setTransferForGas(gas, {"from": account})
     print("Cur gas is", LibSoFeeStargateV1[-1].getTransferForGas())
+
+
+def redeploy_correct_swap():
+    account = get_account()
+    LibCorrectSwapV1.deploy({"from": account})
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {"from": account})
