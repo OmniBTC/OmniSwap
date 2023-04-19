@@ -238,10 +238,22 @@ def export_testnet():
     for package_name in packages:
         config["networks"]["sui-testnet"]["packages"][package_name] = packages[package_name]
 
-    wormhole = load_wormhole()
-    token_bridge = load_token_bridge()
-    test_coins = load_test_coins()
-    omniswap = load_omniswap()
+    wormhole = SuiPackage(
+        package_id=sui_project.Wormhole[-1],
+        package_name="Wormhole",
+    )
+    token_bridge = SuiPackage(
+        package_id=sui_project.TokenBridge[-1],
+        package_name="TokenBridge",
+    )
+    test_coins = SuiPackage(
+        package_id=sui_project.TestCoins[-1],
+        package_name="TestCoins",
+    )
+    omniswap = SuiPackage(
+        package_id=sui_project.OmniSwap[-1],
+        package_name="OmniSwap",
+    )
     objects = {
         "WormholeState": wormhole.state.State[-1],
         "TokenBridgeState": token_bridge.state.State[-1],
@@ -268,17 +280,17 @@ def export_testnet():
         },
         "USDT": {
             "name": "USDT",
-            "address": str(usdt().replace("0x", "")),
+            "address": usdt(),
             "decimal": 6
         },
         "USDC": {
             "name": "USDC",
-            "address": str(usdc().replace("0x", "")),
+            "address": usdc(),
             "decimal": 6
         },
         "BTC": {
             "name": "BTC",
-            "address": str(btc().replace("0x", "")),
+            "address": btc(),
             "decimal": 8
         }
     }
@@ -344,14 +356,13 @@ def main():
     # register_wormhole_token()
 
     # deploy
-    # omniswap_package = SuiPackage(package_path=omniswap_sui_path)
-    # omniswap_package.publish_package(gas_budget=5000000000, replace_address=dict(
-    #     test_coins=None,
-    #     omniswap_mock=None,
-    #     wormhole=None,
-    #     token_bridge=None,
-    # ))
-    omniswap_package = load_omniswap()
+    omniswap_package = SuiPackage(package_path=omniswap_sui_path)
+    omniswap_package.publish_package(gas_budget=5000000000, replace_address=dict(
+        test_coins=None,
+        omniswap_mock=None,
+        wormhole=None,
+        token_bridge=None,
+    ))
 
     wormhole = load_wormhole()
     wormhole_state = wormhole.state.State[-1]
