@@ -501,21 +501,27 @@ networks:
           per_byte_gas: 68
       token_bridge: '0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE'
       wormhole: '0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7'
+  sui-devnet:
+    node_url: https://fullnode.devnet.sui.io:443
+    wormhole:
+      chainid: 21
+  sui-localnet:
+    node_url: http://127.0.0.1:9000
   sui-testnet:
     node_url: https://node.shinami.com:443/api/v1/sui_testnet_98ee1f7031ac5e0ac97565618191d724
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
-      FacetManager: '0x9c501bc91f01c3f58f3f0c65c34d48dc45002257d34121ee1b48801defa565b8'
-      FacetStorage: '0x075f22c707faf0071eb13f927aa5e3db4d545b47d5b70717a0282a42fc01cd65'
+      FacetManager: '0xdf5d9cbc995362eb938236d9b67c9684042e423eea4a20aa0a5622a8c7455676'
+      FacetStorage: '0xa02ffd7a3797c4e87320ce9b8f88be78695ba87e014ae86e94f0b09bbb7037c9'
       Faucet: '0x1bf9020c0a3c37d17bd31bf0b582bde3e7d1828471aaee301c7dc20b4ccd476b'
-      PriceManager: '0x05f04246f3c03b90c15ef6236996042b2ed940bbf6eaa44ced6d6ed8f861e1da'
+      PriceManager: '0x35992ac792744ef3cb75af0ead6705dd2cb6dd6ef6bbce628763355ab0d0bfa5'
       TokenBridgeState: '0x245e1cdf6315c459900d9a6c21962e39b7384c685abfcb3b98dc460601af11e0'
-      WormholeFee: '0xb307526ac31fb084307bdec8d43ebe7fee22c586cdb5b40ee554f0c037370bad'
+      WormholeFee: '0x25edf36fc62f6d915dc49af616575e16aa67396e95741d525895185ae28b9217'
       WormholeState: '0x47a135d958b160503fd215534647815d9aa4f3fb8a3e5c0b2384f2b0460dcccf'
     omnibtc_chainid: 21
     packages:
       DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
-      OmniSwap: '0x669f6d5878529c544526ccf2571b60e45dc5b2ba022c6bd15bd51a1922c5b4ac'
+      OmniSwap: '0x9770cb30c2fe4e61e9afc4ac07a9c67224f81263306c17ae8178f43417ecb076'
       TestCoins: '0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b'
       TokenBridge: '0xd8d9059c67ea3a767eda86f9fb29cfa2ab3ea9cf59490793cf8d2eb7f2c1389d'
       Wormhole: '0x64a317d0441b0e7b1a41c7ea7cc0cbbf90fab1e0989799e8135a9901c95b90b1'

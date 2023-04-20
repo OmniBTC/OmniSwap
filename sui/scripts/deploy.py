@@ -270,7 +270,7 @@ def export_testnet():
     tokens = {
         "SUI": {
             "name": "SUI",
-            "address": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "address": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
             "decimal": 9
         },
         "USDT": {
@@ -436,4 +436,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    export_testnet()

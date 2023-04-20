@@ -114,7 +114,7 @@ def create_limit_order():
         100,
         int(1e5),
         True,
-        int((time.time() + 1000) * 1000),
+        int((time.time() + 100000) * 1000),
         0,
         deploy.clock(),
         account_cap,

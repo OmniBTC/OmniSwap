@@ -568,28 +568,25 @@ def cross_swap_for_testnet(package):
     #            input_amount=100000,
     #            dst_gas_price=dst_gas_price
     #            )
+    #
+    # # gas: 31181
+    # cross_swap(package,
+    #            src_path=["USDC", "BTC"],
+    #            dst_path=["XBTC_WORMHOLE"],
+    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+    #            input_amount=10000000,
+    #            dst_gas_price=dst_gas_price
+    #            )
 
-    # gas: 31181
+    # gas: 46160
     cross_swap(package,
-               src_path=["USDC", "BTC"],
-               dst_path=["XBTC_WORMHOLE"],
+               src_path=["BTC", "USDC"],
+               dst_path=["USDC_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=10000000,
                dst_gas_price=dst_gas_price
                )
 
-    # # gas: 46160
-    # cross_swap(package,
-    #            src_path=["AptosCoin",
-    #                      "XBTC",
-    #                      "USDT",
-    #                      ],
-    #            dst_path=["USDT_WORMHOLE"],
-    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    #            input_amount=10000000,
-    #            dst_gas_price=dst_gas_price
-    #            )
-    #
     # # gas: 313761
     # cross_swap(package,
     #            src_path=["AptosCoin",

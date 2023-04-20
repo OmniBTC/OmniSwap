@@ -7,10 +7,10 @@ from scripts.struct_sui import omniswap_sui_path
 
 def main():
     if sui_project.network == "sui-testnet":
-        package_id = "0xe51ed45293a147a795cc6e28e2c0ea2369402c74d17cb84cb8b27b1cd6f766d8",
+        package_id = "0xe51ed45293a147a795cc6e28e2c0ea2369402c74d17cb84cb8b27b1cd6f766d8"
         upgrade_capability = "0xc5ebb86c58b290b3d3ad50d6f10933bcd99b0396d550ccbb0647ea4dd92f1f33"
     else:
-        package_id = "0xe51ed45293a147a795cc6e28e2c0ea2369402c74d17cb84cb8b27b1cd6f766d8",
+        package_id = "0xe51ed45293a147a795cc6e28e2c0ea2369402c74d17cb84cb8b27b1cd6f766d8"
         upgrade_capability = "0xc5ebb86c58b290b3d3ad50d6f10933bcd99b0396d550ccbb0647ea4dd92f1f33"
 
     omniswap = SuiPackage(
