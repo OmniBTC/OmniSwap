@@ -20,7 +20,7 @@ def load_sui():
 
 
 def claim_faucet(coin_type):
-    test_coins = deploy.load_test_coins()
+    test_coins = deploy.load_test_coins(is_from_config=True)
     test_coins.faucet.claim(
         test_coins.faucet.Faucet[-1],
         type_arguments=[coin_type],
@@ -72,27 +72,32 @@ def deposit_fund():
     deep_book_package = load_deep_book()
     account_cap = deep_book_package.custodian.AccountCap[-1]
     pool_id = sui_project.network_config['pools']['BTC-USDC']['pool_id']
+    btc = deploy.btc(is_from_config=True)['address']
+    usdc = deploy.usdc(is_from_config=True)['address']
+    ty_args = [btc, usdc]
 
-    claim_faucet(deploy.usdc())
+    claim_faucet(deploy.usdc(is_from_config=True))
 
-    claim_faucet(deploy.btc())
+    claim_faucet(deploy.btc(is_from_config=True))
 
-    result = sui_project.client.suix_getCoins(sui_project.account.account_address, deploy.usdc(), None, None)
+    result = sui_project.client.suix_getCoins(sui_project.account.account_address, usdc,
+                                              None, None)
     coin_usdc = [c["coinObjectId"] for c in result["data"]][-1]
-    result = sui_project.client.suix_getCoins(sui_project.account.account_address, deploy.btc(), None, None)
+    result = sui_project.client.suix_getCoins(sui_project.account.account_address, btc,
+                                              None, None)
     coin_btc = [c["coinObjectId"] for c in result["data"]][-1]
     deep_book_package.clob.deposit_base(
         pool_id,
         coin_btc,
         account_cap,
-        type_arguments=[deploy.btc(), deploy.usdc()]
+        type_arguments=ty_args
     )
 
     deep_book_package.clob.deposit_quote(
         pool_id,
         coin_usdc,
         account_cap,
-        type_arguments=[deploy.btc(), deploy.usdc()]
+        type_arguments=ty_args
     )
 
 
@@ -100,6 +105,7 @@ def create_limit_order():
     deep_book_package = load_deep_book()
     account_cap = deep_book_package.custodian.AccountCap[-1]
     pool_id = sui_project.network_config['pools']['BTC-USDC']['pool_id']
+    ty_args = [deploy.btc(is_from_config=True)['address'], deploy.usdc(is_from_config=True)['address']]
 
     deep_book_package.clob.place_limit_order(
         pool_id,
@@ -110,7 +116,7 @@ def create_limit_order():
         0,
         deploy.clock(),
         account_cap,
-        type_arguments=[deploy.btc(), deploy.usdc()]
+        type_arguments=ty_args
     )
 
 

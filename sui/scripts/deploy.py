@@ -203,7 +203,7 @@ def usdc(is_from_config):
 
 def btc(is_from_config):
     if is_from_config:
-        return sui_project.network_config["tokens"]["btc::BTC"]
+        return sui_project.network_config["tokens"]["BTC"]
     else:
         return f"{sui_project.TestCoins[-1]}::btc::BTC"
 
