@@ -622,7 +622,7 @@ def main():
 
     # Prepare environment
     # load src net aptos package
-    omniswap = deploy.load_omniswap()
+    omniswap = deploy.load_omniswap(is_from_config=True)
 
     # load dst net project
     change_network(dst_net)

@@ -301,15 +301,17 @@ def export_testnet():
         yaml.safe_dump(config, f)
 
 
-def load_omniswap():
-    if "packages" in sui_project.network_config and 'OmniSwap' in sui_project.network_config['packages']:
-        package_id = sui_project.network_config['packages']['OmniSwap']
+def load_omniswap(is_from_config):
+    if is_from_config:
+        return SuiPackage(
+            package_id=sui_project.network_config['packages']['OmniSwap'],
+            package_name="Wormhole",
+        )
     else:
-        package_id = sui_project.OmniSwap[-1]
-    return SuiPackage(
-        package_id,
-        package_name="OmniSwap",
-    )
+        return SuiPackage(
+            package_id=sui_project.OmniSwap[-1],
+            package_name="Wormhole",
+        )
 
 
 def load_wormhole_state(is_from_config):
