@@ -545,6 +545,49 @@ module omniswap::wormhole_facet {
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_without_swap<X>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let (coin_x, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
+            token_bridge_state,
+            &storage.emitter_cap,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= x_val) {
+            let coin_fee = coin::split<X>(&mut coin_x, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_x);
+        assert!(vector::length(&swap_data_dst) == 0, ESWAP_LENGTH);
+        transfer::public_transfer(coin_x, receiver);
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
+    }
+
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
     public entry fun complete_so_swap_for_deepbook_quote_asset<X, Y>(
         storage: &mut Storage,
         token_bridge_state: &mut TokenBridgeState,

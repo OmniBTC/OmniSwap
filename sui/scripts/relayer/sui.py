@@ -11,7 +11,7 @@ from brownie import network
 
 from scripts.serde_sui import parse_vaa_to_wormhole_payload
 from scripts.struct_sui import omniswap_sui_path, decode_hex_to_ascii, hex_str_to_vector_u8
-from sui_brownie import SuiProject, SuiPackage
+from sui_brownie import SuiProject, SuiPackage, SuiObject
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -282,29 +282,31 @@ def process_vaa(
     try:
         final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
         if len(wormhole_data[3]) == 0:
-            default_pool = sui_project.network_config["default_pool"][final_asset_id]
-            pool_package_id = default_pool["package_id"]
-            other_asset_id = default_pool["other_asset_id"]
-            ty_args = [final_asset_id, other_asset_id, final_asset_id, other_asset_id]
-            pool_ids = [pool_package_id] * 3
+            ty_args = [final_asset_id]
+            pool_id = None
+            reverse = None
         elif len(wormhole_data[3]) == 1:
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
             s2 = final_asset_id
-            ty_args = [s1, s2, s1, s2]
-            pool_ids = [wormhole_data[3][0][0]] * 3
-        elif len(wormhole_data[3]) == 2:
-            s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
-            s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
-            s3 = final_asset_id
-            ty_args = [s1, s2, s3, s2]
-            pool_ids = [wormhole_data[3][0][0], wormhole_data[3][1][0], wormhole_data[3][1][0]]
-        elif len(wormhole_data[3]) == 3:
-            s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
-            s2 = decode_hex_to_ascii(wormhole_data[3][1][2])
-            s3 = decode_hex_to_ascii(wormhole_data[3][2][2])
-            s4 = final_asset_id
-            ty_args = [s1, s2, s3, s4]
-            pool_ids = [wormhole_data[3][0][0], wormhole_data[3][1][0], wormhole_data[3][2][0]]
+            pool_id = wormhole_data[3][0][0]
+            sui_type: str = sui_project.client.sui_getObject(pool_id, {
+                "showType": True,
+                "showOwner": True,
+                "showPreviousTransaction": False,
+                "showDisplay": False,
+                "showContent": False,
+                "showBcs": False,
+                "showStorageRebate": False
+            })["data"]["type"]
+            start_index = sui_type.find("<")
+            end_index = sui_type.find(",")
+            sui_type = SuiObject.from_type(sui_type[start_index:end_index].replace(" ", ""))
+            if str(sui_type).replace("0x", "") == s1.replace("0x", ""):
+                ty_args = [s1, s2]
+                reverse = False
+            else:
+                ty_args = [s2, s1]
+                reverse = True
         else:
             logger.error(f"Dst swap too much")
             raise OverflowError
@@ -317,19 +319,42 @@ def process_vaa(
         facet_manager = sui_project.network_config["WormholeFacetManager"]
         if not is_admin:
             try:
-                result = sui_package.so_diamond.complete_so_swap(
-                    storage,
-                    token_bridge_state,
-                    wormhole_state,
-                    wormhole_fee,
-                    pool_ids[0],
-                    pool_ids[1],
-                    pool_ids[2],
-                    hex_str_to_vector_u8(vaa_str),
-                    clock,
-                    ty_args=ty_args,
-                    gas_unit_price=dst_max_gas_price
-                )
+                if pool_id is None:
+                    result = sui_package.wormhole_facet.complete_so_swap_without_swap(
+                        storage,
+                        token_bridge_state,
+                        wormhole_state,
+                        wormhole_fee,
+                        hex_str_to_vector_u8(vaa_str),
+                        clock,
+                        ty_args=ty_args,
+                        gas_unit_price=dst_max_gas_price
+                    )
+                elif not reverse:
+                    result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_quote_asset(
+                        storage,
+                        token_bridge_state,
+                        wormhole_state,
+                        wormhole_fee,
+                        pool_id,
+                        hex_str_to_vector_u8(vaa_str),
+                        clock,
+                        ty_args=ty_args,
+                        gas_unit_price=dst_max_gas_price
+                    )
+                else:
+                    result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_base_asset(
+                        storage,
+                        token_bridge_state,
+                        wormhole_state,
+                        wormhole_fee,
+                        pool_id,
+                        hex_str_to_vector_u8(vaa_str),
+                        clock,
+                        ty_args=ty_args,
+                        gas_unit_price=dst_max_gas_price
+                    )
+
             except Exception as e:
                 if time.time() > vaa_data[1] + 60 * 60:
                     local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
