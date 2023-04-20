@@ -501,22 +501,8 @@ networks:
           per_byte_gas: 68
       token_bridge: '0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE'
       wormhole: '0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7'
-  sui-devnet:
-    Clock: '0x6'
-    PriceManager: ''
-    Storage: ''
-    TokenBridgeState: ''
-    WormholeFacetManager: ''
-    WormholeFee: ''
-    WormholeState: ''
-    default_pool: ''
-    node_url: https://fullnode.devnet.sui.io:443
-    wormhole:
-      chainid: 21
-  sui-localnet:
-    node_url: http://127.0.0.1:9000
   sui-testnet:
-    node_url: https://fullnode.testnet.sui.io:443
+    node_url: https://node.shinami.com:443/api/v1/sui_testnet_98ee1f7031ac5e0ac97565618191d724
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
       FacetManager: '0x9c501bc91f01c3f58f3f0c65c34d48dc45002257d34121ee1b48801defa565b8'
@@ -542,7 +528,7 @@ networks:
         decimal: 8
         name: BTC
       SUI:
-        address: 0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
+        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
         decimal: 9
         name: SUI
       USDC:
@@ -554,13 +540,6 @@ networks:
         decimal: 6
         name: USDT
     wormhole:
-      Clock: '0x6'
-      PriceManager: ''
-      Storage: ''
-      TokenBridgeState: ''
-      WormholeFacetManager: ''
-      WormholeFee: ''
-      WormholeState: ''
       actual_reserve: 1.1
       chainid: 21
       estimate_reserve: 1.2

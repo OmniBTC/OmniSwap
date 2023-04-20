@@ -76,8 +76,8 @@ def attest_token(
         token_name="SUI",
         dst_net=network.show_active()
 ):
-    token_address, wrapped_address, is_wrapped = get_dst_wrapped_address_for_aptos(token_bridge, token_name,
-                                                                                   dst_net)
+    token_address, wrapped_address, is_wrapped = get_dst_wrapped_address_for_aptos(
+        token_name, dst_net)
     if not is_wrapped:
         attest_token_address = get_sui_token()
         if token_bridge.network != "sui-mainnet":
@@ -167,7 +167,6 @@ def get_amounts_out(
     1. move-to-ts: https://github.com/hippospace/move-to-ts
     2. move-to-go: https://github.com/Lundalogik/move-to-go
 
-    :param router:
     :param package:
     :param path:
     :param x_amount:
@@ -213,10 +212,10 @@ def estimate_wormhole_fee(
 ):
     """
      wormhole_fee = wormhole_cross_fee + relayer_fee + input_native_amount
+     :param omniswap:
     :param dst_gas_price:
     :param dst_chainid:
     :param payload_length:
-    :param package:
     :param input_amount:
     :param is_native:
     :param wormhole_cross_fee: wormhole_cross_fee current is 0
@@ -551,7 +550,7 @@ def cross_swap(
 
 
 def claim_faucet(coin_type):
-    test_coins = deploy.load_test_coins()
+    test_coins = deploy.load_test_coins(is_from_config=True)
     test_coins.faucet.claim(
         test_coins.faucet.Faucet[-1],
         type_arguments=[coin_type],
