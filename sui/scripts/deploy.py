@@ -189,21 +189,21 @@ def coin_metadata(coin_type):
 
 def usdt(is_from_config):
     if is_from_config:
-        return sui_project.network_config["tokens"]["USDT"]
+        return sui_project.network_config["tokens"]["USDT"]['address']
     else:
         return f"{sui_project.TestCoins[-1]}::usdt::USDT"
 
 
 def usdc(is_from_config):
     if is_from_config:
-        return sui_project.network_config["tokens"]["USDC"]
+        return sui_project.network_config["tokens"]["USDC"]['address']
     else:
         return f"{sui_project.TestCoins[-1]}::usdc::USDC"
 
 
 def btc(is_from_config):
     if is_from_config:
-        return sui_project.network_config["tokens"]["BTC"]
+        return sui_project.network_config["tokens"]["BTC"]['address']
     else:
         return f"{sui_project.TestCoins[-1]}::btc::BTC"
 
@@ -320,6 +320,14 @@ def load_wormhole_state(is_from_config):
     else:
         token_bridge = load_token_bridge(is_from_config)
         return token_bridge.state.State[-1]
+
+
+def load_test_coin_faucet(is_from_config):
+    if is_from_config:
+        return sui_project.network_config["objects"]["Faucet"]
+    else:
+        test_coins = load_test_coins(is_from_config=True)
+        return test_coins.faucet.Faucet[-1]
 
 
 def load_token_bridge_state(is_from_config):

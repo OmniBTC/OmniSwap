@@ -22,7 +22,7 @@ def load_sui():
 def claim_faucet(coin_type):
     test_coins = deploy.load_test_coins(is_from_config=True)
     test_coins.faucet.claim(
-        test_coins.faucet.Faucet[-1],
+        deploy.load_test_coin_faucet(is_from_config=True),
         type_arguments=[coin_type],
     )
 
@@ -72,8 +72,8 @@ def deposit_fund():
     deep_book_package = load_deep_book()
     account_cap = deep_book_package.custodian.AccountCap[-1]
     pool_id = sui_project.network_config['pools']['BTC-USDC']['pool_id']
-    btc = deploy.btc(is_from_config=True)['address']
-    usdc = deploy.usdc(is_from_config=True)['address']
+    btc = deploy.btc(is_from_config=True)
+    usdc = deploy.usdc(is_from_config=True)
     ty_args = [btc, usdc]
 
     claim_faucet(deploy.usdc(is_from_config=True))
@@ -103,9 +103,11 @@ def deposit_fund():
 
 def create_limit_order():
     deep_book_package = load_deep_book()
+    # create_fund_account()
     account_cap = deep_book_package.custodian.AccountCap[-1]
+    deposit_fund()
     pool_id = sui_project.network_config['pools']['BTC-USDC']['pool_id']
-    ty_args = [deploy.btc(is_from_config=True)['address'], deploy.usdc(is_from_config=True)['address']]
+    ty_args = [deploy.btc(is_from_config=True), deploy.usdc(is_from_config=True)]
 
     deep_book_package.clob.place_limit_order(
         pool_id,
