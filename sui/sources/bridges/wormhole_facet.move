@@ -543,89 +543,9 @@ module omniswap::wormhole_facet {
         );
     }
 
-    public entry fun so_swap_from_sui(
-        wormhole_state: &mut WormholeState,
-        token_bridge_state: &mut TokenBridgeState,
-        storage: &mut Storage,
-        clock: &Clock,
-        price_manager: &mut PriceManager,
-        wromhole_fee: &mut WormholeFee,
-        so_data: vector<u8>,
-        swap_data_src: vector<u8>,
-        wormhole_data: vector<u8>,
-        swap_data_dst: vector<u8>,
-        coins_sui: vector<Coin<SUI>>,
-        ctx: &mut TxContext
-    ) {
-        assert!(vector::length(&swap_data_src) == 0, ESWAP_LENGTH);
-        let so_data = cross::decode_normalized_so_data(&mut so_data);
-        assert!(right_type<SUI>(cross::so_sending_asset_id(so_data)), ETYPE);
-        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
-
-        let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
-            cross::decode_normalized_swap_data(&mut swap_data_dst)
-        }else {
-            vector::empty()
-        };
-
-        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
-            storage,
-            wormhole_state,
-            price_manager,
-            so_data,
-            wormhole_data,
-            swap_data_dst
-        );
-        assert!(flag, ECHECK_FEE_FAIL);
-
-        let payload = encode_wormhole_payload(
-            wormhole_data.dst_max_gas_price_in_wei_for_relayer,
-            dst_max_gas,
-            so_data,
-            swap_data_dst
-        );
-
-        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
-        let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
-        let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
-        transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
-
-        let coin_val = (cross::so_amount(so_data) as u64);
-        assert!(coin::value(&comsume_sui) == coin_val, EAMOUNT_NOT_NEAT);
-        let coin_x = comsume_sui;
-
-        let (sequence, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
-            token_bridge_state,
-            &storage.emitter_cap,
-            wormhole_state,
-            coin_x,
-            wormhole_fee_coin,
-            wormhole_data.dst_wormhole_chain_id,
-            external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
-            payload,
-            0,
-            clock
-        );
-        process_left_coin(dust, tx_context::sender(ctx));
-
-        event::emit(
-            SoTransferStarted {
-                transaction_id: cross::so_transaction_id(so_data),
-            }
-        );
-
-        event::emit(
-            TransferFromWormholeEvent {
-                src_wormhole_chain_id: storage.src_wormhole_chain_id,
-                dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
-                sequence
-            }
-        );
-    }
-
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
-    public entry fun complete_so_swap<X, Y>(
+    public entry fun complete_so_swap_for_deepbook_quote_asset<X, Y>(
         storage: &mut Storage,
         token_bridge_state: &mut TokenBridgeState,
         wormhole_state: &WormholeState,
@@ -680,6 +600,63 @@ module omniswap::wormhole_facet {
         )
     }
 
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_for_deepbook_base_asset<X, Y>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        pool_xy: &mut Pool<X, Y>,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let (coin_y, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<Y>(
+            token_bridge_state,
+            &storage.emitter_cap,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let y_val = coin::value(&coin_y);
+        let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= y_val) {
+            let coin_fee = coin::split<Y>(&mut coin_y, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_y);
+        if (vector::length(&swap_data_dst) > 0) {
+            assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+            let (left_coin_x, coin_y, _) = swap::swap_for_base_asset<X, Y>(
+                pool_xy,
+                coin_y,
+                *vector::borrow(&swap_data_dst, 0),
+                clock,
+                ctx
+            );
+            receiving_amount = coin::value(&coin_y);
+            transfer::public_transfer(coin_y, receiver);
+            process_left_coin(left_coin_x, receiver);
+        } else {
+            transfer::public_transfer(coin_y, receiver);
+        };
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
+    }
+
     /// To avoid wormhole payload data construction errors, lock the token and allow the owner to handle
     /// it manually.
     public entry fun complete_so_swap_by_admin<X>(
@@ -694,7 +671,7 @@ module omniswap::wormhole_facet {
         ctx: &mut TxContext
     ) {
         assert!(facet_manager.owner == tx_context::sender(ctx), EINVALID_ACCOUNT);
-        let (coin_x, _, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
+        let (coin_x, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
             token_bridge_state,
             &storage.emitter_cap,
             wormhole_state,
@@ -711,7 +688,18 @@ module omniswap::wormhole_facet {
             transfer::public_transfer(coin_fee, beneficiary);
         };
 
+        let receiving_amount = coin::value(&coin_x);
         transfer::public_transfer(coin_x, to);
+
+        let (_, _, so_data, _) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
     }
 
     /// To avoid swap min amount errors, allow relayer to compensate
@@ -747,7 +735,15 @@ module omniswap::wormhole_facet {
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
 
+        let receiving_amount = coin::value(&coin_x);
         transfer::public_transfer(coin_x, receiver);
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
     }
 
     /// Swap Helpers
