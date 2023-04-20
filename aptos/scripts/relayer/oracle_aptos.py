@@ -16,7 +16,7 @@ def set_so_gas():
 
     serde = get_serde_facet(package, network.show_active())
 
-    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main"]
+    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "sui-mainnet"]
 
     for net in nets:
         base_gas = package.network_config["wormhole"]["gas"][net]["base_gas"]
@@ -32,7 +32,7 @@ def set_so_gas():
 
 
 @functools.lru_cache()
-def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT")):
+def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT")):
     api = ccxt.kucoin()
     prices = {}
 
@@ -54,7 +54,7 @@ def set_so_price():
         network="aptos-mainnet"
     )
 
-    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main"]
+    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", 'sui-mainnet']
 
     if "mainnet" in nets:
         wormhole_chain_id = 2
@@ -85,7 +85,7 @@ def set_so_price():
         ratio = int(prices["MATIC/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for polygon-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
-            package["so_fee_wormhole::set_price_ratio"](5, ratio)
+            package["so_fee_wormhole::set_price_ratio"](wormhole_chain_id, ratio)
     if "avax-main" in nets:
         wormhole_chain_id = 6
         price_resource = get_price_resource(package, str(package.account.account_address), wormhole_chain_id)
@@ -95,4 +95,15 @@ def set_so_price():
         ratio = int(prices["AVAX/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for avax-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
-            package["so_fee_wormhole::set_price_ratio"](6, ratio)
+            package["so_fee_wormhole::set_price_ratio"](wormhole_chain_id, ratio)
+
+    if "sui-mainnet" in nets:
+        wormhole_chain_id = 21
+        price_resource = get_price_resource(package, str(package.account.account_address), wormhole_chain_id)
+        price_manage = package.account_resource(
+            price_resource, f"{str(package.account.account_address)}::so_fee_wormhole::PriceManager")
+        old_ratio = int(price_manage["data"]["price_data"]["current_price_ratio"])
+        ratio = int(prices["SUI/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
+        print(f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
+        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+            package["so_fee_wormhole::set_price_ratio"](wormhole_chain_id, ratio)

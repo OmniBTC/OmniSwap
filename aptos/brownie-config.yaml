@@ -60,6 +60,10 @@ networks:
           dst_chainid: 6
           base_gas: 700000
           per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 700000
+          per_byte_gas: 68
     token:
       AptosCoin:
         name: AptosCoin
@@ -154,6 +158,10 @@ networks:
           per_byte_gas: 68
         avax-test:
           dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        sui-testnet:
+          dst_chainid: 21
           base_gas: 700000
           per_byte_gas: 68
   bsc-test:
@@ -314,6 +322,10 @@ networks:
           dst_chainid: 10
           base_gas: 700000
           per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 700000
+          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -387,6 +399,10 @@ networks:
           per_byte_gas: 68
         ftm-main:
           dst_chainid: 10
+          base_gas: 700000
+          per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
           base_gas: 700000
           per_byte_gas: 68
     oracle:
@@ -470,6 +486,10 @@ networks:
           per_byte_gas: 68
         ftm-main:
           dst_chainid: 10
+          base_gas: 700000
+          per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
           base_gas: 700000
           per_byte_gas: 68
     oracle:
