@@ -89,3 +89,7 @@ def main():
         )
 
     # setup_mock(package.network)
+
+
+if __name__ == "__main__":
+    main()
