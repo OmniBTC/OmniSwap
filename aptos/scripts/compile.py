@@ -1,4 +1,4 @@
-from scripts.struct import omniswap_aptos_path
+from scripts.serde_struct import omniswap_aptos_path
 import aptos_brownie
 
 

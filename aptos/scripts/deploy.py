@@ -1,5 +1,5 @@
 from scripts.serde_aptos import get_serde_facet
-from scripts.struct import omniswap_aptos_path, hex_str_to_vector_u8
+from scripts.serde_struct import omniswap_aptos_path, hex_str_to_vector_u8
 import aptos_brownie
 
 
@@ -89,3 +89,7 @@ def main():
         )
 
     # setup_mock(package.network)
+
+
+if __name__ == "__main__":
+    main()

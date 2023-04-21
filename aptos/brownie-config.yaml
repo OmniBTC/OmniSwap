@@ -38,6 +38,7 @@ networks:
       omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
       deployer_aux: "0x5a5e124ea1f3fc5fcfae3c198765c3b4c8d72c7236ae97ef6e5a9bc7cfda549c"
       aux: "0xbd35135844473187163ca197ca93b2ab014370587bb0ed3befff9e902d6bb541"
+      pancake: "0xc7efb4076dbe143cbcd98cfaaa929ecfc8f299203dfff63b95ccb6bfe19850fa"
     wormhole:
       chainid: 22
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"

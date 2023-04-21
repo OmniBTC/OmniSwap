@@ -161,6 +161,7 @@ def process_v2(
                     d["srcNet"],
                     dst_net=network.show_active(),
                 )
+                HAS_PROCESSED[dk] = dv
             except:
                 traceback.print_exc()
                 continue

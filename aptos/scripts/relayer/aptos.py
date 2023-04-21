@@ -10,7 +10,7 @@ import requests
 from brownie import network
 
 from scripts.serde_aptos import parse_vaa_to_wormhole_payload
-from scripts.struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
+from scripts.serde_struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
 import aptos_brownie
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
