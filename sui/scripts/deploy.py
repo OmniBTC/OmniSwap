@@ -76,7 +76,7 @@ def setup_wormhole(net: str = "sui-testnet"):
         return
     wormhole_package = sui_brownie.SuiPackage(
         package_path=Path.home().joinpath(Path(
-            ".move/https___github_com_OmniBTC_wormhole_git_f88f836e5fdb80ee8804b061d749620480ae2615/sui/wormhole")),
+            ".move/https___github_com_OmniBTC_wormhole_git_be931782bc9726daafa36ff8b015c0f8b46dda0d/sui/wormhole")),
     )
 
     wormhole_package.program_publish_package(gas_budget=500000000)
@@ -135,7 +135,7 @@ def setup_token_bridge(net: str = "sui-testnet"):
         return
     token_bridge_package = sui_brownie.SuiPackage(
         package_path=Path.home().joinpath(Path(
-            ".move/https___github_com_OmniBTC_wormhole_git_f88f836e5fdb80ee8804b061d749620480ae2615/sui/token_bridge")),
+            ".move/https___github_com_OmniBTC_wormhole_git_be931782bc9726daafa36ff8b015c0f8b46dda0d/sui/token_bridge")),
     )
 
     token_bridge_package.program_publish_package(gas_budget=500000000,

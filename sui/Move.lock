@@ -33,7 +33,7 @@ dependencies = [
 
 [[move.package]]
 name = "TokenBridge"
-source = { git = "https://github.com/OmniBTC/wormhole.git", rev = "f88f836e5fdb80ee8804b061d749620480ae2615", subdir = "sui/token_bridge" }
+source = { git = "https://github.com/OmniBTC/wormhole.git", rev = "be931782bc9726daafa36ff8b015c0f8b46dda0d", subdir = "sui/token_bridge" }
 
 dependencies = [
   { name = "Sui" },
@@ -42,7 +42,7 @@ dependencies = [
 
 [[move.package]]
 name = "Wormhole"
-source = { git = "https://github.com/OmniBTC/wormhole.git", rev = "f88f836e5fdb80ee8804b061d749620480ae2615", subdir = "sui/wormhole" }
+source = { git = "https://github.com/OmniBTC/wormhole.git", rev = "be931782bc9726daafa36ff8b015c0f8b46dda0d", subdir = "sui/wormhole" }
 
 dependencies = [
   { name = "Sui" },
