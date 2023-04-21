@@ -13,6 +13,8 @@ module omniswap::swap {
     use aux::fee;
     use aux::router as aux_router;
 
+    use pancake::router as pancake_router;
+
     // Swap call data delimiter, represent ","
     const DELIMITER: u8 = 44;
 
@@ -26,6 +28,8 @@ module omniswap::swap {
     const EINVALID_SWAP_CURVE: u64 = 0x03;
 
     const EINVALID_SWAP_ROUTER_DELEGATE: u64 = 0x04;
+
+    const ENOT_ENOUGH_AMOUNT: u64 = 0x05;
 
     /// Ensuring the origin of tokens
     public fun right_type<X>(token: vector<u8>): bool {
@@ -116,6 +120,27 @@ module omniswap::swap {
             );
             transfer_with_register(coin_in, account);
             coin_out
+        }else if (@pancake == serde::deserialize_address(&cross::swap_call_to(data))) {
+            assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+            assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+            let coin_val = u256::as_u64(cross::swap_from_amount(data));
+
+            let raw_call_data = cross::swap_call_data(data);
+            let min_amount = 0;
+            let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+            if (flag) {
+                let len = vector::length(&raw_call_data);
+                if (index + 1 < len) {
+                    min_amount = ascii_to_u64(serde::vector_slice(&raw_call_data, index + 1, len));
+                }
+            };
+            let account_addr = signer::address_of(account);
+            let before_balance = coin::balance<Y>(account_addr);
+            pancake_router::swap_exact_input<X, Y>(account, coin_val, min_amount);
+            let after_balance = coin::balance<Y>(account_addr);
+            assert!(after_balance > before_balance, ENOT_ENOUGH_AMOUNT);
+            assert!(after_balance >= before_balance + min_amount, ENOT_ENOUGH_AMOUNT);
+            coin::withdraw<Y>(account, after_balance - before_balance)
         }else {
             abort EINVALID_SWAP_ROUTER
         }
@@ -221,8 +246,30 @@ module omniswap::swap {
             );
             transfer_with_register(coin_in, delegate);
             coin_out
-        }
-        else {
+        }else if (@pancake == serde::deserialize_address(&cross::swap_call_to(data))) {
+            assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+            assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+
+            let raw_call_data = cross::swap_call_data(data);
+            let min_amount = 0;
+            let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+            if (flag) {
+                let len = vector::length(&raw_call_data);
+                if (index + 1 < len) {
+                    min_amount = ascii_to_u64(serde::vector_slice(&raw_call_data, index + 1, len));
+                }
+            };
+            let coin_val = coin::value(&coin_x);
+            transfer_with_register(coin_x, delegate);
+
+            let account_addr = signer::address_of(delegate);
+            let before_balance = coin::balance<Y>(account_addr);
+            pancake_router::swap_exact_input<X, Y>(delegate, coin_val, min_amount);
+            let after_balance = coin::balance<Y>(account_addr);
+            assert!(after_balance > before_balance, ENOT_ENOUGH_AMOUNT);
+            assert!(after_balance >= before_balance + min_amount, ENOT_ENOUGH_AMOUNT);
+            coin::withdraw<Y>(delegate, after_balance - before_balance)
+        }else {
             abort EINVALID_SWAP_ROUTER
         }
     }
