@@ -508,7 +508,7 @@ networks:
   sui-localnet:
     node_url: http://127.0.0.1:9000
   sui-testnet:
-    node_url: https://node.shinami.com:443/api/v1/sui_testnet_98ee1f7031ac5e0ac97565618191d724
+    node_url: https://fullnode.testnet.sui.io:443
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
       FacetManager: '0xdf5d9cbc995362eb938236d9b67c9684042e423eea4a20aa0a5622a8c7455676'
@@ -528,6 +528,8 @@ networks:
     pools:
       BTC-USDC:
         pool_id: '0x43c422371538cedbea7daad60cc997702877370cd6a24edcac425f0eee99566e'
+      SUI-USDC:
+        pool_id: '0x4498766b669ae36499475fe7b8afe14f0f5d7b2bfc7cca62ae5ab72779a581a2'
     tokens:
       BTC:
         address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::btc::BTC
