@@ -1,14 +1,9 @@
 module omniswap::so_fee_wormhole {
-
-    use sui::object::UID;
-    use sui::table::Table;
-    use sui::tx_context::TxContext;
+    use sui::clock::{Self, Clock};
+    use sui::object::{Self, UID};
+    use sui::table::{Self, Table};
     use sui::transfer;
-    use sui::tx_context;
-    use sui::object;
-    use sui::table;
-    use sui::clock::Clock;
-    use sui::clock;
+    use sui::tx_context::{Self, TxContext};
 
     const RAY: u64 = 100000000;
 
@@ -83,5 +78,14 @@ module omniswap::so_fee_wormhole {
             price_data.current_price_ratio = ratio;
             price_data.last_update_timestamp = get_timestamp(clock);
         };
+    }
+
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+        transfer::share_object(PriceManager {
+            id: object::new(ctx),
+            price_data: table::new(ctx),
+            owner: tx_context::sender(ctx)
+        })
     }
 }

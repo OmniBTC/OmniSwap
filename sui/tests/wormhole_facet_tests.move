@@ -1,301 +1,463 @@
 #[test_only]
 module omniswap::wormhole_facet_tests {
-    const RAY: u64 = 100000000;
+    use std::type_name;
+    use std::vector;
 
-    // public fun setup(aptos_framework: &signer, deployer: &signer, omniswap: &signer) {
-    //     // init aptos timestamp
-    //     set_time_has_started_for_testing(aptos_framework);
-    //     // init aptos coin
-    //     let (burn_cap, mint_cap) = initialize_for_test(aptos_framework);
-    //     let apt_coins = coin::mint<AptosCoin>(1000000000000, &mint_cap);
-    //     aptos_account::create_account(signer::address_of(omniswap));
-    //     coin::deposit<AptosCoin>(signer::address_of(omniswap), apt_coins);
-    //     destroy_mint_cap(mint_cap);
-    //     destroy_burn_cap(burn_cap);
-    //     // init wormholo
-    //     init_test(
-    //         1,
-    //         1,
-    //         x"0000000000000000000000000000000000000000000000000000000000000004",
-    //         x"beFA429d57cD18b7F8A4d91A2da9AB4AF05d0FBe",
-    //         0
-    //     );
-    //     // init wormhole tokenbridge
-    //     token_bridge::init_test(deployer);
-    //     // init wormhole so fee
-    //     initialize(omniswap, 2);
-    //     initialize(omniswap, 1);
-    //     set_price_ratio(omniswap, 1, 1 * RAY);
-    //     set_price_ratio(omniswap, 2, 1 * RAY);
-    //     // init wormhole facet
-    //     init_wormhole(omniswap, 22);
-    //     init_so_transfer_event(omniswap);
-    //     set_wormhole_reserve(omniswap, 1 * RAY, 1 * RAY);
-    //     let base_gas = vector::empty<u8>();
-    //     serialize_u256(&mut base_gas, u256::from_u64(1500000));
-    //     let gas_per_bytes = vector::empty<u8>();
-    //     serialize_u256(&mut gas_per_bytes, u256::from_u64(68));
-    //     set_wormhole_gas(omniswap, 2, base_gas, gas_per_bytes);
-    // }
-    //
-    // public fun setup_liquidswap_pool(): (signer, signer) {
-    //     initialize_liquidity_pool();
-    //
-    //     let coin_admin = test_coins::create_admin_with_coins();
-    //     let lp_owner = create_lp_owner();
-    //     (coin_admin, lp_owner)
-    // }
-    //
-    // public fun create_liquidswap_pool<CoinX, CoinY, PoolType>(coin_admin: &signer, lp_owner: &signer, x_val: u64, y_val: u64) {
-    //     router::register_pool<CoinX, CoinY, PoolType>(lp_owner);
-    //
-    //     let lp_owner_addr = signer::address_of(lp_owner);
-    //     if (x_val != 0 && y_val != 0) {
-    //         let x_coins = test_coins::mint<CoinX>(coin_admin, x_val);
-    //         let y_coins = test_coins::mint<CoinY>(coin_admin, y_val);
-    //         let lp_coins =
-    //             liquidity_pool::mint<CoinX, CoinY, PoolType>(x_coins, y_coins);
-    //         coin::register<LP<CoinX, CoinY, PoolType>>(lp_owner);
-    //         coin::deposit<LP<CoinX, CoinY, PoolType>>(lp_owner_addr, lp_coins);
-    //     };
-    // }
-    //
-    // #[test(aptos_framework = @aptos_framework, deployer = @deployer, omniswap = @omniswap)]
-    // fun test_so_swap_without_swap(aptos_framework: &signer, deployer: &signer, omniswap: &signer) {
-    //     setup(aptos_framework, deployer, omniswap);
-    //
-    //     let input_aptos_val = 100;
-    //     let so_data = construct_so_data(
-    //         x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    //         u16::from_u64(1),
-    //         b"0x1::aptos_coin::AptosCoin",
-    //         u16::from_u64(2),
-    //         x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-    //         u256::from_u64(input_aptos_val)
-    //     );
-    //
-    //     let wormhole_data = construct_normalized_wormhole_data(
-    //         u16::from_u64(2),
-    //         u256::from_u64(100000),
-    //         u256::from_u64(0),
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
-    //     );
-    //
-    //     let src_swap_data = vector::empty<NormalizedSwapData>();
-    //     let dst_swap_data = vector::empty<NormalizedSwapData>();
-    //
-    //     let (_, relayer_fee, _, _) = check_relayer_fee(so_data, wormhole_data, dst_swap_data);
-    //     let msg_fee = state::get_message_fee();
-    //     let wormhole_fee = msg_fee + relayer_fee + input_aptos_val;
-    //
-    //     let wormhole_data = construct_normalized_wormhole_data(
-    //         u16::from_u64(2),
-    //         u256::from_u64(100000),
-    //         u256::from_u64(wormhole_fee),
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
-    //     );
-    //
-    //     so_swap<AptosCoin, AptosCoin, AptosCoin, AptosCoin>(
-    //         omniswap,
-    //         encode_normalized_so_data(so_data),
-    //         encode_normalized_swap_data(src_swap_data),
-    //         encode_normalized_wormhole_data(wormhole_data),
-    //         encode_normalized_swap_data(dst_swap_data)
-    //     );
-    // }
-    //
-    // #[test(aptos_framework = @aptos_framework, deployer = @deployer, omniswap = @omniswap, liquidswap = @liquidswap)]
-    // fun test_so_swap_with_src_swap_two(aptos_framework: &signer, deployer: &signer, omniswap: &signer, liquidswap: &signer) {
-    //     setup(aptos_framework, deployer, omniswap);
-    //     let (coin_admin, lp_owner) = setup_liquidswap_pool();
-    //     create_liquidswap_pool<BTC, USDT, Uncorrelated>(&coin_admin, &lp_owner, 1000, 1000000);
-    //
-    //     let input_aptos_val = 100;
-    //     let so_data = construct_so_data(
-    //         x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    //         u16::from_u64(1),
-    //         b"0x11::test_coins::USDT",
-    //         u16::from_u64(2),
-    //         x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-    //         u256::from_u64(input_aptos_val)
-    //     );
-    //
-    //
-    //     let wormhole_data = construct_normalized_wormhole_data(
-    //         u16::from_u64(2),
-    //         u256::from_u64(100000),
-    //         u256::from_u64(0),
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
-    //     );
-    //
-    //     // construct src swaps
-    //     let btc_to_swap_val = 1;
-    //     let btc_coins_to_swap = test_coins::mint<BTC>(&coin_admin, btc_to_swap_val);
-    //
-    //     coin::register<BTC>(omniswap);
-    //     coin::deposit<BTC>(signer::address_of(omniswap), btc_coins_to_swap);
-    //
-    //     let router_address_bytes = vector::empty<u8>();
-    //     serialize_address(&mut router_address_bytes, signer::address_of(liquidswap));
-    //     let swap_data = construct_swap_data(
-    //         router_address_bytes,
-    //         router_address_bytes,
-    //         b"0x11::test_coins::BTC",
-    //         b"0x11::test_coins::USDT",
-    //         u256::from_u64(btc_to_swap_val),
-    //         b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated"
-    //     );
-    //     let src_swap_data = vector<NormalizedSwapData>[swap_data];
-    //
-    //     let dst_swap_data = vector::empty<NormalizedSwapData>();
-    //
-    //     let (_, relayer_fee, _, _) = check_relayer_fee(so_data, wormhole_data, dst_swap_data);
-    //     let msg_fee = state::get_message_fee();
-    //     let wormhole_fee = msg_fee + relayer_fee + input_aptos_val;
-    //
-    //     let wormhole_data = construct_normalized_wormhole_data(
-    //         u16::from_u64(2),
-    //         u256::from_u64(100000),
-    //         u256::from_u64(wormhole_fee),
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
-    //     );
-    //
-    //     so_swap<BTC, USDT, AptosCoin, AptosCoin>(
-    //         omniswap,
-    //         encode_normalized_so_data(so_data),
-    //         encode_normalized_swap_data(src_swap_data),
-    //         encode_normalized_wormhole_data(wormhole_data),
-    //         encode_normalized_swap_data(dst_swap_data)
-    //     );
-    // }
-    //
-    // #[test(aptos_framework = @aptos_framework, deployer = @deployer, omniswap = @omniswap)]
-    // fun test_so_swap_with_dst_swap(aptos_framework: &signer, deployer: &signer, omniswap: &signer) {
-    //     setup(aptos_framework, deployer, omniswap);
-    //
-    //     let input_aptos_val = 100;
-    //     let so_data = construct_so_data(
-    //         x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    //         u16::from_u64(1),
-    //         b"0x1::aptos_coin::AptosCoin",
-    //         u16::from_u64(2),
-    //         x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-    //         u256::from_u64(input_aptos_val)
-    //     );
-    //
-    //     let wormhole_data = construct_normalized_wormhole_data(
-    //         u16::from_u64(2),
-    //         u256::from_u64(100000),
-    //         u256::from_u64(0),
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
-    //     );
-    //
-    //     let src_swap_data = vector::empty<NormalizedSwapData>();
-    //
-    //     let swap_data = construct_swap_data(
-    //         x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-    //         x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-    //         x"2514895c72f50d8bd4b4f9b1110f0d6bd2c97526",
-    //         x"143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7",
-    //         u256::from_u64(7700000000),
-    //         // liquidswap curve
-    //         x"6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
-    //     );
-    //     let dst_swap_data = vector<NormalizedSwapData>[swap_data];
-    //
-    //     let (_, relayer_fee, _, _) = check_relayer_fee(so_data, wormhole_data, dst_swap_data);
-    //     let msg_fee = state::get_message_fee();
-    //     let wormhole_fee = msg_fee + relayer_fee + input_aptos_val;
-    //
-    //     let wormhole_data = construct_normalized_wormhole_data(
-    //         u16::from_u64(2),
-    //         u256::from_u64(100000),
-    //         u256::from_u64(wormhole_fee),
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
-    //     );
-    //
-    //     so_swap<AptosCoin, AptosCoin, AptosCoin, AptosCoin>(
-    //         omniswap,
-    //         encode_normalized_so_data(so_data),
-    //         encode_normalized_swap_data(src_swap_data),
-    //         encode_normalized_wormhole_data(wormhole_data),
-    //         encode_normalized_swap_data(dst_swap_data)
-    //     );
-    // }
-    //
-    // #[test(aptos_framework = @aptos_framework, deployer = @deployer, omniswap = @omniswap, liquidswap = @liquidswap)]
-    // fun test_so_swap_with_src_swap_and_dst_swap(aptos_framework: &signer, deployer: &signer, omniswap: &signer, liquidswap: &signer) {
-    //     setup(aptos_framework, deployer, omniswap);
-    //     let (coin_admin, lp_owner) = setup_liquidswap_pool();
-    //     create_liquidswap_pool<BTC, USDT, Uncorrelated>(&coin_admin, &lp_owner, 1000, 1000000);
-    //
-    //     let so_data = construct_so_data(
-    //         x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    //         u16::from_u64(1),
-    //         b"0x11::test_coins::USDT",
-    //         u16::from_u64(2),
-    //         x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-    //         u256::from_u64(100)
-    //     );
-    //
-    //     let wormhole_data = construct_normalized_wormhole_data(
-    //         u16::from_u64(2),
-    //         u256::from_u64(100000),
-    //         u256::from_u64(0),
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
-    //     );
-    //
-    //     // construct src swaps
-    //     let btc_to_swap_val = 1;
-    //     let btc_coins_to_swap = test_coins::mint<BTC>(&coin_admin, btc_to_swap_val);
-    //
-    //     coin::register<BTC>(omniswap);
-    //     coin::deposit<BTC>(signer::address_of(omniswap), btc_coins_to_swap);
-    //
-    //     let router_address_bytes = vector::empty<u8>();
-    //     serialize_address(&mut router_address_bytes, signer::address_of(liquidswap));
-    //     let swap_data = construct_swap_data(
-    //         router_address_bytes,
-    //         router_address_bytes,
-    //         b"0x11::test_coins::BTC",
-    //         b"0x11::test_coins::USDT",
-    //         u256::from_u64(btc_to_swap_val),
-    //         b"0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12::curves::Uncorrelated"
-    //     );
-    //     let src_swap_data = vector<NormalizedSwapData>[swap_data];
-    //
-    //     let swap_data = construct_swap_data(
-    //         x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-    //         x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
-    //         x"2514895c72f50d8bd4b4f9b1110f0d6bd2c97526",
-    //         x"143db3CEEfbdfe5631aDD3E50f7614B6ba708BA7",
-    //         u256::from_u64(7700000000),
-    //         // liquidswap curve
-    //         x"6cE9E2c8b59bbcf65dA375D3d8AB503c8524caf7"
-    //     );
-    //     let dst_swap_data = vector<NormalizedSwapData>[swap_data];
-    //
-    //     let (_, relayer_fee, _, _) = check_relayer_fee(so_data, wormhole_data, dst_swap_data);
-    //     let msg_fee = state::get_message_fee();
-    //     let wormhole_fee = msg_fee + relayer_fee;
-    //
-    //     let wormhole_data = construct_normalized_wormhole_data(
-    //         u16::from_u64(2),
-    //         u256::from_u64(100000),
-    //         u256::from_u64(wormhole_fee),
-    //         x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
-    //     );
-    //
-    //     so_swap<BTC, USDT, AptosCoin, AptosCoin>(
-    //         omniswap,
-    //         encode_normalized_so_data(so_data),
-    //         encode_normalized_swap_data(src_swap_data),
-    //         encode_normalized_wormhole_data(wormhole_data),
-    //         encode_normalized_swap_data(dst_swap_data)
-    //     );
-    // }
+    use deepbook::clob::{Self, Pool};
+    use omniswap::cross::{Self, NormalizedSwapData};
+    use omniswap::so_fee_wormhole::{Self, PriceManager};
+    use omniswap::wormhole_facet::{Self, WormholeFacetManager, WormholeFee, Storage};
+    use sui::address;
+    use sui::clock::{Self, Clock};
+    use sui::coin;
+    use sui::sui::SUI;
+    use sui::test_scenario::{Self, Scenario};
+    use sui::transfer;
+    use token_bridge::coin_native_10::{Self, COIN_NATIVE_10};
+    use token_bridge::coin_native_4::{Self, COIN_NATIVE_4};
+    use token_bridge::state::State as TokenBridgeState;
+    use token_bridge::token_bridge_scenario;
+    use wormhole::state::{Self, State as WormholeState};
+
+    const RAY: u64 = 100000000;
+    const REFERENCE_TAKER_FEE_RATE: u64 = 5000000;
+    const REFERENCE_MAKER_REBATE_RATE: u64 = 2500000;
+    const FLOAT_SCALING: u64 = 1000000000;
+    const FEE_AMOUNT_FOR_CREATE_POOL: u64 = 100 * 1000000000; // 100 SUI
+
+    public fun setup_facet(scenario: &mut Scenario) {
+        let sender = test_scenario::sender(scenario);
+
+        token_bridge_scenario::set_up_wormhole_and_token_bridge(scenario, 0);
+        coin_native_4::init_and_register(scenario, sender);
+        coin_native_10::init_and_register(scenario, sender);
+
+        test_scenario::next_tx(scenario, sender);
+        {
+            let ctx = test_scenario::ctx(scenario);
+            wormhole_facet::init_for_testing(ctx);
+            so_fee_wormhole::init_for_testing(ctx);
+            clock::share_for_testing(clock::create_for_testing(test_scenario::ctx(scenario)));
+        };
+
+        test_scenario::next_tx(scenario, sender);
+        {
+            let facet_manager = test_scenario::take_shared<WormholeFacetManager>(scenario);
+            let wormhole_state = test_scenario::take_shared<WormholeState>(scenario);
+            let token_bridge_state = test_scenario::take_shared<TokenBridgeState>(scenario);
+
+            wormhole_facet::init_wormhole(
+                &mut facet_manager,
+                &mut wormhole_state,
+                21,
+                test_scenario::ctx(scenario)
+            );
+
+            test_scenario::return_shared(facet_manager);
+            test_scenario::return_shared(wormhole_state);
+            test_scenario::return_shared(token_bridge_state);
+        };
+
+        test_scenario::next_tx(scenario, sender);
+        {
+            let wormhole_facet_manager = test_scenario::take_shared<WormholeFacetManager>(scenario);
+            let facet_storage = test_scenario::take_shared<Storage>(scenario);
+            let wormhole_fee = test_scenario::take_shared<WormholeFee>(scenario);
+            let price_manager = test_scenario::take_shared<PriceManager>(scenario);
+            let clock = test_scenario::take_shared<Clock>(scenario);
+            let ctx = test_scenario::ctx(scenario);
+
+            wormhole_facet::set_so_fees(&mut wormhole_fee, 0, ctx);
+            so_fee_wormhole::set_price_ratio(&clock, &mut price_manager, 0, 1 * RAY, ctx);
+            so_fee_wormhole::set_price_ratio(&clock, &mut price_manager, 1, 1 * RAY, ctx);
+            so_fee_wormhole::set_price_ratio(&clock, &mut price_manager, 2, 1 * RAY, ctx);
+            wormhole_facet::set_wormhole_reserve(
+                &mut wormhole_facet_manager,
+                &mut facet_storage,
+                1 * RAY,
+                1 * RAY,
+                ctx
+            );
+            wormhole_facet::set_wormhole_gas(&mut facet_storage, &mut wormhole_facet_manager, 2, 1500000, 68, ctx);
+
+            test_scenario::return_shared(wormhole_facet_manager);
+            test_scenario::return_shared(facet_storage);
+            test_scenario::return_shared(wormhole_fee);
+            test_scenario::return_shared(price_manager);
+            test_scenario::return_shared(clock);
+        };
+    }
+
+    public fun setup_swap_for_base_asset(scenario: &mut Scenario) {
+        let sender = test_scenario::sender(scenario);
+        test_scenario::next_tx(scenario, sender);
+        {
+            let ctx = test_scenario::ctx(scenario);
+            clob::create_pool<COIN_NATIVE_4, COIN_NATIVE_10>(
+                1 * FLOAT_SCALING,
+                1,
+                coin::mint_for_testing<SUI>(FEE_AMOUNT_FOR_CREATE_POOL, ctx),
+                ctx
+            );
+        };
+
+        test_scenario::next_tx(scenario, sender);
+        {
+            let pool = test_scenario::take_shared<Pool<COIN_NATIVE_4, COIN_NATIVE_10>>(scenario);
+            let clock = test_scenario::take_shared<Clock>(scenario);
+            let ctx = test_scenario::ctx(scenario);
+            let account_cap = clob::create_account(ctx);
+            let base_coin = coin::mint_for_testing<COIN_NATIVE_4>(1000, ctx);
+
+            clob::deposit_base<COIN_NATIVE_4, COIN_NATIVE_10>(&mut pool, base_coin, &account_cap);
+            clob::place_limit_order<COIN_NATIVE_4, COIN_NATIVE_10>(
+                &mut pool,
+                1 * FLOAT_SCALING,
+                1000,
+                false,
+                1000,
+                0,
+                &clock,
+                &account_cap,
+                ctx
+            );
+
+            transfer::public_transfer(account_cap, sender);
+            test_scenario::return_shared(pool);
+            test_scenario::return_shared(clock);
+        };
+    }
+
+    public fun setup_swap_for_quote_asset(scenario: &mut Scenario) {
+        let sender = test_scenario::sender(scenario);
+        test_scenario::next_tx(scenario, sender);
+        {
+            let ctx = test_scenario::ctx(scenario);
+            clob::create_pool<COIN_NATIVE_4, COIN_NATIVE_10>(
+                1 * FLOAT_SCALING,
+                1,
+                coin::mint_for_testing<SUI>(FEE_AMOUNT_FOR_CREATE_POOL, ctx),
+                ctx
+            );
+        };
+
+        test_scenario::next_tx(scenario, sender);
+        {
+            let pool = test_scenario::take_shared<Pool<COIN_NATIVE_4, COIN_NATIVE_10>>(scenario);
+            let clock = test_scenario::take_shared<Clock>(scenario);
+            let ctx = test_scenario::ctx(scenario);
+            let account_cap = clob::create_account(ctx);
+            let quote_coin = coin::mint_for_testing<COIN_NATIVE_10>(1000, ctx);
+
+            clob::deposit_quote<COIN_NATIVE_4, COIN_NATIVE_10>(&mut pool, quote_coin, &account_cap);
+            clob::place_limit_order<COIN_NATIVE_4, COIN_NATIVE_10>(
+                &mut pool,
+                1 * FLOAT_SCALING,
+                1000,
+                true,
+                1000,
+                0,
+                &clock,
+                &account_cap,
+                ctx
+            );
+
+            transfer::public_transfer(account_cap, sender);
+            test_scenario::return_shared(pool);
+            test_scenario::return_shared(clock);
+        };
+    }
+
+    public fun get_asset_id<T>(): vector<u8> {
+        let data = type_name::get<T>();
+        let data = type_name::into_string(data);
+        std::ascii::into_bytes(data)
+    }
+
+    #[test]
+    public fun test_so_swap_without_swap() {
+        let sender = @0xA;
+        let scenario_val = test_scenario::begin(sender);
+        let scenario = &mut scenario_val;
+
+        setup_facet(scenario);
+        setup_swap_for_base_asset(scenario);
+
+        test_scenario::next_tx(scenario, sender);
+        {
+            let wormhole_state = test_scenario::take_shared<WormholeState>(scenario);
+            let facet_storage = test_scenario::take_shared<Storage>(scenario);
+            let price_manager = test_scenario::take_shared<PriceManager>(scenario);
+            let token_bridge_state = test_scenario::take_shared<TokenBridgeState>(scenario);
+            let clock = test_scenario::take_shared<Clock>(scenario);
+            let wormhole_fee = test_scenario::take_shared<WormholeFee>(scenario);
+
+            let ctx = test_scenario::ctx(scenario);
+            let input_sui_val = 100;
+            let input_coin = coin::mint_for_testing<COIN_NATIVE_4>(100, ctx);
+            let so_data = cross::construct_so_data(
+                x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+                1,
+                get_asset_id<COIN_NATIVE_4>(),
+                2,
+                x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
+                (input_sui_val as u256)
+            );
+
+            let wormhole_data = wormhole_facet::construct_normalized_wormhole_data(
+                2,
+                100000,
+                0,
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
+            );
+
+            let src_swap_data = vector::empty<NormalizedSwapData>();
+            let dst_swap_data = vector::empty<NormalizedSwapData>();
+
+            let (_, relayer_fee, _, _) = wormhole_facet::check_relayer_fee(
+                &mut facet_storage,
+                &mut wormhole_state,
+                &mut price_manager,
+                so_data,
+                wormhole_data,
+                dst_swap_data
+            );
+            let msg_fee = state::message_fee(&mut wormhole_state);
+            let wormhole_fee_amount = msg_fee + relayer_fee + input_sui_val;
+
+            let fee_coin = coin::mint_for_testing<SUI>(wormhole_fee_amount, ctx);
+            let wormhole_data = wormhole_facet::construct_normalized_wormhole_data(
+                2,
+                100000,
+                (wormhole_fee_amount as u256),
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
+            );
+
+            wormhole_facet::so_swap_without_swap<COIN_NATIVE_4>(
+                &mut wormhole_state,
+                &mut token_bridge_state,
+                &mut facet_storage,
+                &clock,
+                &mut price_manager,
+                &mut wormhole_fee,
+                cross::encode_normalized_so_data(so_data),
+                cross::encode_normalized_swap_data(src_swap_data),
+                wormhole_facet::encode_normalized_wormhole_data(wormhole_data),
+                cross::encode_normalized_swap_data(dst_swap_data),
+                vector[input_coin],
+                vector[fee_coin],
+                ctx
+            );
+
+            test_scenario::return_shared(wormhole_state);
+            test_scenario::return_shared(facet_storage);
+            test_scenario::return_shared(price_manager);
+            test_scenario::return_shared(token_bridge_state);
+            test_scenario::return_shared(clock);
+            test_scenario::return_shared(wormhole_fee);
+        };
+
+        test_scenario::end(scenario_val);
+    }
+
+    #[test]
+    public fun test_so_swap_for_deepbook_base_asset() {
+        let sender = @0xA;
+        let scenario_val = test_scenario::begin(sender);
+        let scenario = &mut scenario_val;
+
+        setup_facet(scenario);
+        setup_swap_for_base_asset(scenario);
+
+        test_scenario::next_tx(scenario, sender);
+        {
+            let wormhole_state = test_scenario::take_shared<WormholeState>(scenario);
+            let facet_storage = test_scenario::take_shared<Storage>(scenario);
+            let price_manager = test_scenario::take_shared<PriceManager>(scenario);
+            let token_bridge_state = test_scenario::take_shared<TokenBridgeState>(scenario);
+            let clock = test_scenario::take_shared<Clock>(scenario);
+            let wormhole_fee = test_scenario::take_shared<WormholeFee>(scenario);
+            let pool = test_scenario::take_shared<Pool<COIN_NATIVE_4, COIN_NATIVE_10>>(scenario);
+
+            let ctx = test_scenario::ctx(scenario);
+            let input_val = 100;
+            let input_coin = coin::mint_for_testing<COIN_NATIVE_10>(100, ctx);
+            let so_data = cross::construct_so_data(
+                x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+                1,
+                get_asset_id<COIN_NATIVE_10>(),
+                2,
+                x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
+                (input_val as u256)
+            );
+
+            let wormhole_data = wormhole_facet::construct_normalized_wormhole_data(
+                2,
+                100000,
+                0,
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
+            );
+
+            let swap_data = cross::construct_swap_data(
+                address::to_bytes(@deepbook),
+                address::to_bytes(@deepbook),
+                get_asset_id<COIN_NATIVE_10>(),
+                get_asset_id<COIN_NATIVE_4>(),
+                100,
+                b"DeepBook,0"
+            );
+
+            let src_swap_data = vector[swap_data];
+
+            let dst_swap_data = vector::empty<NormalizedSwapData>();
+
+            let (_, relayer_fee, _, _) = wormhole_facet::check_relayer_fee(
+                &mut facet_storage,
+                &mut wormhole_state,
+                &mut price_manager,
+                so_data,
+                wormhole_data,
+                dst_swap_data
+            );
+            let msg_fee = state::message_fee(&mut wormhole_state);
+            let wormhole_fee_amount = msg_fee + relayer_fee + input_val;
+
+            let fee_coin = coin::mint_for_testing<SUI>(wormhole_fee_amount, ctx);
+            let wormhole_data = wormhole_facet::construct_normalized_wormhole_data(
+                2,
+                100000,
+                (wormhole_fee_amount as u256),
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
+            );
+
+            wormhole_facet::so_swap_for_deepbook_base_asset<COIN_NATIVE_4, COIN_NATIVE_10>(
+                &mut wormhole_state,
+                &mut token_bridge_state,
+                &mut facet_storage,
+                &clock,
+                &mut price_manager,
+                &mut wormhole_fee,
+                &mut pool,
+                cross::encode_normalized_so_data(so_data),
+                cross::encode_normalized_swap_data(src_swap_data),
+                wormhole_facet::encode_normalized_wormhole_data(wormhole_data),
+                cross::encode_normalized_swap_data(dst_swap_data),
+                vector[input_coin],
+                vector[fee_coin],
+                ctx
+            );
+
+            test_scenario::return_shared(wormhole_state);
+            test_scenario::return_shared(facet_storage);
+            test_scenario::return_shared(price_manager);
+            test_scenario::return_shared(token_bridge_state);
+            test_scenario::return_shared(clock);
+            test_scenario::return_shared(wormhole_fee);
+            test_scenario::return_shared(pool);
+        };
+
+        test_scenario::end(scenario_val);
+    }
+
+    #[test]
+    public fun test_so_swap_for_deepbook_quote_asset() {
+        let sender = @0xA;
+        let scenario_val = test_scenario::begin(sender);
+        let scenario = &mut scenario_val;
+
+        setup_facet(scenario);
+        setup_swap_for_base_asset(scenario);
+
+        test_scenario::next_tx(scenario, sender);
+        {
+            let wormhole_state = test_scenario::take_shared<WormholeState>(scenario);
+            let facet_storage = test_scenario::take_shared<Storage>(scenario);
+            let price_manager = test_scenario::take_shared<PriceManager>(scenario);
+            let token_bridge_state = test_scenario::take_shared<TokenBridgeState>(scenario);
+            let clock = test_scenario::take_shared<Clock>(scenario);
+            let wormhole_fee = test_scenario::take_shared<WormholeFee>(scenario);
+            let pool = test_scenario::take_shared<Pool<COIN_NATIVE_4, COIN_NATIVE_10>>(scenario);
+
+            let ctx = test_scenario::ctx(scenario);
+            let input_val = 100;
+            let input_coin = coin::mint_for_testing<COIN_NATIVE_4>(100, ctx);
+            let so_data = cross::construct_so_data(
+                x"4450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed",
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+                1,
+                get_asset_id<COIN_NATIVE_4>(),
+                2,
+                x"957Eb0316f02ba4a9De3D308742eefd44a3c1719",
+                (input_val as u256)
+            );
+
+            let wormhole_data = wormhole_facet::construct_normalized_wormhole_data(
+                2,
+                100000,
+                0,
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
+            );
+
+            let swap_data = cross::construct_swap_data(
+                address::to_bytes(@deepbook),
+                address::to_bytes(@deepbook),
+                get_asset_id<COIN_NATIVE_4>(),
+                get_asset_id<COIN_NATIVE_10>(),
+                100,
+                b"DeepBook,0"
+            );
+
+            let src_swap_data = vector[swap_data];
+
+            let dst_swap_data = vector::empty<NormalizedSwapData>();
+
+            let (_, relayer_fee, _, _) = wormhole_facet::check_relayer_fee(
+                &mut facet_storage,
+                &mut wormhole_state,
+                &mut price_manager,
+                so_data,
+                wormhole_data,
+                dst_swap_data
+            );
+            let msg_fee = state::message_fee(&mut wormhole_state);
+            let wormhole_fee_amount = msg_fee + relayer_fee + input_val;
+
+            let fee_coin = coin::mint_for_testing<SUI>(wormhole_fee_amount, ctx);
+            let wormhole_data = wormhole_facet::construct_normalized_wormhole_data(
+                2,
+                100000,
+                (wormhole_fee_amount as u256),
+                x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
+            );
+
+            wormhole_facet::so_swap_for_deepbook_quote_asset<COIN_NATIVE_4, COIN_NATIVE_10>(
+                &mut wormhole_state,
+                &mut token_bridge_state,
+                &mut facet_storage,
+                &clock,
+                &mut price_manager,
+                &mut wormhole_fee,
+                &mut pool,
+                cross::encode_normalized_so_data(so_data),
+                cross::encode_normalized_swap_data(src_swap_data),
+                wormhole_facet::encode_normalized_wormhole_data(wormhole_data),
+                cross::encode_normalized_swap_data(dst_swap_data),
+                vector[input_coin],
+                vector[fee_coin],
+                ctx
+            );
+
+            test_scenario::return_shared(wormhole_state);
+            test_scenario::return_shared(facet_storage);
+            test_scenario::return_shared(price_manager);
+            test_scenario::return_shared(token_bridge_state);
+            test_scenario::return_shared(clock);
+            test_scenario::return_shared(wormhole_fee);
+            test_scenario::return_shared(pool);
+        };
+
+        test_scenario::end(scenario_val);
+    }
 }
