@@ -1,17 +1,17 @@
 #[test_only]
 module omniswap::swap_tests {
 
-    use sui::test_scenario;
     use deepbook::clob::{Self, USD, Pool};
-    use sui::coin;
-    use sui::sui::SUI;
-    use sui::clock::Clock;
     use omniswap::cross;
     use omniswap::swap;
+    use sui::clock::Clock;
+    use sui::coin;
+    use sui::sui::SUI;
+    use sui::test_scenario;
     use sui::transfer;
 
-    const REFERENCE_TAKER_FEE_RATE: u64 = 5_000_000;
-    const REFERENCE_MAKER_REBATE_RATE: u64 = 2_500_000;
+    const REFERENCE_TAKER_FEE_RATE: u64 = 5000000;
+    const REFERENCE_MAKER_REBATE_RATE: u64 = 2500000;
     const FLOAT_SCALING: u64 = 1000000000;
 
     #[test]
@@ -55,12 +55,12 @@ module omniswap::swap_tests {
             let ctx = test_scenario::ctx(scenario);
             let quote_coin = coin::mint_for_testing<USD>(1000, ctx);
             let swap_data = cross::construct_swap_data(
-            x"dee9",
-            x"dee9",
-            b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
-            b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-            1000,
-            b"DeepBook,0"
+                x"dee9",
+                x"dee9",
+                b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
+                b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                1000,
+                b"DeepBook,0"
             );
 
             let (base_coin, left_quote_coin, swap_value) = swap::swap_for_base_asset<SUI, USD>(
@@ -128,12 +128,12 @@ module omniswap::swap_tests {
             let ctx = test_scenario::ctx(scenario);
             let base_coin = coin::mint_for_testing<SUI>(1000, ctx);
             let swap_data = cross::construct_swap_data(
-            x"dee9",
-            x"dee9",
-            b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-            b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
-            1000,
-            b"DeepBook,0"
+                x"dee9",
+                x"dee9",
+                b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
+                1000,
+                b"DeepBook,0"
             );
 
             let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset<SUI, USD>(
@@ -200,12 +200,12 @@ module omniswap::swap_tests {
             let ctx = test_scenario::ctx(scenario);
             let base_coin = coin::mint_for_testing<SUI>(10000, ctx);
             let swap_data = cross::construct_swap_data(
-            x"dee9",
-            x"dee9",
-            b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-            b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
-            10000,
-            b"DeepBook,9000"
+                x"dee9",
+                x"dee9",
+                b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
+                10000,
+                b"DeepBook,9000"
             );
 
             let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset<SUI, USD>(
@@ -273,12 +273,12 @@ module omniswap::swap_tests {
             let ctx = test_scenario::ctx(scenario);
             let base_coin = coin::mint_for_testing<SUI>(1000, ctx);
             let swap_data = cross::construct_swap_data(
-            x"dee9",
-            x"dee9",
-            b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-            b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
-            1000,
-            b"DeepBook,1000"
+                x"dee9",
+                x"dee9",
+                b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
+                1000,
+                b"DeepBook,1000"
             );
 
             let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset<SUI, USD>(

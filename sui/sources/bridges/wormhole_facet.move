@@ -1102,6 +1102,15 @@ module omniswap::wormhole_facet {
         }
     }
 
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+        transfer::share_object(WormholeFacetManager {
+            id: object::new(ctx),
+            owner: tx_context::sender(ctx),
+            relayer: tx_context::sender(ctx),
+        })
+    }
+
     #[test]
     fun test_serde_wormhole_data() {
         let wormhole_data = NormalizedWormholeData {
