@@ -55,6 +55,12 @@ module omniswap::swap {
         }
     }
 
+    public fun check_or_register_coin_store<X>(sender: &signer) {
+        if (!coin::is_account_registered<X>(signer::address_of(sender))) {
+            coin::register<X>(sender);
+        };
+    }
+
     /// Coins are deducted directly from the user's account for swap.
     public fun swap_by_account<X, Y>(account: &signer, data: NormalizedSwapData): Coin<Y> {
         if (@liquidswap == serde::deserialize_address(&cross::swap_call_to(data))) {
@@ -123,6 +129,8 @@ module omniswap::swap {
         }else if (@pancake == serde::deserialize_address(&cross::swap_call_to(data))) {
             assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
             assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+            check_or_register_coin_store<X>(account);
+            check_or_register_coin_store<Y>(account);
             let coin_val = u256::as_u64(cross::swap_from_amount(data));
 
             let raw_call_data = cross::swap_call_data(data);
@@ -249,6 +257,8 @@ module omniswap::swap {
         }else if (@pancake == serde::deserialize_address(&cross::swap_call_to(data))) {
             assert!(right_type<X>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
             assert!(right_type<Y>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+            check_or_register_coin_store<X>(delegate);
+            check_or_register_coin_store<Y>(delegate);
 
             let raw_call_data = cross::swap_call_data(data);
             let min_amount = 0;
