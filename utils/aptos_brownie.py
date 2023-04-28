@@ -758,17 +758,28 @@ class AptosPackage:
 
     def account_resources(self,
                           account_addr: Union[str, AccountAddress],
+                          limit=None
                           ):
         if isinstance(account_addr, str):
             account_addr = AccountAddress.from_hex(account_addr)
-        response = self.rest_client.client.get(
-            f"{self.rest_client.base_url}/accounts/{account_addr}/resources"
-        )
+        if limit is None:
+            response = self.rest_client.client.get(
+                f"{self.rest_client.base_url}/accounts/{account_addr}/resources"
+            )
+            is_limit = False
+        else:
+            response = self.rest_client.client.get(
+                f"{self.rest_client.base_url}/accounts/{account_addr}/resources?limit={int(limit)}"
+            )
+            is_limit = True
         if response.status_code == 404:
             return None
         if response.status_code >= 400:
             raise ApiError(f"{response.text} - {account_addr}", response.status_code)
-        return response.json()
+        if is_limit:
+            return response.json(), response.headers.get('x-aptos-cursor', None)
+        else:
+            return response.json()
 
     def register_coin(self, asset_id):
         """Register the receiver account to receive transfers for the new coin."""
