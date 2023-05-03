@@ -500,6 +500,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(kwargs[function_arg.name]))
                     else:
                         value = function_arg.type_tag(kwargs[function_arg.name])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        if isinstance(kwargs[function_arg.name][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(kwargs[function_arg.name][j])))
+                        else:
+                            value.append(AccountAddressTag(kwargs[function_arg.name][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        value.append(kwargs[function_arg.name][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
@@ -603,6 +616,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(kwargs[function_arg.name]))
                     else:
                         value = function_arg.type_tag(kwargs[function_arg.name])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        if isinstance(kwargs[function_arg.name][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(kwargs[function_arg.name][j])))
+                        else:
+                            value.append(AccountAddressTag(kwargs[function_arg.name][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        value.append(kwargs[function_arg.name][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
@@ -621,6 +647,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(args[i]))
                     else:
                         value = function_arg.type_tag(args[i])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        if isinstance(args[i][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(args[i][j])))
+                        else:
+                            value.append(AccountAddressTag(args[i][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        value.append(args[i][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         args[i]), f"Param {function_arg} not match"
