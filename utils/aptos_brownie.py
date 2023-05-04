@@ -575,7 +575,9 @@ class AptosPackage:
             result = self.simulate_submit_bcs_transaction(signed_transaction)
             if not result[0]["success"]:
                 assert False, result
-            if return_types == "gas":
+            if return_types is None:
+                return result
+            elif return_types == "gas":
                 if "gas_used" in result[0]:
                     return result[0]["gas_used"]
             else:
