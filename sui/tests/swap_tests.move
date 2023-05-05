@@ -15,7 +15,7 @@ module omniswap::swap_tests {
     const FLOAT_SCALING: u64 = 1000000000;
 
     #[test]
-    public fun test_swap_for_base_asset() {
+    public fun test_swap_for_base_asset_by_deepbook() {
         let sender = @0xA;
 
         let scenario_val = test_scenario::begin(sender);
@@ -63,7 +63,7 @@ module omniswap::swap_tests {
                 b"DeepBook,0"
             );
 
-            let (base_coin, left_quote_coin, swap_value) = swap::swap_for_base_asset<SUI, USD>(
+            let (base_coin, left_quote_coin, swap_value) = swap::swap_for_base_asset_by_deepbook<SUI, USD>(
                 &mut pool,
                 quote_coin,
                 swap_data,
@@ -88,7 +88,7 @@ module omniswap::swap_tests {
     }
 
     #[test]
-    public fun test_swap_for_quote_asset() {
+    public fun test_swap_for_quote_asset_by_deepbook() {
         let sender = @0xA;
 
         let scenario_val = test_scenario::begin(sender);
@@ -136,7 +136,7 @@ module omniswap::swap_tests {
                 b"DeepBook,0"
             );
 
-            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset<SUI, USD>(
+            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook<SUI, USD>(
                 &mut pool,
                 base_coin,
                 swap_data,
@@ -208,7 +208,7 @@ module omniswap::swap_tests {
                 b"DeepBook,9000"
             );
 
-            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset<SUI, USD>(
+            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook<SUI, USD>(
                 &mut pool,
                 base_coin,
                 swap_data,
@@ -281,7 +281,7 @@ module omniswap::swap_tests {
                 b"DeepBook,1000"
             );
 
-            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset<SUI, USD>(
+            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook<SUI, USD>(
                 &mut pool,
                 base_coin,
                 swap_data,

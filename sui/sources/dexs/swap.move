@@ -9,6 +9,9 @@ module omniswap::swap {
     use sui::coin::{Self, Coin};
     use sui::tx_context::TxContext;
 
+    use cetus_clmm::pool::{Self, Pool as CetusPool};
+    use cetus_clmm::config::GlobalConfig;
+
     const RAY: u64 = 100000000;
 
     // Swap call data delimiter, represent ","
@@ -43,13 +46,19 @@ module omniswap::swap {
         }
     }
 
-    // public fun swap_by_cetus(
-    //
+    // public fun swap_for__by_cetus<CoinTypeA, CoinTypeB>(
+    //     config: &GlobalConfig,
+    //     pool: &mut CetusPool<CoinTypeA, CoinTypeB>,
+    //     a2b: bool,
+    //     by_amount_in: bool,
+    //     amount: u64,
+    //     sqrt_price_limit: u128,
+    //     clock: &Clock,
     // ){
     //
     // }
 
-    public fun swap_for_base_asset<BaseAsset, QuoteAsset>(
+    public fun swap_for_base_asset_by_deepbook<BaseAsset, QuoteAsset>(
         pool: &mut Pool<BaseAsset, QuoteAsset>,
         input_coin: Coin<QuoteAsset>,
         data: NormalizedSwapData,
@@ -87,14 +96,12 @@ module omniswap::swap {
             let min_amount = swap_quote_amount * RAY / input_quote_amount * min_amount / RAY;
             assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
             (base_asset, quote_asset, swap_amount)
-        } else if (swap_name == CETUS_SWAP) {
-            abort EINVALID_SWAP_ROUTER
         }else {
             abort EINVALID_SWAP_ROUTER
         }
     }
 
-    public fun swap_for_quote_asset<BaseAsset, QuoteAsset>(
+    public fun swap_for_quote_asset_by_deepbook<BaseAsset, QuoteAsset>(
         pool: &mut Pool<BaseAsset, QuoteAsset>,
         input_coin: Coin<BaseAsset>,
         data: NormalizedSwapData,

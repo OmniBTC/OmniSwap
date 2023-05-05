@@ -448,7 +448,7 @@ module omniswap::wormhole_facet {
         let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
 
         assert!(vector::length(&swap_data_src) == 1, ESWAP_LENGTH);
-        let (coin_x, left_coin_x, _) = swap::swap_for_base_asset<X, Y>(
+        let (coin_x, left_coin_x, _) = swap::swap_for_base_asset_by_deepbook<X, Y>(
             pool_xy,
             coin_y,
             *vector::borrow(&swap_data_src, 0),
@@ -542,7 +542,7 @@ module omniswap::wormhole_facet {
         let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
 
         assert!(vector::length(&swap_data_src) == 1, ESWAP_LENGTH);
-        let (letf_coin_x, coin_y, _) = swap::swap_for_quote_asset<X, Y>(
+        let (letf_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook<X, Y>(
             pool_xy,
             coin_x,
             *vector::borrow(&swap_data_src, 0),
@@ -680,7 +680,7 @@ module omniswap::wormhole_facet {
         let receiving_amount = coin::value(&coin_x);
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
-            let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset<X, Y>(
+            let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook<X, Y>(
                 pool_xy,
                 coin_x,
                 *vector::borrow(&swap_data_dst, 0),
@@ -737,7 +737,7 @@ module omniswap::wormhole_facet {
         let receiving_amount = coin::value(&coin_y);
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
-            let (left_coin_x, coin_y, _) = swap::swap_for_base_asset<X, Y>(
+            let (left_coin_x, coin_y, _) = swap::swap_for_base_asset_by_deepbook<X, Y>(
                 pool_xy,
                 coin_y,
                 *vector::borrow(&swap_data_dst, 0),

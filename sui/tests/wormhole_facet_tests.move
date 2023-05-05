@@ -88,7 +88,7 @@ module omniswap::wormhole_facet_tests {
         };
     }
 
-    public fun setup_swap_for_base_asset(scenario: &mut Scenario) {
+    public fun setup_swap_for_base_asset_by_deepbook(scenario: &mut Scenario) {
         let sender = test_scenario::sender(scenario);
         test_scenario::next_tx(scenario, sender);
         {
@@ -128,7 +128,7 @@ module omniswap::wormhole_facet_tests {
         };
     }
 
-    public fun setup_swap_for_quote_asset(scenario: &mut Scenario) {
+    public fun setup_swap_for_quote_asset_by_deepbook(scenario: &mut Scenario) {
         let sender = test_scenario::sender(scenario);
         test_scenario::next_tx(scenario, sender);
         {
@@ -181,7 +181,7 @@ module omniswap::wormhole_facet_tests {
         let scenario = &mut scenario_val;
 
         setup_facet(scenario);
-        setup_swap_for_base_asset(scenario);
+        setup_swap_for_base_asset_by_deepbook(scenario);
 
         test_scenario::next_tx(scenario, sender);
         {
@@ -268,7 +268,7 @@ module omniswap::wormhole_facet_tests {
         let scenario = &mut scenario_val;
 
         setup_facet(scenario);
-        setup_swap_for_base_asset(scenario);
+        setup_swap_for_base_asset_by_deepbook(scenario);
 
         test_scenario::next_tx(scenario, sender);
         {
@@ -368,7 +368,7 @@ module omniswap::wormhole_facet_tests {
         let scenario = &mut scenario_val;
 
         setup_facet(scenario);
-        setup_swap_for_base_asset(scenario);
+        setup_swap_for_base_asset_by_deepbook(scenario);
 
         test_scenario::next_tx(scenario, sender);
         {
