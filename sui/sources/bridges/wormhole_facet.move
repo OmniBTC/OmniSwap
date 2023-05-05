@@ -28,6 +28,8 @@ module omniswap::wormhole_facet {
     use wormhole::publish_message;
     use wormhole::vaa;
     use token_bridge::transfer_with_payload::TransferWithPayload;
+    use cetus_clmm::config::GlobalConfig;
+    use cetus_clmm::pool::{Pool as CetusPool};
 
     const RAY: u64 = 100000000;
 
@@ -578,6 +580,206 @@ module omniswap::wormhole_facet {
         );
     }
 
+    /// Cross-swap via wormhole
+    ///  * so_data Track user data across the chain and record the final destination of tokens
+    ///  * swap_data_src Swap data at source chain
+    ///  * wormhole_data Data needed to use the wormhole cross-link bridge
+    ///  * swap_data_dst Swap data at destination chain
+    ///
+    /// The parameters passed in are serialized, and all of this data can be serialized and
+    /// deserialized in the methods found here.
+    public entry fun so_swap_for_cetus_base_asset<X, Y>(
+        wormhole_state: &mut WormholeState,
+        token_bridge_state: &mut TokenBridgeState,
+        storage: &mut Storage,
+        clock: &Clock,
+        price_manager: &mut PriceManager,
+        wromhole_fee: &mut WormholeFee,
+        config: &GlobalConfig,
+        pool_xy: &mut CetusPool<X, Y>,
+        so_data: vector<u8>,
+        swap_data_src: vector<u8>,
+        wormhole_data: vector<u8>,
+        swap_data_dst: vector<u8>,
+        coins_y: vector<Coin<Y>>,
+        coins_sui: vector<Coin<SUI>>,
+        ctx: &mut TxContext
+    ) {
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
+
+        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
+
+        let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
+            cross::decode_normalized_swap_data(&mut swap_data_dst)
+        }else {
+            vector::empty()
+        };
+
+        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
+            storage,
+            wormhole_state,
+            price_manager,
+            so_data,
+            wormhole_data,
+            swap_data_dst
+        );
+        assert!(flag, ECHECK_FEE_FAIL);
+
+        let payload = encode_wormhole_payload(
+            wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+            dst_max_gas,
+            so_data,
+            swap_data_dst
+        );
+
+        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
+        let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
+        transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
+
+        let coin_val = (cross::so_amount(so_data) as u64);
+        assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
+        coin::destroy_zero(comsume_sui);
+        let coin_y = merge_coin(coins_y, coin_val, ctx);
+
+        // X is quote asset, Y is base asset
+        // use base asset to cross chain
+        let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+
+        assert!(vector::length(&swap_data_src) == 1, ESWAP_LENGTH);
+        let (coin_x, left_coin_x, _) = swap::swap_for_base_asset_by_cetus<X, Y>(
+            config,
+            pool_xy,
+            coin_y,
+            *vector::borrow(&swap_data_src, 0),
+            clock,
+            ctx
+        );
+        let (sequence, dust) = tranfer_token<X>(
+            wormhole_state,
+            token_bridge_state,
+            storage,
+            clock,
+            coin_x,
+            wormhole_data,
+            payload,
+            wormhole_fee_coin
+        );
+        process_left_coin(left_coin_x, tx_context::sender(ctx));
+        process_left_coin(dust, tx_context::sender(ctx));
+
+
+        event::emit(
+            SoTransferStarted {
+                transaction_id: cross::so_transaction_id(so_data),
+            }
+        );
+
+        event::emit(
+            TransferFromWormholeEvent {
+                src_wormhole_chain_id: storage.src_wormhole_chain_id,
+                dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
+                sequence
+            }
+        );
+    }
+
+    public entry fun so_swap_for_cetus_quote_asset<X, Y>(
+        wormhole_state: &mut WormholeState,
+        token_bridge_state: &mut TokenBridgeState,
+        storage: &mut Storage,
+        clock: &Clock,
+        price_manager: &mut PriceManager,
+        wromhole_fee: &mut WormholeFee,
+        config: &GlobalConfig,
+        pool_xy: &mut CetusPool<X, Y>,
+        so_data: vector<u8>,
+        swap_data_src: vector<u8>,
+        wormhole_data: vector<u8>,
+        swap_data_dst: vector<u8>,
+        coins_x: vector<Coin<X>>,
+        coins_sui: vector<Coin<SUI>>,
+        ctx: &mut TxContext
+    ) {
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
+
+        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
+
+        let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
+            cross::decode_normalized_swap_data(&mut swap_data_dst)
+        }else {
+            vector::empty()
+        };
+
+        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
+            storage,
+            wormhole_state,
+            price_manager,
+            so_data,
+            wormhole_data,
+            swap_data_dst
+        );
+        assert!(flag, ECHECK_FEE_FAIL);
+
+        let payload = encode_wormhole_payload(
+            wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+            dst_max_gas,
+            so_data,
+            swap_data_dst
+        );
+
+        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
+        let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
+        transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
+
+        let coin_val = (cross::so_amount(so_data) as u64);
+        assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
+        coin::destroy_zero(comsume_sui);
+        let coin_x = merge_coin(coins_x, coin_val, ctx);
+
+        // X is quote asset, Y is base asset
+        // use base asset to cross chain
+        let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+
+        assert!(vector::length(&swap_data_src) == 1, ESWAP_LENGTH);
+        let (letf_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_cetus<X, Y>(
+            config,
+            pool_xy,
+            coin_x,
+            *vector::borrow(&swap_data_src, 0),
+            clock,
+            ctx
+        );
+        let (sequence, dust) = tranfer_token<Y>(
+            wormhole_state,
+            token_bridge_state,
+            storage,
+            clock,
+            coin_y,
+            wormhole_data,
+            payload,
+            wormhole_fee_coin
+        );
+        process_left_coin(letf_coin_x, tx_context::sender(ctx));
+        process_left_coin(dust, tx_context::sender(ctx));
+
+
+        event::emit(
+            SoTransferStarted {
+                transaction_id: cross::so_transaction_id(so_data),
+            }
+        );
+
+        event::emit(
+            TransferFromWormholeEvent {
+                src_wormhole_chain_id: storage.src_wormhole_chain_id,
+                dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
+                sequence
+            }
+        );
+    }
+
     fun complete_transfer<X>(
         storage: &mut Storage,
         token_bridge_state: &mut TokenBridgeState,
@@ -738,6 +940,124 @@ module omniswap::wormhole_facet {
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
             let (left_coin_x, coin_y, _) = swap::swap_for_base_asset_by_deepbook<X, Y>(
+                pool_xy,
+                coin_y,
+                *vector::borrow(&swap_data_dst, 0),
+                clock,
+                ctx
+            );
+            receiving_amount = coin::value(&coin_y);
+            transfer::public_transfer(coin_y, receiver);
+            process_left_coin(left_coin_x, receiver);
+        } else {
+            transfer::public_transfer(coin_y, receiver);
+        };
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
+    }
+
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_for_cetus_quote_asset<X, Y>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        config: &GlobalConfig,
+        pool_xy: &mut CetusPool<X, Y>,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let (coin_x, payload) = complete_transfer<X>(
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= x_val) {
+            let coin_fee = coin::split<X>(&mut coin_x, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_x);
+        if (vector::length(&swap_data_dst) > 0) {
+            assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+            let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_cetus<X, Y>(
+                config,
+                pool_xy,
+                coin_x,
+                *vector::borrow(&swap_data_dst, 0),
+                clock,
+                ctx
+            );
+            receiving_amount = coin::value(&coin_y);
+            transfer::public_transfer(coin_y, receiver);
+            process_left_coin(left_coin_x, receiver);
+        } else {
+            transfer::public_transfer(coin_x, receiver);
+        };
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        )
+    }
+
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_for_cetus_base_asset<X, Y>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        config: &GlobalConfig,
+        pool_xy: &mut CetusPool<X, Y>,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let (coin_y, payload) = complete_transfer<Y>(
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let y_val = coin::value(&coin_y);
+        let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= y_val) {
+            let coin_fee = coin::split<Y>(&mut coin_y, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_y);
+        if (vector::length(&swap_data_dst) > 0) {
+            assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+            let (left_coin_x, coin_y, _) = swap::swap_for_base_asset_by_cetus<X, Y>(
+                config,
                 pool_xy,
                 coin_y,
                 *vector::borrow(&swap_data_dst, 0),
