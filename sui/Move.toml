@@ -5,27 +5,27 @@ version = "0.1.0"
 [addresses]
 sui = "0x2"
 omniswap = "0x0"
-wormhole = "0x0"
-token_bridge = "0x1"
+wormhole = "0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a"
+token_bridge = "0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d"
 omniswap_mock = "0x0"
 deepbook = "0xdee9"
 
 [dependencies.Sui]
 git = "https://github.com/MystenLabs/sui.git"
 subdir = "crates/sui-framework/packages/sui-framework"
-rev = "cab7e9762d4d75126a78fdd009b405745657fe57"
+rev = "09b2081498366df936abae26eea4b2d5cafb2788"
 
 [dependencies.DeepBook]
 git = "https://github.com/MystenLabs/sui.git"
 subdir = "crates/sui-framework/packages/deepbook"
-rev = "cab7e9762d4d75126a78fdd009b405745657fe57"
+rev = "09b2081498366df936abae26eea4b2d5cafb2788"
 
 [dependencies.Wormhole]
 git = "https://github.com/OmniBTC/wormhole.git"
 subdir = "sui/wormhole"
-rev = "be931782bc9726daafa36ff8b015c0f8b46dda0d"
+rev = "fcfe551da0f46b704b76b09ae11dca3dd9387837"
 
 [dependencies.TokenBridge]
 git = "https://github.com/OmniBTC/wormhole.git"
 subdir = "sui/token_bridge"
-rev = "be931782bc9726daafa36ff8b015c0f8b46dda0d"
+rev = "fcfe551da0f46b704b76b09ae11dca3dd9387837"

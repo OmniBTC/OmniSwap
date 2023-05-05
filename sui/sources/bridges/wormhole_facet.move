@@ -14,17 +14,20 @@ module omniswap::wormhole_facet {
     use sui::table::{Self, Table};
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
+    use token_bridge::vaa as bridge_vaa;
+    use token_bridge::state as bridge_state;
     use token_bridge::complete_transfer_with_payload;
     use token_bridge::state::State as TokenBridgeState;
     use token_bridge::transfer_tokens_with_payload;
     use token_bridge::transfer_with_payload;
-    use wormhole::bytes32;
     use wormhole::emitter::{Self, EmitterCap};
-    use wormhole::external_address;
     use wormhole::state::{Self, State as WormholeState};
 
     #[test_only]
     use omniswap::cross::padding_so_data;
+    use wormhole::publish_message;
+    use wormhole::vaa;
+    use token_bridge::transfer_with_payload::TransferWithPayload;
 
     const RAY: u64 = 100000000;
 
@@ -259,6 +262,46 @@ module omniswap::wormhole_facet {
 
     /// Swap
 
+    fun tranfer_token<X>(
+        wormhole_state: &mut WormholeState,
+        token_bridge_state: &mut TokenBridgeState,
+        storage: &mut Storage,
+        clock: &Clock,
+        coin_x: Coin<X>,
+        wormhole_data: NormalizedWormholeData,
+        payload: vector<u8>,
+        wormhole_fee_coin: Coin<SUI>
+    ): (u64, Coin<X>) {
+        let asset_info = bridge_state::verified_asset(token_bridge_state);
+
+        let (
+            prepared_transfer,
+            dust
+        ) =
+            transfer_tokens_with_payload::prepare_transfer(
+                &storage.emitter_cap,
+                asset_info,
+                coin_x,
+                wormhole_data.dst_wormhole_chain_id,
+                wormhole_data.dst_so_diamond,
+                payload,
+                0,
+            );
+
+        let prepared_msg = transfer_tokens_with_payload::transfer_tokens_with_payload(
+            token_bridge_state,
+            prepared_transfer
+        );
+
+        let sequence = publish_message::publish_message(
+            wormhole_state,
+            wormhole_fee_coin,
+            prepared_msg,
+            clock
+        );
+        (sequence, dust)
+    }
+
     public entry fun so_swap_without_swap<X>(
         wormhole_state: &mut WormholeState,
         token_bridge_state: &mut TokenBridgeState,
@@ -312,17 +355,15 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
-        let (sequence, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
-            token_bridge_state,
-            &storage.emitter_cap,
+        let (sequence, dust) = tranfer_token<X>(
             wormhole_state,
+            token_bridge_state,
+            storage,
+            clock,
             coin_x,
-            wormhole_fee_coin,
-            wormhole_data.dst_wormhole_chain_id,
-            external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
+            wormhole_data,
             payload,
-            0,
-            clock
+            wormhole_fee_coin
         );
         process_left_coin(dust, tx_context::sender(ctx));
 
@@ -402,7 +443,6 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
         let coin_y = merge_coin(coins_y, coin_val, ctx);
 
-        let sequence;
         // X is quote asset, Y is base asset
         // use base asset to cross chain
         let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
@@ -415,19 +455,16 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
-        let (seq, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
-            token_bridge_state,
-            &storage.emitter_cap,
+        let (sequence, dust) = tranfer_token<X>(
             wormhole_state,
+            token_bridge_state,
+            storage,
+            clock,
             coin_x,
-            wormhole_fee_coin,
-            wormhole_data.dst_wormhole_chain_id,
-            external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
+            wormhole_data,
             payload,
-            0,
-            clock
+            wormhole_fee_coin
         );
-        sequence = seq;
         process_left_coin(left_coin_x, tx_context::sender(ctx));
         process_left_coin(dust, tx_context::sender(ctx));
 
@@ -512,17 +549,15 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
-        let (sequence, dust) = transfer_tokens_with_payload::transfer_tokens_with_payload(
-            token_bridge_state,
-            &storage.emitter_cap,
+        let (sequence, dust) = tranfer_token<Y>(
             wormhole_state,
+            token_bridge_state,
+            storage,
+            clock,
             coin_y,
-            wormhole_fee_coin,
-            wormhole_data.dst_wormhole_chain_id,
-            external_address::new(bytes32::from_bytes(wormhole_data.dst_so_diamond)),
+            wormhole_data,
             payload,
-            0,
-            clock
+            wormhole_fee_coin
         );
         process_left_coin(letf_coin_x, tx_context::sender(ctx));
         process_left_coin(dust, tx_context::sender(ctx));
@@ -543,6 +578,30 @@ module omniswap::wormhole_facet {
         );
     }
 
+    fun complete_transfer<X>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): (Coin<X>, TransferWithPayload) {
+        let verified_vaa = vaa::parse_and_verify(wormhole_state, vaa, clock);
+        let msg = bridge_vaa::verify_only_once(token_bridge_state, verified_vaa);
+        let receipt =
+            complete_transfer_with_payload::authorize_transfer<X>(
+                token_bridge_state,
+                msg,
+                ctx
+            );
+        let (
+            bridged,
+            parsed_transfer,
+            _
+        ) = complete_transfer_with_payload::redeem_coin(&storage.emitter_cap, receipt);
+        (bridged, parsed_transfer)
+    }
+
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
     public entry fun complete_so_swap_without_swap<X>(
@@ -554,9 +613,9 @@ module omniswap::wormhole_facet {
         clock: &Clock,
         ctx: &mut TxContext
     ) {
-        let (coin_x, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
+        let (coin_x, payload) = complete_transfer<X>(
+            storage,
             token_bridge_state,
-            &storage.emitter_cap,
             wormhole_state,
             vaa,
             clock,
@@ -598,9 +657,9 @@ module omniswap::wormhole_facet {
         clock: &Clock,
         ctx: &mut TxContext
     ) {
-        let (coin_x, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
+        let (coin_x, payload) = complete_transfer<X>(
+            storage,
             token_bridge_state,
-            &storage.emitter_cap,
             wormhole_state,
             vaa,
             clock,
@@ -655,9 +714,9 @@ module omniswap::wormhole_facet {
         clock: &Clock,
         ctx: &mut TxContext
     ) {
-        let (coin_y, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<Y>(
+        let (coin_y, payload) = complete_transfer<Y>(
+            storage,
             token_bridge_state,
-            &storage.emitter_cap,
             wormhole_state,
             vaa,
             clock,
@@ -714,9 +773,9 @@ module omniswap::wormhole_facet {
         ctx: &mut TxContext
     ) {
         assert!(facet_manager.owner == tx_context::sender(ctx), EINVALID_ACCOUNT);
-        let (coin_x, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
+        let (coin_x, payload) = complete_transfer<X>(
+            storage,
             token_bridge_state,
-            &storage.emitter_cap,
             wormhole_state,
             vaa,
             clock,
@@ -757,9 +816,9 @@ module omniswap::wormhole_facet {
         ctx: &mut TxContext
     ) {
         assert!(tx_context::sender(ctx) == facet_manager.relayer, EINVALID_ACCOUNT);
-        let (coin_x, payload, _) = complete_transfer_with_payload::complete_transfer_with_payload<X>(
+        let (coin_x, payload) = complete_transfer<X>(
+            storage,
             token_bridge_state,
-            &storage.emitter_cap,
             wormhole_state,
             vaa,
             clock,
