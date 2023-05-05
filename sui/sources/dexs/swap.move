@@ -33,6 +33,10 @@ module omniswap::swap {
 
     const EREPAY_NOT_ENOUGH: u64 = 6;
 
+    const MIN_SQRT_PRICE: u128 = 4295048016;
+
+    const MAX_SQRT_PRICE: u128 = 79226673515401279992447579055;
+
     /// Swap Name
     const DEEPBOOK_SWAP: vector<u8> = b"DeepBook";
     const CETUS_SWAP: vector<u8> = b"Cetus";
@@ -83,7 +87,7 @@ module omniswap::swap {
             false,
             true,
             input_amount,
-            0,
+            MAX_SQRT_PRICE,
             clock
         );
         let repay_amount = cetus_pool::swap_pay_amount<BaseAsset, QuoteAsset>(
@@ -141,7 +145,7 @@ module omniswap::swap {
             true,
             true,
             input_amount,
-            0,
+            MIN_SQRT_PRICE,
             clock
         );
         let repay_amount = cetus_pool::swap_pay_amount<BaseAsset, QuoteAsset>(
