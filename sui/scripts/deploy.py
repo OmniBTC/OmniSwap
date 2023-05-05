@@ -71,111 +71,27 @@ def load_test_coins(is_from_config):
         )
 
 
-def setup_wormhole(net: str = "sui-testnet"):
-    if net not in ["sui-testnet", "sui-devnet"]:
-        return
-    wormhole_package = sui_brownie.SuiPackage(
-        package_path=Path.home().joinpath(Path(
-            ".move/https___github_com_OmniBTC_wormhole_git_be931782bc9726daafa36ff8b015c0f8b46dda0d/sui/wormhole")),
+@functools.lru_cache()
+def load_cetus_clmm():
+    return SuiPackage(
+        sui_project.network_config['packages']['CetusClmm'],
+        package_name="CetusClmm",
     )
-
-    wormhole_package.program_publish_package(gas_budget=500000000)
 
 
 @functools.lru_cache()
-def load_wormhole(is_from_config):
-    if is_from_config:
-        return SuiPackage(
-            sui_project.network_config['packages']['Wormhole'],
-            package_name="Wormhole",
-        )
-    else:
-        return SuiPackage(
-            sui_project.Wormhole[-1],
-            package_name="Wormhole",
-        )
-
-
-def init_wormhole(net: str = "sui-testnet"):
-    """
-    public entry fun complete(
-        deployer: DeployerCap,
-        upgrade_cap: UpgradeCap,
-        governance_chain: u16,
-        governance_contract: vector<u8>,
-        initial_guardians: vector<vector<u8>>,
-        guardian_set_epochs_to_live: u32,
-        message_fee: u64,
-        ctx: &mut TxContext
+def load_wormhole():
+    return SuiPackage(
+        sui_project.network_config['packages']['Wormhole'],
+        package_name="Wormhole",
     )
-    :return:
-    """
-    if net not in ["sui-testnet", "sui-devnet"]:
-        return
-    wormhole = load_wormhole(is_from_config=False)
-    upgrade_cap = get_upgrade_cap_by_package_id(wormhole.package_id)
-
-    wormhole.setup.complete(
-        wormhole.setup.DeployerCap[-1],
-        upgrade_cap,
-        0,
-        list(bytes.fromhex("deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")),
-        [
-            list(bytes.fromhex("1337133713371337133713371337133713371337")),
-            list(bytes.fromhex("c0dec0dec0dec0dec0dec0dec0dec0dec0dec0de")),
-            list(bytes.fromhex("ba5edba5edba5edba5edba5edba5edba5edba5ed"))
-        ],
-        0,
-        0
-    )
-
-
-def setup_token_bridge(net: str = "sui-testnet"):
-    if net not in ["sui-testnet", "sui-devnet"]:
-        return
-    token_bridge_package = sui_brownie.SuiPackage(
-        package_path=Path.home().joinpath(Path(
-            ".move/https___github_com_OmniBTC_wormhole_git_be931782bc9726daafa36ff8b015c0f8b46dda0d/sui/token_bridge")),
-    )
-
-    token_bridge_package.program_publish_package(gas_budget=500000000,
-                                                 replace_address=dict(token_bridge="0x0", wormhole=None))
 
 
 @functools.lru_cache()
-def load_token_bridge(is_from_config):
-    if is_from_config:
-        return SuiPackage(
-            sui_project.network_config['packages']['TokenBridge'],
-            package_name="TokenBridge",
-        )
-    else:
-        return SuiPackage(
-            sui_project.TokenBridge[-1],
-            package_name="TokenBridge",
-        )
-
-
-def init_token_bridge(net: str = "sui-testnet"):
-    """
-    public entry fun complete(
-        worm_state: &WormholeState,
-        deployer: DeployerCap,
-        upgrade_cap: UpgradeCap,
-        ctx: &mut TxContext
-    )
-    Returns:
-
-    """
-    if net not in ["sui-testnet", "sui-devnet"]:
-        return
-    token_bridge = load_token_bridge(is_from_config=False)
-    wormhole = load_wormhole(is_from_config=False)
-
-    token_bridge.setup.complete(
-        wormhole.state.State[-1],
-        token_bridge.setup.DeployerCap[-1],
-        get_upgrade_cap_by_package_id(token_bridge.package_id)
+def load_token_bridge():
+    return SuiPackage(
+        sui_project.network_config['packages']['TokenBridge'],
+        package_name="TokenBridge",
     )
 
 
@@ -314,12 +230,8 @@ def load_omniswap(is_from_config):
         )
 
 
-def load_wormhole_state(is_from_config):
-    if is_from_config:
-        return sui_project.network_config["objects"]["WormholeState"]
-    else:
-        token_bridge = load_token_bridge(is_from_config)
-        return token_bridge.state.State[-1]
+def load_wormhole_state():
+    return sui_project.network_config["objects"]["WormholeState"]
 
 
 def load_test_coin_faucet(is_from_config):
@@ -330,23 +242,19 @@ def load_test_coin_faucet(is_from_config):
         return test_coins.faucet.Faucet[-1]
 
 
-def load_token_bridge_state(is_from_config):
-    if is_from_config:
-        return sui_project.network_config["objects"]["WormholeState"]
-    else:
-        wormhole = load_wormhole(is_from_config)
-        return wormhole.state.State[-1]
+def load_token_bridge_state():
+    return sui_project.network_config["objects"]["WormholeState"]
 
 
-def attest_token(coin_type, is_from_config):
-    token_bridge = load_token_bridge(is_from_config)
+def attest_token(coin_type):
+    token_bridge = load_token_bridge()
 
     result = sui_project.pay_sui([0])
     zero_coin = result['objectChanges'][-1]['objectId']
     metadata = sui_project[SuiObject.from_type(coin_metadata(coin_type))][-1]
     token_bridge.token_bridge.attest_token(
-        load_token_bridge_state(is_from_config),
-        load_wormhole_state(is_from_config),
+        load_token_bridge_state(),
+        load_wormhole_state(),
         zero_coin,
         metadata,
         0,
@@ -357,9 +265,9 @@ def attest_token(coin_type, is_from_config):
 
 # for testnet
 def register_wormhole_token(is_from_config):
-    attest_token(usdt(is_from_config), is_from_config)
-    attest_token(usdc(is_from_config), is_from_config)
-    attest_token(btc(is_from_config), is_from_config)
+    attest_token(usdt(is_from_config))
+    attest_token(usdc(is_from_config))
+    attest_token(btc(is_from_config))
 
 
 def main():
@@ -367,21 +275,19 @@ def main():
     print(f"Current sui network:{net}")
 
     # for testnet
-    # setup_wormhole(net)
-    # init_wormhole()
-    # setup_token_bridge(net)
-    # init_token_bridge()
     # register_wormhole_token(is_from_config=False)
 
-    wormhole = load_wormhole(is_from_config=True)
-    token_bridge = load_token_bridge(is_from_config=True)
-    wormhole_state = load_wormhole_state(is_from_config=True)
+    wormhole = load_wormhole()
+    token_bridge = load_token_bridge()
+    wormhole_state = load_wormhole_state()
+    cetus_clmm = load_cetus_clmm()
 
     # deploy
     omniswap_package = SuiPackage(package_path=omniswap_sui_path)
     omniswap_package.publish_package(gas_budget=5000000000, replace_address=dict(
         wormhole=wormhole.package_id,
         token_bridge=token_bridge.package_id,
+        cetus_clmm=cetus_clmm.package_id
     ))
 
     facet_manager = omniswap_package.wormhole_facet.WormholeFacetManager[-1]
@@ -436,4 +342,5 @@ def main():
 
 
 if __name__ == "__main__":
-    export_testnet()
+    main()
+    # export_testnet()
