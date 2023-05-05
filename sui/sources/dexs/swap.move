@@ -29,6 +29,7 @@ module omniswap::swap {
 
     /// Swap Name
     const DEEPBOOK_SWAP: vector<u8> = b"DeepBook";
+    const CETUS_SWAP: vector<u8> = b"Cetus";
 
     /// Ensuring the origin of tokens
     public fun right_type<X>(token: vector<u8>): bool {
@@ -41,6 +42,12 @@ module omniswap::swap {
             false
         }
     }
+
+    // public fun swap_by_cetus(
+    //
+    // ){
+    //
+    // }
 
     public fun swap_for_base_asset<BaseAsset, QuoteAsset>(
         pool: &mut Pool<BaseAsset, QuoteAsset>,
@@ -80,7 +87,9 @@ module omniswap::swap {
             let min_amount = swap_quote_amount * RAY / input_quote_amount * min_amount / RAY;
             assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
             (base_asset, quote_asset, swap_amount)
-        } else {
+        } else if (swap_name == CETUS_SWAP) {
+            abort EINVALID_SWAP_ROUTER
+        }else {
             abort EINVALID_SWAP_ROUTER
         }
     }
