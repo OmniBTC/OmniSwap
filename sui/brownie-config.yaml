@@ -507,6 +507,26 @@ networks:
       chainid: 21
   sui-localnet:
     node_url: http://127.0.0.1:9000
+  sui-mainnet:
+    node_url: https://fullnode.mainnet.sui.io:443
+    objects:
+      Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
+      FacetManager: '0xdf5d9cbc995362eb938236d9b67c9684042e423eea4a20aa0a5622a8c7455676'
+      FacetStorage: '0xa02ffd7a3797c4e87320ce9b8f88be78695ba87e014ae86e94f0b09bbb7037c9'
+      Faucet: '0x1bf9020c0a3c37d17bd31bf0b582bde3e7d1828471aaee301c7dc20b4ccd476b'
+      PriceManager: '0x35992ac792744ef3cb75af0ead6705dd2cb6dd6ef6bbce628763355ab0d0bfa5'
+      TokenBridgeState: '0x245e1cdf6315c459900d9a6c21962e39b7384c685abfcb3b98dc460601af11e0'
+      WormholeFee: '0x25edf36fc62f6d915dc49af616575e16aa67396e95741d525895185ae28b9217'
+      WormholeState: '0x47a135d958b160503fd215534647815d9aa4f3fb8a3e5c0b2384f2b0460dcccf'
+    omnibtc_chainid: 21
+    packages:
+      CetusClmm: "0x755bf5686c0c51f5ebc6893e4d6fb1a83e577bb10eaa3ed4b7b24407d9de7c6a"
+      IntegerMate: ""
+      MoveSTL: ""
+      DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
+      OmniSwap: ''
+      TokenBridge: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
+      Wormhole: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
   sui-testnet:
     node_url: https://fullnode.testnet.sui.io:443
     objects:
@@ -520,11 +540,14 @@ networks:
       WormholeState: '0x47a135d958b160503fd215534647815d9aa4f3fb8a3e5c0b2384f2b0460dcccf'
     omnibtc_chainid: 21
     packages:
+      CetusClmm: "0x755bf5686c0c51f5ebc6893e4d6fb1a83e577bb10eaa3ed4b7b24407d9de7c6a"
+      IntegerMate: ""
+      MoveSTL: ""
       DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
-      OmniSwap: '0x9770cb30c2fe4e61e9afc4ac07a9c67224f81263306c17ae8178f43417ecb076'
+      OmniSwap: ''
       TestCoins: '0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b'
-      TokenBridge: '0xd8d9059c67ea3a767eda86f9fb29cfa2ab3ea9cf59490793cf8d2eb7f2c1389d'
-      Wormhole: '0x64a317d0441b0e7b1a41c7ea7cc0cbbf90fab1e0989799e8135a9901c95b90b1'
+      TokenBridge: '0x92d81f28c167d90f84638c654b412fe7fa8e55bdfac7f638bdcf70306289be86'
+      Wormhole: '0x15e1e51cb59fe1f987b037da12745a278855c8ac73050f4f194466096a0ca05b'
     pools:
       BTC-USDC:
         pool_id: '0x43c422371538cedbea7daad60cc997702877370cd6a24edcac425f0eee99566e'
