@@ -9,8 +9,9 @@ module omniswap::swap {
     use sui::coin::{Self, Coin};
     use sui::tx_context::TxContext;
 
-    use cetus_clmm::pool::{Self, Pool as CetusPool};
+    use cetus_clmm::pool::{Self as cetus_pool, Pool as CetusPool};
     use cetus_clmm::config::GlobalConfig;
+    use sui::balance;
 
     const RAY: u64 = 100000000;
 
@@ -30,6 +31,8 @@ module omniswap::swap {
 
     const ESWAP_AMOUNT_TOO_LOW: u64 = 5;
 
+    const EREPAY_NOT_ENOUGH: u64 = 6;
+
     /// Swap Name
     const DEEPBOOK_SWAP: vector<u8> = b"DeepBook";
     const CETUS_SWAP: vector<u8> = b"Cetus";
@@ -46,17 +49,120 @@ module omniswap::swap {
         }
     }
 
-    // public fun swap_for__by_cetus<CoinTypeA, CoinTypeB>(
-    //     config: &GlobalConfig,
-    //     pool: &mut CetusPool<CoinTypeA, CoinTypeB>,
-    //     a2b: bool,
-    //     by_amount_in: bool,
-    //     amount: u64,
-    //     sqrt_price_limit: u128,
-    //     clock: &Clock,
-    // ){
-    //
-    // }
+    public fun swap_for_base_asset_by_cetus<BaseAsset, QuoteAsset>(
+        config: &GlobalConfig,
+        pool: &mut CetusPool<BaseAsset, QuoteAsset>,
+        input_coin: Coin<QuoteAsset>,
+        data: NormalizedSwapData,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): (Coin<BaseAsset>, Coin<QuoteAsset>, u64) {
+        assert!(right_type<QuoteAsset>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+        assert!(right_type<BaseAsset>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+
+        let raw_call_data = cross::swap_call_data(data);
+        let min_amount = 0;
+        let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+        let swap_name;
+        if (flag) {
+            swap_name = serde::vector_slice(&raw_call_data, 0, index);
+            let len = vector::length(&raw_call_data);
+            if (index + 1 < len) {
+                min_amount = ascii_to_u64(serde::vector_slice(&raw_call_data, index + 1, len));
+            }
+        }else {
+            swap_name = raw_call_data;
+        };
+        assert!(swap_name == CETUS_SWAP, EINVALID_SWAP_ROUTER);
+
+        let input_amount = coin::value(&input_coin);
+        let input_balance = coin::into_balance(input_coin);
+        let (base, quote, flash) = cetus_pool::flash_swap<BaseAsset, QuoteAsset>(
+            config,
+            pool,
+            false,
+            true,
+            input_amount,
+            0,
+            clock
+        );
+        let repay_amount = cetus_pool::swap_pay_amount<BaseAsset, QuoteAsset>(
+            &flash
+        );
+        assert!(repay_amount <= input_amount, EREPAY_NOT_ENOUGH);
+        let repay_coin = balance::split(&mut input_balance, repay_amount);
+        balance::join(&mut quote, input_balance);
+
+        cetus_pool::repay_flash_swap<BaseAsset, QuoteAsset>(
+            config,
+            pool,
+            balance::zero(),
+            repay_coin,
+            flash
+        );
+
+        let min_amount = repay_amount * RAY / input_amount * min_amount / RAY;
+        let swap_amount = balance::value(&base);
+        assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
+        (coin::from_balance(base, ctx), coin::from_balance(quote, ctx), swap_amount)
+    }
+
+    public fun swap_for_quote_asset_by_cetus<BaseAsset, QuoteAsset>(
+        config: &GlobalConfig,
+        pool: &mut CetusPool<BaseAsset, QuoteAsset>,
+        input_coin: Coin<BaseAsset>,
+        data: NormalizedSwapData,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): (Coin<BaseAsset>, Coin<QuoteAsset>, u64) {
+        assert!(right_type<BaseAsset>(cross::swap_sending_asset_id(data)), EINVALID_SWAP_TOKEN);
+        assert!(right_type<QuoteAsset>(cross::swap_receiving_asset_id(data)), EINVALID_SWAP_TOKEN);
+
+        let raw_call_data = cross::swap_call_data(data);
+        let min_amount = 0;
+        let (flag, index) = vector::index_of(&raw_call_data, &DELIMITER);
+        let swap_name;
+        if (flag) {
+            swap_name = serde::vector_slice(&raw_call_data, 0, index);
+            let len = vector::length(&raw_call_data);
+            if (index + 1 < len) {
+                min_amount = ascii_to_u64(serde::vector_slice(&raw_call_data, index + 1, len));
+            }
+        }else {
+            swap_name = raw_call_data;
+        };
+        assert!(swap_name == CETUS_SWAP, EINVALID_SWAP_ROUTER);
+
+        let input_amount = coin::value(&input_coin);
+        let input_balance = coin::into_balance(input_coin);
+        let (base, quote, flash) = cetus_pool::flash_swap<BaseAsset, QuoteAsset>(
+            config,
+            pool,
+            true,
+            true,
+            input_amount,
+            0,
+            clock
+        );
+        let repay_amount = cetus_pool::swap_pay_amount<BaseAsset, QuoteAsset>(
+            &flash
+        );
+        assert!(repay_amount <= input_amount, EREPAY_NOT_ENOUGH);
+        let repay_coin = balance::split(&mut input_balance, repay_amount);
+        balance::join(&mut base, input_balance);
+        cetus_pool::repay_flash_swap<BaseAsset, QuoteAsset>(
+            config,
+            pool,
+            repay_coin,
+            balance::zero(),
+            flash
+        );
+
+        let min_amount = repay_amount * RAY / input_amount * min_amount / RAY;
+        let swap_amount = balance::value(&quote);
+        assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
+        (coin::from_balance(base, ctx), coin::from_balance(quote, ctx), swap_amount)
+    }
 
     public fun swap_for_base_asset_by_deepbook<BaseAsset, QuoteAsset>(
         pool: &mut Pool<BaseAsset, QuoteAsset>,
