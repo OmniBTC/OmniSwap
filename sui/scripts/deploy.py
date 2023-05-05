@@ -98,7 +98,7 @@ def load_cetus_clmm():
 @functools.lru_cache()
 def load_wormhole():
     return SuiPackage(
-        sui_project.network_config['packages']['Wormhole'],
+        sui_project.network_config['packages']['Wormhole']['latest'],
         package_name="Wormhole",
     )
 
@@ -106,7 +106,7 @@ def load_wormhole():
 @functools.lru_cache()
 def load_token_bridge():
     return SuiPackage(
-        sui_project.network_config['packages']['TokenBridge'],
+        sui_project.network_config['packages']['TokenBridge']['latest'],
         package_name="TokenBridge",
     )
 
@@ -302,13 +302,21 @@ def main():
 
     # deploy
     omniswap_package = SuiPackage(package_path=omniswap_sui_path)
-    omniswap_package.publish_package(gas_budget=5000000000, replace_address=dict(
-        wormhole=wormhole.package_id,
-        token_bridge=token_bridge.package_id,
-        cetus_clmm=cetus_clmm.package_id,
-        move_stl=move_stl.package_id,
-        integer_mate=integer_mate.package_id
-    ))
+    omniswap_package.publish_package(
+        gas_budget=5000000000,
+        skip_dependency_verification=True,
+        replace_address=dict(
+            wormhole=sui_project.network_config['packages']['Wormhole']['origin'],
+            token_bridge=sui_project.network_config['packages']['TokenBridge']['origin'],
+            cetus_clmm=cetus_clmm.package_id,
+            move_stl=move_stl.package_id,
+            integer_mate=integer_mate.package_id,
+        ),
+        replace_publish_at=dict(
+            wormhole=wormhole.package_id,
+            token_bridge=token_bridge.package_id,
+        )
+    )
 
     facet_manager = omniswap_package.wormhole_facet.WormholeFacetManager[-1]
 
