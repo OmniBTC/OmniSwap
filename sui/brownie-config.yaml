@@ -541,8 +541,8 @@ networks:
     omnibtc_chainid: 21
     packages:
       CetusClmm: "0x755bf5686c0c51f5ebc6893e4d6fb1a83e577bb10eaa3ed4b7b24407d9de7c6a"
-      IntegerMate: ""
-      MoveSTL: ""
+      IntegerMate: "0x32154052233b86d5b413fd140e6a0c7ef5a8d9ab1ee01d644b2690868538547a"
+      MoveSTL: "0x4b0b447943cef3944b29cbbf73faa19b466f98ad8cb468ef28b8640b1c8fd48a"
       DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
       OmniSwap: ''
       TestCoins: '0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b'
