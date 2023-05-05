@@ -72,6 +72,22 @@ def load_test_coins(is_from_config):
 
 
 @functools.lru_cache()
+def load_integer_mate():
+    return SuiPackage(
+        sui_project.network_config['packages']['IntegerMate'],
+        package_name="IntegerMate",
+    )
+
+
+@functools.lru_cache()
+def load_move_stl():
+    return SuiPackage(
+        sui_project.network_config['packages']['MoveSTL'],
+        package_name="MoveSTL",
+    )
+
+
+@functools.lru_cache()
 def load_cetus_clmm():
     return SuiPackage(
         sui_project.network_config['packages']['CetusClmm'],
@@ -281,13 +297,17 @@ def main():
     token_bridge = load_token_bridge()
     wormhole_state = load_wormhole_state()
     cetus_clmm = load_cetus_clmm()
+    move_stl = load_move_stl()
+    integer_mate = load_integer_mate()
 
     # deploy
     omniswap_package = SuiPackage(package_path=omniswap_sui_path)
     omniswap_package.publish_package(gas_budget=5000000000, replace_address=dict(
         wormhole=wormhole.package_id,
         token_bridge=token_bridge.package_id,
-        cetus_clmm=cetus_clmm.package_id
+        cetus_clmm=cetus_clmm.package_id,
+        move_stl=move_stl.package_id,
+        integer_mate=integer_mate.package_id
     ))
 
     facet_manager = omniswap_package.wormhole_facet.WormholeFacetManager[-1]
