@@ -91,7 +91,7 @@ networks:
     chainid: 5
     SoDiamond: "0x43bBc3Be3FD1a26F62CA319E2eDEB5aB40d0e1D8"
     stargate:
-# https://stargateprotocol.gitbook.io/stargate/developers/contract-addresses/testnet
+      # https://stargateprotocol.gitbook.io/stargate/developers/contract-addresses/testnet
       router: "0x7612aE2a34E5A363E137De748801FB4c86499152"
       # Will be deployed soon
       chainid: 10121
@@ -182,7 +182,7 @@ networks:
             - 5 # goerli
             - 43113 # avax-test
         oracle:
-          # manual set avax/eth ratio
+        # manual set avax/eth ratio
     swap:
       ISwapRouter:
         name: UniswapV3
@@ -271,6 +271,9 @@ networks:
         decimal: 6
       ftm-usdc:
         address: "0xc95CEe06CF296479eBfA379e62D79C491fEc875D"
+        decimal: 6
+      sui-usdc:
+        address: "0x6c6eCdeBffe8D7eADC59c35d82E3930934ABd42F"
         decimal: 6
       wbtc:
         address: "0x0ecacbE08B4E2AA71B8f71ECe35A7EbF815607E8"
@@ -612,7 +615,7 @@ networks:
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
       liquidswap: "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12"
-#      liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
+      #      liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
       omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
     wormhole:
       chainid: 22
@@ -679,10 +682,10 @@ networks:
           dst_chainid: 21
           base_gas: 700000
           per_byte_gas: 68
-#        ftm-main:
-#          dst_chainid: 10
-#          base_gas: 700000
-#          per_byte_gas: 68
+    #        ftm-main:
+    #          dst_chainid: 10
+    #          base_gas: 700000
+    #          per_byte_gas: 68
     bridges:
       celer:
         chainid: 1
@@ -760,10 +763,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
-#      ftm:
-#        chainid: 10
-#        currency: ETH
-#        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
+    #      ftm:
+    #        chainid: 10
+    #        currency: ETH
+    #        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
     token:
       weth:
         address: "0xf1277d1Ed8AD466beddF92ef448A132661956621"
@@ -827,10 +830,10 @@ networks:
           dst_chainid: 21
           base_gas: 700000
           per_byte_gas: 68
-#        ftm-main:
-#          dst_chainid: 10
-#          base_gas: 700000
-#          per_byte_gas: 68
+    #        ftm-main:
+    #          dst_chainid: 10
+    #          base_gas: 700000
+    #          per_byte_gas: 68
     bridges:
       celer:
         chainid: 56
@@ -908,10 +911,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
-#      ftm:
-#        chainid: 10
-#        currency: USD
-#        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
+    #      ftm:
+    #        chainid: 10
+    #        currency: USD
+    #        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
     token:
       usdt:
         address: "0x55d398326f99059fF775485246999027B3197955"
@@ -967,10 +970,10 @@ networks:
           dst_chainid: 21
           base_gas: 700000
           per_byte_gas: 68
-#        ftm-main:
-#          dst_chainid: 10
-#          base_gas: 700000
-#          per_byte_gas: 68
+    #        ftm-main:
+    #          dst_chainid: 10
+    #          base_gas: 700000
+    #          per_byte_gas: 68
     bridges:
       celer:
         chainid: 43114
@@ -1043,10 +1046,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0x0A77230d17318075983913bC2145DB16C7366156"
-#      ftm:
-#        chainid: 10
-#        currency: USD
-#        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
+    #      ftm:
+    #        chainid: 10
+    #        currency: USD
+    #        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
     token:
       weth:
         address: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
@@ -1062,10 +1065,10 @@ networks:
         name: PangolinV2
         router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
         token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
-#      IUniswapV2Router02AVAX:
-#        name: TraderJoeV2
-#        router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
-#        token_list: ""
+  #      IUniswapV2Router02AVAX:
+  #        name: TraderJoeV2
+  #        router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
+  #        token_list: ""
   polygon-main:
     omnibtc_chainid: 5
     chainid: 137
@@ -1103,10 +1106,10 @@ networks:
           dst_chainid: 21
           base_gas: 700000
           per_byte_gas: 68
-#        ftm-main:
-#          dst_chainid: 10
-#          base_gas: 700000
-#          per_byte_gas: 68
+    #        ftm-main:
+    #          dst_chainid: 10
+    #          base_gas: 700000
+    #          per_byte_gas: 68
     bridges:
       celer:
         chainid: 137
@@ -1184,10 +1187,10 @@ networks:
         chainid: 6
         currency: USD
         address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
-#      ftm:
-#        chainid: 10
-#        currency: USD
-#        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
+    #      ftm:
+    #        chainid: 10
+    #        currency: USD
+    #        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
     token:
       weth:
         address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
@@ -1306,10 +1309,10 @@ networks:
         name: SushiswapV2
         router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
         token_list: ""
-#      IUniswapV2Router02:
-#        name: CamelotV2
-#        router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
-#        token_list: ""
+  #      IUniswapV2Router02:
+  #        name: CamelotV2
+  #        router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
+  #        token_list: ""
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10
@@ -1397,10 +1400,10 @@ networks:
         name: ZipSwapV2
         router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
         token_list: ""
-#      IUniswapV2Router02:
-#        name: ZipSwapV2
-#        router: "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
-#        token_list: ""
+  #      IUniswapV2Router02:
+  #        name: ZipSwapV2
+  #        router: "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
+  #        token_list: ""
   ftm-main:
     omnibtc_chainid: 8
     chainid: 250

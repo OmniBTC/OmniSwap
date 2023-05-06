@@ -9,11 +9,11 @@ from pathlib import Path
 import pandas as pd
 import requests
 from brownie import network
+from sui_brownie import SuiPackage, SuiObject
 
 from scripts import sui_project
 from scripts.serde_sui import parse_vaa_to_wormhole_payload
 from scripts.struct_sui import decode_hex_to_ascii, hex_str_to_vector_u8
-from sui_brownie import SuiPackage, SuiObject
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -90,7 +90,7 @@ def format_emitter_address(addr):
 
 def get_signed_vaa_by_wormhole(
         sequence: int,
-        src_net: int = None
+        src_net: str = None
 ):
     """
     Get signed vaa

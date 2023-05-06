@@ -63,11 +63,10 @@ def judge_hex_str(data: str):
 def to_hex_str(data: str, with_prefix=True):
     if judge_hex_str(data):
         return data
+    if with_prefix:
+        return "0x" + bytes(data, 'ascii').hex()
     else:
-        if with_prefix:
-            return str("0x") + str(bytes(data, 'ascii').hex())
-        else:
-            return str(bytes(data, 'ascii').hex())
+        return bytes(data, 'ascii').hex()
 
 
 def hex_str_to_vector_u8(data: str) -> List[int]:
