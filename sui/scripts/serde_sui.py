@@ -7,6 +7,22 @@ from scripts.struct_sui import change_network, omniswap_ethereum_project
 import sui_brownie
 
 
+def parse_u256(data):
+    assert len(data) == 32
+    output = 0
+    for i in range(32):
+        output = (output << 8) + int(data[31 - i])
+    return output
+
+
+def parse_u64(data):
+    assert len(data) == 8
+    output = 0
+    for i in range(8):
+        output = (output << 8) + int(data[7 - i])
+    return output
+
+
 @functools.lru_cache()
 def get_serde_facet(net: str):
     change_network(net)
@@ -59,7 +75,9 @@ def get_price_ratio(
         price_manager,
         dst_chain_id: int
 ):
-    return package.so_fee_wormhole.get_price_ratio.inspect(price_manager, dst_chain_id)
+    return_value = package.so_fee_wormhole.get_price_ratio.inspect(
+        price_manager, dst_chain_id)["results"][0]["returnValues"][0][0]
+    return parse_u64(return_value)
 
 
 def parse_vaa(
