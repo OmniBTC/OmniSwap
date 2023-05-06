@@ -2,7 +2,7 @@ import functools
 from pathlib import Path
 
 import yaml
-from sui_brownie import SuiPackage, sui_brownie, SuiObject
+from sui_brownie import SuiPackage, SuiObject, Argument, U16
 
 from scripts import sui_project
 from scripts.struct_sui import omniswap_sui_path
@@ -259,23 +259,51 @@ def load_test_coin_faucet(is_from_config):
 
 
 def load_token_bridge_state():
-    return sui_project.network_config["objects"]["WormholeState"]
+    return sui_project.network_config["objects"]["TokenBridgeState"]
+
+
+def get_coin_metadata(coin_type):
+    return sui_project.client.suix_getCoinMetadata(coin_type)['id']
 
 
 def attest_token(coin_type):
     token_bridge = load_token_bridge()
+    wormhole = load_wormhole()
 
     result = sui_project.pay_sui([0])
     zero_coin = result['objectChanges'][-1]['objectId']
-    metadata = sui_project[SuiObject.from_type(coin_metadata(coin_type))][-1]
-    token_bridge.token_bridge.attest_token(
-        load_token_bridge_state(),
-        load_wormhole_state(),
-        zero_coin,
-        metadata,
-        0,
-        clock(),
-        type_arguments=[coin_type]
+    metadata = get_coin_metadata(coin_type)
+
+    sui_project.batch_transaction(
+        actual_params=[
+            load_token_bridge_state(),
+            metadata,
+            0,
+            load_wormhole_state(),
+            zero_coin,
+            clock()
+        ],
+        transactions=[
+            [
+                token_bridge.attest_token.attest_token,
+                [
+                    Argument("Input", U16(0)),
+                    Argument("Input", U16(1)),
+                    Argument("Input", U16(2)),
+                ],
+                [coin_type]
+            ],
+            [
+                wormhole.publish_message.publish_message,
+                [
+                    Argument("Input", U16(3)),
+                    Argument("Input", U16(4)),
+                    Argument("Result", U16(0)),
+                    Argument("Input", U16(5)),
+                ],
+                []
+            ]
+        ]
     )
 
 

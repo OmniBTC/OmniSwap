@@ -1,7 +1,7 @@
 from sui_brownie import SuiPackage
 
 from scripts import sui_project
-from scripts.deploy import clock
+from scripts.deploy import clock, attest_token
 
 
 def global_config():
@@ -81,6 +81,13 @@ def get_coins(coin_type):
     return [c["coinObjectId"] for c in result["data"]]
 
 
+def register_cetus_tokens():
+    attest_token(usdt())
+    attest_token(usdc())
+    attest_token(btc())
+    attest_token(eth())
+
+
 def add_liquidity():
     cetus_scripts = load_cetus_scripts()
 
@@ -100,4 +107,4 @@ def add_liquidity():
 
 
 if __name__ == "__main__":
-    add_liquidity()
+    register_cetus_tokens()

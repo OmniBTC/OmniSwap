@@ -1,8 +1,8 @@
+import hashlib
 import json
 from pathlib import Path
 from random import choice
 from typing import List
-import hashlib
 
 from brownie import web3, network, project
 
@@ -71,11 +71,14 @@ def judge_hex_str(data: str):
         return False
 
 
-def to_hex_str(data: str):
+def to_hex_str(data: str, with_prefix=True):
     if judge_hex_str(data):
         return data
     else:
-        return str("0x") + str(bytes(data, 'ascii').hex())
+        if with_prefix:
+            return str("0x") + str(bytes(data, 'ascii').hex())
+        else:
+            return str(bytes(data, 'ascii').hex())
 
 
 def hex_str_to_vector_u8(data: str) -> List[int]:
@@ -174,8 +177,8 @@ class SwapData(View):
         """Returns the data used to pass into the contract interface"""
         return [to_hex_str(self.callTo),
                 to_hex_str(self.approveTo),
-                to_hex_str(self.sendingAssetId),
-                to_hex_str(self.receivingAssetId),
+                to_hex_str(self.sendingAssetId, with_prefix=False),
+                to_hex_str(self.receivingAssetId, with_prefix=False),
                 self.fromAmount,
                 to_hex_str(self.callData)]
 
