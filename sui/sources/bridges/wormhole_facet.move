@@ -125,8 +125,13 @@ module omniswap::wormhole_facet {
         actual_receiving_amount: u64,
     }
 
-    struct SwapResult has copy, drop {
-        amount: u64,
+    struct SrcAmount has copy, drop {
+        relayer_fee: u64,
+        cross_amount: u64
+    }
+
+    struct DstAmount has copy, drop {
+        so_fee: u64
     }
 
     fun init(ctx: &mut TxContext) {
@@ -361,6 +366,7 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
+        let bridge_amount = coin::value(&coin_x);
         let (sequence, dust) = tranfer_token<X>(
             wormhole_state,
             token_bridge_state,
@@ -371,6 +377,7 @@ module omniswap::wormhole_facet {
             payload,
             wormhole_fee_coin
         );
+        bridge_amount = bridge_amount - coin::value(&dust);
         process_left_coin(dust, tx_context::sender(ctx));
 
         event::emit(
@@ -384,6 +391,13 @@ module omniswap::wormhole_facet {
                 src_wormhole_chain_id: storage.src_wormhole_chain_id,
                 dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
                 sequence
+            }
+        );
+
+        event::emit(
+            SrcAmount {
+                relayer_fee: fee,
+                cross_amount: bridge_amount
             }
         );
     }
@@ -476,7 +490,6 @@ module omniswap::wormhole_facet {
         process_left_coin(left_coin_x, tx_context::sender(ctx));
         process_left_coin(dust, tx_context::sender(ctx));
 
-
         event::emit(
             SoTransferStarted {
                 transaction_id: cross::so_transaction_id(so_data),
@@ -490,9 +503,11 @@ module omniswap::wormhole_facet {
                 sequence
             }
         );
+
         event::emit(
-            SwapResult {
-                amount: bridge_amount
+            SrcAmount {
+                relayer_fee: fee,
+                cross_amount: bridge_amount
             }
         );
     }
@@ -577,7 +592,6 @@ module omniswap::wormhole_facet {
         process_left_coin(letf_coin_x, tx_context::sender(ctx));
         process_left_coin(dust, tx_context::sender(ctx));
 
-
         event::emit(
             SoTransferStarted {
                 transaction_id: cross::so_transaction_id(so_data),
@@ -591,9 +605,11 @@ module omniswap::wormhole_facet {
                 sequence
             }
         );
+
         event::emit(
-            SwapResult {
-                amount: bridge_amount
+            SrcAmount {
+                relayer_fee: fee,
+                cross_amount: bridge_amount
             }
         );
     }
@@ -702,9 +718,11 @@ module omniswap::wormhole_facet {
                 sequence
             }
         );
+
         event::emit(
-            SwapResult {
-                amount: bridge_amount
+            SrcAmount {
+                relayer_fee: fee,
+                cross_amount: bridge_amount
             }
         );
     }
@@ -805,9 +823,11 @@ module omniswap::wormhole_facet {
                 sequence
             }
         );
+
         event::emit(
-            SwapResult {
-                amount: bridge_amount
+            SrcAmount {
+                relayer_fee: fee,
+                cross_amount: bridge_amount
             }
         );
     }
@@ -876,7 +896,10 @@ module omniswap::wormhole_facet {
                 transaction_id: cross::so_transaction_id(so_data),
                 actual_receiving_amount: receiving_amount
             }
-        )
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
     }
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
@@ -933,7 +956,10 @@ module omniswap::wormhole_facet {
                 transaction_id: cross::so_transaction_id(so_data),
                 actual_receiving_amount: receiving_amount
             }
-        )
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
     }
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
@@ -990,7 +1016,10 @@ module omniswap::wormhole_facet {
                 transaction_id: cross::so_transaction_id(so_data),
                 actual_receiving_amount: receiving_amount
             }
-        )
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
     }
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
@@ -1049,7 +1078,10 @@ module omniswap::wormhole_facet {
                 transaction_id: cross::so_transaction_id(so_data),
                 actual_receiving_amount: receiving_amount
             }
-        )
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
     }
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
@@ -1108,7 +1140,10 @@ module omniswap::wormhole_facet {
                 transaction_id: cross::so_transaction_id(so_data),
                 actual_receiving_amount: receiving_amount
             }
-        )
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
     }
 
     /// To avoid wormhole payload data construction errors, lock the token and allow the owner to handle
@@ -1153,7 +1188,10 @@ module omniswap::wormhole_facet {
                 transaction_id: cross::so_transaction_id(so_data),
                 actual_receiving_amount: receiving_amount
             }
-        )
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
     }
 
     /// To avoid swap min amount errors, allow relayer to compensate
@@ -1197,7 +1235,10 @@ module omniswap::wormhole_facet {
                 transaction_id: cross::so_transaction_id(so_data),
                 actual_receiving_amount: receiving_amount
             }
-        )
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
     }
 
     /// Swap Helpers

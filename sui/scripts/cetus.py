@@ -107,4 +107,8 @@ def add_liquidity():
 
 
 if __name__ == "__main__":
-    register_cetus_tokens()
+    claim_from_cetus_faucet("BTC")
+    claim_from_cetus_faucet("ETH")
+    claim_from_cetus_faucet("USDT")
+    claim_from_cetus_faucet("USDC")
+    # register_cetus_tokens()

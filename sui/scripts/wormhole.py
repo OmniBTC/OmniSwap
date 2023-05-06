@@ -612,7 +612,7 @@ def claim_faucet(coin_type):
 
 
 def cross_swap_for_testnet(package):
-    dst_gas_price = 0
+    dst_gas_price = 30 * 1e9
 
     # # gas: 17770
     # cross_swap(package,
