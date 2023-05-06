@@ -459,7 +459,7 @@ def process_vaa(
 
 
 def process_v1(
-        dstWormholeChainId: int = 22,
+        dstWormholeChainId: int = 21,
         dstSoDiamond: str = None,
 ):
     local_logger = logger.getChild(f"[v1|{sui_project.network}]")
@@ -487,7 +487,7 @@ def process_v1(
 
 
 def process_v2(
-        dstWormholeChainId: int = 22,
+        dstWormholeChainId: int = 21,
         dstSoDiamond: str = None,
 ):
     local_logger = logger.getChild(f"[v2|{sui_project.network}]")
@@ -526,7 +526,7 @@ def process_v2(
 
 def compensate(
         sequences: list,
-        dstWormholeChainId: int = 22,
+        dstWormholeChainId: int = 21,
         dstSoDiamond: str = None,
 ):
     local_logger = logger.getChild(f"[compensate|{sui_project.network}]")
@@ -611,8 +611,8 @@ def record_gas(
 
 def main():
     print(f'SoDiamond:{sui_project.network_config["SoDiamond"]}')
-    t1 = threading.Thread(target=process_v1, args=(22, sui_project.network_config["SoDiamond"]))
-    t2 = threading.Thread(target=process_v2, args=(22, sui_project.network_config["SoDiamond"]))
+    t1 = threading.Thread(target=process_v1, args=(21, sui_project.network_config["SoDiamond"]))
+    t2 = threading.Thread(target=process_v2, args=(21, sui_project.network_config["SoDiamond"]))
     t1.start()
     t2.start()
     t1.join()
@@ -620,4 +620,8 @@ def main():
 
 
 def single_process():
-    process_v2(22, sui_project.network_config["SoDiamond"])
+    process_v1(21, sui_project.network_config["SoDiamond"])
+
+
+if __name__ == "__main__":
+    single_process()
