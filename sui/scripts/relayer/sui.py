@@ -1,3 +1,4 @@
+import functools
 import json
 import logging
 import threading
@@ -237,6 +238,21 @@ def get_pending_data(url: str = None) -> list:
         return []
 
 
+@functools.lru_cache()
+def get_deepbook_package_id():
+    return sui_project.network_config["packages"]["DeepBook"]
+
+
+@functools.lru_cache()
+def get_cetus_package_id():
+    return sui_project.network_config["packages"]["CetusClmm"]
+
+
+@functools.lru_cache()
+def get_cetus_config():
+    return sui_project.network_config["objects"]["GlobalConfig"]
+
+
 def process_vaa(
         dstSoDiamond: str,
         vaa_str: str,
@@ -285,6 +301,7 @@ def process_vaa(
             ty_args = [final_asset_id]
             pool_id = None
             reverse = None
+            dex_name = None
         elif len(wormhole_data[3]) == 1:
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
             s2 = final_asset_id
@@ -298,9 +315,18 @@ def process_vaa(
                 "showBcs": False,
                 "showStorageRebate": False
             })["data"]["type"]
+            origin_type = SuiObject.from_type(sui_type)
+            if origin_type.package_id == get_deepbook_package_id():
+                dex_name = "deepbook"
+            elif origin_type.package_id == get_cetus_package_id():
+                dex_name = "cetus"
+            else:
+                raise ValueError(origin_type.package_id)
+
             start_index = sui_type.find("<")
             end_index = sui_type.find(",")
             sui_type = SuiObject.from_type(sui_type[start_index:end_index].replace(" ", ""))
+
             if str(sui_type).replace("0x", "") == s1.replace("0x", ""):
                 ty_args = [s1, s2]
                 reverse = False
@@ -331,29 +357,57 @@ def process_vaa(
                         gas_unit_price=dst_max_gas_price
                     )
                 elif not reverse:
-                    result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_quote_asset(
-                        storage,
-                        token_bridge_state,
-                        wormhole_state,
-                        wormhole_fee,
-                        pool_id,
-                        hex_str_to_vector_u8(vaa_str),
-                        clock,
-                        ty_args=ty_args,
-                        gas_unit_price=dst_max_gas_price
-                    )
+                    if dex_name == "deepbook":
+                        result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_quote_asset(
+                            storage,
+                            token_bridge_state,
+                            wormhole_state,
+                            wormhole_fee,
+                            pool_id,
+                            hex_str_to_vector_u8(vaa_str),
+                            clock,
+                            ty_args=ty_args,
+                            gas_unit_price=dst_max_gas_price
+                        )
+                    else:
+                        result = sui_package.wormhole_facet.complete_so_swap_for_cetus_quote_asset(
+                            storage,
+                            token_bridge_state,
+                            wormhole_state,
+                            wormhole_fee,
+                            get_cetus_config(),
+                            pool_id,
+                            hex_str_to_vector_u8(vaa_str),
+                            clock,
+                            ty_args=ty_args,
+                            gas_unit_price=dst_max_gas_price
+                        )
                 else:
-                    result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_base_asset(
-                        storage,
-                        token_bridge_state,
-                        wormhole_state,
-                        wormhole_fee,
-                        pool_id,
-                        hex_str_to_vector_u8(vaa_str),
-                        clock,
-                        ty_args=ty_args,
-                        gas_unit_price=dst_max_gas_price
-                    )
+                    if dex_name == "deepbook":
+                        result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_base_asset(
+                            storage,
+                            token_bridge_state,
+                            wormhole_state,
+                            wormhole_fee,
+                            pool_id,
+                            hex_str_to_vector_u8(vaa_str),
+                            clock,
+                            ty_args=ty_args,
+                            gas_unit_price=dst_max_gas_price
+                        )
+                    else:
+                        result = sui_package.wormhole_facet.complete_so_swap_for_cetus_base_asset(
+                            storage,
+                            token_bridge_state,
+                            wormhole_state,
+                            wormhole_fee,
+                            get_cetus_config(),
+                            pool_id,
+                            hex_str_to_vector_u8(vaa_str),
+                            clock,
+                            ty_args=ty_args,
+                            gas_unit_price=dst_max_gas_price
+                        )
 
             except Exception as e:
                 if time.time() > vaa_data[1] + 60 * 60:
