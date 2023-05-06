@@ -348,6 +348,8 @@ def main():
 
     facet_manager = omniswap_package.wormhole_facet.WormholeFacetManager[-1]
 
+    omniswap_package.wormhole_facet.set_relayer(facet_manager, sui_project.network_config["Relayer"])
+
     print(f"FacetManager:{facet_manager}\n")
 
     omniswap_package.wormhole_facet.init_wormhole(

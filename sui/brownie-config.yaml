@@ -510,6 +510,7 @@ networks:
   sui-mainnet:
     node_url: https://fullnode.mainnet.sui.io:443
     SoDiamond: ""
+    Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
       FacetManager: '0xdf5d9cbc995362eb938236d9b67c9684042e423eea4a20aa0a5622a8c7455676'
@@ -531,6 +532,7 @@ networks:
   sui-testnet:
     node_url: https://sui-testnet-endpoint.blockvision.org:443
     SoDiamond: "0x79a5c9781758290fa68825ec205bd1452e2c5f470f288e21ec9e513f45099ea0"
+    Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
       FacetManager: '0x37aee7b5b9068f8432930832a0e7e293ddb39abc0eb1532493bf1693e7ac1e93'
@@ -628,4 +630,4 @@ networks:
 sui_wallets:
   from_mnemonic:
     Relayer: ${RELAYER_MNEMONIC}
-    TestAccount: ${TEST_ACCOUNT_MNEMONIC}
+    Fee: ${FEE_MNEMONIC}

@@ -125,6 +125,10 @@ module omniswap::wormhole_facet {
         actual_receiving_amount: u64,
     }
 
+    struct SwapResult has copy, drop {
+        amount: u64,
+    }
+
     fun init(ctx: &mut TxContext) {
         transfer::share_object(WormholeFacetManager {
             id: object::new(ctx),
@@ -457,6 +461,7 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+        let bridge_amount = coin::value(&coin_x);
         let (sequence, dust) = tranfer_token<X>(
             wormhole_state,
             token_bridge_state,
@@ -467,6 +472,7 @@ module omniswap::wormhole_facet {
             payload,
             wormhole_fee_coin
         );
+        bridge_amount = bridge_amount - coin::value(&dust);
         process_left_coin(left_coin_x, tx_context::sender(ctx));
         process_left_coin(dust, tx_context::sender(ctx));
 
@@ -482,6 +488,11 @@ module omniswap::wormhole_facet {
                 src_wormhole_chain_id: storage.src_wormhole_chain_id,
                 dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
                 sequence
+            }
+        );
+        event::emit(
+            SwapResult {
+                amount: bridge_amount
             }
         );
     }
@@ -551,6 +562,7 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+        let bridge_amount = coin::value(&coin_y);
         let (sequence, dust) = tranfer_token<Y>(
             wormhole_state,
             token_bridge_state,
@@ -561,6 +573,7 @@ module omniswap::wormhole_facet {
             payload,
             wormhole_fee_coin
         );
+        bridge_amount = bridge_amount - coin::value(&dust);
         process_left_coin(letf_coin_x, tx_context::sender(ctx));
         process_left_coin(dust, tx_context::sender(ctx));
 
@@ -576,6 +589,11 @@ module omniswap::wormhole_facet {
                 src_wormhole_chain_id: storage.src_wormhole_chain_id,
                 dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
                 sequence
+            }
+        );
+        event::emit(
+            SwapResult {
+                amount: bridge_amount
             }
         );
     }
@@ -655,6 +673,7 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+        let bridge_amount = coin::value(&coin_x);
         let (sequence, dust) = tranfer_token<X>(
             wormhole_state,
             token_bridge_state,
@@ -665,6 +684,7 @@ module omniswap::wormhole_facet {
             payload,
             wormhole_fee_coin
         );
+        bridge_amount = bridge_amount - coin::value(&dust);
         process_left_coin(left_coin_x, tx_context::sender(ctx));
         process_left_coin(dust, tx_context::sender(ctx));
 
@@ -680,6 +700,11 @@ module omniswap::wormhole_facet {
                 src_wormhole_chain_id: storage.src_wormhole_chain_id,
                 dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
                 sequence
+            }
+        );
+        event::emit(
+            SwapResult {
+                amount: bridge_amount
             }
         );
     }
@@ -751,6 +776,7 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+        let bridge_amount = coin::value(&coin_y);
         let (sequence, dust) = tranfer_token<Y>(
             wormhole_state,
             token_bridge_state,
@@ -761,6 +787,7 @@ module omniswap::wormhole_facet {
             payload,
             wormhole_fee_coin
         );
+        bridge_amount = bridge_amount - coin::value(&dust);
         process_left_coin(letf_coin_x, tx_context::sender(ctx));
         process_left_coin(dust, tx_context::sender(ctx));
 
@@ -776,6 +803,11 @@ module omniswap::wormhole_facet {
                 src_wormhole_chain_id: storage.src_wormhole_chain_id,
                 dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
                 sequence
+            }
+        );
+        event::emit(
+            SwapResult {
+                amount: bridge_amount
             }
         );
     }

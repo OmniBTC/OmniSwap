@@ -7,4 +7,4 @@ import sui_brownie
 
 
 sui_project = sui_brownie.SuiProject(project_path=Path(__file__).parent.parent, network="sui-testnet")
-sui_project.active_account("TestAccount")
+sui_project.active_account("Fee")
