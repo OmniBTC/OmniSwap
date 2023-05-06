@@ -339,7 +339,7 @@ module omniswap::wormhole_facet {
             vector::empty()
         };
 
-        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
+        let (flag, fee, consume_value, dst_max_gas) = check_relayer_fee(
             storage,
             wormhole_state,
             price_manager,
@@ -356,7 +356,7 @@ module omniswap::wormhole_facet {
             swap_data_dst
         );
 
-        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let comsume_sui = merge_coin(coins_sui, consume_value, ctx);
         let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
         let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
         transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
@@ -436,7 +436,7 @@ module omniswap::wormhole_facet {
             vector::empty()
         };
 
-        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
+        let (flag, fee, consume_value, dst_max_gas) = check_relayer_fee(
             storage,
             wormhole_state,
             price_manager,
@@ -453,7 +453,7 @@ module omniswap::wormhole_facet {
             swap_data_dst
         );
 
-        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let comsume_sui = merge_coin(coins_sui, consume_value, ctx);
         let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
         let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
         transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
@@ -538,7 +538,7 @@ module omniswap::wormhole_facet {
             vector::empty()
         };
 
-        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
+        let (flag, fee, consume_value, dst_max_gas) = check_relayer_fee(
             storage,
             wormhole_state,
             price_manager,
@@ -555,7 +555,7 @@ module omniswap::wormhole_facet {
             swap_data_dst
         );
 
-        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let comsume_sui = merge_coin(coins_sui, consume_value, ctx);
         let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
         let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
         transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
@@ -649,7 +649,7 @@ module omniswap::wormhole_facet {
             vector::empty()
         };
 
-        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
+        let (flag, fee, consume_value, dst_max_gas) = check_relayer_fee(
             storage,
             wormhole_state,
             price_manager,
@@ -666,7 +666,7 @@ module omniswap::wormhole_facet {
             swap_data_dst
         );
 
-        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let comsume_sui = merge_coin(coins_sui, consume_value, ctx);
         let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
         let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
         transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
@@ -754,7 +754,7 @@ module omniswap::wormhole_facet {
             vector::empty()
         };
 
-        let (flag, fee, comsume_value, dst_max_gas) = check_relayer_fee(
+        let (flag, fee, consume_value, dst_max_gas) = check_relayer_fee(
             storage,
             wormhole_state,
             price_manager,
@@ -771,7 +771,7 @@ module omniswap::wormhole_facet {
             swap_data_dst
         );
 
-        let comsume_sui = merge_coin(coins_sui, comsume_value, ctx);
+        let comsume_sui = merge_coin(coins_sui, consume_value, ctx);
         let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
         let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
         transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
@@ -1244,6 +1244,63 @@ module omniswap::wormhole_facet {
     /// Swap Helpers
 
     /// Ensure that there is a minimal cost to help Relayer complete transactions in the destination chain.
+    public fun estimate_relayer_fee(
+        storage: &mut Storage,
+        state: &mut WormholeState,
+        price_manager: &mut PriceManager,
+        so_data: vector<u8>,
+        wormhole_data: vector<u8>,
+        swap_data_dst: vector<u8>,
+    ): (u64, u64, u256) {
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
+
+        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
+
+        let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
+            cross::decode_normalized_swap_data(&mut swap_data_dst)
+        }else {
+            vector::empty()
+        };
+
+        let estimate_reserve = storage.estimate_reserve;
+
+        let ratio = so_fee_wormhole::get_price_ratio(price_manager, wormhole_data.dst_wormhole_chain_id);
+
+        let dst_max_gas = estimate_complete_soswap_gas(
+            storage,
+            cross::encode_normalized_so_data(so_data),
+            wormhole_data,
+            cross::encode_normalized_swap_data(swap_data_dst)
+        );
+        let dst_fee = wormhole_data.dst_max_gas_price_in_wei_for_relayer * dst_max_gas;
+
+        let one = (RAY as u256);
+        let src_fee = dst_fee * (ratio as u256);
+        src_fee = src_fee / one;
+        src_fee = src_fee * (estimate_reserve as u256);
+        src_fee = src_fee / one;
+
+        if (wormhole_data.dst_wormhole_chain_id == 22) {
+            // Aptos chain, decimal * 10
+            src_fee = src_fee * 10;
+        }else {
+            // Evm chain, decimal / 1e9
+            src_fee = src_fee / 1000000000;
+        };
+
+        let consume_value = state::message_fee(state);
+
+        if (right_type<SUI>(cross::so_sending_asset_id(so_data))) {
+            consume_value = consume_value + (cross::so_amount(so_data) as u64);
+        };
+
+        let src_fee = (src_fee as u64);
+        consume_value = consume_value + src_fee;
+
+        (src_fee, consume_value, dst_max_gas)
+    }
+
+    /// Ensure that there is a minimal cost to help Relayer complete transactions in the destination chain.
     public fun check_relayer_fee(
         storage: &mut Storage,
         state: &mut WormholeState,
@@ -1278,24 +1335,24 @@ module omniswap::wormhole_facet {
             src_fee = src_fee / 1000000000;
         };
 
-        let comsume_value = state::message_fee(state);
+        let consume_value = state::message_fee(state);
 
         if (right_type<SUI>(cross::so_sending_asset_id(so_data))) {
-            comsume_value = comsume_value + (cross::so_amount(so_data) as u64);
+            consume_value = consume_value + (cross::so_amount(so_data) as u64);
         };
 
         let src_fee = (src_fee as u64);
-        comsume_value = comsume_value + src_fee;
+        consume_value = consume_value + src_fee;
 
         let flag = false;
         // let return_value = 0;
 
         let wormhole_fee = (wormhole_data.wormhole_fee as u64);
-        if (comsume_value <= wormhole_fee) {
+        if (consume_value <= wormhole_fee) {
             flag = true;
-            // return_value = wormhole_fee - comsume_value;
+            // return_value = wormhole_fee - consume_value;
         };
-        (flag, src_fee, comsume_value, dst_max_gas)
+        (flag, src_fee, consume_value, dst_max_gas)
     }
 
     public fun estimate_complete_soswap_gas(

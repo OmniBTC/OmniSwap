@@ -266,49 +266,22 @@ def parse_u64(data):
 
 def estimate_wormhole_fee(
         omniswap: sui_brownie.SuiPackage,
-        dst_chainid: int,
-        dst_gas_price: int,
-        input_amount: int,
-        is_native: bool,
-        payload_length: int,
-        wormhole_cross_fee: int = 0
+        so_data: list,
+        wormhole_data: list,
+        swap_data_dst: list
 ):
-    """
-     wormhole_fee = wormhole_cross_fee + relayer_fee + input_native_amount
-     :param omniswap:
-    :param dst_gas_price:
-    :param dst_chainid:
-    :param payload_length:
-    :param input_amount:
-    :param is_native:
-    :param wormhole_cross_fee: wormhole_cross_fee current is 0
-    :return:
-    """
-    ray = 100000000
-
-    input_native_amount = input_amount if is_native else 0
-    result = omniswap.so_fee_wormhole.get_price_ratio.inspect(
-        sui_project.network_config['objects']['PriceManager'],
-        dst_chainid
-    )
-    ratio = parse_u64(result['results'][0]['returnValues'][0][0])
-
-    result = omniswap.wormhole_facet.get_dst_gas.inspect(
+    data = omniswap.wormhole_facet.estimate_relayer_fee.inspect(
         sui_project.network_config['objects']['FacetStorage'],
-        dst_chainid
-    )
-
-    estimate_reserve = sui_project.network_config["wormhole"]["estimate_reserve"]
-    base_gas = parse_u256(result['results'][0]['returnValues'][0][0])
-    gas_per_bytes = parse_u256(result['results'][0]['returnValues'][1][0])
-    dst_gas = base_gas + gas_per_bytes * payload_length
-
-    dst_fee = dst_gas * dst_gas_price / 1e10 * int(ratio) / ray * estimate_reserve / ray
-
-    # Change into aptos decimal
-    dst_fee = dst_fee * 1e8
-
-    return int(dst_fee + wormhole_cross_fee + input_native_amount)
+        sui_project.network_config['objects']['WormholeState'],
+        sui_project.network_config['objects']['PriceManager'],
+        so_data,
+        wormhole_data,
+        swap_data_dst
+    )["results"][0]["returnValues"]
+    src_fee = data[0][0]
+    consume_value = data[1][0]
+    dst_max_gas = data[2][0]
+    return parse_u64(src_fee), parse_u64(consume_value), parse_u256(dst_max_gas)
 
 
 def generate_so_data(
@@ -507,14 +480,9 @@ def cross_swap(
         normal_dst_swap_data = hex_str_to_vector_u8(
             str(serde.encodeNormalizedSwapData(normal_dst_swap_data)))
 
-    payload_length = len(normal_so_data) + len(normal_wormhole_data) + len(normal_dst_swap_data)
+    (src_fee, wormhole_fee, dst_max_gas) = estimate_wormhole_fee(package, normal_so_data, normal_wormhole_data, normal_dst_swap_data)
 
-    is_native = src_path[0] == "SUI"
-    wormhole_fee = estimate_wormhole_fee(
-        package, sui_project.config["networks"][dst_net]["wormhole"]["chainid"], dst_gas_price, input_amount, is_native,
-        payload_length, 0)
-
-    print(f"Wormhole fee: {wormhole_fee}")
+    print(f"Wormhole fee: {wormhole_fee}, src_fee:{src_fee}, dst_max_gas:{dst_max_gas}")
     wormhole_data = generate_wormhole_data(
         dst_net=dst_net,
         dst_gas_price=dst_gas_price,
