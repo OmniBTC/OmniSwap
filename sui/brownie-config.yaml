@@ -515,9 +515,9 @@ networks:
       FacetStorage: '0xa02ffd7a3797c4e87320ce9b8f88be78695ba87e014ae86e94f0b09bbb7037c9'
       Faucet: '0x1bf9020c0a3c37d17bd31bf0b582bde3e7d1828471aaee301c7dc20b4ccd476b'
       PriceManager: '0x35992ac792744ef3cb75af0ead6705dd2cb6dd6ef6bbce628763355ab0d0bfa5'
-      TokenBridgeState: '0x245e1cdf6315c459900d9a6c21962e39b7384c685abfcb3b98dc460601af11e0'
+      TokenBridgeState: '0xc57508ee0d4595e5a8728974a4a93a787d38f339757230d441e895422c07aba9'
       WormholeFee: '0x25edf36fc62f6d915dc49af616575e16aa67396e95741d525895185ae28b9217'
-      WormholeState: '0x47a135d958b160503fd215534647815d9aa4f3fb8a3e5c0b2384f2b0460dcccf'
+      WormholeState: '0xaeab97f96cf9877fee2883315d459552b2b921edc16d7ceac6eab944dd88919c'
     omnibtc_chainid: 21
     packages:
       CetusClmm: "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb"

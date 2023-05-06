@@ -36,7 +36,7 @@ NET_TO_WORMHOLE_CHAINID = {
     "optimism-main": 24,
     "arbitrum-main": 23,
     "aptos-mainnet": 22,
-    "sui-mainnet": 22,
+    "sui-mainnet": 21,
     # testnet
     "goerli": 2,
     "bsc-test": 4,
@@ -45,7 +45,7 @@ NET_TO_WORMHOLE_CHAINID = {
     "optimism-test": 24,
     "arbitrum-test": 23,
     "aptos-testnet": 22,
-    "sui-testnet": 22,
+    "sui-testnet": 21,
 }
 
 WORMHOLE_CHAINID_TO_NET = {
@@ -64,7 +64,7 @@ TOKEN_BRIDGE_EMITTER_ADDRESS = {
     "optimism-main": "0x0b2402144Bb366A632D14B83F244D2e0e21bD39c",
     "arbitrum-main": "0x1D68124e65faFC907325e3EDbF8c4d84499DAa8b",
     "aptos-mainnet": "0x0000000000000000000000000000000000000000000000000000000000000001",
-    "sui-mainnet": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "sui-mainnet": "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5",
     # testnet
     "goerli": "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
     "bsc-test": "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
@@ -73,7 +73,7 @@ TOKEN_BRIDGE_EMITTER_ADDRESS = {
     "optimism-test": "0xC7A204bDBFe983FCD8d8E61D02b475D4073fF97e",
     "arbitrum-test": "0x23908A62110e21C04F3A4e011d24F901F911744A",
     "aptos-testnet": "0x0000000000000000000000000000000000000000000000000000000000000001",
-    "sui-testnet": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "sui-testnet": "0xb22cd218bb63da447ac2704c1cc72727df6b5e981ee17a22176fd7b84c114610",
 }
 
 
