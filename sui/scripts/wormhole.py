@@ -84,6 +84,56 @@ def create_dst_wrapped_address(sequence: int, dst_net="bsc-test"):
     token_bridge.createWrapped(vaa_bytes, {"from": get_account()})
 
 
+def complete_dst_swap(sequence: int, dst_net="bsc-test"):
+    wormhole_facet = get_wormhole_facet(dst_net)
+    vaa = get_signed_vaa_by_wormhole(sequence, "sui-testnet")
+    vaa_bytes = "0x" + base64.b64decode(vaa['vaaBytes']).hex()
+    wormhole_facet.completeSoSwap(vaa_bytes, {"from": get_account()})
+
+
+def complete_without_sui_swap(sequence: int, src_net="bsc-test"):
+    omniswap = deploy.load_omniswap(True)
+    vaa = get_signed_vaa_by_wormhole(sequence, src_net)
+    vaa_bytes = "0x" + base64.b64decode(vaa['vaaBytes']).hex()
+    storage = sui_project.network_config["objects"]["FacetStorage"]
+    token_bridge_state = sui_project.network_config["objects"]["TokenBridgeState"]
+    wormhole_state = sui_project.network_config["objects"]["WormholeState"]
+    wormhole_fee = sui_project.network_config["objects"]["WormholeFee"]
+    clock = sui_project.network_config["objects"]["Clock"]
+    omniswap.wormhole_facet.complete_so_swap_without_swap(
+        storage,
+        token_bridge_state,
+        wormhole_state,
+        wormhole_fee,
+        hex_str_to_vector_u8(vaa_bytes),
+        clock,
+        type_arguments=[cetus.usdc()]
+    )
+
+
+def complete_with_sui_cetus_swap(sequence: int, src_net="bsc-test"):
+    omniswap = deploy.load_omniswap(True)
+    vaa = get_signed_vaa_by_wormhole(sequence, src_net)
+    vaa_bytes = "0x" + base64.b64decode(vaa['vaaBytes']).hex()
+    storage = sui_project.network_config["objects"]["FacetStorage"]
+    token_bridge_state = sui_project.network_config["objects"]["TokenBridgeState"]
+    wormhole_state = sui_project.network_config["objects"]["WormholeState"]
+    wormhole_fee = sui_project.network_config["objects"]["WormholeFee"]
+    clock = sui_project.network_config["objects"]["Clock"]
+    cetus_pool_id = sui_project.network_config["pools"]["Cetus-USDT-USDC"]['pool_id']
+    omniswap.wormhole_facet.complete_so_swap_for_cetus_base_asset(
+        storage,
+        token_bridge_state,
+        wormhole_state,
+        wormhole_fee,
+        cetus.global_config(),
+        cetus_pool_id,
+        hex_str_to_vector_u8(vaa_bytes),
+        clock,
+        type_arguments=[cetus.usdt(), cetus.usdc()]
+    )
+
+
 def attest_token(
         token_bridge: sui_brownie.SuiPackage,
         token_name="SUI",
@@ -635,9 +685,9 @@ def cross_swap_for_testnet(package):
     # gas: 46160
     cross_swap(package,
                src_path=["Cetus-USDT", "Cetus-USDC"],
-               dst_path=["USDC_WORMHOLE"],
-               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=1000000,
+               dst_path=["sui-usdc"],
+               receiver="0xB6B12aDA59a8Ac44Ded72e03693dd14614224349",
+               input_amount=100000000,
                dst_gas_price=dst_gas_price,
                src_router=SuiSwapType.Cetus
                )
@@ -700,4 +750,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    complete_with_sui_cetus_swap(4306)

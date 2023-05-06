@@ -306,6 +306,9 @@ networks:
         router: '0xD99D1c33F9fC3444f8101754aBC46c52416550D1'
         token_list: ''
     token:
+      sui-usdc:
+        address: "0x6c6eCdeBffe8D7eADC59c35d82E3930934ABd42F"
+        decimal: 6
       AptosCoin_WORMHOLE:
         address: '0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454'
         decimal: 8
