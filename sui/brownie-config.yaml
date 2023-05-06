@@ -559,7 +559,7 @@ networks:
           per_byte_gas: 68
   sui-testnet:
     node_url: https://sui-testnet-endpoint.blockvision.org:443
-    SoDiamond: "0x79a5c9781758290fa68825ec205bd1452e2c5f470f288e21ec9e513f45099ea0"
+    SoDiamond: "0xcf4e7294ea462739702d13c86318b88f0fc5290825b0e719ca613701a6f729df"
     Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
