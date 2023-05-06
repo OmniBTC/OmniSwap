@@ -563,6 +563,8 @@ networks:
     pools:
       Cetus-USDC-ETH:
         pool_id: '0x93904b1ef7a96510e9b8a957de39937c59d1396c765758797982c51eaabbed0c'
+      Cetus-USDT-USDC:
+        pool_id: '0xf774fedd1c23b5132158ca1136c62b4c85f512aa7f7a4e952ef05af30c27055d'
       DeepBook-BTC-USDC:
         pool_id: '0x43c422371538cedbea7daad60cc997702877370cd6a24edcac425f0eee99566e'
       DeepBook-SUI-USDC:

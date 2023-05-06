@@ -44,6 +44,10 @@ def usdc_eth_pool():
     return sui_project.network_config['pools']['Cetus-USDC-ETH']['pool_id']
 
 
+def usdt_usdc_pool():
+    return sui_project.network_config['pools']['Cetus-USDT-USDC']['pool_id']
+
+
 def load_cetus_faucet():
     return SuiPackage(
         sui_project.network_config['packages']['CetusFaucet'],
@@ -82,16 +86,16 @@ def add_liquidity():
 
     cetus_scripts.pool_script.open_position_with_liquidity_with_all(
         global_config(),
-        usdc_eth_pool(),
-        52,
+        usdt_usdc_pool(),
         4294967244,
+        52,
+        get_coins(usdt()),
         get_coins(usdc()),
-        get_coins(eth()),
-        int(200 * 1e6),
-        int(0.1 * 1e8),
+        int(1 * 1e6),
+        int(1 * 1e6),
         True,
         clock(),
-        type_arguments=[usdc(), eth()]
+        type_arguments=[usdt(), usdc()]
     )
 
 
