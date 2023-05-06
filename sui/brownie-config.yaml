@@ -538,8 +538,16 @@ networks:
       TokenBridgeState: '0x32422cb2f929b6a4e3f81b4791ea11ac2af896b310f3d9442aa1fe924ce0bab4'
       WormholeFee: '0x25edf36fc62f6d915dc49af616575e16aa67396e95741d525895185ae28b9217'
       WormholeState: '0x69ae41bdef4770895eb4e7aaefee5e4673acc08f6917b4856cf55549c4573ca8'
+      GlobalConfig: '0x43e2925f7c5bed04b612cc66c53a850e280a46704ce12cd2f25420b537e23f9d'
+      Pools: '0xc8407fc5dfec8d7b7014ee4d244dbe4eb456bfa6a7878e88c9d4bc947b2c2d87'
+      BTCSupply: '0xdf17a296e80416827b9bab70ca2f84a293fdf967815b365c6c7f7b12141703fb'
+      ETHSupply: '0x010f8ea766c72e793eb540e21fd795fefd05661b6fb6521cc9c7af581178bad5'
+      USDTSupply: '0xe1f4bdaa469a0930e7dd6e6f7438ed6a72b2d4085d2f6c20d97213d8f4dd861c'
+      USDCSupply: '0xf9db65a36b991de2864b27c0b636800236e31087a7299ded025b2068751b744d'
     omnibtc_chainid: 21
     packages:
+      CetusScripts: "0x32ba8c0298964e26161b3b44375ac39eeab6b29207e00c5f44368426096eb902"
+      CetusFaucet: "0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e"
       CetusClmm: "0x755bf5686c0c51f5ebc6893e4d6fb1a83e577bb10eaa3ed4b7b24407d9de7c6a"
       IntegerMate: "0x32154052233b86d5b413fd140e6a0c7ef5a8d9ab1ee01d644b2690868538547a"
       MoveSTL: "0x4b0b447943cef3944b29cbbf73faa19b466f98ad8cb468ef28b8640b1c8fd48a"
@@ -553,11 +561,29 @@ networks:
         origin: '0x15e1e51cb59fe1f987b037da12745a278855c8ac73050f4f194466096a0ca05b'
         latest: '0x3542d705ec6a7e05045288ec99a6c4b4e3ded999b6feab720fab535b08fa51f8'
     pools:
-      BTC-USDC:
+      Cetus-USDC-ETH:
+        pool_id: '0x93904b1ef7a96510e9b8a957de39937c59d1396c765758797982c51eaabbed0c'
+      DeepBook-BTC-USDC:
         pool_id: '0x43c422371538cedbea7daad60cc997702877370cd6a24edcac425f0eee99566e'
-      SUI-USDC:
+      DeepBook-SUI-USDC:
         pool_id: '0x4498766b669ae36499475fe7b8afe14f0f5d7b2bfc7cca62ae5ab72779a581a2'
     tokens:
+      Cetus-BTC:
+        address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::btc::BTC
+        decimal: 8
+        name: BTC
+      Cetus-ETH:
+        address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::eth::ETH
+        decimal: 8
+        name: ETH
+      Cetus-USDC:
+        address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::usdc::USDC
+        decimal: 6
+        name: USDC
+      Cetus-USDT:
+        address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::usdt::USDT
+        decimal: 6
+        name: USDT
       BTC:
         address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::btc::BTC
         decimal: 8
