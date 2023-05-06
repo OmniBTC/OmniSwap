@@ -480,7 +480,8 @@ def cross_swap(
         normal_dst_swap_data = hex_str_to_vector_u8(
             str(serde.encodeNormalizedSwapData(normal_dst_swap_data)))
 
-    (src_fee, wormhole_fee, dst_max_gas) = estimate_wormhole_fee(package, normal_so_data, normal_wormhole_data, normal_dst_swap_data)
+    (src_fee, wormhole_fee, dst_max_gas) = estimate_wormhole_fee(package, normal_so_data, normal_wormhole_data,
+                                                                 normal_dst_swap_data)
 
     print(f"Wormhole fee: {wormhole_fee}, src_fee:{src_fee}, dst_max_gas:{dst_max_gas}")
     wormhole_data = generate_wormhole_data(
@@ -495,7 +496,7 @@ def cross_swap(
     token_bridge_state = sui_project.network_config["objects"]["TokenBridgeState"]
     storage = sui_project.network_config["objects"]["FacetStorage"]
     price_manager = sui_project.network_config["objects"]["PriceManager"]
-    wormhole_fee = sui_project.network_config["objects"]["WormholeFee"]
+    wormhole_fee_object = sui_project.network_config["objects"]["WormholeFee"]
 
     # input coin
     x_type = so_data.sendingAssetId
@@ -503,7 +504,7 @@ def cross_swap(
     coin_x = [c["coinObjectId"] for c in result["data"]]
 
     # split zero sui coin to pay bridge fee
-    result = sui_project.pay_sui([0])
+    result = sui_project.pay_sui([wormhole_fee])
     coin_sui = [result['objectChanges'][-1]['objectId']]
 
     if len(src_swap_data) == 0:
@@ -513,7 +514,7 @@ def cross_swap(
             storage,
             clock(),
             price_manager,
-            wormhole_fee,
+            wormhole_fee_object,
             normal_so_data,
             normal_src_swap_data,
             normal_wormhole_data,
@@ -546,7 +547,7 @@ def cross_swap(
                     storage,
                     clock(),
                     price_manager,
-                    wormhole_fee,
+                    wormhole_fee_object,
                     cetus.global_config(),
                     pool_id,
                     normal_so_data,
@@ -565,7 +566,7 @@ def cross_swap(
                     storage,
                     clock(),
                     price_manager,
-                    wormhole_fee,
+                    wormhole_fee_object,
                     pool_id,
                     normal_so_data,
                     normal_src_swap_data,
@@ -587,7 +588,7 @@ def cross_swap(
                     storage,
                     clock(),
                     price_manager,
-                    wormhole_fee,
+                    wormhole_fee_object,
                     cetus.global_config(),
                     pool_id,
                     normal_so_data,
@@ -606,7 +607,7 @@ def cross_swap(
                     storage,
                     clock(),
                     price_manager,
-                    wormhole_fee,
+                    wormhole_fee_object,
                     pool_id,
                     normal_so_data,
                     normal_src_swap_data,
@@ -630,7 +631,7 @@ def claim_faucet(coin_type):
 
 
 def cross_swap_for_testnet(package):
-    dst_gas_price = 30 * 1e9
+    dst_gas_price = 4 * 1e9
 
     # # gas: 17770
     # cross_swap(package,
@@ -718,4 +719,4 @@ def main():
 
 
 if __name__ == '__main__':
-    complete_with_sui_cetus_swap(4306)
+    main()
