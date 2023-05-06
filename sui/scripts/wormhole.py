@@ -1,3 +1,4 @@
+import base64
 import functools
 import time
 from enum import Enum
@@ -6,16 +7,18 @@ from typing import List
 import sui_brownie
 from brownie import (
     Contract,
-    network, web3,
-)
+    network, web3, )
 from brownie.project.main import Project
 from sui_brownie import SuiObject
 
+from ethereum.scripts.helpful_scripts import get_account
 from scripts import deploy, cetus
 from scripts import sui_project
+from scripts.deploy import get_coin_metadata
+from scripts.relayer.sui import get_signed_vaa_by_wormhole
 from scripts.serde_sui import get_serde_facet, get_wormhole_facet, get_token_bridge
 from scripts.struct_sui import SoData, change_network, hex_str_to_vector_u8, \
-    generate_aptos_coin_address_in_wormhole, omniswap_ethereum_project, generate_random_bytes32, \
+    omniswap_ethereum_project, generate_random_bytes32, \
     WormholeData, SwapData, padding_to_bytes
 
 
@@ -60,11 +63,11 @@ def encode_path_for_uniswap_v3(dst_net: str, path: list):
     return "0x" + "".join(path)
 
 
-def get_dst_wrapped_address_for_aptos(
+def get_dst_wrapped_address_for_sui(
         token_name="SUI",
         dst_net=network.show_active()
 ):
-    token_address = generate_aptos_coin_address_in_wormhole(
+    token_address = get_coin_metadata(
         get_sui_token()[token_name]["address"])
     token_bridge = get_token_bridge(dst_net)
     wrapped_address = token_bridge.wrappedAsset(
@@ -73,12 +76,20 @@ def get_dst_wrapped_address_for_aptos(
     return token_address, wrapped_address, is_wrapped
 
 
+def create_dst_wrapped_address(sequence: int, dst_net="bsc-test"):
+    token_bridge = get_token_bridge(dst_net)
+    vaa = get_signed_vaa_by_wormhole(sequence, "sui-testnet")
+    vaa_bytes = "0x" + base64.b64decode(vaa['vaaBytes']).hex()
+    print(vaa_bytes)
+    token_bridge.createWrapped(vaa_bytes, {"from": get_account()})
+
+
 def attest_token(
         token_bridge: sui_brownie.SuiPackage,
         token_name="SUI",
         dst_net=network.show_active()
 ):
-    token_address, wrapped_address, is_wrapped = get_dst_wrapped_address_for_aptos(
+    token_address, wrapped_address, is_wrapped = get_dst_wrapped_address_for_sui(
         token_name, dst_net)
     if not is_wrapped:
         attest_token_address = get_sui_token()

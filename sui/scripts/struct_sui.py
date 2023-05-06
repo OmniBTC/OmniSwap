@@ -1,4 +1,3 @@
-import hashlib
 import json
 from pathlib import Path
 from random import choice
@@ -8,6 +7,7 @@ from brownie import web3, network, project
 
 omniswap_ethereum_path = Path(__file__).parent.parent.parent.joinpath("ethereum")
 omniswap_ethereum_project = project.load(str(omniswap_ethereum_path), raise_if_loaded=False)
+omniswap_ethereum_project.load_config()
 
 omniswap_sui_path = Path(__file__).parent.parent
 
@@ -38,17 +38,6 @@ def padding_to_bytes(data: str, padding="right", length=32):
         return "0x" + data + "0" * padding_length
     else:
         return "0x" + "0" * padding_length + data
-
-
-def generate_aptos_coin_address_in_wormhole(data: str) -> str:
-    """
-    Generate token address
-    :param data: eg: 0x1::aptos_coin::AptosCoin
-    :return: hex str
-    """
-    hasher = hashlib.sha3_256()
-    hasher.update(bytes(data, "ascii"))
-    return "0x" + hasher.digest().hex()
 
 
 def change_network(dst_net):
