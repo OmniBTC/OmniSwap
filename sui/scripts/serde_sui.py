@@ -1,10 +1,9 @@
 import functools
 
 from brownie import Contract
-from brownie.project.main import Project
 
 from scripts import sui_project
-from scripts.struct_sui import change_network, omniswap_ethereum_project, padding_to_bytes, hex_str_to_vector_u8
+from scripts.struct_sui import change_network, omniswap_ethereum_project
 import sui_brownie
 
 
@@ -94,13 +93,13 @@ def parse_vaa(
 
 
 def parse_transfer_with_payload(
-        project: sui_brownie.SuiProject,
+        _project: sui_brownie.SuiProject,
         net: str,
         vaa_payload: str
 ):
     """
 
-    :param project:
+    :param _project:
     :param net:
     :param vaa_payload:
     :return:
@@ -117,17 +116,17 @@ def parse_transfer_with_payload(
     """
     if not str(vaa_payload).startswith("0x"):
         vaa_payload = "0x" + vaa_payload
-    return get_token_bridge(project, net).parseTransferWithPayload(vaa_payload)
+    return get_token_bridge(net).parseTransferWithPayload(vaa_payload)
 
 
 def parse_transfer(
-        project: sui_brownie.SuiProject,
+        _project: sui_brownie.SuiProject,
         net: str,
         vaa_payload: str
 ):
     """
 
-    :param project:
+    :param _project:
     :param net:
     :param vaa_payload:
     :return:
@@ -143,17 +142,17 @@ def parse_transfer(
     """
     if not str(vaa_payload).startswith("0x"):
         vaa_payload = "0x" + vaa_payload
-    return get_token_bridge(project, net).parseTransfer(vaa_payload)
+    return get_token_bridge(net).parseTransfer(vaa_payload)
 
 
 def parse_wormhole_payload(
-        project: sui_brownie.SuiProject,
+        _project: sui_brownie.SuiProject,
         net: str,
         transfer_payload: str
 ):
     """
 
-    :param project:
+    :param _project:
     :param net:
     :param transfer_payload:
     :return:
@@ -183,7 +182,7 @@ def parse_wormhole_payload(
     """
     if not str(transfer_payload).startswith("0x"):
         transfer_payload = "0x" + transfer_payload
-    return get_wormhole_facet(project, net).decodeWormholePayload(transfer_payload)
+    return get_wormhole_facet(net).decodeWormholePayload(transfer_payload)
 
 
 def parse_vaa_to_wormhole_payload(

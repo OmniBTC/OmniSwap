@@ -1,5 +1,6 @@
 dotenv: .env
 networks:
+  default: polygon-main
   aptos-devnet:
     faucet_url: https://tap.devnet.prod.gcp.aptosdev.com
     node_url: https://fullnode.devnet.aptoslabs.com/v1
@@ -335,7 +336,6 @@ networks:
       wormhole: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D'
       wormhole_facet_resource: null
       wormhole_fee_resource: null
-  default: bsc-test
   mainnet:
     SoDiamond: '0x2967e7bb9daa5711ac332caf874bd47ef99b3820'
     chainid: 1

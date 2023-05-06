@@ -10,9 +10,10 @@ import pandas as pd
 import requests
 from brownie import network
 
+from scripts import sui_project
 from scripts.serde_sui import parse_vaa_to_wormhole_payload
-from scripts.struct_sui import omniswap_sui_path, decode_hex_to_ascii, hex_str_to_vector_u8
-from sui_brownie import SuiProject, SuiPackage, SuiObject
+from scripts.struct_sui import decode_hex_to_ascii, hex_str_to_vector_u8
+from sui_brownie import SuiPackage, SuiObject
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -20,7 +21,6 @@ logger = logging.getLogger()
 logger.setLevel("INFO")
 
 net = "sui-testnet"
-sui_project = SuiProject(omniswap_sui_path, network=net)
 package_id = sui_project.network_config["packages"]["OmniSwap"]
 sui_package = SuiPackage(package_id=package_id, package_name="OmniSwap")
 
@@ -621,7 +621,3 @@ def main():
 
 def single_process():
     process_v1(21, sui_project.network_config["SoDiamond"])
-
-
-if __name__ == "__main__":
-    single_process()
