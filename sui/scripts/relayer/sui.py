@@ -21,10 +21,7 @@ logger.setLevel("INFO")
 
 net = "sui-testnet"
 sui_project = SuiProject(omniswap_sui_path, network=net)
-if "main" in net:
-    package_id = ""
-else:
-    package_id = ""
+package_id = sui_project.network_config["packages"]["OmniSwap"]
 sui_package = SuiPackage(package_id=package_id, package_name="OmniSwap")
 
 NET_TO_WORMHOLE_CHAINID = {

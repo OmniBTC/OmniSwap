@@ -509,6 +509,7 @@ networks:
     node_url: http://127.0.0.1:9000
   sui-mainnet:
     node_url: https://fullnode.mainnet.sui.io:443
+    SoDiamond: ""
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
       FacetManager: '0xdf5d9cbc995362eb938236d9b67c9684042e423eea4a20aa0a5622a8c7455676'
@@ -529,6 +530,7 @@ networks:
       Wormhole: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
   sui-testnet:
     node_url: https://sui-testnet-endpoint.blockvision.org:443
+    SoDiamond: ""
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
       FacetManager: '0xdf5d9cbc995362eb938236d9b67c9684042e423eea4a20aa0a5622a8c7455676'
@@ -552,7 +554,7 @@ networks:
       IntegerMate: "0x32154052233b86d5b413fd140e6a0c7ef5a8d9ab1ee01d644b2690868538547a"
       MoveSTL: "0x4b0b447943cef3944b29cbbf73faa19b466f98ad8cb468ef28b8640b1c8fd48a"
       DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
-      OmniSwap: ''
+      OmniSwap: '0x0f2070e5e931eeb7e4ed3abfe946f21f9446a7c21156bc9aaa0f71c60d60bf68'
       TestCoins: '0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b'
       TokenBridge:
         origin: '0x92d81f28c167d90f84638c654b412fe7fa8e55bdfac7f638bdcf70306289be86'
