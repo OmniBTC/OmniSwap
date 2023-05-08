@@ -419,6 +419,51 @@ def generate_dst_swap_data(
     return out
 
 
+@functools.lru_cache()
+def get_deepbook_package_id():
+    return sui_project.network_config["packages"]["DeepBook"]
+
+
+@functools.lru_cache()
+def get_cetus_package_id():
+    return sui_project.network_config["packages"]["CetusClmm"]
+
+
+def get_pool_arguments(
+        pool_id,
+        sending_asset_id,
+        receiving_asset_id
+):
+    sui_type: str = sui_project.client.sui_getObject(pool_id, {
+        "showType": True,
+        "showOwner": True,
+        "showPreviousTransaction": False,
+        "showDisplay": False,
+        "showContent": False,
+        "showBcs": False,
+        "showStorageRebate": False
+    })["data"]["type"]
+    origin_type = SuiObject.from_type(sui_type)
+    if origin_type.package_id == get_deepbook_package_id():
+        dex_name = SuiSwapType.DeepBook
+    elif origin_type.package_id == get_cetus_package_id():
+        dex_name = SuiSwapType.Cetus
+    else:
+        raise ValueError(origin_type.package_id)
+
+    start_index = sui_type.find("<")
+    end_index = sui_type.find(",")
+    sui_type = SuiObject.from_type(sui_type[start_index:end_index].replace(" ", ""))
+
+    if str(sui_type).replace("0x", "") == sending_asset_id.replace("0x", ""):
+        ty_args = [sending_asset_id, receiving_asset_id]
+        reverse = False
+    else:
+        ty_args = [receiving_asset_id, sending_asset_id]
+        reverse = True
+    return dex_name, ty_args, reverse
+
+
 def cross_swap(
         package: sui_brownie.SuiPackage,
         src_path: list,
@@ -429,7 +474,8 @@ def cross_swap(
         dst_router: EvmSwapType = None,
         dst_func: EvmSwapFunc = None,
         dst_min_amount: int = 0,
-        src_router: SuiSwapType = SuiSwapType.OmniswapMock
+        src_router: SuiSwapType = SuiSwapType.OmniswapMock,
+        src_pool_id=None
 ):
     dst_net = network.show_active()
     # ethereum facet
@@ -500,12 +546,18 @@ def cross_swap(
 
     # input coin
     x_type = so_data.sendingAssetId
-    result = sui_project.client.suix_getCoins(sui_project.account.account_address, x_type, None, None)
-    coin_x = [c["coinObjectId"] for c in result["data"]]
+    x_type = x_type if '0x' == x_type[:2] else "0x" + x_type
 
     # split zero sui coin to pay bridge fee
-    result = sui_project.pay_sui([wormhole_fee])
-    coin_sui = [result['objectChanges'][-1]['objectId']]
+    if src_path[0] == "SUI":
+        result = sui_project.pay_sui([so_data.amount, wormhole_fee])
+        coin_x = [result['objectChanges'][-1]['objectId']]
+        coin_sui = [result['objectChanges'][-2]['objectId']]
+    else:
+        result = sui_project.client.suix_getCoins(sui_project.account.account_address, x_type, None, None)
+        coin_x = [c["coinObjectId"] for c in result["data"]]
+        result = sui_project.pay_sui([wormhole_fee])
+        coin_sui = [result['objectChanges'][-1]['objectId']]
 
     if len(src_swap_data) == 0:
         package.wormhole_facet.so_swap_without_swap(
@@ -525,20 +577,12 @@ def cross_swap(
             gas_budget=1000000000
         )
     elif len(src_swap_data) == 1:
-        y_type = f"0x{src_swap_data[0].receivingAssetId}"
-
-        pools = sui_project.network_config['pools']
-
-        pool_id = ""
-        pool_name = ""
-        for pool in pools:
-            if x_type.split('::')[-1] in pool.split('-') and y_type.split('::')[-1] in pool.split('-'):
-                pool_id = pools[pool]['pool_id']
-                pool_name = pool
-        assert pool_id != ""
-        if pool_name.split('-')[1] in x_type:
-            ty_args = [x_type, y_type]
-
+        y_type = src_swap_data[0].receivingAssetId
+        y_type = y_type if '0x' == y_type[:2] else "0x" + y_type
+        dex_name, ty_args, reverse = get_pool_arguments(
+            src_pool_id, x_type, y_type
+        )
+        if not reverse:
             # x coin is base asset
             if src_router == SuiSwapType.Cetus:
                 package.wormhole_facet.so_swap_for_cetus_quote_asset(
@@ -549,7 +593,7 @@ def cross_swap(
                     price_manager,
                     wormhole_fee_object,
                     cetus.global_config(),
-                    pool_id,
+                    src_pool_id,
                     normal_so_data,
                     normal_src_swap_data,
                     normal_wormhole_data,
@@ -567,7 +611,7 @@ def cross_swap(
                     clock(),
                     price_manager,
                     wormhole_fee_object,
-                    pool_id,
+                    src_pool_id,
                     normal_so_data,
                     normal_src_swap_data,
                     normal_wormhole_data,
@@ -578,8 +622,6 @@ def cross_swap(
                     gas_budget=1000000000
                 )
         else:
-            ty_args = [y_type, x_type]
-
             # x coin is quote asset
             if src_router == SuiSwapType.Cetus:
                 package.wormhole_facet.so_swap_for_cetus_base_asset(
@@ -590,7 +632,7 @@ def cross_swap(
                     price_manager,
                     wormhole_fee_object,
                     cetus.global_config(),
-                    pool_id,
+                    src_pool_id,
                     normal_so_data,
                     normal_src_swap_data,
                     normal_wormhole_data,
@@ -608,7 +650,7 @@ def cross_swap(
                     clock(),
                     price_manager,
                     wormhole_fee_object,
-                    pool_id,
+                    src_pool_id,
                     normal_so_data,
                     normal_src_swap_data,
                     normal_wormhole_data,
@@ -638,7 +680,8 @@ def cross_swap_for_testnet(package):
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=1000000,
                dst_gas_price=dst_gas_price,
-               src_router=SuiSwapType.Cetus
+               src_router=SuiSwapType.Cetus,
+               src_pool_id=sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"]
                )
 
 
@@ -650,7 +693,8 @@ def cross_swap_for_mainnet(package):
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=1000000,
                dst_gas_price=dst_gas_price,
-               src_router=SuiSwapType.Cetus
+               src_router=SuiSwapType.Cetus,
+               src_pool_id=sui_project.network_config["pools"]["Wormhole-USDC-SUI"]["pool_id"]
                )
 
 

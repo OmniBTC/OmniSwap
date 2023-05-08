@@ -560,6 +560,9 @@ networks:
         address: 0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN
         decimal: 8
         name: ETH
+    pools:
+      Wormhole-USDC-SUI:
+        pool_id: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630'
     wormhole:
       chainid: 21
       actual_reserve: 1.1
