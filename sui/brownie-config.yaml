@@ -481,6 +481,9 @@ networks:
       weth:
         address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         decimal: 18
+      USDC_ETH_WORMHOLE:
+        address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D'
+        decimal: 6
     wormhole:
       actual_reserve: 1.1
       chainid: 5
@@ -574,6 +577,15 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
+    tokens:
+      SUI:
+        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
+        decimal: 9
+        name: SUI
+      Wormhole-USDC:
+        address: 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN
+        decimal: 6
+        name: USDC
   sui-testnet:
     node_url: https://fullnode.testnet.sui.io:443
     SoDiamond: "0xcf4e7294ea462739702d13c86318b88f0fc5290825b0e719ca613701a6f729df"

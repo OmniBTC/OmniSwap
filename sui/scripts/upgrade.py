@@ -18,8 +18,8 @@ def main():
         package_path=omniswap_sui_path
     )
     upgrade_policy = 0
-    wormhole = load_wormhole(is_from_config=True)
-    token_bridge = load_token_bridge(is_from_config=True)
+    wormhole = load_wormhole()
+    token_bridge = load_token_bridge()
 
     omniswap.program_upgrade_package(
         upgrade_capability,

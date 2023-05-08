@@ -632,90 +632,44 @@ def claim_faucet(coin_type):
 
 def cross_swap_for_testnet(package):
     dst_gas_price = 4 * 1e9
-
-    # # gas: 17770
-    # cross_swap(package,
-    #            src_path=["USDT"],
-    #            dst_path=["USDT"],
-    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    #            input_amount=100000,
-    #            dst_gas_price=dst_gas_price
-    #            )
-    #
-    # # gas: 31181
-    # cross_swap(package,
-    #            src_path=["USDC", "BTC"],
-    #            dst_path=["XBTC_WORMHOLE"],
-    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    #            input_amount=10000000,
-    #            dst_gas_price=dst_gas_price
-    #            )
-
-    # gas: 46160
     cross_swap(package,
                src_path=["Cetus-USDT", "Cetus-USDC"],
                dst_path=["sui-usdc"],
-               receiver="0xB6B12aDA59a8Ac44Ded72e03693dd14614224349",
+               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=1000000,
                dst_gas_price=dst_gas_price,
                src_router=SuiSwapType.Cetus
                )
 
-    # # gas: 313761
-    # cross_swap(package,
-    #            src_path=["AptosCoin",
-    #                      "XBTC",
-    #                      "USDT",
-    #                      "USDC"
-    #                      ],
-    #            dst_path=["USDC_WORMHOLE"],
-    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    #            input_amount=10000000,
-    #            dst_gas_price=dst_gas_price
-    #            )
-    #
-    # # gas: 35389
-    # cross_swap(
-    #     package,
-    #     src_path=["AptosCoin"],
-    #     dst_path=["AptosCoin_WORMHOLE", "USDT"],
-    #     receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-    #     input_amount=10000000,
-    #     dst_gas_price=dst_gas_price,
-    #     dst_router=EvmSwapType.IUniswapV2Router02,
-    #     dst_func=EvmSwapFunc.swapExactTokensForTokens
-    # )
+
+def cross_swap_for_mainnet(package):
+    dst_gas_price = 4 * 1e9
+    cross_swap(package,
+               src_path=["SUI", "Wormhole-USDC"],
+               dst_path=["USDC_ETH_WORMHOLE"],
+               receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+               input_amount=1000000,
+               dst_gas_price=dst_gas_price,
+               src_router=SuiSwapType.Cetus
+               )
 
 
 def main():
-    src_net = "sui-testnet"
-    dst_net = "bsc-test"
-
     # Prepare environment
     # load src net aptos package
     omniswap = deploy.load_omniswap(is_from_config=True)
 
-    # load dst net project
-    change_network(dst_net)
-
     ####################################################
     if sui_project.network in ["sui-testnet", "sui-devnet"]:
+        dst_net = "bsc-test"
+        # load dst net project
+        change_network(dst_net)
         cross_swap_for_testnet(omniswap)
     else:
-        dst_gas_price = 30 * 1e9
-        print("estimate out:", get_amounts_out(omniswap, ["AptosCoin", "USDC_ETH_WORMHOLE"],
-                                               10000000))
-        cross_swap(
-            omniswap,
-            src_path=["AptosCoin", "USDC_ETH_WORMHOLE"],
-            dst_path=["usdc_eth"],
-            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-            input_amount=10000000,
-            dst_gas_price=int(dst_gas_price),
-            dst_router=EvmSwapType.IUniswapV2Router02,
-            dst_func=EvmSwapFunc.swapExactTokensForTokens,
-            src_router=SuiSwapType.OmniswapMock
-        )
+        dst_net = "polygon-main"
+        # load dst net project
+        change_network(dst_net)
+        cross_swap_for_mainnet(omniswap)
 
 
 if __name__ == '__main__':
