@@ -63,7 +63,7 @@ module omniswap::swap {
             false,
             amount,
         );
-        cetus_pool::calculated_swap_result_amount_in(calculated_result)
+        cetus_pool::calculated_swap_result_amount_in(&calculated_result)
     }
 
     public fun get_cetus_amount_out<BaseAsset, QuoteAsset>(
@@ -77,7 +77,7 @@ module omniswap::swap {
             true,
             amount,
         );
-        cetus_pool::calculated_swap_result_amount_out(calculated_result)
+        cetus_pool::calculated_swap_result_amount_out(&calculated_result)
     }
 
     public fun swap_for_base_asset_by_cetus<BaseAsset, QuoteAsset>(
