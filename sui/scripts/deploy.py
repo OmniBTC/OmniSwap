@@ -367,7 +367,7 @@ def main():
     # deploy
     omniswap_package = SuiPackage(package_path=omniswap_sui_path)
     omniswap_package.publish_package(
-        gas_budget=5000000000,
+        gas_budget=500000000,
         skip_dependency_verification=True,
         replace_address=dict(
             wormhole=sui_project.network_config['packages']['Wormhole']['origin'],

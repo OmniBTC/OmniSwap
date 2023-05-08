@@ -528,6 +528,7 @@ networks:
       # cetus
       GlobalConfig: '0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f'
       Pools: '0xf699e7f2276f5c9a75944b37a0c5b5d9ddfd2471bf6242483b03ab2887d198d0'
+      OmniSwapUpgradeCap: "0xbfdc7c7a6d3414e3fbf49cf9cb151b5c8293364df7f438d09b826327ca4bf76a"
     omnibtc_chainid: 21
     packages:
       CetusScripts: "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be"
@@ -543,15 +544,22 @@ networks:
         origin: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
         latest: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
     tokens:
-      usdc:
+      SUI:
+        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
+        decimal: 9
+        name: SUI
+      Wormhole-USDC:
         address: 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN
         decimal: 6
-      usdt:
+        name: USDC
+      Wormhole-USDT:
         address: 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN
         decimal: 6
-      weth:
+        name: USDT
+      Wormhole-ETH:
         address: 0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN
         decimal: 8
+        name: ETH
     wormhole:
       chainid: 21
       actual_reserve: 1.1
@@ -577,15 +585,6 @@ networks:
           dst_chainid: 22
           base_gas: 80000
           per_byte_gas: 68
-    tokens:
-      SUI:
-        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
-        decimal: 9
-        name: SUI
-      Wormhole-USDC:
-        address: 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN
-        decimal: 6
-        name: USDC
   sui-testnet:
     node_url: https://fullnode.testnet.sui.io:443
     SoDiamond: "0xcf4e7294ea462739702d13c86318b88f0fc5290825b0e719ca613701a6f729df"
@@ -605,6 +604,7 @@ networks:
       ETHSupply: '0x010f8ea766c72e793eb540e21fd795fefd05661b6fb6521cc9c7af581178bad5'
       USDTSupply: '0xe1f4bdaa469a0930e7dd6e6f7438ed6a72b2d4085d2f6c20d97213d8f4dd861c'
       USDCSupply: '0xf9db65a36b991de2864b27c0b636800236e31087a7299ded025b2068751b744d'
+      OmniSwapUpgradeCap: "0xa0b28acc823d375c5ed01968dedc15aed15983f8d30da2efc08f57fee9eab6e5"
     omnibtc_chainid: 21
     packages:
       CetusScripts: "0x32ba8c0298964e26161b3b44375ac39eeab6b29207e00c5f44368426096eb902"
