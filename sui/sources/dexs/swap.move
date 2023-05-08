@@ -2,16 +2,15 @@ module omniswap::swap {
     use std::type_name;
     use std::vector;
 
+    use cetus_clmm::config::GlobalConfig;
+    use cetus_clmm::pool::{Self as cetus_pool, Pool as CetusPool};
     use deepbook::clob::{Self, Pool};
     use omniswap::cross::{Self, NormalizedSwapData};
     use omniswap::serde;
+    use sui::balance;
     use sui::clock::Clock;
     use sui::coin::{Self, Coin};
     use sui::tx_context::TxContext;
-
-    use cetus_clmm::pool::{Self as cetus_pool, Pool as CetusPool};
-    use cetus_clmm::config::GlobalConfig;
-    use sui::balance;
 
     const RAY: u64 = 100000000;
 
@@ -51,6 +50,34 @@ module omniswap::swap {
         }else {
             false
         }
+    }
+
+    public fun get_cetus_amount_in<BaseAsset, QuoteAsset>(
+        pool: &CetusPool<BaseAsset, QuoteAsset>,
+        a2b: bool,
+        amount: u64,
+    ): u64 {
+        let calculated_result = cetus_pool::calculate_swap_result<BaseAsset, QuoteAsset>(
+            pool,
+            a2b,
+            false,
+            amount,
+        );
+        cetus_pool::calculated_swap_result_amount_in(calculated_result)
+    }
+
+    public fun get_cetus_amount_out<BaseAsset, QuoteAsset>(
+        pool: &CetusPool<BaseAsset, QuoteAsset>,
+        a2b: bool,
+        amount: u64,
+    ): u64 {
+        let calculated_result = cetus_pool::calculate_swap_result<BaseAsset, QuoteAsset>(
+            pool,
+            a2b,
+            true,
+            amount,
+        );
+        cetus_pool::calculated_swap_result_amount_out(calculated_result)
     }
 
     public fun swap_for_base_asset_by_cetus<BaseAsset, QuoteAsset>(

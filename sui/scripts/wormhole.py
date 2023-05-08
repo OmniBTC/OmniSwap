@@ -656,7 +656,7 @@ def cross_swap_for_testnet(package):
                src_path=["Cetus-USDT", "Cetus-USDC"],
                dst_path=["sui-usdc"],
                receiver="0xB6B12aDA59a8Ac44Ded72e03693dd14614224349",
-               input_amount=100000000,
+               input_amount=1000000,
                dst_gas_price=dst_gas_price,
                src_router=SuiSwapType.Cetus
                )

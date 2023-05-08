@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from sui_brownie import SuiPackage
 
 from scripts import sui_project
@@ -55,6 +57,13 @@ def load_cetus_faucet():
     )
 
 
+def load_cetus():
+    return SuiPackage(
+        sui_project.network_config['packages']['CetusClmm'],
+        package_name="CetusClmm",
+    )
+
+
 def load_cetus_scripts():
     return SuiPackage(
         sui_project.network_config['packages']['CetusScripts'],
@@ -88,6 +97,34 @@ def register_cetus_tokens():
     attest_token(eth())
 
 
+def get_amount_out():
+    cetus_scripts = load_cetus_scripts()
+
+    result = cetus_scripts.fetcher_script.calculate_swap_result.inspect(
+        usdt_usdc_pool(),
+        True,
+        True,
+        int(1 * 1e6),
+        type_arguments=[usdt(), usdc()]
+    )
+
+    pprint(result)
+
+
+def get_amount_in():
+    cetus = load_cetus()
+
+    result = cetus.pool.calculate_swap_result.inspect(
+        usdt_usdc_pool(),
+        True,
+        False,
+        int(1 * 1e6),
+        type_arguments=[usdt(), usdc()]
+    )
+
+    pprint(result)
+
+
 def add_liquidity():
     cetus_scripts = load_cetus_scripts()
 
@@ -107,8 +144,5 @@ def add_liquidity():
 
 
 if __name__ == "__main__":
-    claim_from_cetus_faucet("BTC")
-    claim_from_cetus_faucet("ETH")
-    claim_from_cetus_faucet("USDT")
-    claim_from_cetus_faucet("USDC")
+    get_amount_out()
     # register_cetus_tokens()
