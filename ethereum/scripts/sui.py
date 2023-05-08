@@ -116,9 +116,22 @@ def generate_dst_swap_data(
     i = 0
 
     while i < len(path) - 1:
+        if router == SuiSwapType.Cetus:
+            token0 = path[i].split("-")[-1]
+            token1 = path[i + 1].split("-")[-1]
+            if f"Cetus-{token0}-{token1}" in sui_project.network_config['pools']:
+                pool_id = sui_project.network_config['pools'][f"Cetus-{token0}-{token1}"]['pool_id']
+            elif f"Cetus-{token1}-{token0}" in sui_project.network_config['pools']:
+                pool_id = sui_project.network_config['pools'][f"Cetus-{token1}-{token0}"]['pool_id']
+            else:
+                raise ValueError(f"{token0}, {token1}")
+        else:
+            raise ValueError(router)
+
+
         swap_data = SwapData(
-            callTo=sui_project.network_config['packages']["OmniSwap"],
-            approveTo=sui_project.network_config['packages']["OmniSwap"],
+            callTo=pool_id,
+            approveTo=pool_id,
             sendingAssetId=get_sui_token()[path[i]]["address"].replace("0x", ""),
             receivingAssetId=get_sui_token()[path[i + 1]]["address"].replace("0x", ""),
             fromAmount=amount,

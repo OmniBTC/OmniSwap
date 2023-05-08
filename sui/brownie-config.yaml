@@ -558,7 +558,7 @@ networks:
           base_gas: 80000
           per_byte_gas: 68
   sui-testnet:
-    node_url: https://sui-testnet-endpoint.blockvision.org:443
+    node_url: https://fullnode.testnet.sui.io:443
     SoDiamond: "0xcf4e7294ea462739702d13c86318b88f0fc5290825b0e719ca613701a6f729df"
     Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
     objects:
