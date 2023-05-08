@@ -340,7 +340,7 @@ def set_so_price():
 
 
 def set_so_gass():
-    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main", "sui-mainnet"]
+    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main"]
     for net in nets:
         print(f"Change net into {net}...")
         change_network(net)
@@ -348,7 +348,7 @@ def set_so_gass():
 
 
 def set_so_prices():
-    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main", "sui-mainnet"]
+    nets = ["mainnet", "avax-main", "bsc-main", "polygon-main"]
     for net in nets:
         print(f"Change net into {net}...")
         change_network(net)
