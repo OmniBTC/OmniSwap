@@ -128,7 +128,6 @@ def generate_dst_swap_data(
         else:
             raise ValueError(router)
 
-
         swap_data = SwapData(
             callTo=pool_id,
             approveTo=pool_id,

@@ -183,7 +183,8 @@ def set_so_price_for_test():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["SUI/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} "
+            f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -209,7 +210,8 @@ def set_so_price_for_test():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["SUI/USDT"] / prices["BNB/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} "
+            f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(

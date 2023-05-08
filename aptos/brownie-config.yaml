@@ -62,7 +62,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 700000
+          base_gas: 60000
           per_byte_gas: 68
     token:
       AptosCoin:
@@ -162,7 +162,7 @@ networks:
           per_byte_gas: 68
         sui-testnet:
           dst_chainid: 21
-          base_gas: 700000
+          base_gas: 60000
           per_byte_gas: 68
   bsc-test:
     omnibtc_chainid: 30003
@@ -324,7 +324,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 700000
+          base_gas: 60000
           per_byte_gas: 68
     oracle:
       eth:
@@ -403,7 +403,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 700000
+          base_gas: 60000
           per_byte_gas: 68
     oracle:
       eth:
@@ -490,7 +490,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 700000
+          base_gas: 60000
           per_byte_gas: 68
     oracle:
       eth:
