@@ -258,7 +258,7 @@ def cross_swap(
         receiver: str,
         dst_so_diamond: str,
         input_amount: int,
-        dst_gas_price: int = 100 * 1e10,
+        dst_gas_price: int = 1000 * 1e9,
         src_router: str = None,
         src_func: str = None,
         src_min_amount: int = 0,

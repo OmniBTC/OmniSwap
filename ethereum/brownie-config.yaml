@@ -220,6 +220,10 @@ networks:
           dst_chainid: 10
           base_gas: 700000
           per_byte_gas: 68
+        sui-testnet:
+          dst_chainid: 21
+          base_gas: 60000
+          per_byte_gas: 68
     oracle:
       bsc:
         chainid: 4
