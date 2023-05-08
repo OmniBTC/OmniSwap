@@ -31,7 +31,6 @@ from brownie import (
     MultiChainFacet,
     LibSoFeeMultiChainV1,
 )
-
 from scripts.helpful_scripts import (
     change_network,
     get_wormhole_bridge,
@@ -43,6 +42,7 @@ from scripts.helpful_scripts import (
     get_swap_info,
     get_stargate_chain_id,
 )
+
 from scripts.wormhole import (
     get_all_warpped_token,
     get_native_token_name,
@@ -179,7 +179,7 @@ def get_stargate_chain_path():
             if net1 == net2:
                 continue
             if ("main" in net1 and "main" not in net2) or (
-                "main" not in net1 and "main" in net2
+                    "main" not in net1 and "main" in net2
             ):
                 continue
             get_stargate_pair_chain_path(omni_swap_infos, net1, net2)
@@ -211,8 +211,8 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
     wrapped_chain_path = []
     for chain_path in net_chain_path:
         if (
-            chain_path["SrcTokenAddress"] == zero_address()
-            and chain_path["DstTokenAddress"] == zero_address()
+                chain_path["SrcTokenAddress"] == zero_address()
+                and chain_path["DstTokenAddress"] == zero_address()
         ):
             continue
         if chain_path["SrcTokenAddress"] == zero_address():
@@ -313,12 +313,17 @@ def export_wormhole_chain_path(networks):
     write_file(omni_swap_file, omni_swap_infos)
 
 
+# Modify the NativeToken information manually,
+# add the newly added chain information, and
+# import the WrappedToken information automatically.
 def reexport_wormhole_chainpath():
-    omni_swap_infos = read_json(omni_swap_file)
+    reexport_file = mainnet_swap_file
+    omni_swap_infos = read_json(reexport_file)
 
     support_tokens = {}
     native_tokens = []
-    for net in ["mainnet", "aptos-mainnet", "bsc-main", "polygon-main", "avax-main"]:
+    networks = list(omni_swap_infos.keys())
+    for net in networks:
 
         tokens = []
         for token in omni_swap_infos[net]["WormholeSupportToken"]:
@@ -327,12 +332,13 @@ def reexport_wormhole_chainpath():
                 tokens.append(token)
         support_tokens[net] = tokens
 
-    for net in ["mainnet", "aptos-mainnet", "bsc-main", "polygon-main", "avax-main"]:
+    for net in networks:
         wrapped_tokens = []
         for native_token in native_tokens:
             wrapped_chain_paths = []
 
             for path in native_token["ChainPath"]:
+                # todo! add mapping wormhole chain id -> chain name
                 dst_net = get_net_from_wormhole_chainid(path["DstWormholeChainId"])
                 if dst_net == net:
                     wrapped_chain_paths.append(
@@ -386,9 +392,9 @@ def reexport_wormhole_chainpath():
                     )
         support_tokens[net].extend(wrapped_tokens)
 
-    for net in ["mainnet", "aptos-mainnet", "bsc-main", "polygon-main", "avax-main"]:
+    for net in networks:
         omni_swap_infos[net]["WormholeSupportToken"] = support_tokens[net]
-    write_file(omni_swap_file, omni_swap_infos)
+    write_file(reexport_file, omni_swap_infos)
 
 
 def get_wormhole_support_token(net):
