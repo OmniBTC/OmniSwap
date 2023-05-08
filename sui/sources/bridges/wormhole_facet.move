@@ -1290,10 +1290,6 @@ module omniswap::wormhole_facet {
 
         let consume_value = state::message_fee(state);
 
-        if (right_type<SUI>(cross::so_sending_asset_id(so_data))) {
-            consume_value = consume_value + (cross::so_amount(so_data) as u64);
-        };
-
         let src_fee = (src_fee as u64);
         consume_value = consume_value + src_fee;
 
@@ -1336,10 +1332,6 @@ module omniswap::wormhole_facet {
         };
 
         let consume_value = state::message_fee(state);
-
-        if (right_type<SUI>(cross::so_sending_asset_id(so_data))) {
-            consume_value = consume_value + (cross::so_amount(so_data) as u64);
-        };
 
         let src_fee = (src_fee as u64);
         consume_value = consume_value + src_fee;
