@@ -267,7 +267,7 @@ def process_vaa(
             sui_project, network.show_active(),
             vaa_str)
         dst_max_gas = wormhole_data[1]
-        dst_max_gas_price = wormhole_data[0] / 1e10
+        dst_max_gas_price = int(wormhole_data[0] / 1e9)
         if "main" in sui_project.network:
             assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
     except Exception as e:
@@ -291,9 +291,9 @@ def process_vaa(
             f'For emitterChainId:{emitterChainId}, sequence:{sequence} dstSoDiamond: {dstSoDiamond} '
             f'not match: {transfer_data[4]}')
         return False
-
     try:
         final_asset_id = decode_hex_to_ascii(wormhole_data[2][5])
+        final_asset_id = final_asset_id if "0x" == final_asset_id[:2] else "0x" + final_asset_id
         if len(wormhole_data[3]) == 0:
             ty_args = [final_asset_id]
             pool_id = None
@@ -301,8 +301,9 @@ def process_vaa(
             dex_name = None
         elif len(wormhole_data[3]) == 1:
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
+            s1 = s1 if "0x" == s1[:2] else "0x" + s1
             s2 = final_asset_id
-            pool_id = wormhole_data[3][0][0]
+            pool_id = str(wormhole_data[3][0][0])
             sui_type: str = sui_project.client.sui_getObject(pool_id, {
                 "showType": True,
                 "showOwner": True,
@@ -334,12 +335,12 @@ def process_vaa(
             logger.error(f"Dst swap too much")
             raise OverflowError
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
-        storage = sui_project.network_config["Storage"]
-        token_bridge_state = sui_project.network_config["TokenBridgeState"]
-        wormhole_state = sui_project.network_config["WormholeState"]
-        wormhole_fee = sui_project.network_config["WormholeFee"]
-        clock = sui_project.network_config["Clock"]
-        facet_manager = sui_project.network_config["WormholeFacetManager"]
+        storage = sui_project.network_config["objects"]["FacetStorage"]
+        token_bridge_state = sui_project.network_config["objects"]["TokenBridgeState"]
+        wormhole_state = sui_project.network_config["objects"]["WormholeState"]
+        wormhole_fee = sui_project.network_config["objects"]["WormholeFee"]
+        clock = sui_project.network_config["objects"]["Clock"]
+        facet_manager = sui_project.network_config["objects"]["FacetManager"]
         if not is_admin:
             try:
                 if pool_id is None:
@@ -350,8 +351,8 @@ def process_vaa(
                         wormhole_fee,
                         hex_str_to_vector_u8(vaa_str),
                         clock,
-                        ty_args=ty_args,
-                        gas_unit_price=dst_max_gas_price
+                        type_arguments=ty_args,
+                        gas_price=dst_max_gas_price
                     )
                 elif not reverse:
                     if dex_name == "deepbook":
@@ -363,8 +364,8 @@ def process_vaa(
                             pool_id,
                             hex_str_to_vector_u8(vaa_str),
                             clock,
-                            ty_args=ty_args,
-                            gas_unit_price=dst_max_gas_price
+                            type_arguments=ty_args,
+                            gas_price=dst_max_gas_price
                         )
                     else:
                         result = sui_package.wormhole_facet.complete_so_swap_for_cetus_quote_asset(
@@ -376,8 +377,8 @@ def process_vaa(
                             pool_id,
                             hex_str_to_vector_u8(vaa_str),
                             clock,
-                            ty_args=ty_args,
-                            gas_unit_price=dst_max_gas_price
+                            type_arguments=ty_args,
+                            gas_price=dst_max_gas_price
                         )
                 else:
                     if dex_name == "deepbook":
@@ -389,8 +390,8 @@ def process_vaa(
                             pool_id,
                             hex_str_to_vector_u8(vaa_str),
                             clock,
-                            ty_args=ty_args,
-                            gas_unit_price=dst_max_gas_price
+                            type_arguments=ty_args,
+                            gas_price=dst_max_gas_price
                         )
                     else:
                         result = sui_package.wormhole_facet.complete_so_swap_for_cetus_base_asset(
@@ -402,12 +403,13 @@ def process_vaa(
                             pool_id,
                             hex_str_to_vector_u8(vaa_str),
                             clock,
-                            ty_args=ty_args,
-                            gas_unit_price=dst_max_gas_price
+                            type_arguments=ty_args,
+                            gas_price=dst_max_gas_price
                         )
 
             except Exception as e:
                 if time.time() > vaa_data[1] + 60 * 60:
+                    assert final_asset_id is not None
                     local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                                        f'sequence:{sequence}, start compensate for error: {e}')
                     result = sui_package.wormhole_facet.complete_so_swap_by_relayer(
@@ -418,14 +420,15 @@ def process_vaa(
                         wormhole_fee,
                         hex_str_to_vector_u8(vaa_str),
                         clock,
-                        ty_args=ty_args,
-                        gas_unit_price=dst_max_gas_price
+                        type_arguments=[final_asset_id],
+                        gas_price=dst_max_gas_price
                     )
                 else:
                     raise e
         else:
             receiver = wormhole_data[2][1]
             local_logger.info(f"Compensate to:{receiver}")
+            assert final_asset_id is not None
             result = sui_package.wormhole_facet.complete_so_swap_by_admin(
                 storage,
                 facet_manager,
@@ -435,21 +438,26 @@ def process_vaa(
                 hex_str_to_vector_u8(vaa_str),
                 str(receiver),
                 clock,
-                ty_args=ty_args,
-                gas_unit_price=dst_max_gas_price
+                type_arguments=[final_asset_id],
+                gas_price=dst_max_gas_price
             )
-        if "response" in result and "gas_used" in result["response"]:
-            record_gas(
-                int(dst_max_gas),
-                int(dst_max_gas_price),
-                int(result["response"]["gas_used"]),
-                int(result["gas_unit_price"]),
-                src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
-                if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
-                dst_net=sui_project.network,
-                payload_len=int(len(vaa_str) / 2 - 1),
-                swap_len=len(wormhole_data[3])
-            )
+        gas_price = int(result["transaction"]["data"]['gasData']['price'])
+        gasUsedInfo = result["effects"]["gasUsed"]
+        gas_used = int(gasUsedInfo["computationCost"]) + int(gasUsedInfo["storageCost"]) - \
+                   int(gasUsedInfo["storageRebate"]) + int(gasUsedInfo["nonRefundableStorageFee"])
+        gas_used = int(gas_used / gas_price)
+
+        record_gas(
+            int(dst_max_gas),
+            int(dst_max_gas_price),
+            gas_used,
+            gas_price,
+            src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
+            if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
+            dst_net=sui_project.network,
+            payload_len=int(len(vaa_str) / 2 - 1),
+            swap_len=len(wormhole_data[3])
+        )
     except Exception as e:
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
