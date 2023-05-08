@@ -140,6 +140,22 @@ def btc(is_from_config):
         return f"{sui_project.TestCoins[-1]}::btc::BTC"
 
 
+def cetus_btc():
+    return sui_project.network_config["tokens"]["Cetus-BTC"]['address']
+
+
+def cetus_eth():
+    return sui_project.network_config["tokens"]["Cetus-ETH"]['address']
+
+
+def cetus_usdc():
+    return sui_project.network_config["tokens"]["Cetus-USDC"]['address']
+
+
+def cetus_usdt():
+    return sui_project.network_config["tokens"]["Cetus-USDT"]['address']
+
+
 def clock():
     return "0x0000000000000000000000000000000000000000000000000000000000000006"
 
@@ -219,6 +235,26 @@ def export_testnet():
             "name": "BTC",
             "address": btc(is_from_config=False),
             "decimal": 8
+        },
+        "Cetus-BTC": {
+            "name": "Cetus-BTC",
+            "address": cetus_btc(),
+            "decimal": 8
+        },
+        "Cetus-ETH": {
+            "name": "Cetus-ETH",
+            "address": cetus_eth(),
+            "decimal": 8
+        },
+        "Cetus-USDC": {
+            "name": "Cetus-USDC",
+            "address": cetus_usdc(),
+            "decimal": 6
+        },
+        "Cetus-USDT": {
+            "name": "Cetus-USDT",
+            "address": cetus_usdt(),
+            "decimal": 6
         }
     }
 
@@ -315,7 +351,7 @@ def register_wormhole_token(is_from_config):
 
 
 def main():
-    net = "sui-testnet"
+    net = sui_project.network
     print(f"Current sui network:{net}")
 
     # for testnet

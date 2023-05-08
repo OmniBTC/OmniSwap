@@ -8,7 +8,7 @@ from scripts.serde_sui import get_serde_facet, get_price_ratio
 from scripts.struct_sui import hex_str_to_vector_u8
 from sui_brownie import SuiPackage
 
-net = "sui-testnet"
+net = sui_project.network
 package_id = sui_project.network_config["packages"]["OmniSwap"]
 sui_package = SuiPackage(package_id=package_id, package_name="OmniSwap")
 

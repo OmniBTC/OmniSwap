@@ -511,15 +511,15 @@ networks:
   sui-localnet:
     node_url: http://127.0.0.1:9000
   sui-mainnet:
-    node_url: https://fullnode.mainnet.sui.io:443
+    node_url: https://sui-mainnet-endpoint.blockvision.org:443
     SoDiamond: ""
     Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
     objects:
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
-      FacetManager: ''
-      FacetStorage: ''
-      PriceManager: ''
-      WormholeFee: ''
+      FacetManager: '0xce23885d1f0c19ad582a64b042904f352f3ff1d46991d8a528e02da2275db9c2'
+      FacetStorage: '0xf00feec4856093bf41a968947da8cb35f91c304a2df4051f11759fbf7fb7abf0'
+      PriceManager: '0x6c85d499a88237a50d9da06133c9f93e75699602d0b8d035f1dea5f95376dd18'
+      WormholeFee: '0x7f1473487136446d064565294ea445a97c391db1731831eca6ca427802c36a4a'
       TokenBridgeState: '0xc57508ee0d4595e5a8728974a4a93a787d38f339757230d441e895422c07aba9'
       WormholeState: '0xaeab97f96cf9877fee2883315d459552b2b921edc16d7ceac6eab944dd88919c'
       # cetus
@@ -532,7 +532,7 @@ networks:
       IntegerMate: "0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a5a6f5b7f57"
       MoveSTL: "0xbe21a06129308e0495431d12286127897aff07a8ade3970495a4404d97f9eaaa"
       DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
-      OmniSwap: ''
+      OmniSwap: '0x47989e1f044f37b797ed052aba94874872b5dfd2d0d2afb1278f967d0d895867'
       TokenBridge:
         origin: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
         latest: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'

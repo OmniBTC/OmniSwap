@@ -20,7 +20,7 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-net = "sui-testnet"
+net = sui_project.network
 package_id = sui_project.network_config["packages"]["OmniSwap"]
 sui_package = SuiPackage(package_id=package_id, package_name="OmniSwap")
 
