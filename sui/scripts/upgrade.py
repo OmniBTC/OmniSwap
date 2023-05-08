@@ -38,6 +38,7 @@ def main():
                 42, 71, 19, 158, 219, 118, 122, 97, 187],
         gas_budget=500000000,
     )
+    print(f"New package id:{omniswap.package_id}")
 
 
 if __name__ == "__main__":
