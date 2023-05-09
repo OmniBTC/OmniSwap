@@ -5,7 +5,7 @@ networks:
   aptos-mainnet:
     omnibtc_chainid: 1
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
-    node_url: https://aptos.coming.chat/v1
+    node_url: https://fullnode.mainnet.aptoslabs.com/v1
     faucet_url: https://faucet.mainnet.aptoslabs.com
     wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
     so_facet_resource: "0x717563269e9c31361ffae76ad6d9ca748606700d6448a1ae8daeb72dfc5a0bc8"
@@ -38,6 +38,7 @@ networks:
       omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
       deployer_aux: "0x5a5e124ea1f3fc5fcfae3c198765c3b4c8d72c7236ae97ef6e5a9bc7cfda549c"
       aux: "0xbd35135844473187163ca197ca93b2ab014370587bb0ed3befff9e902d6bb541"
+      pancake: "0xc7efb4076dbe143cbcd98cfaaa929ecfc8f299203dfff63b95ccb6bfe19850fa"
     wormhole:
       chainid: 22
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
@@ -59,6 +60,10 @@ networks:
         avax-main:
           dst_chainid: 6
           base_gas: 700000
+          per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
           per_byte_gas: 68
     token:
       AptosCoin:
@@ -155,6 +160,10 @@ networks:
         avax-test:
           dst_chainid: 6
           base_gas: 700000
+          per_byte_gas: 68
+        sui-testnet:
+          dst_chainid: 21
+          base_gas: 60000
           per_byte_gas: 68
   bsc-test:
     omnibtc_chainid: 30003
@@ -314,6 +323,10 @@ networks:
           dst_chainid: 10
           base_gas: 700000
           per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
+          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -388,6 +401,10 @@ networks:
         ftm-main:
           dst_chainid: 10
           base_gas: 700000
+          per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
           per_byte_gas: 68
     oracle:
       eth:
@@ -471,6 +488,10 @@ networks:
         ftm-main:
           dst_chainid: 10
           base_gas: 700000
+          per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
           per_byte_gas: 68
     oracle:
       eth:

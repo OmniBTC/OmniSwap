@@ -1,16 +1,16 @@
 import os
+
 from brownie import Contract
+from brownie.project.main import Project
 from scripts.helpful_scripts import (
     Session,
     get_account,
     get_account_address,
-    get_token_address,
     get_wormhole_bridge,
     get_wormhole_chainid,
     zero_address,
 )
-from scripts.swap import SoData, src_session, dst_session
-from brownie.project.main import Project
+from scripts.swap import SoData
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -92,6 +92,8 @@ def get_net_from_wormhole_chainid(chainid):
         return "ftm-main"
     elif chainid == 22:
         return "aptos-mainnet"
+    elif chainid == 21:
+        return "sui-mainnet"
 
 
 def get_native_token_name(net):
@@ -105,15 +107,17 @@ def get_native_token_name(net):
         return "MATIC"
     elif "aptos" in net:
         return "APT"
+    elif "sui" in net:
+        return "SUI"
     else:
         return "ETH"
 
 
 def so_swap_via_wormhole(
-    so_data: SoData,
-    dst_diamond_address: str = "",
-    dst_chainid: int = 0,
-    p: Project = None,
+        so_data: SoData,
+        dst_diamond_address: str = "",
+        dst_chainid: int = 0,
+        p: Project = None,
 ):
     account = get_account()
 

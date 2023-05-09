@@ -10,7 +10,7 @@ import requests
 from brownie import network
 
 from scripts.serde_aptos import parse_vaa_to_wormhole_payload
-from scripts.struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
+from scripts.serde_struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
 import aptos_brownie
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
@@ -18,7 +18,12 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-mainnet")
+while True:
+    try:
+        package = aptos_brownie.AptosPackage(str(omniswap_aptos_path), network="aptos-mainnet")
+        break
+    except:
+        pass
 WORMHOLE_CHAINID_TO_NET = {
     package.config["networks"][net]["wormhole"]["chainid"]: net
     for net in package.config["networks"]
@@ -224,11 +229,23 @@ def process_vaa(
             raise OverflowError
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
         if not is_admin:
-            result = package["so_diamond::complete_so_swap_by_account"](
-                hex_str_to_vector_u8(vaa_str),
-                ty_args=ty_args,
-                gas_unit_price=dst_max_gas_price
-            )
+            try:
+                result = package["so_diamond::complete_so_swap_by_account"](
+                    hex_str_to_vector_u8(vaa_str),
+                    ty_args=ty_args,
+                    gas_unit_price=dst_max_gas_price
+                )
+            except Exception as e:
+                if time.time() > vaa_data[1] + 60 * 60:
+                    local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
+                                       f'sequence:{sequence}, start compensate for error: {e}')
+                    result = package["wormhole_facet::complete_so_swap_by_relayer"](
+                        hex_str_to_vector_u8(vaa_str),
+                        ty_args=ty_args,
+                        gas_unit_price=dst_max_gas_price
+                    )
+                else:
+                    raise e
         else:
             receiver = wormhole_data[2][1]
             local_logger.info(f"Compensate to:{receiver}")
@@ -248,7 +265,9 @@ def process_vaa(
                 if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
                 dst_net=package.network,
                 payload_len=int(len(vaa_str) / 2 - 1),
-                swap_len=len(wormhole_data[3])
+                swap_len=len(wormhole_data[3]),
+                sequence=sequence,
+                dst_txid=result["hash"]
             )
     except Exception as e:
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
@@ -376,6 +395,8 @@ def record_gas(
         payload_len=0,
         swap_len=0,
         file_path=Path(__file__).parent.joinpath("gas"),
+        sequence=None,
+        dst_txid=None
 ):
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -386,7 +407,7 @@ def record_gas(
     uid = int(cur_timestamp / interval) * interval
     period1 = str(datetime.fromtimestamp(uid))[:13]
     period2 = str(datetime.fromtimestamp(uid + interval))[:13]
-    file_name = file_path.joinpath(f"{dst_net}_{period1}_{period2}.csv")
+    file_name = file_path.joinpath(f"{dst_net}_{period1}_{period2}_v1.csv")
     data = {
         "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
         "src_net": src_net,
@@ -398,7 +419,9 @@ def record_gas(
         "actual_gas_price": actual_gas_price,
         "actual_value": actual_gas * actual_gas_price,
         "payload_len": payload_len,
-        "swap_len": swap_len
+        "swap_len": swap_len,
+        "sequence": sequence,
+        "dst_txid": dst_txid
     }
     columns = sorted(list(data.keys()))
     data = pd.DataFrame([data])

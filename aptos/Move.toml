@@ -52,3 +52,8 @@ git = "https://github.com/OmniBTC/aux-exchange.git"
 rev = '3d2c71f26a5b073f9587647b5ba7001d04a6e193'
 subdir = "aptos/contract/aux"
 
+[dependencies.PancakeSwap]
+git = "https://github.com/pancakeswap/pancake-contracts-move.git"
+rev = '94b837d0d10d0767ec44e9f7a295ea9161890b54'
+subdir = "pancake-swap"
+
