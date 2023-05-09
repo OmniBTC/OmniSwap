@@ -9,9 +9,8 @@ from brownie import (
     Contract,
     network, web3, )
 from brownie.project.main import Project
-from sui_brownie import SuiObject
+from sui_brownie import SuiObject, Argument, U16, NestedResult
 
-from ethereum.scripts.helpful_scripts import get_account
 from scripts import deploy, cetus
 from scripts import sui_project
 from scripts.deploy import get_coin_metadata
@@ -467,6 +466,7 @@ def get_pool_arguments(
 def cross_swap(
         package: sui_brownie.SuiPackage,
         src_path: list,
+        src_pool_ids: list,
         dst_path: list,
         receiver: str,
         input_amount: int,
@@ -474,8 +474,7 @@ def cross_swap(
         dst_router: EvmSwapType = None,
         dst_func: EvmSwapFunc = None,
         dst_min_amount: int = 0,
-        src_router: SuiSwapType = SuiSwapType.OmniswapMock,
-        src_pool_id=None
+        src_router: SuiSwapType = SuiSwapType.Cetus,
 ):
     dst_net = network.show_active()
     # ethereum facet
@@ -580,7 +579,7 @@ def cross_swap(
         y_type = src_swap_data[0].receivingAssetId
         y_type = y_type if '0x' == y_type[:2] else "0x" + y_type
         dex_name, ty_args, reverse = get_pool_arguments(
-            src_pool_id, x_type, y_type
+            src_pool_ids[0], x_type, y_type
         )
         if not reverse:
             # x coin is base asset
@@ -593,7 +592,7 @@ def cross_swap(
                     price_manager,
                     wormhole_fee_object,
                     cetus.global_config(),
-                    src_pool_id,
+                    src_pool_ids[0],
                     normal_so_data,
                     normal_src_swap_data,
                     normal_wormhole_data,
@@ -611,7 +610,7 @@ def cross_swap(
                     clock(),
                     price_manager,
                     wormhole_fee_object,
-                    src_pool_id,
+                    src_pool_ids[0],
                     normal_so_data,
                     normal_src_swap_data,
                     normal_wormhole_data,
@@ -632,7 +631,7 @@ def cross_swap(
                     price_manager,
                     wormhole_fee_object,
                     cetus.global_config(),
-                    src_pool_id,
+                    src_pool_ids[0],
                     normal_so_data,
                     normal_src_swap_data,
                     normal_wormhole_data,
@@ -650,7 +649,7 @@ def cross_swap(
                     clock(),
                     price_manager,
                     wormhole_fee_object,
-                    src_pool_id,
+                    src_pool_ids[0],
                     normal_so_data,
                     normal_src_swap_data,
                     normal_wormhole_data,
@@ -661,7 +660,99 @@ def cross_swap(
                     gas_budget=1000000000
                 )
     else:
-        raise ValueError
+        # multi-hop swap
+        # test usdc -> usdt -> usdc
+        u64_max = 18446744073709551615
+        package.wormhole_facet.merge_coin_with_transfer(
+            coin_x,
+            u64_max,
+            type_arguments=[cetus.usdc()]
+        )
+        result = sui_project.client.suix_getCoins(sui_project.account.account_address, x_type, None, None)
+        coin_x = [c["coinObjectId"] for c in result["data"]]
+
+        sui_project.batch_transaction(
+            actual_params=[
+                wormhole_state,
+                storage,
+                price_manager,
+                wormhole_fee_object,
+                normal_so_data,
+                normal_src_swap_data,
+                normal_wormhole_data,
+                normal_dst_swap_data,
+                coin_x[0],
+                coin_sui[0],
+                cetus.global_config(),
+                cetus.usdt_usdc_pool(),
+                clock(),
+                token_bridge_state
+            ],
+            transactions=[
+                [
+                    package.wormhole_facet.make_object_vector,
+                    [
+                        Argument("Input", U16(8)),
+                    ],
+                    [cetus.usdc()]
+                ],
+                [
+                    package.wormhole_facet.make_object_vector,
+                    [
+                        Argument("Input", U16(9)),
+                    ],
+                    [sui()]
+                ],
+                [
+                    package.wormhole_facet.so_multi_swap,
+                    [
+                        Argument("Input", U16(0)),
+                        Argument("Input", U16(1)),
+                        Argument("Input", U16(2)),
+                        Argument("Input", U16(3)),
+                        Argument("Input", U16(4)),
+                        Argument("Input", U16(5)),
+                        Argument("Input", U16(6)),
+                        Argument("Input", U16(7)),
+                        Argument("NestedResult", NestedResult(U16(0), U16(0))),
+                        Argument("NestedResult", NestedResult(U16(1), U16(0))),
+                    ],
+                    [cetus.usdc()]
+                ],
+                [
+                    package.wormhole_facet.multi_swap_for_cetus_base_asset,
+                    [
+                        Argument("Input", U16(10)),
+                        Argument("Input", U16(11)),
+                        Argument("NestedResult", NestedResult(U16(2), U16(0))),
+                        Argument("Input", U16(12)),
+                    ],
+                    [cetus.usdt(), cetus.usdc()]
+                ],
+                [
+                    package.wormhole_facet.multi_swap_for_cetus_quote_asset,
+                    [
+                        Argument("Input", U16(10)),
+                        Argument("Input", U16(11)),
+                        Argument("NestedResult", NestedResult(U16(3), U16(0))),
+                        Argument("Input", U16(12)),
+                    ],
+                    [cetus.usdt(), cetus.usdc()]
+                ],
+                [
+                    package.wormhole_facet.complete_multi_src_swap,
+                    [
+                        Argument("Input", U16(0)),
+                        Argument("Input", U16(13)),
+                        Argument("Input", U16(1)),
+                        Argument("NestedResult", NestedResult(U16(4), U16(0))),
+                        Argument("NestedResult", NestedResult(U16(2), U16(1))),
+                        Argument("Input", U16(12)),
+                    ],
+                    [cetus.usdc()]
+                ]
+            ]
+        )
 
 
 def claim_faucet(coin_type):
@@ -674,18 +765,29 @@ def claim_faucet(coin_type):
 
 def cross_swap_for_testnet(package):
     dst_gas_price = 4 * 1e9
+
+    # cross_swap(package,
+    #            src_path=["Cetus-USDT", "Cetus-USDC"],
+    #            dst_path=["sui-usdc"],
+    #            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+    #            input_amount=1000000,
+    #            dst_gas_price=dst_gas_price,
+    #            src_router=SuiSwapType.Cetus,
+    #            src_pool_ids=[cetus.usdt_usdc_pool()]
+    #            )
+
     cross_swap(package,
-               src_path=["Cetus-USDT", "Cetus-USDC"],
+               src_path=["Cetus-USDC", "Cetus-USDT", "Cetus-USDC"],
                dst_path=["sui-usdc"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
                input_amount=1000000,
                dst_gas_price=dst_gas_price,
                src_router=SuiSwapType.Cetus,
-               src_pool_id=sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"]
+               src_pool_ids=[cetus.usdt_usdc_pool(), cetus.usdt_usdc_pool()]
                )
 
 
-def bcross_swap_for_mainnet(package):
+def cross_swap_for_mainnet(package):
     dst_gas_price = 4 * 1e9
     cross_swap(package,
                src_path=["SUI", "Wormhole-USDC"],
@@ -694,7 +796,7 @@ def bcross_swap_for_mainnet(package):
                input_amount=1000000,
                dst_gas_price=dst_gas_price,
                src_router=SuiSwapType.Cetus,
-               src_pool_id=sui_project.network_config["pools"]["Wormhole-USDC-SUI"]["pool_id"]
+               src_pool_ids=[sui_project.network_config["pools"]["Wormhole-USDC-SUI"]["pool_id"]]
                )
 
 
