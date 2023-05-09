@@ -110,6 +110,7 @@ module omniswap::wormhole_facet {
 
     /// Multi swap result
     struct MultiSwapData<phantom X> {
+        receiver: address,
         input_coin: Coin<X>,
         left_swap_data: vector<NormalizedSwapData>,
     }
@@ -125,7 +126,6 @@ module omniswap::wormhole_facet {
     /// Multi dst data
     struct MultiDstData {
         tx_id: vector<u8>,
-        receiver: address,
     }
 
     /// Events
@@ -909,6 +909,7 @@ module omniswap::wormhole_facet {
         assert!(vector::length(&swap_data_src) > 0, EMULTISWAP_STEP);
 
         let multi_swap_data = MultiSwapData<X> {
+            receiver: tx_context::sender(ctx),
             input_coin: coin_x,
             left_swap_data: swap_data_src,
         };
@@ -937,7 +938,7 @@ module omniswap::wormhole_facet {
         ctx: &mut TxContext
     ): MultiSwapData<X> {
         assert!(vector::length(&multi_swap_data.left_swap_data) > 0, EMULTISWAP_STEP);
-        let (coin_y, left_swap_data) = destroy_multi_swap_data(
+        let (receiver, coin_y, left_swap_data) = destroy_multi_swap_data(
             multi_swap_data
         );
         let swap_data = vector::remove(&mut left_swap_data, 0);
@@ -949,8 +950,9 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
-        process_left_coin(left_coin_y, tx_context::sender(ctx));
+        process_left_coin(left_coin_y, receiver);
         MultiSwapData<X> {
+            receiver,
             input_coin: coin_x,
             left_swap_data,
         }
@@ -964,7 +966,7 @@ module omniswap::wormhole_facet {
         ctx: &mut TxContext
     ): MultiSwapData<Y> {
         assert!(vector::length(&multi_swap_data.left_swap_data) > 0, EMULTISWAP_STEP);
-        let (coin_x, left_swap_data) = destroy_multi_swap_data(
+        let (receiver, coin_x, left_swap_data) = destroy_multi_swap_data(
             multi_swap_data
         );
         let swap_data = vector::remove(&mut left_swap_data, 0);
@@ -976,8 +978,9 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
-        process_left_coin(left_coin_x, tx_context::sender(ctx));
+        process_left_coin(left_coin_x, receiver);
         MultiSwapData<Y> {
+            receiver,
             input_coin: coin_y,
             left_swap_data,
         }
@@ -989,11 +992,10 @@ module omniswap::wormhole_facet {
         storage: &mut Storage,
         multi_swap_data: MultiSwapData<X>,
         multi_src_data: MultiSrcData,
-        clock: &Clock,
-        ctx: &mut TxContext
+        clock: &Clock
     ) {
         assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
-        let (coin_x, swap_data) = destroy_multi_swap_data(multi_swap_data);
+        let (receiver, coin_x, swap_data) = destroy_multi_swap_data(multi_swap_data);
         let (wormhole_fee_coin, wormhole_data, relay_fee, payload) = destroy_multi_src_data(multi_src_data);
         vector::destroy_empty(swap_data);
         let bridge_amount = coin::value(&coin_x);
@@ -1008,7 +1010,7 @@ module omniswap::wormhole_facet {
             wormhole_fee_coin
         );
         bridge_amount = bridge_amount - coin::value(&dust);
-        process_left_coin(dust, tx_context::sender(ctx));
+        process_left_coin(dust, receiver);
 
         event::emit(
             TransferFromWormholeEvent {
@@ -1028,12 +1030,13 @@ module omniswap::wormhole_facet {
 
     fun destroy_multi_swap_data<X>(
         multi_swap_data: MultiSwapData<X>
-    ): (Coin<X>, vector<NormalizedSwapData>) {
+    ): (address, Coin<X>, vector<NormalizedSwapData>) {
         let MultiSwapData<X> {
+            receiver,
             input_coin,
             left_swap_data,
         } = multi_swap_data;
-        (input_coin, left_swap_data)
+        (receiver, input_coin, left_swap_data)
     }
 
     fun destroy_multi_src_data(
@@ -1050,12 +1053,11 @@ module omniswap::wormhole_facet {
 
     fun destroy_multi_dst_data(
         multi_dst_data: MultiDstData
-    ): (vector<u8>, address) {
+    ): (vector<u8>) {
         let MultiDstData {
             tx_id,
-            receiver,
         } = multi_dst_data;
-        (tx_id, receiver)
+        (tx_id)
     }
 
     fun complete_transfer<X>(
@@ -1119,12 +1121,12 @@ module omniswap::wormhole_facet {
 
         (
             MultiSwapData<X> {
+                receiver,
                 input_coin: coin_x,
                 left_swap_data: swap_data_dst,
             },
             MultiDstData {
-                tx_id: cross::so_transaction_id(so_data),
-                receiver
+                tx_id: cross::so_transaction_id(so_data)
             }
         )
     }
@@ -1134,8 +1136,8 @@ module omniswap::wormhole_facet {
         multi_dst_data: MultiDstData,
     ) {
         assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
-        let (coin_x, left_swap_data) = destroy_multi_swap_data(multi_swap_data);
-        let (tx_id, receiver) = destroy_multi_dst_data(multi_dst_data);
+        let (receiver, coin_x, left_swap_data) = destroy_multi_swap_data(multi_swap_data);
+        let tx_id = destroy_multi_dst_data(multi_dst_data);
 
         vector::destroy_empty(left_swap_data);
         let receiving_amount = coin::value(&coin_x);
