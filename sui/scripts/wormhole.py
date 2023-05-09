@@ -550,14 +550,29 @@ def cross_swap(
 
     # split zero sui coin to pay bridge fee
     if src_path[0] == "SUI":
-        result = sui_project.pay_sui([so_data.amount, wormhole_fee])
-        coin_x = [result['objectChanges'][-1]['objectId']]
-        coin_sui = [result['objectChanges'][-2]['objectId']]
+        _result = sui_project.pay_sui([so_data.amount, wormhole_fee])
+        sui_infos = sui_project.get_account_sui()
+
+        coin_x = [oid
+                  for oid, info in sui_infos.items()
+                  if int(info["balance"]) == so_data.amount]
+        coin_sui = [oid
+                    for oid, info in sui_infos.items()
+                    if int(info["balance"]) == wormhole_fee
+                    ]
+        assert len(coin_x)
+        assert len(coin_sui)
     else:
         result = sui_project.client.suix_getCoins(sui_project.account.account_address, x_type, None, None)
         coin_x = [c["coinObjectId"] for c in result["data"]]
-        result = sui_project.pay_sui([wormhole_fee])
-        coin_sui = [result['objectChanges'][-1]['objectId']]
+        _result = sui_project.pay_sui([wormhole_fee])
+        sui_infos = sui_project.get_account_sui()
+        coin_sui = [oid
+                    for oid, info in sui_infos.items()
+                    if int(info["balance"]) == wormhole_fee
+                    ]
+        assert len(coin_x)
+        assert len(coin_sui)
 
     if len(src_swap_data) == 0:
         package.wormhole_facet.so_swap_without_swap(
@@ -685,8 +700,8 @@ def cross_swap_for_testnet(package):
                )
 
 
-def bcross_swap_for_mainnet(package):
-    dst_gas_price = 4 * 1e9
+def cross_swap_for_mainnet(package):
+    dst_gas_price = 170 * 1e9
     cross_swap(package,
                src_path=["SUI", "Wormhole-USDC"],
                dst_path=["USDC_ETH_WORMHOLE"],
