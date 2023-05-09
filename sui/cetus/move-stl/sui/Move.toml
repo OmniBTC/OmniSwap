@@ -1,0 +1,13 @@
+[package]
+name = "MoveSTL"
+version = "1.0.0"
+published-at = "0xbe21a06129308e0495431d12286127897aff07a8ade3970495a4404d97f9eaaa"
+
+[addresses]
+sui = "0x2"
+move_stl = "0xbe21a06129308e0495431d12286127897aff07a8ade3970495a4404d97f9eaaa"
+
+[dependencies.Sui]
+git = "https://github.com/MystenLabs/sui.git"
+subdir = "crates/sui-framework/packages/sui-framework"
+rev = "09b2081498366df936abae26eea4b2d5cafb2788"

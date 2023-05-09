@@ -1,23 +1,31 @@
-import aptos_brownie
-from scripts.serde_struct import SoData, change_network, hex_str_to_vector_u8, \
-    generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
-    WormholeData, SwapData, padding_to_bytes
-from scripts.serde_aptos import get_serde_facet, get_wormhole_facet, get_token_bridge
 import functools
 import time
 from enum import Enum
 from typing import List
 
+import aptos_brownie
 from brownie import (
     Contract,
     network, web3,
 )
 from brownie.project.main import Project
+from scripts.serde_aptos import get_serde_facet, get_wormhole_facet, get_token_bridge
+from scripts.serde_struct import SoData, change_network, hex_str_to_vector_u8, \
+    generate_aptos_coin_address_in_wormhole, omniswap_aptos_path, omniswap_ethereum_project, generate_random_bytes32, \
+    WormholeData, SwapData, padding_to_bytes
+
+from sui.scripts import sui_project
 
 
 class AptosSwapType(Enum):
     Liquidswap = "liquidswap"
     Aux = "aux"
+
+
+class SuiSwapType(Enum):
+    OmniswapMock = "OmniswapMock"
+    DeepBook = "DeepBook"
+    Cetus = "Cetus"
 
 
 class EvmSwapType(Enum):
@@ -53,6 +61,16 @@ def encode_path_for_uniswap_v3(package: aptos_brownie.AptosPackage, dst_net: str
         for i in range(len(path))
     ]
     return "0x" + "".join(path)
+
+
+@functools.lru_cache()
+def get_sui_token():
+    if "tokens" not in sui_project.network_config:
+        return {"SUI": {"address": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                        "decimal": 8, "name": "SUI",
+                        }}
+
+    return sui_project.network_config["tokens"]
 
 
 def get_dst_wrapped_address_for_aptos(
@@ -275,13 +293,17 @@ def generate_so_data(
         receiver: str,
         amount: int
 ) -> SoData:
+    if "sui" in dst_net:
+        receivingAssetId = get_sui_token()[dst_token]["address"].replace("0x", "")
+    else:
+        receivingAssetId = get_evm_token(package, dst_net)[dst_token]["address"]
     return SoData(
         transactionId=generate_random_bytes32(),
         receiver=receiver,
         sourceChainId=package.config["networks"][package.network]["omnibtc_chainid"],
         sendingAssetId=get_aptos_token(package)[src_token]["address"],
         destinationChainId=package.config["networks"][dst_net]["omnibtc_chainid"],
-        receivingAssetId=get_evm_token(package, dst_net)[dst_token]["address"],
+        receivingAssetId=receivingAssetId,
         amount=amount
     )
 
@@ -346,7 +368,7 @@ def generate_src_swap_data(
     return out
 
 
-def generate_dst_swap_data(
+def generate_dst_eth_swap_data(
         package: aptos_brownie.AptosPackage,
         project: Project,
         dst_net: str,
@@ -423,7 +445,142 @@ def generate_dst_swap_data(
     return out
 
 
-def cross_swap(
+def generate_dst_sui_swap_data(
+        router: SuiSwapType,
+        path: list,
+        min_amount: int,
+) -> List[SwapData]:
+    out = []
+    i = 0
+
+    while i < len(path) - 1:
+        if router == SuiSwapType.Cetus:
+            token0 = path[i].split("-")[-1]
+            token1 = path[i + 1].split("-")[-1]
+            if f"Cetus-{token0}-{token1}" in sui_project.network_config['pools']:
+                pool_id = sui_project.network_config['pools'][f"Cetus-{token0}-{token1}"]['pool_id']
+            elif f"Cetus-{token1}-{token0}" in sui_project.network_config['pools']:
+                pool_id = sui_project.network_config['pools'][f"Cetus-{token1}-{token0}"]['pool_id']
+            else:
+                raise ValueError(f"{token0}, {token1}")
+        else:
+            raise ValueError(router)
+
+        swap_data = SwapData(
+            callTo=pool_id,
+            approveTo=pool_id,
+            sendingAssetId=get_sui_token()[path[i]]["address"].replace("0x", ""),
+            receivingAssetId=get_sui_token()[path[i + 1]]["address"].replace("0x", ""),
+            fromAmount=0,
+            callData=f"{router.value},{min_amount}",
+        )
+        out.append(swap_data)
+        i += 1
+    return out
+
+
+def corss_swap_to_sui(
+        package: aptos_brownie.AptosPackage,
+        src_path: list,
+        dst_path: list,
+        receiver: str,
+        input_amount: int,
+        dst_gas_price: int = 0,
+        dst_router: SuiSwapType = None,
+        dst_min_amount: int = 0,
+        src_router: AptosSwapType = AptosSwapType.Liquidswap
+):
+    dst_net = sui_project.network
+    # use eth interfaces
+    eth_net = network.show_active()
+    serde = get_serde_facet(package, eth_net)
+    wormhole = get_wormhole_facet(package, eth_net)
+
+    # construct wormhole data
+    wormhole_data = generate_wormhole_data(
+        package,
+        dst_net=dst_net,
+        dst_gas_price=dst_gas_price,
+        wormhole_fee=100000000
+    )
+    normal_wormhole_data = hex_str_to_vector_u8(
+        str(wormhole.encodeNormalizedWormholeData(wormhole_data.format_to_contract())))
+
+    # construct so data
+    so_data = generate_so_data(
+        package,
+        src_token=src_path[0],
+        dst_net=dst_net,
+        dst_token=dst_path[-1],
+        receiver=receiver,
+        amount=input_amount)
+    normal_so_data = hex_str_to_vector_u8(
+        str(serde.encodeNormalizedSoData(so_data.format_to_contract())))
+
+    # construct src data
+    normal_src_swap_data = []
+    src_swap_data = []
+    if len(src_path) > 1:
+        src_swap_data = generate_src_swap_data(
+            package, src_router, src_path, input_amount)
+        normal_src_swap_data = [d.format_to_contract() for d in src_swap_data]
+        normal_src_swap_data = hex_str_to_vector_u8(
+            str(serde.encodeNormalizedSwapData(normal_src_swap_data)))
+
+    # construct dst data
+    normal_dst_swap_data = []
+    if len(dst_path) > 1:
+        dst_swap_data = generate_dst_sui_swap_data(
+            dst_router,
+            dst_path,
+            dst_min_amount,
+        )
+        normal_dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
+        normal_dst_swap_data = hex_str_to_vector_u8(
+            str(serde.encodeNormalizedSwapData(normal_dst_swap_data)))
+
+    if len(src_swap_data) == 0:
+        ty_args = [so_data.sendingAssetId] * 4
+    elif len(src_swap_data) == 1:
+        ty_args = [src_swap_data[0].sendingAssetId] + \
+                  [src_swap_data[0].receivingAssetId] * 3
+    elif len(src_swap_data) == 2:
+        ty_args = [src_swap_data[0].sendingAssetId, src_swap_data[1].sendingAssetId] + [
+            src_swap_data[1].receivingAssetId] * 2
+    elif len(src_swap_data) == 3:
+        ty_args = [src_swap_data[0].sendingAssetId,
+                   src_swap_data[1].sendingAssetId,
+                   src_swap_data[2].sendingAssetId,
+                   ] + [src_swap_data[2].receivingAssetId]
+    else:
+        raise ValueError
+
+    payload_length = len(normal_so_data) + \
+                     len(normal_wormhole_data) + len(normal_dst_swap_data)
+
+    is_native = src_path[0] == "AptosCoin"
+    wormhole_fee = estimate_wormhole_fee(
+        package, package.config["networks"][dst_net]["wormhole"]["chainid"], dst_gas_price, input_amount, is_native,
+        payload_length, 0)
+    print(f"Wormhole fee: {wormhole_fee}")
+    wormhole_data = generate_wormhole_data(
+        package,
+        dst_net=dst_net,
+        dst_gas_price=dst_gas_price,
+        wormhole_fee=wormhole_fee
+    )
+    normal_wormhole_data = hex_str_to_vector_u8(
+        str(wormhole.encodeNormalizedWormholeData(wormhole_data.format_to_contract())))
+
+    package["so_diamond::so_swap_via_wormhole"](
+        normal_so_data,
+        normal_src_swap_data,
+        normal_wormhole_data,
+        normal_dst_swap_data,
+        ty_args=ty_args)
+
+
+def cross_swap_to_eth(
         package: aptos_brownie.AptosPackage,
         src_path: list,
         dst_path: list,
@@ -475,7 +632,7 @@ def cross_swap(
     # construct dst data
     normal_dst_swap_data = []
     if len(dst_path) > 1:
-        dst_swap_data = generate_dst_swap_data(
+        dst_swap_data = generate_dst_eth_swap_data(
             package,
             omniswap_ethereum_project,
             dst_net,
@@ -531,7 +688,7 @@ def cross_swap(
 
 def main():
     src_net = "aptos-testnet"
-    assert src_net in ["aptos-mainnet", "aptos-devnet", "aptos-testnet"]
+    assert src_net in {"aptos-mainnet", "aptos-devnet", "aptos-testnet"}
     dst_net = "bsc-test"
 
     # Prepare environment
@@ -565,62 +722,63 @@ def main():
         # gas: 9121
         # package_mock["setup::setup_omniswap_enviroment"]()
     # load dst net project
-    change_network(dst_net)
+    if "sui" not in dst_net:
+        change_network(dst_net)
 
     ####################################################
     if package.network == "aptos-testnet":
         dst_gas_price = 0
 
         # gas: 17770
-        cross_swap(package,
-                   src_path=["AptosCoin"],
-                   dst_path=["AptosCoin_WORMHOLE"],
-                   receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-                   input_amount=100000,
-                   dst_gas_price=dst_gas_price
-                   )
+        cross_swap_to_eth(package,
+                          src_path=["AptosCoin"],
+                          dst_path=["AptosCoin_WORMHOLE"],
+                          receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+                          input_amount=100000,
+                          dst_gas_price=dst_gas_price
+                          )
 
         # gas: 31181
-        cross_swap(package,
-                   src_path=["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"],
-                   dst_path=["XBTC_WORMHOLE"],
-                   receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-                   input_amount=10000000,
-                   dst_gas_price=dst_gas_price
-                   )
+        cross_swap_to_eth(package,
+                          src_path=["AptosCoin", LiquidswapCurve.Uncorrelated, "XBTC"],
+                          dst_path=["XBTC_WORMHOLE"],
+                          receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+                          input_amount=10000000,
+                          dst_gas_price=dst_gas_price
+                          )
 
         # gas: 46160
-        cross_swap(package,
-                   src_path=["AptosCoin",
-                             LiquidswapCurve.Uncorrelated,
-                             "XBTC",
-                             LiquidswapCurve.Uncorrelated,
-                             "USDT",
-                             ],
-                   dst_path=["USDT_WORMHOLE"],
-                   receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-                   input_amount=10000000,
-                   dst_gas_price=dst_gas_price
-                   )
+        cross_swap_to_eth(package,
+                          src_path=["AptosCoin",
+                                    LiquidswapCurve.Uncorrelated,
+                                    "XBTC",
+                                    LiquidswapCurve.Uncorrelated,
+                                    "USDT",
+                                    ],
+                          dst_path=["USDT_WORMHOLE"],
+                          receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+                          input_amount=10000000,
+                          dst_gas_price=dst_gas_price
+                          )
 
         # gas: 313761
-        cross_swap(package,
-                   src_path=["AptosCoin",
-                             LiquidswapCurve.Uncorrelated,
-                             "XBTC",
-                             LiquidswapCurve.Uncorrelated,
-                             "USDT",
-                             LiquidswapCurve.Stable,
-                             "USDC"
-                             ],
-                   dst_path=["USDC_WORMHOLE"],
-                   receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-                   input_amount=10000000,
-                   dst_gas_price=dst_gas_price
-                   )
+        cross_swap_to_eth(package,
+                          src_path=["AptosCoin",
+                                    LiquidswapCurve.Uncorrelated,
+                                    "XBTC",
+                                    LiquidswapCurve.Uncorrelated,
+                                    "USDT",
+                                    LiquidswapCurve.Stable,
+                                    "USDC"
+                                    ],
+                          dst_path=["USDC_WORMHOLE"],
+                          receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+                          input_amount=10000000,
+                          dst_gas_price=dst_gas_price
+                          )
 
         # gas: 35389
-        cross_swap(
+        cross_swap_to_eth(
             package,
             src_path=["AptosCoin"],
             dst_path=["AptosCoin_WORMHOLE", "USDT"],
@@ -631,19 +789,32 @@ def main():
             dst_func=EvmSwapFunc.swapExactTokensForTokens
         )
     else:
-        dst_gas_price = 30 * 1e9
+        dst_gas_price = int(30 * 1e9)
         print("estimate out:", get_amounts_out_for_liquidswap(package,
                                                               ["AptosCoin", "USDC_ETH_WORMHOLE"],
                                                               10000000,
                                                               AptosSwapType.Aux))
-        cross_swap(
-            package,
-            src_path=["AptosCoin", "USDC_ETH_WORMHOLE"],
-            dst_path=["usdc_eth"],
-            receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-            input_amount=10000000,
-            dst_gas_price=dst_gas_price,
-            dst_router=EvmSwapType.IUniswapV2Router02,
-            dst_func=EvmSwapFunc.swapExactTokensForTokens,
-            src_router=AptosSwapType.Aux
-        )
+
+        if "sui" in dst_net:
+            corss_swap_to_sui(
+                package,
+                src_path=["AptosCoin", "USDC_ETH_WORMHOLE"],
+                dst_path=["Wormhole-USDC", "SUI"],
+                receiver="0x29b710abd287961d02352a5e34ec5886c63aa5df87a209b2acbdd7c9282e6566",
+                input_amount=10000000,
+                dst_gas_price=dst_gas_price,
+                dst_router=SuiSwapType.Cetus,
+                src_router=AptosSwapType.Aux
+            )
+        else:
+            cross_swap_to_eth(
+                package,
+                src_path=["AptosCoin", "USDC_ETH_WORMHOLE"],
+                dst_path=["usdc_eth"],
+                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
+                input_amount=10000000,
+                dst_gas_price=dst_gas_price,
+                dst_router=EvmSwapType.IUniswapV2Router02,
+                dst_func=EvmSwapFunc.swapExactTokensForTokens,
+                src_router=AptosSwapType.Aux
+            )

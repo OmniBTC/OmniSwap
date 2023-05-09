@@ -667,8 +667,14 @@ module omniswap::wormhole_facet {
         src_fee = u256::mul(src_fee, u256::from_u64(actual_reserve));
         src_fee = u256::div(src_fee, one);
 
-        // Evm chain, decimal change
-        src_fee = u256::div(src_fee, u256::from_u64(10000000000));
+        if (u16::to_u64(wormhole_data.dst_wormhole_chain_id) == 21) {
+            // Sui chain, decimal / 10
+            src_fee = u256::div(src_fee, u256::from_u64(10));
+        }else {
+            // Evm chain, decimal change
+            src_fee = u256::div(src_fee, u256::from_u64(10000000000));
+        };
+
 
         let comsume_value = u256::from_u64(state::get_message_fee());
 
@@ -688,7 +694,7 @@ module omniswap::wormhole_facet {
             flag = true;
             return_value = wormhole_fee - comsume_value;
         };
-        (flag, src_fee, return_value, dst_max_gas)
+        (flag, src_fee, comsume_value, dst_max_gas)
     }
 
     public fun estimate_complete_soswap_gas(

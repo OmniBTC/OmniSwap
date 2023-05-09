@@ -48,6 +48,8 @@ def main():
         package["so_fee_wormhole::set_price_ratio"](5, int(1 / 7 * ratio_decimal))
         package["so_fee_wormhole::initialize"](6)
         package["so_fee_wormhole::set_price_ratio"](6, int(20 / 7 * ratio_decimal))
+        package["so_fee_wormhole::initialize"](21)
+        package["so_fee_wormhole::set_price_ratio"](21, int(0.1 / 7 * ratio_decimal))
     except:
         pass
     # # wormhole

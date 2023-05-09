@@ -1,0 +1,700 @@
+dotenv: .env
+networks:
+  default: polygon-main
+  aptos-devnet:
+    faucet_url: https://tap.devnet.prod.gcp.aptosdev.com
+    node_url: https://fullnode.devnet.aptoslabs.com/v1
+    omnibtc_chainid: 30001
+    wormhole:
+      chainid: 22
+  aptos-mainnet:
+    SoDiamond: '0x0000000000000000000000000000000000000000000000000000000000000002'
+    dst_base_gas:
+      key_type: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::u16::U16
+      table_handle: '0xd0fd5f4bf930c601ce30b28a3a0df7af500afa14d3c9aa599c9d10437126ac70'
+      value_type: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::u256::U256
+    dst_gas_per_bytes:
+      key_type: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::u16::U16
+      table_handle: '0x586b0dfb66565d48e281e6ddd4b87ccc790b7c9aba06cfb8f7a6f5e3af451bc'
+      value_type: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::u256::U256
+    faucet_url: https://faucet.mainnet.aptoslabs.com
+    node_url: https://fullnode.mainnet.aptoslabs.com/v1
+    omnibtc_chainid: 1
+    replace_address:
+      aux: '0xbd35135844473187163ca197ca93b2ab014370587bb0ed3befff9e902d6bb541'
+      deployer: '0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b'
+      deployer_aux: '0x5a5e124ea1f3fc5fcfae3c198765c3b4c8d72c7236ae97ef6e5a9bc7cfda549c'
+      liquidswap: '0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12'
+      liquidswap_pool_account: '0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948'
+      omniswap: '0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b'
+      token_bridge: '0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f'
+      wormhole: '0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625'
+    so_facet_resource: '0x717563269e9c31361ffae76ad6d9ca748606700d6448a1ae8daeb72dfc5a0bc8'
+    so_transfer_completed:
+      address: '0x717563269e9c31361ffae76ad6d9ca748606700d6448a1ae8daeb72dfc5a0bc8'
+      event_handle: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::wormhole_facet::SoTransferEventHandle
+      field_name: so_transfer_completed
+    so_transfer_started:
+      address: '0x717563269e9c31361ffae76ad6d9ca748606700d6448a1ae8daeb72dfc5a0bc8'
+      event_handle: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::wormhole_facet::SoTransferEventHandle
+      field_name: so_transfer_started
+    token:
+      AptosCoin:
+        address: '0x1'
+        basic_value: 0.1
+        decimal: 8
+        module: aptos_coin
+        name: AptosCoin
+      USDC_ETH_WORMHOLE:
+        address: '0x5e156f1207d0ebfa19a9eeff00d62a282278fb8719f4fab3a586a0a2c0fffbea'
+        basic_value: 1
+        decimal: 6
+        module: coin
+        name: T
+    transfer_from_wormhole_events:
+      address: '0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2'
+      event_handle: 0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b::wormhole_facet::Storage
+      field_name: transfer_from_wormhole_events
+    wormhole:
+      actual_reserve: 1.1
+      chainid: 22
+      estimate_reserve: 1.2
+      gas:
+        avax-main:
+          base_gas: 700000
+          dst_chainid: 6
+          per_byte_gas: 68
+        bsc-main:
+          base_gas: 700000
+          dst_chainid: 4
+          per_byte_gas: 68
+        mainnet:
+          base_gas: 700000
+          dst_chainid: 2
+          per_byte_gas: 68
+        polygon-main:
+          base_gas: 700000
+          dst_chainid: 5
+          per_byte_gas: 68
+      token_bridge: '0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f'
+    wormhole_facet_resource: '0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2'
+  aptos-testnet:
+    SoDiamond: '0x0000000000000000000000000000000000000000000000000000000000000008'
+    dst_base_gas:
+      key_type: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::u16::U16
+      table_handle: '0xb9225706879ca9221fce010f82f61b0784cd3b1f63e92e9a3fffda69dcf99344'
+      value_type: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::u256::U256
+    dst_gas_per_bytes:
+      key_type: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::u16::U16
+      table_handle: '0xf6dabfb038f1eff263744a78665f22150d2a313a9bc1fb384909c5450297d94b'
+      value_type: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::u256::U256
+    faucet_url: https://faucet.testnet.aptoslabs.com
+    node_url: https://aptos-testnet.coming.chat/v1
+    omnibtc_chainid: 30001
+    replace_address:
+      aux: '0x8b7311d78d47e37d09435b8dc37c14afd977c5cfa74f974d45f0258d986eef53'
+      deployer: '0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b'
+      deployer_aux: '0x27a5ed998335d3b74ee2329bdb803f25095ca1137015a115e748b366c44f73be'
+      liquidswap: '0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12'
+      liquidswap_pool_account: '0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948'
+      omniswap: '0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327'
+      omniswap_mock: '0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327'
+      token_bridge: '0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f'
+      wormhole: '0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625'
+    so_transfer_completed:
+      address: '0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f'
+      event_handle: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::wormhole_facet::SoTransferEventHandle
+      field_name: so_transfer_completed
+    so_transfer_started:
+      address: '0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f'
+      event_handle: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::wormhole_facet::SoTransferEventHandle
+      field_name: so_transfer_started
+    token:
+      AptosCoin:
+        address: '0x1'
+        basic_value: 0.1
+        decimal: 8
+        module: aptos_coin
+        name: AptosCoin
+      USDC:
+        address: '0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b'
+        decimal: 8
+        module: setup
+      USDT:
+        address: '0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b'
+        decimal: 8
+        module: setup
+      XBTC:
+        address: '0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b'
+        decimal: 8
+        module: setup
+    transfer_from_wormhole_events:
+      address: '0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f'
+      event_handle: 0x10da25b08eddfc4c2b9144f20ca3d9b9ccaf5522d8201aafb8bcd3a6c49ec327::wormhole_facet::Storage
+      field_name: transfer_from_wormhole_events
+    wormhole:
+      actual_reserve: 1.1
+      chainid: 22
+      estimate_reserve: 1.2
+      gas:
+        avax-test:
+          base_gas: 700000
+          dst_chainid: 6
+          per_byte_gas: 68
+        bsc-test:
+          base_gas: 700000
+          dst_chainid: 4
+          per_byte_gas: 68
+        goerli:
+          base_gas: 700000
+          dst_chainid: 2
+          per_byte_gas: 68
+        polygon-test:
+          base_gas: 700000
+          dst_chainid: 5
+          per_byte_gas: 68
+      token_bridge: '0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f'
+    wormhole_facet_resource: '0x46622284de6a425cca2c93f9b98e270f6688684089b166081096f5846159c18f'
+  avax-main:
+    SoDiamond: '0x2967e7bb9daa5711ac332caf874bd47ef99b3820'
+    chainid: 43114
+    omnibtc_chainid: 4
+    oracle:
+      avax:
+        address: '0x0A77230d17318075983913bC2145DB16C7366156'
+        chainid: 6
+        currency: USD
+      eth:
+        address: '0x976B3D034E162d8bD72D6b9C989d545b839003b0'
+        chainid: 2
+        currency: USD
+      ftm:
+        address: '0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648'
+        chainid: 10
+        currency: USD
+      polygon:
+        address: '0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73'
+        chainid: 5
+        currency: USD
+    stargate:
+      chainid: 106
+      poolid:
+        usdc: 1
+        usdt: 2
+      router: '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd'
+    swap:
+      IUniswapV2Router02AVAX:
+        name: PangolinV2
+        router: '0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106'
+        token_list: https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json
+    token:
+      AptosCoin_WORMHOLE:
+        address: '0x43c588459b3243fA541B98CC4B2E995b3de553A2'
+        decimal: 8
+      usdc:
+        address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'
+        decimal: 6
+      usdt:
+        address: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7'
+        decimal: 6
+      weth:
+        address: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
+        decimal: 18
+    wormhole:
+      actual_reserve: 1.1
+      chainid: 6
+      estimate_reserve: 1.2
+      gas:
+        bsc-main:
+          base_gas: 700000
+          dst_chainid: 4
+          per_byte_gas: 68
+        ftm-main:
+          base_gas: 700000
+          dst_chainid: 10
+          per_byte_gas: 68
+        mainnet:
+          base_gas: 700000
+          dst_chainid: 2
+          per_byte_gas: 68
+        polygon-main:
+          base_gas: 700000
+          dst_chainid: 5
+          per_byte_gas: 68
+      token_bridge: '0x0e082F06FF657D94310cB8cE8B0D9a04541d8052'
+      wormhole: '0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c'
+  bsc-main:
+    SoDiamond: '0x2967e7bb9daa5711ac332caf874bd47ef99b3820'
+    chainid: 56
+    omnibtc_chainid: 3
+    oracle:
+      avax:
+        address: '0x5974855ce31EE8E1fff2e76591CbF83D7110F151'
+        chainid: 6
+        currency: USD
+      bsc:
+        address: '0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE'
+        chainid: 4
+        currency: USD
+      eth:
+        address: '0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e'
+        chainid: 2
+        currency: USD
+      ftm:
+        address: '0xe2A47e87C0f4134c8D06A41975F6860468b2F925'
+        chainid: 10
+        currency: USD
+      polygon:
+        address: '0x7CA57b0cA6367191c94C8914d7Df09A57655905f'
+        chainid: 5
+        currency: USD
+    stargate:
+      chainid: 102
+      poolid:
+        usdt: 2
+      router: '0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8'
+    swap:
+      IUniswapV2Router02:
+        name: PancakeSwapV2
+        router: '0x10ED43C718714eb63d5aA57B78B54704E256024E'
+        token_list: https://tokens.pancakeswap.finance/pancakeswap-top-100.json
+    token:
+      AptosCoin_WORMHOLE:
+        address: '0x2Ba98cf7Edd2c5C794e21bc3Dc6973D3C2585eE3'
+        decimal: 8
+      busd:
+        address: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'
+        decimal: 18
+      usdd:
+        address: '0xd17479997F34dd9156Deef8F95A52D81D265be9c'
+        decimal: 18
+      usdt:
+        address: '0x55d398326f99059fF775485246999027B3197955'
+        decimal: 18
+      weth:
+        address: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
+        decimal: 18
+      USDC_ETH_WORMHOLE:
+        address: '0xB04906e95AB5D797aDA81508115611fee694c2b3'
+        decimal: 6
+    wormhole:
+      actual_reserve: 1.1
+      chainid: 4
+      estimate_reserve: 1.2
+      gas:
+        avax-main:
+          base_gas: 700000
+          dst_chainid: 6
+          per_byte_gas: 68
+        ftm-main:
+          base_gas: 700000
+          dst_chainid: 10
+          per_byte_gas: 68
+        mainnet:
+          base_gas: 700000
+          dst_chainid: 2
+          per_byte_gas: 68
+        polygon-main:
+          base_gas: 700000
+          dst_chainid: 5
+          per_byte_gas: 68
+      token_bridge: '0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7'
+      wormhole: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B'
+  bsc-test:
+    SoDiamond: '0xFeEE07da1B3513BdfD5440562e962dfAac19566F'
+    omnibtc_chainid: 30003
+    swap:
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: '0xD99D1c33F9fC3444f8101754aBC46c52416550D1'
+        token_list: ''
+    token:
+      sui-usdc:
+        address: "0x6c6eCdeBffe8D7eADC59c35d82E3930934ABd42F"
+        decimal: 6
+      AptosCoin_WORMHOLE:
+        address: '0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454'
+        decimal: 8
+      USDC_WORMHOLE:
+        address: '0x6A14ccC52d89E0A7817CC65C43630f4D0515dDF9'
+        decimal: 8
+      USDT:
+        address: '0xF49E250aEB5abDf660d643583AdFd0be41464EfD'
+        decimal: 18
+      USDT_WORMHOLE:
+        address: '0x48E4508054A82996667e0ca9C3543f57c53FA3C6'
+        decimal: 8
+      WETH:
+        address: '0xae13d989dac2f0debff460ac112a837c89baa7cd'
+        decimal: 18
+      XBTC_WORMHOLE:
+        address: '0xf9471131e004dcdBF3325d0B9Fef49162739d87D'
+        decimal: 8
+    wormhole:
+      actual_reserve: 110000000
+      base_gas: 400000
+      chainid: 4
+      estimate_reserve: 120000000
+      gas_per_bytes: 100
+      token:
+        AptosCoin: null
+      token_bridge: '0x9dcF9D205C9De35334D646BeE44b2D2859712A09'
+      wormhole: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D'
+      wormhole_facet_resource: null
+      wormhole_fee_resource: null
+  mainnet:
+    SoDiamond: '0x2967e7bb9daa5711ac332caf874bd47ef99b3820'
+    chainid: 1
+    omnibtc_chainid: 2
+    oracle:
+      avax:
+        address: '0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7'
+        chainid: 6
+        currency: USD
+      bsc:
+        address: '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A'
+        chainid: 4
+        currency: USD
+      eth:
+        address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
+        chainid: 2
+        currency: USD
+      ftm:
+        address: '0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b'
+        chainid: 10
+        currency: ETH
+      polygon:
+        address: '0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676'
+        chainid: 5
+        currency: USD
+    stargate:
+      chainid: 101
+      poolid:
+        usdc: 1
+        usdd: 11
+        usdt: 2
+        weth: 13
+      router: '0x8731d54E9D02c286767d56ac03e8037C07e01e98'
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        quoter: '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
+        router: '0xE592427A0AEce92De3Edee1F18E0157C05861564'
+        token_list: ''
+      IUniswapV2Router02:
+        name: UniswapV2
+        router: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
+        token_list: https://tokens.uniswap.org/
+    token:
+      AptosCoin_WORMHOLE:
+        address: '0x8CDf7AF57E4c8B930e1B23c477c22f076530585e'
+        decimal: 8
+      usdc:
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+        decimal: 6
+      usdd:
+        address: '0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6'
+        decimal: 18
+      usdt:
+        address: '0xdAC17F958D2ee523a2206206994597C13D831ec7'
+        decimal: 6
+      weth:
+        address: '0xf1277d1Ed8AD466beddF92ef448A132661956621'
+        decimal: 18
+    wormhole:
+      actual_reserve: 1.1
+      chainid: 2
+      estimate_reserve: 1.2
+      gas:
+        avax-main:
+          base_gas: 700000
+          dst_chainid: 6
+          per_byte_gas: 68
+        bsc-main:
+          base_gas: 700000
+          dst_chainid: 4
+          per_byte_gas: 68
+        ftm-main:
+          base_gas: 700000
+          dst_chainid: 10
+          per_byte_gas: 68
+        polygon-main:
+          base_gas: 700000
+          dst_chainid: 5
+          per_byte_gas: 68
+      token_bridge: '0x3ee18B2214AFF97000D974cf647E7C347E8fa585'
+      wormhole: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B'
+  polygon-main:
+    SoDiamond: '0x2967e7bb9daa5711ac332caf874bd47ef99b3820'
+    chainid: 137
+    omnibtc_chainid: 5
+    oracle:
+      avax:
+        address: '0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10'
+        chainid: 6
+        currency: USD
+      bsc:
+        address: '0x82a6c4AF830caa6c97bb504425f6A66165C2c26e'
+        chainid: 4
+        currency: USD
+      eth:
+        address: '0xF9680D99D6C9589e2a93a78A04A279e509205945'
+        chainid: 2
+        currency: USD
+      ftm:
+        address: '0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f'
+        chainid: 10
+        currency: USD
+      polygon:
+        address: '0xAB594600376Ec9fD91F8e885dADF0CE036862dE0'
+        chainid: 5
+        currency: USD
+    stargate:
+      chainid: 109
+      poolid:
+        usdc: 1
+        usdt: 2
+      router: '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd'
+    swap:
+      ISwapRouter:
+        name: UniswapV3
+        quoter: '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
+        router: '0xE592427A0AEce92De3Edee1F18E0157C05861564'
+        token_list: ''
+      IUniswapV2Router02:
+        name: QuickswapV2
+        router: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff'
+        token_list: https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json
+    token:
+      AptosCoin_WORMHOLE:
+        address: '0xa4ef199d3ad524E9C3C51Ac46B303B103A307Cef'
+        decimal: 8
+      WAVAX:
+        address: '0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a'
+        decimal: 18
+      usdc:
+        address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
+        decimal: 6
+      usdc_eth:
+        address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D'
+        decimal: 6
+      usdt:
+        address: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F'
+        decimal: 6
+      weth:
+        address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+        decimal: 18
+      USDC_ETH_WORMHOLE:
+        address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D'
+        decimal: 6
+    wormhole:
+      actual_reserve: 1.1
+      chainid: 5
+      estimate_reserve: 1.2
+      gas:
+        avax-main:
+          base_gas: 700000
+          dst_chainid: 6
+          per_byte_gas: 68
+        bsc-main:
+          base_gas: 700000
+          dst_chainid: 4
+          per_byte_gas: 68
+        ftm-main:
+          base_gas: 700000
+          dst_chainid: 10
+          per_byte_gas: 68
+        mainnet:
+          base_gas: 700000
+          dst_chainid: 2
+          per_byte_gas: 68
+      token_bridge: '0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE'
+      wormhole: '0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7'
+  sui-devnet:
+    node_url: https://fullnode.devnet.sui.io:443
+    wormhole:
+      chainid: 21
+  sui-localnet:
+    node_url: http://127.0.0.1:9000
+  sui-mainnet:
+    node_url: https://sui-mainnet-endpoint.blockvision.org:443
+    SoDiamond: "0x201a8b38e099b17078f6b9d3826e4d784c8c5656a4d484e7c8f6f57e439fdd2f"
+    Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
+    objects:
+      Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
+      FacetManager: '0xce23885d1f0c19ad582a64b042904f352f3ff1d46991d8a528e02da2275db9c2'
+      FacetStorage: '0xf00feec4856093bf41a968947da8cb35f91c304a2df4051f11759fbf7fb7abf0'
+      PriceManager: '0x6c85d499a88237a50d9da06133c9f93e75699602d0b8d035f1dea5f95376dd18'
+      WormholeFee: '0x7f1473487136446d064565294ea445a97c391db1731831eca6ca427802c36a4a'
+      TokenBridgeState: '0xc57508ee0d4595e5a8728974a4a93a787d38f339757230d441e895422c07aba9'
+      WormholeState: '0xaeab97f96cf9877fee2883315d459552b2b921edc16d7ceac6eab944dd88919c'
+      # cetus
+      GlobalConfig: '0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f'
+      Pools: '0xf699e7f2276f5c9a75944b37a0c5b5d9ddfd2471bf6242483b03ab2887d198d0'
+      OmniSwapUpgradeCap: "0xbfdc7c7a6d3414e3fbf49cf9cb151b5c8293364df7f438d09b826327ca4bf76a"
+    omnibtc_chainid: 21
+    packages:
+      CetusScripts: "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be"
+      CetusClmm: "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb"
+      IntegerMate: "0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a5a6f5b7f57"
+      MoveSTL: "0xbe21a06129308e0495431d12286127897aff07a8ade3970495a4404d97f9eaaa"
+      DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
+      OmniSwap: '0x1c4a12bafdf969af169ecd35af1eeab38f0494f787e4637c3627618fa0756d53'
+      TokenBridge:
+        origin: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
+        latest: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
+      Wormhole:
+        origin: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
+        latest: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
+    tokens:
+      SUI:
+        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
+        decimal: 9
+        name: SUI
+      Wormhole-USDC:
+        address: 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN
+        decimal: 6
+        name: USDC
+      Wormhole-USDT:
+        address: 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN
+        decimal: 6
+        name: USDT
+      Wormhole-ETH:
+        address: 0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN
+        decimal: 8
+        name: ETH
+    pools:
+      Wormhole-USDC-SUI:
+        pool_id: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630'
+    wormhole:
+      chainid: 21
+      actual_reserve: 1.1
+      estimate_reserve: 1.2
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 700000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 700000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 700000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 80000
+          per_byte_gas: 68
+  sui-testnet:
+    node_url: https://fullnode.testnet.sui.io:443
+    SoDiamond: "0xcf4e7294ea462739702d13c86318b88f0fc5290825b0e719ca613701a6f729df"
+    Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
+    objects:
+      Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
+      FacetManager: '0xd2428f236230ef7357072fbd83b8b6784391cba3d17661690119cc6cf825e492'
+      FacetStorage: '0xd7cd10104e9982f663d1f9ebab3f1a624516514a10c7ff1bf1822ab7d666cd68'
+      PriceManager: '0x48d7fb79d9d7839abefaad4e6b19eb5b55bbc8af50925c76c98f6ee91ea53297'
+      WormholeFee: '0xc35bf4d4472dab8c892b3acd3841d2ccf848e3e6af722825b902b78259a6c19f'
+      Faucet: '0x1bf9020c0a3c37d17bd31bf0b582bde3e7d1828471aaee301c7dc20b4ccd476b'
+      TokenBridgeState: '0x32422cb2f929b6a4e3f81b4791ea11ac2af896b310f3d9442aa1fe924ce0bab4'
+      WormholeState: '0x69ae41bdef4770895eb4e7aaefee5e4673acc08f6917b4856cf55549c4573ca8'
+      GlobalConfig: '0x43e2925f7c5bed04b612cc66c53a850e280a46704ce12cd2f25420b537e23f9d'
+      Pools: '0xc8407fc5dfec8d7b7014ee4d244dbe4eb456bfa6a7878e88c9d4bc947b2c2d87'
+      BTCSupply: '0xdf17a296e80416827b9bab70ca2f84a293fdf967815b365c6c7f7b12141703fb'
+      ETHSupply: '0x010f8ea766c72e793eb540e21fd795fefd05661b6fb6521cc9c7af581178bad5'
+      USDTSupply: '0xe1f4bdaa469a0930e7dd6e6f7438ed6a72b2d4085d2f6c20d97213d8f4dd861c'
+      USDCSupply: '0xf9db65a36b991de2864b27c0b636800236e31087a7299ded025b2068751b744d'
+      OmniSwapUpgradeCap: "0xa0b28acc823d375c5ed01968dedc15aed15983f8d30da2efc08f57fee9eab6e5"
+    omnibtc_chainid: 21
+    packages:
+      CetusScripts: "0x32ba8c0298964e26161b3b44375ac39eeab6b29207e00c5f44368426096eb902"
+      CetusFaucet: "0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e"
+      CetusClmm: "0x837dddad95c6741474cde3e414a2eebccbeae81d0b378f193d00381bdaf0da62"
+      IntegerMate: "0x32154052233b86d5b413fd140e6a0c7ef5a8d9ab1ee01d644b2690868538547a"
+      MoveSTL: "0x4b0b447943cef3944b29cbbf73faa19b466f98ad8cb468ef28b8640b1c8fd48a"
+      DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
+      OmniSwap: '0xdf3804104bc50ae5a1f2ac71e15c99d4f6627838f7dc96f9c91ce0c79f8751da'
+      TestCoins: '0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b'
+      TokenBridge:
+        origin: '0x92d81f28c167d90f84638c654b412fe7fa8e55bdfac7f638bdcf70306289be86'
+        latest: '0x4eb7c5bca3759ab3064b46044edb5668c9066be8a543b28b58375f041f876a80'
+      Wormhole:
+        origin: '0x15e1e51cb59fe1f987b037da12745a278855c8ac73050f4f194466096a0ca05b'
+        latest: '0x3542d705ec6a7e05045288ec99a6c4b4e3ded999b6feab720fab535b08fa51f8'
+    pools:
+      Cetus-USDC-ETH:
+        pool_id: '0x93904b1ef7a96510e9b8a957de39937c59d1396c765758797982c51eaabbed0c'
+      Cetus-USDT-USDC:
+        pool_id: '0xf774fedd1c23b5132158ca1136c62b4c85f512aa7f7a4e952ef05af30c27055d'
+      DeepBook-BTC-USDC:
+        pool_id: '0x43c422371538cedbea7daad60cc997702877370cd6a24edcac425f0eee99566e'
+      DeepBook-SUI-USDC:
+        pool_id: '0x4498766b669ae36499475fe7b8afe14f0f5d7b2bfc7cca62ae5ab72779a581a2'
+    tokens:
+      Cetus-BTC:
+        address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::btc::BTC
+        decimal: 8
+        name: BTC
+      Cetus-ETH:
+        address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::eth::ETH
+        decimal: 8
+        name: ETH
+      Cetus-USDC:
+        address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::usdc::USDC
+        decimal: 6
+        name: USDC
+      Cetus-USDT:
+        address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::usdt::USDT
+        decimal: 6
+        name: USDT
+      BTC:
+        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::btc::BTC
+        decimal: 8
+        name: BTC
+      SUI:
+        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
+        decimal: 9
+        name: SUI
+      USDC:
+        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdc::USDC
+        decimal: 6
+        name: USDC
+      USDT:
+        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdt::USDT
+        decimal: 6
+        name: USDT
+    wormhole:
+      actual_reserve: 1.1
+      chainid: 21
+      estimate_reserve: 1.2
+      gas:
+        avax-test:
+          base_gas: 700000
+          dst_chainid: 6
+          per_byte_gas: 68
+        bsc-test:
+          base_gas: 700000
+          dst_chainid: 4
+          per_byte_gas: 68
+        goerli:
+          base_gas: 700000
+          dst_chainid: 2
+          per_byte_gas: 68
+        polygon-test:
+          base_gas: 700000
+          dst_chainid: 5
+          per_byte_gas: 68
+        aptos-testnet:
+          dst_chainid: 22
+          base_gas: 80000
+          per_byte_gas: 68
+sui_wallets:
+  from_mnemonic:
+    Relayer: ${RELAYER_MNEMONIC}
+    Fee: ${FEE_MNEMONIC}

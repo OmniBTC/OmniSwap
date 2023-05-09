@@ -1,0 +1,9 @@
+# Added by cargo
+.idea/*
+/.idea
+/aptos/.idea
+/aptos/build
+/aptos/.aptos
+/sui/.idea
+/sui/build
+/sui/sui.log*

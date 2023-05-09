@@ -140,3 +140,4 @@ gas/
 *egg-info/
 .pypirc
 bug/
+sui.log.*
