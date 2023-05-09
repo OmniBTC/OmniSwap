@@ -1074,7 +1074,7 @@ module omniswap::wormhole_facet {
         (bridged, parsed_transfer)
     }
 
-    public entry fun complete_so_multi_swap<X>(
+    public fun complete_so_multi_swap<X>(
         storage: &mut Storage,
         token_bridge_state: &mut TokenBridgeState,
         wormhole_state: &WormholeState,
