@@ -274,6 +274,9 @@ networks:
       weth:
         address: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
         decimal: 18
+      USDC_ETH_WORMHOLE:
+        address: '0xB04906e95AB5D797aDA81508115611fee694c2b3'
+        decimal: 6
     wormhole:
       actual_reserve: 1.1
       chainid: 4

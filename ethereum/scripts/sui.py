@@ -111,26 +111,15 @@ def generate_dst_swap_data(
         router: SuiSwapType,
         path: list,
         amount: int,
+        dst_pool_id: str = None,
 ) -> List[SwapData]:
     out = []
     i = 0
 
     while i < len(path) - 1:
-        if router == SuiSwapType.Cetus:
-            token0 = path[i].split("-")[-1]
-            token1 = path[i + 1].split("-")[-1]
-            if f"Cetus-{token0}-{token1}" in sui_project.network_config['pools']:
-                pool_id = sui_project.network_config['pools'][f"Cetus-{token0}-{token1}"]['pool_id']
-            elif f"Cetus-{token1}-{token0}" in sui_project.network_config['pools']:
-                pool_id = sui_project.network_config['pools'][f"Cetus-{token1}-{token0}"]['pool_id']
-            else:
-                raise ValueError(f"{token0}, {token1}")
-        else:
-            raise ValueError(router)
-
         swap_data = SwapData(
-            callTo=pool_id,
-            approveTo=pool_id,
+            callTo=dst_pool_id,
+            approveTo=dst_pool_id,
             sendingAssetId=get_sui_token()[path[i]]["address"].replace("0x", ""),
             receivingAssetId=get_sui_token()[path[i + 1]]["address"].replace("0x", ""),
             fromAmount=amount,
@@ -262,7 +251,8 @@ def cross_swap(
         src_router: str = None,
         src_func: str = None,
         src_min_amount: int = 0,
-        dst_swap_type: SuiSwapType = SuiSwapType.Cetus
+        dst_swap_type: SuiSwapType = SuiSwapType.Cetus,
+        dst_pool_id: str = None
 ):
     src_net = network.show_active()
     dst_net = sui_project.network
@@ -292,7 +282,7 @@ def cross_swap(
     dst_swap_data = []
     if len(dst_path) > 1:
         dst_swap_data = generate_dst_swap_data(
-            dst_swap_type, dst_path, input_amount
+            dst_swap_type, dst_path, input_amount, dst_pool_id
         )
 
         dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
@@ -339,7 +329,7 @@ def cross_swap(
     )
 
 
-def main():
+def cross_for_testnet():
     src_net = "bsc-test"
     dst_net = "sui-testnet"
     print(f"src: {src_net}, dst: {dst_net}")
@@ -363,77 +353,55 @@ def main():
     #     dst_swap_type=SuiSwapType.Cetus
     # )
 
-    # aptos gas: 29996
     cross_swap(
         omniswap,
         src_path=["sui-usdc"],
         dst_path=["Cetus-USDC", "Cetus-USDT"],
-        receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
+        receiver="0x65859958bd62e30aa0571f9712962f59098d1eb29f73b091d9d71317d8e67497",
+        dst_so_diamond=sui_project.network_config["SoDiamond"],
+        input_amount=100000,
+        src_router=SwapType.IUniswapV2Router02,
+        src_func=SwapFunc.swapExactTokensForTokens,
+        dst_swap_type=SuiSwapType.Cetus,
+        dst_pool_id=sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"],
+    )
+
+
+def cross_for_mainnet():
+    src_net = "bsc-main"
+    change_network(src_net)
+    dst_net = sui_project.network
+    print(f"src: {src_net}, dst: {dst_net}")
+
+    # Prepare environment
+    # load src net aptos package
+    omniswap = load_omniswap(is_from_config=True)
+
+    # cross_swap(
+    #     omniswap,
+    #     src_path=["sui-usdc"],
+    #     dst_path=["Cetus-USDC"],
+    #     receiver="0xa65b84b73c857082b680a148b7b25327306d93cc7862bae0edfa7628b0342392",
+    #     dst_so_diamond=sui_project.config["networks"][dst_net]["SoDiamond"],
+    #     input_amount=100000,
+    #     src_router=SwapType.IUniswapV2Router02,
+    #     src_func=SwapFunc.swapExactTokensForTokens,
+    #     dst_swap_type=SuiSwapType.Cetus
+    # )
+
+    cross_swap(
+        omniswap,
+        src_path=["USDC_ETH_WORMHOLE"],
+        dst_path=["Wormhole-USDC", "SUI"],
+        receiver="0x65859958bd62e30aa0571f9712962f59098d1eb29f73b091d9d71317d8e67497",
         dst_so_diamond=sui_project.config["networks"][dst_net]["SoDiamond"],
         input_amount=100000,
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens,
-        dst_swap_type=SuiSwapType.Cetus
+        dst_swap_type=SuiSwapType.Cetus,
+        dst_pool_id=sui_project.network_config["pools"]["Wormhole-USDC-SUI"]["pool_id"],
     )
-    # # aptos gas: 44854
-    # cross_swap(
-    #     package,
-    #     src_path=["AptosCoin_WORMHOLE"],
-    #     dst_path=[
-    #         "AptosCoin",
-    #         LiquidswapCurve.Uncorrelated,
-    #         "XBTC",
-    #         LiquidswapCurve.Uncorrelated,
-    #         "USDT",
-    #     ],
-    #     receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
-    #     dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
-    #     input_amount=int(100000),
-    #     src_router=SwapType.IUniswapV2Router02,
-    #     src_func=SwapFunc.swapExactTokensForTokens,
-    # )
-    #
-    # # aptos gas: 59295
-    # cross_swap(
-    #     package,
-    #     src_path=["AptosCoin_WORMHOLE"],
-    #     dst_path=[
-    #         "AptosCoin",
-    #         LiquidswapCurve.Uncorrelated,
-    #         "XBTC",
-    #         LiquidswapCurve.Uncorrelated,
-    #         "USDT",
-    #         LiquidswapCurve.Uncorrelated,
-    #         "XBTC",
-    #     ],
-    #     receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
-    #     dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
-    #     input_amount=int(100000),
-    #     src_router=SwapType.IUniswapV2Router02,
-    #     src_func=SwapFunc.swapExactTokensForTokens,
-    # )
-    #
-    # # aptos gas: 278545
-    # cross_swap(
-    #     package,
-    #     src_path=["AptosCoin_WORMHOLE"],
-    #     dst_path=[
-    #         "AptosCoin",
-    #         LiquidswapCurve.Uncorrelated,
-    #         "XBTC",
-    #         LiquidswapCurve.Uncorrelated,
-    #         "USDT",
-    #         LiquidswapCurve.Stable,
-    #         "USDC",
-    #     ],
-    #     receiver="0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b",
-    #     dst_so_diamond=config["networks"][dst_net]["SoDiamond"],
-    #     input_amount=int(100000),
-    #     src_router=SwapType.IUniswapV2Router02,
-    #     src_func=SwapFunc.swapExactTokensForTokens,
-    # )
-    ####################################################
 
 
 if __name__ == "__main__":
-    main()
+    cross_for_mainnet()

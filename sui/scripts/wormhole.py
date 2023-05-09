@@ -685,7 +685,7 @@ def cross_swap_for_testnet(package):
                )
 
 
-def cross_swap_for_mainnet(package):
+def bcross_swap_for_mainnet(package):
     dst_gas_price = 4 * 1e9
     cross_swap(package,
                src_path=["SUI", "Wormhole-USDC"],

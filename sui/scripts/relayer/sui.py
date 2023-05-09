@@ -323,9 +323,9 @@ def process_vaa(
 
             start_index = sui_type.find("<")
             end_index = sui_type.find(",")
-            sui_type = SuiObject.from_type(sui_type[start_index:end_index].replace(" ", ""))
+            sui_type = SuiObject.from_type(sui_type[start_index + 1:end_index].replace(" ", ""))
 
-            if str(sui_type).replace("0x", "") == s1.replace("0x", ""):
+            if str(sui_type).replace("0x", "") == str(SuiObject.from_type(s1)).replace("0x", ""):
                 ty_args = [s1, s2]
                 reverse = False
             else:
