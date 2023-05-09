@@ -709,7 +709,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
   mainnet:
     omnibtc_chainid: 2
@@ -748,7 +748,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
     #        ftm-main:
     #          dst_chainid: 10
@@ -896,7 +896,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
     #        ftm-main:
     #          dst_chainid: 10
@@ -1044,7 +1044,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
     #        ftm-main:
     #          dst_chainid: 10
@@ -1180,7 +1180,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
     #        ftm-main:
     #          dst_chainid: 10

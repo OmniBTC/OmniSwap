@@ -63,7 +63,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
     token:
       AptosCoin:
@@ -325,7 +325,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
     oracle:
       eth:
@@ -404,7 +404,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
     oracle:
       eth:
@@ -491,7 +491,7 @@ networks:
           per_byte_gas: 68
         sui-mainnet:
           dst_chainid: 21
-          base_gas: 60000
+          base_gas: 210000
           per_byte_gas: 68
     oracle:
       eth:
