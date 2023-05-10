@@ -261,7 +261,7 @@
       {
         "ChainPath": [
           {
-            "DstTokenAddress": "0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdc::USDC",
+            "DstTokenAddress": "0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::usdc::USDC",
             "DstWormholeChainId": 21,
             "SrcTokenAddress": "0x6c6eCdeBffe8D7eADC59c35d82E3930934ABd42F",
             "SrcWormholeChainId": 4

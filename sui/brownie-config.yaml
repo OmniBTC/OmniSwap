@@ -653,22 +653,22 @@ networks:
         address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::usdt::USDT
         decimal: 6
         name: USDT
-      BTC:
-        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::btc::BTC
-        decimal: 8
-        name: BTC
-      SUI:
-        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
-        decimal: 9
-        name: SUI
-      USDC:
-        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdc::USDC
-        decimal: 6
-        name: USDC
-      USDT:
-        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdt::USDT
-        decimal: 6
-        name: USDT
+      #      BTC:
+      #        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::btc::BTC
+      #        decimal: 8
+      #        name: BTC
+      #      SUI:
+      #        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
+      #        decimal: 9
+      #        name: SUI
+      #      USDC:
+      #        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdc::USDC
+      #        decimal: 6
+      #        name: USDC
+    #      USDT:
+    #        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdt::USDT
+    #        decimal: 6
+    #        name: USDT
     wormhole:
       actual_reserve: 1.1
       chainid: 21
