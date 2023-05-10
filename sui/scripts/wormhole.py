@@ -900,4 +900,4 @@ def main():
 
 
 if __name__ == '__main__':
-    complete_multi_swap(4438)
+    main()
