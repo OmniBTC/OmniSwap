@@ -500,6 +500,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(kwargs[function_arg.name]))
                     else:
                         value = function_arg.type_tag(kwargs[function_arg.name])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        if isinstance(kwargs[function_arg.name][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(kwargs[function_arg.name][j])))
+                        else:
+                            value.append(AccountAddressTag(kwargs[function_arg.name][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        value.append(kwargs[function_arg.name][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
@@ -518,6 +531,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(args[i]))
                     else:
                         value = function_arg.type_tag(args[i])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        if isinstance(args[i][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(args[i][j])))
+                        else:
+                            value.append(AccountAddressTag(args[i][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        value.append(args[i][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         args[i]), f"Param {function_arg} not match"
@@ -547,8 +573,11 @@ class AptosPackage:
         )
         try:
             result = self.simulate_submit_bcs_transaction(signed_transaction)
+            if return_types is None:
+                return result
             if not result[0]["success"]:
                 assert False, result
+
             if return_types == "gas":
                 if "gas_used" in result[0]:
                     return result[0]["gas_used"]
@@ -590,6 +619,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(kwargs[function_arg.name]))
                     else:
                         value = function_arg.type_tag(kwargs[function_arg.name])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        if isinstance(kwargs[function_arg.name][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(kwargs[function_arg.name][j])))
+                        else:
+                            value.append(AccountAddressTag(kwargs[function_arg.name][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        value.append(kwargs[function_arg.name][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
@@ -608,6 +650,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(args[i]))
                     else:
                         value = function_arg.type_tag(args[i])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        if isinstance(args[i][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(args[i][j])))
+                        else:
+                            value.append(AccountAddressTag(args[i][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        value.append(args[i][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         args[i]), f"Param {function_arg} not match"
@@ -758,17 +813,36 @@ class AptosPackage:
 
     def account_resources(self,
                           account_addr: Union[str, AccountAddress],
+                          limit=None,
+                          cursor=None
                           ):
         if isinstance(account_addr, str):
             account_addr = AccountAddress.from_hex(account_addr)
+        data = []
+        is_cursor = False
+        if cursor is not None:
+            data.append(f"start={cursor}")
+            is_cursor = True
+
+        if limit is not None:
+            data.append(f"limit={int(limit)}")
+            is_cursor = True
+
+        if len(data):
+            data = "?" + "&".join(data)
+
         response = self.rest_client.client.get(
-            f"{self.rest_client.base_url}/accounts/{account_addr}/resources"
+            f"{self.rest_client.base_url}/accounts/{account_addr}/resources{data}"
         )
+
         if response.status_code == 404:
             return None
         if response.status_code >= 400:
             raise ApiError(f"{response.text} - {account_addr}", response.status_code)
-        return response.json()
+        if is_cursor:
+            return response.json(), response.headers.get('x-aptos-cursor', None)
+        else:
+            return response.json()
 
     def register_coin(self, asset_id):
         """Register the receiver account to receive transfers for the new coin."""
