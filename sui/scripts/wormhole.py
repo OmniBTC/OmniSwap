@@ -90,6 +90,72 @@ def complete_dst_swap(sequence: int, dst_net="bsc-test"):
     wormhole_facet.completeSoSwap(vaa_bytes, {"from": get_account()})
 
 
+def complete_multi_swap(sequence: int, src_net="bsc-test"):
+    omniswap = deploy.load_omniswap(True)
+    vaa = get_signed_vaa_by_wormhole(sequence, src_net)
+    vaa_bytes = "0x" + base64.b64decode(vaa['vaaBytes']).hex()
+    storage = sui_project.network_config["objects"]["FacetStorage"]
+    token_bridge_state = sui_project.network_config["objects"]["TokenBridgeState"]
+    wormhole_state = sui_project.network_config["objects"]["WormholeState"]
+    wormhole_fee = sui_project.network_config["objects"]["WormholeFee"]
+    clock = sui_project.network_config["objects"]["Clock"]
+
+    sui_project.batch_transaction(
+        actual_params=[
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            wormhole_fee,
+            hex_str_to_vector_u8(vaa_bytes),
+            clock,
+            cetus.global_config(),
+            cetus.usdt_usdc_pool()
+        ],
+        transactions=[
+            [
+                omniswap.wormhole_facet.complete_so_multi_swap,
+                [
+                    Argument("Input", U16(0)),
+                    Argument("Input", U16(1)),
+                    Argument("Input", U16(2)),
+                    Argument("Input", U16(3)),
+                    Argument("Input", U16(4)),
+                    Argument("Input", U16(5)),
+                ],
+                [cetus.usdc()]
+            ],
+            [
+                omniswap.wormhole_facet.multi_swap_for_cetus_base_asset,
+                [
+                    Argument("Input", U16(6)),
+                    Argument("Input", U16(7)),
+                    Argument("NestedResult", NestedResult(U16(0), U16(0))),
+                    Argument("Input", U16(5)),
+                ],
+                [cetus.usdt(), cetus.usdc()]
+            ],
+            [
+                omniswap.wormhole_facet.multi_swap_for_cetus_quote_asset,
+                [
+                    Argument("Input", U16(6)),
+                    Argument("Input", U16(7)),
+                    Argument("NestedResult", NestedResult(U16(1), U16(0))),
+                    Argument("Input", U16(5)),
+                ],
+                [cetus.usdt(), cetus.usdc()]
+            ],
+            [
+                omniswap.wormhole_facet.complete_multi_dst_swap,
+                [
+                    Argument("NestedResult", NestedResult(U16(2), U16(0))),
+                    Argument("NestedResult", NestedResult(U16(0), U16(1))),
+                ],
+                [cetus.usdc()]
+            ]
+        ]
+    )
+
+
 def complete_without_sui_swap(sequence: int, src_net="bsc-test"):
     omniswap = deploy.load_omniswap(True)
     vaa = get_signed_vaa_by_wormhole(sequence, src_net)
@@ -819,4 +885,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    complete_multi_swap(4438)

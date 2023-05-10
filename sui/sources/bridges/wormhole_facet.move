@@ -162,7 +162,6 @@ module omniswap::wormhole_facet {
         })
     }
 
-
     /// Helpers
     public entry fun transfer_owner(facet_manager: &mut WormholeFacetManager, to: address, ctx: &mut TxContext) {
         assert!(tx_context::sender(ctx) == facet_manager.owner, EINVALID_ACCOUNT);

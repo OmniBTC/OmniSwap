@@ -111,15 +111,15 @@ def generate_dst_swap_data(
         router: SuiSwapType,
         path: list,
         amount: int,
-        dst_pool_id: str = None,
+        dst_pool_ids: list,
 ) -> List[SwapData]:
     out = []
     i = 0
 
     while i < len(path) - 1:
         swap_data = SwapData(
-            callTo=dst_pool_id,
-            approveTo=dst_pool_id,
+            callTo=dst_pool_ids[i],
+            approveTo=dst_pool_ids[i],
             sendingAssetId=get_sui_token()[path[i]]["address"].replace("0x", ""),
             receivingAssetId=get_sui_token()[path[i + 1]]["address"].replace("0x", ""),
             fromAmount=amount,
@@ -244,6 +244,7 @@ def cross_swap(
         package: sui_brownie.SuiPackage,
         src_path: list,
         dst_path: list,
+        dst_pool_ids: list,
         receiver: str,
         dst_so_diamond: str,
         input_amount: int,
@@ -251,8 +252,7 @@ def cross_swap(
         src_router: str = None,
         src_func: str = None,
         src_min_amount: int = 0,
-        dst_swap_type: SuiSwapType = SuiSwapType.Cetus,
-        dst_pool_id: str = None
+        dst_swap_type: SuiSwapType = SuiSwapType.Cetus
 ):
     src_net = network.show_active()
     dst_net = sui_project.network
@@ -282,7 +282,7 @@ def cross_swap(
     dst_swap_data = []
     if len(dst_path) > 1:
         dst_swap_data = generate_dst_swap_data(
-            dst_swap_type, dst_path, input_amount, dst_pool_id
+            dst_swap_type, dst_path, input_amount, dst_pool_ids
         )
 
         dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
@@ -356,14 +356,15 @@ def cross_for_testnet():
     cross_swap(
         omniswap,
         src_path=["sui-usdc"],
-        dst_path=["Cetus-USDC", "Cetus-USDT"],
-        receiver="0x65859958bd62e30aa0571f9712962f59098d1eb29f73b091d9d71317d8e67497",
+        dst_path=["Cetus-USDC", "Cetus-USDT", "Cetus-USDC"],
+        receiver="0xa65b84b73c857082b680a148b7b25327306d93cc7862bae0edfa7628b0342392",
         dst_so_diamond=sui_project.network_config["SoDiamond"],
         input_amount=100000,
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens,
         dst_swap_type=SuiSwapType.Cetus,
-        dst_pool_id=sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"],
+        dst_pool_ids=[sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"],
+                      sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"]],
     )
 
 
@@ -404,4 +405,4 @@ def cross_for_mainnet():
 
 
 if __name__ == "__main__":
-    cross_for_mainnet()
+    cross_for_testnet()
