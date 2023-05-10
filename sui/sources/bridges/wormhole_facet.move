@@ -5,7 +5,7 @@ module omniswap::wormhole_facet {
     use omniswap::cross::{Self, NormalizedSoData, NormalizedSwapData, padding_swap_data};
     use omniswap::serde;
     use omniswap::so_fee_wormhole::{Self, PriceManager};
-    use omniswap::swap::{Self, right_type};
+    use omniswap::swap::{Self};
     use sui::clock::Clock;
     use sui::coin::{Self, Coin};
     use sui::event;
