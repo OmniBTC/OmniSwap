@@ -1,11 +1,13 @@
 module omniswap::wormhole_facet {
     use std::vector;
 
+    use cetus_clmm::config::GlobalConfig;
+    use cetus_clmm::pool::Pool as CetusPool;
     use deepbook::clob::Pool;
     use omniswap::cross::{Self, NormalizedSoData, NormalizedSwapData, padding_swap_data};
     use omniswap::serde;
     use omniswap::so_fee_wormhole::{Self, PriceManager};
-    use omniswap::swap::{Self};
+    use omniswap::swap;
     use sui::clock::Clock;
     use sui::coin::{Self, Coin};
     use sui::event;
@@ -14,22 +16,18 @@ module omniswap::wormhole_facet {
     use sui::table::{Self, Table};
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
-    use token_bridge::vaa as bridge_vaa;
-    use token_bridge::state as bridge_state;
     use token_bridge::complete_transfer_with_payload;
-    use token_bridge::state::State as TokenBridgeState;
+    use token_bridge::state::{Self as bridge_state, State as TokenBridgeState};
     use token_bridge::transfer_tokens_with_payload;
-    use token_bridge::transfer_with_payload;
+    use token_bridge::transfer_with_payload::{Self, TransferWithPayload};
+    use token_bridge::vaa as bridge_vaa;
     use wormhole::emitter::{Self, EmitterCap};
+    use wormhole::publish_message;
     use wormhole::state::{Self, State as WormholeState};
+    use wormhole::vaa;
 
     #[test_only]
     use omniswap::cross::padding_so_data;
-    use wormhole::publish_message;
-    use wormhole::vaa;
-    use token_bridge::transfer_with_payload::TransferWithPayload;
-    use cetus_clmm::config::GlobalConfig;
-    use cetus_clmm::pool::{Pool as CetusPool};
 
     const RAY: u64 = 100000000;
 
@@ -62,6 +60,8 @@ module omniswap::wormhole_facet {
     const ETYPE: u64 = 10;
 
     const ESWAP_LENGTH: u64 = 11;
+
+    const EMULTISWAP_STEP: u64 = 12;
 
     /// Storage
 
@@ -108,6 +108,26 @@ module omniswap::wormhole_facet {
         relayer: address
     }
 
+    /// Multi swap result
+    struct MultiSwapData<phantom X> {
+        receiver: address,
+        input_coin: Coin<X>,
+        left_swap_data: vector<NormalizedSwapData>,
+    }
+
+    /// Multi src data
+    struct MultiSrcData {
+        wormhole_fee_coin: Coin<SUI>,
+        wormhole_data: NormalizedWormholeData,
+        relay_fee: u64,
+        payload: vector<u8>,
+    }
+
+    /// Multi dst data
+    struct MultiDstData {
+        tx_id: vector<u8>,
+    }
+
     /// Events
 
     struct TransferFromWormholeEvent has copy, drop {
@@ -141,7 +161,6 @@ module omniswap::wormhole_facet {
             relayer: tx_context::sender(ctx),
         })
     }
-
 
     /// Helpers
     public entry fun transfer_owner(facet_manager: &mut WormholeFacetManager, to: address, ctx: &mut TxContext) {
@@ -832,6 +851,214 @@ module omniswap::wormhole_facet {
         );
     }
 
+    /// so_multi_swap -> multi_swap_for_cetus_base_asset -> complete_multi_src_swap
+    public fun so_multi_swap<X>(
+        wormhole_state: &mut WormholeState,
+        storage: &mut Storage,
+        price_manager: &mut PriceManager,
+        wromhole_fee: &mut WormholeFee,
+        so_data: vector<u8>,
+        swap_data_src: vector<u8>,
+        wormhole_data: vector<u8>,
+        swap_data_dst: vector<u8>,
+        coins_x: vector<Coin<X>>,
+        coins_sui: vector<Coin<SUI>>,
+        ctx: &mut TxContext
+    ): (MultiSwapData<X>, MultiSrcData) {
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
+
+        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
+
+        let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
+            cross::decode_normalized_swap_data(&mut swap_data_dst)
+        }else {
+            vector::empty()
+        };
+
+        let (flag, fee, consume_value, dst_max_gas) = check_relayer_fee(
+            storage,
+            wormhole_state,
+            price_manager,
+            so_data,
+            wormhole_data,
+            swap_data_dst
+        );
+        assert!(flag, ECHECK_FEE_FAIL);
+
+        let payload = encode_wormhole_payload(
+            wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+            dst_max_gas,
+            so_data,
+            swap_data_dst
+        );
+
+        let comsume_sui = merge_coin(coins_sui, consume_value, ctx);
+        let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
+        let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
+        transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
+
+        let coin_val = (cross::so_amount(so_data) as u64);
+        assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
+        coin::destroy_zero(comsume_sui);
+        let coin_x = merge_coin(coins_x, coin_val, ctx);
+
+        // X is quote asset, Y is base asset
+        // use base asset to cross chain
+        let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+        assert!(vector::length(&swap_data_src) > 0, EMULTISWAP_STEP);
+
+        let multi_swap_data = MultiSwapData<X> {
+            receiver: tx_context::sender(ctx),
+            input_coin: coin_x,
+            left_swap_data: swap_data_src,
+        };
+
+        let multi_src_data = MultiSrcData {
+            wormhole_fee_coin,
+            wormhole_data,
+            relay_fee: fee,
+            payload,
+        };
+
+        event::emit(
+            SoTransferStarted {
+                transaction_id: cross::so_transaction_id(so_data),
+            }
+        );
+
+        (multi_swap_data, multi_src_data)
+    }
+
+    public fun multi_swap_for_cetus_base_asset<X, Y>(
+        global_config: &GlobalConfig,
+        pool_xy: &mut CetusPool<X, Y>,
+        multi_swap_data: MultiSwapData<Y>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): MultiSwapData<X> {
+        assert!(vector::length(&multi_swap_data.left_swap_data) > 0, EMULTISWAP_STEP);
+        let (receiver, coin_y, left_swap_data) = destroy_multi_swap_data(
+            multi_swap_data
+        );
+        let swap_data = vector::remove(&mut left_swap_data, 0);
+        let (coin_x, left_coin_y, _) = swap::swap_for_base_asset_by_cetus<X, Y>(
+            global_config,
+            pool_xy,
+            coin_y,
+            swap_data,
+            clock,
+            ctx
+        );
+        process_left_coin(left_coin_y, receiver);
+        MultiSwapData<X> {
+            receiver,
+            input_coin: coin_x,
+            left_swap_data,
+        }
+    }
+
+    public fun multi_swap_for_cetus_quote_asset<X, Y>(
+        global_config: &GlobalConfig,
+        pool_xy: &mut CetusPool<X, Y>,
+        multi_swap_data: MultiSwapData<X>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): MultiSwapData<Y> {
+        assert!(vector::length(&multi_swap_data.left_swap_data) > 0, EMULTISWAP_STEP);
+        let (receiver, coin_x, left_swap_data) = destroy_multi_swap_data(
+            multi_swap_data
+        );
+        let swap_data = vector::remove(&mut left_swap_data, 0);
+        let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_cetus<X, Y>(
+            global_config,
+            pool_xy,
+            coin_x,
+            swap_data,
+            clock,
+            ctx
+        );
+        process_left_coin(left_coin_x, receiver);
+        MultiSwapData<Y> {
+            receiver,
+            input_coin: coin_y,
+            left_swap_data,
+        }
+    }
+
+    public fun complete_multi_src_swap<X>(
+        wormhole_state: &mut WormholeState,
+        token_bridge_state: &mut TokenBridgeState,
+        storage: &mut Storage,
+        multi_swap_data: MultiSwapData<X>,
+        multi_src_data: MultiSrcData,
+        clock: &Clock
+    ) {
+        assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
+        let (receiver, coin_x, swap_data) = destroy_multi_swap_data(multi_swap_data);
+        let (wormhole_fee_coin, wormhole_data, relay_fee, payload) = destroy_multi_src_data(multi_src_data);
+        vector::destroy_empty(swap_data);
+        let bridge_amount = coin::value(&coin_x);
+        let (sequence, dust) = tranfer_token<X>(
+            wormhole_state,
+            token_bridge_state,
+            storage,
+            clock,
+            coin_x,
+            wormhole_data,
+            payload,
+            wormhole_fee_coin
+        );
+        bridge_amount = bridge_amount - coin::value(&dust);
+        process_left_coin(dust, receiver);
+
+        event::emit(
+            TransferFromWormholeEvent {
+                src_wormhole_chain_id: storage.src_wormhole_chain_id,
+                dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
+                sequence
+            }
+        );
+
+        event::emit(
+            SrcAmount {
+                relayer_fee: relay_fee,
+                cross_amount: bridge_amount
+            }
+        );
+    }
+
+    fun destroy_multi_swap_data<X>(
+        multi_swap_data: MultiSwapData<X>
+    ): (address, Coin<X>, vector<NormalizedSwapData>) {
+        let MultiSwapData<X> {
+            receiver,
+            input_coin,
+            left_swap_data,
+        } = multi_swap_data;
+        (receiver, input_coin, left_swap_data)
+    }
+
+    fun destroy_multi_src_data(
+        multi_src_data: MultiSrcData
+    ): (Coin<SUI>, NormalizedWormholeData, u64, vector<u8>) {
+        let MultiSrcData {
+            wormhole_fee_coin,
+            wormhole_data,
+            relay_fee,
+            payload
+        } = multi_src_data;
+        (wormhole_fee_coin, wormhole_data, relay_fee, payload)
+    }
+
+    fun destroy_multi_dst_data(
+        multi_dst_data: MultiDstData
+    ): (vector<u8>) {
+        let MultiDstData {
+            tx_id,
+        } = multi_dst_data;
+        (tx_id)
+    }
+
     fun complete_transfer<X>(
         storage: &mut Storage,
         token_bridge_state: &mut TokenBridgeState,
@@ -854,6 +1081,73 @@ module omniswap::wormhole_facet {
             _
         ) = complete_transfer_with_payload::redeem_coin(&storage.emitter_cap, receipt);
         (bridged, parsed_transfer)
+    }
+
+    public fun complete_so_multi_swap<X>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): (MultiSwapData<X>, MultiDstData) {
+        let (coin_x, payload) = complete_transfer<X>(
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= x_val) {
+            let coin_fee = coin::split<X>(&mut coin_x, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+        assert!(vector::length(&swap_data_dst) > 0, EMULTISWAP_STEP);
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+
+        event::emit(DstAmount {
+            so_fee
+        });
+
+        (
+            MultiSwapData<X> {
+                receiver,
+                input_coin: coin_x,
+                left_swap_data: swap_data_dst,
+            },
+            MultiDstData {
+                tx_id: cross::so_transaction_id(so_data)
+            }
+        )
+    }
+
+    public fun complete_multi_dst_swap<X>(
+        multi_swap_data: MultiSwapData<X>,
+        multi_dst_data: MultiDstData,
+    ) {
+        assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
+        let (receiver, coin_x, left_swap_data) = destroy_multi_swap_data(multi_swap_data);
+        let tx_id = destroy_multi_dst_data(multi_dst_data);
+
+        vector::destroy_empty(left_swap_data);
+        let receiving_amount = coin::value(&coin_x);
+        transfer::public_transfer(coin_x, receiver);
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: tx_id,
+                actual_receiving_amount: receiving_amount
+            }
+        );
     }
 
     /// To complete a cross-chain transaction, it needs to be called manually by the

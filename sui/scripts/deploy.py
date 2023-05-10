@@ -180,14 +180,6 @@ def export_testnet():
     for package_name in packages:
         config["networks"]["sui-testnet"]["packages"][package_name] = packages[package_name]
 
-    wormhole = SuiPackage(
-        package_id=sui_project.Wormhole[-1],
-        package_name="Wormhole",
-    )
-    token_bridge = SuiPackage(
-        package_id=sui_project.TokenBridge[-1],
-        package_name="TokenBridge",
-    )
     test_coins = SuiPackage(
         package_id=sui_project.TestCoins[-1],
         package_name="TestCoins",
@@ -197,8 +189,8 @@ def export_testnet():
         package_name="OmniSwap",
     )
     objects = {
-        "WormholeState": wormhole.state.State[-1],
-        "TokenBridgeState": token_bridge.state.State[-1],
+        "WormholeState": load_wormhole_state(),
+        "TokenBridgeState": load_token_bridge_state(),
         "Clock": "0x0000000000000000000000000000000000000000000000000000000000000006",
         "FacetStorage": omniswap.wormhole_facet.Storage[-1],
         "PriceManager": omniswap.so_fee_wormhole.PriceManager[-1],

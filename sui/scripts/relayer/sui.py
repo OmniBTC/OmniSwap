@@ -9,7 +9,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 from brownie import network
-from sui_brownie import SuiPackage, SuiObject
+from sui_brownie import SuiPackage, SuiObject, Argument, U16, NestedResult
 
 from scripts import sui_project
 from scripts.serde_sui import parse_vaa_to_wormhole_payload
@@ -250,6 +250,62 @@ def get_cetus_config():
     return sui_project.network_config["objects"]["GlobalConfig"]
 
 
+def normal_ty_arg(ty):
+    if ty[:2] != "0x":
+        ty = "0x" + ty
+    return ty
+
+
+def multi_swap(
+        omniswap,
+        pool_id: str,
+        sending_asset_id: str,
+        receiving_asset_id: str,
+        pool_id_index: int,
+        swap_index: int,
+):
+    sending_asset_id = normal_ty_arg(sending_asset_id)
+    receiving_asset_id = normal_ty_arg(receiving_asset_id)
+
+    sui_type: str = sui_project.client.sui_getObject(pool_id, {
+        "showType": True,
+        "showOwner": True,
+        "showPreviousTransaction": False,
+        "showDisplay": False,
+        "showContent": False,
+        "showBcs": False,
+        "showStorageRebate": False
+    })["data"]["type"]
+    origin_type = SuiObject.from_type(sui_type)
+    if origin_type.package_id == get_deepbook_package_id():
+        dex_name = "deepbook"
+    elif origin_type.package_id == get_cetus_package_id():
+        dex_name = "cetus"
+    else:
+        raise ValueError(origin_type.package_id)
+
+    start_index = sui_type.find("<")
+    end_index = sui_type.find(",")
+    sui_type = SuiObject.from_type(sui_type[start_index + 1:end_index].replace(" ", ""))
+
+    if str(sui_type).replace("0x", "") == str(SuiObject.from_type(sending_asset_id)).replace("0x", ""):
+        ty_args = [sending_asset_id, receiving_asset_id]
+        reverse = "quote"
+    else:
+        ty_args = [receiving_asset_id, sending_asset_id]
+        reverse = "base"
+    return [
+        getattr(omniswap.wormhole_facet, f"multi_swap_for_{dex_name}_{reverse}_asset"),
+        [
+            Argument("Input", U16(6)),
+            Argument("Input", U16(7 + pool_id_index)),
+            Argument("NestedResult", NestedResult(U16(swap_index), U16(0))),
+            Argument("Input", U16(5)),
+        ],
+        ty_args
+    ]
+
+
 def process_vaa(
         dstSoDiamond: str,
         vaa_str: str,
@@ -299,7 +355,9 @@ def process_vaa(
             pool_id = None
             reverse = None
             dex_name = None
+            multi = []
         elif len(wormhole_data[3]) == 1:
+            multi = []
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
             s1 = s1 if "0x" == s1[:2] else "0x" + s1
             s2 = final_asset_id
@@ -332,8 +390,22 @@ def process_vaa(
                 ty_args = [s2, s1]
                 reverse = True
         else:
-            logger.error(f"Dst swap too much")
-            raise OverflowError
+            multi = []
+            pool_id = []
+            reverse = None
+            dex_name = None
+            ty_args = None
+            for k, d in enumerate(wormhole_data[3]):
+                if str(d[0]) not in pool_id:
+                    pool_id.append(str(d[0]))
+                multi.append({
+                    "pool_id": str(d[0]),
+                    "sending_asset_id": normal_ty_arg(str(decode_hex_to_ascii(d[2]))),
+                    "receiving_asset_id": normal_ty_arg(str(decode_hex_to_ascii(d[3]))),
+                    "pool_id_index": len(pool_id) - 1,
+                    "swap_index": k
+                })
+
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
         storage = sui_project.network_config["objects"]["FacetStorage"]
         token_bridge_state = sui_project.network_config["objects"]["TokenBridgeState"]
@@ -343,7 +415,49 @@ def process_vaa(
         facet_manager = sui_project.network_config["objects"]["FacetManager"]
         if not is_admin:
             try:
-                if pool_id is None:
+                if len(multi):
+                    mid_params = [
+                        multi_swap(sui_package, **v)
+                        for v in multi
+                    ]
+
+                    result = sui_project.batch_transaction(
+                        actual_params=[
+                            storage,
+                            token_bridge_state,
+                            wormhole_state,
+                            wormhole_fee,
+                            hex_str_to_vector_u8(vaa_str),
+                            clock,
+                            get_cetus_config(),
+                            *pool_id
+                        ],
+                        transactions=[
+                            [
+                                sui_package.wormhole_facet.complete_so_multi_swap,
+                                [
+                                    Argument("Input", U16(0)),
+                                    Argument("Input", U16(1)),
+                                    Argument("Input", U16(2)),
+                                    Argument("Input", U16(3)),
+                                    Argument("Input", U16(4)),
+                                    Argument("Input", U16(5)),
+                                ],
+                                [multi[0]["sending_asset_id"]]
+                            ],
+                            *mid_params,
+                            [
+                                sui_package.wormhole_facet.complete_multi_dst_swap,
+                                [
+                                    Argument("NestedResult", NestedResult(U16(len(mid_params)), U16(0))),
+                                    Argument("NestedResult", NestedResult(U16(0), U16(1))),
+                                ],
+                                [multi[-1]["receiving_asset_id"]]
+                            ]
+                        ]
+                    )
+
+                elif pool_id is None:
                     result = sui_package.wormhole_facet.complete_so_swap_without_swap(
                         storage,
                         token_bridge_state,
