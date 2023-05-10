@@ -261,6 +261,7 @@ def multi_swap(
         pool_id: str,
         sending_asset_id: str,
         receiving_asset_id: str,
+        pool_id_index: int,
         swap_index: int,
 ):
     sending_asset_id = normal_ty_arg(sending_asset_id)
@@ -297,7 +298,7 @@ def multi_swap(
         getattr(omniswap.wormhole_facet, f"multi_swap_for_{dex_name}_{reverse}_asset"),
         [
             Argument("Input", U16(6)),
-            Argument("Input", U16(7 + swap_index)),
+            Argument("Input", U16(7 + pool_id_index)),
             Argument("NestedResult", NestedResult(U16(swap_index), U16(0))),
             Argument("Input", U16(5)),
         ],
@@ -395,11 +396,13 @@ def process_vaa(
             dex_name = None
             ty_args = None
             for k, d in enumerate(wormhole_data[3]):
-                pool_id.append(d[0])
+                if str(d[0]) not in pool_id:
+                    pool_id.append(str(d[0]))
                 multi.append({
-                    "pool_id": d[0],
-                    "sending_asset_id": d[2],
-                    "receiving_asset_id": d[3],
+                    "pool_id": str(d[0]),
+                    "sending_asset_id": normal_ty_arg(str(decode_hex_to_ascii(d[2]))),
+                    "receiving_asset_id": normal_ty_arg(str(decode_hex_to_ascii(d[3]))),
+                    "pool_id_index": len(pool_id) - 1,
                     "swap_index": k
                 })
 
@@ -440,7 +443,7 @@ def process_vaa(
                                     Argument("Input", U16(4)),
                                     Argument("Input", U16(5)),
                                 ],
-                                [mid_params[0][-1][0]]
+                                [multi[0]["sending_asset_id"]]
                             ],
                             *mid_params,
                             [
@@ -449,7 +452,7 @@ def process_vaa(
                                     Argument("NestedResult", NestedResult(U16(len(mid_params)), U16(0))),
                                     Argument("NestedResult", NestedResult(U16(0), U16(1))),
                                 ],
-                                [mid_params[-1][-1][-1]]
+                                [multi[-1]["receiving_asset_id"]]
                             ]
                         ]
                     )
