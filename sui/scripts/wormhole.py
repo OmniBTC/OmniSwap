@@ -453,7 +453,7 @@ def get_pool_arguments(
 
     start_index = sui_type.find("<")
     end_index = sui_type.find(",")
-    sui_type = SuiObject.from_type(sui_type[start_index:end_index].replace(" ", ""))
+    sui_type = SuiObject.from_type(sui_type[start_index + 1:end_index].replace(" ", ""))
 
     if str(sui_type).replace("0x", "") == sending_asset_id.replace("0x", ""):
         ty_args = [sending_asset_id, receiving_asset_id]
