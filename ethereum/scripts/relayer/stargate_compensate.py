@@ -141,7 +141,6 @@ def process_v2(
                 dk = str(hashlib.sha3_256(dv.encode()).digest().hex())
                 if dk in HAS_PROCESSED:
                     continue
-                HAS_PROCESSED[dk] = dv
                 proxy_diamond = get_stargate_facet()
                 result: TransactionReceipt = proxy_diamond.sgReceive(
                     info["chainId"],
