@@ -179,7 +179,7 @@ def get_stargate_chain_path():
             if net1 == net2:
                 continue
             if ("main" in net1 and "main" not in net2) or (
-                    "main" not in net1 and "main" in net2
+                "main" not in net1 and "main" in net2
             ):
                 continue
             get_stargate_pair_chain_path(omni_swap_infos, net1, net2)
@@ -211,8 +211,8 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
     wrapped_chain_path = []
     for chain_path in net_chain_path:
         if (
-                chain_path["SrcTokenAddress"] == zero_address()
-                and chain_path["DstTokenAddress"] == zero_address()
+            chain_path["SrcTokenAddress"] == zero_address()
+            and chain_path["DstTokenAddress"] == zero_address()
         ):
             continue
         if chain_path["SrcTokenAddress"] == zero_address():

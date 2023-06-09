@@ -5,7 +5,16 @@ import functools
 import json
 import os
 
-from brownie import network, interface, SoDiamond, Contract, chain, StargateFacet, WithdrawFacet, config
+from brownie import (
+    network,
+    interface,
+    SoDiamond,
+    Contract,
+    chain,
+    StargateFacet,
+    WithdrawFacet,
+    config,
+)
 
 from scripts.helpful_scripts import get_account, get_stargate_router
 
@@ -20,9 +29,11 @@ def zero_address():
 
 @functools.lru_cache
 def chain_info():
-    return {config["networks"][net]["chainid"]: net
-            for net in config["networks"]
-            if "chainid" in config["networks"][net]}
+    return {
+        config["networks"][net]["chainid"]: net
+        for net in config["networks"]
+        if "chainid" in config["networks"][net]
+    }
 
 
 def get_net(chainid):
@@ -82,8 +93,9 @@ def compensate_v3():
         "0x0bfcdd38ff33e184a83fc3a8e429e23b4294c161a0534143f90e90aa69cc9756": "0x69527FEF6AEDb85FDD2851FC1D9F6D10e61864aA",
     }
     account = get_account()
-    withdraw_contract = Contract.from_abi("WithdrawFacet", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
-                                          WithdrawFacet.abi)
+    withdraw_contract = Contract.from_abi(
+        "WithdrawFacet", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820", WithdrawFacet.abi
+    )
     for src_txid in receivers:
         cur_cmd = cmd.replace("{tx}", src_txid)
         with os.popen(cur_cmd) as f:
@@ -91,10 +103,13 @@ def compensate_v3():
             result = result["txSearchInfo"][0]
         if len(result["message"]) == 0 or len(result["transfer"]) == 0:
             continue
-        if "execution_tx" in result["message"][0] and result["message"][0]["msg_status"] != 3:
+        if (
+            "execution_tx" in result["message"][0]
+            and result["message"][0]["msg_status"] != 3
+        ):
             received_amt = result["transfer"][0]["received_amt"]
             dst_token_addr = result["transfer"][0]["dst_token_addr"]
-            dst_txid = result['message'][0]['execution_tx']
+            dst_txid = result["message"][0]["execution_tx"]
             dst_chain_id = result["transfer"][0]["dst_chain_id"]
             src_chain_id = result["base_info"]["src_chain_id"]
             src_net = get_net(src_chain_id)
@@ -102,22 +117,24 @@ def compensate_v3():
             receiver = receivers[src_txid]
             is_weth_flag = is_weth(dst_net, dst_token_addr)
             actual_token_addr = zero_address() if is_weth_flag else dst_token_addr
-            print(f"src: {src_net}, {src_txid}, dst: {dst_net}, {dst_txid} "
-                  f"received_amt:{received_amt}, dst_token_addr:{dst_token_addr}, "
-                  f"receiver:{receiver}, is_weth:{is_weth_flag}, actual_token_addr:{actual_token_addr}\n")
-            withdraw_contract.withdraw(actual_token_addr,
-                                       receiver,
-                                       received_amt,
-                                       {"from": account}
-                                       )
+            print(
+                f"src: {src_net}, {src_txid}, dst: {dst_net}, {dst_txid} "
+                f"received_amt:{received_amt}, dst_token_addr:{dst_token_addr}, "
+                f"receiver:{receiver}, is_weth:{is_weth_flag}, actual_token_addr:{actual_token_addr}\n"
+            )
+            withdraw_contract.withdraw(
+                actual_token_addr, receiver, received_amt, {"from": account}
+            )
 
 
 def withdraw():
     account = get_account()
-    withdraw_contract = Contract.from_abi("WithdrawFacet", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
-                                          WithdrawFacet.abi)
-    withdraw_contract.withdraw("0x0000000000000000000000000000000000000000",
-                               "0x3A9788D3E5B644b97A997DC5aC29736C388af9A3",
-                               70032067045653004,
-                               {"from": account}
-                               )
+    withdraw_contract = Contract.from_abi(
+        "WithdrawFacet", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820", WithdrawFacet.abi
+    )
+    withdraw_contract.withdraw(
+        "0x0000000000000000000000000000000000000000",
+        "0x3A9788D3E5B644b97A997DC5aC29736C388af9A3",
+        70032067045653004,
+        {"from": account},
+    )

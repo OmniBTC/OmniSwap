@@ -141,3 +141,5 @@ gas/
 .pypirc
 bug/
 sui.log.*
+/ethereum/zksync-era/artifacts-zk/
+/ethereum/zksync-era/cache-zk/

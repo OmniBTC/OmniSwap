@@ -20,7 +20,14 @@ def set_so_gas_for_test():
         "WormholeFacet", SoDiamond[-1].address, WormholeFacet.abi
     )
 
-    nets = ["goerli", "bsc-test", "avax-test", "polygon-test", "aptos-testnet", "sui-testnet"]
+    nets = [
+        "goerli",
+        "bsc-test",
+        "avax-test",
+        "polygon-test",
+        "aptos-testnet",
+        "sui-testnet",
+    ]
 
     gas = get_wormhole_info()["gas"]
     for net in nets:
@@ -45,7 +52,14 @@ def set_so_gas():
         "WormholeFacet", SoDiamond[-1].address, WormholeFacet.abi
     )
 
-    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "aptos-mainnet", "sui-mainnet"]
+    nets = [
+        "mainnet",
+        "bsc-main",
+        "avax-main",
+        "polygon-main",
+        "aptos-mainnet",
+        "sui-mainnet",
+    ]
 
     gas = get_wormhole_info()["gas"]
     for net in nets:
@@ -66,7 +80,9 @@ def set_so_gas():
 
 
 @functools.lru_cache()
-def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT")):
+def get_prices(
+    symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT")
+):
     api = ccxt.kucoin()
     prices = {}
 

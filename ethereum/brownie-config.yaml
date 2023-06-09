@@ -775,6 +775,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -923,6 +924,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -1071,6 +1073,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -1207,6 +1210,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -1329,6 +1333,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -1423,6 +1428,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
