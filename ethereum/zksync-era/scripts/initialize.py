@@ -126,7 +126,7 @@ def initialize_dex_manager(account, so_diamond, correct_swap, celer_fee):
 
 
 def main():
-    change_network("zksync2-test")
+    change_network("zksync2-main")
     contracts = get_deployed_contracts()
     so_diamond = contracts["SoDiamond"]
     correct_swap = contracts["LibCorrectSwapV1"]

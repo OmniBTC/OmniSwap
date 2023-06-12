@@ -2561,5 +2561,27 @@
         "TokenName": "WETH"
       }
     ]
+  },
+  "zksync2-main": {
+    "ChainId": 324,
+    "OmniBtcChainId": 324,
+    "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+    "UniswapRouter": [
+      {
+        "Name": "SyncSwap",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295",
+        "TokenList": "",
+        "Type": "ISyncSwapRouter"
+      },
+      {
+        "Name": "MuteIO",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0x8B791913eB07C32779a16750e3868aA8495F5964",
+        "TokenList": "",
+        "Type": "IMuteRouter"
+      }
+    ],
+    "WETH": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
   }
 }

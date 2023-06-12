@@ -30,8 +30,8 @@ def calc_percent(new_ratio, old_ratio):
 
 
 def set_so_prices():
-    change_network("zksync2-test")
-    celer_so_fee = "0x9c0Eb5062d77BA42945376A7b56E322eEdF656de"
+    change_network("zksync2-main")
+    celer_so_fee = "0x8bB2d077D0911459d80d5010f85EBa2232ca6d25"
     prices = get_prices()
     decimal = 1e27
     multiply = 1.2
