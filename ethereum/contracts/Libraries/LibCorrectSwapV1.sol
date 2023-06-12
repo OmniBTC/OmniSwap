@@ -18,6 +18,7 @@ contract LibCorrectSwapV1 {
         bytes4(
             keccak256(
                 "swapExactAVAXForTokens(uint256,address[],address,uint256)"
+                "swapExactAVAXForTokens(uint256,address[],address,uint256)"
             )
         );
     bytes4 private constant _FUNC3 =
@@ -185,7 +186,7 @@ contract LibCorrectSwapV1 {
 
         for (uint256 i = 0; i < paths.length; i++) {
             paths[i].amountIn =
-                (fromAmountSum * paths[i].amountIn) /
+                (_amount * paths[i].amountIn) /
                 fromAmountSum;
         }
 
