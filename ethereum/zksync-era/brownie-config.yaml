@@ -46,7 +46,7 @@ networks:
         name: SyncSwap
         router: "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295"
         token_list: ""
-      IUniswapV2Router02:
+      IMuteRouter:
         name: MuteIO
         router: "0x8B791913eB07C32779a16750e3868aA8495F5964"
         token_list: ""
