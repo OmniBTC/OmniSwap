@@ -4,7 +4,11 @@ pragma solidity 0.8.13;
 interface IEthToken {
     function balanceOf(uint256) external view returns (uint256);
 
-    function transferFromTo(address _from, address _to, uint256 _amount) external;
+    function transferFromTo(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) external;
 
     function totalSupply() external view returns (uint256);
 
@@ -22,5 +26,9 @@ interface IEthToken {
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
-    event Withdrawal(address indexed _l2Sender, address indexed _l1Receiver, uint256 _amount);
+    event Withdrawal(
+        address indexed _l2Sender,
+        address indexed _l1Receiver,
+        uint256 _amount
+    );
 }
