@@ -46,7 +46,7 @@ contract LibCorrectSwapV1 {
 
     bytes4 private constant _FUNC9 = IMuteRouter.swapExactTokensForETH.selector;
 
-    bytes4 private constant _FUNC9 =
+    bytes4 private constant _FUNC10 =
         IMuteRouter.swapExactTokensForTokens.selector;
 
     //---------------------------------------------------------------------------
