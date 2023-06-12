@@ -26,10 +26,10 @@ contract LibSoFeeMultiChainV1 is ILibSoFee, Ownable, ReentrancyGuard {
     }
 
     function getRestoredAmount(uint256 _amountIn)
-    external
-    view
-    override
-    returns (uint256 r)
+        external
+        view
+        override
+        returns (uint256 r)
     {
         // calculate the amount to be restored
         r = _amountIn.mul(RAY).div((RAY - soFee));
@@ -37,10 +37,10 @@ contract LibSoFeeMultiChainV1 is ILibSoFee, Ownable, ReentrancyGuard {
     }
 
     function getFees(uint256 _amountIn)
-    external
-    view
-    override
-    returns (uint256 s)
+        external
+        view
+        override
+        returns (uint256 s)
     {
         // calculate the so fee
         s = _amountIn.mul(soFee).div(RAY);

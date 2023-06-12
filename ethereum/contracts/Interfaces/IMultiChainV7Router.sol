@@ -53,7 +53,10 @@ interface IMultiChainV7Router {
 
     function anycallExecutor() external view returns (address);
 
-    function anycallProxyInfo(address proxy) external view returns (ProxyInfo memory);
+    function anycallProxyInfo(address proxy)
+        external
+        view
+        returns (ProxyInfo memory);
 
     // Swaps `amount` `token` from this chain to `toChainID` chain and call anycall proxy with `data`
     // `to` is the fallback receive address when exec failed on the `destination` chain

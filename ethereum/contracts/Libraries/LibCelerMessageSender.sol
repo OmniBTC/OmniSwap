@@ -82,8 +82,21 @@ library LibCelerMessageSender {
         // Only applicable to the {MsgDataTypes.BridgeSendType.Liquidity}
         bridge = ICelerMessageBus(_messageBus).liquidityBridge();
         IERC20(_token).safeIncreaseAllowance(bridge, _amount);
-        ICelerBridge(bridge).send(_receiver, _token, _amount, _dstChainId, _nonce, _maxSlippage);
-        transferId = computeLiqBridgeTransferId(_receiver, _token, _amount, _dstChainId, _nonce);
+        ICelerBridge(bridge).send(
+            _receiver,
+            _token,
+            _amount,
+            _dstChainId,
+            _nonce,
+            _maxSlippage
+        );
+        transferId = computeLiqBridgeTransferId(
+            _receiver,
+            _token,
+            _amount,
+            _dstChainId,
+            _nonce
+        );
     }
 
     function computeLiqBridgeTransferId(
@@ -95,8 +108,15 @@ library LibCelerMessageSender {
     ) internal view returns (bytes32) {
         return
             keccak256(
-                abi.encodePacked(address(this), _receiver, _token, _amount, _dstChainId, _nonce, uint64(block.chainid))
+                abi.encodePacked(
+                    address(this),
+                    _receiver,
+                    _token,
+                    _amount,
+                    _dstChainId,
+                    _nonce,
+                    uint64(block.chainid)
+                )
             );
     }
-
 }
