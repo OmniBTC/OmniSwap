@@ -132,6 +132,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         s.estimateReserve = (RAY).mul(12).div(10); // 120%
         s.allowedList[messageBus] = true;
         s.allowedList[msg.sender] = true;
+        s.transferGas = 30000;
 
         emit CelerInitialized(messageBus, chainId);
     }
