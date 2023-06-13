@@ -2565,7 +2565,7 @@
   "zksync2-main": {
     "ChainId": 324,
     "OmniBtcChainId": 324,
-    "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+    "SoDiamond": "0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577",
     "UniswapRouter": [
       {
         "Name": "SyncSwap",
