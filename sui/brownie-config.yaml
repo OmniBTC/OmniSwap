@@ -589,8 +589,8 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
-          per_byte_gas: 68
+          base_gas: 10000
+          per_byte_gas: 10
   sui-testnet:
     node_url: https://fullnode.testnet.sui.io:443
     SoDiamond: "0x56ab0b7d355187fa67a27e3e49084ab64b970d1588c508a7d20a21448b15660b"

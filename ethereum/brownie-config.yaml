@@ -670,8 +670,8 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
-          per_byte_gas: 68
+          base_gas: 10000
+          per_byte_gas: 10
   aptos-mainnet:
     omnibtc_chainid: 1
     SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
@@ -744,8 +744,8 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
-          per_byte_gas: 68
+          base_gas: 10000
+          per_byte_gas: 10
         sui-mainnet:
           dst_chainid: 21
           base_gas: 210000
@@ -892,8 +892,8 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
-          per_byte_gas: 68
+          base_gas: 10000
+          per_byte_gas: 10
         sui-mainnet:
           dst_chainid: 21
           base_gas: 210000
@@ -1040,8 +1040,8 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
-          per_byte_gas: 68
+          base_gas: 10000
+          per_byte_gas: 10
         sui-mainnet:
           dst_chainid: 21
           base_gas: 210000
@@ -1176,8 +1176,8 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
-          per_byte_gas: 68
+          base_gas: 10000
+          per_byte_gas: 10
         sui-mainnet:
           dst_chainid: 21
           base_gas: 210000
