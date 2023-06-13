@@ -104,5 +104,18 @@
         "StargateFacet": "0x8BcD20ad0a171ceF6e4Ac4a64bd590247a8cF141",
         "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
         "WormholeFacet": "0x184b4176aebc4598190aa2FFAFFa86c07D2102C7"
+    },
+    "zksync2-main": {
+        "CelerFacet": "0x1A8BEEF9299233811C3a9936748e14c8C77876D2",
+        "DexManagerFacet": "0xaf641eE8f18e93aF201f7f136E01eD5C9F9f6E6c",
+        "DiamondCutFacet": "0x834d27FC014c5D91a2586E5725dE11D6Ef8B2BCD",
+        "DiamondLoupeFacet": "0x40543888511eeC02d42468d4FefD4A09d64022c1",
+        "GenericSwapFacet": "0xf1bAab57ff6911772B869EA8c0B1ECb49b2E1662",
+        "LibCorrectSwapV1": "0xD7E5b59174DD0b417717172340eE0768B4b10820",
+        "LibSoFeeCelerV1": "0x8bB2d077D0911459d80d5010f85EBa2232ca6d25",
+        "OwnershipFacet": "0x61e0feE9Af073f28F017BB497a7152f00db9b0dC",
+        "SerdeFacet": "0x73a25CA98F9268114b6501cf22CA911fdba7cb6B",
+        "SoDiamond": "0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577",
+        "WithdrawFacet": "0x7374f5ED3Ce6Cbf9DFD73ceE17d78350aE692a52"
     }
 }
