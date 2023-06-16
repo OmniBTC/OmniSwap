@@ -41,6 +41,16 @@
             "decimal": 18
         }
     },
+    "324": {
+        "USDC": {
+            "address": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+            "decimal": 6
+        },
+        "WETH": {
+            "address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+            "decimal": 18
+        }
+    },
     "42161": {
         "USDC": {
             "address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",

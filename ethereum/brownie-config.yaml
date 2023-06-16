@@ -775,6 +775,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -802,6 +803,10 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
       multichain:
         chainid: 1
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
@@ -923,6 +928,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -950,6 +956,10 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
       multichain:
         chainid: 56
         fast_router: "0x400b971099e0ebfda2c03a3063739cb5398734a6"
@@ -979,6 +989,7 @@ networks:
         chainid: 6
         currency: USD
         address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
+
     #      ftm:
     #        chainid: 10
     #        currency: USD
@@ -1071,6 +1082,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -1097,6 +1109,11 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
+
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
       multichain:
         chainid: 43114
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
@@ -1207,6 +1224,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -1234,6 +1252,10 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
       multichain:
         chainid: 137
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
@@ -1329,6 +1351,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -1356,6 +1379,10 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
       multichain:
         chainid: 42161
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
@@ -1423,6 +1450,7 @@ networks:
             - 10 # optimism-main
             - 56 # bsc-main
             - 137 # polygon-main
+            - 324 # zksync2-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
         oracle:
@@ -1450,6 +1478,10 @@ networks:
             chainid: 137
             pair: MATICUSD
             address: "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
       multichain:
         chainid: 10
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"

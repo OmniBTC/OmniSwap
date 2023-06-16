@@ -1,0 +1,55 @@
+# exclude SafeMath when calculating test coverage
+# https://eth-brownie.readthedocs.io/en/v1.10.3/config.html#exclude_paths
+reports:
+  exclude_contracts:
+    - SafeMath
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.6.0
+  - Uniswap/v3-core@1.0.0
+compiler:
+  solc:
+    version: 0.8.13
+    remappings:
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.6.0"
+      - "@uniswap/v3-core=Uniswap/v3-core@1.0.0"
+# automatically fetch contract sources from Etherscan
+autofetch_sources: True
+dotenv: ../.env
+networks:
+  default: zksync2-test
+  zksync2-main:
+    bridges:
+      celer:
+        chainid: 324
+        message_bus: "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2"
+        token:
+          usdc:
+            address: "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4"
+            decimal: 6
+          weth:
+            address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
+            decimal: 18
+
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+
+    swap:
+      ISyncSwapRouter:
+        name: SyncSwap
+        router: "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295"
+        token_list: ""
+      IMuteRouter:
+        name: MuteIO
+        router: "0x8B791913eB07C32779a16750e3868aA8495F5964"
+        token_list: ""
+wallets:
+  from_key: ${PRIVATE_KEY}
+  from_mnemonic: ${MNEMONIC}

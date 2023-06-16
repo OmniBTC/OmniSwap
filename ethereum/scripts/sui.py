@@ -38,9 +38,13 @@ class SuiSwapType(Enum):
 @functools.lru_cache()
 def get_sui_token():
     if "tokens" not in sui_project.network_config:
-        return {"SUI": {"address": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-                        "decimal": 8, "name": "SUI",
-                        }}
+        return {
+            "SUI": {
+                "address": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+                "decimal": 8,
+                "name": "SUI",
+            }
+        }
 
     return sui_project.network_config["tokens"]
 
@@ -49,11 +53,11 @@ class WormholeData(View):
     """Constructing wormhole data"""
 
     def __init__(
-            self,
-            dstWormholeChainId,
-            dstMaxGasPriceInWeiForRelayer,
-            wormholeFee,
-            dstSoDiamond,
+        self,
+        dstWormholeChainId,
+        dstMaxGasPriceInWeiForRelayer,
+        wormholeFee,
+        dstSoDiamond,
     ):
         self.dstWormholeChainId = dstWormholeChainId
         self.dstMaxGasPriceInWeiForRelayer = dstMaxGasPriceInWeiForRelayer
@@ -74,11 +78,7 @@ get_evm_token_address = get_token_address
 
 
 def generate_so_data(
-        src_net: str,
-        src_token: str,
-        dst_token: str,
-        receiver: str,
-        amount: int
+    src_net: str, src_token: str, dst_token: str, receiver: str, amount: int
 ) -> SoData:
     return SoData(
         transactionId=generate_random_bytes32(),
@@ -87,15 +87,15 @@ def generate_so_data(
         sendingAssetId=get_evm_token(src_net)[src_token]["address"],
         destinationChainId=sui_project.network_config["omnibtc_chainid"],
         receivingAssetId=get_sui_token()[dst_token]["address"],
-        amount=amount
+        amount=amount,
     )
 
 
 def generate_wormhole_data(
-        dst_net: str,
-        dst_gas_price: int,
-        wormhole_fee: int,
-        dst_so_diamond: str,
+    dst_net: str,
+    dst_gas_price: int,
+    wormhole_fee: int,
+    dst_so_diamond: str,
 ) -> WormholeData:
     return WormholeData(
         dstWormholeChainId=sui_project.config["networks"][dst_net]["wormhole"][
@@ -108,10 +108,10 @@ def generate_wormhole_data(
 
 
 def generate_dst_swap_data(
-        router: SuiSwapType,
-        path: list,
-        amount: int,
-        dst_pool_ids: list,
+    router: SuiSwapType,
+    path: list,
+    amount: int,
+    dst_pool_ids: list,
 ) -> List[SwapData]:
     out = []
     i = 0
@@ -134,13 +134,13 @@ evm_zero_address = zero_address
 
 
 def generate_src_swap_data(
-        package: sui_brownie.SuiPackage,
-        src_net: str,
-        router: str,
-        func: str,
-        input_amount: int,
-        min_amount: int,
-        path: list,
+    package: sui_brownie.SuiPackage,
+    src_net: str,
+    router: str,
+    func: str,
+    input_amount: int,
+    min_amount: int,
+    path: list,
 ) -> List[SwapData]:
     """Evm only test one swap"""
     out = []
@@ -241,18 +241,18 @@ def get_wormhole_facet(net: str):
 
 
 def cross_swap(
-        package: sui_brownie.SuiPackage,
-        src_path: list,
-        dst_path: list,
-        dst_pool_ids: list,
-        receiver: str,
-        dst_so_diamond: str,
-        input_amount: int,
-        dst_gas_price: int = 1000 * 1e9,
-        src_router: str = None,
-        src_func: str = None,
-        src_min_amount: int = 0,
-        dst_swap_type: SuiSwapType = SuiSwapType.Cetus
+    package: sui_brownie.SuiPackage,
+    src_path: list,
+    dst_path: list,
+    dst_pool_ids: list,
+    receiver: str,
+    dst_so_diamond: str,
+    input_amount: int,
+    dst_gas_price: int = 1000 * 1e9,
+    src_router: str = None,
+    src_func: str = None,
+    src_min_amount: int = 0,
+    dst_swap_type: SuiSwapType = SuiSwapType.Cetus,
 ):
     src_net = network.show_active()
     dst_net = sui_project.network
@@ -310,9 +310,7 @@ def cross_swap(
         )
         token.approve(wormhole.address, so_data[-1], {"from": get_account()})
 
-    relayer_fee = wormhole.estimateRelayerFee(
-        so_data, wormhole_data, dst_swap_data
-    )
+    relayer_fee = wormhole.estimateRelayerFee(so_data, wormhole_data, dst_swap_data)
     print(f"Relayer fee: {relayer_fee}")
     if src_path[0] != "eth":
         wormhole_fee = relayer_fee
@@ -363,8 +361,10 @@ def cross_for_testnet():
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens,
         dst_swap_type=SuiSwapType.Cetus,
-        dst_pool_ids=[sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"],
-                      sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"]],
+        dst_pool_ids=[
+            sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"],
+            sui_project.network_config["pools"]["Cetus-USDT-USDC"]["pool_id"],
+        ],
     )
 
 

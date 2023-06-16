@@ -77,10 +77,10 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
         emit UpdatePriceConfig(_chainId, _chainlink, _interval);
     }
 
-    function setPriceInterval(
-        uint64 _chainId,
-        uint256 _interval
-    ) external onlyOwner {
+    function setPriceInterval(uint64 _chainId, uint256 _interval)
+        external
+        onlyOwner
+    {
         priceConfig[_chainId].interval = _interval;
         emit UpdatePriceInterval(_chainId, _interval);
     }
@@ -108,7 +108,11 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
         return _ratio;
     }
 
-    function getPriceRatio(uint64 _chainId) public view returns (uint256, bool) {
+    function getPriceRatio(uint64 _chainId)
+        public
+        view
+        returns (uint256, bool)
+    {
         PriceConfig memory _config = priceConfig[_chainId];
 
         if (_config.chainlink.length == 0) {

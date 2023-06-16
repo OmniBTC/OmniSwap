@@ -114,10 +114,10 @@ def get_native_token_name(net):
 
 
 def so_swap_via_wormhole(
-        so_data: SoData,
-        dst_diamond_address: str = "",
-        dst_chainid: int = 0,
-        p: Project = None,
+    so_data: SoData,
+    dst_diamond_address: str = "",
+    dst_chainid: int = 0,
+    p: Project = None,
 ):
     account = get_account()
 

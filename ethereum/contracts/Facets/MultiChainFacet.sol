@@ -29,7 +29,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
 
     struct Storage {
         address fastRouter; // The multichain FAST_ROUTER_V7 address
-        uint64  srcChainId; // The multichain chain id of the source/current chain
+        uint64 srcChainId; // The multichain chain id of the source/current chain
         mapping(address => bool) allowedList; // Permission to allow calls to exec
         mapping(address => address) tokenMap; // The map: token -> anytoken
     }
@@ -68,7 +68,8 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
 
         Storage storage s = getStorage();
 
-        address anycallExecutor = IMultiChainV7Router(fastRouter).anycallExecutor();
+        address anycallExecutor = IMultiChainV7Router(fastRouter)
+            .anycallExecutor();
 
         s.fastRouter = fastRouter;
         s.srcChainId = chainId;
@@ -96,7 +97,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
 
         Storage storage s = getStorage();
 
-        for (uint64 i; i < anyTokens.length; i++ ) {
+        for (uint64 i; i < anyTokens.length; i++) {
             address token = IMultiChainUnderlying(anyTokens[i]).underlying();
             require(token != address(0), "InvalidAnyToken");
             s.tokenMap[token] = anyTokens[i];
@@ -166,17 +167,9 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
             }
         }
 
-        cache.payload = encodeMultiChainPayload(
-            soDataNo,
-            swapDataDstNo
-        );
+        cache.payload = encodeMultiChainPayload(soDataNo, swapDataDstNo);
 
-
-        startBridge(
-            multiChainData,
-            cache.bridgeAmount,
-            cache.payload
-        );
+        startBridge(multiChainData, cache.bridgeAmount, cache.payload);
 
         emit SoTransferStarted(soData.transactionId);
     }
@@ -185,7 +178,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     /// Call on destination chain by anyCallExecutor
     function exec(
         address token,
-        address , // receiver
+        address, // receiver
         uint256 amount,
         bytes calldata message
     ) external returns (bool success, bytes memory result) {
@@ -266,12 +259,13 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function decodeMultiChainPayload(
-        bytes memory multiChainPayload
-    ) public pure returns (
-        ISo.NormalizedSoData memory soDataNo,
-        LibSwap.NormalizedSwapData[] memory swapDataDstNo
-    )
+    function decodeMultiChainPayload(bytes memory multiChainPayload)
+        public
+        pure
+        returns (
+            ISo.NormalizedSoData memory soDataNo,
+            LibSwap.NormalizedSwapData[] memory swapDataDstNo
+        )
     {
         CachePayload memory data;
         uint256 index;
@@ -289,7 +283,10 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
 
         nextLen = uint256(multiChainPayload.toUint8(index));
         index += 1;
-        data.soDataNo.receivingAssetId = multiChainPayload.slice(index, nextLen);
+        data.soDataNo.receivingAssetId = multiChainPayload.slice(
+            index,
+            nextLen
+        );
         index += nextLen;
 
         if (index < multiChainPayload.length) {
@@ -321,10 +318,8 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
 
                 nextLen = uint256(multiChainPayload.toUint8(index));
                 index += 1;
-                data.swapDataDstNo[i].receivingAssetId = multiChainPayload.slice(
-                    index,
-                    nextLen
-                );
+                data.swapDataDstNo[i].receivingAssetId = multiChainPayload
+                    .slice(index, nextLen);
                 index += nextLen;
 
                 nextLen = uint256(multiChainPayload.toUint16(index));
@@ -355,8 +350,9 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     /// @dev Make sure the multichain config is valid
     function isValidMultiChainConfig() public view returns (bool) {
         Storage storage s = getStorage();
-        IMultiChainV7Router.ProxyInfo memory proxyInfo =
-            IMultiChainV7Router(s.fastRouter).anycallProxyInfo(address(this));
+        IMultiChainV7Router.ProxyInfo memory proxyInfo = IMultiChainV7Router(
+            s.fastRouter
+        ).anycallProxyInfo(address(this));
 
         return proxyInfo.supported && !proxyInfo.acceptAnyToken;
     }
@@ -453,7 +449,11 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
                     soData.receiver,
                     amount
                 );
-                emit SoTransferFailed(soData.transactionId, revertReason, bytes(""));
+                emit SoTransferFailed(
+                    soData.transactionId,
+                    revertReason,
+                    bytes("")
+                );
             } catch (bytes memory returnData) {
                 LibAsset.transferAsset(
                     swapDataDst[0].sendingAssetId,
@@ -485,15 +485,16 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
             bridgeAmount
         );
 
-        try IMultiChainV7Router(s.fastRouter).anySwapOutUnderlyingAndCall(
-            anyToken,
-            multiChainData.dstSoDiamond,
-            bridgeAmount,
-            uint256(multiChainData.dstChainId),
-            multiChainData.dstSoDiamond,
-            payload
-        ) {}
-        catch (bytes memory lowLevelData) {
+        try
+            IMultiChainV7Router(s.fastRouter).anySwapOutUnderlyingAndCall(
+                anyToken,
+                multiChainData.dstSoDiamond,
+                bridgeAmount,
+                uint256(multiChainData.dstChainId),
+                multiChainData.dstSoDiamond,
+                payload
+            )
+        {} catch (bytes memory lowLevelData) {
             // Rethrowing exception
             assembly {
                 let start := add(lowLevelData, 0x20)

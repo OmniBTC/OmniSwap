@@ -43,7 +43,7 @@ def get_dst_chainid(p: Project = None):
 
 
 def token_approve(
-        token_name: str, aprrove_address: str, amount: int, p: Project = None
+    token_name: str, aprrove_address: str, amount: int, p: Project = None
 ):
     token = Contract.from_abi(
         token_name.upper(), get_token_address(token_name), p.interface.IERC20.abi
@@ -52,12 +52,12 @@ def token_approve(
 
 
 def soSwapViaWormhole(
-        so_data,
-        src_swap_data,
-        wormhole_data,
-        dst_swap_data,
-        input_eth_amount: int,
-        p: Project = None,
+    so_data,
+    src_swap_data,
+    wormhole_data,
+    dst_swap_data,
+    input_eth_amount: int,
+    p: Project = None,
 ):
     so_data = so_data.format_to_contract()
     if src_swap_data is None:
@@ -95,12 +95,12 @@ def soSwapViaWormhole(
 
 
 def soSwapViaStargate(
-        so_data,
-        src_swap_data,
-        stargate_data,
-        dst_swap_data,
-        input_eth_amount: int,
-        p: Project = None,
+    so_data,
+    src_swap_data,
+    stargate_data,
+    dst_swap_data,
+    input_eth_amount: int,
+    p: Project = None,
 ):
     so_data = so_data.format_to_contract()
     if src_swap_data is None:
@@ -160,14 +160,14 @@ class View:
 
 class SoData(View):
     def __init__(
-            self,
-            transactionId,
-            receiver,
-            sourceChainId,
-            sendingAssetId,
-            destinationChainId,
-            receivingAssetId,
-            amount,
+        self,
+        transactionId,
+        receiver,
+        sourceChainId,
+        sendingAssetId,
+        destinationChainId,
+        receivingAssetId,
+        amount,
     ):
         # unique identification id
         self.transactionId = transactionId
@@ -215,13 +215,13 @@ class SoData(View):
 
     @classmethod
     def create(
-            cls,
-            src_session,
-            dst_session,
-            receiver: str,
-            amount: int,
-            sendingTokenName: str,
-            receiveTokenName: str,
+        cls,
+        src_session,
+        dst_session,
+        receiver: str,
+        amount: int,
+        sendingTokenName: str,
+        receiveTokenName: str,
     ):
         """Create SoData class
 
@@ -252,17 +252,17 @@ class SoData(View):
 
 class StargateData(View):
     def __init__(
-            self,
-            srcStargatePoolId,
-            dstStargateChainId,
-            dstStargatePoolId,
-            minAmount,
-            dstGasForSgReceive,
-            dstSoDiamond,
-            srcStargateToken,
-            srcStargateTokenDecimal,
-            dstStargateToken,
-            dstStargateTokenDecimal,
+        self,
+        srcStargatePoolId,
+        dstStargateChainId,
+        dstStargatePoolId,
+        minAmount,
+        dstGasForSgReceive,
+        dstSoDiamond,
+        srcStargateToken,
+        srcStargateTokenDecimal,
+        dstStargateToken,
+        dstStargateTokenDecimal,
     ):
         # The stargate pool id of the source chain
         self.srcStargatePoolId = srcStargatePoolId
@@ -294,12 +294,12 @@ class StargateData(View):
 
     @classmethod
     def create(
-            cls,
-            src_session,
-            dst_session,
-            dstGasForSgReceive: int,
-            srcStargateToken: str,
-            dstStargateToken: str,
+        cls,
+        src_session,
+        dst_session,
+        dstGasForSgReceive: int,
+        srcStargateToken: str,
+        dstStargateToken: str,
     ):
         """Create StargateData class
 
@@ -421,17 +421,17 @@ class SwapData(View):
     """Constructing data for calling UniswapLike"""
 
     def __init__(
-            self,
-            callTo,
-            approveTo,
-            sendingAssetId,
-            receivingAssetId,
-            fromAmount,
-            callData,
-            swapType: str = None,
-            swapFuncName: str = None,
-            swapPath: list = None,
-            swapEncodePath: list = None,
+        self,
+        callTo,
+        approveTo,
+        sendingAssetId,
+        receivingAssetId,
+        fromAmount,
+        callData,
+        swapType: str = None,
+        swapFuncName: str = None,
+        swapPath: list = None,
+        swapEncodePath: list = None,
     ):
         # The swap address
         self.callTo = callTo
@@ -463,12 +463,12 @@ class SwapData(View):
 
     @classmethod
     def create(
-            cls,
-            swapType: str,
-            swapFuncName: str,
-            fromAmount: int,
-            swapPath: list,
-            p: Project = None,
+        cls,
+        swapType: str,
+        swapFuncName: str,
+        fromAmount: int,
+        swapPath: list,
+        p: Project = None,
     ):
         """Create SwapData class
 
@@ -563,11 +563,11 @@ class SwapData(View):
 
     @staticmethod
     def reset_min_amount(
-            callData: str,
-            swapType: str,
-            swapFuncName: str,
-            minAmount: int,
-            p: Project = None,
+        callData: str,
+        swapType: str,
+        swapFuncName: str,
+        minAmount: int,
+        p: Project = None,
     ):
         """Resetting the min amount of dst swap based on the results of the overall slippage calculation
 
@@ -593,7 +593,7 @@ class SwapData(View):
             params[4] = minAmount
             return getattr(swap_contract, swapFuncName).encode_input(params)
         elif swapType.startswith("IUniswapV2") and swapFuncName.startswith(
-                "swapExactTokens"
+            "swapExactTokens"
         ):
             (fromAmount, _, path, to, deadline) = getattr(
                 swap_contract, swapFuncName
@@ -602,8 +602,8 @@ class SwapData(View):
                 fromAmount, minAmount, path, to, deadline
             )
         elif swapType.startswith("IUniswapV2") and (
-                swapFuncName.startswith("swapExactETH")
-                or swapFuncName.startswith("swapExactAVAX")
+            swapFuncName.startswith("swapExactETH")
+            or swapFuncName.startswith("swapExactAVAX")
         ):
             (_, path, to, deadline) = getattr(swap_contract, swapFuncName).decode_input(
                 callData
@@ -727,11 +727,11 @@ class SwapData(View):
 
 class WormholeData(View):
     def __init__(
-            self,
-            dstWormholeChainId: int,
-            dstMaxGasPriceInWeiForRelayer: int,
-            wormholeFee: int,
-            dstSoDiamond: str,
+        self,
+        dstWormholeChainId: int,
+        dstMaxGasPriceInWeiForRelayer: int,
+        wormholeFee: int,
+        dstSoDiamond: str,
     ):
         self.dstWormholeChainId = dstWormholeChainId
         self.dstMaxGasPriceInWeiForRelayer = dstMaxGasPriceInWeiForRelayer
@@ -749,10 +749,10 @@ class WormholeData(View):
 
 
 def estimate_for_gas(
-        so_data: SoData,
-        stargate_cross_token: str,
-        dst_swap_data: SwapData,
-        p: Project = None,
+    so_data: SoData,
+    stargate_cross_token: str,
+    dst_swap_data: SwapData,
+    p: Project = None,
 ):
     """estimate gas for sgReceive"""
     account = get_account()
@@ -768,12 +768,12 @@ def estimate_for_gas(
 
 
 def estimate_final_token_amount(
-        src_session,
-        dst_session,
-        amount: int,
-        src_swap_data: SwapData,
-        stargate_data,
-        dst_swap_data: SwapData,
+    src_session,
+    dst_session,
+    amount: int,
+    src_swap_data: SwapData,
+    stargate_data,
+    dst_swap_data: SwapData,
 ):
     """Estimate source swap output"""
     print("Estimate final token amount:")
@@ -803,7 +803,7 @@ def estimate_final_token_amount(
 
 
 def estimate_min_amount(
-        dst_session, final_amount: int, slippage: float, dst_swap_data: SwapData
+    dst_session, final_amount: int, slippage: float, dst_swap_data: SwapData
 ):
     print(f"Estimate min amount: slippage {slippage * 100}%")
     expect_min_amount = int(final_amount * (1 - slippage))
@@ -835,17 +835,17 @@ def estimate_min_amount(
 
 
 def cross_swap_via_wormhole(
-        src_session,
-        dst_session,
-        inputAmount,
-        sourceTokenName,
-        sourceSwapType,
-        sourceSwapFunc,
-        sourceSwapPath,
-        destinationTokenName,
-        destinationSwapType,
-        destinationSwapFunc,
-        destinationSwapPath,
+    src_session,
+    dst_session,
+    inputAmount,
+    sourceTokenName,
+    sourceSwapType,
+    sourceSwapFunc,
+    sourceSwapPath,
+    destinationTokenName,
+    destinationSwapType,
+    destinationSwapFunc,
+    destinationSwapPath,
 ):
     print(
         f"{'-' * 100}\nSwap from: network {src_session.net}, token: {sourceTokenName}\n"
@@ -935,20 +935,20 @@ def cross_swap_via_wormhole(
 
 
 def cross_swap_via_stargate(
-        src_session,
-        dst_session,
-        inputAmount,
-        sourceTokenName,  # stargate
-        destinationTokenName,  # stargate
-        sourceSwapType,
-        sourceSwapFunc,
-        sourceSwapPath,
-        sourceStargateToken,
-        destinationStargateToken,
-        destinationSwapType,
-        destinationSwapFunc,
-        destinationSwapPath,
-        slippage,
+    src_session,
+    dst_session,
+    inputAmount,
+    sourceTokenName,  # stargate
+    destinationTokenName,  # stargate
+    sourceSwapType,
+    sourceSwapFunc,
+    sourceSwapPath,
+    sourceStargateToken,
+    destinationStargateToken,
+    destinationSwapType,
+    destinationSwapFunc,
+    destinationSwapPath,
+    slippage,
 ):
     print(
         f"{'-' * 100}\nSwap from: network {src_session.net}, token {sourceTokenName} "
@@ -1064,14 +1064,14 @@ def cross_swap_via_stargate(
 
 
 def single_swap(
-        src_session,
-        dst_session,
-        inputAmount,
-        sendingTokenName,
-        receiveTokenName,
-        sourceSwapType,
-        sourceSwapFunc,
-        sourceSwapPath,
+    src_session,
+    dst_session,
+    inputAmount,
+    sendingTokenName,
+    receiveTokenName,
+    sourceSwapType,
+    sourceSwapFunc,
+    sourceSwapPath,
 ):
     print(
         f"{'-' * 100}\nnetwork {src_session.net}, single swap: token {sendingTokenName} -> {receiveTokenName}"

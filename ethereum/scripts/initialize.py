@@ -218,6 +218,20 @@ def initialize_celer(account, so_diamond):
     proxy_celer.setBaseGas(dst_chains, base_gas, {"from": account})
 
 
+def set_celer_base_gas():
+    account = get_account()
+    so_diamond = SoDiamond[-1]
+    base_gas = 700000
+    dst_chains = [324]
+
+    proxy_celer = Contract.from_abi("CelerFacet", so_diamond.address, CelerFacet.abi)
+
+    net = network.show_active()
+    print(f"network:{net}, set base gas: {base_gas}, {dst_chains}")
+
+    proxy_celer.setBaseGas(dst_chains, base_gas, {"from": account})
+
+
 def initialize_multichain(account, so_diamond):
     proxy_multichain = Contract.from_abi(
         "MultiChainFacet", so_diamond.address, MultiChainFacet.abi
@@ -559,7 +573,7 @@ def add_dex():
     proxy_dex.batchSetFunctionApprovalBySignature(
         [v + "0" * 56 for v in list(interface.ISwapRouter.selectors.keys())],
         True,
-        {"from": get_account()}
+        {"from": get_account()},
     )
 
 

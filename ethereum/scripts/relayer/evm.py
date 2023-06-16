@@ -59,15 +59,15 @@ SUPPORTED_EVM = [
 
 
 def process_vaa(
-        dstSoDiamond: str,
-        vaa_str: str,
-        emitterChainId: str,
-        sequence: str,
-        local_logger,
-        inner_interval: int = None,
-        over_interval: int = None,
-        WORMHOLE_CHAINID_TO_NET: dict = None,
-        limit_gas_price=True,
+    dstSoDiamond: str,
+    vaa_str: str,
+    emitterChainId: str,
+    sequence: str,
+    local_logger,
+    inner_interval: int = None,
+    over_interval: int = None,
+    WORMHOLE_CHAINID_TO_NET: dict = None,
+    limit_gas_price=True,
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
@@ -132,7 +132,7 @@ def process_vaa(
                 payload_len=int(len(vaa_str) / 2 - 1),
                 swap_len=len(wormhole_data[3]),
                 sequence=sequence,
-                dst_txid=result.txid
+                dst_txid=result.txid,
             )
             local_logger.info(
                 f"Process emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}"
@@ -154,16 +154,16 @@ def process_vaa(
 
 
 def process_v1(
-        dstWormholeChainId: int,
-        dstSoDiamond: str,
+    dstWormholeChainId: int,
+    dstSoDiamond: str,
 ):
     WORMHOLE_CHAINID_TO_NET = {
         config["networks"][net]["wormhole"]["chainid"]: net
         for net in config["networks"]
         if "wormhole" in config["networks"][net]
-           and "chainid" in config["networks"][net]["wormhole"]
+        and "chainid" in config["networks"][net]["wormhole"]
         if ("main" in list(SUPPORTED_EVM)[0]["dstNet"] and "main" in net)
-           or ("main" not in list(SUPPORTED_EVM)[0]["dstNet"] and "main" not in net)
+        or ("main" not in list(SUPPORTED_EVM)[0]["dstNet"] and "main" not in net)
     }
     local_logger = logger.getChild(f"[v1|{network.show_active()}]")
     local_logger.info("Starting process v1...")
@@ -199,16 +199,16 @@ def process_v1(
 
 
 def process_v2(
-        dstWormholeChainId: int,
-        dstSoDiamond: str,
+    dstWormholeChainId: int,
+    dstSoDiamond: str,
 ):
     WORMHOLE_CHAINID_TO_NET = {
         config["networks"][net]["wormhole"]["chainid"]: net
         for net in config["networks"]
         if "wormhole" in config["networks"][net]
-           and "chainid" in config["networks"][net]["wormhole"]
+        and "chainid" in config["networks"][net]["wormhole"]
         if ("main" in list(SUPPORTED_EVM)[0]["dstNet"] and "main" in net)
-           or ("main" not in list(SUPPORTED_EVM)[0]["dstNet"] and "main" not in net)
+        or ("main" not in list(SUPPORTED_EVM)[0]["dstNet"] and "main" not in net)
     }
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
@@ -250,8 +250,8 @@ def process_v2(
                 limit_gas_price = True
             has_key = (int(d["srcWormholeChainId"]), int(d["sequence"]))
             if (
-                    has_key in has_process
-                    and (time.time() - has_process[has_key]) <= 10 * 60
+                has_key in has_process
+                and (time.time() - has_process[has_key]) <= 10 * 60
             ):
                 local_logger.warning(
                     f'emitterChainId:{d["srcWormholeChainId"]} sequence:{d["sequence"]} '
@@ -275,14 +275,14 @@ def process_v2(
 
 class Session(Process):
     def __init__(
-            self,
-            dstWormholeChainId: int,
-            dstSoDiamond: str,
-            dstNet: str,
-            project_path: str,
-            group=None,
-            name=None,
-            daemon=None,
+        self,
+        dstWormholeChainId: int,
+        dstSoDiamond: str,
+        dstNet: str,
+        project_path: str,
+        group=None,
+        name=None,
+        daemon=None,
     ):
         self.dstWormholeChainId = dstWormholeChainId
         self.dstSoDiamond = dstSoDiamond
@@ -322,17 +322,17 @@ class Session(Process):
 
 
 def record_gas(
-        sender_gas: int,
-        sender_gas_price: int,
-        actual_gas: int,
-        actual_gas_price: int,
-        src_net: str,
-        dst_net: str,
-        payload_len=0,
-        swap_len=0,
-        file_path=Path(__file__).parent.joinpath("gas"),
-        sequence=None,
-        dst_txid=None
+    sender_gas: int,
+    sender_gas_price: int,
+    actual_gas: int,
+    actual_gas_price: int,
+    src_net: str,
+    dst_net: str,
+    payload_len=0,
+    swap_len=0,
+    file_path=Path(__file__).parent.joinpath("gas"),
+    sequence=None,
+    dst_txid=None,
 ):
     if not isinstance(actual_gas, int):
         actual_gas = sender_gas
@@ -361,7 +361,7 @@ def record_gas(
         "payload_len": payload_len,
         "swap_len": swap_len,
         "sequence": sequence,
-        "dst_txid": dst_txid
+        "dst_txid": dst_txid,
     }
     columns = sorted(list(data.keys()))
     data = pd.DataFrame([data])

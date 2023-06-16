@@ -83,6 +83,8 @@ def simple_check_bridge_tokens():
         "56": {"USDC": 18, "USDT": 18, "WETH": 18},
         # Polygon
         "137": {"USDC": 6, "USDT": 6, "WETH": 18},
+        # Zksync-era
+        "324": {"USDC": 6, "WETH": 18},
         # Arbitrum
         "42161": {"USDC": 6, "USDT": 6, "WETH": 18},
         # Avalanche
@@ -116,8 +118,15 @@ def check_celer_bridge_tokens(bridge_tokens):
             if chain1 == chain2:
                 continue
             for token in tokens1:
-                decimal1 = tokens1[token]["decimal"]
-                decimal2 = tokens2[token]["decimal"]
+                try:
+                    decimal1 = tokens1[token]["decimal"]
+                except KeyError:
+                    continue
+
+                try:
+                    decimal2 = tokens2[token]["decimal"]
+                except KeyError:
+                    continue
 
                 if check_bridge_token(chain1, chain2, token, decimal1, decimal2):
                     print(chain1, "===>>===", chain2, ":", token, decimal1, decimal2)
@@ -131,6 +140,7 @@ def get_celer_bridge_tokens():
         "10",  # Optimism
         "56",  # BSC
         "137",  # Polygon
+        "324",  # Zksync-era
         "42161",  # Arbitrum
         "43114",  # Avalanche
     ]
@@ -167,8 +177,8 @@ def get_celer_bridge_tokens():
 
 
 def export_main_celer_chain_path():
-    bridge_tokens = read_json(tmp_celer_bridge_token)
-    # bridge_tokens = get_celer_bridge_tokens()
+    # bridge_tokens = read_json(tmp_celer_bridge_token)
+    bridge_tokens = get_celer_bridge_tokens()
 
     celer_contracts = {
         "1": {
@@ -187,6 +197,10 @@ def export_main_celer_chain_path():
             "cBridge": "0x88DCDC47D2f83a99CF0000FDF667A468bB958a78",
             "MessageBus": "0xaFDb9C40C7144022811F034EE07Ce2E110093fe6",
         },
+        "324": {
+            "cBridge": "0x54069e96C4247b37C2fbd9559CA99f08CD1CD66c",
+            "MessageBus": "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2",
+        },
         "42161": {
             "cBridge": "0x1619DE6B6B20eD217a58d00f37B9d47C7663feca",
             "MessageBus": "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f",
@@ -200,6 +214,7 @@ def export_main_celer_chain_path():
     chain_names = {
         "1": "mainnet",
         "10": "optimism-main",
+        "324": "zksync2-main",
         "56": "bsc-main",
         "137": "polygon-main",
         "42161": "arbitrum-main",
@@ -217,13 +232,17 @@ def export_main_celer_chain_path():
 
                 # print(chain1, token, "===>>===", chain2, tokens2[token]["address"], tokens2[token]["decimal"])
 
-                paths.append(
-                    {
-                        "CelerChainId": int(chain2),
-                        "Address": tokens2[token]["address"],
-                        "Decimal": tokens2[token]["decimal"],
-                    }
-                )
+                try:
+                    paths.append(
+                        {
+                            "CelerChainId": int(chain2),
+                            "Address": tokens2[token]["address"],
+                            "Decimal": tokens2[token]["decimal"],
+                        }
+                    )
+                except KeyError:
+                    continue
+
             token_paths[token] = {
                 "Address": tokens1[token]["address"],
                 "Decimal": tokens1[token]["decimal"],
@@ -308,6 +327,7 @@ def check_main_celer_config():
         "polygon-main",
         "arbitrum-main",
         "optimism-main",
+        "zksync2-main",
     ]
 
     chain_path = read_json(celer_chain_path)
@@ -441,5 +461,5 @@ def check_main_online_oracles():
 
 def main():
     check_main_celer_config()
-    check_main_oracles()
-    check_main_online_oracles()
+    # check_main_oracles()
+    # check_main_online_oracles()
