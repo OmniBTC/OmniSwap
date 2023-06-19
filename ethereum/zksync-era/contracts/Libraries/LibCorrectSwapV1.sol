@@ -5,6 +5,7 @@ pragma solidity 0.8.13;
 import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
 import {ISyncSwapRouter} from "../Interfaces/ISyncSwapRouter.sol";
 import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
+import {IiZiSwapPool} from "../Interfaces/IiZiSwapPool.sol";
 
 contract LibCorrectSwapV1 {
     // Exact search for supported function signatures
@@ -50,15 +51,18 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC10 =
         IMuteRouter.swapExactTokensForTokens.selector;
 
+    bytes4 private constant _FUNC11 = IiZiSwapPool.swapX2Y.selector;
+
+    bytes4 private constant _FUNC12 = IiZiSwapPool.swapY2X.selector;
+
     //---------------------------------------------------------------------------
     // External Method
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        view
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external view returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC1) {
             return _data;
@@ -80,17 +84,20 @@ contract LibCorrectSwapV1 {
             return tryMuteSwap(_data, _amount);
         } else if (sig == _FUNC10) {
             return tryMuteSwap(_data, _amount);
+        } else if (sig == _FUNC11) {
+            return tryiZiSwap(_data, _amount);
+        } else if (sig == _FUNC12) {
+            return tryiZiSwap(_data, _amount);
         }
 
         // fuzzy matching
         return tryBasicCorrectSwap(_data, _amount);
     }
 
-    function tryBasicCorrectSwap(bytes calldata _data, uint256 _amount)
-        public
-        view
-        returns (bytes memory)
-    {
+    function tryBasicCorrectSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) public view returns (bytes memory) {
         try this.basicCorrectSwap(_data, _amount) returns (
             bytes memory _result
         ) {
@@ -100,11 +107,10 @@ contract LibCorrectSwapV1 {
         }
     }
 
-    function basicCorrectSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
+    function basicCorrectSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external pure returns (bytes memory) {
         (
             ,
             uint256 _amountOutMin,
@@ -127,11 +133,10 @@ contract LibCorrectSwapV1 {
             );
     }
 
-    function tryExactInput(bytes calldata _data, uint256 _amount)
-        public
-        view
-        returns (bytes memory)
-    {
+    function tryExactInput(
+        bytes calldata _data,
+        uint256 _amount
+    ) public view returns (bytes memory) {
         try this.exactInput(_data, _amount) returns (bytes memory _result) {
             return _result;
         } catch {
@@ -139,11 +144,10 @@ contract LibCorrectSwapV1 {
         }
     }
 
-    function exactInput(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
+    function exactInput(
+        bytes calldata _data,
+        uint256 _amount
+    ) external pure returns (bytes memory) {
         ISwapRouter.ExactInputParams memory params = abi.decode(
             _data[4:],
             (ISwapRouter.ExactInputParams)
@@ -153,11 +157,10 @@ contract LibCorrectSwapV1 {
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
     }
 
-    function trySyncSwap(bytes calldata _data, uint256 _amount)
-        public
-        view
-        returns (bytes memory)
-    {
+    function trySyncSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) public view returns (bytes memory) {
         try this.syncSwap(_data, _amount) returns (bytes memory _result) {
             return _result;
         } catch {
@@ -165,11 +168,10 @@ contract LibCorrectSwapV1 {
         }
     }
 
-    function syncSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
+    function syncSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external pure returns (bytes memory) {
         (
             ISyncSwapRouter.SwapPath[] memory paths,
             uint256 amountOutMin,
@@ -185,9 +187,7 @@ contract LibCorrectSwapV1 {
         }
 
         for (uint256 i = 0; i < paths.length; i++) {
-            paths[i].amountIn =
-                (_amount * paths[i].amountIn) /
-                fromAmountSum;
+            paths[i].amountIn = (_amount * paths[i].amountIn) / fromAmountSum;
         }
 
         return
@@ -199,11 +199,10 @@ contract LibCorrectSwapV1 {
             );
     }
 
-    function tryMuteSwap(bytes calldata _data, uint256 _amount)
-        public
-        view
-        returns (bytes memory)
-    {
+    function tryMuteSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) public view returns (bytes memory) {
         try this.muteSwap(_data, _amount) returns (bytes memory _result) {
             return _result;
         } catch {
@@ -211,11 +210,10 @@ contract LibCorrectSwapV1 {
         }
     }
 
-    function muteSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
+    function muteSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external pure returns (bytes memory) {
         (
             ,
             uint256 _amountOutMin,
@@ -237,6 +235,35 @@ contract LibCorrectSwapV1 {
                 _to,
                 _deadline,
                 _stable
+            );
+    }
+
+    function tryiZiSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) public view returns (bytes memory) {
+        try this.iZiSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("iZiSwap fail!");
+        }
+    }
+
+    function iZiSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external pure returns (bytes memory) {
+        (address _recipient, , int24 _pt, bytes memory _iZiData) = abi.decode(
+            _data[4:],
+            (address, uint128, int24, bytes)
+        );
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _recipient,
+                uint128(_amount),
+                _pt,
+                _iZiData
             );
     }
 }
