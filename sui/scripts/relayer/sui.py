@@ -526,6 +526,10 @@ def process_vaa(
                     assert final_asset_id is not None
                     local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                                        f'sequence:{sequence}, start compensate for error: {e}')
+                    if isinstance(ty_args, list) and len(ty_args) > 0:
+                        cross_asset_id = ty_args[0]
+                    else:
+                        cross_asset_id = final_asset_id
                     result = sui_package.wormhole_facet.complete_so_swap_by_relayer(
                         storage,
                         facet_manager,
@@ -534,7 +538,7 @@ def process_vaa(
                         wormhole_fee,
                         hex_str_to_vector_u8(vaa_str),
                         clock,
-                        type_arguments=[final_asset_id],
+                        type_arguments=[cross_asset_id],
                         gas_price=dst_max_gas_price
                     )
                 else:
