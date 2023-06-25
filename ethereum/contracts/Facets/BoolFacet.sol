@@ -26,15 +26,21 @@ import {BoolSwapPathConverter} from "../Helpers/BoolSwapPathConverter.sol";
  * @author OmniBTC
  * @notice Provides functionality for bridging through Bool Network
  */
-contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwapConsumer {
+contract BoolFacet is
+    Swapper,
+    ReentrancyGuard,
+    BoolSwapPathConverter,
+    IBoolSwapConsumer
+{
     using LibBytes for bytes;
     using SafeMath for uint256;
 
     /// Storage ///
     bytes32 internal constant NAMESPACE =
-    hex"c4e242f9d0a8f67e3c471e3eb6b3b98c42240aeaaa189f231d6f69834e05da63"; // keccak256("com.so.facets.bool")
+        hex"c4e242f9d0a8f67e3c471e3eb6b3b98c42240aeaaa189f231d6f69834e05da63"; // keccak256("com.so.facets.bool")
 
-    address internal constant NATIVE_ADDRESS_IN_BS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address internal constant NATIVE_ADDRESS_IN_BS =
+        0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     struct Storage {
         address boolSwapRouter;
@@ -56,12 +62,17 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
     }
 
     /** Events */
-    event BoolSwapInitialized(address boolSwapRouter, address boolSwapFactory, uint32 chainId);
+    event BoolSwapInitialized(
+        address boolSwapRouter,
+        address boolSwapFactory,
+        uint32 chainId
+    );
     event SetAllowedList(address boolSwapPool, bool isAllowed);
 
     /** Permission Required Functions */
     function initBoolSwap(address router, uint32 chainId) external {
         LibDiamond.enforceIsContractOwner();
+        if (router == address(0)) revert InvalidConfig();
         Storage storage s = getStorage();
         address factory = IBoolSwapRouter(router).factory();
         s.boolSwapRouter = router;
@@ -71,13 +82,11 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
         emit BoolSwapInitialized(router, factory, chainId);
     }
 
-    // TODO add the check for the validness of boolSwapPools through factory.isValidPool()
     function batchSetAllowedAddresses(
         address[] calldata boolSwapPools,
         bool[] calldata isAllowed
     ) external {
         LibDiamond.enforceIsContractOwner();
-        require(boolSwapPools.length == isAllowed.length, "BoolSwapFaucet: INVALID_INPUT");
         Storage storage s = getStorage();
         for (uint256 i; i < boolSwapPools.length; ++i) {
             s.allowedList[boolSwapPools[i]] = isAllowed[i];
@@ -103,7 +112,9 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
         uint256 bridgeAmount;
         // Denormalize source chain data
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
-        LibSwap.SwapData[] memory swapDataSrc = LibCross.denormalizeSwapData(swapDataSrcNo);
+        LibSwap.SwapData[] memory swapDataSrc = LibCross.denormalizeSwapData(
+            swapDataSrcNo
+        );
 
         if (!LibAsset.isNativeAsset(soData.sendingAssetId)) {
             LibAsset.depositAsset(soData.sendingAssetId, soData.amount);
@@ -141,7 +152,9 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
             payload
         );
 
-        uint256 boolSwapValue = isThroughNativePool ? boolFee + bridgeAmount : boolFee;
+        uint256 boolSwapValue = isThroughNativePool
+            ? boolFee + bridgeAmount
+            : boolFee;
 
         _startBride(boolSwapData, boolSwapValue, bridgeAmount, payload);
 
@@ -164,8 +177,8 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
         require(LibAsset.getOwnBalance(token) >= bridgeAmount, "AmountErr");
 
         (
-        ISo.NormalizedSoData memory _soDataNo,
-        LibSwap.NormalizedSwapData[] memory _swapDataDstNo
+            ISo.NormalizedSoData memory _soDataNo,
+            LibSwap.NormalizedSwapData[] memory _swapDataDstNo
         ) = decodeBoolSwapPayload(payload);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(_soDataNo);
@@ -173,7 +186,9 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
         // Not allow transfer to other
         soData.receiver = payable(address(this));
 
-        LibSwap.SwapData[] memory swapDataDst = LibCross.denormalizeSwapData(_swapDataDstNo);
+        LibSwap.SwapData[] memory swapDataDst = LibCross.denormalizeSwapData(
+            _swapDataDstNo
+        );
 
         uint256 amount = bridgeAmount;
         uint256 soFee = getBoolSoFee(amount);
@@ -252,9 +267,15 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
         // Check if the destination chain has been supported by a specific Anchor (if necessary)
 
         // Give BoolSwap approval if necessary
-        address boolSwapToken = _getBoolSwapTokenByPoolId(boolSwapData.srcBoolSwapPoolId);
+        address boolSwapToken = _getBoolSwapTokenByPoolId(
+            boolSwapData.srcBoolSwapPoolId
+        );
         if (boolSwapToken != NATIVE_ADDRESS_IN_BS) {
-            LibAsset.maxApproveERC20(IERC20(boolSwapToken), router, bridgeAmount);
+            LibAsset.maxApproveERC20(
+                IERC20(boolSwapToken),
+                router,
+                bridgeAmount
+            );
         }
 
         // Convert the data type of SoDiamond on the destination chain from address to bytes32
@@ -270,13 +291,21 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
         );
     }
 
-    function _getBoolSwapPoolByPoolId(uint32 poolId) private view returns (address) {
+    function _getBoolSwapPoolByPoolId(uint32 poolId)
+        private
+        view
+        returns (address)
+    {
         Storage storage s = getStorage();
         address factory = s.boolSwapFactory;
         return IBoolSwapFactory(factory).fetchPool(poolId);
     }
 
-    function _getBoolSwapTokenByPoolId(uint32 poolId) private view returns (address) {
+    function _getBoolSwapTokenByPoolId(uint32 poolId)
+        private
+        view
+        returns (address)
+    {
         return IBoolSwapPool(_getBoolSwapPoolByPoolId(poolId)).token();
     }
 
@@ -294,14 +323,21 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
         uint256 amount
     ) internal view returns (bool) {
         if (currentAssetId == expectAssetId) {
-            require(LibAsset.getOwnBalance(currentAssetId) >= amount, "NotEnough");
+            require(
+                LibAsset.getOwnBalance(currentAssetId) >= amount,
+                "NotEnough"
+            );
             return false;
         } else {
             require(
-                LibAsset.isNativeAsset(currentAssetId) && expectAssetId == NATIVE_ADDRESS_IN_BS,
+                LibAsset.isNativeAsset(currentAssetId) &&
+                    expectAssetId == NATIVE_ADDRESS_IN_BS,
                 "WrongConfig"
             );
-            require(LibAsset.getOwnBalance(currentAssetId) >= amount, "NotEnough");
+            require(
+                LibAsset.getOwnBalance(currentAssetId) >= amount,
+                "NotEnough"
+            );
             return true;
         }
     }
@@ -321,7 +357,9 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
         );
 
         if (swapDataDst.length > 0) {
-            bytes memory swapLenBytes = LibCross.serializeU256WithHexStr(swapDataDst.length);
+            bytes memory swapLenBytes = LibCross.serializeU256WithHexStr(
+                swapDataDst.length
+            );
             encodeData = encodeData.concat(
                 abi.encodePacked(uint8(swapLenBytes.length), swapLenBytes)
             );
@@ -353,15 +391,13 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function decodeBoolSwapPayload(
-        bytes memory stargatePayload
-    )
-    public
-    pure
-    returns (
-        ISo.NormalizedSoData memory soData,
-        LibSwap.NormalizedSwapData[] memory swapDataDst
-    )
+    function decodeBoolSwapPayload(bytes memory stargatePayload)
+        public
+        pure
+        returns (
+            ISo.NormalizedSoData memory soData,
+            LibSwap.NormalizedSwapData[] memory swapDataDst
+        )
     {
         CachePayload memory data;
         uint256 index;
@@ -394,23 +430,35 @@ contract BoolFacet is Swapper, ReentrancyGuard, BoolSwapPathConverter, IBoolSwap
             for (uint256 i = 0; i < swap_len; i++) {
                 nextLen = uint256(stargatePayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].callTo = stargatePayload.slice(index, nextLen);
+                data.swapDataDst[i].callTo = stargatePayload.slice(
+                    index,
+                    nextLen
+                );
                 data.swapDataDst[i].approveTo = data.swapDataDst[i].callTo;
                 index += nextLen;
 
                 nextLen = uint256(stargatePayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].sendingAssetId = stargatePayload.slice(index, nextLen);
+                data.swapDataDst[i].sendingAssetId = stargatePayload.slice(
+                    index,
+                    nextLen
+                );
                 index += nextLen;
 
                 nextLen = uint256(stargatePayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].receivingAssetId = stargatePayload.slice(index, nextLen);
+                data.swapDataDst[i].receivingAssetId = stargatePayload.slice(
+                    index,
+                    nextLen
+                );
                 index += nextLen;
 
                 nextLen = uint256(stargatePayload.toUint16(index));
                 index += 2;
-                data.swapDataDst[i].callData = stargatePayload.slice(index, nextLen);
+                data.swapDataDst[i].callData = stargatePayload.slice(
+                    index,
+                    nextLen
+                );
                 index += nextLen;
             }
         }
