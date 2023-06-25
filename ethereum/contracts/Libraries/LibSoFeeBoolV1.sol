@@ -17,11 +17,9 @@ contract LibSoFeeBoolV1 is ILibSoFee, Ownable, ReentrancyGuard {
 
     uint256 public constant DENOMINATOR = 1e18;
     uint256 public soFee;
-    uint256 public transferForGas;
 
-    constructor(uint256 _soFee, uint256 _transferForGas) {
+    constructor(uint256 _soFee) {
         soFee = _soFee;
-        transferForGas = _transferForGas;
     }
 
     function setFee(uint256 _soFee) external onlyOwner {
@@ -48,14 +46,6 @@ contract LibSoFeeBoolV1 is ILibSoFee, Ownable, ReentrancyGuard {
         // calculate the so fee
         s = _amount.mul(soFee).div(DENOMINATOR);
         return s;
-    }
-
-    function setTransferForGas(uint256 _transferForGas) external onlyOwner {
-        transferForGas = _transferForGas;
-    }
-
-    function getTransferForGas() external view override returns (uint256) {
-        return transferForGas;
     }
 
     function getVersion() external pure override returns (string memory) {

@@ -12,11 +12,13 @@ from brownie import (
     LibCorrectSwapV1,
     WormholeFacet,
     SerdeFacet,
-    network,
     LibSoFeeCelerV1,
     CelerFacet,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
+    BoolFacet,
+    LibSoFeeBoolV1,
+    network,
 )
 from brownie.network import priority_fee
 
@@ -39,6 +41,7 @@ def deploy_contracts(account):
         CelerFacet,
         MultiChainFacet,
         WormholeFacet,
+        BoolFacet,
         WithdrawFacet,
         OwnershipFacet,
         GenericSwapFacet,
@@ -68,6 +71,10 @@ def deploy_contracts(account):
     print("deploy LibSoFeeWormholeV1.sol...")
 
     LibSoFeeWormholeV1.deploy(int(so_fee * ray), {"from": account})
+
+    print("deploy LibSoFeeBoolV1.sol...")
+
+    LibSoFeeBoolV1.deploy(int(so_fee * ray), {"from": account})
 
     print("deploy LibCorrectSwapV1...")
     LibCorrectSwapV1.deploy({"from": account})

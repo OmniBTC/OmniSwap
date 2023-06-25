@@ -156,7 +156,7 @@ contract BoolFacet is
             ? boolFee + bridgeAmount
             : boolFee;
 
-        _startBride(boolSwapData, boolSwapValue, bridgeAmount, payload);
+        _startBridge(boolSwapData, boolSwapValue, bridgeAmount, payload);
 
         emit SoTransferStarted(soData.transactionId);
     }
@@ -254,7 +254,7 @@ contract BoolFacet is
     }
 
     /** Private/Internal Functions */
-    function _startBride(
+    function _startBridge(
         BoolSwapData calldata boolSwapData,
         uint256 boolSwapValue,
         uint256 bridgeAmount,
