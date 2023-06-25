@@ -466,6 +466,25 @@ contract BoolFacet is
         return (data.soData, data.swapDataDst);
     }
 
+    function estimateBoolFee(
+        ISo.NormalizedSoData calldata soDataNo,
+        BoolSwapData calldata boolSwapData,
+        uint256 bridgeAmount,
+        LibSwap.NormalizedSwapData[] calldata swapDataDstNo
+    ) public view returns (uint256) {
+        Storage storage s = getStorage();
+
+        bytes memory payload = encodeBoolSwapPayload(soDataNo, swapDataDstNo);
+        uint256 boolFee = IBoolSwapRouter(s.boolSwapRouter).estimateBNFee(
+            boolSwapData.srcBoolSwapPoolId,
+            boolSwapData.dstBoolSwapChainId,
+            bridgeAmount,
+            boolSwapData.dstSoDiamond,
+            payload
+        );
+        return boolFee;
+    }
+
     /// @dev Get so fee
     function getBoolSoFee(uint256 amount) public view returns (uint256) {
         Storage storage s = getStorage();

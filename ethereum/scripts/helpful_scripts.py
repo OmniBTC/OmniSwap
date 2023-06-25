@@ -234,6 +234,10 @@ def get_bool_chainid():
     return get_bool_info()["chainid"]
 
 
+def get_bool_pool_id(pool_name):
+    return get_bool_info()[pool_name]["pool_id"]
+
+
 def get_oracles():
     return get_current_net_info()["oracle"]
 

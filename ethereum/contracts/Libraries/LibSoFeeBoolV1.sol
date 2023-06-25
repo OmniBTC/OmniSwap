@@ -48,6 +48,10 @@ contract LibSoFeeBoolV1 is ILibSoFee, Ownable, ReentrancyGuard {
         return s;
     }
 
+    function getTransferForGas() external view override returns (uint256) {
+        return 0;
+    }
+
     function getVersion() external pure override returns (string memory) {
         return "BoolV1";
     }
