@@ -1,4 +1,3 @@
-from pprint import pprint
 from brownie import (
     DiamondCutFacet,
     SoDiamond,
@@ -17,6 +16,8 @@ from brownie import (
     WormholeFacet,
     SerdeFacet,
     LibSoFeeWormholeV1,
+    BoolFacet,
+    LibSoFeeBoolV1,
     web3,
     CelerFacet,
     LibSoFeeCelerV1,
@@ -24,6 +25,8 @@ from brownie import (
     LibSoFeeMultiChainV1,
 )
 from brownie.network import priority_fee
+
+from ethereum.scripts.helpful_scripts import get_bool_router, get_bool_chainid
 
 FacetCutAction_ADD = 0
 FacetCutAction_REPLACE = 1
@@ -70,6 +73,10 @@ def main():
         initialize_stargate(account, so_diamond)
     except Exception as e:
         print(f"initialize_stargate fail:{e}")
+    try:
+        initialize_bool(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_bool fail:{e}")
     try:
         initialize_celer(account, so_diamond)
     except Exception as e:
@@ -166,6 +173,7 @@ def initialize_cut(account, so_diamond):
         CelerFacet,
         MultiChainFacet,
         StargateFacet,
+        BoolFacet,
         WormholeFacet,
         WithdrawFacet,
         GenericSwapFacet,
@@ -198,6 +206,15 @@ def initialize_stargate(account, so_diamond):
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
     )
+
+
+def initialize_bool(account, so_diamond):
+    proxy_bool = Contract.from_abi(
+        "BoolFacet", so_diamond.address, BoolFacet.abi
+    )
+    net = network.show_active()
+    print(f"network:{net}, init bool...")
+    proxy_bool.initBoolSwap(get_bool_router(), get_bool_chainid(), {"from": account})
 
 
 def initialize_celer(account, so_diamond):
@@ -318,6 +335,9 @@ def initialize_dex_manager(account, so_diamond):
     # register fee lib
     proxy_dex.addFee(
         get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+    )
+    proxy_dex.addFee(
+        get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
     )
     proxy_dex.addFee(
         get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}

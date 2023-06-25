@@ -145,14 +145,14 @@ class TaskType:
 
 class Session(Process):
     def __init__(
-        self,
-        net: str,
-        project_path: Union[Path, str, None],
-        group=None,
-        name=None,
-        kwargs={},
-        *,
-        daemon=None,
+            self,
+            net: str,
+            project_path: Union[Path, str, None],
+            group=None,
+            name=None,
+            kwargs={},
+            *,
+            daemon=None,
     ):
         self.net = net
         self.project_path = project_path
@@ -220,6 +220,18 @@ def get_wormhole_actual_reserve():
 
 def get_wormhole_estimate_reserve():
     return get_wormhole_info()["estimate_reserve"]
+
+
+def get_bool_info():
+    return get_current_net_info()["bridges"]["bool"]
+
+
+def get_bool_router():
+    return get_bool_info()["router"]
+
+
+def get_bool_chainid():
+    return get_bool_info()["chainid"]
 
 
 def get_oracles():
@@ -320,7 +332,7 @@ def get_token_address(token_name: str):
 
 def get_token_decimal(token_name: str):
     if token_name == "eth":
-        return 10**18
+        return 10 ** 18
     else:
         return 10 ** get_token_info(token_name)["decimal"]
 
@@ -338,7 +350,7 @@ def get_bridge_token_address(bridge: str, token_name: str):
 
 def get_bridge_token_decimal(bridge: str, token_name: str):
     if token_name == "eth":
-        return 10**18
+        return 10 ** 18
     else:
         return 10 ** get_bridge_token_info(bridge, token_name)["decimal"]
 
