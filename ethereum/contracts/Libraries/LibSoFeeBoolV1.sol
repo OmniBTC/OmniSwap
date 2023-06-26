@@ -15,7 +15,7 @@ contract LibSoFeeBoolV1 is ILibSoFee, Ownable, ReentrancyGuard {
     //---------------------------------------------------------------------------
     // VARIABLES
 
-    uint256 public constant DENOMINATOR = 1e18;
+    uint256 public constant RAY = 1e27;
     uint256 public soFee;
 
     constructor(uint256 _soFee) {
@@ -26,25 +26,25 @@ contract LibSoFeeBoolV1 is ILibSoFee, Ownable, ReentrancyGuard {
         soFee = _soFee;
     }
 
-    function getRestoredAmount(uint256 _amount)
+    function getRestoredAmount(uint256 _amountIn)
         external
         view
         override
         returns (uint256 r)
     {
         // calculate the amount to be restored
-        r = _amount.mul(DENOMINATOR).div((DENOMINATOR - soFee));
+        r = _amountIn.mul(RAY).div((RAY - soFee));
         return r;
     }
 
-    function getFees(uint256 _amount)
+    function getFees(uint256 _amountIn)
         external
         view
         override
         returns (uint256 s)
     {
         // calculate the so fee
-        s = _amount.mul(soFee).div(DENOMINATOR);
+        s = _amountIn.mul(soFee).div(RAY);
         return s;
     }
 

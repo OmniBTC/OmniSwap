@@ -16,7 +16,10 @@ from helpful_scripts import (
     get_token_decimal,
     get_chain_id,
     get_swap_info,
-    to_hex_str, get_account_address, get_bool_pool_id, get_bool_chainid,
+    to_hex_str,
+    get_account_address,
+    get_bool_pool_id,
+    get_bool_chainid,
 )
 
 uniswap_v3_fee_decimal = 1e6
@@ -509,7 +512,7 @@ def estimate_bool_fee(
     proxy_diamond = Contract.from_abi(
         "BoolFacet", p["SoDiamond"][-1].address, p["BoolFacet"].abi
     )
-    return proxy_diamond.estimateBoolFee.estimate_gas(
+    return proxy_diamond.estimateBoolFee(
         so_data.format_to_contract(),
         bool_data.format_to_contract(),
         bridge_amount,
@@ -526,9 +529,9 @@ def so_swap_via_bool(so_data, src_swap_data, bool_data, dst_swap_data, input_val
 
     proxy_diamond.soSwapViaBool(
         so_data.format_to_contract(),
-        src_swap_data.format_to_contract(),
+        [] if src_swap_data is None else [src_swap_data.format_to_contract()],
         bool_data.format_to_contract(),
-        dst_swap_data.format_to_contract(),
+        [] if dst_swap_data is None else [dst_swap_data.format_to_contract()],
         {"from": account, "value": int(input_value)},
     )
 
@@ -622,9 +625,10 @@ def cross_swap_via_bool(
     else:
         input_eth_amount = inputAmount
 
-    src_pool_id = src_session.put_task(get_bool_pool_id, args=sourceTokenName, with_project=True)
-    dst_chain_id = dst_session.put_task(get_bool_chainid, with_project=True)
+    src_pool_id = src_session.put_task(get_bool_pool_id, args=(sourceTokenName,))
+    dst_chain_id = dst_session.put_task(get_bool_chainid)
     bool_data = BoolData(src_pool_id, dst_chain_id, dst_diamond_address)
+    print(f"BoolData: {bool_data.format_to_contract()}")
 
     bool_fee = src_session.put_task(
         estimate_bool_fee,
@@ -636,6 +640,7 @@ def cross_swap_via_bool(
         ),
         with_project=True,
     )
+    print(f"Bool fee: {bool_fee / 1e18} ETH")
 
     input_value = input_eth_amount + bool_fee
     print(f"Input value: {input_value}")
@@ -653,7 +658,7 @@ def cross_swap_via_bool(
     )
 
 
-def main(src_net="polygon-test", dst_net="bsc-test"):
+def main(src_net="bsc-test", dst_net="polygon-test"):
     global src_session
     global dst_session
     src_session = Session(
@@ -667,8 +672,8 @@ def main(src_net="polygon-test", dst_net="bsc-test"):
         src_session=src_session,
         dst_session=dst_session,
         inputAmount=1e6,
-        sourceTokenName="usdc",
-        destinationTokenName="usdc",
+        sourceTokenName="bool-usdc",
+        destinationTokenName="bool-usdc",
         sourceSwapType=None,
         sourceSwapFunc=None,
         sourceSwapPath=None,

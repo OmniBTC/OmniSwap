@@ -82,7 +82,7 @@ contract BoolFacet is
         emit BoolSwapInitialized(router, factory, chainId);
     }
 
-    function batchSetAllowedAddresses(
+    function batchSetBoolAllowedAddresses(
         address[] calldata boolSwapPools,
         bool[] calldata isAllowed
     ) external {

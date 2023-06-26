@@ -234,8 +234,14 @@ def get_bool_chainid():
     return get_bool_info()["chainid"]
 
 
-def get_bool_pool_id(pool_name):
-    return get_bool_info()[pool_name]["pool_id"]
+def get_bool_pool_id(pool_name: str):
+    if "bool" in pool_name:
+        pool_name = pool_name.split("-")[-1]
+    return get_bool_info()["pools"][pool_name]["pool_id"]
+
+
+def get_bool_pools():
+    return get_bool_info()["pools"]
 
 
 def get_oracles():
