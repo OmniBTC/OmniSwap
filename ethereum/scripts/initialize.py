@@ -26,13 +26,12 @@ from brownie import (
 )
 from brownie.network import priority_fee
 
-from ethereum.scripts.helpful_scripts import get_bool_pools
-
 FacetCutAction_ADD = 0
 FacetCutAction_REPLACE = 1
 FacetCutAction_REMOVE = 2
 
 from scripts.helpful_scripts import (
+    get_bool_pools,
     get_bool_router,
     get_bool_chainid,
     get_account,
@@ -605,12 +604,12 @@ def add_cut(contracts: list = None):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
-def add_dex():
+def add_dex(dex_address):
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addDex(
-        "0x1b81D678ffb9C0263b24A97847620C99d213eB14", {"from": get_account()}
+        dex_address, {"from": get_account()}
     )
     proxy_dex.batchSetFunctionApprovalBySignature(
         [v + "0" * 56 for v in list(interface.ISwapRouter.selectors.keys())],

@@ -240,6 +240,14 @@ def get_bool_pool_id(pool_name: str):
     return get_bool_info()["pools"][pool_name]["pool_id"]
 
 
+def get_bool_pool_id_by_token(token_address: str):
+    pools = get_bool_pools()
+    for pool in pools:
+        if pools[pool]["token_address"] == token_address:
+            return pools[pool]["pool_id"]
+    raise ValueError("Bool pool id not found")
+
+
 def get_bool_pools():
     return get_bool_info()["pools"]
 

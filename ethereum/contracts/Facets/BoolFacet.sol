@@ -183,14 +183,36 @@ contract BoolFacet is
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(_soDataNo);
 
-        // Not allow transfer to other
-        soData.receiver = payable(address(this));
-
         LibSwap.SwapData[] memory swapDataDst = LibCross.denormalizeSwapData(
             _swapDataDstNo
         );
 
         uint256 amount = bridgeAmount;
+
+        try
+            this.remoteSoSwap(token, amount, soData, swapDataDst)
+        {} catch Error(string memory revertReason) {
+            transferUnwrappedAsset(token, token, amount, soData.receiver);
+            emit SoTransferFailed(
+                soData.transactionId,
+                revertReason,
+                bytes("")
+            );
+        } catch (bytes memory returnData) {
+            transferUnwrappedAsset(token, token, amount, soData.receiver);
+            emit SoTransferFailed(soData.transactionId, "", returnData);
+        }
+    }
+
+    /// @dev For internal calls only, do not add it to DiamondCut,
+    ///      convenient for sgReceive to catch exceptions
+    function remoteSoSwap(
+        address token,
+        uint256 amount,
+        ISo.SoData calldata soData,
+        LibSwap.SwapData[] memory swapDataDst
+    ) external {
+        require(msg.sender == address(this), "NotDiamond");
         uint256 soFee = getBoolSoFee(amount);
         if (soFee < amount) {
             amount = amount.sub(soFee);

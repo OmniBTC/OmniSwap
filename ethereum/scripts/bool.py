@@ -19,7 +19,7 @@ from helpful_scripts import (
     to_hex_str,
     get_account_address,
     get_bool_pool_id,
-    get_bool_chainid,
+    get_bool_chainid, get_bool_pool_id_by_token,
 )
 
 uniswap_v3_fee_decimal = 1e6
@@ -625,7 +625,9 @@ def cross_swap_via_bool(
     else:
         input_eth_amount = inputAmount
 
-    src_pool_id = src_session.put_task(get_bool_pool_id, args=(sourceTokenName,))
+    src_pool_id = src_session.put_task(get_bool_pool_id, args=(
+        sourceTokenName,)) if src_swap_data is None else src_session.put_task(get_bool_pool_id_by_token, args=(
+        src_swap_data.receivingAssetId,))
     dst_chain_id = dst_session.put_task(get_bool_chainid)
     bool_data = BoolData(src_pool_id, dst_chain_id, dst_diamond_address)
     print(f"BoolData: {bool_data.format_to_contract()}")
@@ -668,19 +670,54 @@ def main(src_net="bsc-test", dst_net="polygon-test"):
         net=dst_net, project_path=root_path, name=dst_net, daemon=False
     )
 
+    # without swap
+    # cross_swap_via_bool(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=1e6,
+    #     sourceTokenName="bool-usdc",
+    #     destinationTokenName="bool-usdc",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
+
+    # without swap but native
+
+    # only src swap
+    # cross_swap_via_bool(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=1e5,
+    #     sourceTokenName="bool-usdc",
+    #     destinationTokenName="bool-usdt",
+    #     sourceSwapType=SwapType.IUniswapV2Router02,
+    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     sourceSwapPath=("bool-usdc", "bool-usdt"),
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
+
+    # only dst swap
     cross_swap_via_bool(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=1e6,
+        inputAmount=1e5,
         sourceTokenName="bool-usdc",
-        destinationTokenName="bool-usdc",
+        destinationTokenName="bool-usdt",
         sourceSwapType=None,
         sourceSwapFunc=None,
         sourceSwapPath=None,
-        destinationSwapType=None,
-        destinationSwapFunc=None,
-        destinationSwapPath=None,
+        destinationSwapType=SwapType.IUniswapV2Router02,
+        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+        destinationSwapPath=("bool-usdc", "bool-usdt"),
     )
+
+    # src and dst swap
 
     src_session.terminate()
     dst_session.terminate()
