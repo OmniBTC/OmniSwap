@@ -103,6 +103,7 @@ def main():
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
     # initialize_little_token_for_stargate()
+    batch_set_bool_allowed_address(account, so_diamond)
 
 
 def initialize_wormhole_fee(account):
@@ -224,6 +225,7 @@ def batch_set_bool_allowed_address(account, so_diamond):
     bool_facet = Contract.from_abi(
         "BoolFacet", so_diamond.address, BoolFacet.abi
     )
+    print("set bool allowed addresses...")
 
     pool_addresses = []
     allow = []
@@ -487,6 +489,17 @@ def redeploy_stargate():
     StargateFacet.deploy({"from": account})
     add_cut([StargateFacet])
     initialize_stargate(account, SoDiamond[-1])
+
+
+def redeploy_bool():
+    account = get_account()
+
+    remove_facet(BoolFacet)
+
+    BoolFacet.deploy({'from': account})
+    add_cut([BoolFacet])
+    initialize_bool(account, SoDiamond[-1])
+    batch_set_bool_allowed_address(account, SoDiamond[-1])
 
 
 # redeploy and initialize

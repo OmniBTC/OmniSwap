@@ -718,6 +718,19 @@ def main(src_net="bsc-test", dst_net="polygon-test"):
     )
 
     # src and dst swap
+    # cross_swap_via_bool(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=1e5,
+    #     sourceTokenName="bool-usdc",
+    #     destinationTokenName="bool-usdc",
+    #     sourceSwapType=SwapType.IUniswapV2Router02,
+    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     sourceSwapPath=("bool-usdc", "bool-usdt"),
+    #     destinationSwapType=SwapType.IUniswapV2Router02,
+    #     destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     destinationSwapPath=("bool-usdt", "bool-usdc"),
+    # )
 
     src_session.terminate()
     dst_session.terminate()

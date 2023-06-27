@@ -190,7 +190,7 @@ contract BoolFacet is
         uint256 amount = bridgeAmount;
 
         try
-            this.remoteSoSwap(token, amount, soData, swapDataDst)
+            this.remoteBoolSwap(token, amount, soData, swapDataDst)
         {} catch Error(string memory revertReason) {
             transferUnwrappedAsset(token, token, amount, soData.receiver);
             emit SoTransferFailed(
@@ -206,7 +206,7 @@ contract BoolFacet is
 
     /// @dev For internal calls only, do not add it to DiamondCut,
     ///      convenient for sgReceive to catch exceptions
-    function remoteSoSwap(
+    function remoteBoolSwap(
         address token,
         uint256 amount,
         ISo.SoData calldata soData,
@@ -505,6 +505,17 @@ contract BoolFacet is
             payload
         );
         return boolFee;
+    }
+
+    /// @dev Get remain gas for transfer
+    function getBoolTransferGas() public view returns (uint256) {
+        Storage storage s = getStorage();
+        address soFee = appStorage.gatewaySoFeeSelectors[s.boolSwapRouter];
+        if (soFee == address(0x0)) {
+            return 30000;
+        } else {
+            return ILibSoFee(soFee).getTransferForGas();
+        }
     }
 
     /// @dev Get so fee
