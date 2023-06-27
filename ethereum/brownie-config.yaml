@@ -121,6 +121,28 @@ networks:
           dst_chainid: 10
           base_gas: 700000
           per_byte_gas: 68
+    bridges:
+      bool:
+        chainid: 5
+        router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"
+        factory: "0xb4955284d44A910dD98c22B0D3a015E7860CA121"
+        messenger: "0xF68F872F0DDE0Ec1Ba8c28EeD9d0674760aA8eB1"
+        pools:
+          eth:
+            pool_id: 3
+            decimals: 18
+            pool_address: "0x6111a6d2f39e19e761e16dea79599d9c83da0e1f"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x57402f6846bee23fe86bc320155301c122c30cc3"
+            token_address: "0x21259854f492703fe55e1f6623b474dd35b3d388"
+          usdt:
+            pool_id: 4
+            decimals: 6
+            pool_address: "0x00443234cdc48a5f56dbc52297eb80cb51ed4242"
+            token_address: "0xd12270aef00fc2bf2b7c0bcab8ad2868a7d987c3"
     oracle:
       eth:
         chainid: 2
@@ -128,6 +150,15 @@ networks:
         currency: USD
         address: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
     token:
+      bool-usdt:
+        address: "0xd12270aef00fc2bf2b7c0bcab8ad2868a7d987c3"
+        decimal: 6
+      bool-usdc:
+        address: "0x21259854f492703fe55e1f6623b474dd35b3d388"
+        decimal: 6
+      bool-eth:
+        address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+        decimal: 18
       usdt:
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 18
