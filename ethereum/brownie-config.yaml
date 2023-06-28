@@ -1320,6 +1320,22 @@ networks:
     #          base_gas: 700000
     #          per_byte_gas: 68
     bridges:
+      bool:
+        chainid: 137
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x09135a91F6cB6ED6DBdd947FC09a533B4F7AB84D"
+            token_address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+          usdt:
+            pool_id: 1
+            decimals: 6
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
       celer:
         chainid: 137
         message_bus: "0xaFDb9C40C7144022811F034EE07Ce2E110093fe6"
