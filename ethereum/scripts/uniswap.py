@@ -38,6 +38,9 @@ def batch_add_liquidity():
 
 
 def create_pair_and_add_liquidity(token1_address, token2_address):
+    if network.show_active() in ["rinkeby", "goerli"]:
+        priority_fee("1 gwei")
+
     account = get_account()
     # # usdc
     # token1_address = get_token_address("test")

@@ -660,7 +660,7 @@ def cross_swap_via_bool(
     )
 
 
-def main(src_net="bsc-test", dst_net="polygon-test"):
+def main(src_net="optimism-test", dst_net="goerli"):
     global src_session
     global dst_session
     src_session = Session(
@@ -686,6 +686,19 @@ def main(src_net="bsc-test", dst_net="polygon-test"):
     # )
 
     # without swap but native
+    cross_swap_via_bool(
+        src_session=src_session,
+        dst_session=dst_session,
+        inputAmount=1e15,
+        sourceTokenName="eth",
+        destinationTokenName="eth",
+        sourceSwapType=None,
+        sourceSwapFunc=None,
+        sourceSwapPath=None,
+        destinationSwapType=None,
+        destinationSwapFunc=None,
+        destinationSwapPath=None,
+    )
 
     # only src swap
     # cross_swap_via_bool(
@@ -703,19 +716,19 @@ def main(src_net="bsc-test", dst_net="polygon-test"):
     # )
 
     # only dst swap
-    cross_swap_via_bool(
-        src_session=src_session,
-        dst_session=dst_session,
-        inputAmount=1e5,
-        sourceTokenName="bool-usdc",
-        destinationTokenName="bool-usdt",
-        sourceSwapType=None,
-        sourceSwapFunc=None,
-        sourceSwapPath=None,
-        destinationSwapType=SwapType.IUniswapV2Router02,
-        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-        destinationSwapPath=("bool-usdc", "bool-usdt"),
-    )
+    # cross_swap_via_bool(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=1e5,
+    #     sourceTokenName="bool-usdc",
+    #     destinationTokenName="bool-usdt",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationSwapType=SwapType.IUniswapV2Router02,
+    #     destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     destinationSwapPath=("bool-usdc", "bool-usdt"),
+    # )
 
     # src and dst swap
     # cross_swap_via_bool(
