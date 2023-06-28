@@ -18,9 +18,7 @@ from helpful_scripts import (
     get_swap_info,
     to_hex_str,
     get_account_address,
-    get_bool_pool_id,
-    get_bool_chainid, get_bool_pool_id_by_token,
-)
+    get_bool_chainid, get_bool_pool_id, get_bool_pool_id_by_token, )
 
 uniswap_v3_fee_decimal = 1e6
 
@@ -686,19 +684,19 @@ def main(src_net="optimism-test", dst_net="goerli"):
     # )
 
     # without swap but native
-    cross_swap_via_bool(
-        src_session=src_session,
-        dst_session=dst_session,
-        inputAmount=1e15,
-        sourceTokenName="eth",
-        destinationTokenName="eth",
-        sourceSwapType=None,
-        sourceSwapFunc=None,
-        sourceSwapPath=None,
-        destinationSwapType=None,
-        destinationSwapFunc=None,
-        destinationSwapPath=None,
-    )
+    # cross_swap_via_bool(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=1e15,
+    #     sourceTokenName="eth",
+    #     destinationTokenName="eth",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
 
     # only src swap
     # cross_swap_via_bool(
@@ -710,6 +708,21 @@ def main(src_net="optimism-test", dst_net="goerli"):
     #     sourceSwapType=SwapType.IUniswapV2Router02,
     #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
     #     sourceSwapPath=("bool-usdc", "bool-usdt"),
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
+
+    # only src swap with native
+    # cross_swap_via_bool(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=1e5,
+    #     sourceTokenName="bool-usdt",
+    #     destinationTokenName="eth",
+    #     sourceSwapType=SwapType.IUniswapV2Router02,
+    #     sourceSwapFunc=SwapFunc.swapExactTokensForETH,
+    #     sourceSwapPath=('bool-usdt', 'weth'),
     #     destinationSwapType=None,
     #     destinationSwapFunc=None,
     #     destinationSwapPath=None,
@@ -730,20 +743,35 @@ def main(src_net="optimism-test", dst_net="goerli"):
     #     destinationSwapPath=("bool-usdc", "bool-usdt"),
     # )
 
-    # src and dst swap
+    # only dst swap with native
     # cross_swap_via_bool(
     #     src_session=src_session,
     #     dst_session=dst_session,
-    #     inputAmount=1e5,
-    #     sourceTokenName="bool-usdc",
-    #     destinationTokenName="bool-usdc",
-    #     sourceSwapType=SwapType.IUniswapV2Router02,
-    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-    #     sourceSwapPath=("bool-usdc", "bool-usdt"),
+    #     inputAmount=1e15,
+    #     sourceTokenName="eth",
+    #     destinationTokenName="bool-usdt",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
     #     destinationSwapType=SwapType.IUniswapV2Router02,
-    #     destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-    #     destinationSwapPath=("bool-usdt", "bool-usdc"),
+    #     destinationSwapFunc=SwapFunc.swapExactETHForTokens,
+    #     destinationSwapPath=('weth', 'bool-usdt'),
     # )
+
+    # src and dst swap
+    cross_swap_via_bool(
+        src_session=src_session,
+        dst_session=dst_session,
+        inputAmount=1e5,
+        sourceTokenName="bool-usdc",
+        destinationTokenName="bool-usdc",
+        sourceSwapType=SwapType.IUniswapV2Router02,
+        sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+        sourceSwapPath=("bool-usdc", "bool-usdt"),
+        destinationSwapType=SwapType.IUniswapV2Router02,
+        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+        destinationSwapPath=("bool-usdt", "bool-usdc"),
+    )
 
     src_session.terminate()
     dst_session.terminate()

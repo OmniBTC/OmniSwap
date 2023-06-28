@@ -220,7 +220,7 @@ def initialize_bool(account, so_diamond):
 
 
 def batch_set_bool_allowed_address(account, so_diamond):
-    networks = ['polygon-test', 'bsc-test']
+    networks = ['optimism-main', 'arbitrum-main']
     cur_net = network.show_active()
     bool_facet = Contract.from_abi(
         "BoolFacet", so_diamond.address, BoolFacet.abi
@@ -494,7 +494,7 @@ def redeploy_stargate():
 def redeploy_bool():
     account = get_account()
 
-    remove_facet(BoolFacet)
+    # remove_facet(BoolFacet)
 
     BoolFacet.deploy({'from': account})
     add_cut([BoolFacet])
