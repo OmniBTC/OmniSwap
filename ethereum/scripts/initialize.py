@@ -494,8 +494,23 @@ def redeploy_stargate():
 def redeploy_bool():
     account = get_account()
 
+    # 1. deploy bool's lib so fee
+
+    # so_fee = 1e-3
+    # ray = 1e27
+    # LibSoFeeBoolV1.deploy(int(so_fee * ray), {"from": account})
+
+    # 2. add bool's lib so fee to diamond
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    # proxy_dex.addFee(
+    #     get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
+    # )
+
     # remove_facet(BoolFacet)
 
+    # 3. deploy BoolFacet
     BoolFacet.deploy({'from': account})
     add_cut([BoolFacet])
     initialize_bool(account, SoDiamond[-1])
