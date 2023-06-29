@@ -161,6 +161,12 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         return "";
     }
 
+    /// @dev Call connext bumpTransfer
+    function bumpTransfer(bytes32 _connextTransferId) external payable {
+        Storage storage s = getStorage();
+        IConnext(s.connext).bumpTransfer{value: msg.value}(_connextTransferId);
+    }
+
     /// @dev Get so fee
     function getConnextSoFee(uint256 amount) public view returns (uint256) {
         Storage storage s = getStorage();
