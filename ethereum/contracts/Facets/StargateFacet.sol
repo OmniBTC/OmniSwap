@@ -556,7 +556,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
 
     /// Private Methods ///
 
-    /// @dev Conatains the business logic for the bridge via Stargate
+    /// @dev Contains the business logic for the bridge via Stargate
     function _startBridge(
         StargateData calldata stargateData,
         uint256 stargateValue,

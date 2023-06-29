@@ -465,7 +465,7 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
         }
     }
 
-    /// @dev Conatains the business logic for the bridge via MultiChain
+    /// @dev Contains the business logic for the bridge via MultiChain
     function startBridge(
         MultiChainData memory multiChainData,
         uint256 bridgeAmount,

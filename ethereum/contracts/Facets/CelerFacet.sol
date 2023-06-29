@@ -800,7 +800,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         require(celerData.maxSlippage > minMaxSlippage, "maxSlippageErr");
     }
 
-    /// @dev Conatains the business logic for the bridge via Celer
+    /// @dev Contains the business logic for the bridge via Celer
     function startBridge(
         CelerData memory celerData,
         uint256 messageFee,

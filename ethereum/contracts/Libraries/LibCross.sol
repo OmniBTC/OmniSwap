@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: GPLv3
 pragma solidity 0.8.13;
 
 import {ISo} from "../Interfaces/ISo.sol";
