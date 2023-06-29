@@ -472,6 +472,10 @@ networks:
       poolid:
         usdc: 1
     bridges:
+      connext:
+        chainid: 80001
+        domain_id: 9991
+        connext: "0x2334937846Ab2A3FCE747b32587e1A1A2f6EEC5a"
       multichain:
         chainid: 80001
         fast_router: "0x8E680018D67C57889083c23786C225F730C54Fb5"
@@ -481,6 +485,12 @@ networks:
             decimal: 18
             anytoken: "0xb576C9403f39829565BD6051695E2AC7Ecf850E2"
     token:
+      connext-weth:
+        address: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9"
+        decimal: 18
+      connext-test:
+        address: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16"
+        decimal: 18
       usdc:
         address: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
         decimal: 6
@@ -513,7 +523,18 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      connext:
+        chainid: 421613
+        domain_id: 1734439522
+        connext: "0x2075c9E31f973bb53CAE5BAC36a8eeB4B082ADC2"
     token:
+      connext-test:
+        address: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
+        decimal: 18
+      connext-weth:
+        address: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
+        decimal: 18
       usdc:
         address: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
         decimal: 6
