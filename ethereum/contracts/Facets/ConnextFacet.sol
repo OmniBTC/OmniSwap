@@ -325,8 +325,6 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         }
 
         if (swapDataDst.length == 0) {
-            require(token == soData.receivingAssetId, "TokenErr");
-
             if (soFee > 0) {
                 transferUnwrappedAsset(
                     token,
@@ -343,8 +341,6 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             );
             emit SoTransferCompleted(soData.transactionId, amount);
         } else {
-            require(token == swapDataDst[0].sendingAssetId, "TokenErr");
-
             if (soFee > 0) {
                 transferUnwrappedAsset(
                     token,
