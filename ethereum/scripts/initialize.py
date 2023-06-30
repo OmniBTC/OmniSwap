@@ -1,4 +1,3 @@
-from pprint import pprint
 from brownie import (
     DiamondCutFacet,
     SoDiamond,
@@ -22,6 +21,8 @@ from brownie import (
     LibSoFeeCelerV1,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
+    LibSoFeeConnextV1,
+    ConnextFacet
 )
 from brownie.network import priority_fee
 
@@ -53,6 +54,7 @@ from scripts.helpful_scripts import (
     get_multichain_router,
     get_multichain_id,
     get_multichain_info,
+    get_connext,
 )
 
 
@@ -67,34 +69,38 @@ def main():
     except Exception as e:
         print(f"initialize_cut fail:{e}")
     try:
-        initialize_stargate(account, so_diamond)
+        initialize_connext(account, so_diamond)
     except Exception as e:
-        print(f"initialize_stargate fail:{e}")
-    try:
-        initialize_celer(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_celer fail:{e}")
-    try:
-        initialize_celer_fee(account)
-    except Exception as e:
-        print(f"initialize_celer_fee fail: {e}")
-    try:
-        initialize_multichain(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_multichain fail:{e}")
-    try:
-        initialize_wormhole(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_wormhole fail: {e}")
-    try:
-        initialize_wormhole_fee(account)
-    except Exception as e:
-        print(f"initialize_wormhole_fee fail: {e}")
+        print(f"initialize_connext fail:{e}")
+    # try:
+    #     initialize_stargate(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_stargate fail:{e}")
+    # try:
+    #     initialize_celer(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_celer fail:{e}")
+    # try:
+    #     initialize_celer_fee(account)
+    # except Exception as e:
+    #     print(f"initialize_celer_fee fail: {e}")
+    # try:
+    #     initialize_multichain(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_multichain fail:{e}")
+    # try:
+    #     initialize_wormhole(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_wormhole fail: {e}")
+    # try:
+    #     initialize_wormhole_fee(account)
+    # except Exception as e:
+    #     print(f"initialize_wormhole_fee fail: {e}")
     try:
         initialize_dex_manager(account, so_diamond)
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
-    initialize_little_token_for_stargate()
+    # initialize_little_token_for_stargate()
 
 
 def initialize_wormhole_fee(account):
@@ -163,10 +169,11 @@ def initialize_cut(account, so_diamond):
         DiamondLoupeFacet,
         DexManagerFacet,
         OwnershipFacet,
-        CelerFacet,
-        MultiChainFacet,
-        StargateFacet,
-        WormholeFacet,
+        ConnextFacet,
+        # CelerFacet,
+        # MultiChainFacet,
+        # StargateFacet,
+        # WormholeFacet,
         WithdrawFacet,
         GenericSwapFacet,
         SerdeFacet,
@@ -216,6 +223,22 @@ def initialize_celer(account, so_diamond):
     print(f"network:{net}, set base gas: {base_gas}, {dst_chains}")
 
     proxy_celer.setBaseGas(dst_chains, base_gas, {"from": account})
+
+
+def initialize_connext(account, so_diamond):
+    proxy_connext = Contract.from_abi("ConnextFacet", so_diamond.address, ConnextFacet.abi)
+
+    proxy_connext.initConnext(get_connext(), account, {"from": account})
+
+
+def set_connext_allowed_address(diamonds: list):
+    if isinstance(diamonds, str):
+        diamonds = [diamonds]
+    account = get_account()
+    so_diamond = SoDiamond[-1]
+    proxy_connext = Contract.from_abi("ConnextFacet", so_diamond.address, ConnextFacet.abi)
+    allows = [True] * len(diamonds)
+    proxy_connext.batchSetConnextAllowedAddresses(diamonds, allows, {"from": account})
 
 
 def set_celer_base_gas():
@@ -316,17 +339,20 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchAddDex(dexs, {"from": account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    # )
     proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+        get_connext(), LibSoFeeConnextV1[-1].address, {"from": account}
     )
 
 
@@ -435,6 +461,16 @@ def redeploy_generic_swap():
     remove_facet(GenericSwapFacet)
     GenericSwapFacet.deploy({"from": account})
     add_cut([GenericSwapFacet])
+
+
+def redeploy_connext():
+    account = get_account()
+
+    remove_facet(ConnextFacet)
+
+    ConnextFacet.deploy({"from": account})
+    add_cut([ConnextFacet])
+    initialize_connext(account, SoDiamond[-1])
 
 
 # redeploy and initialize
