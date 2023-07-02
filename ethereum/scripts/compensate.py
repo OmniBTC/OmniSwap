@@ -138,7 +138,6 @@ def compensate_v4():
         "0x5e447edaad94daacbed47b50add0a038771e981d0c125d4bd8476a9799da6984": "0xcf8cf5dF28dB4F4e8376C90D8CEbd5f7A4F73620",
         "0x200774e4e6759c215806f06f6e36470afd6737f94aa9f80ffd276968b577aa25": "0xd798dFAD9CE8FcD535A54E963dBD5Ea6c4985530",
         "0xbe78839e6b5bb98f9fb9cd11a0d99a2609a290464455880c94d6e98a322c7d20": "0x87B7F62CE23a8687EaF0E2C457AD0C22CA3554BF",
-        "0xb22930d7fc7af6b2e3e9be3c8fa1734802d319de6a2a1eff1888ced072fdef54": "0x633F2894300F80Be569C282E5480520eadaf6f4c",
         "0xfc3cef5fcdc8a8759a43d027b5bbc6a46180a03e9ca334b8bddf2c49eb939299": "0x6d0EcBDfdDFb204b3cabA1B07B3Ef4436c10A84b",
         "0x07a5f7ff2ee23619affb24c9b5b7a397635bb82b7ce69d70eeccae5fc4084dce": "0xA09B6900FfE71D0674fa6d4fC7e157129510Ff41",
         "0x0f0c8356e44675c8176739c36ee23f48b66db2b4e8e44a6b2420d4d15567d90b": "0x7206BC81E2C52441EEFfE120118aC880f4528dDA",
@@ -151,7 +150,7 @@ def compensate_v4():
     }
     account = get_account()
     withdraw_contract = Contract.from_abi(
-        "WithdrawFacet", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820", WithdrawFacet.abi
+        "WithdrawFacet", "0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577", WithdrawFacet.abi
     )
     for src_txid in receivers:
         cur_cmd = cmd.replace("{tx}", src_txid)
@@ -160,7 +159,7 @@ def compensate_v4():
             result = result["txSearchInfo"][0]
         if len(result["transfer"]) == 0:
             continue
-        received_amt = result["transfer"][0]["received_amt"]
+        received_amt = int(result["transfer"][0]["received_amt"])
         dst_token_addr = result["transfer"][0]["dst_token_addr"]
         dst_chain_id = result["transfer"][0]["dst_chain_id"]
         src_chain_id = result["base_info"]["src_chain_id"]
@@ -170,7 +169,7 @@ def compensate_v4():
         is_weth_flag = is_weth(dst_net, dst_token_addr)
         actual_token_addr = zero_address() if is_weth_flag else dst_token_addr
         print(
-            f"src: {src_net}, {src_txid}, dst: {dst_net}"
+            f"src: {src_net}, {src_txid}, dst: {dst_net}, "
             f"received_amt:{received_amt}, dst_token_addr:{dst_token_addr}, "
             f"receiver:{receiver}, is_weth:{is_weth_flag}, actual_token_addr:{actual_token_addr}\n"
         )

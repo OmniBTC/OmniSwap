@@ -1563,6 +1563,12 @@ networks:
         name: SpookyswapV2
         router: "0xF491e7B69E4244ad4002BC14e878a34207E38c29"
         token_list: "https://docs.spooky.fi/Resources/ftm-token-addresses"
+  zksync2-main:
+    chainid: 324
+    token:
+      weth:
+        address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
+        decimal: 18
 wallets:
   from_key: ${PRIVATE_KEY}
   from_mnemonic: ${MNEMONIC}
