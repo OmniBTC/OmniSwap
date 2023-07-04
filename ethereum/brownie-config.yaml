@@ -560,7 +560,18 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      connext:
+        chainid: 420
+        domain_id: 1735356532
+        connext: "0x5Ea1bb242326044699C3d81341c5f535d5Af1504"
     token:
+      connext-test:
+        address: "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
+        decimal: 18
+      connext-weth:
+        address: "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806"
+        decimal: 18
       usdc:
         address: "0x567f39d9e6d02078F357658f498F80eF087059aa"
         decimal: 6
