@@ -157,12 +157,14 @@ class ConnextData(View):
             dstDomain,
             dstSoDiamond,
             bridgeToken,
-            slippage
+            slippage,
+            relayFee
     ):
         self.dstDomain = dstDomain
         self.dstSoDiamond = dstSoDiamond
         self.bridgeToken = bridgeToken
         self.slippage = slippage
+        self.relayFee = relayFee
 
     def format_to_contract(self):
         """Get the Bool data passed into the contract interface"""
@@ -170,7 +172,8 @@ class ConnextData(View):
             self.dstDomain,
             self.dstSoDiamond,
             self.bridgeToken,
-            self.slippage
+            self.slippage,
+            self.relayFee
         ]
 
 
@@ -609,11 +612,11 @@ def cross_swap_via_connext(
     dst_domain = dst_session.put_task(get_connext_domain_id)
     bridge_token_name = sourceTokenName if sourceTokenName != "eth" else "connext-weth"
     bridge_token = src_session.put_task(get_token_address, args=(bridge_token_name,))
-    connext_data = ConnextData(dst_domain, dst_diamond_address, bridge_token, 300)
+    relay_fee = int(50 * 1e18)
+    connext_data = ConnextData(dst_domain, dst_diamond_address, bridge_token, 300, relay_fee)
     print(f"ConnextData: {connext_data.format_to_contract()}")
 
-    relay_fee = int(1e15)
-    input_value = input_eth_amount + relay_fee
+    input_value = input_eth_amount
     print(f"Input value: {input_value}")
 
     src_session.put_task(
@@ -629,7 +632,7 @@ def cross_swap_via_connext(
     )
 
 
-def main(src_net="arbitrum-test", dst_net="polygon-test"):
+def main(src_net="polygon-test", dst_net="arbitrum-test"):
     global src_session
     global dst_session
     src_session = Session(
@@ -643,7 +646,7 @@ def main(src_net="arbitrum-test", dst_net="polygon-test"):
     cross_swap_via_connext(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=1e18,
+        inputAmount=1e20,
         sourceTokenName="connext-test",
         destinationTokenName="connext-test",
         sourceSwapType=None,

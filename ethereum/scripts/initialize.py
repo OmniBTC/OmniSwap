@@ -466,9 +466,9 @@ def redeploy_generic_swap():
 def redeploy_connext():
     account = get_account()
 
-    remove_facet(ConnextFacet)
+    # remove_facet(ConnextFacet)
 
-    ConnextFacet.deploy({"from": account})
+    # ConnextFacet.deploy({"from": account})
     add_cut([ConnextFacet])
     initialize_connext(account, SoDiamond[-1])
 

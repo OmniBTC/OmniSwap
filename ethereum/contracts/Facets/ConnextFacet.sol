@@ -28,7 +28,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-        hex"bfb250ec550de32792eb54eef527e3bc2a5be2220e94da89b2f781a2e93fca97"; //keccak256("com.so.facets.connext");
+    hex"bfb250ec550de32792eb54eef527e3bc2a5be2220e94da89b2f781a2e93fca97"; //keccak256("com.so.facets.connext");
 
     struct Storage {
         // The Connext contract on this domain
@@ -50,6 +50,8 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         address bridgeToken;
         // Max slippage the user will accept in BPS (e.g. 300 = 3%)
         uint256 slippage;
+        // Relayer fee
+        uint256 relayFee;
     }
 
     struct CachePayload {
@@ -145,11 +147,10 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         bytes memory _callData
     ) external returns (bytes memory) {
         Storage storage s = getStorage();
-        require(s.allowedList[_originSender], "No permission");
 
         (
-            ISo.NormalizedSoData memory soDataNo,
-            LibSwap.NormalizedSwapData[] memory swapDataDstNo
+        ISo.NormalizedSoData memory soDataNo,
+        LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeConnextPayload(_callData);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -236,12 +237,12 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
     function decodeConnextPayload(bytes memory stargatePayload)
-        public
-        pure
-        returns (
-            ISo.NormalizedSoData memory soData,
-            LibSwap.NormalizedSwapData[] memory swapDataDst
-        )
+    public
+    pure
+    returns (
+        ISo.NormalizedSoData memory soData,
+        LibSwap.NormalizedSwapData[] memory swapDataDst
+    )
     {
         CachePayload memory data;
         uint256 index;
@@ -403,7 +404,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     /// @dev Calculate the fee for paying the relay
     function _getRelayFee(SoData memory soData) private view returns (uint256) {
         if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-            require(msg.value > soData.amount, "NotEnough");
+            require(msg.value >= soData.amount, "NotEnough");
             return msg.value.sub(soData.amount);
         } else {
             return msg.value;
@@ -426,16 +427,28 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             bridge,
             bridgeAmount
         );
-
-        IConnext(bridge).xcall{value: relayFee}(
-            connextData.dstDomain,
-            connextData.dstSoDiamond,
-            connextData.bridgeToken,
-            s.connextDelegate,
-            bridgeAmount,
-            connextData.slippage,
-            payload
-        );
+        if (connextData.relayFee > 0) {
+            IConnext(bridge).xcall(
+                connextData.dstDomain,
+                connextData.dstSoDiamond,
+                connextData.bridgeToken,
+                s.connextDelegate,
+                bridgeAmount,
+                connextData.slippage,
+                payload,
+                connextData.relayFee
+            );
+        } else {
+            IConnext(bridge).xcall{value: relayFee}(
+                connextData.dstDomain,
+                connextData.dstSoDiamond,
+                connextData.bridgeToken,
+                s.connextDelegate,
+                bridgeAmount,
+                connextData.slippage,
+                payload
+            );
+        }
     }
 
     /// @dev fetch local storage
