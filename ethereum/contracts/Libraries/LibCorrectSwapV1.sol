@@ -5,6 +5,7 @@ pragma solidity 0.8.13;
 import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
 import {ISyncSwapRouter} from "../Interfaces/ISyncSwapRouter.sol";
 import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
+import {IStableSwap} from "../Interfaces/IStableSwap.sol";
 
 contract LibCorrectSwapV1 {
     // Exact search for supported function signatures
@@ -50,6 +51,8 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC10 =
         IMuteRouter.swapExactTokensForTokens.selector;
 
+    bytes4 private constant _FUNC11 = IStableSwap.swapExact.selector;
+
     //---------------------------------------------------------------------------
     // External Method
 
@@ -80,6 +83,8 @@ contract LibCorrectSwapV1 {
             return tryMuteSwap(_data, _amount);
         } else if (sig == _FUNC10) {
             return tryMuteSwap(_data, _amount);
+        } else if (sig == _FUNC11) {
+            return tryConnextSwap(_data, _amount);
         }
 
         // fuzzy matching
@@ -235,6 +240,47 @@ contract LibCorrectSwapV1 {
                 _to,
                 _deadline,
                 _stable
+            );
+    }
+
+    function tryConnextSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.connextSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("connextSwap fail!");
+        }
+    }
+
+    function connextSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            bytes32 _key,
+            ,
+            address assetIn,
+            address assetOut,
+            uint256 minAmountOut,
+            uint256 deadline
+        ) = abi.decode(
+                _data[4:],
+                (bytes32, uint256, address, address, uint256, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _key,
+                _amount,
+                assetIn,
+                assetOut,
+                minAmountOut,
+                _deadline
             );
     }
 }
