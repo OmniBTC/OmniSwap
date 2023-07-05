@@ -110,8 +110,31 @@ def compensate_set_celer_base_gas():
     set_celer_base_gas("avax-main", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820")
 
 
+def compensate_set_price_ratio():
+    set_price_ratio("mainnet", "0xf5110f6211a9202c257602CdFb055B161163a99d")
+
+    set_price_ratio("optimism-main", "0x19370bE0D726A88d3e6861301418f3daAe3d798E")
+
+    set_price_ratio("zksync2-main", "0x8bB2d077D0911459d80d5010f85EBa2232ca6d25")
+
+    set_price_ratio("arbitrum-main", "0x937AfcA1bb914405D37D55130184ac900ce5961f")
+
+
+def set_price_ratio(network, celer_so_fee):
+    print(f"====={network}=====")
+    account = get_account()
+    change_network(network)
+
+    proxy_celer_fee = Contract.from_abi(
+        "LibSoFeeCelerV1", celer_so_fee, LibSoFeeCelerV1.abi
+    )
+
+    proxy_celer_fee.setPriceRatio(1011, 1e27, {"from": account})
+
+
 def set_celer_base_gas(network, so_diamond):
     account = get_account()
+    change_network(network)
 
     base_gas = 700000
     dst_chains = [1101]
