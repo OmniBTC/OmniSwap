@@ -1570,6 +1570,17 @@ networks:
         address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
         decimal: 18
   zkevm-main:
+    swap:
+      IQuickSwapRouter:
+        name: QuickSwapV3
+        router: "0xF6Ad3CcF71Abb3E12beCf6b3D2a74C963859ADCd"
+        token_list: ""
+        quoter: "0x55BeE1bD3Eb9986f6d2d963278de09eE92a3eF1D"
+      ISwapRouter:
+        name: PancakeSwapV3
+        router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+        token_list: ""
+        quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
     bridges:
       celer:
         chainid: 1101
