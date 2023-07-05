@@ -28,7 +28,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-        hex"bfb250ec550de32792eb54eef527e3bc2a5be2220e94da89b2f781a2e93fca97"; //keccak256("com.so.facets.connext");
+    hex"bfb250ec550de32792eb54eef527e3bc2a5be2220e94da89b2f781a2e93fca97"; //keccak256("com.so.facets.connext");
 
     struct Storage {
         // The Connext contract on this domain
@@ -149,8 +149,8 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         Storage storage s = getStorage();
 
         (
-            ISo.NormalizedSoData memory soDataNo,
-            LibSwap.NormalizedSwapData[] memory swapDataDstNo
+        ISo.NormalizedSoData memory soDataNo,
+        LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeConnextPayload(_callData);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -237,12 +237,12 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
     function decodeConnextPayload(bytes memory stargatePayload)
-        public
-        pure
-        returns (
-            ISo.NormalizedSoData memory soData,
-            LibSwap.NormalizedSwapData[] memory swapDataDst
-        )
+    public
+    pure
+    returns (
+        ISo.NormalizedSoData memory soData,
+        LibSwap.NormalizedSwapData[] memory swapDataDst
+    )
     {
         CachePayload memory data;
         uint256 index;
@@ -327,34 +327,27 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
 
         if (swapDataDst.length == 0) {
             if (soFee > 0) {
-                transferUnwrappedAsset(
+                LibAsset.transferAsset(
                     token,
-                    soData.receivingAssetId,
-                    soFee,
-                    LibDiamond.contractOwner()
+                    payable(LibDiamond.contractOwner()),
+                    soFee
                 );
             }
-            transferUnwrappedAsset(
-                token,
-                soData.receivingAssetId,
-                amount,
-                soData.receiver
-            );
+
+            LibAsset.transferAsset(token, payable(soData.receiver), amount);
             emit SoTransferCompleted(soData.transactionId, amount);
         } else {
             if (soFee > 0) {
-                transferUnwrappedAsset(
-                    token,
+                LibAsset.transferAsset(
                     swapDataDst[0].sendingAssetId,
-                    soFee,
-                    LibDiamond.contractOwner()
+                    payable(LibDiamond.contractOwner()),
+                    soFee
                 );
             }
-            transferUnwrappedAsset(
-                token,
+            LibAsset.transferAsset(
                 swapDataDst[0].sendingAssetId,
-                amount,
-                address(this)
+                payable(address(this)),
+                amount
             );
 
             swapDataDst[0].fromAmount = amount;
@@ -371,12 +364,21 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             try this.executeAndCheckSwaps(soData, swapDataDst) returns (
                 uint256 amountFinal
             ) {
-                // may swap to weth
-                transferUnwrappedAsset(
-                    swapDataDst[swapDataDst.length - 1].receivingAssetId,
+                if (!LibAsset.isNativeAsset(soData.receivingAssetId)) {
+                    require(
+                        swapDataDst[swapDataDst.length - 1].receivingAssetId ==
+                        soData.receivingAssetId,
+                        "AssetIdErr"
+                    );
+                }
+                require(
+                    LibAsset.getOwnBalance(soData.receivingAssetId) >= amountFinal,
+                    "NotEnough"
+                );
+                LibAsset.transferAsset(
                     soData.receivingAssetId,
-                    amountFinal,
-                    soData.receiver
+                    payable(soData.receiver),
+                    amountFinal
                 );
                 emit SoTransferCompleted(soData.transactionId, amountFinal);
             } catch Error(string memory revertReason) {
