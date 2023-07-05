@@ -476,6 +476,19 @@ networks:
         chainid: 80001
         domain_id: 9991
         connext: "0x2334937846Ab2A3FCE747b32587e1A1A2f6EEC5a"
+        token:
+          test:
+            key: "0x49262240b59235bb7eb550184a0b68efa64e8e27429a6336a91d4962cce6509d"
+            address: "0xeDb95D8037f769B72AAab41deeC92903A98C9E16"
+            decimal: 18
+          weth:
+            key: "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f"
+            address: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9"
+            decimal: 18
+          next-weth:
+            key: "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f"
+            address: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
+            decimal: 18
       multichain:
         chainid: 80001
         fast_router: "0x8E680018D67C57889083c23786C225F730C54Fb5"
@@ -528,6 +541,15 @@ networks:
         chainid: 421613
         domain_id: 1734439522
         connext: "0x2075c9E31f973bb53CAE5BAC36a8eeB4B082ADC2"
+        token:
+          test:
+            key: "0x49262240b59235bb7eb550184a0b68efa64e8e27429a6336a91d4962cce6509d"
+            address: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
+            decimal: 18
+          weth:
+            key: "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f"
+            address: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
+            decimal: 18
     token:
       connext-test:
         address: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"
@@ -1300,6 +1322,43 @@ networks:
             address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
             decimal: 18
             anytoken: "0x106a4cb3db8abe4fff73263dea55e56770ce62f3"
+      connext:
+        chainid: 137
+        domain_id: 1886350457
+        connext: "0x11984dc4465481512eb5b777E44061C158CF2259"
+        token:
+          usdc:
+            key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c"
+            address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+            decimal: 6
+          usdt:
+            key: "0x9e79219debefdf827d33c85c1bc250b0ba1f2821d37ccae57e96a42c70a442ec"
+            address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+            decimal: 6
+          dai:
+            key: "0xf1390056090f8ba7224c337f06ce86311484b83889eb116efe982fe5945779fd"
+            address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063"
+            decimal: 18
+          weth:
+            key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
+            address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"
+            decimal: 18
+          next-usdc:
+            key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c"
+            address: "0xF96C6d2537e1af1a9503852eB2A4AF264272a5B6"
+            decimal: 6
+          next-usdt:
+            key: "0x9e79219debefdf827d33c85c1bc250b0ba1f2821d37ccae57e96a42c70a442ec"
+            address: "0xE221C5A2a8348f12dcb2b0e88693522EbAD2690f"
+            decimal: 6
+          next-dai:
+            key: "0xf1390056090f8ba7224c337f06ce86311484b83889eb116efe982fe5945779fd"
+            address: "0xaDCe87b14d570665222C1172D18a221BF7690d5a"
+            decimal: 18
+          next-weth:
+            key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
+            address: "0x4b8BaC8Dd1CAA52E32C07755c17eFadeD6A0bbD0"
+            decimal: 18
     oracle:
       eth:
         chainid: 2
@@ -1427,6 +1486,43 @@ networks:
             address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
             decimal: 18
             anytoken: "0x758d08864fb6cce3062667225ca10b8f00496cc2"
+      connext:
+        chainid: 42161
+        domain_id: 1634886255
+        connext: "0xEE9deC2712cCE65174B561151701Bf54b99C24C8"
+        token:
+          usdc:
+            key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c"
+            address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+            decimal: 6
+          usdt:
+            key: "0x9e79219debefdf827d33c85c1bc250b0ba1f2821d37ccae57e96a42c70a442ec"
+            address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+            decimal: 6
+          dai:
+            key: "0xf1390056090f8ba7224c337f06ce86311484b83889eb116efe982fe5945779fd"
+            address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
+            decimal: 18
+          weth:
+            key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
+            address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+            decimal: 18
+          next-usdc:
+            key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c"
+            address: "0x8c556cF37faa0eeDAC7aE665f1Bb0FbD4b2eae36"
+            decimal: 6
+          next-usdt:
+            key: "0x9e79219debefdf827d33c85c1bc250b0ba1f2821d37ccae57e96a42c70a442ec"
+            address: "0x2fD7E61033b3904c65AA9A9B83DCd344Fa19Ffd2	"
+            decimal: 6
+          next-dai:
+            key: "0xf1390056090f8ba7224c337f06ce86311484b83889eb116efe982fe5945779fd"
+            address: "0xfDe99b3B3fbB69553D7DaE105EF34Ba4FE971190"
+            decimal: 18
+          next-weth:
+            key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
+            address: "0x2983bf5c334743Aa6657AD70A55041d720d225dB"
+            decimal: 18
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
