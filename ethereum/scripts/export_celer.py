@@ -99,9 +99,17 @@ def simple_check_bridge_tokens():
                 continue
             for token, decimal in tokens1.items():
                 try:
-                    if check_bridge_token(chain1, chain2, token, decimal, tokens2[token]):
+                    if check_bridge_token(
+                        chain1, chain2, token, decimal, tokens2[token]
+                    ):
                         print(
-                            chain1, "===>>===", chain2, ":", token, decimal, tokens2[token]
+                            chain1,
+                            "===>>===",
+                            chain2,
+                            ":",
+                            token,
+                            decimal,
+                            tokens2[token],
                         )
                     else:
                         print(
@@ -146,7 +154,7 @@ def get_celer_bridge_tokens():
         "56",  # BSC
         "137",  # Polygon
         "324",  # Zksync-era
-        "1101", # Polygon-zkevm
+        "1101",  # Polygon-zkevm
         "42161",  # Arbitrum
         "43114",  # Avalanche
     ]
@@ -209,7 +217,7 @@ def export_main_celer_chain_path():
         },
         "1101": {
             "cBridge": "0xD46F8E428A06789B5884df54E029e738277388D1",
-            "MessageBus": "0x9Bb46D5100d2Db4608112026951c9C965b233f4D"
+            "MessageBus": "0x9Bb46D5100d2Db4608112026951c9C965b233f4D",
         },
         "42161": {
             "cBridge": "0x1619DE6B6B20eD217a58d00f37B9d47C7663feca",
@@ -339,7 +347,7 @@ def check_main_celer_config():
         "arbitrum-main",
         "optimism-main",
         "zksync2-main",
-        "zkevm-main"
+        "zkevm-main",
     ]
 
     chain_path = read_json(celer_chain_path)

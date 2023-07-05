@@ -104,8 +104,8 @@ def compensate_v3():
         if len(result["message"]) == 0 or len(result["transfer"]) == 0:
             continue
         if (
-                "execution_tx" in result["message"][0]
-                and result["message"][0]["msg_status"] != 3
+            "execution_tx" in result["message"][0]
+            and result["message"][0]["msg_status"] != 3
         ):
             received_amt = result["transfer"][0]["received_amt"]
             dst_token_addr = result["transfer"][0]["dst_token_addr"]
