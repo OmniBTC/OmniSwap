@@ -83,7 +83,7 @@ contract LibCorrectSwapV1 {
             return tryMuteSwap(_data, _amount);
         } else if (sig == _FUNC10) {
             return tryMuteSwap(_data, _amount);
-        } else if (sig == _FUNC6) {
+        } else if (sig == _FUNC11) {
             return tryQuickExactInput(_data, _amount);
         }
 
