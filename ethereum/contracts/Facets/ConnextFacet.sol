@@ -28,15 +28,11 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-    hex"bfb250ec550de32792eb54eef527e3bc2a5be2220e94da89b2f781a2e93fca97"; //keccak256("com.so.facets.connext");
+        hex"bfb250ec550de32792eb54eef527e3bc2a5be2220e94da89b2f781a2e93fca97"; //keccak256("com.so.facets.connext");
 
     struct Storage {
         // The Connext contract on this domain
         address connext;
-        // Address that can revert or forceLocal on destination
-        address connextDelegate;
-        // Permission to allow calls to executeMessageWithTransfer
-        mapping(address => bool) allowedList;
     }
 
     /// Types ///
@@ -61,30 +57,15 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
 
     /// Events ///
     event ConnextInitialized(address connext, address delegate);
-    event SetAllowedList(address diamond, bool isAllowed);
 
     /// Init ///
 
     /// @notice Initializes local variables for the Connext facet
-    function initConnext(address _connext, address _delegate) external {
+    function initConnext(address _connext) external {
         LibDiamond.enforceIsContractOwner();
         if (_connext == address(0)) revert InvalidConfig();
         Storage storage s = getStorage();
         s.connext = _connext;
-        s.connextDelegate = _delegate;
-    }
-
-    /// @dev Set permissions to control calls to xReceive
-    function batchSetConnextAllowedAddresses(
-        address[] calldata diamonds,
-        bool[] calldata isAllowed
-    ) external {
-        LibDiamond.enforceIsContractOwner();
-        Storage storage s = getStorage();
-        for (uint256 i; i < diamonds.length; ++i) {
-            s.allowedList[diamonds[i]] = isAllowed[i];
-            emit SetAllowedList(diamonds[i], isAllowed[i]);
-        }
     }
 
     /// External Methods ///
@@ -149,8 +130,8 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         Storage storage s = getStorage();
 
         (
-        ISo.NormalizedSoData memory soDataNo,
-        LibSwap.NormalizedSwapData[] memory swapDataDstNo
+            ISo.NormalizedSoData memory soDataNo,
+            LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeConnextPayload(_callData);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -237,12 +218,12 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
     function decodeConnextPayload(bytes memory stargatePayload)
-    public
-    pure
-    returns (
-        ISo.NormalizedSoData memory soData,
-        LibSwap.NormalizedSwapData[] memory swapDataDst
-    )
+        public
+        pure
+        returns (
+            ISo.NormalizedSoData memory soData,
+            LibSwap.NormalizedSwapData[] memory swapDataDst
+        )
     {
         CachePayload memory data;
         uint256 index;
@@ -367,12 +348,13 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
                 if (!LibAsset.isNativeAsset(soData.receivingAssetId)) {
                     require(
                         swapDataDst[swapDataDst.length - 1].receivingAssetId ==
-                        soData.receivingAssetId,
+                            soData.receivingAssetId,
                         "AssetIdErr"
                     );
                 }
                 require(
-                    LibAsset.getOwnBalance(soData.receivingAssetId) >= amountFinal,
+                    LibAsset.getOwnBalance(soData.receivingAssetId) >=
+                        amountFinal,
                     "NotEnough"
                 );
                 LibAsset.transferAsset(
@@ -435,7 +417,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
                 connextData.dstDomain,
                 connextData.dstSoDiamond,
                 connextData.bridgeToken,
-                s.connextDelegate,
+                msg.sender,
                 bridgeAmount,
                 connextData.slippage,
                 payload
@@ -448,7 +430,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
                 connextData.dstDomain,
                 connextData.dstSoDiamond,
                 connextData.bridgeToken,
-                s.connextDelegate,
+                msg.sender,
                 bridgeAmount,
                 connextData.slippage,
                 payload,
