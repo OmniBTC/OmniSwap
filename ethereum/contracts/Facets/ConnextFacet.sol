@@ -12,6 +12,7 @@ import "../Libraries/LibDiamond.sol";
 import "../Interfaces/ISo.sol";
 import "../Interfaces/ICorrectSwap.sol";
 import "../Interfaces/IConnext.sol";
+import "../Interfaces/IStableSwap.sol";
 import "../Interfaces/IXReceiver.sol";
 import "../Interfaces/ILibSoFee.sol";
 import "../Helpers/Swapper.sol";
@@ -28,7 +29,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-        hex"bfb250ec550de32792eb54eef527e3bc2a5be2220e94da89b2f781a2e93fca97"; //keccak256("com.so.facets.connext");
+    hex"bfb250ec550de32792eb54eef527e3bc2a5be2220e94da89b2f781a2e93fca97"; //keccak256("com.so.facets.connext");
 
     struct Storage {
         // The Connext contract on this domain
@@ -130,8 +131,8 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         Storage storage s = getStorage();
 
         (
-            ISo.NormalizedSoData memory soDataNo,
-            LibSwap.NormalizedSwapData[] memory swapDataDstNo
+        ISo.NormalizedSoData memory soDataNo,
+        LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeConnextPayload(_callData);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -158,6 +159,31 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         } else {
             return ILibSoFee(soFee).getFees(amount);
         }
+    }
+
+    /// Help to get swap result
+    function calculateConnextSwap(
+        bytes32 key,
+        address tokenAddressFrom,
+        address tokenAddressTo,
+        uint256 amount
+    ) external view returns (uint256) {
+        Storage storage s = getStorage();
+        uint8 tokenIndexFrom = IStableSwap(s.connext).getTokenIndex(
+            key,
+            tokenAddressFrom
+        );
+        uint8 tokenIndexTo = IStableSwap(s.connext).getTokenIndex(
+            key,
+            tokenAddressTo
+        );
+        return
+        IStableSwap(s.connext).calculateSwap(
+            key,
+            tokenIndexFrom,
+            tokenIndexTo,
+            amount
+        );
     }
 
     /// CrossData
@@ -218,12 +244,12 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
     function decodeConnextPayload(bytes memory stargatePayload)
-        public
-        pure
-        returns (
-            ISo.NormalizedSoData memory soData,
-            LibSwap.NormalizedSwapData[] memory swapDataDst
-        )
+    public
+    pure
+    returns (
+        ISo.NormalizedSoData memory soData,
+        LibSwap.NormalizedSwapData[] memory swapDataDst
+    )
     {
         CachePayload memory data;
         uint256 index;
@@ -348,13 +374,13 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
                 if (!LibAsset.isNativeAsset(soData.receivingAssetId)) {
                     require(
                         swapDataDst[swapDataDst.length - 1].receivingAssetId ==
-                            soData.receivingAssetId,
+                        soData.receivingAssetId,
                         "AssetIdErr"
                     );
                 }
                 require(
                     LibAsset.getOwnBalance(soData.receivingAssetId) >=
-                        amountFinal,
+                    amountFinal,
                     "NotEnough"
                 );
                 LibAsset.transferAsset(

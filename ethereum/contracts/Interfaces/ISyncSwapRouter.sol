@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.6.2;
 
 interface ISyncSwapRouter {
@@ -58,7 +59,7 @@ interface ISyncSwapRouter {
 
     /// @notice Wrapper function to allow pool deployment to be batched.
     function createPool(address factory, bytes calldata data)
-        external
-        payable
-        returns (address);
+    external
+    payable
+    returns (address);
 }
