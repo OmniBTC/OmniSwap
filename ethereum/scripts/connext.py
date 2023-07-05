@@ -593,6 +593,8 @@ def cross_swap_via_connext(
         )
         print("DestinationSwapData:\n", dst_swap_data)
 
+    relay_fee = int(50 * 1e18)
+
     if sourceTokenName != "eth":
         src_session.put_task(
             token_approve,
@@ -601,7 +603,7 @@ def cross_swap_via_connext(
                 src_session.put_task(
                     get_contract_address, args=("SoDiamond",), with_project=True
                 ),
-                inputAmount,
+                inputAmount + relay_fee,
             ),
             with_project=True,
         )
@@ -612,7 +614,6 @@ def cross_swap_via_connext(
     dst_domain = dst_session.put_task(get_connext_domain_id)
     bridge_token_name = sourceTokenName if sourceTokenName != "eth" else "connext-weth"
     bridge_token = src_session.put_task(get_token_address, args=(bridge_token_name,))
-    relay_fee = int(50 * 1e18)
     connext_data = ConnextData(dst_domain, dst_diamond_address, bridge_token, 300, relay_fee)
     print(f"ConnextData: {connext_data.format_to_contract()}")
 
@@ -646,7 +647,7 @@ def main(src_net="polygon-test", dst_net="arbitrum-test"):
     cross_swap_via_connext(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=1e20,
+        inputAmount=int(100 * 1e18),
         sourceTokenName="connext-test",
         destinationTokenName="connext-test",
         sourceSwapType=None,
