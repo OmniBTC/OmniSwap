@@ -2587,7 +2587,7 @@
   "zkevm-main": {
     "ChainId": 1011,
     "OmniBtcChainId": 1011,
-    "SoDiamond": "",
+    "SoDiamond": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
     "UniswapRouter": [
       {
         "Name": "QuickSwapV3",
