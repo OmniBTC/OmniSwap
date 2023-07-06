@@ -59,7 +59,7 @@ interface ISyncSwapRouter {
 
     /// @notice Wrapper function to allow pool deployment to be batched.
     function createPool(address factory, bytes calldata data)
-    external
-    payable
-    returns (address);
+        external
+        payable
+        returns (address);
 }
