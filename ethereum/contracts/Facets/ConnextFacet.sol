@@ -145,7 +145,24 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             swapDataDstNo
         );
 
-        _remoteSoSwap(_asset, _amount, soData, swapDataDst);
+        try
+            this.remoteConnextSwap{gas: gasleft()}(
+                _asset,
+                _amount,
+                soData,
+                swapDataDst
+            )
+        {} catch Error(string memory revertReason) {
+            transferUnwrappedAsset(_asset, _asset, _amount, soData.receiver);
+            emit SoTransferFailed(
+                soData.transactionId,
+                revertReason,
+                bytes("")
+            );
+        } catch (bytes memory returnData) {
+            transferUnwrappedAsset(_asset, _asset, _amount, soData.receiver);
+            emit SoTransferFailed(soData.transactionId, "", returnData);
+        }
         return "";
     }
 
@@ -332,15 +349,14 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         return (data.soData, data.swapDataDst);
     }
 
-    /// Private Methods ///
-
     /// @dev swap on destination chain
-    function _remoteSoSwap(
+    function remoteConnextSwap(
         address token,
         uint256 amount,
         ISo.SoData memory soData,
         LibSwap.SwapData[] memory swapDataDst
-    ) private {
+    ) external {
+        require(msg.sender == address(this), "NotDiamond");
         uint256 soFee = getConnextSoFee(amount);
         if (soFee < amount) {
             amount = amount.sub(soFee);
@@ -389,38 +405,21 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
                 );
             }
 
-            try this.executeAndCheckSwaps(soData, swapDataDst) returns (
-                uint256 amountFinal
-            ) {
-                // may swap to weth
-                transferUnwrappedAsset(
-                    swapDataDst[swapDataDst.length - 1].receivingAssetId,
-                    soData.receivingAssetId,
-                    amountFinal,
-                    soData.receiver
-                );
-                emit SoTransferCompleted(soData.transactionId, amountFinal);
-            } catch Error(string memory revertReason) {
-                LibAsset.transferAsset(
-                    swapDataDst[0].sendingAssetId,
-                    soData.receiver,
-                    amount
-                );
-                emit SoTransferFailed(
-                    soData.transactionId,
-                    revertReason,
-                    bytes("")
-                );
-            } catch (bytes memory returnData) {
-                LibAsset.transferAsset(
-                    swapDataDst[0].sendingAssetId,
-                    soData.receiver,
-                    amount
-                );
-                emit SoTransferFailed(soData.transactionId, "", returnData);
-            }
+            uint256 amountFinal = this.executeAndCheckSwaps(
+                soData,
+                swapDataDst
+            );
+            transferUnwrappedAsset(
+                swapDataDst[swapDataDst.length - 1].receivingAssetId,
+                soData.receivingAssetId,
+                amountFinal,
+                soData.receiver
+            );
+            emit SoTransferCompleted(soData.transactionId, amountFinal);
         }
     }
+
+    /// Private Methods ///
 
     /// @dev Calculate the fee for paying the relay
     function _checkRelayFee(
