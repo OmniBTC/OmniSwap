@@ -9,12 +9,12 @@ from brownie import interface, Contract, network, ERC20, GenericSwapFacet
 from brownie.network import priority_fee
 from scripts.helpful_scripts import (
     get_account,
-    get_token_address,
     get_swap_info,
     read_json,
     zero_address,
 )
-from scripts.wormhole import get_stable_coin_address
+
+# from scripts.wormhole import get_stable_coin_address
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 omni_swap_file = os.path.join(root_path, "export/OmniSwapInfo.json")
