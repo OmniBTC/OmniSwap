@@ -47,6 +47,8 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         address bridgeToken;
         // Max slippage the user will accept in BPS (e.g. 300 = 3%)
         uint256 slippage;
+        // Whether the relayer fee is paid with native gas token
+        bool isNativeRelayerFee;
         // Relayer fee
         uint256 relayFee;
         // Receive local
@@ -59,7 +61,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     }
 
     /// Events ///
-    event ConnextInitialized(address connext, address delegate);
+    event ConnextInitialized(address connext);
 
     /// Init ///
 
@@ -69,6 +71,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         if (_connext == address(0)) revert InvalidConfig();
         Storage storage s = getStorage();
         s.connext = _connext;
+        emit ConnextInitialized(_connext);
     }
 
     /// External Methods ///
@@ -115,9 +118,9 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             );
         }
         bytes memory payload = encodeConnextPayload(soDataNo, swapDataDstNo);
-        uint256 relayFee = _getRelayFee(soData);
+        _checkRelayFee(soData, connextData, bridgeAmount);
 
-        _startBridge(connextData, relayFee, bridgeAmount, payload);
+        _startBridge(connextData, bridgeAmount, payload);
 
         emit SoTransferStarted(soData.transactionId);
     }
@@ -150,6 +153,15 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     function bumpTransfer(bytes32 _connextTransferId) external payable {
         Storage storage s = getStorage();
         IConnext(s.connext).bumpTransfer{value: msg.value}(_connextTransferId);
+    }
+
+    // @dev Call connext forceUpdateSlippage
+    function forceUpdateSlippage(
+        IConnext.TransferInfo calldata _params,
+        uint256 _slippage
+    ) external {
+        Storage storage s = getStorage();
+        IConnext(s.connext).forceUpdateSlippage(_params, _slippage);
     }
 
     /// @dev Get so fee
@@ -411,19 +423,33 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     }
 
     /// @dev Calculate the fee for paying the relay
-    function _getRelayFee(SoData memory soData) private view returns (uint256) {
-        if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-            require(msg.value >= soData.amount, "NotEnough");
-            return msg.value.sub(soData.amount);
+    function _checkRelayFee(
+        SoData memory soData,
+        ConnextData calldata connextData,
+        uint256 bridgeAmount
+    ) private view {
+        if (connextData.isNativeRelayerFee) {
+            if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
+                require(
+                    msg.value == soData.amount.add(connextData.relayFee),
+                    "CheckNativeFail"
+                );
+            } else {
+                require(msg.value == connextData.relayFee, "CheckNativeFail");
+            }
         } else {
-            return msg.value;
+            if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
+                require(msg.value == soData.amount, "CheckFail");
+            } else {
+                require(msg.value == 0, "CheckFail");
+            }
+            require(bridgeAmount > connextData.relayFee, "CheckNotEnough");
         }
     }
 
     /// @dev Contains the business logic for the bridge via Connext
     function _startBridge(
         ConnextData calldata connextData,
-        uint256 relayFee,
         uint256 bridgeAmount,
         bytes memory payload
     ) private {
@@ -437,19 +463,9 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             bridgeAmount
         );
 
-        if (connextData.receiveLocal) {
-            IConnext(bridge).xcallIntoLocal{value: relayFee}(
-                connextData.dstDomain,
-                connextData.dstSoDiamond,
-                connextData.bridgeToken,
-                msg.sender,
-                bridgeAmount,
-                connextData.slippage,
-                payload
-            );
-        } else {
-            if (relayFee > 0) {
-                IConnext(bridge).xcall{value: relayFee}(
+        if (connextData.isNativeRelayerFee) {
+            if (connextData.receiveLocal) {
+                IConnext(bridge).xcallIntoLocal{value: connextData.relayFee}(
                     connextData.dstDomain,
                     connextData.dstSoDiamond,
                     connextData.bridgeToken,
@@ -459,15 +475,35 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
                     payload
                 );
             } else {
-                bridgeAmount = bridgeAmount > connextData.relayFee
-                    ? bridgeAmount.sub(connextData.relayFee)
-                    : 0;
-                IConnext(bridge).xcall(
+                IConnext(bridge).xcall{value: connextData.relayFee}(
                     connextData.dstDomain,
                     connextData.dstSoDiamond,
                     connextData.bridgeToken,
                     msg.sender,
                     bridgeAmount,
+                    connextData.slippage,
+                    payload
+                );
+            }
+        } else {
+            if (connextData.receiveLocal) {
+                IConnext(bridge).xcallIntoLocal(
+                    connextData.dstDomain,
+                    connextData.dstSoDiamond,
+                    connextData.bridgeToken,
+                    msg.sender,
+                    bridgeAmount.sub(connextData.relayFee),
+                    connextData.slippage,
+                    payload,
+                    connextData.relayFee
+                );
+            } else {
+                IConnext(bridge).xcall(
+                    connextData.dstDomain,
+                    connextData.dstSoDiamond,
+                    connextData.bridgeToken,
+                    msg.sender,
+                    bridgeAmount.sub(connextData.relayFee),
                     connextData.slippage,
                     payload,
                     connextData.relayFee
