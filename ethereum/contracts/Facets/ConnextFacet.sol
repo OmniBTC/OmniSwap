@@ -49,6 +49,8 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         uint256 slippage;
         // Relayer fee
         uint256 relayFee;
+        // Receive local
+        bool receiveLocal;
     }
 
     struct CachePayload {
@@ -438,8 +440,8 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             bridgeAmount
         );
 
-        if (relayFee > 0) {
-            IConnext(bridge).xcall{value: relayFee}(
+        if (connextData.receiveLocal) {
+            IConnext(bridge).xcallIntoLocal{value: relayFee}(
                 connextData.dstDomain,
                 connextData.dstSoDiamond,
                 connextData.bridgeToken,
@@ -449,19 +451,31 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
                 payload
             );
         } else {
-            bridgeAmount = bridgeAmount > connextData.relayFee
-                ? bridgeAmount.sub(connextData.relayFee)
-                : 0;
-            IConnext(bridge).xcall(
-                connextData.dstDomain,
-                connextData.dstSoDiamond,
-                connextData.bridgeToken,
-                msg.sender,
-                bridgeAmount,
-                connextData.slippage,
-                payload,
-                connextData.relayFee
-            );
+            if (relayFee > 0) {
+                IConnext(bridge).xcall{value: relayFee}(
+                    connextData.dstDomain,
+                    connextData.dstSoDiamond,
+                    connextData.bridgeToken,
+                    msg.sender,
+                    bridgeAmount,
+                    connextData.slippage,
+                    payload
+                );
+            } else {
+                bridgeAmount = bridgeAmount > connextData.relayFee
+                    ? bridgeAmount.sub(connextData.relayFee)
+                    : 0;
+                IConnext(bridge).xcall(
+                    connextData.dstDomain,
+                    connextData.dstSoDiamond,
+                    connextData.bridgeToken,
+                    msg.sender,
+                    bridgeAmount,
+                    connextData.slippage,
+                    payload,
+                    connextData.relayFee
+                );
+            }
         }
     }
 

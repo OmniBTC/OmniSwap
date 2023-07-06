@@ -228,7 +228,7 @@ def initialize_celer(account, so_diamond):
 def initialize_connext(account, so_diamond):
     proxy_connext = Contract.from_abi("ConnextFacet", so_diamond.address, ConnextFacet.abi)
 
-    proxy_connext.initConnext(get_connext(), account, {"from": account})
+    proxy_connext.initConnext(get_connext(), {"from": account})
 
 
 def set_connext_allowed_address(diamonds: list):
