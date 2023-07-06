@@ -146,7 +146,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         );
 
         try
-            this.remoteConnextSwap{gas: gasleft()}(
+            this.remoteConnextSwap(
                 _asset,
                 _amount,
                 soData,
