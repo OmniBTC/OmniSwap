@@ -158,6 +158,7 @@ class ConnextData(View):
             dstSoDiamond,
             bridgeToken,
             slippage,
+            isNative,
             relayFee,
             receiveLocal
     ):
@@ -165,6 +166,7 @@ class ConnextData(View):
         self.dstSoDiamond = dstSoDiamond
         self.bridgeToken = bridgeToken
         self.slippage = slippage
+        self.isNative = isNative
         self.relayFee = relayFee
         self.receiveLocal = receiveLocal
 
@@ -175,6 +177,7 @@ class ConnextData(View):
             self.dstSoDiamond,
             self.bridgeToken,
             self.slippage,
+            self.isNative,
             self.relayFee,
             self.receiveLocal
         ]
@@ -596,7 +599,7 @@ def cross_swap_via_connext(
         )
         print("DestinationSwapData:\n", dst_swap_data)
 
-    relay_fee = int(50 * 1e18) if sourceTokenName != "eth" else 0
+    relay_fee = int(50 * 1e18) if sourceTokenName != "eth" else int(1e16)
 
     if sourceTokenName != "eth":
         src_session.put_task(
@@ -621,7 +624,9 @@ def cross_swap_via_connext(
     else:
         bridge_token_name = sourceTokenName if sourceTokenName != "eth" else "connext-weth"
         bridge_token = src_session.put_task(get_token_address, args=(bridge_token_name,))
-    connext_data = ConnextData(dst_domain, dst_diamond_address, bridge_token, 300, relay_fee, False)
+
+    is_native = sourceTokenName == "eth"
+    connext_data = ConnextData(dst_domain, dst_diamond_address, bridge_token, 300, is_native, relay_fee, False)
     print(f"ConnextData: {connext_data.format_to_contract()}")
     gas_relay_fee = int(1e16) if sourceTokenName == "eth" else 0
 
@@ -641,7 +646,7 @@ def cross_swap_via_connext(
     )
 
 
-def main(src_net="arbitrum-test", dst_net="polygon-test"):
+def main(src_net="optimism-test", dst_net="arbitrum-test"):
     global src_session
     global dst_session
     src_session = Session(
@@ -667,30 +672,30 @@ def main(src_net="arbitrum-test", dst_net="polygon-test"):
     # )
 
     # without swap but native
-    # cross_swap_via_connext(
-    #     src_session=src_session,
-    #     dst_session=dst_session,
-    #     inputAmount=1e16,
-    #     sourceTokenName="eth",
-    #     destinationTokenName="eth",
-    #     sourceSwapType=None,
-    #     sourceSwapFunc=None,
-    #     sourceSwapPath=None,
-    #     destinationSwapType=None,
-    #     destinationSwapFunc=None,
-    #     destinationSwapPath=None,
-    # )
+    cross_swap_via_connext(
+        src_session=src_session,
+        dst_session=dst_session,
+        inputAmount=1e16,
+        sourceTokenName="eth",
+        destinationTokenName="eth",
+        sourceSwapType=None,
+        sourceSwapFunc=None,
+        sourceSwapPath=None,
+        destinationSwapType=None,
+        destinationSwapFunc=None,
+        destinationSwapPath=None,
+    )
 
     # only src swap
     # cross_swap_via_connext(
     #     src_session=src_session,
     #     dst_session=dst_session,
     #     inputAmount=int(100 * 1e6),
-    #     sourceTokenName="connext-test",
-    #     destinationTokenName="usdc",
+    #     sourceTokenName="usdc",
+    #     destinationTokenName="connext-test",
     #     sourceSwapType=SwapType.IUniswapV2Router02,
     #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-    #     sourceSwapPath=("connext-test", "usdc"),
+    #     sourceSwapPath=("usdc", "connext-test"),
     #     destinationSwapType=None,
     #     destinationSwapFunc=None,
     #     destinationSwapPath=None,
@@ -712,19 +717,19 @@ def main(src_net="arbitrum-test", dst_net="polygon-test"):
     # )
 
     # only dst swap
-    cross_swap_via_connext(
-        src_session=src_session,
-        dst_session=dst_session,
-        inputAmount=int(100 * 1e18),
-        sourceTokenName="connext-test",
-        destinationTokenName="usdc",
-        sourceSwapType=None,
-        sourceSwapFunc=None,
-        sourceSwapPath=None,
-        destinationSwapType=SwapType.IUniswapV2Router02,
-        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-        destinationSwapPath=("connext-test", "usdc"),
-    )
+    # cross_swap_via_connext(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(100 * 1e18),
+    #     sourceTokenName="connext-test",
+    #     destinationTokenName="usdc",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationSwapType=SwapType.IUniswapV2Router02,
+    #     destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     destinationSwapPath=("connext-test", "usdc"),
+    # )
 
     # only dst swap with native
     # cross_swap_via_connext(

@@ -1634,6 +1634,23 @@ networks:
         chainid: 10
         domain_id: 1869640809
         connext: "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA"
+        token:
+          usdc:
+            key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c"
+            address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+            decimal: 6
+          usdt:
+            key: "0x9e79219debefdf827d33c85c1bc250b0ba1f2821d37ccae57e96a42c70a442ec"
+            address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
+            decimal: 6
+          dai:
+            key: "0xf1390056090f8ba7224c337f06ce86311484b83889eb116efe982fe5945779fd"
+            address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
+            decimal: 18
+          weth:
+            key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
+            address: "0x4200000000000000000000000000000000000006"
+            decimal: 18
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"
