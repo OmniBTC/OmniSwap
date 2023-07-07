@@ -136,7 +136,7 @@ def reinitialize():
         )
 
         proxy_celer.setAllowedAddress(
-            "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2", False
+            "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2", False, {"from": account}
         )
 
         proxy_dex = Contract.from_abi(
