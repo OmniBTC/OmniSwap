@@ -1611,7 +1611,7 @@ networks:
     bridges:
       celer:
         chainid: 1101
-        message_bus: "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2"
+        message_bus: "0x9Bb46D5100d2Db4608112026951c9C965b233f4D"
         token:
           weth:
             address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"

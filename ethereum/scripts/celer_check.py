@@ -35,7 +35,7 @@ def check_price_ratio():
 
     print_price_ratio("arbitrum-main", "0x937AfcA1bb914405D37D55130184ac900ce5961f")
 
-    print_price_ratio("arbitrum-main", "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2")
+    print_price_ratio("zkevm-main", "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2")
 
 
 def print_nonce(network, so_diamond):
@@ -63,7 +63,6 @@ def check_nonce():
     print_nonce("avax-main", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820")
 
     print_nonce("zkevm-main", "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449")
-
 
 
 def print_base_gas(network, so_diamond):
@@ -97,4 +96,3 @@ def check_dst_base_gas():
     print_base_gas("avax-main", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820")
 
     print_base_gas("zkevm-main", "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449")
-

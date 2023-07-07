@@ -120,6 +120,40 @@ def compensate_set_price_ratio():
     set_price_ratio("arbitrum-main", "0x937AfcA1bb914405D37D55130184ac900ce5961f")
 
 
+def reinitialize():
+    change_network("zkevm-main")
+    so_diamond = "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
+
+    account = get_account()
+
+    print(f"SoDiamond Address:{so_diamond}")
+
+    try:
+        proxy_celer = Contract.from_abi("CelerFacet", so_diamond, CelerFacet.abi)
+
+        proxy_celer.initCeler(
+            "0x9Bb46D5100d2Db4608112026951c9C965b233f4D", 1101, {"from": account}
+        )
+
+        proxy_celer.setAllowedAddress(
+            "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2", False
+        )
+
+        proxy_dex = Contract.from_abi(
+            "DexManagerFacet",
+            "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+            DexManagerFacet.abi,
+        )
+
+        proxy_dex.addFee(
+            "0x9Bb46D5100d2Db4608112026951c9C965b233f4D",
+            "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+            {"from": account},
+        )
+    except Exception as e:
+        print(f"initialize_celer fail:{e}")
+
+
 def set_price_ratio(network, celer_so_fee):
     print(f"====={network}=====")
     account = get_account()
