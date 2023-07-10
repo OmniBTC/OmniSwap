@@ -510,6 +510,28 @@ class SwapData(View):
         return amountIn
 
 
+def estimate_dst_gas(so_data, bridge_token_name, dst_swap_data, p: Project = None):
+    import brownie
+    account = get_account()
+    proxy_diamond = Contract.from_abi(
+        "ConnextFacet", p["SoDiamond"][-1].address, p["ConnextFacet"].abi
+    )
+
+    cross_token = get_token_address(bridge_token_name)
+    print(f"cross_token: {cross_token}")
+    estimate_gas = proxy_diamond.xReceiveForGas.estimate_gas(
+        so_data.format_to_contract(),
+        cross_token,
+        [] if dst_swap_data is None else [dst_swap_data.format_to_contract()],
+        {"from": account}
+    )
+
+    default_gas = 200000
+    print(f"Estimate gas: {estimate_gas + default_gas}")
+    gas_price = int(brownie.web3.eth.gas_price)
+    print(f"Relayer fee: {gas_price * (estimate_gas + default_gas) / 1e18} ETH")
+
+
 def so_swap_via_connext(so_data, src_swap_data, connext_data, dst_swap_data, input_value, p: Project = None):
     account = get_account()
     proxy_diamond = Contract.from_abi(
@@ -620,6 +642,7 @@ def cross_swap_via_connext(
     dst_domain = dst_session.put_task(get_connext_domain_id)
 
     if src_swap_data is not None:
+        bridge_token_name = "Unknown"
         bridge_token = src_swap_data.receivingAssetId
     else:
         bridge_token_name = sourceTokenName if sourceTokenName != "eth" else "connext-weth"
@@ -629,6 +652,16 @@ def cross_swap_via_connext(
     connext_data = ConnextData(dst_domain, dst_diamond_address, bridge_token, 300, is_native, relay_fee, False)
     print(f"ConnextData: {connext_data.format_to_contract()}")
     gas_relay_fee = int(1e16) if sourceTokenName == "eth" else 0
+
+    dst_session.put_task(
+        estimate_dst_gas,
+        args=(
+            so_data,
+            bridge_token_name,
+            dst_swap_data,
+        ),
+        with_project=True,
+    )
 
     input_value = input_eth_amount + gas_relay_fee
     print(f"Input value: {input_value}")
@@ -646,7 +679,7 @@ def cross_swap_via_connext(
     )
 
 
-def main(src_net="optimism-test", dst_net="arbitrum-test"):
+def main(src_net="polygon-test", dst_net="arbitrum-test"):
     global src_session
     global dst_session
     src_session = Session(
@@ -657,27 +690,12 @@ def main(src_net="optimism-test", dst_net="arbitrum-test"):
     )
 
     # without swap
-    # cross_swap_via_connext(
-    #     src_session=src_session,
-    #     dst_session=dst_session,
-    #     inputAmount=int(100 * 1e18),
-    #     sourceTokenName="connext-test",
-    #     destinationTokenName="connext-test",
-    #     sourceSwapType=None,
-    #     sourceSwapFunc=None,
-    #     sourceSwapPath=None,
-    #     destinationSwapType=None,
-    #     destinationSwapFunc=None,
-    #     destinationSwapPath=None,
-    # )
-
-    # without swap but native
     cross_swap_via_connext(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=1e16,
-        sourceTokenName="eth",
-        destinationTokenName="eth",
+        inputAmount=int(100 * 1e18),
+        sourceTokenName="connext-test",
+        destinationTokenName="connext-test",
         sourceSwapType=None,
         sourceSwapFunc=None,
         sourceSwapPath=None,
@@ -685,6 +703,21 @@ def main(src_net="optimism-test", dst_net="arbitrum-test"):
         destinationSwapFunc=None,
         destinationSwapPath=None,
     )
+
+    # without swap but native
+    # cross_swap_via_connext(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=1e16,
+    #     sourceTokenName="eth",
+    #     destinationTokenName="eth",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
 
     # only src swap
     # cross_swap_via_connext(

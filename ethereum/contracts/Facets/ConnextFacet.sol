@@ -133,8 +133,6 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         uint32 _origin,
         bytes memory _callData
     ) external returns (bytes memory) {
-        Storage storage s = getStorage();
-
         (
             ISo.NormalizedSoData memory soDataNo,
             LibSwap.NormalizedSwapData[] memory swapDataDstNo
@@ -146,12 +144,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         );
 
         try
-            this.remoteConnextSwap(
-                _asset,
-                _amount,
-                soData,
-                swapDataDst
-            )
+            this.remoteConnextSwap(_asset, _amount, soData, swapDataDst)
         {} catch Error(string memory revertReason) {
             transferUnwrappedAsset(_asset, _asset, _amount, soData.receiver);
             emit SoTransferFailed(
@@ -164,6 +157,19 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             emit SoTransferFailed(soData.transactionId, "", returnData);
         }
         return "";
+    }
+
+    function xReceiveForGas(
+        ISo.NormalizedSoData calldata soDataNo,
+        address token,
+        LibSwap.NormalizedSwapData[] calldata swapDataDstNo
+    ) external {
+        ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
+        LibSwap.SwapData[] memory swapDataDst = LibCross.denormalizeSwapData(
+            swapDataDstNo
+        );
+        uint256 amount = LibAsset.getOwnBalance(token);
+        this.remoteConnextSwap(token, amount, soData, swapDataDst);
     }
 
     /// @dev Call connext bumpTransfer

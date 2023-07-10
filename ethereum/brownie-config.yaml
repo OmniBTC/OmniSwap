@@ -1367,6 +1367,9 @@ networks:
             key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
             address: "0x4b8BaC8Dd1CAA52E32C07755c17eFadeD6A0bbD0"
             decimal: 18
+        gas:
+          execute: 0
+          executeL1: 0
     oracle:
       eth:
         chainid: 2
@@ -1531,6 +1534,9 @@ networks:
             key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
             address: "0x2983bf5c334743Aa6657AD70A55041d720d225dB"
             decimal: 18
+        gas:
+          execute: 2000000
+          executeL1: 0
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
@@ -1651,6 +1657,9 @@ networks:
             key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
             address: "0x4200000000000000000000000000000000000006"
             decimal: 18
+        gas:
+          execute: 400000
+          executeL1: 21000
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"
