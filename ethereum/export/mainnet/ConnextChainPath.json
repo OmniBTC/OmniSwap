@@ -1,217 +1,229 @@
 {
-    "arbitrum-main": {
-        "ChainId": 42161,
-        "Connext": "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
-        "DomainId": 1634886255,
-        "SupportTokens": [
-            {
-                "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
-                "ChainPath": [
-                    {
-                        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
-                        "Decimal": 6,
-                        "DomainId": 1869640809
-                    },
-                    {
-                        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-                        "Decimal": 6,
-                        "DomainId": 1886350457
-                    }
-                ],
-                "Decimal": 6,
-                "TokenName": "USDC"
-            },
-            {
-                "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-                "ChainPath": [
-                    {
-                        "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-                        "Decimal": 6,
-                        "DomainId": 1869640809
-                    },
-                    {
-                        "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-                        "Decimal": 6,
-                        "DomainId": 1886350457
-                    }
-                ],
-                "Decimal": 6,
-                "TokenName": "USDT"
-            },
-            {
-                "Address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-                "ChainPath": [
-                    {
-                        "Address": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-                        "Decimal": 18,
-                        "DomainId": 1886350457
-                    }
-                ],
-                "Decimal": 18,
-                "TokenName": "DAI"
-            },
-            {
-                "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
-                "ChainPath": [
-                    {
-                        "Address": "0x4200000000000000000000000000000000000006",
-                        "Decimal": 18,
-                        "DomainId": 1869640809
-                    },
-                    {
-                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
-                        "Decimal": 18,
-                        "DomainId": 1886350457
-                    }
-                ],
-                "Decimal": 18,
-                "TokenName": "WETH"
-            }
-        ]
+  "arbitrum-main": {
+    "ChainId": 42161,
+    "Connext": "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
+    "DomainId": 1634886255,
+    "GasEstimate": {
+      "execute": 2000000,
+      "executeL1": 20000
     },
-    "optimism-main": {
-        "ChainId": 10,
-        "Connext": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
-        "DomainId": 1869640809,
-        "SupportTokens": [
-            {
-                "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
-                "ChainPath": [
-                    {
-                        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
-                        "Decimal": 6,
-                        "DomainId": 1634886255
-                    },
-                    {
-                        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-                        "Decimal": 6,
-                        "DomainId": 1886350457
-                    }
-                ],
-                "Decimal": 6,
-                "TokenName": "USDC"
-            },
-            {
-                "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-                "ChainPath": [
-                    {
-                        "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-                        "Decimal": 6,
-                        "DomainId": 1634886255
-                    },
-                    {
-                        "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-                        "Decimal": 6,
-                        "DomainId": 1886350457
-                    }
-                ],
-                "Decimal": 6,
-                "TokenName": "USDT"
-            },
-            {
-                "Address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-                "ChainPath": [
-                    {
-                        "Address": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-                        "Decimal": 18,
-                        "DomainId": 1886350457
-                    }
-                ],
-                "Decimal": 18,
-                "TokenName": "DAI"
-            },
-            {
-                "Address": "0x4200000000000000000000000000000000000006",
-                "ChainPath": [
-                    {
-                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
-                        "Decimal": 18,
-                        "DomainId": 1634886255
-                    },
-                    {
-                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
-                        "Decimal": 18,
-                        "DomainId": 1886350457
-                    }
-                ],
-                "Decimal": 18,
-                "TokenName": "WETH"
-            }
-        ]
+    "SupportTokens": [
+      {
+        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        "ChainPath": [
+          {
+            "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+            "Decimal": 6,
+            "DomainId": 1869640809
+          },
+          {
+            "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+            "Decimal": 6,
+            "DomainId": 1886350457
+          }
+        ],
+        "Decimal": 6,
+        "TokenName": "USDC"
+      },
+      {
+        "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        "ChainPath": [
+          {
+            "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+            "Decimal": 6,
+            "DomainId": 1869640809
+          },
+          {
+            "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+            "Decimal": 6,
+            "DomainId": 1886350457
+          }
+        ],
+        "Decimal": 6,
+        "TokenName": "USDT"
+      },
+      {
+        "Address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        "ChainPath": [
+          {
+            "Address": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+            "Decimal": 18,
+            "DomainId": 1886350457
+          }
+        ],
+        "Decimal": 18,
+        "TokenName": "DAI"
+      },
+      {
+        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+        "ChainPath": [
+          {
+            "Address": "0x4200000000000000000000000000000000000006",
+            "Decimal": 18,
+            "DomainId": 1869640809
+          },
+          {
+            "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+            "Decimal": 18,
+            "DomainId": 1886350457
+          }
+        ],
+        "Decimal": 18,
+        "TokenName": "WETH"
+      }
+    ]
+  },
+  "optimism-main": {
+    "ChainId": 10,
+    "Connext": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
+    "DomainId": 1869640809,
+    "GasEstimate": {
+      "execute": 400000,
+      "executeL1": 21000
     },
-    "polygon-main": {
-        "ChainId": 137,
-        "Connext": "0x11984dc4465481512eb5b777E44061C158CF2259",
-        "DomainId": 1886350457,
-        "SupportTokens": [
-            {
-                "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-                "ChainPath": [
-                    {
-                        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
-                        "Decimal": 6,
-                        "DomainId": 1634886255
-                    },
-                    {
-                        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
-                        "Decimal": 6,
-                        "DomainId": 1869640809
-                    }
-                ],
-                "Decimal": 6,
-                "TokenName": "USDC"
-            },
-            {
-                "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-                "ChainPath": [
-                    {
-                        "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-                        "Decimal": 6,
-                        "DomainId": 1634886255
-                    },
-                    {
-                        "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-                        "Decimal": 6,
-                        "DomainId": 1869640809
-                    }
-                ],
-                "Decimal": 6,
-                "TokenName": "USDT"
-            },
-            {
-                "Address": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-                "ChainPath": [
-                    {
-                        "Address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-                        "Decimal": 18,
-                        "DomainId": 1634886255
-                    },
-                    {
-                        "Address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-                        "Decimal": 18,
-                        "DomainId": 1869640809
-                    }
-                ],
-                "Decimal": 18,
-                "TokenName": "DAI"
-            },
-            {
-                "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
-                "ChainPath": [
-                    {
-                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
-                        "Decimal": 18,
-                        "DomainId": 1634886255
-                    },
-                    {
-                        "Address": "0x4200000000000000000000000000000000000006",
-                        "Decimal": 18,
-                        "DomainId": 1869640809
-                    }
-                ],
-                "Decimal": 18,
-                "TokenName": "WETH"
-            }
-        ]
-    }
+    "SupportTokens": [
+      {
+        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+        "ChainPath": [
+          {
+            "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+            "Decimal": 6,
+            "DomainId": 1634886255
+          },
+          {
+            "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+            "Decimal": 6,
+            "DomainId": 1886350457
+          }
+        ],
+        "Decimal": 6,
+        "TokenName": "USDC"
+      },
+      {
+        "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+        "ChainPath": [
+          {
+            "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+            "Decimal": 6,
+            "DomainId": 1634886255
+          },
+          {
+            "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+            "Decimal": 6,
+            "DomainId": 1886350457
+          }
+        ],
+        "Decimal": 6,
+        "TokenName": "USDT"
+      },
+      {
+        "Address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        "ChainPath": [
+          {
+            "Address": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+            "Decimal": 18,
+            "DomainId": 1886350457
+          }
+        ],
+        "Decimal": 18,
+        "TokenName": "DAI"
+      },
+      {
+        "Address": "0x4200000000000000000000000000000000000006",
+        "ChainPath": [
+          {
+            "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+            "Decimal": 18,
+            "DomainId": 1634886255
+          },
+          {
+            "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+            "Decimal": 18,
+            "DomainId": 1886350457
+          }
+        ],
+        "Decimal": 18,
+        "TokenName": "WETH"
+      }
+    ]
+  },
+  "polygon-main": {
+    "ChainId": 137,
+    "Connext": "0x11984dc4465481512eb5b777E44061C158CF2259",
+    "DomainId": 1886350457,
+    "GasEstimate": {
+      "execute": 400000,
+      "executeL1": 20000
+    },
+    "SupportTokens": [
+      {
+        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        "ChainPath": [
+          {
+            "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+            "Decimal": 6,
+            "DomainId": 1634886255
+          },
+          {
+            "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+            "Decimal": 6,
+            "DomainId": 1869640809
+          }
+        ],
+        "Decimal": 6,
+        "TokenName": "USDC"
+      },
+      {
+        "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        "ChainPath": [
+          {
+            "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+            "Decimal": 6,
+            "DomainId": 1634886255
+          },
+          {
+            "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+            "Decimal": 6,
+            "DomainId": 1869640809
+          }
+        ],
+        "Decimal": 6,
+        "TokenName": "USDT"
+      },
+      {
+        "Address": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+        "ChainPath": [
+          {
+            "Address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+            "Decimal": 18,
+            "DomainId": 1634886255
+          },
+          {
+            "Address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+            "Decimal": 18,
+            "DomainId": 1869640809
+          }
+        ],
+        "Decimal": 18,
+        "TokenName": "DAI"
+      },
+      {
+        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+        "ChainPath": [
+          {
+            "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+            "Decimal": 18,
+            "DomainId": 1634886255
+          },
+          {
+            "Address": "0x4200000000000000000000000000000000000006",
+            "Decimal": 18,
+            "DomainId": 1869640809
+          }
+        ],
+        "Decimal": 18,
+        "TokenName": "WETH"
+      }
+    ]
+  }
 }
