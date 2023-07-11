@@ -210,6 +210,10 @@ def get_cctp_token_messenger():
     return get_cctp_info()['token_messenger']
 
 
+def get_cctp_domain_id():
+    return get_cctp_info()['domain_id']
+
+
 def get_cctp_message_transmitter():
     return get_cctp_info()['message_transmitter']
 
