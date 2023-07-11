@@ -161,6 +161,7 @@ def compensate_v4():
             actual_token_addr, receiver, received_amt, {"from": account}
         )
 
+
 def compensate_v5():
     change_network("zksync2-main")
 
@@ -180,7 +181,10 @@ def compensate_v5():
             result = result["txSearchInfo"][0]
         if len(result["transfer"]) == 0:
             continue
-        if result["transfer"][0]["xfer_status"] != 6 or result["transfer"][0]["refund_tx"] == "":
+        if (
+            result["transfer"][0]["xfer_status"] != 6
+            or result["transfer"][0]["refund_tx"] == ""
+        ):
             continue
 
         refund_tx = result["transfer"][0]["refund_tx"]
@@ -190,13 +194,13 @@ def compensate_v5():
         receiver = receivers[src_txid]
         actual_token_addr = zero_address()
         print(
-            f"src: {src_net}, {src_txid}, {refund_tx}"
-            f"refund_amt:{refund_amt} eth"
-            f"receiver:{receiver}, actual_token_addr:{actual_token_addr}\n"
+            f"src: {src_net}, src_tx:{src_txid}, refund_tx:{refund_tx}\n"
+            f"receiver:{receiver}, actual_token_addr:{actual_token_addr}, refund_amt:{refund_amt}\n"
         )
         # withdraw_contract.withdraw(
-        #     actual_token_addr, receiver, received_amt, {"from": account}
+        #     actual_token_addr, receiver, refund_amt, {"from": account}
         # )
+
 
 def withdraw():
     account = get_account()
