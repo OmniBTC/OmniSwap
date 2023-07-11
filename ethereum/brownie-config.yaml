@@ -489,6 +489,9 @@ networks:
             key: "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f"
             address: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
             decimal: 18
+        gas:
+          execute: 400000
+          executeL1: 0
       multichain:
         chainid: 80001
         fast_router: "0x8E680018D67C57889083c23786C225F730C54Fb5"
@@ -550,6 +553,9 @@ networks:
             key: "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f"
             address: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2"
             decimal: 18
+        gas:
+          execute: 2000000
+          executeL1: 0
     token:
       connext-test:
         address: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f"

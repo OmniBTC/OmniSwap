@@ -85,7 +85,7 @@ def get_fee_value(amount, token='sui'):
 
 def get_fee_amount(value, token='sui'):
     price = get_token_price(token)
-    decimal = get_token_decimal(token)
+    decimal = get_token_amount_decimal(token)
     return int(value / price * pow(10, decimal))
 
 
