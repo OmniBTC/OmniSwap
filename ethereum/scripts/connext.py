@@ -4,6 +4,7 @@ import time
 from random import choice
 
 import ccxt
+import requests
 from brownie import Contract, web3
 from brownie.project.main import Project
 from retrying import retry
@@ -555,7 +556,6 @@ class SwapData(View):
 
 
 def estimate_dst_gas(so_data, bridge_token, dst_swap_data, p: Project = None):
-    import brownie
     account = get_account()
     proxy_diamond = Contract.from_abi(
         "ConnextFacet", p["SoDiamond"][-1].address, p["ConnextFacet"].abi
@@ -570,10 +570,12 @@ def estimate_dst_gas(so_data, bridge_token, dst_swap_data, p: Project = None):
 
     execute_gas = get_connext_execute_gas()
     executeL1_gas = get_connext_execute_l1_gas()
-    gas_price = int(brownie.web3.eth.gas_price)
-    network = brownie.network.show_active()
-    dst_relayer_fee = gas_price * (estimate_gas + execute_gas + executeL1_gas)
-    return get_fee_value(amount=dst_relayer_fee, token=get_network_token(network))
+    gas_amount = estimate_gas + execute_gas
+    chain_id = get_chain_id()
+
+    gelato_url = f"https://relay.gelato.digital/oracles/{chain_id}/estimate?paymentToken=0x0000000000000000000000000000000000000000&gasLimit={gas_amount}&gasLimitL1={executeL1_gas}&isHighPriority=false"
+    dst_relayer_fee = requests.get(gelato_url)
+    return dst_relayer_fee.json()['estimatedFee']
 
 
 def so_swap_via_connext(so_data, src_swap_data, connext_data, dst_swap_data, input_value, p: Project = None):
