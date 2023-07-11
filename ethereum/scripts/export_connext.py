@@ -1,7 +1,22 @@
+from brownie import (
+    DiamondCutFacet,
+    SoDiamond,
+    DiamondLoupeFacet,
+    DexManagerFacet,
+    WithdrawFacet,
+    OwnershipFacet,
+    GenericSwapFacet,
+    LibCorrectSwapV1,
+    SerdeFacet,
+    network,
+    ConnextFacet,
+    LibSoFeeConnextV1,
+)
 import json
 import os
-
+from pathlib import Path
 from brownie import config
+from scripts.helpful_scripts import change_network
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 connext_bridge_token_file = os.path.join(root_path, "export/ConnextChainPath.json")
@@ -91,6 +106,34 @@ def export_chain_path():
             token['ChainPath'] = chain_path
 
     write_file(connext_bridge_token_file, connext_bridge_token_info)
+
+
+def export_deploy_contract(nets=None):
+    if nets is None:
+        nets = ["arbitrum-main", "optimism-main"]
+
+    deploy_contract = [
+        DiamondCutFacet,
+        DiamondLoupeFacet,
+        DexManagerFacet,
+        ConnextFacet,
+        WithdrawFacet,
+        OwnershipFacet,
+        GenericSwapFacet,
+        SerdeFacet,
+        SoDiamond,
+        LibSoFeeConnextV1,
+        LibCorrectSwapV1
+    ]
+
+    data = {}
+    for net in nets:
+        data[net] = {}
+        change_network(net)
+        for c in deploy_contract:
+            data[net][c._name] = c[-1].address
+
+    write_file(str(Path(__file__).parent.parent.joinpath("export/mainnet/ContractDeployed.json")), data)
 
 
 def main():
