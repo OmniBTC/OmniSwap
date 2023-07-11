@@ -3,20 +3,14 @@ from brownie import (
     SoDiamond,
     DiamondLoupeFacet,
     DexManagerFacet,
-    StargateFacet,
     WithdrawFacet,
     OwnershipFacet,
     GenericSwapFacet,
-    LibSoFeeStargateV1,
-    LibSoFeeWormholeV1,
     LibCorrectSwapV1,
-    WormholeFacet,
     SerdeFacet,
     network,
-    LibSoFeeCelerV1,
-    CelerFacet,
-    MultiChainFacet,
-    LibSoFeeMultiChainV1,
+    CCTPFacet,
+    LibSoFeeCCTPV1,
 )
 from brownie.network import priority_fee
 
@@ -35,10 +29,11 @@ def deploy_contracts(account):
         DiamondCutFacet,
         DiamondLoupeFacet,
         DexManagerFacet,
-        StargateFacet,
-        CelerFacet,
-        MultiChainFacet,
-        WormholeFacet,
+        CCTPFacet,
+        # StargateFacet,
+        # CelerFacet,
+        # MultiChainFacet,
+        # WormholeFacet,
         WithdrawFacet,
         OwnershipFacet,
         GenericSwapFacet,
@@ -53,21 +48,24 @@ def deploy_contracts(account):
 
     so_fee = 1e-3
 
-    print("deploy LibSoFeeStargateV1.sol...")
-    transfer_for_gas = 30000
-    LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {"from": account})
+    # print("deploy LibSoFeeStargateV1.sol...")
+    # transfer_for_gas = 30000
+    # LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {"from": account})
 
     ray = 1e27
 
-    print("deploy LibSoFeeCelerV1.sol...")
-    LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
+    # print("deploy LibSoFeeCelerV1.sol...")
+    # LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
+    #
+    # print("deploy LibSoFeeMultiChainV1.sol...")
+    # LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
+    #
+    # print("deploy LibSoFeeWormholeV1.sol...")
+    #
+    # LibSoFeeWormholeV1.deploy(int(so_fee * ray), {"from": account})
 
-    print("deploy LibSoFeeMultiChainV1.sol...")
-    LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
-
-    print("deploy LibSoFeeWormholeV1.sol...")
-
-    LibSoFeeWormholeV1.deploy(int(so_fee * ray), {"from": account})
+    print("deploy LibSoFeeCCTPV1.sol...")
+    LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
 
     print("deploy LibCorrectSwapV1...")
     LibCorrectSwapV1.deploy({"from": account})

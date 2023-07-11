@@ -1,4 +1,3 @@
-from pprint import pprint
 from brownie import (
     DiamondCutFacet,
     SoDiamond,
@@ -22,8 +21,12 @@ from brownie import (
     LibSoFeeCelerV1,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
+    LibSoFeeCCTP,
+    CCTPFacet
 )
 from brownie.network import priority_fee
+
+from ethereum.scripts.helpful_scripts import get_cctp_token_messenger, get_cctp_message_transmitter
 
 FacetCutAction_ADD = 0
 FacetCutAction_REPLACE = 1
@@ -67,34 +70,38 @@ def main():
     except Exception as e:
         print(f"initialize_cut fail:{e}")
     try:
-        initialize_stargate(account, so_diamond)
+        initialize_cctp(account, so_diamond)
     except Exception as e:
-        print(f"initialize_stargate fail:{e}")
-    try:
-        initialize_celer(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_celer fail:{e}")
-    try:
-        initialize_celer_fee(account)
-    except Exception as e:
-        print(f"initialize_celer_fee fail: {e}")
-    try:
-        initialize_multichain(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_multichain fail:{e}")
-    try:
-        initialize_wormhole(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_wormhole fail: {e}")
-    try:
-        initialize_wormhole_fee(account)
-    except Exception as e:
-        print(f"initialize_wormhole_fee fail: {e}")
+        print(f"initialize_cctp fail:{e}")
+    # try:
+    #     initialize_stargate(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_stargate fail:{e}")
+    # try:
+    #     initialize_celer(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_celer fail:{e}")
+    # try:
+    #     initialize_celer_fee(account)
+    # except Exception as e:
+    #     print(f"initialize_celer_fee fail: {e}")
+    # try:
+    #     initialize_multichain(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_multichain fail:{e}")
+    # try:
+    #     initialize_wormhole(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_wormhole fail: {e}")
+    # try:
+    #     initialize_wormhole_fee(account)
+    # except Exception as e:
+    #     print(f"initialize_wormhole_fee fail: {e}")
     try:
         initialize_dex_manager(account, so_diamond)
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
-    initialize_little_token_for_stargate()
+    # initialize_little_token_for_stargate()
 
 
 def initialize_wormhole_fee(account):
@@ -197,6 +204,15 @@ def initialize_stargate(account, so_diamond):
     print(f"network:{net}, init stargate...")
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
+    )
+
+
+def initialize_cctp(account, so_diamond):
+    proxy_cctp = Contract.from_abi("CCTPFacet", so_diamond.address, CCTPFacet.abi)
+    net = network.show_active()
+    print(f"network:{net}, init cctp...")
+    proxy_cctp.initCCTP(
+        get_cctp_token_messenger(), get_cctp_message_transmitter(), {"from": account}
     )
 
 
@@ -316,17 +332,20 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchAddDex(dexs, {"from": account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    # )
     proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+        get_cctp_token_messenger(), LibSoFeeCCTP[-1].address, {"from": account}
     )
 
 

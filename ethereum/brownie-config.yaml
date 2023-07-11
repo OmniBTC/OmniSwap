@@ -360,6 +360,10 @@ networks:
       poolid:
         usdc: 1
     bridges:
+      cctp:
+        domain_id: 1
+        token_messenger: "0xeb08f243e5d3fcff26a9e38ae5520a669f4019d0"
+        message_transmitter: "0xa9fb1b3009dcb79e2fe346c16a604b8fa8ae0a79"
       celer:
         chainid: 43113
         message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
@@ -388,7 +392,7 @@ networks:
             address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     token:
       usdc:
-        address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
+        address: "0x5425890298aed601595a70AB815c96711a31Bc65"
         decimal: 6
       weth:
         # Wormhole used weth
@@ -513,9 +517,14 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      cctp:
+        domain_id: 3
+        token_messenger: "0x12dcfd3fe2e9eac2859fd1ed86d2ab8c5a2f9352"
+        message_transmitter: "0x109bc137cb64eab7c0b1dddd1edf341467dc2d35"
     token:
       usdc:
-        address: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
+        address: "0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63"
         decimal: 6
       weth:
         address: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
