@@ -242,6 +242,14 @@ def get_connext_domain_id():
     return get_connext_info()["domain_id"]
 
 
+def get_connext_execute_gas():
+    return get_connext_info()['gas']['execute']
+
+
+def get_connext_execute_l1_gas():
+    return get_connext_info()['gas']['executeL1']
+
+
 def get_connext():
     return get_connext_info()["connext"]
 

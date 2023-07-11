@@ -3,8 +3,10 @@ import os
 import time
 from random import choice
 
+import ccxt
 from brownie import Contract, web3
 from brownie.project.main import Project
+from retrying import retry
 
 from helpful_scripts import (
     get_account,
@@ -17,7 +19,7 @@ from helpful_scripts import (
     get_chain_id,
     get_swap_info,
     to_hex_str,
-    get_account_address, get_connext_domain_id,
+    get_account_address, get_connext_domain_id, get_connext_execute_gas, get_connext_execute_l1_gas,
 )
 
 uniswap_v3_fee_decimal = 1e6
@@ -26,6 +28,9 @@ root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 src_session: Session = None
 dst_session: Session = None
+
+kucoin = ccxt.kucoin()
+kucoin.load_markets()
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -43,6 +48,45 @@ def token_approve(
         token_name.upper(), get_token_address(token_name), p.interface.IERC20.abi
     )
     token.approve(aprrove_address, amount, {"from": get_account()})
+
+
+@retry
+def get_token_price(token):
+    if token == "eth":
+        return float(kucoin.fetch_ticker("ETH/USDT")['close'])
+    elif token == "bnb":
+        return float(kucoin.fetch_ticker("BNB/USDT")['close'])
+    elif token == "matic":
+        return float(kucoin.fetch_ticker("MATIC/USDT")['close'])
+    elif token == "apt":
+        return float(kucoin.fetch_ticker("APT/USDT")['close'])
+    elif token == "sui":
+        return float(kucoin.fetch_ticker("SUI/USDT")['close'])
+
+
+def get_token_amount_decimal(token):
+    if token in ['eth', 'matic', 'bnb']:
+        return 18
+    elif token == 'apt':
+        return 8
+    elif token == 'sui':
+        return 9
+
+
+def get_network_token(network):
+    return 'matic' if 'polygon' in network else 'eth'
+
+
+def get_fee_value(amount, token='sui'):
+    price = get_token_price(token)
+    decimal = get_token_amount_decimal(token)
+    return price * amount / pow(10, decimal)
+
+
+def get_fee_amount(value, token='sui'):
+    price = get_token_price(token)
+    decimal = get_token_decimal(token)
+    return int(value / price * pow(10, decimal))
 
 
 class View:
@@ -510,26 +554,26 @@ class SwapData(View):
         return amountIn
 
 
-def estimate_dst_gas(so_data, bridge_token_name, dst_swap_data, p: Project = None):
+def estimate_dst_gas(so_data, bridge_token, dst_swap_data, p: Project = None):
     import brownie
     account = get_account()
     proxy_diamond = Contract.from_abi(
         "ConnextFacet", p["SoDiamond"][-1].address, p["ConnextFacet"].abi
     )
 
-    cross_token = get_token_address(bridge_token_name)
-    print(f"cross_token: {cross_token}")
     estimate_gas = proxy_diamond.xReceiveForGas.estimate_gas(
         so_data.format_to_contract(),
-        cross_token,
+        bridge_token,
         [] if dst_swap_data is None else [dst_swap_data.format_to_contract()],
         {"from": account}
     )
 
-    default_gas = 200000
-    print(f"Estimate gas: {estimate_gas + default_gas}")
+    execute_gas = get_connext_execute_gas()
+    executeL1_gas = get_connext_execute_l1_gas()
     gas_price = int(brownie.web3.eth.gas_price)
-    print(f"Relayer fee: {gas_price * (estimate_gas + default_gas) / 1e18} ETH")
+    network = brownie.network.show_active()
+    dst_relayer_fee = gas_price * (estimate_gas + execute_gas + executeL1_gas)
+    return get_fee_value(amount=dst_relayer_fee, token=get_network_token(network))
 
 
 def so_swap_via_connext(so_data, src_swap_data, connext_data, dst_swap_data, input_value, p: Project = None):
@@ -642,26 +686,29 @@ def cross_swap_via_connext(
     dst_domain = dst_session.put_task(get_connext_domain_id)
 
     if src_swap_data is not None:
-        bridge_token_name = "Unknown"
-        bridge_token = src_swap_data.receivingAssetId
+        src_bridge_token = src_swap_data.receivingAssetId
     else:
-        bridge_token_name = sourceTokenName if sourceTokenName != "eth" else "connext-weth"
-        bridge_token = src_session.put_task(get_token_address, args=(bridge_token_name,))
+        src_bridge_token = src_session.put_task(get_token_address, args=(sourceTokenName,))
+
+    if dst_swap_data is not None:
+        dst_bridge_token = dst_swap_data.sendingAssetId
+    else:
+        dst_bridge_token = dst_session.put_task(get_token_address, args=(destinationTokenName,))
 
     is_native = sourceTokenName == "eth"
-    connext_data = ConnextData(dst_domain, dst_diamond_address, bridge_token, 300, is_native, relay_fee, False)
+    connext_data = ConnextData(dst_domain, dst_diamond_address, src_bridge_token, 300, is_native, relay_fee, False)
     print(f"ConnextData: {connext_data.format_to_contract()}")
-    gas_relay_fee = int(1e16) if sourceTokenName == "eth" else 0
-
-    dst_session.put_task(
+    dst_relay_fee = dst_session.put_task(
         estimate_dst_gas,
         args=(
             so_data,
-            bridge_token_name,
+            dst_bridge_token,
             dst_swap_data,
         ),
         with_project=True,
     )
+
+    gas_relay_fee = get_fee_amount(dst_relay_fee, get_network_token(src_session.net))
 
     input_value = input_eth_amount + gas_relay_fee
     print(f"Input value: {input_value}")
