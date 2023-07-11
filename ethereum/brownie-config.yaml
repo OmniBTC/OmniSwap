@@ -1673,6 +1673,12 @@ networks:
       usdc:
         address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
         decimal: 6
+      usdt:
+        address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
+        decimal: 6
+      dai:
+        address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
+        decimal: 18
     swap:
       ISwapRouter:
         name: UniswapV3

@@ -337,18 +337,10 @@ class SwapData(View):
                 raise ValueError("Not support")
         else:
             path = cls.encode_path_for_uniswap_v2(swapPath)
-            if swapPath[0] == "weth":
-                sendingAssetId = zero_address()
-            else:
-                sendingAssetId = path[0]
-            if swapPath[-1] == "weth":
-                receivingAssetId = zero_address()
-            else:
-                receivingAssetId = path[-1]
+            sendingAssetId = path[0]
+            receivingAssetId = path[-1]
 
         if swapFuncName in [
-            SwapFunc.swapExactTokensForETH,
-            SwapFunc.swapExactTokensForAVAX,
             SwapFunc.swapExactTokensForTokens,
         ]:
             callData = getattr(swap_contract, swapFuncName).encode_input(
@@ -577,6 +569,7 @@ def estimate_dst_gas(so_data, bridge_token, dst_swap_data, p: Project = None):
 
     gelato_url = f"https://relay.gelato.digital/oracles/{chain_id}/estimate?paymentToken=0x0000000000000000000000000000000000000000&gasLimit={gas_amount}&gasLimitL1={executeL1_gas}&isHighPriority=false"
     dst_relayer_fee = requests.get(gelato_url)
+    print("dst_relayer_fee", dst_relayer_fee)
     return get_fee_value(int(dst_relayer_fee.json()['estimatedFee']), get_network_token(net))
 
 
@@ -690,7 +683,11 @@ def cross_swap_via_connext(
     if src_swap_data is not None:
         src_bridge_token = src_swap_data.receivingAssetId
     else:
-        src_bridge_token = src_session.put_task(get_token_address, args=(sourceTokenName,))
+        if sourceTokenName == "eth":
+            token_name = "weth"
+        else:
+            token_name = sourceTokenName
+        src_bridge_token = src_session.put_task(get_token_address, args=(token_name,))
 
     if dst_swap_data is not None:
         dst_bridge_token = dst_swap_data.sendingAssetId
@@ -708,6 +705,7 @@ def cross_swap_via_connext(
     )
 
     gas_relay_fee = get_fee_amount(dst_relay_fee, get_network_token(src_session.net))
+    print("gas_relay_fee", gas_relay_fee)
 
     input_value = input_eth_amount + gas_relay_fee
 
@@ -729,7 +727,7 @@ def cross_swap_via_connext(
     )
 
 
-def main(src_net="polygon-test", dst_net="arbitrum-test"):
+def main(src_net="arbitrum-main", dst_net="optimism-main"):
     global src_session
     global dst_session
     src_session = Session(
@@ -740,19 +738,19 @@ def main(src_net="polygon-test", dst_net="arbitrum-test"):
     )
 
     # without swap
-    cross_swap_via_connext(
-        src_session=src_session,
-        dst_session=dst_session,
-        inputAmount=int(100 * 1e18),
-        sourceTokenName="connext-test",
-        destinationTokenName="connext-test",
-        sourceSwapType=None,
-        sourceSwapFunc=None,
-        sourceSwapPath=None,
-        destinationSwapType=None,
-        destinationSwapFunc=None,
-        destinationSwapPath=None,
-    )
+    # cross_swap_via_connext(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(0.0001 * 1e18),
+    #     sourceTokenName="eth",
+    #     destinationTokenName="eth",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
 
     # without swap but native
     # cross_swap_via_connext(
@@ -830,19 +828,19 @@ def main(src_net="polygon-test", dst_net="arbitrum-test"):
     # )
 
     # src and dst swap
-    # cross_swap_via_connext(
-    #     src_session=src_session,
-    #     dst_session=dst_session,
-    #     inputAmount=1e5,
-    #     sourceTokenName="bool-usdc",
-    #     destinationTokenName="bool-usdc",
-    #     sourceSwapType=SwapType.IUniswapV2Router02,
-    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-    #     sourceSwapPath=("bool-usdc", "bool-usdt"),
-    #     destinationSwapType=SwapType.IUniswapV2Router02,
-    #     destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-    #     destinationSwapPath=("bool-usdt", "bool-usdc"),
-    # )
+    cross_swap_via_connext(
+        src_session=src_session,
+        dst_session=dst_session,
+        inputAmount=int(0.1*1e6),
+        sourceTokenName="usdt",
+        destinationTokenName="usdt",
+        sourceSwapType=SwapType.IUniswapV2Router02,
+        sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+        sourceSwapPath=("usdt", "weth"),
+        destinationSwapType=SwapType.IUniswapV2Router02,
+        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+        destinationSwapPath=("weth", "usdt"),
+    )
 
     src_session.terminate()
     dst_session.terminate()
