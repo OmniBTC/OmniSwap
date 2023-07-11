@@ -665,8 +665,6 @@ def cross_swap_via_connext(
         )
         print("DestinationSwapData:\n", dst_swap_data)
 
-    relay_fee = int(50 * 1e18) if sourceTokenName != "eth" else int(1e16)
-
     if sourceTokenName != "eth":
         src_session.put_task(
             token_approve,
@@ -675,7 +673,7 @@ def cross_swap_via_connext(
                 src_session.put_task(
                     get_contract_address, args=("SoDiamond",), with_project=True
                 ),
-                inputAmount + relay_fee,
+                inputAmount,
             ),
             with_project=True,
         )
@@ -695,9 +693,6 @@ def cross_swap_via_connext(
     else:
         dst_bridge_token = dst_session.put_task(get_token_address, args=(destinationTokenName,))
 
-    is_native = sourceTokenName == "eth"
-    connext_data = ConnextData(dst_domain, dst_diamond_address, src_bridge_token, 300, is_native, relay_fee, False)
-    print(f"ConnextData: {connext_data.format_to_contract()}")
     dst_relay_fee = dst_session.put_task(
         estimate_dst_gas,
         args=(
@@ -711,7 +706,11 @@ def cross_swap_via_connext(
     gas_relay_fee = get_fee_amount(dst_relay_fee, get_network_token(src_session.net))
 
     input_value = input_eth_amount + gas_relay_fee
+
     print(f"Input value: {input_value}")
+
+    connext_data = ConnextData(dst_domain, dst_diamond_address, src_bridge_token, 300, True, gas_relay_fee, False)
+    print(f"ConnextData: {connext_data.format_to_contract()}")
 
     src_session.put_task(
         so_swap_via_connext,
