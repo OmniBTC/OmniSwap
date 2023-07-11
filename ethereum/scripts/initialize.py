@@ -21,12 +21,10 @@ from brownie import (
     LibSoFeeCelerV1,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
-    LibSoFeeCCTP,
+    LibSoFeeCCTPV1,
     CCTPFacet
 )
-from brownie.network import priority_fee
-
-from ethereum.scripts.helpful_scripts import get_cctp_token_messenger, get_cctp_message_transmitter
+from brownie.network import priority_fee, max_fee
 
 FacetCutAction_ADD = 0
 FacetCutAction_REPLACE = 1
@@ -56,12 +54,17 @@ from scripts.helpful_scripts import (
     get_multichain_router,
     get_multichain_id,
     get_multichain_info,
+    get_cctp_token_messenger,
+    get_cctp_message_transmitter
 )
 
 
 def main():
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("1 gwei")
+    if "arbitrum" in network.show_active():
+        priority_fee("1 gwei")
+        max_fee("1.25 gwei")
     account = get_account()
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond Address:{so_diamond}")
@@ -170,10 +173,11 @@ def initialize_cut(account, so_diamond):
         DiamondLoupeFacet,
         DexManagerFacet,
         OwnershipFacet,
-        CelerFacet,
-        MultiChainFacet,
-        StargateFacet,
-        WormholeFacet,
+        CCTPFacet,
+        # CelerFacet,
+        # MultiChainFacet,
+        # StargateFacet,
+        # WormholeFacet,
         WithdrawFacet,
         GenericSwapFacet,
         SerdeFacet,
@@ -345,7 +349,7 @@ def initialize_dex_manager(account, so_diamond):
     #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
     # )
     proxy_dex.addFee(
-        get_cctp_token_messenger(), LibSoFeeCCTP[-1].address, {"from": account}
+        get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
     )
 
 
@@ -371,6 +375,16 @@ def redeploy_serde():
     remove_facet(SerdeFacet)
     SerdeFacet.deploy({"from": get_account()})
     add_cut([SerdeFacet])
+
+
+def redeploy_cctp():
+    account = get_account()
+
+    remove_facet(CCTPFacet)
+
+    CCTPFacet.deploy({"from": account})
+    add_cut([CCTPFacet])
+    initialize_cctp(account, SoDiamond[-1])
 
 
 def redeploy_wormhole():
