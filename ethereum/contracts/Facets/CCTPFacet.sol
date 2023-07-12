@@ -12,6 +12,7 @@ import "../Helpers/Swapper.sol";
 import "../Interfaces/ILibSoFee.sol";
 import "../Interfaces/ITokenMessenger.sol";
 import "../Interfaces/IReceiver.sol";
+import "../Interfaces/ILibPrice.sol";
 
 /// @title CCTP Facet
 /// @author OmniBTC
@@ -23,7 +24,7 @@ contract CCTPFacet is Swapper {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-    hex"ed7099a4d8ec3979659a0931894724cfba9c270625d87b539a3d3a9e869c389e"; // keccak256("com.so.facets.cctp")
+        hex"ed7099a4d8ec3979659a0931894724cfba9c270625d87b539a3d3a9e869c389e"; // keccak256("com.so.facets.cctp")
 
     uint256 public constant RAY = 1e27;
 
@@ -33,12 +34,17 @@ contract CCTPFacet is Swapper {
     }
 
     /// Events ///
+    event InitCCTP(address tokenMessenger, address messageTransmitter);
+    event RelayEvent(bytes32 transactionId, uint256 fee);
 
     /// Types ///
 
     struct CCTPData {
+        // Chain ID defined by CCTP
         uint32 destinationDomain;
+        // CCTP supports tokens across chains
         address burnToken;
+        // The ultimate recipient of the token
         bytes32 mintRecipient;
     }
 
@@ -53,12 +59,13 @@ contract CCTPFacet is Swapper {
     /// @param _tokenMessenger cctp token bridge
     /// @param _messageTransmitter cctp message protocol
     function initCCTP(address _tokenMessenger, address _messageTransmitter)
-    external
+        external
     {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
         s.tokenMessenger = _tokenMessenger;
         s.messageTransmitter = _messageTransmitter;
+        emit InitCCTP(_tokenMessenger, _messageTransmitter);
     }
 
     /// External Methods ///
@@ -83,6 +90,18 @@ contract CCTPFacet is Swapper {
 
         if (!LibAsset.isNativeAsset(soData.sendingAssetId)) {
             LibAsset.depositAsset(soData.sendingAssetId, soData.amount);
+        }
+
+        uint256 relay_fee = LibAsset.isNativeAsset(soData.sendingAssetId)
+            ? msg.value - soData.amount
+            : msg.value;
+        if (relay_fee > 0) {
+            LibAsset.transferAsset(
+                LibAsset.NATIVE_ASSETID,
+                payable(LibDiamond.contractOwner()),
+                relay_fee
+            );
+            emit RelayEvent(soData.transactionId, relay_fee);
         }
 
         if (swapDataSrc.length == 0) {
@@ -121,7 +140,10 @@ contract CCTPFacet is Swapper {
         emit SoTransferStarted(soData.transactionId);
     }
 
-    function receiveCCTPMessage(bytes calldata message, bytes calldata attestation) external {
+    function receiveCCTPMessage(
+        bytes calldata message,
+        bytes calldata attestation
+    ) external {
         Storage storage s = getStorage();
         IReceiver(s.messageTransmitter).receiveMessage(message, attestation);
     }
@@ -139,10 +161,7 @@ contract CCTPFacet is Swapper {
 
     /// Internal Methods ///
 
-    function _startBridge(
-        CCTPData calldata cctpData,
-        uint256 amount
-    ) internal {
+    function _startBridge(CCTPData calldata cctpData, uint256 amount) internal {
         Storage storage s = getStorage();
         // Give TokenMessenger approval to bridge tokens
         LibAsset.maxApproveERC20(

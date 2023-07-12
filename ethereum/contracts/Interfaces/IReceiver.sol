@@ -10,7 +10,6 @@ interface IReceiver {
      * @return success bool, true if successful
      */
     function receiveMessage(bytes calldata message, bytes calldata signature)
-    external
-    returns (bool success);
+        external
+        returns (bool success);
 }
-
