@@ -60,6 +60,8 @@ def get_token_price(token):
         return float(kucoin.fetch_ticker("BNB/USDT")['close'])
     elif token == "matic":
         return float(kucoin.fetch_ticker("MATIC/USDT")['close'])
+    elif token == "avax":
+        return float(kucoin.fetch_ticker("AVAX/USDT")['close'])
     elif token == "apt":
         return float(kucoin.fetch_ticker("APT/USDT")['close'])
     elif token == "sui":
@@ -67,7 +69,7 @@ def get_token_price(token):
 
 
 def get_token_amount_decimal(token):
-    if token in ['eth', 'matic', 'bnb']:
+    if token in ['eth', 'matic', 'bnb', 'avax']:
         return 18
     elif token == 'apt':
         return 8
@@ -76,7 +78,12 @@ def get_token_amount_decimal(token):
 
 
 def get_network_token(network):
-    return 'matic' if 'polygon' in network else 'eth'
+    if 'avax' in network:
+        return 'avax'
+    elif 'polygon' in network:
+        return 'matic'
+    else:
+        return 'eth'
 
 
 def get_fee_value(amount, token='sui'):
@@ -559,6 +566,10 @@ def so_swap_via_cctp(so_data, src_swap_data, cctp_data, input_value, p: Project 
     return get_message_hash(tx_receipt.txid)
 
 
+def get_gas_price():
+    return brownie.web3.eth.gas_price
+
+
 def cross_swap_via_cctp(
         src_session,
         dst_session,
@@ -623,9 +634,15 @@ def cross_swap_via_cctp(
     cross_token = src_session.put_task(get_token_address, args=("usdc",), with_project=False)
     account_address = dst_session.put_task(get_account_address, with_project=False)
 
+    default_dst_gas = 200000
+    dst_gas_price = dst_session.put_task(get_gas_price, with_project=False)
+    dst_fee_amount = default_dst_gas * int(dst_gas_price)
+    dst_fee = get_fee_value(dst_fee_amount, get_network_token(dst_session.net))
+    src_fee = get_fee_amount(dst_fee, get_network_token(src_session.net))
+
     cctp_data = CCTPData(dst_domain_id, cross_token, account_address)
 
-    input_value = input_eth_amount
+    input_value = input_eth_amount + src_fee
 
     print(f"Input value: {input_value}")
 
@@ -708,28 +725,28 @@ def main(src_net="avax-test", dst_net="arbitrum-test"):
     )
 
     # without swap
-    # cross_swap_via_cctp(
-    #     src_session=src_session,
-    #     dst_session=dst_session,
-    #     inputAmount=int(1 * 1e6),
-    #     sourceTokenName="usdc",
-    #     destinationTokenName="usdc",
-    #     sourceSwapType=None,
-    #     sourceSwapFunc=None,
-    #     sourceSwapPath=None,
-    # )
-
-    # with srcswap
     cross_swap_via_cctp(
         src_session=src_session,
         dst_session=dst_session,
         inputAmount=int(1 * 1e6),
-        sourceTokenName="test-usdc",
+        sourceTokenName="usdc",
         destinationTokenName="usdc",
-        sourceSwapType=SwapType.IUniswapV2Router02AVAX,
-        sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-        sourceSwapPath=("test-usdc", "usdc"),
+        sourceSwapType=None,
+        sourceSwapFunc=None,
+        sourceSwapPath=None,
     )
+
+    # with srcswap
+    # cross_swap_via_cctp(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(1 * 1e6),
+    #     sourceTokenName="test-usdc",
+    #     destinationTokenName="usdc",
+    #     sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     sourceSwapPath=("test-usdc", "usdc"),
+    # )
 
     src_session.terminate()
     dst_session.terminate()
