@@ -394,6 +394,9 @@ networks:
       usdc:
         address: "0x5425890298aed601595a70AB815c96711a31Bc65"
         decimal: 6
+      test-usdc:
+        address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
+        decimal: 6
       weth:
         # Wormhole used weth
         address: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"

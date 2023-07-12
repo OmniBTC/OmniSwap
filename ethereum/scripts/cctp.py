@@ -620,7 +620,7 @@ def cross_swap_via_cctp(
         input_eth_amount = inputAmount
 
     dst_domain_id = dst_session.put_task(get_cctp_domain_id, with_project=False)
-    cross_token = src_session.put_task(get_token_address, args=(sourceTokenName,), with_project=False)
+    cross_token = src_session.put_task(get_token_address, args=("usdc",), with_project=False)
     account_address = dst_session.put_task(get_account_address, with_project=False)
 
     cctp_data = CCTPData(dst_domain_id, cross_token, account_address)
@@ -708,15 +708,27 @@ def main(src_net="avax-test", dst_net="arbitrum-test"):
     )
 
     # without swap
+    # cross_swap_via_cctp(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(1 * 1e6),
+    #     sourceTokenName="usdc",
+    #     destinationTokenName="usdc",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    # )
+
+    # with srcswap
     cross_swap_via_cctp(
         src_session=src_session,
         dst_session=dst_session,
         inputAmount=int(1 * 1e6),
-        sourceTokenName="usdc",
+        sourceTokenName="test-usdc",
         destinationTokenName="usdc",
-        sourceSwapType=None,
-        sourceSwapFunc=None,
-        sourceSwapPath=None,
+        sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+        sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+        sourceSwapPath=("test-usdc", "usdc"),
     )
 
     src_session.terminate()
