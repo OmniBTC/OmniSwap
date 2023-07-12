@@ -1,5 +1,6 @@
 {
   "arbitrum-main": {
+    "SoDiamond": "0x8D18DFCeA276DC3f5d76270F9F544cb74b39c4Eb",
     "ChainId": 42161,
     "Connext": "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
     "DomainId": 1634886255,
@@ -74,6 +75,7 @@
     ]
   },
   "optimism-main": {
+    "SoDiamond": "0x6b23875dD0D74c767c329C4A927B4408337B65d8",
     "ChainId": 10,
     "Connext": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
     "DomainId": 1869640809,
