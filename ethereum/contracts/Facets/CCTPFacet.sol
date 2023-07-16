@@ -29,7 +29,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-        hex"ed7099a4d8ec3979659a0931894724cfba9c270625d87b539a3d3a9e869c389e"; // keccak256("com.so.facets.cctp")
+    hex"ed7099a4d8ec3979659a0931894724cfba9c270625d87b539a3d3a9e869c389e"; // keccak256("com.so.facets.cctp")
 
     uint256 public constant RAY = 1e27;
 
@@ -64,7 +64,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// @param _tokenMessenger cctp token bridge
     /// @param _messageTransmitter cctp message protocol
     function initCCTP(address _tokenMessenger, address _messageTransmitter)
-        external
+    external
     {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
@@ -147,6 +147,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             );
         }
 
+        soData.amount = bridgeAmount;
         bytes memory payload = encodeCCTPPayload(soDataNo, swapDataDstNo);
 
         _startBridge(cctpData, bridgeAmount, payload);
@@ -212,12 +213,12 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
     function decodeCCTPPayload(bytes memory stargatePayload)
-        public
-        pure
-        returns (
-            ISo.NormalizedSoData memory soData,
-            LibSwap.NormalizedSwapData[] memory swapDataDst
-        )
+    public
+    pure
+    returns (
+        ISo.NormalizedSoData memory soData,
+        LibSwap.NormalizedSwapData[] memory swapDataDst
+    )
     {
         CachePayload memory data;
         uint256 index;
@@ -298,8 +299,8 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         );
 
         (
-            ISo.NormalizedSoData memory soDataNo,
-            LibSwap.NormalizedSwapData[] memory swapDataDstNo
+        ISo.NormalizedSoData memory soDataNo,
+        LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeCCTPPayload(messageBody);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -307,9 +308,9 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             swapDataDstNo
         );
 
-        uint256 amount;
+        // cross-chain loss not exist in burn-mint mode
+        uint256 amount = soData.amount;
         if (swapDataDst.length == 0) {
-            amount = LibAsset.getOwnBalance(soData.receivingAssetId);
             LibAsset.transferAsset(
                 soData.receivingAssetId,
                 soData.receiver,
@@ -317,7 +318,6 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             );
             emit SoTransferCompleted(soData.transactionId, amount);
         } else {
-            amount = LibAsset.getOwnBalance(swapDataDst[0].sendingAssetId);
             swapDataDst[0].fromAmount = amount;
 
             address correctSwap = appStorage.correctSwapRouterSelectors;
@@ -385,6 +385,74 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         IReceiver(s.messageTransmitter).receiveMessage(message, attestation);
     }
 
+    /// @notice Don't call directly, or your money will be locked up in the contract
+    /// @dev estimate dst swap gas
+    function estimateCCTPDstSwapGas(
+        ISo.NormalizedSoData calldata soDataNo,
+        LibSwap.NormalizedSwapData[] calldata swapDataDstNo
+    ) external nonReentrant {
+        ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
+        LibSwap.SwapData[] memory swapDataDst = LibCross.denormalizeSwapData(
+            swapDataDstNo
+        );
+
+        // Not allow transfer to other
+        soData.receiver = payable(address(this));
+
+        LibAsset.depositAsset(soData.receivingAssetId, soData.amount);
+
+        uint256 amount = soData.amount;
+        if (swapDataDst.length == 0) {
+            LibAsset.transferAsset(
+                soData.receivingAssetId,
+                soData.receiver,
+                amount
+            );
+            emit SoTransferCompleted(soData.transactionId, amount);
+        } else {
+            swapDataDst[0].fromAmount = amount;
+
+            address correctSwap = appStorage.correctSwapRouterSelectors;
+
+            if (correctSwap != address(0)) {
+                swapDataDst[0].callData = ICorrectSwap(correctSwap).correctSwap(
+                    swapDataDst[0].callData,
+                    swapDataDst[0].fromAmount
+                );
+            }
+
+            try this.executeAndCheckSwaps(soData, swapDataDst) returns (
+                uint256 amountFinal
+            ) {
+                transferUnwrappedAsset(
+                    swapDataDst[swapDataDst.length - 1].receivingAssetId,
+                    soData.receivingAssetId,
+                    amountFinal,
+                    soData.receiver
+                );
+                emit SoTransferCompleted(soData.transactionId, amountFinal);
+            } catch Error(string memory revertReason) {
+                LibAsset.transferAsset(
+                    swapDataDst[0].sendingAssetId,
+                    soData.receiver,
+                    amount
+                );
+                emit SoTransferFailed(
+                    soData.transactionId,
+                    revertReason,
+                    bytes("")
+                );
+            } catch (bytes memory returnData) {
+                LibAsset.transferAsset(
+                    swapDataDst[0].sendingAssetId,
+                    soData.receiver,
+                    amount
+                );
+                emit SoTransferFailed(soData.transactionId, "", returnData);
+            }
+        }
+    }
+
     /// @dev Get so fee
     function getCCTPSoFee(uint256 amount) public view returns (uint256) {
         Storage storage s = getStorage();
@@ -405,7 +473,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
 
     function _startBridge(
         CCTPData calldata cctpData,
-        uint256 amount,
+        uint256 bridgeAmount,
         bytes memory payload
     ) internal {
         Storage storage s = getStorage();
@@ -413,11 +481,11 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         LibAsset.maxApproveERC20(
             IERC20(cctpData.burnToken),
             s.tokenMessenger,
-            amount
+            bridgeAmount
         );
 
         ITokenMessenger(s.tokenMessenger).depositForBurn(
-            amount,
+            bridgeAmount,
             cctpData.destinationDomain,
             cctpData.dstDiamond,
             cctpData.burnToken
