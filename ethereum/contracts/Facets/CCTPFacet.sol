@@ -47,6 +47,8 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     struct CCTPData {
         // Chain ID defined by CCTP
         uint32 destinationDomain;
+        // Destination chain's diamond
+        bytes32 dstDiamond;
         // CCTP supports tokens across chains
         address burnToken;
     }
@@ -309,7 +311,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         if (swapDataDst.length == 0) {
             amount = LibAsset.getOwnBalance(soData.receivingAssetId);
             LibAsset.transferAsset(
-                swapDataDst[0].sendingAssetId,
+                soData.receivingAssetId,
                 soData.receiver,
                 amount
             );
@@ -414,18 +416,16 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             amount
         );
 
-        bytes32 recipient = bytes32(uint256(uint160(address(this))));
-
         ITokenMessenger(s.tokenMessenger).depositForBurn(
             amount,
             cctpData.destinationDomain,
-            recipient,
+            cctpData.dstDiamond,
             cctpData.burnToken
         );
 
         IMessageTransmitter(s.messageTransmitter).sendMessage(
             cctpData.destinationDomain,
-            recipient,
+            cctpData.dstDiamond,
             payload
         );
     }

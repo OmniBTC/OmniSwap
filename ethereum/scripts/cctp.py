@@ -208,19 +208,19 @@ class CCTPData(View):
     def __init__(
             self,
             dst_domain,
-            cross_token,
-            recipient
+            dst_diamond,
+            cross_token
     ):
         self.dst_domain = dst_domain
+        self.dst_diamond = dst_diamond
         self.cross_token = cross_token
-        self.recipient = recipient
 
     def format_to_contract(self):
         """Get the CCTP data passed into the contract interface"""
         return [
             self.dst_domain,
-            self.cross_token,
-            padding_to_bytes(self.recipient, padding='left', length=32)
+            padding_to_bytes(self.dst_diamond, padding='left', length=32),
+            self.cross_token
         ]
 
 
@@ -551,7 +551,7 @@ class SwapData(View):
         return amountIn
 
 
-def so_swap_via_cctp(so_data, src_swap_data, cctp_data, input_value, p: Project = None):
+def so_swap_via_cctp(so_data, src_swap_data, cctp_data, dst_swap_data, input_value, p: Project = None):
     account = get_account()
     proxy_diamond = Contract.from_abi(
         "CCTPFacet", p["SoDiamond"][-1].address, p["CCTPFacet"].abi
@@ -561,6 +561,7 @@ def so_swap_via_cctp(so_data, src_swap_data, cctp_data, input_value, p: Project 
         so_data.format_to_contract(),
         [] if src_swap_data is None else [src_swap_data.format_to_contract()],
         cctp_data.format_to_contract(),
+        [] if dst_swap_data is None else [dst_swap_data.format_to_contract()],
         {"from": account, "value": int(input_value)},
     )
     return get_message_hash(tx_receipt.txid)
@@ -578,7 +579,10 @@ def cross_swap_via_cctp(
         sourceSwapType,
         sourceSwapFunc,
         sourceSwapPath,
-        destinationTokenName
+        destinationTokenName,
+        destinationSwapType,
+        destinationSwapFunc,
+        destinationSwapPath,
 ):
     print(
         f"{'-' * 100}\nSwap from: network {src_session.net}, token: {sourceTokenName}\n"
@@ -614,6 +618,21 @@ def cross_swap_via_cctp(
     else:
         src_swap_data = None
 
+    if destinationSwapType is not None:
+        dst_swap_data = dst_session.put_task(
+            SwapData.create,
+            args=(
+                destinationSwapType,
+                destinationSwapFunc,
+                inputAmount,
+                destinationSwapPath,
+            ),
+            with_project=True,
+        )
+        print("DstSwapData:\n", src_swap_data)
+    else:
+        dst_swap_data = None
+
     if sourceTokenName != "eth":
         src_session.put_task(
             token_approve,
@@ -632,40 +651,44 @@ def cross_swap_via_cctp(
 
     dst_domain_id = dst_session.put_task(get_cctp_domain_id, with_project=False)
     cross_token = src_session.put_task(get_token_address, args=("usdc",), with_project=False)
-    account_address = dst_session.put_task(get_account_address, with_project=False)
 
-    default_dst_gas = 200000
+    default_dst_gas = 300000
     dst_gas_price = dst_session.put_task(get_gas_price, with_project=False)
     dst_fee_amount = default_dst_gas * int(dst_gas_price)
     dst_fee = get_fee_value(dst_fee_amount, get_network_token(dst_session.net))
     src_fee = get_fee_amount(dst_fee, get_network_token(src_session.net))
 
-    cctp_data = CCTPData(dst_domain_id, cross_token, account_address)
+    cctp_data = CCTPData(dst_domain_id, dst_diamond_address, cross_token)
 
     input_value = input_eth_amount + src_fee
 
     print(f"Input value: {input_value}")
 
-    message, msg_hash = src_session.put_task(
+    messages = src_session.put_task(
         so_swap_via_cctp,
         args=(
             so_data,
             src_swap_data,
             cctp_data,
+            dst_swap_data,
             input_value,
         ),
         with_project=True,
     )
 
+    token_msg, token_msg_hash = messages[0]
+    msg, msg_hash = messages[1]
+
     # complete cross swap
     while True:
         try:
+            token_attestation = get_cctp_attestation(src_session.net, token_msg_hash)
             attestation = get_cctp_attestation(src_session.net, msg_hash)
-            if attestation == "PENDING":
+            if token_attestation == "PENDING" or attestation == "PENDING":
                 continue
             dst_session.put_task(
                 receive_cctp_message,
-                args=(f'0x{message}', attestation),
+                args=(f'0x{token_msg}', token_attestation, f'0x{msg}', attestation),
                 with_project=True
             )
             break
@@ -673,14 +696,15 @@ def cross_swap_via_cctp(
             print(e)
 
 
-def receive_cctp_message(message_data, attestation, p: Project = None):
+def receive_cctp_message(token_message, token_attestation, message, attestation, p: Project = None):
     account = get_account()
     proxy_diamond = Contract.from_abi(
         "CCTPFacet", p["SoDiamond"][-1].address, p["CCTPFacet"].abi
     )
-
     proxy_diamond.receiveCCTPMessage(
-        message_data,
+        token_message,
+        token_attestation,
+        message,
         attestation,
         {"from": account}
     )
@@ -690,13 +714,15 @@ def get_message_hash(tx_hash):
     events = brownie.chain.get_transaction(tx_hash).events
     topic1 = "0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036"
 
-    message_data = ""
+    messages = []
     for event in events:
         if 'topic1' in dict(event) and dict(event)['topic1'] == topic1:
             message_data = dict(event)['data']
-    message = message_data[64:-8].hex().upper()
-    msg_hash = web3.keccak(hexstr=message)
-    return message, msg_hash.hex()
+            message = message_data[64:].hex().rstrip('0').upper()
+            msg_hash = web3.keccak(hexstr=message)
+            messages.append((message, msg_hash.hex()))
+    # return [(message, message_hash)]
+    return messages
 
 
 @retry
@@ -714,7 +740,7 @@ def get_cctp_attestation(net, msg_hash):
         raise ValueError(f"Get cctp attestation failed: {result.json()['status']}")
 
 
-def main(src_net="avax-test", dst_net="arbitrum-test"):
+def main(src_net="arbitrum-test", dst_net="avax-test"):
     global src_session
     global dst_session
     src_session = Session(
@@ -725,28 +751,34 @@ def main(src_net="avax-test", dst_net="arbitrum-test"):
     )
 
     # without swap
+    # cross_swap_via_cctp(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(1 * 1e6),
+    #     sourceTokenName="usdc",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationTokenName="usdc",
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
+
+    # with dst swap
     cross_swap_via_cctp(
         src_session=src_session,
         dst_session=dst_session,
         inputAmount=int(1 * 1e6),
         sourceTokenName="usdc",
-        destinationTokenName="usdc",
         sourceSwapType=None,
         sourceSwapFunc=None,
         sourceSwapPath=None,
+        destinationTokenName="test-usdc",
+        destinationSwapType=SwapType.IUniswapV2Router02AVAX,
+        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+        destinationSwapPath=("usdc", "test-usdc"),
     )
-
-    # with srcswap
-    # cross_swap_via_cctp(
-    #     src_session=src_session,
-    #     dst_session=dst_session,
-    #     inputAmount=int(1 * 1e6),
-    #     sourceTokenName="test-usdc",
-    #     destinationTokenName="usdc",
-    #     sourceSwapType=SwapType.IUniswapV2Router02AVAX,
-    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-    #     sourceSwapPath=("test-usdc", "usdc"),
-    # )
 
     src_session.terminate()
     dst_session.terminate()
