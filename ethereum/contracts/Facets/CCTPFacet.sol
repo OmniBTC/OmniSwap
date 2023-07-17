@@ -29,7 +29,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-    hex"ed7099a4d8ec3979659a0931894724cfba9c270625d87b539a3d3a9e869c389e"; // keccak256("com.so.facets.cctp")
+        hex"ed7099a4d8ec3979659a0931894724cfba9c270625d87b539a3d3a9e869c389e"; // keccak256("com.so.facets.cctp")
 
     uint256 public constant RAY = 1e27;
 
@@ -64,7 +64,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// @param _tokenMessenger cctp token bridge
     /// @param _messageTransmitter cctp message protocol
     function initCCTP(address _tokenMessenger, address _messageTransmitter)
-    external
+        external
     {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
@@ -147,8 +147,11 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             );
         }
 
-        soData.amount = bridgeAmount;
-        bytes memory payload = encodeCCTPPayload(soDataNo, swapDataDstNo);
+        bytes memory payload = encodeCCTPPayloadWithAmount(
+            soDataNo,
+            swapDataDstNo,
+            bridgeAmount
+        );
 
         _startBridge(cctpData, bridgeAmount, payload);
 
@@ -156,19 +159,27 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     }
 
     /// CrossData
-    // 1. length + transactionId(SoData)
-    // 2. length + receiver(SoData)
-    // 3. length + receivingAssetId(SoData)
-    // 4. length + swapDataLength(u8)
-    // 5. length + callTo(SwapData)
-    // 6. length + sendingAssetId(SwapData)
-    // 7. length + receivingAssetId(SwapData)
-    // 8. length + callData(SwapData)
-    function encodeCCTPPayload(
+    // 1. length + amount(SoData)
+    // 2. length + transactionId(SoData)
+    // 3. length + receiver(SoData)
+    // 4. length + receivingAssetId(SoData)
+    // 5. length + swapDataLength(u8)
+    // 6. length + callTo(SwapData)
+    // 7. length + sendingAssetId(SwapData)
+    // 8. length + receivingAssetId(SwapData)
+    // 9. length + callData(SwapData)
+    function encodeCCTPPayloadWithAmount(
         ISo.NormalizedSoData memory soData,
-        LibSwap.NormalizedSwapData[] memory swapDataDst
+        LibSwap.NormalizedSwapData[] memory swapDataDst,
+        uint256 bridgeAmount
     ) public pure returns (bytes memory) {
+        bytes memory bridgeAmountByte = LibCross.serializeU256WithHexStr(
+            bridgeAmount
+        );
+
         bytes memory encodeData = abi.encodePacked(
+            uint8(bridgeAmountByte.length),
+            bridgeAmountByte,
             uint8(soData.transactionId.length),
             soData.transactionId,
             uint8(soData.receiver.length),
@@ -204,86 +215,91 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     }
 
     /// CrossData
-    // 1. length + transactionId(SoData)
-    // 2. length + receiver(SoData)
-    // 3. length + receivingAssetId(SoData)
-    // 4. length + swapDataLength(u8)
-    // 5. length + callTo(SwapData)
-    // 6. length + sendingAssetId(SwapData)
-    // 7. length + receivingAssetId(SwapData)
-    // 8. length + callData(SwapData)
-    function decodeCCTPPayload(bytes memory stargatePayload)
-    public
-    pure
-    returns (
-        ISo.NormalizedSoData memory soData,
-        LibSwap.NormalizedSwapData[] memory swapDataDst
-    )
+    // 1. length + amount(SoData)
+    // 2. length + transactionId(SoData)
+    // 3. length + receiver(SoData)
+    // 4. length + receivingAssetId(SoData)
+    // 5. length + swapDataLength(u8)
+    // 6. length + callTo(SwapData)
+    // 7. length + sendingAssetId(SwapData)
+    // 8. length + receivingAssetId(SwapData)
+    // 9. length + callData(SwapData)
+    function decodeCCTPPayload(bytes memory cctpPayload)
+        public
+        pure
+        returns (
+            ISo.NormalizedSoData memory soData,
+            LibSwap.NormalizedSwapData[] memory swapDataDst
+        )
     {
         CachePayload memory data;
         uint256 index;
         uint256 nextLen;
 
-        nextLen = uint256(stargatePayload.toUint8(index));
+        nextLen = uint256(cctpPayload.toUint8(index));
         index += 1;
-        data.soData.transactionId = stargatePayload.slice(index, nextLen);
+        data.soData.amount = LibCross.deserializeU256WithHexStr(
+            cctpPayload.slice(index, nextLen)
+        );
         index += nextLen;
 
-        nextLen = uint256(stargatePayload.toUint8(index));
+        nextLen = uint256(cctpPayload.toUint8(index));
         index += 1;
-        data.soData.receiver = stargatePayload.slice(index, nextLen);
+        data.soData.transactionId = cctpPayload.slice(index, nextLen);
         index += nextLen;
 
-        nextLen = uint256(stargatePayload.toUint8(index));
+        nextLen = uint256(cctpPayload.toUint8(index));
         index += 1;
-        data.soData.receivingAssetId = stargatePayload.slice(index, nextLen);
+        data.soData.receiver = cctpPayload.slice(index, nextLen);
         index += nextLen;
 
-        if (index < stargatePayload.length) {
-            nextLen = uint256(stargatePayload.toUint8(index));
+        nextLen = uint256(cctpPayload.toUint8(index));
+        index += 1;
+        data.soData.receivingAssetId = cctpPayload.slice(index, nextLen);
+        index += nextLen;
+
+        if (index < cctpPayload.length) {
+            nextLen = uint256(cctpPayload.toUint8(index));
             index += 1;
             uint256 swap_len = LibCross.deserializeU256WithHexStr(
-                stargatePayload.slice(index, nextLen)
+                cctpPayload.slice(index, nextLen)
             );
             index += nextLen;
 
             data.swapDataDst = new LibSwap.NormalizedSwapData[](swap_len);
             for (uint256 i = 0; i < swap_len; i++) {
-                nextLen = uint256(stargatePayload.toUint8(index));
+                nextLen = uint256(cctpPayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].callTo = stargatePayload.slice(
-                    index,
-                    nextLen
-                );
+                data.swapDataDst[i].callTo = cctpPayload.slice(index, nextLen);
                 data.swapDataDst[i].approveTo = data.swapDataDst[i].callTo;
                 index += nextLen;
 
-                nextLen = uint256(stargatePayload.toUint8(index));
+                nextLen = uint256(cctpPayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].sendingAssetId = stargatePayload.slice(
+                data.swapDataDst[i].sendingAssetId = cctpPayload.slice(
                     index,
                     nextLen
                 );
                 index += nextLen;
 
-                nextLen = uint256(stargatePayload.toUint8(index));
+                nextLen = uint256(cctpPayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].receivingAssetId = stargatePayload.slice(
+                data.swapDataDst[i].receivingAssetId = cctpPayload.slice(
                     index,
                     nextLen
                 );
                 index += nextLen;
 
-                nextLen = uint256(stargatePayload.toUint16(index));
+                nextLen = uint256(cctpPayload.toUint16(index));
                 index += 2;
-                data.swapDataDst[i].callData = stargatePayload.slice(
+                data.swapDataDst[i].callData = cctpPayload.slice(
                     index,
                     nextLen
                 );
                 index += nextLen;
             }
         }
-        require(index == stargatePayload.length, "LenErr");
+        require(index == cctpPayload.length, "LenErr");
         return (data.soData, data.swapDataDst);
     }
 
@@ -299,8 +315,8 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         );
 
         (
-        ISo.NormalizedSoData memory soDataNo,
-        LibSwap.NormalizedSwapData[] memory swapDataDstNo
+            ISo.NormalizedSoData memory soDataNo,
+            LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeCCTPPayload(messageBody);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -385,7 +401,6 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         IReceiver(s.messageTransmitter).receiveMessage(message, attestation);
     }
 
-    /// @notice Don't call directly, or your money will be locked up in the contract
     /// @dev estimate dst swap gas
     function estimateCCTPDstSwapGas(
         ISo.NormalizedSoData calldata soDataNo,
@@ -399,10 +414,9 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         // Not allow transfer to other
         soData.receiver = payable(address(this));
 
-        LibAsset.depositAsset(soData.receivingAssetId, soData.amount);
-
-        uint256 amount = soData.amount;
+        uint256 amount;
         if (swapDataDst.length == 0) {
+            amount = LibAsset.getOwnBalance(soData.receivingAssetId);
             LibAsset.transferAsset(
                 soData.receivingAssetId,
                 soData.receiver,
@@ -410,6 +424,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             );
             emit SoTransferCompleted(soData.transactionId, amount);
         } else {
+            amount = LibAsset.getOwnBalance(swapDataDst[0].sendingAssetId);
             swapDataDst[0].fromAmount = amount;
 
             address correctSwap = appStorage.correctSwapRouterSelectors;

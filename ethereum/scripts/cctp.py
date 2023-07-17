@@ -576,7 +576,7 @@ def estimate_dst_swap_gas(so_data, dst_swap_data, p: Project = None):
     data = so_data.format_to_contract()
     data[-1] = int(1e5)
 
-    return proxy_diamond.estimateCCTPDstSwapGas.estimate(
+    return proxy_diamond.estimateCCTPDstSwapGas.estimate_gas(
         data,
         [] if dst_swap_data is None else [dst_swap_data.format_to_contract()],
         {"from": account}
@@ -669,9 +669,9 @@ def cross_swap_via_cctp(
     cross_token = src_session.put_task(get_token_address, args=("usdc",), with_project=False)
 
     default_dst_gas = 300000
-    dst_swap_gas = dst_session.put_task(estimate_dst_swap_gas, with_project=True)
+    dst_swap_gas = dst_session.put_task(estimate_dst_swap_gas, args=(so_data, dst_swap_data), with_project=True)
     dst_gas = default_dst_gas + int(dst_swap_gas)
-    print(f"Dst gas: {dst_gas}")
+    print(f"Estimated gas: {dst_gas}")
     dst_gas_price = dst_session.put_task(get_gas_price, with_project=False)
     dst_fee_amount = dst_gas * int(dst_gas_price)
     dst_fee = get_fee_value(dst_fee_amount, get_network_token(dst_session.net))
