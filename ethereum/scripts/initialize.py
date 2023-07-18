@@ -221,6 +221,24 @@ def initialize_cctp(account, so_diamond):
         get_cctp_token_messenger(), get_cctp_message_transmitter(), {"from": account}
     )
 
+    dst_domain_info = {
+        "mainnet": 0,
+        "avax-main": 1,
+        "arbitrum-main": 3,
+        "goerli": 0,
+        "avax-test": 1,
+        "arbitrum-test": 3
+    }
+    if "main" in net:
+        dst_domains = {k: v for k, v in dst_domain_info.items() if "main" in k}
+    else:
+        dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
+    dstBaseGas = 700000
+    dstGasPerBytes = 68
+    print(f"Set dst net:{list(dst_domains.keys())} base gas:{dstBaseGas} gas per bytes:{dstGasPerBytes}")
+    proxy_cctp.setBaseGas(list(dst_domains.values()), dstBaseGas, {"from": account})
+    proxy_cctp.setGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
+
 
 def initialize_celer(account, so_diamond):
     proxy_celer = Contract.from_abi("CelerFacet", so_diamond.address, CelerFacet.abi)
