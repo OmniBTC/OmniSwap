@@ -7,6 +7,7 @@ import "../Libraries/LibDiamond.sol";
 import "../Libraries/LibBytes.sol";
 import "../Libraries/LibCross.sol";
 import "../Libraries/LibAsset.sol";
+import "../Libraries/LibMessageCCTP.sol";
 import "../Helpers/Swapper.sol";
 import "../Helpers/TypedMemView.sol";
 import "../Helpers/ReentrancyGuard.sol";
@@ -318,6 +319,24 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         return (data.soData, data.swapDataDst);
     }
 
+    function decodeCCTPMessage(bytes memory message)
+        public
+        view
+        returns (LibMessageCCTP.CCTPMessage memory)
+    {
+        LibMessageCCTP.CCTPMessage memory data;
+        bytes29 _msg = TypedMemView.ref(message, 0);
+        data._msgVersion = LibMessageCCTP._version(_msg);
+        data._msgSourceDomain = LibMessageCCTP._sourceDomain(_msg);
+        data._msgDestinationDomain = LibMessageCCTP._destinationDomain(_msg);
+        data._msgNonce = LibMessageCCTP._nonce(_msg);
+        data._msgSender = LibMessageCCTP._sender(_msg);
+        data._msgRecipient = LibMessageCCTP._recipient(_msg);
+        data._msgDestinationCaller = LibMessageCCTP._destinationCaller(_msg);
+        data._msgRawBody = LibMessageCCTP._messageBody(_msg).clone();
+        return data;
+    }
+
     function handleReceiveMessage(
         uint32,
         bytes32,
@@ -424,9 +443,9 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
 
         // check token and msg nonce
         bytes29 tokenMsg = TypedMemView.ref(tokenMessage, 0);
-        uint64 tokenNonce = _nonce(tokenMsg);
+        uint64 tokenNonce = LibMessageCCTP._nonce(tokenMsg);
         bytes29 _msg = TypedMemView.ref(message, 0);
-        uint64 nonce = _nonce(_msg);
+        uint64 nonce = LibMessageCCTP._nonce(_msg);
         require(tokenNonce + 1 == nonce, "nonce mismatch");
 
         IReceiver(s.messageTransmitter).receiveMessage(
@@ -479,12 +498,6 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     }
 
     /// Internal Methods ///
-
-    // @notice Returns _message's nonce field
-    function _nonce(bytes29 _message) internal pure returns (uint64) {
-        return uint64(_message.indexUint(12, 8));
-    }
-
     function _startBridge(
         CCTPData calldata cctpData,
         uint256 bridgeAmount,
