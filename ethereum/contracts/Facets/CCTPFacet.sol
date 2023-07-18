@@ -36,6 +36,8 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     struct Storage {
         address tokenMessenger;
         address messageTransmitter;
+        mapping(uint32 => uint256) dstBaseGas;
+        mapping(uint32 => uint256) dstGasPerBytes;
     }
 
     /// Events ///
@@ -74,6 +76,34 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     }
 
     /// External Methods ///
+
+    /// @dev Set the minimum gas to be spent on the destination chain
+    /// @param destinationDomains  a batch of destination domain id
+    /// @param dstBaseGas  base gas for destination chain
+    function setBaseGas(uint32[] calldata destinationDomains, uint256 dstBaseGas)
+        external
+    {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+
+        for (uint64 i; i < destinationDomains.length; i++) {
+            s.dstBaseGas[destinationDomains[i]] = dstBaseGas;
+        }
+    }
+
+    /// @dev Set the minimum gas to be spent on the destination chain
+    /// @param destinationDomains  a batch of destination domain id
+    /// @param dstGasPerBytes gas per bytes for destination chain
+    function setGasPerBytes(uint32[] calldata destinationDomains, uint256 dstGasPerBytes)
+        external
+    {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+
+        for (uint64 i; i < destinationDomains.length; i++) {
+            s.dstGasPerBytes[destinationDomains[i]] = dstGasPerBytes;
+        }
+    }
 
     /// @dev Bridge tokens via CCTP
     /// @param soDataNo data for tracking cross-chain transactions and a
@@ -401,70 +431,23 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     }
 
     /// @dev estimate dst swap gas
-    function estimateCCTPDstSwapGas(
+    function estimateReceiveCCTPMessageGas(
         ISo.NormalizedSoData calldata soDataNo,
+        CCTPData calldata cctpData,
         LibSwap.NormalizedSwapData[] calldata swapDataDstNo
-    ) external nonReentrant {
-        ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
-        LibSwap.SwapData[] memory swapDataDst = LibCross.denormalizeSwapData(
-            swapDataDstNo
+    ) public view returns (uint256) {
+        bytes memory payload = encodeCCTPPayloadWithAmount(
+            soDataNo,
+            swapDataDstNo,
+            uint256(0)
         );
-
-        // Not allow transfer to other
-        soData.receiver = payable(address(this));
-
-        uint256 amount;
-        if (swapDataDst.length == 0) {
-            amount = LibAsset.getOwnBalance(soData.receivingAssetId);
-            LibAsset.transferAsset(
-                soData.receivingAssetId,
-                soData.receiver,
-                amount
+        Storage storage s = getStorage();
+        return
+            s.dstBaseGas[cctpData.destinationDomain].add(
+                s.dstGasPerBytes[cctpData.destinationDomain].mul(
+                    payload.length
+                )
             );
-            emit SoTransferCompleted(soData.transactionId, amount);
-        } else {
-            amount = LibAsset.getOwnBalance(swapDataDst[0].sendingAssetId);
-            swapDataDst[0].fromAmount = amount;
-
-            address correctSwap = appStorage.correctSwapRouterSelectors;
-
-            if (correctSwap != address(0)) {
-                swapDataDst[0].callData = ICorrectSwap(correctSwap).correctSwap(
-                    swapDataDst[0].callData,
-                    swapDataDst[0].fromAmount
-                );
-            }
-
-            try this.executeAndCheckSwaps(soData, swapDataDst) returns (
-                uint256 amountFinal
-            ) {
-                transferUnwrappedAsset(
-                    swapDataDst[swapDataDst.length - 1].receivingAssetId,
-                    soData.receivingAssetId,
-                    amountFinal,
-                    soData.receiver
-                );
-                emit SoTransferCompleted(soData.transactionId, amountFinal);
-            } catch Error(string memory revertReason) {
-                LibAsset.transferAsset(
-                    swapDataDst[0].sendingAssetId,
-                    soData.receiver,
-                    amount
-                );
-                emit SoTransferFailed(
-                    soData.transactionId,
-                    revertReason,
-                    bytes("")
-                );
-            } catch (bytes memory returnData) {
-                LibAsset.transferAsset(
-                    swapDataDst[0].sendingAssetId,
-                    soData.receiver,
-                    amount
-                );
-                emit SoTransferFailed(soData.transactionId, "", returnData);
-            }
-        }
     }
 
     /// @dev Get so fee
