@@ -25,7 +25,7 @@ def main():
 def deploy_contracts(account):
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("1 gwei")
-    if "arbitrum" in network.show_active():
+    if "arbitrum-test" in network.show_active():
         priority_fee("1 gwei")
         max_fee("1.25 gwei")
     deploy_facets = [

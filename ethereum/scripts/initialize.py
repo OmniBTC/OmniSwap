@@ -398,9 +398,15 @@ def redeploy_serde():
 
 
 def redeploy_cctp():
+    if "arbitrum-test" in network.show_active():
+        priority_fee("1 gwei")
+        max_fee("1.25 gwei")
     account = get_account()
 
-    remove_facet(CCTPFacet)
+    try:
+        remove_facet(CCTPFacet)
+    except:
+        pass
 
     CCTPFacet.deploy({"from": account})
     add_cut([CCTPFacet])

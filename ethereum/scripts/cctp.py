@@ -578,9 +578,11 @@ def estimate_dst_swap_gas(so_data, cctp_data, dst_swap_data, p: Project = None):
 
     return proxy_diamond.estimateReceiveCCTPMessageGas(
         data,
-        cctp_data,
+        cctp_data.format_to_contract(),
         [] if dst_swap_data is None else [dst_swap_data.format_to_contract()],
-        {"from": account}
+        {
+            "from": account,
+        }
     )
 
 
@@ -725,7 +727,10 @@ def receive_cctp_message(token_message, token_attestation, message, attestation,
         token_attestation,
         message,
         attestation,
-        {"from": account}
+        {"from": account,
+         "gas_limit": int(100 * 1e4),
+         "allow_revert": True,
+         }
     )
 
 
@@ -773,7 +778,7 @@ def main(src_net="avax-test", dst_net="arbitrum-test"):
     cross_swap_via_cctp(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=int(1 * 1e6),
+        inputAmount=int(0.1 * 1e6),
         sourceTokenName="usdc",
         sourceSwapType=None,
         sourceSwapFunc=None,
