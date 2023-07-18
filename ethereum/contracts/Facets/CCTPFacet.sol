@@ -29,7 +29,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-    hex"ed7099a4d8ec3979659a0931894724cfba9c270625d87b539a3d3a9e869c389e"; // keccak256("com.so.facets.cctp")
+        hex"ed7099a4d8ec3979659a0931894724cfba9c270625d87b539a3d3a9e869c389e"; // keccak256("com.so.facets.cctp")
 
     uint256 public constant RAY = 1e27;
 
@@ -66,7 +66,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// @param _tokenMessenger cctp token bridge
     /// @param _messageTransmitter cctp message protocol
     function initCCTP(address _tokenMessenger, address _messageTransmitter)
-    external
+        external
     {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
@@ -80,9 +80,10 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// @dev Set the minimum gas to be spent on the destination chain
     /// @param destinationDomains  a batch of destination domain id
     /// @param dstBaseGas  base gas for destination chain
-    function setBaseGas(uint32[] calldata destinationDomains, uint256 dstBaseGas)
-        external
-    {
+    function setBaseGas(
+        uint32[] calldata destinationDomains,
+        uint256 dstBaseGas
+    ) external {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
 
@@ -94,9 +95,10 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// @dev Set the minimum gas to be spent on the destination chain
     /// @param destinationDomains  a batch of destination domain id
     /// @param dstGasPerBytes gas per bytes for destination chain
-    function setGasPerBytes(uint32[] calldata destinationDomains, uint256 dstGasPerBytes)
-        external
-    {
+    function setGasPerBytes(
+        uint32[] calldata destinationDomains,
+        uint256 dstGasPerBytes
+    ) external {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
 
@@ -152,7 +154,11 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         } else {
             require(soData.amount == swapDataSrc[0].fromAmount, "AmountErr");
             bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
-            require(swapDataSrc[swapDataSrc.length - 1].receivingAssetId == cctpData.burnToken, "TokenErr");
+            require(
+                swapDataSrc[swapDataSrc.length - 1].receivingAssetId ==
+                    cctpData.burnToken,
+                "TokenErr"
+            );
         }
 
         bytes memory payload = encodeCCTPPayloadWithAmount(
@@ -234,12 +240,12 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     // 8. length + receivingAssetId(SwapData)
     // 9. length + callData(SwapData)
     function decodeCCTPPayload(bytes memory cctpPayload)
-    public
-    pure
-    returns (
-        ISo.NormalizedSoData memory soData,
-        LibSwap.NormalizedSwapData[] memory swapDataDst
-    )
+        public
+        pure
+        returns (
+            ISo.NormalizedSoData memory soData,
+            LibSwap.NormalizedSwapData[] memory swapDataDst
+        )
     {
         CachePayload memory data;
         uint256 index;
@@ -324,8 +330,8 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         );
 
         (
-        ISo.NormalizedSoData memory soDataNo,
-        LibSwap.NormalizedSwapData[] memory swapDataDstNo
+            ISo.NormalizedSoData memory soDataNo,
+            LibSwap.NormalizedSwapData[] memory swapDataDstNo
         ) = decodeCCTPPayload(messageBody);
 
         ISo.SoData memory soData = LibCross.denormalizeSoData(soDataNo);
@@ -444,9 +450,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         Storage storage s = getStorage();
         return
             s.dstBaseGas[cctpData.destinationDomain].add(
-                s.dstGasPerBytes[cctpData.destinationDomain].mul(
-                    payload.length
-                )
+                s.dstGasPerBytes[cctpData.destinationDomain].mul(payload.length)
             );
     }
 
