@@ -15,4 +15,11 @@ interface IMessageTransmitter {
         bytes32 recipient,
         bytes calldata messageBody
     ) external returns (uint64);
+
+    function sendMessageWithCaller(
+        uint32 destinationDomain,
+        bytes32 recipient,
+        bytes32 destinationCaller,
+        bytes calldata messageBody
+    ) external returns (uint64);
 }

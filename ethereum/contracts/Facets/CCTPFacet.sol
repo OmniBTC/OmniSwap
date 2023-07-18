@@ -436,6 +436,19 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         IReceiver(s.messageTransmitter).receiveMessage(message, attestation);
     }
 
+    function receiveCCTPMessageByOwner(
+        bytes calldata tokenMessage,
+        bytes calldata tokenAttestation
+    ) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+
+        IReceiver(s.messageTransmitter).receiveMessage(
+            tokenMessage,
+            tokenAttestation
+        );
+    }
+
     /// @dev estimate dst swap gas
     function estimateReceiveCCTPMessageGas(
         ISo.NormalizedSoData calldata soDataNo,
@@ -485,15 +498,17 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             bridgeAmount
         );
 
-        ITokenMessenger(s.tokenMessenger).depositForBurn(
+        ITokenMessenger(s.tokenMessenger).depositForBurnWithCaller(
             bridgeAmount,
             cctpData.destinationDomain,
             cctpData.dstDiamond,
-            cctpData.burnToken
+            cctpData.burnToken,
+            cctpData.dstDiamond
         );
 
-        IMessageTransmitter(s.messageTransmitter).sendMessage(
+        IMessageTransmitter(s.messageTransmitter).sendMessageWithCaller(
             cctpData.destinationDomain,
+            cctpData.dstDiamond,
             cctpData.dstDiamond,
             payload
         );
