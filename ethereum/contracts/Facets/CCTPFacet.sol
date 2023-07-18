@@ -350,7 +350,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         if (swapDataDst.length == 0) {
             if (soFee > 0) {
                 LibAsset.transferAsset(
-                    swapDataDst[0].sendingAssetId,
+                    soData.receivingAssetId,
                     payable(LibDiamond.contractOwner()),
                     soFee
                 );
