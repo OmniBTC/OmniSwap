@@ -133,26 +133,13 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             );
         }
 
-        uint256 soFee = getCCTPSoFee(bridgeAmount);
-        if (soFee < bridgeAmount) {
-            bridgeAmount = bridgeAmount.sub(soFee);
-        }
-
-        if (soFee > 0) {
-            transferUnwrappedAsset(
-                cctpData.burnToken,
-                cctpData.burnToken,
-                soFee,
-                LibDiamond.contractOwner()
-            );
-        }
-
         bytes memory payload = encodeCCTPPayloadWithAmount(
             soDataNo,
             swapDataDstNo,
             bridgeAmount
         );
 
+        require(bridgeAmount > 0, "bridgeAmount>0");
         _startBridge(cctpData, bridgeAmount, payload);
 
         emit SoTransferStarted(soData.transactionId);
@@ -326,7 +313,20 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
 
         // cross-chain loss not exist in burn-mint mode
         uint256 amount = soData.amount;
+
+        uint256 soFee = getCCTPSoFee(amount);
+        if (soFee < amount) {
+            amount = amount.sub(soFee);
+        }
+
         if (swapDataDst.length == 0) {
+            if (soFee > 0) {
+                LibAsset.transferAsset(
+                    swapDataDst[0].sendingAssetId,
+                    payable(LibDiamond.contractOwner()),
+                    soFee
+                );
+            }
             LibAsset.transferAsset(
                 soData.receivingAssetId,
                 soData.receiver,
@@ -334,6 +334,13 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             );
             emit SoTransferCompleted(soData.transactionId, amount);
         } else {
+            if (soFee > 0) {
+                LibAsset.transferAsset(
+                    swapDataDst[0].sendingAssetId,
+                    payable(LibDiamond.contractOwner()),
+                    soFee
+                );
+            }
             swapDataDst[0].fromAmount = amount;
 
             address correctSwap = appStorage.correctSwapRouterSelectors;
