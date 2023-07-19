@@ -471,7 +471,7 @@ def main():
             name=d["dstNet"],
             project_path=str(project_path),
             dst_storage=dst_storage,
-            is_compensate=True
+            is_compensate=False
         )
 
 
