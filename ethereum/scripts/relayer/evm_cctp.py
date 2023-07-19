@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import multiprocessing
 import time
 from datetime import datetime
 from pathlib import Path
@@ -16,7 +17,8 @@ import threading
 from brownie.network.transaction import TransactionReceipt
 from retrying import retry
 
-from scripts.helpful_scripts import get_account, change_network, get_cctp_message_transmitter, Process, set_start_method, Queue
+from scripts.helpful_scripts import get_account, change_network, get_cctp_message_transmitter, Process, \
+    set_start_method, Queue
 from scripts.serde import get_cctp_facet
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
@@ -37,21 +39,16 @@ SUPPORTED_EVM = [
     }
 ]
 
-# SUPPORTED_EVM = [
-#     {"destinationDomain": 1,
-#      "dstSoDiamond": "0xFeEE07da1B3513BdfD5440562e962dfAac19566F",
-#      "dstNet": "avax-test"
-#      },
-#     {"destinationDomain": 3,
-#      "dstSoDiamond": "0xBb032459B39547908eDB8E690c030Dc4F31DA673",
-#      "dstNet": "arbitrum-test"
-#      },
-# ]
-
-SHARE_STORAGE = {
-    v["destinationDomain"]: Queue()
-    for v in SUPPORTED_EVM
-}
+SUPPORTED_EVM = [
+    {"destinationDomain": 1,
+     "dstSoDiamond": "0xFeEE07da1B3513BdfD5440562e962dfAac19566F",
+     "dstNet": "avax-test"
+     },
+    {"destinationDomain": 3,
+     "dstSoDiamond": "0xBb032459B39547908eDB8E690c030Dc4F31DA673",
+     "dstNet": "arbitrum-test"
+     },
+]
 
 DOMAIN_TO_NET = {
     v["destinationDomain"]: v["dstNet"]
@@ -59,7 +56,6 @@ DOMAIN_TO_NET = {
 }
 
 
-@retry
 def get_token_price():
     kucoin = ccxt.kucoin()
     result = {}
@@ -88,20 +84,20 @@ class CCTPMessage:
             msgRawBody=None,
     ):
         self.msgVersion = msgVersion
-        self.msgSourceDomain = msgSourceDomain,
-        self.msgDestinationDomain = msgDestinationDomain,
-        self.msgNonce = msgNonce,
-        self.msgSender = msgSender,
-        self.msgRecipient = msgRecipient,
-        self.msgDestinationCaller = msgDestinationCaller,
-        self.msgRawBody = msgRawBody,
+        self.msgSourceDomain = msgSourceDomain
+        self.msgDestinationDomain = msgDestinationDomain
+        self.msgNonce = msgNonce
+        self.msgSender = msgSender
+        self.msgRecipient = msgRecipient
+        self.msgDestinationCaller = msgDestinationCaller
+        self.msgRawBody = msgRawBody
         self.message = None
         self.msgHash = None
         self.attestation = None
 
     def to_dict(self):
         result = {}
-        for attr in self.__dir__():
+        for attr in vars(self):
             if attr.startswith("__"):
                 continue
             result[attr] = getattr(self, attr)
@@ -175,6 +171,7 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
         cctp_message.message = message
         cctp_message.msgHash = msg_hash.hex()
         cctp_message.attestation = get_cctp_attestation(cctp_message.msgHash)
+        messages.append(cctp_message)
     result = CCTPFacetMessage()
     result.src_txid = tx_hash
     if len(messages) > 0:
@@ -201,8 +198,13 @@ def get_pending_data(url: str = None, src_chain_id: int = None) -> list:
     if url is None:
         url = "https://crossswap.coming.chat/v1/getUnSendTransferFromCCTP"
     try:
-        response = requests.get(url)
-        result = response.json()["record"]
+        # response = requests.get(url)
+        # result = response.json()["record"]
+        result = [{'chainName': 'arbitrum-test',
+                   'extrinsicHash': '0x5505dde893fb3edae8a7f6a90a9505bbf7c653de9666d237f4180e1ddcc24af4',
+                   'srcChainId': 421613,
+                   "blockTimestamp": 1689644481
+                   }]
         if isinstance(result, list):
             result = [v for v in result if v["srcChainId"] == src_chain_id]
             result.sort(key=lambda x: x["blockTimestamp"])
@@ -216,7 +218,7 @@ def get_pending_data(url: str = None, src_chain_id: int = None) -> list:
 def process_v1(
         _destinationDomain: int,
         _dstSoDiamond: str,
-        share_storage_v1: Dict[int, Queue],
+        dst_storage: Dict[int, Queue],
 ):
     """
     Used to get the message and send it to the corresponding consumer
@@ -225,11 +227,17 @@ def process_v1(
     local_logger.info("Starting process v1...")
     src_chain_id = chain.id
 
+    last_process = {}
+    interval = 3 * 60
+
     while True:
         result = get_pending_data(src_chain_id=src_chain_id)
         local_logger.info(f"Get pending data len:{len(result)}")
 
         for v in result:
+            if v["extrinsicHash"] in last_process and (time.time() - last_process[v["extrinsicHash"]]) < interval:
+                continue
+            last_process[v["extrinsicHash"]] = time.time()
             data = get_facet_message(v["extrinsicHash"])
             if data.token_message is None:
                 local_logger.warning(f"Get token message is None from {v['extrinsicHash']}")
@@ -245,7 +253,10 @@ def process_v1(
                 local_logger.warning(f"Get payload message attestation fail from {v['extrinsicHash']}")
                 continue
 
-            share_storage_v1[data.token_message.msgDestinationDomain].put(data.to_dict())
+            dst_domain = data.token_message.msgDestinationDomain
+            dst_net = DOMAIN_TO_NET[dst_domain]
+            dst_storage[dst_domain].put(data.to_dict())
+            local_logger.info(f"Put {dst_net} item for txid: {data.src_txid}")
 
         time.sleep(3)
 
@@ -260,28 +271,32 @@ def format_hex(data):
 def process_v2(
         destinationDomain: int,
         dstSoDiamond: str,
-        share_storage_v1: Dict[int, Queue],
+        dst_storage: Dict[int, Queue],
 ):
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
     local_logger.info(f"SoDiamond:{dstSoDiamond}, acc:{get_account().address}")
     cctp_facet = get_cctp_facet()
     account = get_account()
+    local_logger.info("Get token price")
     price_info = get_token_price()
     last_price_update = time.time()
     while True:
         local_logger.info("Get item from queue")
+        local_logger.info(dst_storage)
         try:
-            data = share_storage_v1[destinationDomain].get(timeout=10)
-            data = CCTPFacetMessage.from_dict(data)
+            data = dst_storage[destinationDomain].get()
         except Exception as e:
             local_logger.warning(f"Get item fail:{e}, wait...")
             continue
+        print(data)
+        data = CCTPFacetMessage.from_dict(data)
         if format_hex(data.payload_message.msgRecipient) != format_hex(dstSoDiamond):
             local_logger.warning(f"Payload message recipient {data.payload_message.msgRecipient} not "
                                  f"equal dstSoDiamond {dstSoDiamond}")
             continue
         if time.time() - last_price_update >= 0:
+            local_logger.info("Get token price")
             price_info = get_token_price()
             last_price_update = time.time()
 
@@ -326,19 +341,22 @@ class Session(Process):
             group=None,
             name=None,
             daemon=None,
+            dst_storage=None
     ):
         self.destinationDomain = destinationDomain
         self.dstSoDiamond = dstSoDiamond
         self.dstNet = dstNet
         self.project_path = project_path
         super().__init__(
-            group=group, target=self.worker, name=name, args=(SHARE_STORAGE,), daemon=daemon
+            group=group, target=self.worker, name=name, args=(dst_storage,), daemon=daemon
         )
         self.start()
+        time.sleep(3)
 
-    def worker(self,
-               share_storage_v1: Dict[int, Queue],
-               ):
+    def worker(
+            self,
+            dst_storage
+    ):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
         try:
@@ -347,10 +365,10 @@ class Session(Process):
             logger.error(f"Connect {self.dstNet} fail")
             return
         t1 = threading.Thread(
-            target=process_v1, args=(self.destinationDomain, self.dstSoDiamond, share_storage_v1)
+            target=process_v1, args=(self.destinationDomain, self.dstSoDiamond, dst_storage)
         )
         t2 = threading.Thread(
-            target=process_v2, args=(self.destinationDomain, self.dstSoDiamond, share_storage_v1)
+            target=process_v2, args=(self.destinationDomain, self.dstSoDiamond, dst_storage)
         )
         t1.start()
         t2.start()
@@ -407,8 +425,14 @@ def record_gas(
 def main():
     try:
         set_start_method("spawn")
+        logger.info("Set start method spawn")
     except:
-        pass
+        logger.warning("Set start method spawn fail")
+    dst_storage = {
+        v["destinationDomain"]: Queue()
+        for v in SUPPORTED_EVM
+    }
+
     project_path = Path(__file__).parent.parent.parent
     logger.info(f"Loading project...")
     for d in SUPPORTED_EVM:
@@ -418,6 +442,7 @@ def main():
             dstNet=d["dstNet"],
             name=d["dstNet"],
             project_path=str(project_path),
+            dst_storage=dst_storage,
         )
 
 
