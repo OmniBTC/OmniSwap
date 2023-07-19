@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import multiprocessing
 import time
 from datetime import datetime
 from pathlib import Path
@@ -83,14 +82,16 @@ class CCTPMessage:
             msgDestinationCaller=None,
             msgRawBody=None,
     ):
-        self.msgVersion = msgVersion
-        self.msgSourceDomain = msgSourceDomain
-        self.msgDestinationDomain = msgDestinationDomain
-        self.msgNonce = msgNonce
-        self.msgSender = msgSender
-        self.msgRecipient = msgRecipient
-        self.msgDestinationCaller = msgDestinationCaller
-        self.msgRawBody = msgRawBody
+        self.msgVersion = int(msgVersion) if msgVersion is not None else msgVersion
+        self.msgSourceDomain = int(msgSourceDomain) if msgSourceDomain is not None else msgSourceDomain
+        self.msgDestinationDomain = int(msgDestinationDomain) if msgDestinationDomain \
+                                                                 is not None else msgDestinationDomain
+        self.msgNonce = int(msgNonce) if msgNonce is not None else msgNonce
+        self.msgSender = str(format_hex(msgSender.hex()[-40:])) if msgSender is not None else msgSender
+        self.msgRecipient = str(format_hex(msgRecipient.hex()[-40:])) if msgRecipient is not None else msgRecipient
+        self.msgDestinationCaller = str(format_hex(msgDestinationCaller.hex()[-40:])) \
+            if msgDestinationCaller is not None else msgDestinationCaller
+        self.msgRawBody = str(format_hex(msgRawBody.hex())) if msgRawBody is not None else msgRawBody
         self.message = None
         self.msgHash = None
         self.attestation = None
@@ -168,9 +169,9 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
         message = event["message"].hex()
         msg_hash = web3.keccak(hexstr=message)
         cctp_message = CCTPMessage(*cctp_facet.decodeCCTPMessage(message))
-        cctp_message.message = message
-        cctp_message.msgHash = msg_hash.hex()
-        cctp_message.attestation = get_cctp_attestation(cctp_message.msgHash)
+        cctp_message.message = format_hex(str(message))
+        cctp_message.msgHash = format_hex(str(msg_hash.hex()))
+        cctp_message.attestation = format_hex(str(get_cctp_attestation(cctp_message.msgHash)))
         messages.append(cctp_message)
     result = CCTPFacetMessage()
     result.src_txid = tx_hash
@@ -180,7 +181,7 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
         result.payload_message = messages[1]
     relay_event = events.get("RelayEvent", {})
     if len(relay_event) > 0:
-        result.transactionId = relay_event["transactionId"].hex()
+        result.transactionId = format_hex(str(relay_event["transactionId"].hex()))
         result.fee = relay_event["fee"]
     return result
 
@@ -285,11 +286,10 @@ def process_v2(
         local_logger.info("Get item from queue")
         local_logger.info(dst_storage)
         try:
-            data = dst_storage[destinationDomain].get()
+            data = dst_storage[destinationDomain].get(timeout=3)
         except Exception as e:
             local_logger.warning(f"Get item fail:{e}, wait...")
             continue
-        print(data)
         data = CCTPFacetMessage.from_dict(data)
         if format_hex(data.payload_message.msgRecipient) != format_hex(dstSoDiamond):
             local_logger.warning(f"Payload message recipient {data.payload_message.msgRecipient} not "
