@@ -40,11 +40,11 @@ SUPPORTED_EVM = [
 
 SUPPORTED_EVM = [
     {"destinationDomain": 1,
-     "dstSoDiamond": "0xFeEE07da1B3513BdfD5440562e962dfAac19566F",
+     "dstSoDiamond": "0x7969921f69c612C3D93D0cea133a571ff84753D3",
      "dstNet": "avax-test"
      },
     {"destinationDomain": 3,
-     "dstSoDiamond": "0xBb032459B39547908eDB8E690c030Dc4F31DA673",
+     "dstSoDiamond": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
      "dstNet": "arbitrum-test"
      },
 ]
@@ -351,7 +351,7 @@ class Session(Process):
             group=group, target=self.worker, name=name, args=(dst_storage,), daemon=daemon
         )
         self.start()
-        time.sleep(3)
+        time.sleep(5)
 
     def worker(
             self,
