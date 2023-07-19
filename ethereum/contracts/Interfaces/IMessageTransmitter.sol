@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 interface IMessageTransmitter {
+    event MessageSent(bytes message);
+
     /**
      * @notice Sends an outgoing message from the source domain.
      * @dev Increment nonce, format the message, and emit `MessageSent` event with message information.

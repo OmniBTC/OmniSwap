@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Union, List
 
 from brownie import network, accounts, config, project, web3
-from brownie.network import priority_fee
+from brownie.network import priority_fee, max_fee
 from brownie.network.web3 import Web3
 from brownie.project import get_loaded_projects
 
@@ -177,6 +177,9 @@ class Session(Process):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
         change_network(self.net)
+        if "arbitrum-test" in network.show_active():
+            priority_fee("1 gwei")
+            max_fee("1.25 gwei")
         print(f"network {self.net} is connected!")
         while True:
             task_type, task = task_queue.get()
