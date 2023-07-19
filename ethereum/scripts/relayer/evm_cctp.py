@@ -55,11 +55,12 @@ DOMAIN_TO_NET = {
 }
 
 
+@retry
 def get_token_price():
     kucoin = ccxt.kucoin()
     result = {}
     for v in SUPPORTED_EVM:
-        if v["dstNet"] in ["mainnet", "goerli"]:
+        if v["dstNet"] in ["mainnet", "goerli", "arbitrum-main", "arbitrum-test", "optimism-main", "optimism-test"]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("ETH/USDT")['close'])
         elif v["dstNet"] in ["bsc-main", "bsc-test"]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("BNB/USDT")['close'])
@@ -67,6 +68,8 @@ def get_token_price():
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("MATIC/USDT")['close'])
         elif v["dstNet"] in ["avax-main", "avax-test"]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("AVAX/USDT")['close'])
+        else:
+            raise ValueError(f"{v['dstNet']} not found")
     return result
 
 
