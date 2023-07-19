@@ -18,7 +18,7 @@ from retrying import retry
 
 from scripts.helpful_scripts import get_account, change_network, get_cctp_message_transmitter, Process, \
     set_start_method, Queue
-from scripts.serde import get_cctp_facet
+from scripts.serde import get_cctp_facet, get_cctp_facet_v1
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
 logging.basicConfig(format=FORMAT)
@@ -205,7 +205,7 @@ def get_pending_data(url: str = None, src_chain_id: int = None) -> list:
         # response = requests.get(url)
         # result = response.json()["record"]
         result = [{'chainName': 'arbitrum-test',
-                   'extrinsicHash': '0x5505dde893fb3edae8a7f6a90a9505bbf7c653de9666d237f4180e1ddcc24af4',
+                   'extrinsicHash': '0xe6349bcb1fb60838b42b2928b3fb73bf4177d1a3ed9e43229da9deeda96235f8',
                    'srcChainId': 421613,
                    "blockTimestamp": 1689644481
                    }]
@@ -232,7 +232,7 @@ def process_v1(
     src_chain_id = chain.id
 
     last_process = {}
-    interval = 3 * 60
+    interval = 60
 
     while True:
         result = get_pending_data(src_chain_id=src_chain_id)
@@ -276,6 +276,7 @@ def process_v2(
         destinationDomain: int,
         dstSoDiamond: str,
         dst_storage: Dict[int, Queue],
+        is_compensate
 ):
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
@@ -287,7 +288,6 @@ def process_v2(
     last_price_update = time.time()
     while True:
         local_logger.info("Get item from queue")
-        local_logger.info(dst_storage)
         try:
             data = dst_storage[destinationDomain].get(timeout=3)
         except Exception as e:
@@ -311,15 +311,23 @@ def process_v2(
         dst_fee = src_fee * src_price / dst_price
         gas_price = web3.eth.gas_price
         gas_limit = dst_fee / gas_price
-        result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
-            format_hex(data.token_message.message),
-            format_hex(data.token_message.attestation),
-            format_hex(data.payload_message.message),
-            format_hex(data.payload_message.attestation),
-            {"from": account,
-             "gas_limit": gas_limit
-             }
-        )
+        if not is_compensate:
+            result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
+                format_hex(data.token_message.message),
+                format_hex(data.token_message.attestation),
+                format_hex(data.payload_message.message),
+                format_hex(data.payload_message.attestation),
+                {"from": account,
+                 "gas_limit": gas_limit
+                 }
+            )
+        else:
+            result: TransactionReceipt = cctp_facet.receiveCCTPMessageByOwner(
+                format_hex(data.token_message.message),
+                format_hex(data.token_message.attestation),
+                {"from": account
+                 }
+            )
         record_gas(
             result.gas_used,
             result.gas_price,
@@ -344,12 +352,14 @@ class Session(Process):
             group=None,
             name=None,
             daemon=None,
-            dst_storage=None
+            dst_storage=None,
+            is_compensate=False
     ):
         self.destinationDomain = destinationDomain
         self.dstSoDiamond = dstSoDiamond
         self.dstNet = dstNet
         self.project_path = project_path
+        self.is_compensate = is_compensate
         super().__init__(
             group=group, target=self.worker, name=name, args=(dst_storage,), daemon=daemon
         )
@@ -371,7 +381,7 @@ class Session(Process):
             target=process_v1, args=(self.destinationDomain, self.dstSoDiamond, dst_storage)
         )
         t2 = threading.Thread(
-            target=process_v2, args=(self.destinationDomain, self.dstSoDiamond, dst_storage)
+            target=process_v2, args=(self.destinationDomain, self.dstSoDiamond, dst_storage, self.is_compensate)
         )
         t1.start()
         t2.start()
@@ -446,7 +456,32 @@ def main():
             name=d["dstNet"],
             project_path=str(project_path),
             dst_storage=dst_storage,
+            is_compensate=True
         )
+
+
+def compensate(src_net="arbitrum-test", dst_net="avax-test"):
+    tx_hash = "0x378f7a6e6afc6ede3dfed2baefce700eb23041389b76e2b563ed25e4080616ec"
+    project_path = Path(__file__).parent.parent.parent
+    name = dst_net
+    p = project.load(project_path, name=name)
+    p.load_config()
+    change_network(src_net)
+    logger.info(f"Change net into {network.show_active()}")
+    message = get_facet_message(tx_hash=tx_hash)
+    logger.info(f"Get message success")
+    try:
+        change_network(dst_net)
+    except:
+        network.connect(dst_net)
+    logger.info(f"Change net into {network.show_active()}")
+
+    cctp = get_cctp_facet_v1()
+    cctp.receiveCCTPMessageByOwner(
+        message.token_message.message,
+        message.token_message.attestation,
+        {"from": get_account()}
+    )
 
 
 if __name__ == "__main__":

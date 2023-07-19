@@ -702,20 +702,20 @@ def cross_swap_via_cctp(
     msg, msg_hash = messages[1]
 
     # complete cross swap
-    while True:
-        try:
-            token_attestation = get_cctp_attestation(src_session.net, token_msg_hash)
-            attestation = get_cctp_attestation(src_session.net, msg_hash)
-            if token_attestation == "PENDING" or attestation == "PENDING":
-                continue
-            dst_session.put_task(
-                receive_cctp_message,
-                args=(f'0x{token_msg}', token_attestation, f'0x{msg}', attestation),
-                with_project=True
-            )
-            break
-        except Exception as e:
-            print(e)
+    # while True:
+    #     try:
+    #         token_attestation = get_cctp_attestation(src_session.net, token_msg_hash)
+    #         attestation = get_cctp_attestation(src_session.net, msg_hash)
+    #         if token_attestation == "PENDING" or attestation == "PENDING":
+    #             continue
+    #         dst_session.put_task(
+    #             receive_cctp_message,
+    #             args=(f'0x{token_msg}', token_attestation, f'0x{msg}', attestation),
+    #             with_project=True
+    #         )
+    #         break
+    #     except Exception as e:
+    #         print(e)
 
 
 def receive_cctp_message(token_message, token_attestation, message, attestation, p: Project = None):
@@ -795,7 +795,7 @@ def main(src_net="arbitrum-test", dst_net="avax-test"):
     cross_swap_via_cctp(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=int(0.01 * 1e6),
+        inputAmount=int(0.001 * 1e6),
         sourceTokenName="usdc",
         sourceSwapType=None,
         sourceSwapFunc=None,

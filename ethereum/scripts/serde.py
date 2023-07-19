@@ -41,6 +41,16 @@ def get_cctp_facet():
     )
 
 
+def get_cctp_facet_v1():
+    contract_name = "CCTPFacet"
+    net = network.show_active()
+    return Contract.from_abi(
+        contract_name,
+        config["networks"][net]["SoDiamond"],
+        omniswap_ethereum_project[contract_name].abi,
+    )
+
+
 @functools.lru_cache()
 def get_stargate_facet():
     contract_name = "StargateFacet"
