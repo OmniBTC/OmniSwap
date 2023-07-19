@@ -204,8 +204,9 @@ def get_pending_data(url: str = None, src_chain_id: int = None) -> list:
     try:
         # response = requests.get(url)
         # result = response.json()["record"]
+        # todo! Remove
         result = [{'chainName': 'arbitrum-test',
-                   'extrinsicHash': '0xe6349bcb1fb60838b42b2928b3fb73bf4177d1a3ed9e43229da9deeda96235f8',
+                   'extrinsicHash': '0x5caa86d7ed4e060f0b7964230a0d7d0d15a02ff034fa37a962141347f5123680',
                    'srcChainId': 421613,
                    "blockTimestamp": 1689644481
                    }]
@@ -237,30 +238,34 @@ def process_v1(
     while True:
         result = get_pending_data(src_chain_id=src_chain_id)
         local_logger.info(f"Get pending data len:{len(result)}")
+        try:
+            for v in result:
+                if v["extrinsicHash"] in last_process and (time.time() - last_process[v["extrinsicHash"]]) < interval:
+                    continue
+                last_process[v["extrinsicHash"]] = time.time()
+                data = get_facet_message(v["extrinsicHash"])
+                if data.token_message is None:
+                    local_logger.warning(f"Get token message is None from {v['extrinsicHash']}")
+                    continue
+                if data.token_message.attestation is None:
+                    local_logger.warning(f"Get token message attestation fail from {v['extrinsicHash']}")
+                    continue
 
-        for v in result:
-            if v["extrinsicHash"] in last_process and (time.time() - last_process[v["extrinsicHash"]]) < interval:
-                continue
-            last_process[v["extrinsicHash"]] = time.time()
-            data = get_facet_message(v["extrinsicHash"])
-            if data.token_message is None:
-                local_logger.warning(f"Get token message is None from {v['extrinsicHash']}")
-                continue
-            if data.token_message.attestation is None:
-                local_logger.warning(f"Get token message attestation fail from {v['extrinsicHash']}")
-                continue
+                if data.payload_message is None:
+                    local_logger.warning(f"Get payload message is None from {v['extrinsicHash']}")
+                    continue
+                if data.payload_message.attestation is None:
+                    local_logger.warning(f"Get payload message attestation fail from {v['extrinsicHash']}")
+                    continue
 
-            if data.payload_message is None:
-                local_logger.warning(f"Get payload message is None from {v['extrinsicHash']}")
-                continue
-            if data.payload_message.attestation is None:
-                local_logger.warning(f"Get payload message attestation fail from {v['extrinsicHash']}")
-                continue
-
-            dst_domain = data.token_message.msgDestinationDomain
-            dst_net = DOMAIN_TO_NET[dst_domain]
-            dst_storage[dst_domain].put(data.to_dict())
-            local_logger.info(f"Put {dst_net} item for txid: {data.src_txid}")
+                dst_domain = data.token_message.msgDestinationDomain
+                dst_net = DOMAIN_TO_NET[dst_domain]
+                dst_storage[dst_domain].put(data.to_dict())
+                local_logger.info(f"Put {dst_net} item for txid: {data.src_txid}")
+        except:
+            import traceback
+            err = traceback.format_exc()
+            local_logger.error(f"Get error:{err}")
 
         time.sleep(3)
 
@@ -289,57 +294,67 @@ def process_v2(
     while True:
         local_logger.info("Get item from queue")
         try:
-            data = dst_storage[destinationDomain].get(timeout=3)
-        except Exception as e:
-            local_logger.warning(f"Get item fail:{e}, wait...")
-            continue
-        data = CCTPFacetMessage.from_dict(data)
-        if format_hex(data.payload_message.msgRecipient) != format_hex(dstSoDiamond):
-            local_logger.warning(f"Payload message recipient {data.payload_message.msgRecipient} not "
-                                 f"equal dstSoDiamond {dstSoDiamond}")
-            continue
-        if time.time() - last_price_update >= 0:
-            local_logger.info("Get token price")
-            price_info = get_token_price()
-            last_price_update = time.time()
+            try:
+                data = dst_storage[destinationDomain].get(timeout=3)
+            except Exception as e:
+                local_logger.warning(f"Get item fail:{e}, wait...")
+                continue
+            data = CCTPFacetMessage.from_dict(data)
+            if format_hex(data.payload_message.msgRecipient) != format_hex(dstSoDiamond):
+                local_logger.warning(f"Payload message recipient {data.payload_message.msgRecipient} not "
+                                     f"equal dstSoDiamond {dstSoDiamond}")
+                continue
+            if time.time() - last_price_update >= 0:
+                local_logger.info("Get token price")
+                price_info = get_token_price()
+                last_price_update = time.time()
 
-        src_domain = data.token_message.msgSourceDomain
-        dst_domain = data.token_message.msgDestinationDomain
-        src_fee = data.fee
-        src_price = price_info[src_domain]
-        dst_price = price_info[dst_domain]
-        dst_fee = src_fee * src_price / dst_price
-        gas_price = web3.eth.gas_price
-        gas_limit = dst_fee / gas_price
-        if not is_compensate:
-            result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
-                format_hex(data.token_message.message),
-                format_hex(data.token_message.attestation),
-                format_hex(data.payload_message.message),
-                format_hex(data.payload_message.attestation),
-                {"from": account,
-                 "gas_limit": gas_limit
-                 }
+            src_domain = data.token_message.msgSourceDomain
+            dst_domain = data.token_message.msgDestinationDomain
+            src_fee = data.fee if data.fee is not None else 0
+            src_price = price_info[src_domain]
+            dst_price = price_info[dst_domain]
+            dst_fee = src_fee * src_price / dst_price
+            gas_price = web3.eth.gas_price
+            gas_limit = int(dst_fee / gas_price)
+            if gas_limit == 0:
+                logger.warning(f"Gas limit is zero, refuse relay")
+                continue
+            else:
+                logger.info(f"Gas limit is {gas_limit} for transaction")
+            if not is_compensate:
+                result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
+                    format_hex(data.token_message.message),
+                    format_hex(data.token_message.attestation),
+                    format_hex(data.payload_message.message),
+                    format_hex(data.payload_message.attestation),
+                    {"from": account,
+                     "gas_limit": gas_limit
+                     }
+                )
+            else:
+                result: TransactionReceipt = cctp_facet.receiveCCTPMessageByOwner(
+                    format_hex(data.token_message.message),
+                    format_hex(data.token_message.attestation),
+                    {"from": account
+                     }
+                )
+            record_gas(
+                result.gas_used,
+                result.gas_price,
+                src_net=DOMAIN_TO_NET[src_domain],
+                dst_net=DOMAIN_TO_NET[dst_domain],
+                src_txid=data.src_txid,
+                dst_txid=result.txid,
             )
-        else:
-            result: TransactionReceipt = cctp_facet.receiveCCTPMessageByOwner(
-                format_hex(data.token_message.message),
-                format_hex(data.token_message.attestation),
-                {"from": account
-                 }
+            local_logger.info(
+                f"Process src txid:{data.src_txid}, dst txid: {result.txid}"
+                f" success!"
             )
-        record_gas(
-            result.gas_used,
-            result.gas_price,
-            src_net=DOMAIN_TO_NET[src_domain],
-            dst_net=DOMAIN_TO_NET[dst_domain],
-            src_txid=data.src_txid,
-            dst_txid=result.txid,
-        )
-        local_logger.info(
-            f"Process src txid:{data.src_txid}, dst txid: {result.txid}"
-            f" success!"
-        )
+        except:
+            import traceback
+            err = traceback.format_exc()
+            local_logger.error(f"Get error:{err}")
 
 
 class Session(Process):

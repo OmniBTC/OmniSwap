@@ -683,6 +683,7 @@ def cross_swap_via_cctp(
     src_fee = get_fee_amount(dst_fee, get_network_token(src_session.net))
 
     input_value = input_eth_amount + src_fee
+    input_value = input_value / 10000
 
     print(f"Input value: {input_value}")
 
