@@ -736,7 +736,7 @@ def receive_cctp_message(token_message, token_attestation, message, attestation,
 
 
 def get_message_hash(tx_hash):
-    events = brownie.chain.get_transaction(tx_hash).logs
+    events = brownie.chain.get_transaction(tx_hash).events
     p = project.get_loaded_projects()[-1]
     Contract.from_abi("MessageTransmitter",
                       get_cctp_message_transmitter(),

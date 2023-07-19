@@ -311,7 +311,7 @@ networks:
   avax-test:
     omnibtc_chainid: 30004
     chainid: 43113
-    SoDiamond: "0xE68508c61c4f979B828cd1c8383676d93583Cae5"
+    SoDiamond: "0x7969921f69c612C3D93D0cea133a571ff84753D3"
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
@@ -512,6 +512,7 @@ networks:
         router: "0x8954AfA98594b838bda56FE4C12a09D7739D179b"
         token_list: ""
   arbitrum-test:
+    SoDiamond: "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
     omnibtc_chainid: 30006
     chainid: 421611
     stargate:

@@ -1,23 +1,22 @@
 from __future__ import annotations
 
 import logging
-import multiprocessing
 import time
 from datetime import datetime
-from multiprocessing import Process, set_start_method
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
+import requests
 import ccxt
 import pandas as pd
-import requests
-from brownie import project, network, config, chain, web3, Contract
+
+from brownie import project, network, chain, web3, Contract
 import threading
 
 from brownie.network.transaction import TransactionReceipt
 from retrying import retry
 
-from scripts.helpful_scripts import get_account, change_network, get_cctp_message_transmitter
+from scripts.helpful_scripts import get_account, change_network, get_cctp_message_transmitter, Process, set_start_method, Queue
 from scripts.serde import get_cctp_facet
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
@@ -50,7 +49,7 @@ SUPPORTED_EVM = [
 # ]
 
 SHARE_STORAGE = {
-    v["destinationDomain"]: multiprocessing.Queue()
+    v["destinationDomain"]: Queue()
     for v in SUPPORTED_EVM
 }
 
@@ -217,7 +216,7 @@ def get_pending_data(url: str = None, src_chain_id: int = None) -> list:
 def process_v1(
         _destinationDomain: int,
         _dstSoDiamond: str,
-        share_storage_v1: Dict[int, multiprocessing.Queue],
+        share_storage_v1: Dict[int, Queue],
 ):
     """
     Used to get the message and send it to the corresponding consumer
@@ -261,7 +260,7 @@ def format_hex(data):
 def process_v2(
         destinationDomain: int,
         dstSoDiamond: str,
-        share_storage_v1: Dict[int, multiprocessing.Queue],
+        share_storage_v1: Dict[int, Queue],
 ):
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
@@ -338,7 +337,7 @@ class Session(Process):
         self.start()
 
     def worker(self,
-               share_storage_v1: Dict[int, multiprocessing.Queue],
+               share_storage_v1: Dict[int, Queue],
                ):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
@@ -406,7 +405,10 @@ def record_gas(
 
 
 def main():
-    set_start_method("spawn")
+    try:
+        set_start_method("spawn")
+    except:
+        pass
     project_path = Path(__file__).parent.parent.parent
     logger.info(f"Loading project...")
     for d in SUPPORTED_EVM:
@@ -417,3 +419,7 @@ def main():
             name=d["dstNet"],
             project_path=str(project_path),
         )
+
+
+if __name__ == "__main__":
+    main()
