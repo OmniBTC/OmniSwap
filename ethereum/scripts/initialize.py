@@ -236,8 +236,8 @@ def initialize_cctp(account, so_diamond):
     dstBaseGas = 700000
     dstGasPerBytes = 68
     print(f"Set dst net:{list(dst_domains.keys())} base gas:{dstBaseGas} gas per bytes:{dstGasPerBytes}")
-    proxy_cctp.setBaseGas(list(dst_domains.values()), dstBaseGas, {"from": account})
-    proxy_cctp.setGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
+    proxy_cctp.setCCTPBaseGas(list(dst_domains.values()), dstBaseGas, {"from": account})
+    proxy_cctp.setCCTPGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
 
 
 def initialize_celer(account, so_diamond):

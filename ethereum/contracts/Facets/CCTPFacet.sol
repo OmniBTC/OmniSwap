@@ -81,7 +81,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// @dev Set the minimum gas to be spent on the destination chain
     /// @param destinationDomains  a batch of destination domain id
     /// @param dstBaseGas  base gas for destination chain
-    function setBaseGas(
+    function setCCTPBaseGas(
         uint32[] calldata destinationDomains,
         uint256 dstBaseGas
     ) external {
@@ -96,7 +96,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// @dev Set the minimum gas to be spent on the destination chain
     /// @param destinationDomains  a batch of destination domain id
     /// @param dstGasPerBytes gas per bytes for destination chain
-    function setGasPerBytes(
+    function setCCTPGasPerBytes(
         uint32[] calldata destinationDomains,
         uint256 dstGasPerBytes
     ) external {
