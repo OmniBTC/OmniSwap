@@ -766,7 +766,7 @@ def get_cctp_attestation(net, msg_hash):
         raise ValueError(f"Get cctp attestation failed: {result.json()['status']}")
 
 
-def main(src_net="avax-test", dst_net="arbitrum-test"):
+def main(src_net="avax-main", dst_net="arbitrum-main"):
     global src_session
     global dst_session
     src_session = Session(
@@ -777,34 +777,34 @@ def main(src_net="avax-test", dst_net="arbitrum-test"):
     )
 
     # without swap
-    # cross_swap_via_cctp(
-    #     src_session=src_session,
-    #     dst_session=dst_session,
-    #     inputAmount=int(0.1 * 1e6),
-    #     sourceTokenName="usdc",
-    #     sourceSwapType=None,
-    #     sourceSwapFunc=None,
-    #     sourceSwapPath=None,
-    #     destinationTokenName="usdc",
-    #     destinationSwapType=None,
-    #     destinationSwapFunc=None,
-    #     destinationSwapPath=None,
-    # )
-
-    # with src swap
     cross_swap_via_cctp(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=int(0.001 * 1e6),
-        sourceTokenName="test-usdc",
-        sourceSwapType=SwapType.IUniswapV2Router02AVAX,
-        sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-        sourceSwapPath=("test-usdc", "usdc"),
+        inputAmount=int(0.01 * 1e6),
+        sourceTokenName="usdc",
+        sourceSwapType=None,
+        sourceSwapFunc=None,
+        sourceSwapPath=None,
         destinationTokenName="usdc",
         destinationSwapType=None,
         destinationSwapFunc=None,
         destinationSwapPath=None,
     )
+
+    # with src swap
+    # cross_swap_via_cctp(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(0.001 * 1e6),
+    #     sourceTokenName="test-usdc",
+    #     sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     sourceSwapPath=("test-usdc", "usdc"),
+    #     destinationTokenName="usdc",
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
 
     # # with dst swap
     # cross_swap_via_cctp(

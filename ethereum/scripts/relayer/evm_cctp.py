@@ -38,16 +38,16 @@ SUPPORTED_EVM = [
     }
 ]
 
-SUPPORTED_EVM = [
-    {"destinationDomain": 1,
-     "dstSoDiamond": "0x7969921f69c612C3D93D0cea133a571ff84753D3",
-     "dstNet": "avax-test"
-     },
-    {"destinationDomain": 3,
-     "dstSoDiamond": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
-     "dstNet": "arbitrum-test"
-     },
-]
+# SUPPORTED_EVM = [
+#     {"destinationDomain": 1,
+#      "dstSoDiamond": "0x7969921f69c612C3D93D0cea133a571ff84753D3",
+#      "dstNet": "avax-test"
+#      },
+#     {"destinationDomain": 3,
+#      "dstSoDiamond": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+#      "dstNet": "arbitrum-test"
+#      },
+# ]
 
 DOMAIN_TO_NET = {
     v["destinationDomain"]: v["dstNet"]
@@ -202,14 +202,8 @@ def get_pending_data(url: str = None, src_chain_id: int = None) -> list:
     if url is None:
         url = "https://crossswap.coming.chat/v1/getUnSendTransferFromCCTP"
     try:
-        # response = requests.get(url)
-        # result = response.json()["record"]
-        # todo! Remove
-        result = [{'chainName': 'arbitrum-test',
-                   'extrinsicHash': '0x24eb0ee879c2abf52943f800f75f17f73236e6dd30799574d5cf5198c065d434',
-                   'srcChainId': 43113,
-                   "blockTimestamp": 1689644481
-                   }]
+        response = requests.get(url)
+        result = response.json()["record"]
         if isinstance(result, list):
             result = [v for v in result if v["srcChainId"] == src_chain_id]
             result.sort(key=lambda x: x["blockTimestamp"])
