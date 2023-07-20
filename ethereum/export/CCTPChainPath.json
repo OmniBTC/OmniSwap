@@ -1,0 +1,38 @@
+{
+    "arbitrum-main": {
+        "ChainId": 42161,
+        "DomainId": 3,
+        "SupportTokens": [
+            {
+                "Address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                "ChainPath": [
+                    {
+                        "Address": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                        "Decimal": 6,
+                        "DomainId": 1
+                    }
+                ],
+                "Decimal": 6,
+                "TokenName": "USDC"
+            }
+        ]
+    },
+    "avax-main": {
+        "ChainId": 43114,
+        "DomainId": 1,
+        "SupportTokens": [
+            {
+                "Address": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                "ChainPath": [
+                    {
+                        "Address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                        "Decimal": 6,
+                        "DomainId": 3
+                    }
+                ],
+                "Decimal": 6,
+                "TokenName": "USDC"
+            }
+        ]
+    }
+}

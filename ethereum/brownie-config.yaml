@@ -311,7 +311,7 @@ networks:
   avax-test:
     omnibtc_chainid: 30004
     chainid: 43113
-    SoDiamond: "0xE68508c61c4f979B828cd1c8383676d93583Cae5"
+    SoDiamond: "0x7969921f69c612C3D93D0cea133a571ff84753D3"
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
@@ -360,6 +360,10 @@ networks:
       poolid:
         usdc: 1
     bridges:
+      cctp:
+        domain_id: 1
+        token_messenger: "0xeb08f243e5d3fcff26a9e38ae5520a669f4019d0"
+        message_transmitter: "0xa9fb1b3009dcb79e2fe346c16a604b8fa8ae0a79"
       celer:
         chainid: 43113
         message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
@@ -388,6 +392,9 @@ networks:
             address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     token:
       usdc:
+        address: "0x5425890298aed601595a70AB815c96711a31Bc65"
+        decimal: 6
+      test-usdc:
         address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
         decimal: 6
       weth:
@@ -505,6 +512,7 @@ networks:
         router: "0x8954AfA98594b838bda56FE4C12a09D7739D179b"
         token_list: ""
   arbitrum-test:
+    SoDiamond: "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
     omnibtc_chainid: 30006
     chainid: 421611
     stargate:
@@ -513,9 +521,14 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      cctp:
+        domain_id: 3
+        token_messenger: "0x12dcfd3fe2e9eac2859fd1ed86d2ab8c5a2f9352"
+        message_transmitter: "0x109bc137cb64eab7c0b1dddd1edf341467dc2d35"
     token:
       usdc:
-        address: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
+        address: "0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63"
         decimal: 6
       weth:
         address: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
@@ -819,6 +832,11 @@ networks:
             address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
             decimal: 18
             anytoken: "0xb3c381871ba849e9d4d1f096baf7a48415d56c25"
+      cctp:
+        domain_id: 0
+        token_messenger: "0xbd3fa81b58ba92a82136038b25adec7066af3155"
+        message_transmitter: "0x0a992d191deec32afe36203ad87d7d289a738f81"
+        token_minter: "0xc4922d64a24675e16e1586e3e3aa56c06fabe907"
     oracle:
       eth:
         chainid: 2
@@ -1126,6 +1144,11 @@ networks:
             address: "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab"
             decimal: 18
             anytoken: "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a"
+      cctp:
+        domain_id: 1
+        token_messenger: "0x6b25532e1060ce10cc3b0a99e5683b91bfde6982"
+        message_transmitter: "0x8186359af5f57fbb40c6b14a588d2a59c0c29880"
+        token_minter: "0x420f5035fd5dc62a167e7e7f08b604335ae272b8"
     oracle:
       eth:
         chainid: 2
@@ -1395,12 +1418,19 @@ networks:
             address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
             decimal: 18
             anytoken: "0x758d08864fb6cce3062667225ca10b8f00496cc2"
+      cctp:
+        domain_id: 3
+        token_messenger: "0x19330d10D9Cc8751218eaf51E8885D058642E08A"
+        message_transmitter: "0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca"
+        token_minter: "0xE7Ed1fa7f45D05C508232aa32649D89b73b8bA48"
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
         decimal: 6
       usdc:
-        address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+        # bridge usdc: 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8
+        # circle usdc:
+        address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
         decimal: 6
       weth:
         address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"

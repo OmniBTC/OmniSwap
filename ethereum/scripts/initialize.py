@@ -1,4 +1,3 @@
-from pprint import pprint
 from brownie import (
     DiamondCutFacet,
     SoDiamond,
@@ -22,8 +21,10 @@ from brownie import (
     LibSoFeeCelerV1,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
+    LibSoFeeCCTPV1,
+    CCTPFacet
 )
-from brownie.network import priority_fee
+from brownie.network import priority_fee, max_fee
 
 FacetCutAction_ADD = 0
 FacetCutAction_REPLACE = 1
@@ -53,12 +54,19 @@ from scripts.helpful_scripts import (
     get_multichain_router,
     get_multichain_id,
     get_multichain_info,
+    get_cctp_token_messenger,
+    get_cctp_message_transmitter
 )
+
+if "arbitrum" in network.show_active():
+    priority_fee("1 gwei")
+    max_fee("1.25 gwei")
 
 
 def main():
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("1 gwei")
+
     account = get_account()
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond Address:{so_diamond}")
@@ -67,34 +75,38 @@ def main():
     except Exception as e:
         print(f"initialize_cut fail:{e}")
     try:
-        initialize_stargate(account, so_diamond)
+        initialize_cctp(account, so_diamond)
     except Exception as e:
-        print(f"initialize_stargate fail:{e}")
-    try:
-        initialize_celer(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_celer fail:{e}")
-    try:
-        initialize_celer_fee(account)
-    except Exception as e:
-        print(f"initialize_celer_fee fail: {e}")
-    try:
-        initialize_multichain(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_multichain fail:{e}")
-    try:
-        initialize_wormhole(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_wormhole fail: {e}")
-    try:
-        initialize_wormhole_fee(account)
-    except Exception as e:
-        print(f"initialize_wormhole_fee fail: {e}")
+        print(f"initialize_cctp fail:{e}")
+    # try:
+    #     initialize_stargate(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_stargate fail:{e}")
+    # try:
+    #     initialize_celer(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_celer fail:{e}")
+    # try:
+    #     initialize_celer_fee(account)
+    # except Exception as e:
+    #     print(f"initialize_celer_fee fail: {e}")
+    # try:
+    #     initialize_multichain(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_multichain fail:{e}")
+    # try:
+    #     initialize_wormhole(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_wormhole fail: {e}")
+    # try:
+    #     initialize_wormhole_fee(account)
+    # except Exception as e:
+    #     print(f"initialize_wormhole_fee fail: {e}")
     try:
         initialize_dex_manager(account, so_diamond)
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
-    initialize_little_token_for_stargate()
+    # initialize_little_token_for_stargate()
 
 
 def initialize_wormhole_fee(account):
@@ -163,10 +175,11 @@ def initialize_cut(account, so_diamond):
         DiamondLoupeFacet,
         DexManagerFacet,
         OwnershipFacet,
-        CelerFacet,
-        MultiChainFacet,
-        StargateFacet,
-        WormholeFacet,
+        CCTPFacet,
+        # CelerFacet,
+        # MultiChainFacet,
+        # StargateFacet,
+        # WormholeFacet,
         WithdrawFacet,
         GenericSwapFacet,
         SerdeFacet,
@@ -198,6 +211,33 @@ def initialize_stargate(account, so_diamond):
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
     )
+
+
+def initialize_cctp(account, so_diamond):
+    proxy_cctp = Contract.from_abi("CCTPFacet", so_diamond.address, CCTPFacet.abi)
+    net = network.show_active()
+    print(f"network:{net}, init cctp...")
+    proxy_cctp.initCCTP(
+        get_cctp_token_messenger(), get_cctp_message_transmitter(), {"from": account}
+    )
+
+    dst_domain_info = {
+        "mainnet": 0,
+        "avax-main": 1,
+        "arbitrum-main": 3,
+        "goerli": 0,
+        "avax-test": 1,
+        "arbitrum-test": 3
+    }
+    if "main" in net:
+        dst_domains = {k: v for k, v in dst_domain_info.items() if "main" in k}
+    else:
+        dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
+    dstBaseGas = 700000
+    dstGasPerBytes = 68
+    print(f"Set dst net:{list(dst_domains.keys())} base gas:{dstBaseGas} gas per bytes:{dstGasPerBytes}")
+    proxy_cctp.setCCTPBaseGas(list(dst_domains.values()), dstBaseGas, {"from": account})
+    proxy_cctp.setCCTPGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
 
 
 def initialize_celer(account, so_diamond):
@@ -316,17 +356,20 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchAddDex(dexs, {"from": account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    # )
     proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
-    )
-    proxy_dex.addFee(
-        get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+        get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
     )
 
 
@@ -352,6 +395,37 @@ def redeploy_serde():
     remove_facet(SerdeFacet)
     SerdeFacet.deploy({"from": get_account()})
     add_cut([SerdeFacet])
+
+
+def redeploy_cctp():
+    if "arbitrum-test" in network.show_active():
+        priority_fee("1 gwei")
+        max_fee("1.25 gwei")
+    account = get_account()
+
+    try:
+        remove_facet(CCTPFacet)
+    except:
+        pass
+
+    CCTPFacet.deploy({"from": account})
+    add_cut([CCTPFacet])
+    initialize_cctp(account, SoDiamond[-1])
+    #
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    #
+    # so_fee = 1e-3
+    # ray = 1e27
+    #
+    # print("deploy LibSoFeeCCTPV1.sol...")
+    # LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
+    #
+    # print("AddFee ...")
+    # proxy_dex.addFee(
+    #     get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
+    # )
 
 
 def redeploy_wormhole():
