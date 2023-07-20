@@ -206,8 +206,8 @@ def get_pending_data(url: str = None, src_chain_id: int = None) -> list:
         # result = response.json()["record"]
         # todo! Remove
         result = [{'chainName': 'arbitrum-test',
-                   'extrinsicHash': '0x5caa86d7ed4e060f0b7964230a0d7d0d15a02ff034fa37a962141347f5123680',
-                   'srcChainId': 421613,
+                   'extrinsicHash': '0x24eb0ee879c2abf52943f800f75f17f73236e6dd30799574d5cf5198c065d434',
+                   'srcChainId': 43113,
                    "blockTimestamp": 1689644481
                    }]
         if isinstance(result, list):

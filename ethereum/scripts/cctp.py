@@ -683,7 +683,6 @@ def cross_swap_via_cctp(
     src_fee = get_fee_amount(dst_fee, get_network_token(src_session.net))
 
     input_value = input_eth_amount + src_fee
-    input_value = input_value / 10000
 
     print(f"Input value: {input_value}")
 
@@ -767,7 +766,7 @@ def get_cctp_attestation(net, msg_hash):
         raise ValueError(f"Get cctp attestation failed: {result.json()['status']}")
 
 
-def main(src_net="arbitrum-test", dst_net="avax-test"):
+def main(src_net="avax-test", dst_net="arbitrum-test"):
     global src_session
     global dst_session
     src_session = Session(
@@ -792,20 +791,35 @@ def main(src_net="arbitrum-test", dst_net="avax-test"):
     #     destinationSwapPath=None,
     # )
 
-    # with dst swap
+    # with src swap
     cross_swap_via_cctp(
         src_session=src_session,
         dst_session=dst_session,
         inputAmount=int(0.001 * 1e6),
-        sourceTokenName="usdc",
-        sourceSwapType=None,
-        sourceSwapFunc=None,
-        sourceSwapPath=None,
-        destinationTokenName="test-usdc",
-        destinationSwapType=SwapType.IUniswapV2Router02AVAX,
-        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-        destinationSwapPath=("usdc", "test-usdc"),
+        sourceTokenName="test-usdc",
+        sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+        sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+        sourceSwapPath=("test-usdc", "usdc"),
+        destinationTokenName="usdc",
+        destinationSwapType=None,
+        destinationSwapFunc=None,
+        destinationSwapPath=None,
     )
+
+    # # with dst swap
+    # cross_swap_via_cctp(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(0.001 * 1e6),
+    #     sourceTokenName="usdc",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationTokenName="test-usdc",
+    #     destinationSwapType=SwapType.IUniswapV2Router02AVAX,
+    #     destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     destinationSwapPath=("usdc", "test-usdc"),
+    # )
 
     src_session.terminate()
     dst_session.terminate()
