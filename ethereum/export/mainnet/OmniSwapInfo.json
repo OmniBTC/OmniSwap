@@ -2583,5 +2583,29 @@
       }
     ],
     "WETH": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
+  },
+  "zkevm-main": {
+    "ChainId": 1011,
+    "OmniBtcChainId": 1011,
+    "SoDiamond": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+    "UniswapRouter": [
+      {
+        "Name": "QuickSwapV3",
+        "QuoterAddressForUniswapV3": "0x55BeE1bD3Eb9986f6d2d963278de09eE92a3eF1D",
+        "RouterAddress": "0xF6Ad3CcF71Abb3E12beCf6b3D2a74C963859ADCd",
+        "TokenList": "",
+        "Type": "IQuickSwapRouter",
+        "Factory": "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57"
+      },
+      {
+        "Name": "PancakeSwapV3",
+        "QuoterAddressForUniswapV3": "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
+        "RouterAddress": "0x1b81D678ffb9C0263b24A97847620C99d213eB14",
+        "TokenList": "",
+        "Type": "ISwapRouter",
+        "Factory": "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865"
+      }
+    ],
+    "WETH": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
   }
 }

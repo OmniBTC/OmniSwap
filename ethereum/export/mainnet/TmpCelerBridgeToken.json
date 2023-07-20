@@ -27,6 +27,12 @@
             "decimal": 18
         }
     },
+    "1101": {
+        "WETH": {
+            "address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+            "decimal": 18
+        }
+    },
     "137": {
         "USDC": {
             "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",

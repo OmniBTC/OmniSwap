@@ -235,6 +235,64 @@ def set_so_price_for_test():
             )
 
 
+def calc_percent(new_ratio, old_ratio):
+    if old_ratio == 0:
+        return 0
+    else:
+        return new_ratio / old_ratio
+
+
+def set_so_price_for_celer_zkevm():
+    change_network("zkevm-main")
+    celer_so_fee = "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2"
+    prices = get_prices()
+    decimal = 1e27
+    multiply = 1.2
+
+    proxy_celer_so_fee = Contract.from_abi(
+        "LibSoFeeCelerV1", celer_so_fee, LibSoFeeCelerV1.abi
+    )
+
+    # call once
+    # proxy_celer_fee.setPriceRatio(1, 1e27, {"from": account})
+    # proxy_celer_fee.setPriceRatio(10, 1e27, {"from": account})
+    # proxy_celer_fee.setPriceRatio(324, 1e27, {"from": account})
+    # proxy_celer_fee.setPriceRatio(42161, 1e27, {"from": account})
+
+    # bnb/eth
+    dst_celer_id = 56
+    ratio = int(prices["BNB/USDT"] / prices["ETH/USDT"] * decimal * multiply)
+    old_ratio = int(proxy_celer_so_fee.getPriceRatio(dst_celer_id)[0])
+    print(
+        f"[set_bnb_eth_price_ratio]: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
+    )
+
+    if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        proxy_celer_so_fee.setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
+
+    # matic/eth
+    dst_celer_id = 137
+    ratio = int(prices["MATIC/USDT"] / prices["ETH/USDT"] * decimal * multiply)
+    old_ratio = int(proxy_celer_so_fee.getPriceRatio(dst_celer_id)[0])
+    print(
+        f"[set_matic_eth_price_ratio]: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
+    )
+
+    if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        proxy_celer_so_fee.setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
+
+    # avax/eth
+    dst_celer_id = 43114
+    ratio = int(prices["AVAX/USDT"] / prices["ETH/USDT"] * decimal * multiply)
+    old_ratio = int(proxy_celer_so_fee.getPriceRatio(dst_celer_id)[0])
+    print(
+        f"[set_avax_eth_price_ratio]: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
+    )
+
+    if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        proxy_celer_so_fee.setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
+
+
 def set_so_price():
     prices = get_prices()
 

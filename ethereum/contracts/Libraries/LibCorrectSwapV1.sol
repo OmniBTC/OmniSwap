@@ -5,6 +5,7 @@ pragma solidity 0.8.13;
 import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
 import {ISyncSwapRouter} from "../Interfaces/ISyncSwapRouter.sol";
 import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
+import {IQuickSwapRouter} from "../Interfaces/IQuickSwapRouter.sol";
 
 contract LibCorrectSwapV1 {
     // Exact search for supported function signatures
@@ -50,6 +51,8 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC10 =
         IMuteRouter.swapExactTokensForTokens.selector;
 
+    bytes4 private constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
+
     //---------------------------------------------------------------------------
     // External Method
 
@@ -80,6 +83,8 @@ contract LibCorrectSwapV1 {
             return tryMuteSwap(_data, _amount);
         } else if (sig == _FUNC10) {
             return tryMuteSwap(_data, _amount);
+        } else if (sig == _FUNC11) {
+            return tryQuickExactInput(_data, _amount);
         }
 
         // fuzzy matching
@@ -236,5 +241,31 @@ contract LibCorrectSwapV1 {
                 _deadline,
                 _stable
             );
+    }
+
+    function tryQuickExactInput(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.quickExactInput(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("quickExactInput fail!");
+        }
+    }
+
+    function quickExactInput(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        IQuickSwapRouter.ExactInputParams memory params = abi.decode(
+            _data[4:],
+            (IQuickSwapRouter.ExactInputParams)
+        );
+        params.amountIn = _amount;
+
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
     }
 }
