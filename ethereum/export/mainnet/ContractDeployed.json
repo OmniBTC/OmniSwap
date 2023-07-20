@@ -1,10 +1,12 @@
 {
     "arbitrum-main": {
+        "CCTPFacet": "0x452B5F476f4fA706a80C513c52729e47150d343C",
         "CelerFacet": "0x930b39EcEA81678a5033aa3c9Cc1f804fFEE004e",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
         "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
         "GenericSwapFacet": "0x6aa49FA53d372329de88160017f9ca7C5d3338bE",
+        "LibSoFeeCCTPV1": "0x1EC3c04992Dd9f475ca9012760Fc8092898f18e2",
         "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
         "LibSoFeeCelerV1": "0x937AfcA1bb914405D37D55130184ac900ce5961f",
         "LibSoFeeMultiChainV1": "0xf937DD0CAeE3Adac093Fb7a24DAFB1294c37e02A",
@@ -15,12 +17,14 @@
         "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
     },
     "avax-main": {
+        "CCTPFacet": "0x0E4acb24eF6D0dc819e56085D698773Ec9285847",
         "CelerFacet": "0x13Ee92DFCa712CD3623b2A9ecF3A8f6723674AAA",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
         "DiamondLoupeFacet": "0xE4D1ebF03742a8238b546980261507FdE0113D37",
         "GenericSwapFacet": "0x0b6F43c227e7eaE042dd0aCf3F6a46A12FEFC7f3",
         "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
+        "LibSoFeeCCTPV1": "0x6dfb009B58D9480c727c156218F5a39C4AF87Af2",
         "LibSoFeeCelerV1": "0x7e482c0DA0481414311097cF058f0E64B20c9D6C",
         "LibSoFeeMultiChainV1": "0xce07B132324Cf55e98DE853e67ca9CC71977C444",
         "LibSoFeeStargateV1": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",

@@ -411,6 +411,21 @@ def redeploy_cctp():
     CCTPFacet.deploy({"from": account})
     add_cut([CCTPFacet])
     initialize_cctp(account, SoDiamond[-1])
+    #
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    #
+    # so_fee = 1e-3
+    # ray = 1e27
+    #
+    # print("deploy LibSoFeeCCTPV1.sol...")
+    # LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
+    #
+    # print("AddFee ...")
+    # proxy_dex.addFee(
+    #     get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
+    # )
 
 
 def redeploy_wormhole():
