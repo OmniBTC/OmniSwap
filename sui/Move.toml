@@ -14,12 +14,13 @@ deepbook = "0xdee9"
 [dependencies.Sui]
 git = "https://github.com/MystenLabs/sui.git"
 subdir = "crates/sui-framework/packages/sui-framework"
-rev = "09b2081498366df936abae26eea4b2d5cafb2788"
+rev = "cc4ad6d8a3f05ad8641e977fad228e09a77453b8"
+override = true
 
 [dependencies.DeepBook]
 git = "https://github.com/MystenLabs/sui.git"
 subdir = "crates/sui-framework/packages/deepbook"
-rev = "09b2081498366df936abae26eea4b2d5cafb2788"
+rev = "cc4ad6d8a3f05ad8641e977fad228e09a77453b8"
 
 [dependencies.Wormhole]
 git = "https://github.com/OmniBTC/wormhole.git"
