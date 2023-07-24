@@ -42,6 +42,7 @@ module omniswap::swap {
 
     /// Swap Name
     const DEEPBOOK_SWAP: vector<u8> = b"DeepBook";
+    const DEEPBOOK_V2_SWAP: vector<u8> = b"DeepBookV2";
     const CETUS_SWAP: vector<u8> = b"Cetus";
 
     /// Ensuring the origin of tokens
@@ -313,7 +314,7 @@ module omniswap::swap {
             swap_name = raw_call_data;
         };
 
-        if (swap_name == DEEPBOOK_SWAP) {
+        if (swap_name == DEEPBOOK_V2_SWAP) {
             let input_quote_amount = coin::value(&input_coin);
             let (base_asset, quote_asset, swap_amount) = clob_v2::swap_exact_quote_for_base(
                 pool,
@@ -360,7 +361,7 @@ module omniswap::swap {
             swap_name = raw_call_data;
         };
 
-        if (swap_name == DEEPBOOK_SWAP) {
+        if (swap_name == DEEPBOOK_V2_SWAP) {
             let input_base_amount = coin::value(&input_coin);
             let quote_coin = coin::zero<QuoteAsset>(ctx);
             let (base_asset, quote_asset, swap_amount) = clob_v2::swap_exact_base_for_quote(
