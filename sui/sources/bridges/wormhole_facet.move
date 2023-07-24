@@ -1180,6 +1180,68 @@ module omniswap::wormhole_facet {
         (multi_swap_data, multi_src_data)
     }
 
+    public fun multi_swap_for_deepbook_v2_base_asset<X, Y>(
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        multi_swap_data: MultiSwapData<Y>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): MultiSwapData<X> {
+        assert!(vector::length(&multi_swap_data.left_swap_data) > 0, EMULTISWAP_STEP);
+        let (receiver, coin_y, left_swap_data) = destroy_multi_swap_data(
+            multi_swap_data
+        );
+        let swap_data = vector::remove(&mut left_swap_data, 0);
+        let (coin_x, left_coin_y, _) = swap::swap_for_base_asset_by_deepbook_v2<X, Y>(
+            pool_xy,
+            coin_y,
+            &deepbook_v2_storage.account_cap,
+            deepbook_v2_storage.client_order_id,
+            swap_data,
+            clock,
+            ctx
+        );
+        deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+
+        process_left_coin(left_coin_y, receiver);
+        MultiSwapData<X> {
+            receiver,
+            input_coin: coin_x,
+            left_swap_data,
+        }
+    }
+
+    public fun multi_swap_for_deepbook_v2_quote_asset<X, Y>(
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        multi_swap_data: MultiSwapData<X>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): MultiSwapData<Y> {
+        assert!(vector::length(&multi_swap_data.left_swap_data) > 0, EMULTISWAP_STEP);
+        let (receiver, coin_x, left_swap_data) = destroy_multi_swap_data(
+            multi_swap_data
+        );
+        let swap_data = vector::remove(&mut left_swap_data, 0);
+        let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook_v2<X, Y>(
+            pool_xy,
+            coin_x,
+            &deepbook_v2_storage.account_cap,
+            deepbook_v2_storage.client_order_id,
+            swap_data,
+            clock,
+            ctx
+        );
+        deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+
+        process_left_coin(left_coin_x, receiver);
+        MultiSwapData<Y> {
+            receiver,
+            input_coin: coin_y,
+            left_swap_data,
+        }
+    }
+
     public fun multi_swap_for_cetus_base_asset<X, Y>(
         global_config: &GlobalConfig,
         pool_xy: &mut CetusPool<X, Y>,
