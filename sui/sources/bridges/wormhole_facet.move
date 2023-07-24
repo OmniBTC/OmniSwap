@@ -1511,6 +1511,134 @@ module omniswap::wormhole_facet {
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_for_deepbook_v2_quote_asset<X, Y>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let (coin_x, payload) = complete_transfer<X>(
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= x_val) {
+            let coin_fee = coin::split<X>(&mut coin_x, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_x);
+        if (vector::length(&swap_data_dst) > 0) {
+            assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+            let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook_v2<X, Y>(
+                pool_xy,
+                coin_x,
+                &deepbook_v2_storage.account_cap,
+                deepbook_v2_storage.client_order_id,
+                *vector::borrow(&swap_data_dst, 0),
+                clock,
+                ctx
+            );
+            deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+            receiving_amount = coin::value(&coin_y);
+            transfer::public_transfer(coin_y, receiver);
+            process_left_coin(left_coin_x, receiver);
+        } else {
+            transfer::public_transfer(coin_x, receiver);
+        };
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
+    }
+
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_for_deepbook_v2_base_asset<X, Y>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let (coin_y, payload) = complete_transfer<Y>(
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let y_val = coin::value(&coin_y);
+        let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= y_val) {
+            let coin_fee = coin::split<Y>(&mut coin_y, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_y);
+        if (vector::length(&swap_data_dst) > 0) {
+            assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+            let (left_coin_x, coin_y, _) = swap::swap_for_base_asset_by_deepbook_v2<X, Y>(
+                pool_xy,
+                coin_y,
+                &deepbook_v2_storage.account_cap,
+                deepbook_v2_storage.client_order_id,
+                *vector::borrow(&swap_data_dst, 0),
+                clock,
+                ctx
+            );
+            deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+            receiving_amount = coin::value(&coin_y);
+            transfer::public_transfer(coin_y, receiver);
+            process_left_coin(left_coin_x, receiver);
+        } else {
+            transfer::public_transfer(coin_y, receiver);
+        };
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
+    }
+
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
     public entry fun complete_so_swap_for_deepbook_quote_asset<X, Y>(
         storage: &mut Storage,
         token_bridge_state: &mut TokenBridgeState,
