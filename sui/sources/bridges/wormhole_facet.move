@@ -4,6 +4,7 @@ module omniswap::wormhole_facet {
     use cetus_clmm::config::GlobalConfig;
     use cetus_clmm::pool::Pool as CetusPool;
     use deepbook::clob::Pool as DeepbookPool;
+    use deepbook::clob_v2;
     use deepbook::clob_v2::Pool as DeepbookV2Pool;
     use deepbook::custodian_v2;
     use deepbook::custodian_v2::AccountCap;
@@ -18,7 +19,6 @@ module omniswap::wormhole_facet {
     use sui::sui::SUI;
     use sui::table::{Self, Table};
     use sui::transfer;
-    use sui::transfer::share_object;
     use sui::tx_context::{Self, TxContext};
     use token_bridge::complete_transfer_with_payload;
     use token_bridge::state::{Self as bridge_state, State as TokenBridgeState};
@@ -245,12 +245,13 @@ module omniswap::wormhole_facet {
     /// Set deepbook_v2 account cap
     public entry fun init_deepbook_v2(
         facet_manager: &mut WormholeFacetManager,
-        account_cap: &AccountCap,
         ctx: &mut TxContext
     ) {
         assert!(tx_context::sender(ctx) == facet_manager.owner, ENOT_DEPLOYED_ADDRESS);
-        let deepbook_account = custodian_v2::create_child_account_cap(account_cap, ctx);
-        share_object(
+        let owner_account = clob_v2::create_account(ctx);
+        let deepbook_account = custodian_v2::create_child_account_cap(&owner_account, ctx);
+        transfer::public_transfer(owner_account, facet_manager.owner);
+        transfer::share_object(
             DeepbookV2Storage {
                 id: object::new(ctx),
                 account_cap: deepbook_account,
