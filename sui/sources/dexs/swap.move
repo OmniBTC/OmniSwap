@@ -366,9 +366,9 @@ module omniswap::swap {
             let quote_coin = coin::zero<QuoteAsset>(ctx);
             let (base_asset, quote_asset, swap_amount) = clob_v2::swap_exact_base_for_quote(
                 pool,
-                input_base_amount,
-                account_cap,
                 client_order_id,
+                account_cap,
+                input_base_amount,
                 input_coin,
                 quote_coin,
                 clock,
