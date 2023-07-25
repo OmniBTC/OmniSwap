@@ -1103,6 +1103,29 @@ module omniswap::wormhole_facet {
         );
     }
 
+    /// multi_swap -> multi_swap_for_cetus_base_asset -> complete_multi_swap
+    public fun multi_swap<X>(
+        swap_data_src: vector<u8>,
+        coins_x: vector<Coin<X>>,
+        coin_amount: u64,
+        ctx: &mut TxContext
+    ): MultiSwapData<X> {
+        let coin_x = merge_coin(coins_x, coin_amount, ctx);
+
+        // X is quote asset, Y is base asset
+        // use base asset to cross chain
+        let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+        assert!(vector::length(&swap_data_src) > 0, EMULTISWAP_STEP);
+
+        let multi_swap_data = MultiSwapData<X> {
+            receiver: tx_context::sender(ctx),
+            input_coin: coin_x,
+            left_swap_data: swap_data_src,
+        };
+
+        multi_swap_data
+    }
+
     /// so_multi_swap -> multi_swap_for_cetus_base_asset -> complete_multi_src_swap
     public fun so_multi_swap<X>(
         wormhole_state: &mut WormholeState,
@@ -1297,6 +1320,15 @@ module omniswap::wormhole_facet {
             input_coin: coin_y,
             left_swap_data,
         }
+    }
+
+    public fun complete_multi_swap<X>(
+        multi_swap_data: MultiSwapData<X>,
+    ) {
+        assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
+        let (receiver, coin_x, swap_data) = destroy_multi_swap_data(multi_swap_data);
+        vector::destroy_empty(swap_data);
+        transfer::public_transfer(coin_x, receiver)
     }
 
     public fun complete_multi_src_swap<X>(
