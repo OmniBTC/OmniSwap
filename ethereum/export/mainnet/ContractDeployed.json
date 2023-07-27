@@ -1,6 +1,6 @@
 {
     "arbitrum-main": {
-        "BoolFacet": "0x14Bd8EBbD9FF6E8Ef0a8d3e87B7685Edd2b2ebcD",
+        "BoolFacet": "0xeb3F7D77C277b67B29Ce454E54657bBDAeB2BA36",
         "CelerFacet": "0x930b39EcEA81678a5033aa3c9Cc1f804fFEE004e",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
@@ -74,7 +74,7 @@
         "WormholeFacet": "0x681bC51FC82bbA792e94e6187B82859f1E982C24"
     },
     "optimism-main": {
-        "BoolFacet": "0xd64715AFCC9015ECa711D3915B3d11A5e97904e7",
+        "BoolFacet": "0x1ac958477e0873D7039B2B71ae89B51d3248fA4F",
         "CelerFacet": "0xD8dec96b9E22a99f68D48CfB20cd6868a3dcc56b",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
