@@ -296,6 +296,7 @@ contract BoolFacet is
         }
 
         // Convert the data type of SoDiamond on the destination chain from address to bytes32
+        require(msg.value >= boolSwapValue, "ValueNotEnough");
 
         // crossId: unique cross-chain id from BOOL Network: crossId = uint32 srcChainId + uint32 dstChainId + uint192 nonce
         bytes32 crossId = IBoolSwapRouter(router).swap{value: boolSwapValue}(
