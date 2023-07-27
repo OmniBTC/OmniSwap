@@ -508,7 +508,7 @@ def redeploy_bool():
     #     get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
     # )
 
-    # remove_facet(BoolFacet)
+    remove_facet(BoolFacet)
 
     # 3. deploy BoolFacet
     BoolFacet.deploy({'from': account})

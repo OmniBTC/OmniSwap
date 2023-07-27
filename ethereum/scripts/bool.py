@@ -658,7 +658,7 @@ def cross_swap_via_bool(
     )
 
 
-def main(src_net="optimism-test", dst_net="goerli"):
+def main(src_net="optimism-main", dst_net="arbitrum-main"):
     global src_session
     global dst_session
     src_session = Session(
@@ -762,15 +762,15 @@ def main(src_net="optimism-test", dst_net="goerli"):
     cross_swap_via_bool(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=1e5,
-        sourceTokenName="bool-usdc",
-        destinationTokenName="bool-usdc",
-        sourceSwapType=SwapType.IUniswapV2Router02,
-        sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-        sourceSwapPath=("bool-usdc", "bool-usdt"),
-        destinationSwapType=SwapType.IUniswapV2Router02,
-        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-        destinationSwapPath=("bool-usdt", "bool-usdc"),
+        inputAmount=1e6,
+        sourceTokenName="usdc",
+        destinationTokenName="usdc",
+        sourceSwapType=SwapType.ISwapRouter,
+        sourceSwapFunc=SwapFunc.exactInput,
+        sourceSwapPath=("usdc", 0.0005, "weth"),
+        destinationSwapType=SwapType.ISwapRouter,
+        destinationSwapFunc=SwapFunc.exactInput,
+        destinationSwapPath=("weth", 0.0005, "usdc"),
     )
 
     src_session.terminate()

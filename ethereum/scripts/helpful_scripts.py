@@ -241,10 +241,13 @@ def get_bool_pool_id(pool_name: str):
 
 
 def get_bool_pool_id_by_token(token_address: str):
+    print(token_address)
     pools = get_bool_pools()
     for pool in pools:
         if pools[pool]["token_address"] == token_address:
             return pools[pool]["pool_id"]
+    if "optimism" in network.show_active() and token_address == "0x4200000000000000000000000000000000000006":
+        return pools["eth"]["pool_id"]
     raise ValueError("Bool pool id not found")
 
 
