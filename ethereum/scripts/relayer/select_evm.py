@@ -3,10 +3,8 @@ import logging
 
 import requests
 
-import aptos_brownie
 
-
-def get_wormhole_info(package: aptos_brownie.AptosPackage) -> dict:
+def get_wormhole_info(package) -> dict:
     """Get token bridge info"""
     info = {}
     for net, c in package.config["networks"].items():
@@ -62,10 +60,10 @@ def get_signed_vaa(sequence: int, src_wormhole_id: int = None, url: str = None):
 
 
 def get_signed_vaa_by_to(
-    to_chain: int,
-    to: str = None,
-    count: int = None,
-    url: str = None,
+        to_chain: int,
+        to: str = None,
+        count: int = None,
+        url: str = None,
 ):
     """
     Get signed vaa

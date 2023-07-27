@@ -517,7 +517,7 @@ networks:
   sui-localnet:
     node_url: http://127.0.0.1:9000
   sui-mainnet:
-    node_url: https://sui-mainnet-endpoint.blockvision.org:443
+    node_url: https://fullnode.mainnet.sui.io:443
     SoDiamond: "0x201a8b38e099b17078f6b9d3826e4d784c8c5656a4d484e7c8f6f57e439fdd2f"
     Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
     objects:

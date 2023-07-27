@@ -2,6 +2,7 @@
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "../Libraries/LibDiamond.sol";
 import "../Libraries/LibBytes.sol";

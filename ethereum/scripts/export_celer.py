@@ -85,6 +85,8 @@ def simple_check_bridge_tokens():
         "137": {"USDC": 6, "USDT": 6, "WETH": 18},
         # Zksync-era
         "324": {"USDC": 6, "WETH": 18},
+        # Polygon-zkevm
+        "1101": {"WETH": 18},
         # Arbitrum
         "42161": {"USDC": 6, "USDT": 6, "WETH": 18},
         # Avalanche
@@ -96,20 +98,31 @@ def simple_check_bridge_tokens():
             if chain1 == chain2:
                 continue
             for token, decimal in tokens1.items():
-                if check_bridge_token(chain1, chain2, token, decimal, tokens2[token]):
-                    print(
-                        chain1, "===>>===", chain2, ":", token, decimal, tokens2[token]
-                    )
-                else:
-                    print(
-                        chain1,
-                        "===/////===",
-                        chain2,
-                        ":",
-                        token,
-                        decimal,
-                        tokens2[token],
-                    )
+                try:
+                    if check_bridge_token(
+                        chain1, chain2, token, decimal, tokens2[token]
+                    ):
+                        print(
+                            chain1,
+                            "===>>===",
+                            chain2,
+                            ":",
+                            token,
+                            decimal,
+                            tokens2[token],
+                        )
+                    else:
+                        print(
+                            chain1,
+                            "===/////===",
+                            chain2,
+                            ":",
+                            token,
+                            decimal,
+                            tokens2[token],
+                        )
+                except KeyError:
+                    continue
 
 
 def check_celer_bridge_tokens(bridge_tokens):
@@ -141,6 +154,7 @@ def get_celer_bridge_tokens():
         "56",  # BSC
         "137",  # Polygon
         "324",  # Zksync-era
+        "1101",  # Polygon-zkevm
         "42161",  # Arbitrum
         "43114",  # Avalanche
     ]
@@ -201,6 +215,10 @@ def export_main_celer_chain_path():
             "cBridge": "0x54069e96C4247b37C2fbd9559CA99f08CD1CD66c",
             "MessageBus": "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2",
         },
+        "1101": {
+            "cBridge": "0xD46F8E428A06789B5884df54E029e738277388D1",
+            "MessageBus": "0x9Bb46D5100d2Db4608112026951c9C965b233f4D",
+        },
         "42161": {
             "cBridge": "0x1619DE6B6B20eD217a58d00f37B9d47C7663feca",
             "MessageBus": "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f",
@@ -217,6 +235,7 @@ def export_main_celer_chain_path():
         "324": "zksync2-main",
         "56": "bsc-main",
         "137": "polygon-main",
+        "1101": "zkevm-main",
         "42161": "arbitrum-main",
         "43114": "avax-main",
     }
@@ -328,6 +347,7 @@ def check_main_celer_config():
         "arbitrum-main",
         "optimism-main",
         "zksync2-main",
+        "zkevm-main",
     ]
 
     chain_path = read_json(celer_chain_path)

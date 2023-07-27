@@ -3,7 +3,11 @@ module omniswap::wormhole_facet {
 
     use cetus_clmm::config::GlobalConfig;
     use cetus_clmm::pool::Pool as CetusPool;
-    use deepbook::clob::Pool;
+    use deepbook::clob::Pool as DeepbookPool;
+    use deepbook::clob_v2;
+    use deepbook::clob_v2::Pool as DeepbookV2Pool;
+    use deepbook::custodian_v2;
+    use deepbook::custodian_v2::AccountCap;
     use omniswap::cross::{Self, NormalizedSoData, NormalizedSwapData, padding_swap_data};
     use omniswap::serde;
     use omniswap::so_fee_wormhole::{Self, PriceManager};
@@ -88,6 +92,14 @@ module omniswap::wormhole_facet {
         dst_gas_per_bytes: Table<u16, u256>,
     }
 
+    /// Deepbook v2 storage
+    struct DeepbookV2Storage has key {
+        id: UID,
+        // deepbook_v2 account cap
+        account_cap: AccountCap,
+        // deepbook_v2 client order id
+        client_order_id: u64
+    }
 
     /// Some parameters needed to use wormhole
     struct NormalizedWormholeData has drop, copy {
@@ -229,6 +241,24 @@ module omniswap::wormhole_facet {
     }
 
     /// Inits
+
+    /// Set deepbook_v2 account cap
+    public entry fun init_deepbook_v2(
+        facet_manager: &mut WormholeFacetManager,
+        ctx: &mut TxContext
+    ) {
+        assert!(tx_context::sender(ctx) == facet_manager.owner, ENOT_DEPLOYED_ADDRESS);
+        let owner_account = clob_v2::create_account(ctx);
+        let deepbook_account = custodian_v2::create_child_account_cap(&owner_account, ctx);
+        transfer::public_transfer(owner_account, facet_manager.owner);
+        transfer::share_object(
+            DeepbookV2Storage {
+                id: object::new(ctx),
+                account_cap: deepbook_account,
+                client_order_id: 0
+            }
+        )
+    }
 
     /// Set the wormhole chain id used by the current chain
     public entry fun init_wormhole(
@@ -436,7 +466,7 @@ module omniswap::wormhole_facet {
         clock: &Clock,
         price_manager: &mut PriceManager,
         wromhole_fee: &mut WormholeFee,
-        pool_xy: &mut Pool<X, Y>,
+        pool_xy: &mut DeepbookPool<X, Y>,
         so_data: vector<u8>,
         swap_data_src: vector<u8>,
         wormhole_data: vector<u8>,
@@ -538,7 +568,7 @@ module omniswap::wormhole_facet {
         clock: &Clock,
         price_manager: &mut PriceManager,
         wromhole_fee: &mut WormholeFee,
-        pool_xy: &mut Pool<X, Y>,
+        pool_xy: &mut DeepbookPool<X, Y>,
         so_data: vector<u8>,
         swap_data_src: vector<u8>,
         wormhole_data: vector<u8>,
@@ -596,6 +626,228 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+        let bridge_amount = coin::value(&coin_y);
+        let (sequence, dust) = tranfer_token<Y>(
+            wormhole_state,
+            token_bridge_state,
+            storage,
+            clock,
+            coin_y,
+            wormhole_data,
+            payload,
+            wormhole_fee_coin
+        );
+        bridge_amount = bridge_amount - coin::value(&dust);
+        process_left_coin(letf_coin_x, tx_context::sender(ctx));
+        process_left_coin(dust, tx_context::sender(ctx));
+
+        event::emit(
+            SoTransferStarted {
+                transaction_id: cross::so_transaction_id(so_data),
+            }
+        );
+
+        event::emit(
+            TransferFromWormholeEvent {
+                src_wormhole_chain_id: storage.src_wormhole_chain_id,
+                dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
+                sequence
+            }
+        );
+
+        event::emit(
+            SrcAmount {
+                relayer_fee: fee,
+                cross_amount: bridge_amount
+            }
+        );
+    }
+
+    /// Cross-swap via wormhole
+    ///  * so_data Track user data across the chain and record the final destination of tokens
+    ///  * swap_data_src Swap data at source chain
+    ///  * wormhole_data Data needed to use the wormhole cross-link bridge
+    ///  * swap_data_dst Swap data at destination chain
+    ///
+    /// The parameters passed in are serialized, and all of this data can be serialized and
+    /// deserialized in the methods found here.
+    public entry fun so_swap_for_deepbook_v2_base_asset<X, Y>(
+        storage: &mut Storage,
+        wromhole_fee: &mut WormholeFee,
+        price_manager: &mut PriceManager,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        wormhole_state: &mut WormholeState,
+        token_bridge_state: &mut TokenBridgeState,
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        so_data: vector<u8>,
+        swap_data_src: vector<u8>,
+        wormhole_data: vector<u8>,
+        swap_data_dst: vector<u8>,
+        coins_y: vector<Coin<Y>>,
+        coins_sui: vector<Coin<SUI>>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
+
+        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
+
+        let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
+            cross::decode_normalized_swap_data(&mut swap_data_dst)
+        }else {
+            vector::empty()
+        };
+
+        let (flag, fee, consume_value, dst_max_gas) = check_relayer_fee(
+            storage,
+            wormhole_state,
+            price_manager,
+            so_data,
+            wormhole_data,
+            swap_data_dst
+        );
+        assert!(flag, ECHECK_FEE_FAIL);
+
+        let payload = encode_wormhole_payload(
+            wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+            dst_max_gas,
+            so_data,
+            swap_data_dst
+        );
+
+        let comsume_sui = merge_coin(coins_sui, consume_value, ctx);
+        let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
+        let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
+        transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
+
+        let coin_val = (cross::so_amount(so_data) as u64);
+        assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
+        coin::destroy_zero(comsume_sui);
+        let coin_y = merge_coin(coins_y, coin_val, ctx);
+
+        // X is quote asset, Y is base asset
+        // use base asset to cross chain
+        let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+
+        assert!(vector::length(&swap_data_src) == 1, ESWAP_LENGTH);
+        let (coin_x, left_coin_x, _) = swap::swap_for_base_asset_by_deepbook_v2<X, Y>(
+            pool_xy,
+            coin_y,
+            &deepbook_v2_storage.account_cap,
+            deepbook_v2_storage.client_order_id,
+            *vector::borrow(&swap_data_src, 0),
+            clock,
+            ctx
+        );
+        deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+
+        let bridge_amount = coin::value(&coin_x);
+        let (sequence, dust) = tranfer_token<X>(
+            wormhole_state,
+            token_bridge_state,
+            storage,
+            clock,
+            coin_x,
+            wormhole_data,
+            payload,
+            wormhole_fee_coin
+        );
+        bridge_amount = bridge_amount - coin::value(&dust);
+        process_left_coin(left_coin_x, tx_context::sender(ctx));
+        process_left_coin(dust, tx_context::sender(ctx));
+
+        event::emit(
+            SoTransferStarted {
+                transaction_id: cross::so_transaction_id(so_data),
+            }
+        );
+
+        event::emit(
+            TransferFromWormholeEvent {
+                src_wormhole_chain_id: storage.src_wormhole_chain_id,
+                dst_wormhole_chain_id: wormhole_data.dst_wormhole_chain_id,
+                sequence
+            }
+        );
+
+        event::emit(
+            SrcAmount {
+                relayer_fee: fee,
+                cross_amount: bridge_amount
+            }
+        );
+    }
+
+    public entry fun so_swap_for_deepbook_v2_quote_asset<X, Y>(
+        storage: &mut Storage,
+        wromhole_fee: &mut WormholeFee,
+        price_manager: &mut PriceManager,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        wormhole_state: &mut WormholeState,
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        so_data: vector<u8>,
+        swap_data_src: vector<u8>,
+        wormhole_data: vector<u8>,
+        swap_data_dst: vector<u8>,
+        coins_x: vector<Coin<X>>,
+        coins_sui: vector<Coin<SUI>>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
+
+        let wormhole_data = decode_normalized_wormhole_data(&wormhole_data);
+
+        let swap_data_dst = if (vector::length(&swap_data_dst) > 0) {
+            cross::decode_normalized_swap_data(&mut swap_data_dst)
+        }else {
+            vector::empty()
+        };
+
+        let (flag, fee, consume_value, dst_max_gas) = check_relayer_fee(
+            storage,
+            wormhole_state,
+            price_manager,
+            so_data,
+            wormhole_data,
+            swap_data_dst
+        );
+        assert!(flag, ECHECK_FEE_FAIL);
+
+        let payload = encode_wormhole_payload(
+            wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+            dst_max_gas,
+            so_data,
+            swap_data_dst
+        );
+
+        let comsume_sui = merge_coin(coins_sui, consume_value, ctx);
+        let relay_fee_coin = coin::split<SUI>(&mut comsume_sui, fee, ctx);
+        let wormhole_fee_coin = coin::split<SUI>(&mut comsume_sui, state::message_fee(wormhole_state), ctx);
+        transfer::public_transfer(relay_fee_coin, wromhole_fee.beneficiary);
+
+        let coin_val = (cross::so_amount(so_data) as u64);
+        assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
+        coin::destroy_zero(comsume_sui);
+        let coin_x = merge_coin(coins_x, coin_val, ctx);
+
+        // X is quote asset, Y is base asset
+        // use base asset to cross chain
+        let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
+
+        assert!(vector::length(&swap_data_src) == 1, ESWAP_LENGTH);
+        let (letf_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook_v2<X, Y>(
+            pool_xy,
+            coin_x,
+            &deepbook_v2_storage.account_cap,
+            deepbook_v2_storage.client_order_id,
+            *vector::borrow(&swap_data_src, 0),
+            clock,
+            ctx
+        );
+        deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+
         let bridge_amount = coin::value(&coin_y);
         let (sequence, dust) = tranfer_token<Y>(
             wormhole_state,
@@ -929,6 +1181,68 @@ module omniswap::wormhole_facet {
         (multi_swap_data, multi_src_data)
     }
 
+    public fun multi_swap_for_deepbook_v2_base_asset<X, Y>(
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        multi_swap_data: MultiSwapData<Y>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): MultiSwapData<X> {
+        assert!(vector::length(&multi_swap_data.left_swap_data) > 0, EMULTISWAP_STEP);
+        let (receiver, coin_y, left_swap_data) = destroy_multi_swap_data(
+            multi_swap_data
+        );
+        let swap_data = vector::remove(&mut left_swap_data, 0);
+        let (coin_x, left_coin_y, _) = swap::swap_for_base_asset_by_deepbook_v2<X, Y>(
+            pool_xy,
+            coin_y,
+            &deepbook_v2_storage.account_cap,
+            deepbook_v2_storage.client_order_id,
+            swap_data,
+            clock,
+            ctx
+        );
+        deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+
+        process_left_coin(left_coin_y, receiver);
+        MultiSwapData<X> {
+            receiver,
+            input_coin: coin_x,
+            left_swap_data,
+        }
+    }
+
+    public fun multi_swap_for_deepbook_v2_quote_asset<X, Y>(
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        multi_swap_data: MultiSwapData<X>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ): MultiSwapData<Y> {
+        assert!(vector::length(&multi_swap_data.left_swap_data) > 0, EMULTISWAP_STEP);
+        let (receiver, coin_x, left_swap_data) = destroy_multi_swap_data(
+            multi_swap_data
+        );
+        let swap_data = vector::remove(&mut left_swap_data, 0);
+        let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook_v2<X, Y>(
+            pool_xy,
+            coin_x,
+            &deepbook_v2_storage.account_cap,
+            deepbook_v2_storage.client_order_id,
+            swap_data,
+            clock,
+            ctx
+        );
+        deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+
+        process_left_coin(left_coin_x, receiver);
+        MultiSwapData<Y> {
+            receiver,
+            input_coin: coin_y,
+            left_swap_data,
+        }
+    }
+
     public fun multi_swap_for_cetus_base_asset<X, Y>(
         global_config: &GlobalConfig,
         pool_xy: &mut CetusPool<X, Y>,
@@ -1198,12 +1512,140 @@ module omniswap::wormhole_facet {
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
     /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_for_deepbook_v2_quote_asset<X, Y>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let (coin_x, payload) = complete_transfer<X>(
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let x_val = coin::value(&coin_x);
+        let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= x_val) {
+            let coin_fee = coin::split<X>(&mut coin_x, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_x);
+        if (vector::length(&swap_data_dst) > 0) {
+            assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+            let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook_v2<X, Y>(
+                pool_xy,
+                coin_x,
+                &deepbook_v2_storage.account_cap,
+                deepbook_v2_storage.client_order_id,
+                *vector::borrow(&swap_data_dst, 0),
+                clock,
+                ctx
+            );
+            deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+            receiving_amount = coin::value(&coin_y);
+            transfer::public_transfer(coin_y, receiver);
+            process_left_coin(left_coin_x, receiver);
+        } else {
+            transfer::public_transfer(coin_x, receiver);
+        };
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
+    }
+
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
+    public entry fun complete_so_swap_for_deepbook_v2_base_asset<X, Y>(
+        storage: &mut Storage,
+        token_bridge_state: &mut TokenBridgeState,
+        wormhole_state: &WormholeState,
+        wormhole_fee: &mut WormholeFee,
+        pool_xy: &mut DeepbookV2Pool<X, Y>,
+        deepbook_v2_storage: &mut DeepbookV2Storage,
+        vaa: vector<u8>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let (coin_y, payload) = complete_transfer<Y>(
+            storage,
+            token_bridge_state,
+            wormhole_state,
+            vaa,
+            clock,
+            ctx
+        );
+
+        let y_val = coin::value(&coin_y);
+        let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
+        let beneficiary = wormhole_fee.beneficiary;
+        if (so_fee > 0 && so_fee <= y_val) {
+            let coin_fee = coin::split<Y>(&mut coin_y, so_fee, ctx);
+            transfer::public_transfer(coin_fee, beneficiary);
+        };
+
+        let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
+        let receiving_amount = coin::value(&coin_y);
+        if (vector::length(&swap_data_dst) > 0) {
+            assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+            let (left_coin_x, coin_y, _) = swap::swap_for_base_asset_by_deepbook_v2<X, Y>(
+                pool_xy,
+                coin_y,
+                &deepbook_v2_storage.account_cap,
+                deepbook_v2_storage.client_order_id,
+                *vector::borrow(&swap_data_dst, 0),
+                clock,
+                ctx
+            );
+            deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
+            receiving_amount = coin::value(&coin_y);
+            transfer::public_transfer(coin_y, receiver);
+            process_left_coin(left_coin_x, receiver);
+        } else {
+            transfer::public_transfer(coin_y, receiver);
+        };
+
+        event::emit(
+            SoTransferCompleted {
+                transaction_id: cross::so_transaction_id(so_data),
+                actual_receiving_amount: receiving_amount
+            }
+        );
+        event::emit(DstAmount {
+            so_fee
+        });
+    }
+
+    /// To complete a cross-chain transaction, it needs to be called manually by the
+    /// user or automatically by Relayer for the tokens to be sent to the user.
     public entry fun complete_so_swap_for_deepbook_quote_asset<X, Y>(
         storage: &mut Storage,
         token_bridge_state: &mut TokenBridgeState,
         wormhole_state: &WormholeState,
         wormhole_fee: &mut WormholeFee,
-        pool_xy: &mut Pool<X, Y>,
+        pool_xy: &mut DeepbookPool<X, Y>,
         vaa: vector<u8>,
         clock: &Clock,
         ctx: &mut TxContext
@@ -1263,7 +1705,7 @@ module omniswap::wormhole_facet {
         token_bridge_state: &mut TokenBridgeState,
         wormhole_state: &WormholeState,
         wormhole_fee: &mut WormholeFee,
-        pool_xy: &mut Pool<X, Y>,
+        pool_xy: &mut DeepbookPool<X, Y>,
         vaa: vector<u8>,
         clock: &Clock,
         ctx: &mut TxContext

@@ -11,8 +11,10 @@ from brownie import (
     BoolFacet,
     LibSoFeeBoolV1,
     network,
+    CCTPFacet,
+    LibSoFeeCCTPV1,
 )
-from brownie.network import priority_fee
+from brownie.network import priority_fee, max_fee
 
 from scripts.helpful_scripts import get_account
 
@@ -25,10 +27,14 @@ def main():
 def deploy_contracts(account):
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("1 gwei")
+    if "arbitrum-test" in network.show_active():
+        priority_fee("1 gwei")
+        max_fee("1.25 gwei")
     deploy_facets = [
         DiamondCutFacet,
         DiamondLoupeFacet,
         DexManagerFacet,
+        CCTPFacet,
         # StargateFacet,
         # CelerFacet,
         # MultiChainFacet,
@@ -67,6 +73,9 @@ def deploy_contracts(account):
     # print("deploy LibSoFeeBoolV1.sol...")
 
     LibSoFeeBoolV1.deploy(int(so_fee * ray), {"from": account})
+
+    print("deploy LibSoFeeCCTPV1.sol...")
+    LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
 
     print("deploy LibCorrectSwapV1...")
     LibCorrectSwapV1.deploy({"from": account})

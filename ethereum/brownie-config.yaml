@@ -360,7 +360,7 @@ networks:
   avax-test:
     omnibtc_chainid: 30004
     chainid: 43113
-    SoDiamond: "0xE68508c61c4f979B828cd1c8383676d93583Cae5"
+    SoDiamond: "0x7969921f69c612C3D93D0cea133a571ff84753D3"
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
@@ -409,6 +409,10 @@ networks:
       poolid:
         usdc: 1
     bridges:
+      cctp:
+        domain_id: 1
+        token_messenger: "0xeb08f243e5d3fcff26a9e38ae5520a669f4019d0"
+        message_transmitter: "0xa9fb1b3009dcb79e2fe346c16a604b8fa8ae0a79"
       celer:
         chainid: 43113
         message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
@@ -437,6 +441,9 @@ networks:
             address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     token:
       usdc:
+        address: "0x5425890298aed601595a70AB815c96711a31Bc65"
+        decimal: 6
+      test-usdc:
         address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
         decimal: 6
       weth:
@@ -576,6 +583,7 @@ networks:
         router: "0x8954AfA98594b838bda56FE4C12a09D7739D179b"
         token_list: ""
   arbitrum-test:
+    SoDiamond: "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
     omnibtc_chainid: 30006
     chainid: 421611
     stargate:
@@ -585,6 +593,7 @@ networks:
         usdc: 1
         weth: 13
     bridges:
+<<<<<<< HEAD
       bool:
         chainid: 97
         router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"
@@ -601,9 +610,13 @@ networks:
             decimals: 6
             pool_address: "0x6111a6d2f39e19e761e16dea79599d9c83da0e1f"
             token_address: "0xdea405c2d4a575053d4819bd02dc2eb9856e30dd"
+      cctp:
+        domain_id: 3
+        token_messenger: "0x12dcfd3fe2e9eac2859fd1ed86d2ab8c5a2f9352"
+        message_transmitter: "0x109bc137cb64eab7c0b1dddd1edf341467dc2d35"
     token:
       usdc:
-        address: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
+        address: "0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63"
         decimal: 6
       weth:
         address: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
@@ -923,6 +936,10 @@ networks:
             chainid: 324
             pair: ETHUSD
             address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
       multichain:
         chainid: 1
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
@@ -935,6 +952,11 @@ networks:
             address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
             decimal: 18
             anytoken: "0xb3c381871ba849e9d4d1f096baf7a48415d56c25"
+      cctp:
+        domain_id: 0
+        token_messenger: "0xbd3fa81b58ba92a82136038b25adec7066af3155"
+        message_transmitter: "0x0a992d191deec32afe36203ad87d7d289a738f81"
+        token_minter: "0xc4922d64a24675e16e1586e3e3aa56c06fabe907"
     oracle:
       eth:
         chainid: 2
@@ -1074,6 +1096,10 @@ networks:
             address: "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
           zksync:
             chainid: 324
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          zkevm:
+            chainid: 1011
             pair: ETHUSD
             address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
       multichain:
@@ -1230,6 +1256,11 @@ networks:
             chainid: 324
             pair: ETHUSD
             address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
       multichain:
         chainid: 43114
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
@@ -1242,6 +1273,11 @@ networks:
             address: "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab"
             decimal: 18
             anytoken: "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a"
+      cctp:
+        domain_id: 1
+        token_messenger: "0x6b25532e1060ce10cc3b0a99e5683b91bfde6982"
+        message_transmitter: "0x8186359af5f57fbb40c6b14a588d2a59c0c29880"
+        token_minter: "0x420f5035fd5dc62a167e7e7f08b604335ae272b8"
     oracle:
       eth:
         chainid: 2
@@ -1386,6 +1422,10 @@ networks:
             address: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
           zksync:
             chainid: 324
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          zkevm:
+            chainid: 1011
             pair: ETHUSD
             address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
       multichain:
@@ -1536,6 +1576,10 @@ networks:
             chainid: 324
             pair: ETHUSD
             address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
       multichain:
         chainid: 42161
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
@@ -1548,12 +1592,19 @@ networks:
             address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
             decimal: 18
             anytoken: "0x758d08864fb6cce3062667225ca10b8f00496cc2"
+      cctp:
+        domain_id: 3
+        token_messenger: "0x19330d10D9Cc8751218eaf51E8885D058642E08A"
+        message_transmitter: "0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca"
+        token_minter: "0xE7Ed1fa7f45D05C508232aa32649D89b73b8bA48"
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
         decimal: 6
       usdc:
-        address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+        # bridge usdc: 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8
+        # circle usdc:
+        address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
         decimal: 6
       weth:
         address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
@@ -1656,6 +1707,10 @@ networks:
             chainid: 324
             pair: ETHUSD
             address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
       multichain:
         chainid: 10
         fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
@@ -1737,6 +1792,52 @@ networks:
         name: SpookyswapV2
         router: "0xF491e7B69E4244ad4002BC14e878a34207E38c29"
         token_list: "https://docs.spooky.fi/Resources/ftm-token-addresses"
+  zksync2-main:
+    chainid: 324
+    token:
+      weth:
+        address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
+        decimal: 18
+  zkevm-main:
+    chainid: 1101
+    token:
+      weth:
+        address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
+        decimal: 18
+    swap:
+      IQuickSwapRouter:
+        name: QuickSwapV3
+        router: "0xF6Ad3CcF71Abb3E12beCf6b3D2a74C963859ADCd"
+        token_list: ""
+        quoter: "0x55BeE1bD3Eb9986f6d2d963278de09eE92a3eF1D"
+        factory: "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57"
+      ISwapRouter:
+        name: PancakeSwapV3
+        router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+        token_list: ""
+        quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
+        factory: "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865"
+    bridges:
+      celer:
+        chainid: 1101
+        message_bus: "0x9Bb46D5100d2Db4608112026951c9C965b233f4D"
+        token:
+          weth:
+            address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
+            decimal: 18
+
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 1101 # zkevm-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+
 wallets:
   from_key: ${PRIVATE_KEY}
   from_mnemonic: ${MNEMONIC}
