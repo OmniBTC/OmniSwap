@@ -593,7 +593,6 @@ networks:
         usdc: 1
         weth: 13
     bridges:
-<<<<<<< HEAD
       bool:
         chainid: 97
         router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"

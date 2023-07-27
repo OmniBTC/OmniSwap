@@ -95,7 +95,7 @@
         "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
     },
     "polygon-main": {
-        "BoolFacet": "0x2A67aF8A3eA3ABa9B377c9c4d147C91ABB9D414A",
+        "BoolFacet": "0x19E206300afC98Efc4D09E3Faf4a592FE5bE7152",
         "CelerFacet": "0x4E218F45E37f940Eb503b3b9F31426110059d672",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
