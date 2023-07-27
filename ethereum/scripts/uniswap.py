@@ -9,12 +9,12 @@ from brownie import interface, Contract, network, ERC20, GenericSwapFacet
 from brownie.network import priority_fee
 from scripts.helpful_scripts import (
     get_account,
-    get_token_address,
     get_swap_info,
     read_json,
     zero_address,
 )
-from scripts.wormhole import get_stable_coin_address
+
+# from scripts.wormhole import get_stable_coin_address
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 omni_swap_file = os.path.join(root_path, "export/OmniSwapInfo.json")
@@ -38,6 +38,9 @@ def batch_add_liquidity():
 
 
 def create_pair_and_add_liquidity(token1_address, token2_address):
+    if network.show_active() in ["rinkeby", "goerli"]:
+        priority_fee("1 gwei")
+
     account = get_account()
     # # usdc
     # token1_address = get_token_address("test")
@@ -56,11 +59,11 @@ def create_pair_and_add_liquidity(token1_address, token2_address):
         factory.createPair(token1_address, token2_address, {"from": account})
     # approve
     token1 = Contract.from_abi("ERC20", token1_address, ERC20.abi)
-    token1_amount = int(10000 * 10 ** token1.decimals())
+    token1_amount = int(10 * 10 ** token1.decimals())
     token1.approve(router_address, token1_amount, {"from": account})
 
     token2 = Contract.from_abi("ERC20", token2_address, ERC20.abi)
-    token2_amount = int(10000 * 10 ** token2.decimals())
+    token2_amount = int(10 * 10 ** token2.decimals())
     token2.approve(router_address, token2_amount, {"from": account})
     router.addLiquidity(
         token1_address,

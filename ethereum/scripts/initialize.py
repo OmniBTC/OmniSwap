@@ -16,6 +16,8 @@ from brownie import (
     WormholeFacet,
     SerdeFacet,
     LibSoFeeWormholeV1,
+    BoolFacet,
+    LibSoFeeBoolV1,
     web3,
     CelerFacet,
     LibSoFeeCelerV1,
@@ -31,6 +33,9 @@ FacetCutAction_REPLACE = 1
 FacetCutAction_REMOVE = 2
 
 from scripts.helpful_scripts import (
+    get_bool_pools,
+    get_bool_router,
+    get_bool_chainid,
     get_account,
     get_method_signature_by_abi,
     get_native_oracle_address,
@@ -74,7 +79,14 @@ def main():
         initialize_cut(account, so_diamond)
     except Exception as e:
         print(f"initialize_cut fail:{e}")
+    # try:
+    #     initialize_stargate(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_stargate fail:{e}")
     try:
+        initialize_bool(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_bool fail:{e}")
         initialize_cctp(account, so_diamond)
     except Exception as e:
         print(f"initialize_cctp fail:{e}")
@@ -107,6 +119,7 @@ def main():
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
     # initialize_little_token_for_stargate()
+    batch_set_bool_allowed_address(account, so_diamond)
 
 
 def initialize_wormhole_fee(account):
@@ -175,6 +188,10 @@ def initialize_cut(account, so_diamond):
         DiamondLoupeFacet,
         DexManagerFacet,
         OwnershipFacet,
+        # CelerFacet,
+        # MultiChainFacet,
+        # StargateFacet,
+        BoolFacet,
         CCTPFacet,
         # CelerFacet,
         # MultiChainFacet,
@@ -212,6 +229,35 @@ def initialize_stargate(account, so_diamond):
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
     )
 
+
+def initialize_bool(account, so_diamond):
+    proxy_bool = Contract.from_abi(
+        "BoolFacet", so_diamond.address, BoolFacet.abi
+    )
+    net = network.show_active()
+    print(f"network:{net}, init bool...")
+    proxy_bool.initBoolSwap(get_bool_router(), get_bool_chainid(), {"from": account})
+
+
+def batch_set_bool_allowed_address(account, so_diamond):
+    networks = ['optimism-main', 'arbitrum-main']
+    cur_net = network.show_active()
+    bool_facet = Contract.from_abi(
+        "BoolFacet", so_diamond.address, BoolFacet.abi
+    )
+    print("set bool allowed addresses...")
+
+    pool_addresses = []
+    allow = []
+    for net in networks:
+        if net == cur_net:
+            continue
+        pools = get_bool_pools()
+        for pool in pools:
+            pool_addresses.append(pools[pool]["pool_address"])
+            allow.append(True)
+
+    bool_facet.batchSetBoolAllowedAddresses(pool_addresses, allow, {"from": account})
 
 def initialize_cctp(account, so_diamond):
     proxy_cctp = Contract.from_abi("CCTPFacet", so_diamond.address, CCTPFacet.abi)
@@ -359,6 +405,9 @@ def initialize_dex_manager(account, so_diamond):
     # proxy_dex.addFee(
     #     get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
     # )
+    proxy_dex.addFee(
+        get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
+    )
     # proxy_dex.addFee(
     #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
     # )
@@ -371,6 +420,15 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.addFee(
         get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
     )
+    # proxy_dex.addFee(
+    #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
+    # )
+    # proxy_dex.addFee(
+    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    # )
 
 
 def initialize_little_token_for_stargate():
@@ -522,6 +580,32 @@ def redeploy_stargate():
     initialize_stargate(account, SoDiamond[-1])
 
 
+def redeploy_bool():
+    account = get_account()
+
+    # 1. deploy bool's lib so fee
+
+    # so_fee = 1e-3
+    # ray = 1e27
+    # LibSoFeeBoolV1.deploy(int(so_fee * ray), {"from": account})
+
+    # 2. add bool's lib so fee to diamond
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    # proxy_dex.addFee(
+    #     get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
+    # )
+
+    remove_facet(BoolFacet)
+
+    # 3. deploy BoolFacet
+    BoolFacet.deploy({'from': account})
+    add_cut([BoolFacet])
+    initialize_bool(account, SoDiamond[-1])
+    batch_set_bool_allowed_address(account, SoDiamond[-1])
+
+
 # redeploy and initialize
 def redeploy_celer():
     account = get_account()
@@ -637,12 +721,12 @@ def add_cut(contracts: list = None):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
-def add_dex():
+def add_dex(dex_address):
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addDex(
-        "0x1b81D678ffb9C0263b24A97847620C99d213eB14", {"from": get_account()}
+        dex_address, {"from": get_account()}
     )
     proxy_dex.batchSetFunctionApprovalBySignature(
         [v + "0" * 56 for v in list(interface.ISwapRouter.selectors.keys())],

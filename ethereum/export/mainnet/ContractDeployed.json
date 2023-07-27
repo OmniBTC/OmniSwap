@@ -1,5 +1,6 @@
 {
     "arbitrum-main": {
+        "BoolFacet": "0xeb3F7D77C277b67B29Ce454E54657bBDAeB2BA36",
         "CCTPFacet": "0x452B5F476f4fA706a80C513c52729e47150d343C",
         "CelerFacet": "0x930b39EcEA81678a5033aa3c9Cc1f804fFEE004e",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
@@ -10,6 +11,7 @@
         "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
         "LibSoFeeCelerV1": "0x937AfcA1bb914405D37D55130184ac900ce5961f",
         "LibSoFeeMultiChainV1": "0xf937DD0CAeE3Adac093Fb7a24DAFB1294c37e02A",
+        "LibSoFeeBoolV1": "0x5af12a3FBeeb89C21699ACeD9615848A3c2D4f4E",
         "MultiChainFacet": "0x008fd50090E94c7A54a2e3ff66F2672562fCd958",
         "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
@@ -76,6 +78,7 @@
         "WormholeFacet": "0x681bC51FC82bbA792e94e6187B82859f1E982C24"
     },
     "optimism-main": {
+        "BoolFacet": "0x1ac958477e0873D7039B2B71ae89B51d3248fA4F",
         "CelerFacet": "0xD8dec96b9E22a99f68D48CfB20cd6868a3dcc56b",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
@@ -84,6 +87,7 @@
         "LibCorrectSwapV1": "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2",
         "LibSoFeeCelerV1": "0x19370bE0D726A88d3e6861301418f3daAe3d798E",
         "LibSoFeeMultiChainV1": "0x4adFB6AaFA6257d896e7baa5026e709F71060CE8",
+        "LibSoFeeBoolV1": "0xCc6856099525eeC28109fd5041F68F9e588a3B10",
         "MultiChainFacet": "0xcAa62b837788c0a0FBfc0c5fD8ADFd74BC341423",
         "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
@@ -91,6 +95,7 @@
         "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
     },
     "polygon-main": {
+        "BoolFacet": "0x19E206300afC98Efc4D09E3Faf4a592FE5bE7152",
         "CelerFacet": "0x4E218F45E37f940Eb503b3b9F31426110059d672",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
@@ -101,6 +106,7 @@
         "LibSoFeeMultiChainV1": "0x1056a9eAbcB5334f39955260A91A2e0351Fb792E",
         "LibSoFeeStargateV1": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
         "LibSoFeeWormholeV1": "0x01c49cF47dCF62769466738a179F94d51ea8BDdB",
+        "LibSoFeeBoolV1": "0xfFFc0435b5653DC2Ddcb10d06403A4ee0Cb29b09",
         "MultiChainFacet": "0xd4756d6006cF3098acdF66C44D0fD175B3f2dDB7",
         "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
         "SerdeFacet": "0x1565F02EdFfD282F73FbA8C640ed70b27f91f1Fd",

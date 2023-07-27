@@ -8,6 +8,8 @@ from brownie import (
     GenericSwapFacet,
     LibCorrectSwapV1,
     SerdeFacet,
+    BoolFacet,
+    LibSoFeeBoolV1,
     network,
     CCTPFacet,
     LibSoFeeCCTPV1,
@@ -37,6 +39,7 @@ def deploy_contracts(account):
         # CelerFacet,
         # MultiChainFacet,
         # WormholeFacet,
+        BoolFacet,
         WithdrawFacet,
         OwnershipFacet,
         GenericSwapFacet,
@@ -66,6 +69,10 @@ def deploy_contracts(account):
     # print("deploy LibSoFeeWormholeV1.sol...")
     #
     # LibSoFeeWormholeV1.deploy(int(so_fee * ray), {"from": account})
+    #
+    # print("deploy LibSoFeeBoolV1.sol...")
+
+    LibSoFeeBoolV1.deploy(int(so_fee * ray), {"from": account})
 
     print("deploy LibSoFeeCCTPV1.sol...")
     LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})

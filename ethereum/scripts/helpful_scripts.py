@@ -241,6 +241,39 @@ def get_wormhole_estimate_reserve():
     return get_wormhole_info()["estimate_reserve"]
 
 
+def get_bool_info():
+    return get_current_net_info()["bridges"]["bool"]
+
+
+def get_bool_router():
+    return get_bool_info()["router"]
+
+
+def get_bool_chainid():
+    return get_bool_info()["chainid"]
+
+
+def get_bool_pool_id(pool_name: str):
+    if "bool" in pool_name:
+        pool_name = pool_name.split("-")[-1]
+    return get_bool_info()["pools"][pool_name]["pool_id"]
+
+
+def get_bool_pool_id_by_token(token_address: str):
+    print(token_address)
+    pools = get_bool_pools()
+    for pool in pools:
+        if pools[pool]["token_address"] == token_address:
+            return pools[pool]["pool_id"]
+    if "optimism" in network.show_active() and token_address == "0x4200000000000000000000000000000000000006":
+        return pools["eth"]["pool_id"]
+    raise ValueError("Bool pool id not found")
+
+
+def get_bool_pools():
+    return get_bool_info()["pools"]
+
+
 def get_oracles():
     return get_current_net_info()["oracle"]
 
