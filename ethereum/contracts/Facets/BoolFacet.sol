@@ -20,6 +20,7 @@ import {IBoolSwapPool} from "../Interfaces/IBoolSwapPool.sol";
 import {IBoolSwapFactory} from "../Interfaces/IBoolSwapFactory.sol";
 import {IBoolSwapRouter} from "../Interfaces/IBoolSwapRouter.sol";
 import {BoolSwapPathConverter} from "../Helpers/BoolSwapPathConverter.sol";
+import {IWETH} from "../Interfaces/IWETH.sol";
 
 /**
  * @title Bool Faucet
@@ -339,7 +340,7 @@ contract BoolFacet is
         address currentAssetId,
         address expectAssetId,
         uint256 amount
-    ) internal view returns (bool) {
+    ) internal returns (bool) {
         if (currentAssetId == expectAssetId) {
             require(
                 LibAsset.getOwnBalance(currentAssetId) >= amount,
@@ -348,14 +349,15 @@ contract BoolFacet is
             return false;
         } else {
             require(
-                LibAsset.isNativeAsset(currentAssetId) &&
-                    expectAssetId == NATIVE_ADDRESS_IN_BS,
-                "WrongConfig"
-            );
-            require(
                 LibAsset.getOwnBalance(currentAssetId) >= amount,
                 "NotEnough"
             );
+            if (!LibAsset.isNativeAsset(currentAssetId)) {
+                try IWETH(currentAssetId).withdraw(amount) {} catch {
+                    revert("WithdrawErr");
+                }
+            }
+            require(expectAssetId == NATIVE_ADDRESS_IN_BS, "WrongConfig");
             return true;
         }
     }
