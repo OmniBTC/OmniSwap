@@ -248,7 +248,9 @@ contract LibCorrectSwapV1 {
         view
         returns (bytes memory)
     {
-        try this.quickExactInput(_data, _amount) returns (bytes memory _result) {
+        try this.quickExactInput(_data, _amount) returns (
+            bytes memory _result
+        ) {
             return _result;
         } catch {
             revert("quickExactInput fail!");
