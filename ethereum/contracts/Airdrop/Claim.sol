@@ -1,41 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract Claim is
-    Initializable,
-    OwnableUpgradeable,
-    PausableUpgradeable,
-    ReentrancyGuardUpgradeable
-{
-    using SafeMathUpgradeable for uint256;
-
+contract Claim is ReentrancyGuard, Pausable, Ownable {
     // Start time
     uint256 private start;
     // Claimed token
-    IERC20Upgradeable public token;
+    IERC20 public token;
     // Claimed amount
     mapping(address => uint256) public claimed;
     // Whether claimed
     mapping(address => bool) public isClaimed;
 
-    function initialize(uint256 _start, IERC20Upgradeable _token)
-        public
-        initializer
-    {
+    constructor(uint256 _start, IERC20 _token) {
         require(_start > block.timestamp, "StartErr");
 
         start = _start;
         token = _token;
-
-        __Ownable_init();
-        __Pausable_init();
-        __ReentrancyGuard_init();
     }
 
     //Functions
@@ -45,10 +31,10 @@ contract Claim is
 
         uint256 amount = claimed[_msgSender()];
         require(amount > 0, "AmountZero");
-        require(isClaimed[_user], "HasClaimed");
+        require(isClaimed[_msgSender()], "HasClaimed");
 
-        token.safeTransfer(_msgSender(), amount);
-        isClaimed[_user] = false;
+        SafeERC20.safeTransfer(token, _msgSender(), amount);
+        isClaimed[_msgSender()] = true;
     }
 
     function pause() public onlyOwner {
@@ -59,17 +45,14 @@ contract Claim is
         _unpause();
     }
 
-    function reFund(IERC20Upgradeable _token, uint256 _amount)
-        public
-        onlyOwner
-    {
-        _token.safeTransfer(_msgSender(), _amount);
+    function reFund(IERC20 _token, uint256 _amount) public onlyOwner {
+        SafeERC20.safeTransfer(_token, _msgSender(), _amount);
     }
 
-    function batchSetClaim(address[] _users, uint256[] _amounts)
-        public
-        onlyOwner
-    {
+    function batchSetClaim(
+        address[] calldata _users,
+        uint256[] calldata _amounts
+    ) public onlyOwner {
         for (uint256 i = 0; i < _users.length; i++) {
             claimed[_users[i]] = _amounts[i];
         }
@@ -81,7 +64,7 @@ contract Claim is
     }
 
     //Views
-    function getState(address _user) public view returns (string) {
+    function getState(address _user) public view returns (string memory) {
         if (claimed[_user] > 0) {
             if (isClaimed[_user]) {
                 return "HasClaimed";
