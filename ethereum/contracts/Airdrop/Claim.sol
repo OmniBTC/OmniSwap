@@ -61,6 +61,10 @@ contract Claim is ReentrancyGuard, Pausable, Ownable {
         SafeERC20.safeTransfer(_token, _msgSender(), _amount);
     }
 
+    function setRoot(bytes32 _merkleRoot) public onlyOwner {
+        merkleRoot = _merkleRoot;
+    }
+
     // Private
     function _setClaimed(uint256 _index) private {
         uint256 claimedWordIndex = _index / 256;
