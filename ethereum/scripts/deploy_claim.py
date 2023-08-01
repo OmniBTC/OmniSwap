@@ -5,32 +5,21 @@ from pathlib import Path
 
 from brownie import Claim, MockToken, accounts, web3
 
-from scripts.helpful_scripts import get_account
+from scripts.helpful_scripts import get_account, write_json, read_json
 from merkletreepy import MerkleTree
 
 
-def write_json(file: Path, data):
-    f = file.parent
-    f.mkdir(parents=True, exist_ok=True)
-    with open(str(file), "w") as f:
-        json.dump(data, f, indent=2, sort_keys=True)
-
-
-def read_json(file):
-    with open(file, "r") as f:
-        return json.load(f)
-
-
-def generate_test_account(count=2000):
+def generate_test_account(count=300):
     data = []
 
     for index in range(count):
         print("Generate:", index)
         acc = accounts.add()
-        amount = random.randint(1e16, 1e22)
+        amount = random.randint(1, 10000)
         data.append([
             acc.address,
-            amount
+            amount,
+            str(acc.private_key)
         ])
     write_json(Path(__file__).parent.joinpath("data/test_airdrop_account.json"), data)
 

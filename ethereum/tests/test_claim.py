@@ -1,11 +1,22 @@
 import time
+from pathlib import Path
 
 import brownie
 import pytest
 
 from brownie import Claim, MockToken
 
-from scripts.helpful_scripts import get_account
+from scripts.helpful_scripts import get_account, read_json
+
+file_path = Path(__file__).parent.parent.joinpath("scripts/data/chunks")
+
+
+def get_address_index(user):
+    mapping_data = read_json(file_path.joinpath("mapping.json"))
+    for left, right in mapping_data.items():
+        if left.lower() <= user.lower() <= right.lower():
+            return left
+    return "NotClaimed"
 
 
 @pytest.fixture
@@ -16,29 +27,46 @@ def token():
 
 @pytest.fixture
 def claim(token):
+    root_data = read_json(file_path.joinpath("root.json"))
     account = get_account()
-    return account.deploy(Claim, int(time.time() + 1), token.address)
+    return account.deploy(Claim, int(time.time() + 1), token.address, root_data["root"])
 
 
 def test_claim(token, claim):
     account = get_account()
-    new_account = brownie.accounts.add()
-    assert claim.getState(account) == "NotClaimed"
-    token.transfer(claim, 2000, {"from": account})
-    assert token.balanceOf(claim) == 2000
-    claim.setClaim(account, 900)
-    assert claim.getState(account) == "PendingClaimed"
-    before = token.balanceOf(account)
+    # Load test account data
+    test_account_data = read_json(file_path.parent.joinpath("test_airdrop_account.json"))
+
+    # Test account state
+    new_account_data = None
+    new_account = None
+    for i in range(len(test_account_data)):
+        new_account = brownie.accounts.add(test_account_data[i][-1])
+        address_index = get_address_index(new_account.address)
+        assert address_index != "NotClaimed", "NotClaimed"
+        proof_data = read_json(file_path.joinpath(f"{address_index}.json"))
+        new_account_data = proof_data[new_account.address]
+        assert claim.getState(new_account_data["index"], new_account.address,
+                              new_account_data["amount"], new_account_data["proof"]) == "PendingClaimed"
+
+    # Test account claim
+    assert claim.getState(new_account_data["index"], account, new_account_data["amount"],
+                          new_account_data["proof"]) == "NotClaimed"
+    transfer_amount = new_account_data["amount"] * 2
+    token.transfer(claim, transfer_amount, {"from": account})
+    assert token.balanceOf(claim) == transfer_amount
+
+    before = token.balanceOf(new_account)
     time.sleep(1)
-    claim.claim({"from": account})
-    assert token.balanceOf(account) - before == 900
-    assert token.balanceOf(claim) == 1100
+    claim.claim(new_account_data["index"], new_account_data["amount"], new_account_data["proof"], {"from": new_account})
+    assert token.balanceOf(new_account) - before == transfer_amount / 2
+    assert token.balanceOf(claim) == transfer_amount / 2
     with brownie.reverts("HasClaimed"):
-        claim.claim({"from": account})
+        claim.claim(new_account_data["index"], new_account_data["amount"], new_account_data["proof"],
+                    {"from": new_account})
+
+    # Test refund
     with brownie.reverts("Ownable: caller is not the owner"):
-        claim.reFund(token, 1100, {"from": new_account})
-    claim.reFund(token, 1100, {"from": account})
+        claim.reFund(token, transfer_amount / 2, {"from": new_account})
+    claim.reFund(token, transfer_amount / 2, {"from": account})
     assert token.balanceOf(claim) == 0
-
-
-

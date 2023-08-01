@@ -16,6 +16,17 @@ LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "matic-fork",
 ]
 
+def write_json(file: Path, data):
+    f = file.parent
+    f.mkdir(parents=True, exist_ok=True)
+    with open(str(file), "w") as f:
+        json.dump(data, f, indent=2, sort_keys=True)
+
+
+def read_json(file):
+    with open(file, "r") as f:
+        return json.load(f)
+
 
 def hex_str_to_vector_u8(data: str) -> List[int]:
     assert judge_hex_str(data)
