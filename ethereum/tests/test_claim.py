@@ -46,6 +46,7 @@ def test_claim(token, claim):
         assert address_index != "NotClaimed", "NotClaimed"
         proof_data = read_json(file_path.joinpath(f"{address_index}.json"))
         new_account_data = proof_data[new_account.address]
+        new_account_data["amount"] = int(new_account_data["amount"])
         assert claim.getState(new_account_data["index"], new_account.address,
                               new_account_data["amount"], new_account_data["proof"]) == "PendingClaimed"
 
@@ -53,6 +54,7 @@ def test_claim(token, claim):
     assert claim.getState(new_account_data["index"], account, new_account_data["amount"],
                           new_account_data["proof"]) == "NotClaimed"
     transfer_amount = new_account_data["amount"] * 2
+    token.mint(account, transfer_amount, {"from": account})
     token.transfer(claim, transfer_amount, {"from": account})
     assert token.balanceOf(claim) == transfer_amount
 

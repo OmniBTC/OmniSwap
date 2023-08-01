@@ -24,6 +24,14 @@ def generate_test_account(count=300):
     write_json(Path(__file__).parent.joinpath("data/test_airdrop_account.json"), data)
 
 
+def format_account():
+    file = Path(__file__).parent.joinpath("data/test_airdrop_account.json")
+    data = read_json(file)
+    for i in range(len(data)):
+        data[i][1] = str(int(data[i][1] * 1e18))
+    write_json(file, data)
+
+
 def keccak256(x):
     return bytes.fromhex(web3.keccak(x).hex()[2:])
 
