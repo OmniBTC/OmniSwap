@@ -24,14 +24,14 @@ contract Claim is ReentrancyGuard, Pausable, Ownable {
         token = _token;
     }
 
-    //Functions
+    // Functions
 
     function claim() public whenNotPaused nonReentrant {
         require(block.timestamp >= start, "NotStart");
 
         uint256 amount = claimed[_msgSender()];
         require(amount > 0, "AmountZero");
-        require(isClaimed[_msgSender()], "HasClaimed");
+        require(!isClaimed[_msgSender()], "HasClaimed");
 
         SafeERC20.safeTransfer(token, _msgSender(), amount);
         isClaimed[_msgSender()] = true;
@@ -63,7 +63,7 @@ contract Claim is ReentrancyGuard, Pausable, Ownable {
         isClaimed[_user] = false;
     }
 
-    //Views
+    // Views
     function getState(address _user) public view returns (string memory) {
         if (claimed[_user] > 0) {
             if (isClaimed[_user]) {

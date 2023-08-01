@@ -5,7 +5,7 @@ from random import choice
 
 from brownie import Contract, web3
 from brownie.project.main import Project
-from helpful_scripts import (
+from scripts.helpful_scripts import (
     get_account,
     get_wormhole_chainid,
     zero_address,
