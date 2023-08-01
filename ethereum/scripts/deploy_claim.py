@@ -6,6 +6,7 @@ from pathlib import Path
 from brownie import Claim, MockToken, accounts
 
 from scripts.helpful_scripts import get_account
+from merkletreepy import MerkleTree
 
 
 def write_json(file: Path, data):
@@ -34,7 +35,7 @@ def generate_test_account(count=2000):
     write_json(Path(__file__).parent.joinpath("data/test_airdrop_account.json"), data)
 
 
-def set_claim():
+def generate_proof():
     account = get_account()
     data = read_json(Path(__file__).parent.joinpath("data/test_airdrop_account.json"))
     accs, amts = zip(*data)
