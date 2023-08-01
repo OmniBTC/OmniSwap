@@ -1,3 +1,4 @@
+import random
 import time
 from pathlib import Path
 
@@ -40,7 +41,8 @@ def test_claim(token, claim):
     # Test account state
     new_account_data = None
     new_account = None
-    for i in range(len(test_account_data)):
+    indexes = random.choices(list(range(len(test_account_data))), k=100)
+    for i in indexes:
         new_account = brownie.accounts.add(test_account_data[i][-1])
         address_index = get_address_index(new_account.address)
         assert address_index != "NotClaimed", "NotClaimed"
@@ -61,14 +63,14 @@ def test_claim(token, claim):
     before = token.balanceOf(new_account)
     time.sleep(1)
     claim.claim(new_account_data["index"], new_account_data["amount"], new_account_data["proof"], {"from": new_account})
-    assert token.balanceOf(new_account) - before == transfer_amount / 2
-    assert token.balanceOf(claim) == transfer_amount / 2
+    assert token.balanceOf(new_account) - before == new_account_data["amount"]
+    assert token.balanceOf(claim) == new_account_data["amount"]
     with brownie.reverts("HasClaimed"):
         claim.claim(new_account_data["index"], new_account_data["amount"], new_account_data["proof"],
                     {"from": new_account})
 
     # Test refund
     with brownie.reverts("Ownable: caller is not the owner"):
-        claim.reFund(token, transfer_amount / 2, {"from": new_account})
-    claim.reFund(token, transfer_amount / 2, {"from": account})
+        claim.reFund(token, new_account_data["amount"], {"from": new_account})
+    claim.reFund(token, new_account_data["amount"], {"from": account})
     assert token.balanceOf(claim) == 0

@@ -28,7 +28,7 @@ def format_account():
     file = Path(__file__).parent.joinpath("data/test_airdrop_account.json")
     data = read_json(file)
     for i in range(len(data)):
-        data[i][1] = str(int(data[i][1] * 1e18))
+        data[i][1] = str(int(data[i][1]))
     write_json(file, data)
 
 
