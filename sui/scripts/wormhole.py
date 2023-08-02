@@ -633,7 +633,7 @@ def cross_swap(
 
     # split zero sui coin to pay bridge fee
     if src_path[0] == "SUI":
-        # _result = sui_project.pay_sui([so_data.amount, wormhole_fee])
+        _result = sui_project.pay_sui([so_data.amount, wormhole_fee])
         sui_infos = sui_project.get_account_sui()
 
         coin_x = [oid
