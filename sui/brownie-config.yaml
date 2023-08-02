@@ -539,7 +539,7 @@ networks:
       IntegerMate: "0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a5a6f5b7f57"
       MoveSTL: "0xbe21a06129308e0495431d12286127897aff07a8ade3970495a4404d97f9eaaa"
       DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
-      OmniSwap: '0xff9f838be7f7850857c4d5f2426c3c49b7c4f31d3401e66b34c5db9f1843edef'
+      OmniSwap: '0x50a8f2c06fdb1216f01fd2e0a70e7812144f2ae3a53e41228e6e24dda67e0af1'
       TokenBridge:
         origin: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
         latest: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
@@ -564,8 +564,21 @@ networks:
         decimal: 8
         name: ETH
     pools:
+      # 0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<
+      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN,
+      # 0x2::sui::SUI>
       Wormhole-USDC-SUI:
         pool_id: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630'
+      # type: 0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<
+      # 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN,
+      # 0x2::sui::SUI>
+      Wormhole-USDT-SUI:
+        pool_id: '0x06d8af9e6afd27262db436f0d37b304a041f710c3ea1fa4c3a9bab36b3569ad3'
+      # 0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<
+      # 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN,
+      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN>
+      Wormhole-USDT-USDC:
+        pool_id: '0xc8d7a1503dc2f9f5b05449a87d8733593e2f0f3e7bffd90541252782e4d2ca20'
     wormhole:
       chainid: 21
       actual_reserve: 1.1
