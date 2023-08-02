@@ -278,7 +278,7 @@ def multi_swap(
     })["data"]["type"]
     origin_type = SuiObject.from_type(sui_type)
     if origin_type.package_id == get_deepbook_package_id():
-        dex_name = "deepbook"
+        dex_name = "deepbook_v2"
     elif origin_type.package_id == get_cetus_package_id():
         dex_name = "cetus"
     else:
@@ -373,7 +373,7 @@ def process_vaa(
             })["data"]["type"]
             origin_type = SuiObject.from_type(sui_type)
             if origin_type.package_id == get_deepbook_package_id():
-                dex_name = "deepbook"
+                dex_name = "deepbook_v2"
             elif origin_type.package_id == get_cetus_package_id():
                 dex_name = "cetus"
             else:
@@ -469,8 +469,8 @@ def process_vaa(
                         gas_price=dst_max_gas_price
                     )
                 elif not reverse:
-                    if dex_name == "deepbook":
-                        result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_quote_asset(
+                    if dex_name == "deepbook_v2":
+                        result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_v2_quote_asset(
                             storage,
                             token_bridge_state,
                             wormhole_state,
@@ -495,8 +495,8 @@ def process_vaa(
                             gas_price=dst_max_gas_price
                         )
                 else:
-                    if dex_name == "deepbook":
-                        result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_base_asset(
+                    if dex_name == "deepbook_v2":
+                        result = sui_package.wormhole_facet.complete_so_swap_for_deepbook_v2_base_asset(
                             storage,
                             token_bridge_state,
                             wormhole_state,
