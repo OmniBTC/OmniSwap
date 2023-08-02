@@ -65,6 +65,10 @@ contract Claim is ReentrancyGuard, Pausable, Ownable {
         merkleRoot = _merkleRoot;
     }
 
+    function setClaimed(uint256 _index) public onlyOwner {
+        _setClaimed(_index);
+    }
+
     // Private
     function _setClaimed(uint256 _index) private {
         uint256 claimedWordIndex = _index / 256;
