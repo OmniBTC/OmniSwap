@@ -996,11 +996,11 @@ def cross_swap_for_mainnet(package):
                src_path=["SUI", "Wormhole-USDC", "Wormhole-ETH"],
                dst_path=["WETH_ETH_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=1000000,
+               input_amount=300000000,
                dst_gas_price=dst_gas_price,
                src_router=SuiSwapType.DeepBookV2,
                src_pool_ids=[
-                   sui_project.network_config["pools"]["DeepBook-SUI-USDC"]["pool_id"],
+                   sui_project.network_config["pools"]["DeepBook-SUI-USDC-V2"]["pool_id"],
                    sui_project.network_config["pools"]["DeepBook-ETH-USDC"]["pool_id"]]
                )
 
@@ -1010,6 +1010,25 @@ def init_deepbook_v2():
     facet_manager = sui_project.network_config["objects"]["FacetManager"]
     omniswap.wormhole_facet.init_deepbook_v2(
         facet_manager
+    )
+
+
+def add_deepbook_v2_lot_size():
+    omniswap = deploy.load_omniswap(is_from_config=True)
+    facet_manager = sui_project.network_config["objects"]["FacetManager"]
+    pool_ids = []
+    lot_sizes = []
+    for k, d in sui_project.network_config["pools"].items():
+        if "DeepBook" not in k:
+            continue
+        pool_ids.append(d["pool_id"])
+        lot_sizes.append(d["lot_size"])
+
+    omniswap.wormhole_facet.add_deepbook_v2_lot_size(
+        facet_manager,
+        deepbook_v2_storage(),
+        pool_ids,
+        lot_sizes
     )
 
 

@@ -33,6 +33,8 @@ module omniswap::wormhole_facet {
     #[test_only]
     use omniswap::cross::padding_so_data;
     use sui::dynamic_field;
+    use std::ascii::String;
+    use std::type_name;
 
     const RAY: u64 = 100000000;
 
@@ -172,6 +174,19 @@ module omniswap::wormhole_facet {
 
     struct DstAmount has copy, drop {
         so_fee: u64
+    }
+
+    struct SoOrign has copy, drop {
+        token: String,
+        amount: u64
+    }
+
+    struct SwapEvent has copy, drop {
+        src_token: String,
+        dst_token: String,
+        src_input_amount: u64,
+        dst_output_amount: u64,
+        src_remain_amount: u64
     }
 
     fun init(ctx: &mut TxContext) {
@@ -457,6 +472,14 @@ module omniswap::wormhole_facet {
         let coin_val = (cross::so_amount(so_data) as u64);
         assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
         coin::destroy_zero(comsume_sui);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: coin_val
+            }
+        );
+
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
         let bridge_amount = coin::value(&coin_x);
@@ -554,6 +577,14 @@ module omniswap::wormhole_facet {
         let coin_val = (cross::so_amount(so_data) as u64);
         assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
         coin::destroy_zero(comsume_sui);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: coin_val
+            }
+        );
+
         let coin_y = merge_coin(coins_y, coin_val, ctx);
 
         // X is quote asset, Y is base asset
@@ -656,6 +687,14 @@ module omniswap::wormhole_facet {
         let coin_val = (cross::so_amount(so_data) as u64);
         assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
         coin::destroy_zero(comsume_sui);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: coin_val
+            }
+        );
+
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
         // X is quote asset, Y is base asset
@@ -767,6 +806,14 @@ module omniswap::wormhole_facet {
         let coin_val = (cross::so_amount(so_data) as u64);
         assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
         coin::destroy_zero(comsume_sui);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: coin_val
+            }
+        );
+
         let coin_y = merge_coin(coins_y, coin_val, ctx);
 
         // X is quote asset, Y is base asset
@@ -890,6 +937,14 @@ module omniswap::wormhole_facet {
         let coin_val = (cross::so_amount(so_data) as u64);
         assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
         coin::destroy_zero(comsume_sui);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: coin_val
+            }
+        );
+
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
         // X is quote asset, Y is base asset
@@ -1012,6 +1067,14 @@ module omniswap::wormhole_facet {
         let coin_val = (cross::so_amount(so_data) as u64);
         assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
         coin::destroy_zero(comsume_sui);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: coin_val
+            }
+        );
+
         let coin_y = merge_coin(coins_y, coin_val, ctx);
 
         // X is quote asset, Y is base asset
@@ -1117,6 +1180,14 @@ module omniswap::wormhole_facet {
         let coin_val = (cross::so_amount(so_data) as u64);
         assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
         coin::destroy_zero(comsume_sui);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: coin_val
+            }
+        );
+
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
         // X is quote asset, Y is base asset
@@ -1177,6 +1248,13 @@ module omniswap::wormhole_facet {
         coin_amount: u64,
         ctx: &mut TxContext
     ): MultiSwapData<X> {
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: coin_amount
+            }
+        );
+
         let coin_x = merge_coin(coins_x, coin_amount, ctx);
 
         // X is quote asset, Y is base asset
@@ -1242,6 +1320,14 @@ module omniswap::wormhole_facet {
         let coin_val = (cross::so_amount(so_data) as u64);
         assert!(coin::value(&comsume_sui) == 0, EAMOUNT_NOT_NEAT);
         coin::destroy_zero(comsume_sui);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: coin_val
+            }
+        );
+
         let coin_x = merge_coin(coins_x, coin_val, ctx);
 
         // X is quote asset, Y is base asset
@@ -1283,6 +1369,11 @@ module omniswap::wormhole_facet {
             multi_swap_data
         );
         let swap_data = vector::remove(&mut left_swap_data, 0);
+
+        let src_token = type_name::into_string(type_name::get<Y>());
+        let dst_token = type_name::into_string(type_name::get<X>());
+        let src_input_amount = coin::value(&coin_y);
+
         let (coin_x, left_coin_y, _) = swap::swap_for_base_asset_by_deepbook_v2<X, Y>(
             pool_xy,
             coin_y,
@@ -1292,6 +1383,18 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+        let dst_output_amount = coin::value(&coin_x);
+        let src_remain_amount = coin::value(&left_coin_y);
+        event::emit(
+            SwapEvent {
+                src_token,
+                dst_token,
+                src_input_amount,
+                dst_output_amount,
+                src_remain_amount
+            }
+        );
+
         deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
 
         process_left_coin(left_coin_y, receiver);
@@ -1320,6 +1423,10 @@ module omniswap::wormhole_facet {
             coin_x,
             ctx
         );
+
+        let src_token = type_name::into_string(type_name::get<X>());
+        let dst_token = type_name::into_string(type_name::get<Y>());
+        let src_input_amount = coin::value(&coin_x);
         let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook_v2<X, Y>(
             pool_xy,
             coin_x,
@@ -1329,6 +1436,19 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+
+        let dst_output_amount = coin::value(&coin_y);
+        let src_remain_amount = coin::value(&left_coin_x) + coin::value(&remain_coin);
+        event::emit(
+            SwapEvent {
+                src_token,
+                dst_token,
+                src_input_amount,
+                dst_output_amount,
+                src_remain_amount
+            }
+        );
+
         deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
 
         process_left_coin(left_coin_x, receiver);
@@ -1352,6 +1472,11 @@ module omniswap::wormhole_facet {
             multi_swap_data
         );
         let swap_data = vector::remove(&mut left_swap_data, 0);
+
+        let src_token = type_name::into_string(type_name::get<Y>());
+        let dst_token = type_name::into_string(type_name::get<X>());
+        let src_input_amount = coin::value(&coin_y);
+
         let (coin_x, left_coin_y, _) = swap::swap_for_base_asset_by_cetus<X, Y>(
             global_config,
             pool_xy,
@@ -1360,6 +1485,19 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+
+        let dst_output_amount = coin::value(&coin_x);
+        let src_remain_amount = coin::value(&left_coin_y) ;
+        event::emit(
+            SwapEvent {
+                src_token,
+                dst_token,
+                src_input_amount,
+                dst_output_amount,
+                src_remain_amount
+            }
+        );
+
         process_left_coin(left_coin_y, receiver);
         MultiSwapData<X> {
             receiver,
@@ -1380,6 +1518,11 @@ module omniswap::wormhole_facet {
             multi_swap_data
         );
         let swap_data = vector::remove(&mut left_swap_data, 0);
+
+        let src_token = type_name::into_string(type_name::get<X>());
+        let dst_token = type_name::into_string(type_name::get<Y>());
+        let src_input_amount = coin::value(&coin_x);
+
         let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_cetus<X, Y>(
             global_config,
             pool_xy,
@@ -1388,6 +1531,19 @@ module omniswap::wormhole_facet {
             clock,
             ctx
         );
+
+        let dst_output_amount = coin::value(&coin_y);
+        let src_remain_amount = coin::value(&left_coin_x);
+        event::emit(
+            SwapEvent {
+                src_token,
+                dst_token,
+                src_input_amount,
+                dst_output_amount,
+                src_remain_amount
+            }
+        );
+
         process_left_coin(left_coin_x, receiver);
         MultiSwapData<Y> {
             receiver,
@@ -1522,6 +1678,14 @@ module omniswap::wormhole_facet {
         );
 
         let x_val = coin::value(&coin_x);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
+
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -1591,6 +1755,14 @@ module omniswap::wormhole_facet {
         );
 
         let x_val = coin::value(&coin_x);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
+
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -1639,6 +1811,14 @@ module omniswap::wormhole_facet {
         );
 
         let x_val = coin::value(&coin_x);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
+
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -1710,6 +1890,14 @@ module omniswap::wormhole_facet {
         );
 
         let y_val = coin::value(&coin_y);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: y_val
+            }
+        );
+
         let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= y_val) {
@@ -1773,6 +1961,14 @@ module omniswap::wormhole_facet {
         );
 
         let x_val = coin::value(&coin_x);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
+
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -1833,6 +2029,14 @@ module omniswap::wormhole_facet {
         );
 
         let y_val = coin::value(&coin_y);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: y_val
+            }
+        );
+
         let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= y_val) {
@@ -1894,6 +2098,14 @@ module omniswap::wormhole_facet {
         );
 
         let x_val = coin::value(&coin_x);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
+
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -1956,6 +2168,15 @@ module omniswap::wormhole_facet {
         );
 
         let y_val = coin::value(&coin_y);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: y_val
+            }
+        );
+
+
         let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= y_val) {
@@ -2019,6 +2240,14 @@ module omniswap::wormhole_facet {
         );
 
         let x_val = coin::value(&coin_x);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
+
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -2065,6 +2294,14 @@ module omniswap::wormhole_facet {
         );
 
         let x_val = coin::value(&coin_x);
+
+        event::emit(
+            SoOrign {
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
+
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
