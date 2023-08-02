@@ -35,6 +35,7 @@ module omniswap::wormhole_facet {
     use sui::dynamic_field;
     use std::ascii::String;
     use std::type_name;
+    use std::bcs;
 
     const RAY: u64 = 100000000;
 
@@ -176,7 +177,9 @@ module omniswap::wormhole_facet {
         so_fee: u64
     }
 
-    struct SoOrign has copy, drop {
+    struct OrignEvnet has copy, drop {
+        tx_sender: address,
+        so_receiver: vector<u8>,
         token: String,
         amount: u64
     }
@@ -474,7 +477,9 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
 
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
                 token: type_name::into_string(type_name::get<X>()),
                 amount: coin_val
             }
@@ -579,7 +584,9 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
 
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
                 token: type_name::into_string(type_name::get<Y>()),
                 amount: coin_val
             }
@@ -689,7 +696,9 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
 
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
                 token: type_name::into_string(type_name::get<X>()),
                 amount: coin_val
             }
@@ -808,7 +817,9 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
 
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
                 token: type_name::into_string(type_name::get<Y>()),
                 amount: coin_val
             }
@@ -939,7 +950,9 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
 
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
                 token: type_name::into_string(type_name::get<X>()),
                 amount: coin_val
             }
@@ -1069,7 +1082,9 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
 
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
                 token: type_name::into_string(type_name::get<Y>()),
                 amount: coin_val
             }
@@ -1182,7 +1197,9 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
 
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
                 token: type_name::into_string(type_name::get<X>()),
                 amount: coin_val
             }
@@ -1249,7 +1266,9 @@ module omniswap::wormhole_facet {
         ctx: &mut TxContext
     ): MultiSwapData<X> {
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: bcs::to_bytes(&tx_context::sender(ctx)),
                 token: type_name::into_string(type_name::get<X>()),
                 amount: coin_amount
             }
@@ -1322,7 +1341,9 @@ module omniswap::wormhole_facet {
         coin::destroy_zero(comsume_sui);
 
         event::emit(
-            SoOrign {
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
                 token: type_name::into_string(type_name::get<X>()),
                 amount: coin_val
             }
@@ -1679,13 +1700,6 @@ module omniswap::wormhole_facet {
 
         let x_val = coin::value(&coin_x);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<X>()),
-                amount: x_val
-            }
-        );
-
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -1695,6 +1709,15 @@ module omniswap::wormhole_facet {
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
         assert!(vector::length(&swap_data_dst) > 0, EMULTISWAP_STEP);
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
 
@@ -1756,13 +1779,6 @@ module omniswap::wormhole_facet {
 
         let x_val = coin::value(&coin_x);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<X>()),
-                amount: x_val
-            }
-        );
-
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -1771,6 +1787,15 @@ module omniswap::wormhole_facet {
         };
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_x);
@@ -1812,12 +1837,6 @@ module omniswap::wormhole_facet {
 
         let x_val = coin::value(&coin_x);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<X>()),
-                amount: x_val
-            }
-        );
 
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
@@ -1827,6 +1846,15 @@ module omniswap::wormhole_facet {
         };
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_x);
@@ -1891,12 +1919,6 @@ module omniswap::wormhole_facet {
 
         let y_val = coin::value(&coin_y);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<Y>()),
-                amount: y_val
-            }
-        );
 
         let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
@@ -1906,6 +1928,15 @@ module omniswap::wormhole_facet {
         };
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: y_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_y);
@@ -1962,13 +1993,6 @@ module omniswap::wormhole_facet {
 
         let x_val = coin::value(&coin_x);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<X>()),
-                amount: x_val
-            }
-        );
-
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -1977,6 +2001,15 @@ module omniswap::wormhole_facet {
         };
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_x);
@@ -2030,13 +2063,6 @@ module omniswap::wormhole_facet {
 
         let y_val = coin::value(&coin_y);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<Y>()),
-                amount: y_val
-            }
-        );
-
         let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= y_val) {
@@ -2045,6 +2071,15 @@ module omniswap::wormhole_facet {
         };
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: y_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_y);
@@ -2099,12 +2134,6 @@ module omniswap::wormhole_facet {
 
         let x_val = coin::value(&coin_x);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<X>()),
-                amount: x_val
-            }
-        );
 
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
@@ -2114,6 +2143,15 @@ module omniswap::wormhole_facet {
         };
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_x);
@@ -2169,13 +2207,6 @@ module omniswap::wormhole_facet {
 
         let y_val = coin::value(&coin_y);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<Y>()),
-                amount: y_val
-            }
-        );
-
 
         let so_fee = (((y_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
@@ -2185,6 +2216,15 @@ module omniswap::wormhole_facet {
         };
 
         let (_, _, so_data, swap_data_dst) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<Y>()),
+                amount: y_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_y);
@@ -2241,12 +2281,6 @@ module omniswap::wormhole_facet {
 
         let x_val = coin::value(&coin_x);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<X>()),
-                amount: x_val
-            }
-        );
 
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
@@ -2260,6 +2294,14 @@ module omniswap::wormhole_facet {
 
         let (_, _, so_data, _) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
 
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
 
         event::emit(
             SoTransferCompleted {
@@ -2295,13 +2337,6 @@ module omniswap::wormhole_facet {
 
         let x_val = coin::value(&coin_x);
 
-        event::emit(
-            SoOrign {
-                token: type_name::into_string(type_name::get<X>()),
-                amount: x_val
-            }
-        );
-
         let so_fee = (((x_val as u128) * (get_so_fees(wormhole_fee) as u128) / (RAY as u128)) as u64);
         let beneficiary = wormhole_fee.beneficiary;
         if (so_fee > 0 && so_fee <= x_val) {
@@ -2310,6 +2345,15 @@ module omniswap::wormhole_facet {
         };
 
         let (_, _, so_data, _) = decode_wormhole_payload(&transfer_with_payload::payload(&payload));
+
+        event::emit(
+            OrignEvnet {
+                tx_sender: tx_context::sender(ctx),
+                so_receiver: cross::so_receiver(so_data),
+                token: type_name::into_string(type_name::get<X>()),
+                amount: x_val
+            }
+        );
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
 
