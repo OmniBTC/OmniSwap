@@ -1866,6 +1866,11 @@ module omniswap::wormhole_facet {
                 coin_x,
                 ctx
             );
+
+            let src_token = type_name::into_string(type_name::get<X>());
+            let dst_token = type_name::into_string(type_name::get<Y>());
+            let src_input_amount = coin::value(&coin_x);
+
             let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook_v2<X, Y>(
                 pool_xy,
                 coin_x,
@@ -1875,6 +1880,19 @@ module omniswap::wormhole_facet {
                 clock,
                 ctx
             );
+
+            let dst_output_amount = coin::value(&coin_y);
+            let src_remain_amount = coin::value(&left_coin_x) + coin::value(&remain_coin);
+            event::emit(
+                SwapEvent {
+                    src_token,
+                    dst_token,
+                    src_input_amount,
+                    dst_output_amount,
+                    src_remain_amount
+                }
+            );
+
             deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
             receiving_amount = coin::value(&coin_y);
             transfer::public_transfer(coin_y, receiver);
@@ -1942,6 +1960,11 @@ module omniswap::wormhole_facet {
         let receiving_amount = coin::value(&coin_y);
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+
+            let src_token = type_name::into_string(type_name::get<Y>());
+            let dst_token = type_name::into_string(type_name::get<X>());
+            let src_input_amount = coin::value(&coin_y);
+
             let (left_coin_x, coin_y, _) = swap::swap_for_base_asset_by_deepbook_v2<X, Y>(
                 pool_xy,
                 coin_y,
@@ -1951,6 +1974,19 @@ module omniswap::wormhole_facet {
                 clock,
                 ctx
             );
+
+            let dst_output_amount = coin::value(&left_coin_x);
+            let src_remain_amount = coin::value(&coin_y);
+            event::emit(
+                SwapEvent {
+                    src_token,
+                    dst_token,
+                    src_input_amount,
+                    dst_output_amount,
+                    src_remain_amount
+                }
+            );
+
             deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
             receiving_amount = coin::value(&coin_y);
             transfer::public_transfer(coin_y, receiver);
@@ -2015,6 +2051,11 @@ module omniswap::wormhole_facet {
         let receiving_amount = coin::value(&coin_x);
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+
+            let src_token = type_name::into_string(type_name::get<X>());
+            let dst_token = type_name::into_string(type_name::get<Y>());
+            let src_input_amount = coin::value(&coin_x);
+
             let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_deepbook<X, Y>(
                 pool_xy,
                 coin_x,
@@ -2022,6 +2063,19 @@ module omniswap::wormhole_facet {
                 clock,
                 ctx
             );
+
+            let dst_output_amount = coin::value(&coin_y);
+            let src_remain_amount = coin::value(&left_coin_x);
+            event::emit(
+                SwapEvent {
+                    src_token,
+                    dst_token,
+                    src_input_amount,
+                    dst_output_amount,
+                    src_remain_amount
+                }
+            );
+
             receiving_amount = coin::value(&coin_y);
             transfer::public_transfer(coin_y, receiver);
             process_left_coin(left_coin_x, receiver);
@@ -2085,6 +2139,11 @@ module omniswap::wormhole_facet {
         let receiving_amount = coin::value(&coin_y);
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+
+            let src_token = type_name::into_string(type_name::get<Y>());
+            let dst_token = type_name::into_string(type_name::get<X>());
+            let src_input_amount = coin::value(&coin_y);
+
             let (left_coin_x, coin_y, _) = swap::swap_for_base_asset_by_deepbook<X, Y>(
                 pool_xy,
                 coin_y,
@@ -2092,6 +2151,19 @@ module omniswap::wormhole_facet {
                 clock,
                 ctx
             );
+
+            let dst_output_amount = coin::value(&left_coin_x);
+            let src_remain_amount = coin::value(&coin_y);
+            event::emit(
+                SwapEvent {
+                    src_token,
+                    dst_token,
+                    src_input_amount,
+                    dst_output_amount,
+                    src_remain_amount
+                }
+            );
+
             receiving_amount = coin::value(&coin_y);
             transfer::public_transfer(coin_y, receiver);
             process_left_coin(left_coin_x, receiver);
@@ -2157,6 +2229,11 @@ module omniswap::wormhole_facet {
         let receiving_amount = coin::value(&coin_x);
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+
+            let src_token = type_name::into_string(type_name::get<X>());
+            let dst_token = type_name::into_string(type_name::get<Y>());
+            let src_input_amount = coin::value(&coin_x);
+
             let (left_coin_x, coin_y, _) = swap::swap_for_quote_asset_by_cetus<X, Y>(
                 config,
                 pool_xy,
@@ -2165,6 +2242,19 @@ module omniswap::wormhole_facet {
                 clock,
                 ctx
             );
+
+            let dst_output_amount = coin::value(&coin_y);
+            let src_remain_amount = coin::value(&left_coin_x);
+            event::emit(
+                SwapEvent {
+                    src_token,
+                    dst_token,
+                    src_input_amount,
+                    dst_output_amount,
+                    src_remain_amount
+                }
+            );
+
             receiving_amount = coin::value(&coin_y);
             transfer::public_transfer(coin_y, receiver);
             process_left_coin(left_coin_x, receiver);
@@ -2230,6 +2320,11 @@ module omniswap::wormhole_facet {
         let receiving_amount = coin::value(&coin_y);
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
+
+            let src_token = type_name::into_string(type_name::get<Y>());
+            let dst_token = type_name::into_string(type_name::get<X>());
+            let src_input_amount = coin::value(&coin_y);
+
             let (left_coin_x, coin_y, _) = swap::swap_for_base_asset_by_cetus<X, Y>(
                 config,
                 pool_xy,
@@ -2238,6 +2333,19 @@ module omniswap::wormhole_facet {
                 clock,
                 ctx
             );
+
+            let dst_output_amount = coin::value(&left_coin_x);
+            let src_remain_amount = coin::value(&coin_y);
+            event::emit(
+                SwapEvent {
+                    src_token,
+                    dst_token,
+                    src_input_amount,
+                    dst_output_amount,
+                    src_remain_amount
+                }
+            );
+
             receiving_amount = coin::value(&coin_y);
             transfer::public_transfer(coin_y, receiver);
             process_left_coin(left_coin_x, receiver);
