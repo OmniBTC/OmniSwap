@@ -406,7 +406,6 @@ def generate_src_swap_data(
             callData=f"{router.value},0",
         )
         out.append(swap_data)
-        print("Swap", swap_data)
         i += 1
     return out
 
