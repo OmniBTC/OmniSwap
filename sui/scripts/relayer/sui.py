@@ -13,7 +13,7 @@ from sui_brownie import SuiPackage, SuiObject, Argument, U16, NestedResult
 
 from scripts import sui_project
 from scripts.serde_sui import parse_vaa_to_wormhole_payload
-from scripts.struct_sui import decode_hex_to_ascii, hex_str_to_vector_u8
+from scripts.struct_sui import decode_hex_to_ascii, hex_str_to_vector_u8, change_network
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -250,6 +250,11 @@ def get_cetus_config():
     return sui_project.network_config["objects"]["GlobalConfig"]
 
 
+@functools.lru_cache()
+def deepbook_v2_storage():
+    return sui_project.network_config['objects']['DeepbookV2Storage']
+
+
 def normal_ty_arg(ty):
     if ty[:2] != "0x":
         ty = "0x" + ty
@@ -287,6 +292,9 @@ def multi_swap(
     start_index = sui_type.find("<")
     end_index = sui_type.find(",")
     sui_type = SuiObject.from_type(sui_type[start_index + 1:end_index].replace(" ", ""))
+
+    if "2::sui::SUI" in str(sui_type):
+        sui_type = "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
 
     if str(sui_type).replace("0x", "") == str(SuiObject.from_type(sending_asset_id)).replace("0x", ""):
         ty_args = [sending_asset_id, receiving_asset_id]
@@ -429,7 +437,7 @@ def process_vaa(
                             wormhole_fee,
                             hex_str_to_vector_u8(vaa_str),
                             clock,
-                            get_cetus_config(),
+                            get_cetus_config() if dex_name == "cetus" else deepbook_v2_storage(),
                             *pool_id
                         ],
                         transactions=[
@@ -476,6 +484,7 @@ def process_vaa(
                             wormhole_state,
                             wormhole_fee,
                             pool_id,
+                            deepbook_v2_storage(),
                             hex_str_to_vector_u8(vaa_str),
                             clock,
                             type_arguments=ty_args,
@@ -502,6 +511,7 @@ def process_vaa(
                             wormhole_state,
                             wormhole_fee,
                             pool_id,
+                            deepbook_v2_storage(),
                             hex_str_to_vector_u8(vaa_str),
                             clock,
                             type_arguments=ty_args,
@@ -752,4 +762,9 @@ def main():
 
 
 def single_process():
+    change_network("polygon-main")
     process_v1(21, sui_project.network_config["SoDiamond"])
+
+
+if __name__ == "__main__":
+    single_process()
