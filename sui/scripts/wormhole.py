@@ -1074,8 +1074,8 @@ def multi_swap(
             normal_src_swap_data,  # 0
             coin_x[0],  # 1
             src_pool_ids[0],  # 2
-            clock(),  # 3
-            deepbook_v2_storage(),  # 4
+            deepbook_v2_storage(),  # 3
+            clock(),  # 4
         ],
         transactions=[
             [
@@ -1098,20 +1098,20 @@ def multi_swap(
             [
                 package.wormhole_facet.multi_swap_for_deepbook_v2_base_asset,
                 [
-                    Argument("Input", U16(4)),
+                    Argument("Input", U16(3)),
                     Argument("Input", U16(2)),
                     Argument("NestedResult", NestedResult(U16(1), U16(0))),
-                    Argument("Input", U16(3)),
+                    Argument("Input", U16(4)),
                 ],
                 [sui(), usdc()]
             ],
             [
                 package.wormhole_facet.multi_swap_for_deepbook_v2_quote_asset,
                 [
-                    Argument("Input", U16(4)),
+                    Argument("Input", U16(3)),
                     Argument("Input", U16(2)),
                     Argument("NestedResult", NestedResult(U16(2), U16(0))),
-                    Argument("Input", U16(3)),
+                    Argument("Input", U16(4)),
                 ],
                 [sui(), usdc()]
             ],
