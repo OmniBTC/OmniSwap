@@ -37,7 +37,8 @@ def read_json(file):
 
 
 def export_connext_info():
-    support_networks = ['arbitrum-main', 'optimism-main', 'polygon-main']
+    deployed_contract = read_json(str(Path(__file__).parent.parent.joinpath("export/mainnet/ContractDeployed.json")))
+    support_networks = ['arbitrum-main', 'optimism-main', 'polygon-main', 'bsc-main']
 
     connext_bridge_token_info = {}
     for network in support_networks:
@@ -62,6 +63,8 @@ def export_connext_info():
             support_tokens.append(token_info)
 
         network_info = {
+            'SoDiamond': deployed_contract[network]["SoDiamond"],
+
             'ChainId': chain_id,
             'DomainId': domain_id,
             'Connext': connext,
@@ -110,7 +113,7 @@ def export_chain_path():
 
 def export_deploy_contract(nets=None):
     if nets is None:
-        nets = ["arbitrum-main", "optimism-main"]
+        nets = ["arbitrum-main", "optimism-main", "polygon-main", "bsc-main"]
 
     deploy_contract = [
         DiamondCutFacet,
@@ -138,6 +141,7 @@ def export_deploy_contract(nets=None):
 
 def main():
     export_connext_info()
+    export_chain_path()
 
 
 if __name__ == '__main__':

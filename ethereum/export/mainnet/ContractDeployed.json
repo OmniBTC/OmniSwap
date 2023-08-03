@@ -12,6 +12,19 @@
         "SoDiamond": "0x8D18DFCeA276DC3f5d76270F9F544cb74b39c4Eb",
         "WithdrawFacet": "0x5AB267E44F1A9c5CA11950cfD33DC8F61b135E62"
     },
+    "bsc-main": {
+        "ConnextFacet": "0xDDb61A3679Bb756de226c81fEcB9858DC0983238",
+        "DexManagerFacet": "0xF0Dc73B552EBa9526Ba1f96F0Ab1f6a41002d5c4",
+        "DiamondCutFacet": "0x652B1c2e014F715f396BE499CEE42Ea9DeE10e4B",
+        "DiamondLoupeFacet": "0x75798cEEfA8D1c5922537cfE3b26B083BcA7567e",
+        "GenericSwapFacet": "0x43e676Be7d407288e8fB7C3Bb8EC31a734EB7a3A",
+        "LibCorrectSwapV1": "0x14Bd8EBbD9FF6E8Ef0a8d3e87B7685Edd2b2ebcD",
+        "LibSoFeeConnextV1": "0x5E8B51907646cc2F1A77662B906e8709cbbF124a",
+        "OwnershipFacet": "0xf05b76b870897b3f7F43cA24DB069875f207047a",
+        "SerdeFacet": "0x3e4b6ca74A0fe8f24ea3A0631Ab49540F85F485A",
+        "SoDiamond": "0x5af12a3FBeeb89C21699ACeD9615848A3c2D4f4E",
+        "WithdrawFacet": "0x6914dA48e010f754CE30E15055e999f23F640E96"
+    },
     "optimism-main": {
         "ConnextFacet": "0xD7eC4E3DaC58e537Eb24fef4c3F7B011aeA50f30",
         "DexManagerFacet": "0x66619cb2a51fbd9FF8EDA47BE3299Bf781A4b899",
@@ -24,5 +37,18 @@
         "SerdeFacet": "0x85Ef04B9d1a95E897bc8AAC215c8CF3cA544B45c",
         "SoDiamond": "0x6b23875dD0D74c767c329C4A927B4408337B65d8",
         "WithdrawFacet": "0xB0A1656C29437DbC2a9f463482A58cc88FdaF72F"
+    },
+    "polygon-main": {
+        "ConnextFacet": "0x6E986006b8dF74811A77d6e9cf7B2Db0F43Ea675",
+        "DexManagerFacet": "0xCC10Fe65683641Cb38fF0c7f8e16Dc1D5a06638e",
+        "DiamondCutFacet": "0x1252Fc9cb3D181e5aee5a4Ad10C7e71088c754Ab",
+        "DiamondLoupeFacet": "0xCE54C7547D1C209aeF74EE4f81dC2370835411d8",
+        "GenericSwapFacet": "0x7335E99A0856D729c6A50Efa1B66b08Ee3dcD0a8",
+        "LibCorrectSwapV1": "0x09c667878332f8139b6A930fbc8dF73e03482C8B",
+        "LibSoFeeConnextV1": "0xedc628eaa4609D18FD2174AE71f65c7010dD66f3",
+        "OwnershipFacet": "0x720b7e60cf3C863D2259aB8b05Bc294805ee795B",
+        "SerdeFacet": "0x595000d9242B1bd8f42cFC16991520fd57c9a86e",
+        "SoDiamond": "0xA0285339CefD73AB948614E0a45E03ED1882BD03",
+        "WithdrawFacet": "0x76376C35a5C3B850676e5Fb32b576651B675de3C"
     }
 }
