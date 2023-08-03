@@ -62,11 +62,11 @@ module cetus_clmm::pool {
 
     // === Public Functions ===
     public fun open_position<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        tick_lower: u32,
-        tick_upper: u32,
-        ctx: &mut TxContext
+        __config: &GlobalConfig,
+        __pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _tick_lower: u32,
+        _tick_upper: u32,
+        _ctx: &mut TxContext
     ): Position {
         abort 0
     }
@@ -79,78 +79,78 @@ module cetus_clmm::pool {
     }
 
     public fun add_liquidity<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        position_nft: &mut Position,
-        delta_liquidity: u128,
-        clock: &Clock,
+        __config: &GlobalConfig,
+        __pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _position_nft: &mut Position,
+        _delta_liquidity: u128,
+        _clock: &Clock,
     ): AddLiquidityReceipt<CoinTypeA, CoinTypeB> {
         abort 0
     }
 
     public fun add_liquidity_fix_coin<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        position_nft: &mut Position,
-        amount: u64,
-        fix_amount_a: bool,
-        clock: &Clock
+        __config: &GlobalConfig,
+        __pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _position_nft: &mut Position,
+        _amount: u64,
+        _fix_amount_a: bool,
+        _clock: &Clock
     ): AddLiquidityReceipt<CoinTypeA, CoinTypeB> {
         abort 0
     }
 
     public fun add_liquidity_pay_amount<CoinTypeA, CoinTypeB>(
-        receipt: &AddLiquidityReceipt<CoinTypeA, CoinTypeB>
+        _receipt: &AddLiquidityReceipt<CoinTypeA, CoinTypeB>
     ): (u64, u64) {
         abort 0
     }
 
     public fun repay_add_liquidity<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        balance_a: Balance<CoinTypeA>,
-        balance_b: Balance<CoinTypeB>,
-        receipt: AddLiquidityReceipt<CoinTypeA, CoinTypeB>
+        __config: &GlobalConfig,
+        __pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _balance_a: Balance<CoinTypeA>,
+        _balance_b: Balance<CoinTypeB>,
+        _receipt: AddLiquidityReceipt<CoinTypeA, CoinTypeB>
     ) {
         abort 0
     }
 
     public fun remove_liquidity<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        position_nft: &mut Position,
-        delta_liquidity: u128,
-        clock: &Clock,
+        __config: &GlobalConfig,
+        __pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _position_nft: &mut Position,
+        _delta_liquidity: u128,
+        _clock: &Clock,
     ): (Balance<CoinTypeA>, Balance<CoinTypeB>) {
         abort 0
     }
 
     public fun close_position<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        position_nft: Position,
+        __config: &GlobalConfig,
+        __pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _position_nft: Position,
     ) {
         abort 0
     }
 
     /// Collect the fee from position.
     public fun collect_fee<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        position_nft: &Position,
-        recalculate: bool,
+        __config: &GlobalConfig,
+        __pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _position_nft: &Position,
+        _recalculate: bool,
     ): (Balance<CoinTypeA>, Balance<CoinTypeB>) {
         abort 0
     }
 
     /// Collect rewarder
     public fun collect_reward<CoinTypeA, CoinTypeB, CoinTypeC>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        position_nft: &Position,
-        vault: &mut RewarderGlobalVault,
-        recalculate: bool,
-        clock: &Clock
+        __config: &GlobalConfig,
+        __pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _position_nft: &Position,
+        _vault: &mut RewarderGlobalVault,
+        _recalculate: bool,
+        _clock: &Clock
     ): Balance<CoinTypeC> {
         abort 0
     }
@@ -168,50 +168,50 @@ module cetus_clmm::pool {
 
     /// The calculated swap result
     struct CalculatedSwapResult has copy, drop, store {
-        amount_in: u64,
-        amount_out: u64,
-        fee_amount: u64,
-        fee_rate: u64,
-        after_sqrt_price: u128,
-        is_exceed: bool,
-        step_results: vector<SwapStepResult>
+        _amount_in: u64,
+        _amount_out: u64,
+        _fee_amount: u64,
+        _fee_rate: u64,
+        _after_sqrt_price: u128,
+        _is_exceed: bool,
+        _step_results: vector<SwapStepResult>
     }
 
     // Calculate Swap Result
     public fun calculate_swap_result<CoinTypeA, CoinTypeB>(
-        pool: &Pool<CoinTypeA, CoinTypeB>,
-        a2b: bool,
-        by_amount_in: bool,
-        amount: u64,
+        _pool: &Pool<CoinTypeA, CoinTypeB>,
+        __a2b: bool,
+        _by_amount_in: bool,
+        _amount: u64,
     ): CalculatedSwapResult {
         abort 0
     }
 
-    public fun calculated_swap_result_amount_out(calculatedSwapResult: &CalculatedSwapResult): u64 {
+    public fun calculated_swap_result_amount_out(_calculatedSwapResult: &CalculatedSwapResult): u64 {
         abort 0
     }
 
-    public fun calculated_swap_result_is_exceed(calculatedSwapResult: &CalculatedSwapResult): bool {
+    public fun calculated_swap_result_is_exceed(_calculatedSwapResult: &CalculatedSwapResult): bool {
         abort 0
     }
 
-    public fun calculated_swap_result_amount_in(calculatedSwapResult: &CalculatedSwapResult): u64 {
+    public fun calculated_swap_result_amount_in(_calculatedSwapResult: &CalculatedSwapResult): u64 {
         abort 0
     }
 
-    public fun calculated_swap_result_after_sqrt_price(calculatedSwapResult: &CalculatedSwapResult): u128 {
+    public fun calculated_swap_result_after_sqrt_price(_calculatedSwapResult: &CalculatedSwapResult): u128 {
         abort 0
     }
 
-    public fun calculated_swap_result_fee_amount(calculatedSwapResult: &CalculatedSwapResult): u64 {
+    public fun calculated_swap_result_fee_amount(_calculatedSwapResult: &CalculatedSwapResult): u64 {
         abort 0
     }
 
-    public fun calculate_swap_result_step_results(calculatedSwapResult: &CalculatedSwapResult): &vector<SwapStepResult> {
+    public fun calculate_swap_result_step_results(_calculatedSwapResult: &CalculatedSwapResult): &vector<SwapStepResult> {
         abort 0
     }
 
-    public fun calculated_swap_result_steps_length(calculatedSwapResult: &CalculatedSwapResult): u64 {
+    public fun calculated_swap_result_steps_length(_calculatedSwapResult: &CalculatedSwapResult): u64 {
         abort 0
     }
 
@@ -223,7 +223,7 @@ module cetus_clmm::pool {
     /// that cannot be copied, cannot be saved, cannot be dropped, or cloned.
     struct FlashSwapReceipt<phantom CoinTypeA, phantom CoinTypeB> {
         pool_id: ID,
-        a2b: bool,
+        _a2b: bool,
         partner_id: ID,
         pay_amount: u64,
         ref_fee_amount: u64
@@ -231,56 +231,56 @@ module cetus_clmm::pool {
 
     /// Flash swap
     public fun flash_swap<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        a2b: bool,
-        by_amount_in: bool,
-        amount: u64,
-        sqrt_price_limit: u128,
-        clock: &Clock,
+        _config: &GlobalConfig,
+        _pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _a2b: bool,
+        _by_amount_in: bool,
+        _amount: u64,
+        _sqrt_price_limit: u128,
+        _clock: &Clock,
     ): (Balance<CoinTypeA>, Balance<CoinTypeB>, FlashSwapReceipt<CoinTypeA, CoinTypeB>) {
         abort 0
     }
 
     /// Flash swap with partner
     public fun flash_swap_with_partner<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        partner: &Partner,
-        a2b: bool,
-        by_amount_in: bool,
-        amount: u64,
-        sqrt_price_limit: u128,
-        clock: &Clock,
+        _config: &GlobalConfig,
+        _pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _partner: &Partner,
+        _a2b: bool,
+        _by_amount_in: bool,
+        _amount: u64,
+        _sqrt_price_limit: u128,
+        _clock: &Clock,
     ): (Balance<CoinTypeA>, Balance<CoinTypeB>, FlashSwapReceipt<CoinTypeA, CoinTypeB>) {
         abort 0
     }
 
     /// Repay for flash swap
     public fun repay_flash_swap<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        coin_a: Balance<CoinTypeA>,
-        coin_b: Balance<CoinTypeB>,
-        receipt: FlashSwapReceipt<CoinTypeA, CoinTypeB>
+        _config: &GlobalConfig,
+        _pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _coin_a: Balance<CoinTypeA>,
+        _coin_b: Balance<CoinTypeB>,
+        _receipt: FlashSwapReceipt<CoinTypeA, CoinTypeB>
     ) {
         abort 0
     }
 
     /// Repay for flash swap with partner for receive ref fee.
     public fun repay_flash_swap_with_partner<CoinTypeA, CoinTypeB>(
-        config: &GlobalConfig,
-        pool: &mut Pool<CoinTypeA, CoinTypeB>,
-        partner: &mut Partner,
-        coin_a: Balance<CoinTypeA>,
-        coin_b: Balance<CoinTypeB>,
-        receipt: FlashSwapReceipt<CoinTypeA, CoinTypeB>
+        _config: &GlobalConfig,
+        _pool: &mut Pool<CoinTypeA, CoinTypeB>,
+        _partner: &mut Partner,
+        _coin_a: Balance<CoinTypeA>,
+        _coin_b: Balance<CoinTypeB>,
+        _receipt: FlashSwapReceipt<CoinTypeA, CoinTypeB>
     )  {
         abort 0
     }
 
     /// Get the swap pay amount
-    public fun swap_pay_amount<CoinTypeA, CoinTypeB>(receipt: &FlashSwapReceipt<CoinTypeA, CoinTypeB>): u64 {
+    public fun swap_pay_amount<CoinTypeA, CoinTypeB>(_receipt: &FlashSwapReceipt<CoinTypeA, CoinTypeB>): u64 {
         abort 0
     }
 }
