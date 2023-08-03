@@ -1040,6 +1040,26 @@ networks:
         chainid: 56
         domain_id: 6450786
         connext: "0xCd401c10afa37d641d2F594852DA94C700e4F2CE"
+        token:
+          usdc:
+            key: ""
+            address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+            decimal: 18
+          usdt:
+            key: ""
+            address: "0x55d398326f99059fF775485246999027B3197955"
+            decimal: 18
+          dai:
+            key: ""
+            address: "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3"
+            decimal: 18
+          weth:
+            key: ""
+            address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8"
+            decimal: 18
+        gas:
+          execute: 0
+          executeL1: 0
     oracle:
       eth:
         chainid: 2
