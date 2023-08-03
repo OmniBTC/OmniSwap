@@ -647,7 +647,7 @@ def cross_swap(
         assert len(coin_sui)
     else:
         result = sui_project.client.suix_getCoins(sui_project.account.account_address, x_type, None, None)
-        coin_x = [c["coinObjectId"] for c in result["data"]]
+        coin_x = [c["coinObjectId"] for c in sorted(result["data"], key=lambda x: x["balance"])[::-1]]
         _result = sui_project.pay_sui([wormhole_fee])
         sui_infos = sui_project.get_account_sui()
         coin_sui = [oid
@@ -846,7 +846,7 @@ def cross_swap(
                 ]
             )
         else:
-            # test sui -> usdc -> eth
+            # test usdc -> sui -> usdc
             sui_project.batch_transaction(
                 actual_params=[
                     wormhole_state,  # 0
@@ -863,7 +863,7 @@ def cross_swap(
                     src_pool_ids[0],  # 11
                     clock(),  # 12
                     token_bridge_state,  # 13
-                    src_pool_ids[1],  # 14
+                    # src_pool_ids[1],  # 14
                 ],
                 transactions=[
                     [
@@ -871,7 +871,7 @@ def cross_swap(
                         [
                             Argument("Input", U16(8)),
                         ],
-                        [sui()]
+                        [usdc()]
                     ],
                     [
                         package.helper.make_vector,
@@ -894,10 +894,10 @@ def cross_swap(
                             Argument("NestedResult", NestedResult(U16(0), U16(0))),
                             Argument("NestedResult", NestedResult(U16(1), U16(0))),
                         ],
-                        [sui()]
+                        [usdc()]
                     ],
                     [
-                        package.wormhole_facet.multi_swap_for_deepbook_v2_quote_asset,
+                        package.wormhole_facet.multi_swap_for_deepbook_v2_base_asset,
                         [
                             Argument("Input", U16(10)),
                             Argument("Input", U16(11)),
@@ -907,14 +907,14 @@ def cross_swap(
                         [sui(), usdc()]
                     ],
                     [
-                        package.wormhole_facet.multi_swap_for_deepbook_v2_base_asset,
+                        package.wormhole_facet.multi_swap_for_deepbook_v2_quote_asset,
                         [
                             Argument("Input", U16(10)),
-                            Argument("Input", U16(14)),
+                            Argument("Input", U16(11)),
                             Argument("NestedResult", NestedResult(U16(3), U16(0))),
                             Argument("Input", U16(12)),
                         ],
-                        [eth(), usdc()]
+                        [sui(), usdc()]
                     ],
                     [
                         package.wormhole_facet.complete_multi_src_swap,
@@ -926,7 +926,7 @@ def cross_swap(
                             Argument("NestedResult", NestedResult(U16(2), U16(1))),
                             Argument("Input", U16(12)),
                         ],
-                        [eth()]
+                        [usdc()]
                     ]
                 ]
             )
@@ -993,15 +993,15 @@ def cross_swap_for_mainnet(package):
     #            )
 
     cross_swap(package,
-               src_path=["SUI", "Wormhole-USDC", "Wormhole-ETH"],
-               dst_path=["WETH_ETH_WORMHOLE"],
+               src_path=["Wormhole-USDC", "SUI", "Wormhole-USDC"],
+               dst_path=["USDC_ETH_WORMHOLE"],
                receiver="0x2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af",
-               input_amount=300000000,
+               input_amount=200000,
                dst_gas_price=dst_gas_price,
                src_router=SuiSwapType.DeepBookV2,
                src_pool_ids=[
                    sui_project.network_config["pools"]["DeepBook-SUI-USDC-V2"]["pool_id"],
-                   sui_project.network_config["pools"]["DeepBook-ETH-USDC"]["pool_id"]]
+                   sui_project.network_config["pools"]["DeepBook-SUI-USDC-V2"]["pool_id"]]
                )
 
 
@@ -1032,8 +1032,112 @@ def add_deepbook_v2_lot_size():
     )
 
 
-def single_swap():
-    pass
+def multi_swap(
+        package,
+        src_path,
+        input_amount,
+        src_router,
+        src_pool_ids,
+):
+    change_network("polygon-main")
+    dst_net = network.show_active()
+    # ethereum facet
+    serde = get_serde_facet(dst_net)
+
+    src_swap_data = generate_src_swap_data(
+        src_router, src_path, input_amount)
+    normal_src_swap_data = [d.format_to_contract() for d in src_swap_data]
+    normal_src_swap_data = hex_str_to_vector_u8(
+        str(serde.encodeNormalizedSwapData(normal_src_swap_data)))
+
+    # input coin
+    x_type = get_sui_token()[src_path[0]]["address"]
+    x_type = x_type if '0x' == x_type[:2] else "0x" + x_type
+
+    if src_path[0] == "SUI":
+        _result = sui_project.pay_sui([input_amount])
+        sui_infos = sui_project.get_account_sui()
+
+        coin_x = [oid
+                  for oid, info in sui_infos.items()
+                  if int(info["balance"]) == input_amount]
+        assert len(coin_x)
+    else:
+        result = sui_project.client.suix_getCoins(sui_project.account.account_address, x_type, None, None)
+        coin_x = [c["coinObjectId"] for c in sorted(result["data"], key=lambda x: x["balance"])[::-1]]
+        assert len(coin_x)
+
+    # test usdc -> sui -> usdc
+    sui_project.batch_transaction(
+        actual_params=[
+            input_amount,
+            normal_src_swap_data,  # 0
+            coin_x[0],  # 1
+            src_pool_ids[0],  # 2
+            clock(),  # 3
+            deepbook_v2_storage(),  # 4
+        ],
+        transactions=[
+            [
+                package.helper.make_vector,
+                [
+                    Argument("Input", U16(2)),
+                ],
+                [usdc()]
+            ],
+
+            [
+                package.wormhole_facet.multi_swap,
+                [
+                    Argument("Input", U16(1)),
+                    Argument("NestedResult", NestedResult(U16(0), U16(0))),
+                    Argument("Input", U16(0)),
+                ],
+                [usdc()]
+            ],
+            [
+                package.wormhole_facet.multi_swap_for_deepbook_v2_base_asset,
+                [
+                    Argument("Input", U16(4)),
+                    Argument("Input", U16(2)),
+                    Argument("NestedResult", NestedResult(U16(1), U16(0))),
+                    Argument("Input", U16(3)),
+                ],
+                [sui(), usdc()]
+            ],
+            [
+                package.wormhole_facet.multi_swap_for_deepbook_v2_quote_asset,
+                [
+                    Argument("Input", U16(4)),
+                    Argument("Input", U16(2)),
+                    Argument("NestedResult", NestedResult(U16(2), U16(0))),
+                    Argument("Input", U16(3)),
+                ],
+                [sui(), usdc()]
+            ],
+            [
+                package.wormhole_facet.complete_multi_swap,
+                [
+                    Argument("NestedResult", NestedResult(U16(3), U16(0))),
+                ],
+                [usdc()]
+            ]
+        ]
+    )
+
+
+def single_chain_swap():
+    omniswap = deploy.load_omniswap(is_from_config=True)
+
+    multi_swap(
+        omniswap,
+        src_path=["Wormhole-USDC", "SUI", "Wormhole-USDC"],
+        input_amount=200000,
+        src_router=SuiSwapType.DeepBookV2,
+        src_pool_ids=[
+            sui_project.network_config["pools"]["DeepBook-SUI-USDC-V2"]["pool_id"],
+            sui_project.network_config["pools"]["DeepBook-SUI-USDC-V2"]["pool_id"]]
+    )
 
 
 def main():
@@ -1055,4 +1159,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    single_chain_swap()
