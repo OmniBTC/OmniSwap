@@ -212,6 +212,7 @@ contract BoolFacet is
         ISo.SoData calldata soData,
         LibSwap.SwapData[] memory swapDataDst
     ) external {
+        require(msg.sender == address(this), "NotDiamond");
         uint256 soFee = getBoolSoFee(amount);
         if (soFee < amount) {
             amount = amount.sub(soFee);
