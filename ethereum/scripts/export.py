@@ -177,6 +177,10 @@ def get_stargate_chain_path():
     nets = list(omni_swap_infos.keys())
     for net1 in nets:
         for net2 in nets:
+            if "StargateChainId" not in omni_swap_infos[net1]:
+                continue
+            if "StargateChainId" not in omni_swap_infos[net2]:
+                continue
             if net1 == net2:
                 continue
             if ("main" in net1 and "main" not in net2) or (
