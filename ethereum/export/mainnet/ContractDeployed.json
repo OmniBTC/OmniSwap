@@ -1,6 +1,6 @@
 {
     "arbitrum-main": {
-        "BoolFacet": "0xeb3F7D77C277b67B29Ce454E54657bBDAeB2BA36",
+        "BoolFacet": "0xE443419F1CC87CFC6b1544CE66E9D30E567dd771",
         "CCTPFacet": "0x452B5F476f4fA706a80C513c52729e47150d343C",
         "CelerFacet": "0x930b39EcEA81678a5033aa3c9Cc1f804fFEE004e",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
@@ -78,7 +78,7 @@
         "WormholeFacet": "0x681bC51FC82bbA792e94e6187B82859f1E982C24"
     },
     "optimism-main": {
-        "BoolFacet": "0x1ac958477e0873D7039B2B71ae89B51d3248fA4F",
+        "BoolFacet": "0x81278dFc4B2e2dd39c1D2E89aAB1eeBD708Be99F",
         "CelerFacet": "0xD8dec96b9E22a99f68D48CfB20cd6868a3dcc56b",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
@@ -95,7 +95,7 @@
         "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
     },
     "polygon-main": {
-        "BoolFacet": "0x19E206300afC98Efc4D09E3Faf4a592FE5bE7152",
+        "BoolFacet": "0x434B7EFf8121722CCB278266888ce36E5D122070",
         "CelerFacet": "0x4E218F45E37f940Eb503b3b9F31426110059d672",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",

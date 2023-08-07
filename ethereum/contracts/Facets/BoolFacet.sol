@@ -189,7 +189,30 @@ contract BoolFacet is
         );
 
         uint256 amount = bridgeAmount;
+        try
+            this.remoteBoolSoSwap(token, amount, soData, swapDataDst)
+        {} catch Error(string memory revertReason) {
+            transferUnwrappedAsset(token, token, amount, soData.receiver);
+            emit SoTransferFailed(
+                soData.transactionId,
+                revertReason,
+                bytes("")
+            );
+        } catch (bytes memory returnData) {
+            transferUnwrappedAsset(token, token, amount, soData.receiver);
+            emit SoTransferFailed(soData.transactionId, "", returnData);
+        }
+    }
 
+    /// @dev For internal calls only, do not add it to DiamondCut,
+    ///      convenient for sgReceive to catch exceptions
+    function remoteBoolSoSwap(
+        address token,
+        uint256 amount,
+        ISo.SoData calldata soData,
+        LibSwap.SwapData[] memory swapDataDst
+    ) external {
+        require(msg.sender == address(this), "NotDiamond");
         uint256 soFee = getBoolSoFee(amount);
         if (soFee < amount) {
             amount = amount.sub(soFee);
@@ -238,36 +261,18 @@ contract BoolFacet is
                 );
             }
 
-            try this.executeAndCheckSwaps(soData, swapDataDst) returns (
-                uint256 amountFinal
-            ) {
-                // may swap to weth
-                transferUnwrappedAsset(
-                    swapDataDst[swapDataDst.length - 1].receivingAssetId,
-                    soData.receivingAssetId,
-                    amountFinal,
-                    soData.receiver
-                );
-                emit SoTransferCompleted(soData.transactionId, amountFinal);
-            } catch Error(string memory revertReason) {
-                LibAsset.transferAsset(
-                    swapDataDst[0].sendingAssetId,
-                    soData.receiver,
-                    amount
-                );
-                emit SoTransferFailed(
-                    soData.transactionId,
-                    revertReason,
-                    bytes("")
-                );
-            } catch (bytes memory returnData) {
-                LibAsset.transferAsset(
-                    swapDataDst[0].sendingAssetId,
-                    soData.receiver,
-                    amount
-                );
-                emit SoTransferFailed(soData.transactionId, "", returnData);
-            }
+            uint256 amountFinal = this.executeAndCheckSwaps(
+                soData,
+                swapDataDst
+            );
+            // may swap to weth
+            transferUnwrappedAsset(
+                swapDataDst[swapDataDst.length - 1].receivingAssetId,
+                soData.receivingAssetId,
+                amountFinal,
+                soData.receiver
+            );
+            emit SoTransferCompleted(soData.transactionId, amountFinal);
         }
     }
 
