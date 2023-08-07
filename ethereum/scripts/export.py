@@ -130,6 +130,7 @@ def get_stragate_pool_infos():
             }
         )
     all_stragate_info["pools"] = pool_info
+    print(all_stragate_info)
     return pool_info, all_stragate_info
 
 
@@ -176,6 +177,10 @@ def get_stargate_chain_path():
     nets = list(omni_swap_infos.keys())
     for net1 in nets:
         for net2 in nets:
+            if "StargateChainId" not in omni_swap_infos[net1]:
+                continue
+            if "StargateChainId" not in omni_swap_infos[net2]:
+                continue
             if net1 == net2:
                 continue
             if ("main" in net1 and "main" not in net2) or (
@@ -661,7 +666,7 @@ def export_stargate_info(networks):
     write_file(stragate_file, stargate_infos)
 
 
-def export_omniswap_info(networks):
+def export_omniswap_info(networks=["base-main"]):
     omni_swap_infos = {}
 
     for net in networks:
@@ -703,9 +708,9 @@ def export_omniswap_info(networks):
             "OmniBtcChainId": config["networks"][net]["omnibtc_chainid"],
             "SoDiamond": so_diamond.address,
             "ChainId": config["networks"][net]["chainid"],
-            "WormholeBridge": get_wormhole_bridge(),
-            "WormholeChainId": get_wormhole_chainid(),
-            "WormholeSupportToken": get_wormhole_support_token(net),
+            # "WormholeBridge": get_wormhole_bridge(),
+            # "WormholeChainId": get_wormhole_chainid(),
+            # "WormholeSupportToken": get_wormhole_support_token(net),
             "StargateRouter": get_stargate_router(),
             "StargateChainId": get_stargate_chain_id(),
             "StargatePool": pool_info,

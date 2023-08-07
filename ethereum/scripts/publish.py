@@ -5,7 +5,7 @@ import os
 
 from brownie import project, network
 
-from scripts.helpful_scripts import change_network
+from helpful_scripts import change_network
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -21,11 +21,15 @@ def main(net: str = None):
     p.load_config()
     change_network(net)
     deployed_contract = [
-        "StargateFacet",
-        "GenericSwapFacet",
-        "WormholeFacet",
-        "SerdeFacet",
         "CelerFacet",
+        "GenericSwapFacet",
+        "SerdeFacet",
+        # "SoDiamond",
+        # "DiamondCutFacet",
+        # "DiamondLoupeFacet",
+        # "DexManagerFacet",
+        # "WithdrawFacet",
+        # "OwnershipFacet",
     ]
     for c in deployed_contract:
         print(f"network:{net} publish source: {c}")
@@ -36,4 +40,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main("mainnet")
+    main("zkevm-main")

@@ -373,7 +373,7 @@ class StargateData(View):
         proxy_diamond = Contract.from_abi(
             "StargateFacet", p["SoDiamond"][-1].address, p["StargateFacet"].abi
         )
-        so_fee = proxy_diamond.getSoFee(amount)
+        so_fee = proxy_diamond.getStargateSoFee(amount)
         print(f"  So fee rate: {so_fee / amount}")
         return so_fee
 
@@ -1113,7 +1113,7 @@ def single_swap(
     )
 
 
-def main(src_net="arbitrum-main", dst_net="polygon-main", bridge="stargate"):
+def main(src_net="base-main", dst_net="polygon-main", bridge="stargate"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1129,12 +1129,12 @@ def main(src_net="arbitrum-main", dst_net="polygon-main", bridge="stargate"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                1e-3 * src_session.put_task(get_token_decimal, args=("usdc",))
+                1e-5 * src_session.put_task(get_token_decimal, args=("eth",))
             ),
-            sourceTokenName="usdc",  # stargate
+            sourceTokenName="eth",  # stargate
             destinationTokenName="eth",  # stargate
-            sourceSwapType=None,
-            sourceSwapFunc=SwapFunc.swapExactAVAXForTokens,
+            sourceSwapType=SwapType.IUniswapV2Router02,
+            sourceSwapFunc=SwapFunc.swapExactETHForTokens,
             sourceSwapPath=("weth", "usdc"),
             sourceStargateToken="usdc",
             destinationStargateToken="usdc",

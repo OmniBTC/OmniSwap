@@ -13,6 +13,8 @@ from brownie import (
     network,
     CCTPFacet,
     LibSoFeeCCTPV1,
+    StargateFacet,
+    LibSoFeeStargateV1
 )
 from brownie.network import priority_fee, max_fee
 
@@ -34,12 +36,12 @@ def deploy_contracts(account):
         DiamondCutFacet,
         DiamondLoupeFacet,
         DexManagerFacet,
-        CCTPFacet,
-        # StargateFacet,
+        StargateFacet,
+        # CCTPFacet,
         # CelerFacet,
         # MultiChainFacet,
         # WormholeFacet,
-        BoolFacet,
+        # BoolFacet,
         WithdrawFacet,
         OwnershipFacet,
         GenericSwapFacet,
@@ -54,9 +56,9 @@ def deploy_contracts(account):
 
     so_fee = 1e-3
 
-    # print("deploy LibSoFeeStargateV1.sol...")
-    # transfer_for_gas = 30000
-    # LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {"from": account})
+    print("deploy LibSoFeeStargateV1.sol...")
+    transfer_for_gas = 30000
+    LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {"from": account})
 
     ray = 1e27
 
@@ -72,10 +74,10 @@ def deploy_contracts(account):
     #
     # print("deploy LibSoFeeBoolV1.sol...")
 
-    LibSoFeeBoolV1.deploy(int(so_fee * ray), {"from": account})
+    # LibSoFeeBoolV1.deploy(int(so_fee * ray), {"from": account})
 
-    print("deploy LibSoFeeCCTPV1.sol...")
-    LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
+    # print("deploy LibSoFeeCCTPV1.sol...")
+    # LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
 
     print("deploy LibCorrectSwapV1...")
     LibCorrectSwapV1.deploy({"from": account})
