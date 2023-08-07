@@ -79,21 +79,18 @@ def main():
         initialize_cut(account, so_diamond)
     except Exception as e:
         print(f"initialize_cut fail:{e}")
-    # try:
-    #     initialize_stargate(account, so_diamond)
-    # except Exception as e:
-    #     print(f"initialize_stargate fail:{e}")
     try:
-        initialize_bool(account, so_diamond)
+        initialize_stargate(account, so_diamond)
     except Exception as e:
-        print(f"initialize_bool fail:{e}")
-        initialize_cctp(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_cctp fail:{e}")
+        print(f"initialize_stargate fail:{e}")
     # try:
-    #     initialize_stargate(account, so_diamond)
+    #     initialize_bool(account, so_diamond)
     # except Exception as e:
-    #     print(f"initialize_stargate fail:{e}")
+    #     print(f"initialize_bool fail:{e}")
+    # try:
+    #     initialize_cctp(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_cctp fail:{e}")
     # try:
     #     initialize_celer(account, so_diamond)
     # except Exception as e:
@@ -119,7 +116,7 @@ def main():
     except Exception as e:
         print(f"initialize_dex_manager fail:{e}")
     # initialize_little_token_for_stargate()
-    batch_set_bool_allowed_address(account, so_diamond)
+    # batch_set_bool_allowed_address(account, so_diamond)
 
 
 def initialize_wormhole_fee(account):
@@ -190,12 +187,9 @@ def initialize_cut(account, so_diamond):
         OwnershipFacet,
         # CelerFacet,
         # MultiChainFacet,
-        # StargateFacet,
-        BoolFacet,
-        CCTPFacet,
-        # CelerFacet,
-        # MultiChainFacet,
-        # StargateFacet,
+        StargateFacet,
+        # BoolFacet,
+        # CCTPFacet,
         # WormholeFacet,
         WithdrawFacet,
         GenericSwapFacet,
@@ -402,12 +396,12 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchAddDex(dexs, {"from": account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
-    # proxy_dex.addFee(
-    #     get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
-    # )
     proxy_dex.addFee(
-        get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
+        get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
     )
+    # proxy_dex.addFee(
+    #     get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
+    # )
     # proxy_dex.addFee(
     #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
     # )
@@ -417,17 +411,8 @@ def initialize_dex_manager(account, so_diamond):
     # proxy_dex.addFee(
     #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
     # )
-    proxy_dex.addFee(
-        get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
-    )
     # proxy_dex.addFee(
-    #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
-    # )
-    # proxy_dex.addFee(
-    #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
-    # )
-    # proxy_dex.addFee(
-    #     get_celer_message_bus(), LibSoFeeCelerV1[-1].address, {"from": account}
+    #     get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
     # )
 
 
