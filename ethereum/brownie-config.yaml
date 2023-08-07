@@ -839,6 +839,33 @@ networks:
           dst_chainid: 21
           base_gas: 210000
           per_byte_gas: 68
+  base-main:
+    omnibtc_chainid: 8453
+    chainid: 8453
+    SoDiamond: ""
+    stargate:
+      router: "0x45f1A95A4D3f3836523F5c83673c797f4d4d263B"
+      chainid: 184
+      poolid:
+        usdc: 1
+        weth: 13
+    token:
+      weth:
+        address: "0x4200000000000000000000000000000000000006"
+        decimal: 18
+      usdc:
+        address: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA"
+        decimal: 6
+    swap:
+      ISwapRouter:
+        name: SushiswapV3
+        router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
+        token_list: ""
+        quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
+      IUniswapV2Router02:
+        name: BaseswapV2
+        router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
+        token_list: ""
   mainnet:
     omnibtc_chainid: 2
     chainid: 1
