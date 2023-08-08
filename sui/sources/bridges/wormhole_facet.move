@@ -159,6 +159,13 @@ module omniswap::wormhole_facet {
         sequence: u64
     }
 
+
+    struct SoSwappedGeneric has copy, drop {
+        to_asset_id: String,
+        to_amount: u64,
+        receiver: address
+    }
+
     struct SoTransferStarted has copy, drop {
         transaction_id: vector<u8>,
     }
@@ -1579,6 +1586,11 @@ module omniswap::wormhole_facet {
         assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
         let (receiver, coin_x, swap_data) = destroy_multi_swap_data(multi_swap_data);
         vector::destroy_empty(swap_data);
+        event::emit(SoSwappedGeneric{
+            to_asset_id: type_name::into_string(type_name::get<X>()),
+            to_amount: coin::value(&coin_x),
+            receiver
+        });
         transfer::public_transfer(coin_x, receiver)
     }
 
