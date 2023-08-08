@@ -268,6 +268,8 @@ def multi_swap(
         receiving_asset_id: str,
         pool_id_index: int,
         swap_index: int,
+        dex_index: int,
+        swap_start_index: int,
 ):
     sending_asset_id = normal_ty_arg(sending_asset_id)
     receiving_asset_id = normal_ty_arg(receiving_asset_id)
@@ -305,8 +307,8 @@ def multi_swap(
     return [
         getattr(omniswap.wormhole_facet, f"multi_swap_for_{dex_name}_{reverse}_asset"),
         [
-            Argument("Input", U16(6)),
-            Argument("Input", U16(7 + pool_id_index)),
+            Argument("Input", U16(6 + dex_index)),
+            Argument("Input", U16(swap_start_index + pool_id_index)),
             Argument("NestedResult", NestedResult(U16(swap_index), U16(0))),
             Argument("Input", U16(5)),
         ],
@@ -364,8 +366,10 @@ def process_vaa(
             reverse = None
             dex_name = None
             multi = []
+            dex_config = []
         elif len(wormhole_data[3]) == 1:
             multi = []
+            dex_config = []
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
             s1 = s1 if "0x" == s1[:2] else "0x" + s1
             s2 = final_asset_id
@@ -402,17 +406,54 @@ def process_vaa(
             pool_id = []
             reverse = None
             dex_name = None
-            ty_args = None
+            ty_args = []
+            dex_config = []
             for k, d in enumerate(wormhole_data[3]):
                 if str(d[0]) not in pool_id:
                     pool_id.append(str(d[0]))
+                sui_type: str = sui_project.client.sui_getObject(pool_id[-1], {
+                    "showType": True,
+                    "showOwner": True,
+                    "showPreviousTransaction": False,
+                    "showDisplay": False,
+                    "showContent": False,
+                    "showBcs": False,
+                    "showStorageRebate": False
+                })["data"]["type"]
+
+                start_index = sui_type.find("<")
+                end_index = sui_type.find(",")
+                ty_args.append(SuiObject.from_type(sui_type[start_index + 1:end_index].replace(" ", "")))
+
+                origin_type = SuiObject.from_type(sui_type)
+                if origin_type.package_id == get_deepbook_package_id():
+                    try:
+                        dex_index = dex_config.index(deepbook_v2_storage())
+                    except:
+                        dex_index = -1
+                    if dex_index == -1:
+                        dex_config.append(deepbook_v2_storage())
+                        dex_index = len(dex_config) - 1
+                elif origin_type.package_id == get_cetus_package_id():
+                    try:
+                        dex_index = dex_config.index(get_cetus_config())
+                    except:
+                        dex_index = -1
+                    if dex_index == -1:
+                        dex_config.append(get_cetus_config())
+                        dex_index = len(dex_config) - 1
+                else:
+                    raise ValueError(origin_type.package_id)
                 multi.append({
                     "pool_id": str(d[0]),
                     "sending_asset_id": normal_ty_arg(str(decode_hex_to_ascii(d[2]))),
                     "receiving_asset_id": normal_ty_arg(str(decode_hex_to_ascii(d[3]))),
                     "pool_id_index": len(pool_id) - 1,
-                    "swap_index": k
+                    "swap_index": k,
+                    "dex_index": dex_index
                 })
+            for d in multi:
+                d["swap_start_index"] = 6 + len(dex_config)
 
         local_logger.info(f'Execute emitterChainId:{emitterChainId}, sequence:{sequence}...')
         storage = sui_project.network_config["objects"]["FacetStorage"]
@@ -437,7 +478,7 @@ def process_vaa(
                             wormhole_fee,
                             hex_str_to_vector_u8(vaa_str),
                             clock,
-                            get_cetus_config() if dex_name == "cetus" else deepbook_v2_storage(),
+                            *dex_config,
                             *pool_id
                         ],
                         transactions=[
