@@ -842,7 +842,7 @@ networks:
   base-main:
     omnibtc_chainid: 8453
     chainid: 8453
-    SoDiamond: ""
+    SoDiamond: "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8"
     stargate:
       router: "0x45f1A95A4D3f3836523F5c83673c797f4d4d263B"
       chainid: 184
