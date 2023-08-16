@@ -1,4 +1,7 @@
 module omniswap::wormhole_facet {
+    use std::ascii::String;
+    use std::bcs;
+    use std::type_name;
     use std::vector;
 
     use cetus_clmm::config::GlobalConfig;
@@ -14,8 +17,9 @@ module omniswap::wormhole_facet {
     use omniswap::swap;
     use sui::clock::Clock;
     use sui::coin::{Self, Coin};
+    use sui::dynamic_field;
     use sui::event;
-    use sui::object::{Self, UID, ID};
+    use sui::object::{Self, ID, UID};
     use sui::sui::SUI;
     use sui::table::{Self, Table};
     use sui::transfer;
@@ -32,10 +36,8 @@ module omniswap::wormhole_facet {
 
     #[test_only]
     use omniswap::cross::padding_so_data;
-    use sui::dynamic_field;
-    use std::ascii::String;
-    use std::type_name;
-    use std::bcs;
+
+    friend omniswap::wormhole_facet_v2;
 
     const RAY: u64 = 100000000;
 
@@ -159,7 +161,6 @@ module omniswap::wormhole_facet {
         sequence: u64
     }
 
-
     struct SoSwappedGeneric has copy, drop {
         to_asset_id: String,
         to_amount: u64,
@@ -207,7 +208,67 @@ module omniswap::wormhole_facet {
         })
     }
 
+    /// View Struct Fields
+
+    /// WormholeFee
+
+    public(friend) fun wormhole_fee_beneficiary(wormhole_fee: &WormholeFee): address {
+        wormhole_fee.beneficiary
+    }
+
+    /// NormalizedWormholeData
+
+    public(friend) fun dst_wormhole_chain_id(wormhole_data: &NormalizedWormholeData): u16 {
+        wormhole_data.dst_wormhole_chain_id
+    }
+
+    public(friend) fun dst_max_gas_price_in_wei_for_relayer(
+        wormhole_data: &NormalizedWormholeData
+    ): u256 {
+        wormhole_data.dst_max_gas_price_in_wei_for_relayer
+    }
+
+    public(friend) fun wormhole_fee(wormhole_data: &NormalizedWormholeData): u256 {
+        wormhole_data.wormhole_fee
+    }
+
+    public(friend) fun dst_so_diamond(wormhole_data: &NormalizedWormholeData): vector<u8> {
+        wormhole_data.dst_so_diamond
+    }
+
+    /// MultiSwapData
+    public(friend) fun multi_swap_input_coin<X>(multi_swap_data: &MultiSwapData<X>): &Coin<X> {
+        &multi_swap_data.input_coin
+    }
+
     /// Helpers
+
+    public(friend) fun create_multi_swap_data<X>(
+        receiver: address,
+        input_coin: Coin<X>,
+        left_swap_data: vector<NormalizedSwapData>
+    ): MultiSwapData<X> {
+        MultiSwapData {
+            receiver,
+            input_coin,
+            left_swap_data
+        }
+    }
+
+    public(friend) fun create_multi_src_data(
+        wormhole_fee_coin: Coin<SUI>,
+        wormhole_data: NormalizedWormholeData,
+        relay_fee: u64,
+        payload: vector<u8>
+    ): MultiSrcData {
+        MultiSrcData {
+            wormhole_fee_coin,
+            wormhole_data,
+            relay_fee,
+            payload
+        }
+    }
+
     public entry fun transfer_owner(facet_manager: &mut WormholeFacetManager, to: address, ctx: &mut TxContext) {
         assert!(tx_context::sender(ctx) == facet_manager.owner, EINVALID_ACCOUNT);
         facet_manager.owner = to;
@@ -391,7 +452,7 @@ module omniswap::wormhole_facet {
 
     /// Swap
 
-    fun tranfer_token<X>(
+    public(friend) fun tranfer_token<X>(
         wormhole_state: &mut WormholeState,
         token_bridge_state: &mut TokenBridgeState,
         storage: &mut Storage,
@@ -1361,7 +1422,6 @@ module omniswap::wormhole_facet {
         // X is quote asset, Y is base asset
         // use base asset to cross chain
         let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
-        assert!(vector::length(&swap_data_src) > 0, EMULTISWAP_STEP);
 
         let multi_swap_data = MultiSwapData<X> {
             receiver: tx_context::sender(ctx),
@@ -1586,7 +1646,7 @@ module omniswap::wormhole_facet {
         assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
         let (receiver, coin_x, swap_data) = destroy_multi_swap_data(multi_swap_data);
         vector::destroy_empty(swap_data);
-        event::emit(SoSwappedGeneric{
+        event::emit(SoSwappedGeneric {
             to_asset_id: type_name::into_string(type_name::get<X>()),
             to_amount: coin::value(&coin_x),
             receiver
