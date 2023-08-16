@@ -151,6 +151,13 @@ module omniswap::wormhole_facet {
         data: Table<address, u64>
     }
 
+    /// GenericData
+    struct GenericData {
+        tx_id: vector<u8>,
+        from_asset_id: String,
+        from_amount: u64,
+    }
+
     /// Events
 
     struct TransferFromWormholeEvent has copy, drop {
@@ -161,6 +168,15 @@ module omniswap::wormhole_facet {
 
 
     struct SoSwappedGeneric has copy, drop {
+        to_asset_id: String,
+        to_amount: u64,
+        receiver: address
+    }
+
+    struct SoSwappedGenericV2 has copy, drop {
+        transaction_id: vector<u8>,
+        from_asset_id: String,
+        from_amount: u64,
         to_asset_id: String,
         to_amount: u64,
         receiver: address
@@ -1265,13 +1281,15 @@ module omniswap::wormhole_facet {
         );
     }
 
-    /// multi_swap -> multi_swap_for_cetus_base_asset -> complete_multi_swap
-    public fun multi_swap<X>(
+    /// multi_swap_v2 -> multi_swap_for_cetus_base_asset -> complete_multi_swap
+    public fun multi_swap_v2<X>(
+        so_data: vector<u8>,
         swap_data_src: vector<u8>,
         coins_x: vector<Coin<X>>,
-        coin_amount: u64,
         ctx: &mut TxContext
-    ): MultiSwapData<X> {
+    ): (MultiSwapData<X>, GenericData) {
+        let so_data = cross::decode_normalized_so_data(&mut so_data);
+        let coin_amount = (cross::so_amount(so_data) as u64);
         event::emit(
             OrignEvnet {
                 tx_sender: tx_context::sender(ctx),
@@ -1294,7 +1312,22 @@ module omniswap::wormhole_facet {
             left_swap_data: swap_data_src,
         };
 
-        multi_swap_data
+        let generic_data = GenericData {
+            tx_id: cross::so_transaction_id(so_data),
+            from_asset_id: type_name::into_string(type_name::get<X>()),
+            from_amount: coin_amount
+        };
+        (multi_swap_data, generic_data)
+    }
+
+    /// multi_swap -> multi_swap_for_cetus_base_asset -> complete_multi_swap
+    public fun multi_swap<X>(
+        _swap_data_src: vector<u8>,
+        _coins_x: vector<Coin<X>>,
+        _coin_amount: u64,
+        _ctx: &mut TxContext
+    ): MultiSwapData<X> {
+        abort 0
     }
 
     /// so_multi_swap -> multi_swap_for_cetus_base_asset -> complete_multi_src_swap
@@ -1586,7 +1619,26 @@ module omniswap::wormhole_facet {
         assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
         let (receiver, coin_x, swap_data) = destroy_multi_swap_data(multi_swap_data);
         vector::destroy_empty(swap_data);
-        event::emit(SoSwappedGeneric{
+        event::emit(SoSwappedGeneric {
+            to_asset_id: type_name::into_string(type_name::get<X>()),
+            to_amount: coin::value(&coin_x),
+            receiver
+        });
+        transfer::public_transfer(coin_x, receiver)
+    }
+
+    public fun complete_multi_swap_v2<X>(
+        multi_swap_data: MultiSwapData<X>,
+        generic_data: GenericData
+    ) {
+        assert!(vector::length(&multi_swap_data.left_swap_data) == 0, EMULTISWAP_STEP);
+        let (receiver, coin_x, swap_data) = destroy_multi_swap_data(multi_swap_data);
+        vector::destroy_empty(swap_data);
+        let (tx_id, from_asset_id, from_amount) = destroy_generic_data(generic_data);
+        event::emit(SoSwappedGenericV2 {
+            transaction_id: tx_id,
+            from_asset_id,
+            from_amount,
             to_asset_id: type_name::into_string(type_name::get<X>()),
             to_amount: coin::value(&coin_x),
             receiver
@@ -1645,6 +1697,15 @@ module omniswap::wormhole_facet {
             left_swap_data,
         } = multi_swap_data;
         (receiver, input_coin, left_swap_data)
+    }
+
+    fun destroy_generic_data(data: GenericData): (vector<u8>, String, u64) {
+        let GenericData {
+            tx_id,
+            from_asset_id,
+            from_amount
+        } = data;
+        (tx_id, from_asset_id, from_amount)
     }
 
     fun destroy_multi_src_data(
