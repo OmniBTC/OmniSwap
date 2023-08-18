@@ -8,7 +8,7 @@ import time
 import traceback
 from collections import OrderedDict
 from datetime import datetime
-from multiprocessing import Process, set_start_method
+from multiprocessing import Process, set_start_method, Queue
 from pathlib import Path
 
 import pandas as pd
@@ -27,30 +27,36 @@ logger = logging.getLogger()
 logger.setLevel("INFO")
 
 SUPPORTED_EVM = [
-    {"dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820", "dstNet": "mainnet"},
+    {"dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820", "dstChainId": 1, "dstNet": "mainnet"},
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "bsc-main",
+        "dstChainId": 56
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "polygon-main",
+         "dstChainId": 137
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "avax-main",
+         "dstChainId": 43114
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "arbitrum-main",
+        "dstChainId": 42161
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "optimism-main",
+         "dstChainId": 10
     },
     {
         "dstSoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
         "dstNet": "base-main",
+         "dstChainId": 8453
     },
 ]
 
@@ -116,13 +122,12 @@ class RWDict(OrderedDict):
 HAS_PROCESSED = RWDict("processed_stargate.json")
 
 
-def process_v2(
-    dstSoDiamond: str,
+def process_v1(
+        dstSoDiamond: str,
+        dst_storage,
 ):
-    account = get_account()
-
-    local_logger = logger.getChild(f"[v2|{network.show_active()}]")
-    local_logger.info("Starting process v2...")
+    local_logger = logger.getChild(f"[v1|{network.show_active()}]")
+    local_logger.info("Starting process v1...")
     local_logger.info(f"SoDiamond:{dstSoDiamond}")
     if "test" in network.show_active() or "test" == "goerli":
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnhandleStargateTransfer"
@@ -131,65 +136,94 @@ def process_v2(
     while True:
         pending_data = get_stargate_pending_data(url=pending_url)
         pending_data = [
-            d for d in pending_data if int(d["dstChainId"]) == int(chain.id)
+            d for d in pending_data if int(d["srcChainId"]) == int(chain.id)
         ]
         local_logger.info(f"Get length: {len(pending_data)}")
         for d in pending_data:
             try:
-                tx = chain.get_transaction(d["dstTransactionId"])
-                info = tx.events["CachedSwapSaved"]
-                dv = (
-                    f'{info["chainId"]}|{info["srcAddress"]}|{info["nonce"]}|'
-                    f'{info["token"]}|{info["amountLD"]}|{info["payload"]}'
-                )
-                dk = str(hashlib.sha3_256(dv.encode()).digest().hex())
-                if dk in HAS_PROCESSED:
-                    continue
                 proxy_diamond = get_stargate_facet()
-                result: TransactionReceipt = proxy_diamond.sgReceive(
-                    info["chainId"],
-                    info["srcAddress"],
-                    info["nonce"],
-                    info["token"],
-                    info["amountLD"],
-                    info["payload"],
-                    {"from": account},
-                )
-                record_gas(
-                    d["srcTransactionId"],
-                    d["dstTransactionId"],
-                    result.txid,
-                    result.gas_used,
-                    result.gas_price,
-                    d["srcNet"],
-                    dst_net=network.show_active(),
-                )
-                HAS_PROCESSED[dk] = dv
+                tx = chain.get_transaction(d["srcTransactionId"])
+                dstGas = int(proxy_diamond.decode_input(tx.input)[-1][-2][-2])
+                if dstGas < 100000:
+                    local_logger.warning(f"{d['srcTransactionId']} not enough dst gas:{dstGas}!")
+                else:
+                    dst_storage[int(d['dstChainId'])].put(d)
             except:
+                print(111)
                 traceback.print_exc()
                 continue
         time.sleep(3 * 60)
 
 
+def process_v2(
+        dstSoDiamond: str,
+        dst_storage,
+):
+    account = get_account()
+
+    local_logger = logger.getChild(f"[v2|{network.show_active()}]")
+    local_logger.info("Starting process v2...")
+    local_logger.info(f"SoDiamond:{dstSoDiamond}")
+    while True:
+        d = dst_storage[chain.id].get()
+        try:
+            tx = chain.get_transaction(d["dstTransactionId"])
+            info = tx.events["CachedSwapSaved"]
+            dv = (
+                f'{info["chainId"]}|{info["srcAddress"]}|{info["nonce"]}|'
+                f'{info["token"]}|{info["amountLD"]}|{info["payload"]}'
+            )
+            dk = str(hashlib.sha3_256(dv.encode()).digest().hex())
+            if dk in HAS_PROCESSED:
+                continue
+            local_logger.info(f"Process {d['srcTransactionId']}")
+            proxy_diamond = get_stargate_facet()
+            result: TransactionReceipt = proxy_diamond.sgReceive(
+                info["chainId"],
+                info["srcAddress"],
+                info["nonce"],
+                info["token"],
+                info["amountLD"],
+                info["payload"],
+                {"from": account},
+            )
+            record_gas(
+                d["srcTransactionId"],
+                d["dstTransactionId"],
+                result.txid,
+                result.gas_used,
+                result.gas_price,
+                d["srcNet"],
+                dst_net=network.show_active(),
+            )
+            HAS_PROCESSED[dk] = dv
+        except:
+            traceback.print_exc()
+            continue
+        time.sleep(3 * 60)
+
+
 class Session(Process):
     def __init__(
-        self,
-        dstSoDiamond: str,
-        dstNet: str,
-        project_path: str,
-        group=None,
-        name=None,
-        daemon=None,
+            self,
+            dstSoDiamond: str,
+            dstNet: str,
+            project_path: str,
+            dst_storage: dict,
+            group=None,
+            name=None,
+            daemon=None,
     ):
         self.dstSoDiamond = dstSoDiamond
         self.dstNet = dstNet
         self.project_path = project_path
         super().__init__(
-            group=group, target=self.worker, name=name, args=(), daemon=daemon
+            group=group, target=self.worker, name=name, args=(dst_storage,), daemon=daemon
         )
         self.start()
+        time.sleep(5)
 
-    def worker(self):
+    def worker(self, dst_storage):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
         try:
@@ -197,9 +231,17 @@ class Session(Process):
         except:
             logger.error(f"Connect {self.dstNet} fail")
             return
-        t2 = threading.Thread(target=process_v2, args=(self.dstSoDiamond,))
+        t1 = threading.Thread(
+            target=process_v1, args=(self.dstSoDiamond, dst_storage)
+        )
+        t1.start()
+        t2 = threading.Thread(target=process_v2, args=(self.dstSoDiamond, dst_storage))
         t2.start()
         while True:
+            if not t1.is_alive():
+                if not network.is_connected():
+                    change_network(self.dstNet)
+                t1.start()
             if not t2.is_alive():
                 if not network.is_connected():
                     change_network(self.dstNet)
@@ -208,14 +250,14 @@ class Session(Process):
 
 
 def record_gas(
-    src_transaction: str,
-    dst_transaction1: str,
-    dst_transaction2: str,
-    actual_gas: int,
-    actual_gas_price: int,
-    src_net: str,
-    dst_net: str,
-    file_path=Path(__file__).parent.joinpath("gas"),
+        src_transaction: str,
+        dst_transaction1: str,
+        dst_transaction2: str,
+        actual_gas: int,
+        actual_gas_price: int,
+        src_net: str,
+        dst_net: str,
+        file_path=Path(__file__).parent.joinpath("gas"),
 ):
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -251,14 +293,15 @@ def main():
     set_start_method("spawn")
     project_path = Path(__file__).parent.parent.parent
     logger.info(f"Loading project...")
+    dst_storage = {
+        v["dstChainId"]: Queue()
+        for v in SUPPORTED_EVM
+    }
     for d in SUPPORTED_EVM:
         Session(
             dstSoDiamond=d["dstSoDiamond"],
             dstNet=d["dstNet"],
             name=d["dstNet"],
+            dst_storage=dst_storage,
             project_path=str(project_path),
         )
-
-
-def single_process():
-    process_v2(SUPPORTED_EVM[2]["dstSoDiamond"])
