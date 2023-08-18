@@ -31,8 +31,8 @@ networks:
             pool_address: "0x45310aDb1688a31F8e690dc4D56E0408214580C0"
             token_address: "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4"
           usdt:
-            pool_id: 6
-            decimals: 3
+            pool_id: 3
+            decimals: 6
             pool_address: "0xCfB8DFBdc45A26F9E0d928C233AC812EEF2D844D"
             token_address: "0x493257fd37edb34451f62edf8d2a0c418852ba4c"
           eth:
