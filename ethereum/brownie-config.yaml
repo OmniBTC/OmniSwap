@@ -1253,7 +1253,7 @@ networks:
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
         pools:
           usdc:
-            pool_id: 5
+            pool_id: 2
             decimals: 6
             pool_address: "0x09135a91F6cB6ED6DBdd947FC09a533B4F7AB84D"
             token_address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E"
