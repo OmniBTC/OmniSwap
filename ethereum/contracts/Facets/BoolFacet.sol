@@ -544,7 +544,7 @@ contract BoolFacet is
         }
     }
 
-    /// @dev Get so fee
+    /// @dev Get basic beneficiary
     function getBoolBasicBeneficiary() public view returns (address) {
         Storage storage s = getStorage();
         address soFee = appStorage.gatewaySoFeeSelectors[s.boolSwapRouter];
@@ -555,7 +555,7 @@ contract BoolFacet is
         }
     }
 
-    /// @dev Get so fee
+    /// @dev Get basic fee
     function getBoolBasicFee() public view returns (uint256) {
         Storage storage s = getStorage();
         address soFee = appStorage.gatewaySoFeeSelectors[s.boolSwapRouter];
