@@ -48,78 +48,21 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     deployed["DiamondLoupeFacet"] = DiamondLoupeFacet
     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
 
-    /// DexManagerFacet
-    artifact = await deployer.loadArtifact("DexManagerFacet");
-    contract = await deployer.deploy(artifact);
-    const DexManagerFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${DexManagerFacet}`);
-    deployed["DexManagerFacet"] = DexManagerFacet
+    /// LibSoFeeBoolV2
+    artifact = await deployer.loadArtifact("LibSoFeeBoolV2");
+    contract = await deployer.deploy(artifact, ["0xd3c21bcecceda1000000",
+    "0xb5e620f48000", "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"]);
+    const LibSoFeeBoolV2 = contract.address;
+    console.log(`${artifact.contractName} was deployed to ${LibSoFeeBoolV2}`);
+    deployed["LibSoFeeBoolV2"] = LibSoFeeBoolV2
     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
 
-    /// CelerFacet
-    artifact = await deployer.loadArtifact("CelerFacet");
-    contract = await deployer.deploy(artifact);
-    const CelerFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${CelerFacet}`);
-    deployed["CelerFacet"] = CelerFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// WithdrawFacet
-    artifact = await deployer.loadArtifact("WithdrawFacet");
-    contract = await deployer.deploy(artifact);
-    const WithdrawFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${WithdrawFacet}`);
-    deployed["WithdrawFacet"] = WithdrawFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// OwnershipFacet
-    artifact = await deployer.loadArtifact("OwnershipFacet");
-    contract = await deployer.deploy(artifact);
-    const OwnershipFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${OwnershipFacet}`);
-    deployed["OwnershipFacet"] = OwnershipFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// GenericSwapFacet
-    artifact = await deployer.loadArtifact("GenericSwapFacet");
-    contract = await deployer.deploy(artifact);
-    const GenericSwapFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${GenericSwapFacet}`);
-    deployed["GenericSwapFacet"] = GenericSwapFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// SerdeFacet
-    artifact = await deployer.loadArtifact("SerdeFacet");
-    contract = await deployer.deploy(artifact);
-    const SerdeFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${SerdeFacet}`);
-    deployed["SerdeFacet"] = SerdeFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    ///===== facet end ====
-
-    /// SoDiamond
-    artifact = await deployer.loadArtifact("SoDiamond");
-    contract = await deployer.deploy(artifact, [owner, deployed["DiamondCutFacet"]]);
-    const SoDiamond = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${SoDiamond}`);
-    deployed["SoDiamond"] = SoDiamond
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// LibSoFeeCelerV1
-    artifact = await deployer.loadArtifact("LibSoFeeCelerV1");
-    contract = await deployer.deploy(artifact);
-    const LibSoFeeCelerV1 = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${LibSoFeeCelerV1}`);
-    deployed["LibSoFeeCelerV1"] = LibSoFeeCelerV1
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// LibCorrectSwapV1
-    artifact = await deployer.loadArtifact("LibCorrectSwapV1");
-    contract = await deployer.deploy(artifact);
-    const LibCorrectSwapV1 = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${LibCorrectSwapV1}`);
-    deployed["LibCorrectSwapV1"] = LibCorrectSwapV1
+       /// BoolFacet
+    artifact = await deployer.loadArtifact("BoolFacet");
+    contract = await deployer.deploy(artifact, []);
+    const BoolFacet = contract.address;
+    console.log(`${artifact.contractName} was deployed to ${BoolFacet}`);
+    deployed["BoolFacet"] = BoolFacet
     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
 }
 

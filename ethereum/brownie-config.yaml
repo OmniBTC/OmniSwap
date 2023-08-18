@@ -1077,8 +1077,10 @@ networks:
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 1363636363636363
         pools:
-          busd:
+          usdc:
             pool_id: 2
             decimals: 18
             pool_address: "0x09135a91f6cb6ed6dbdd947fc09a533b4f7ab84d"
@@ -1251,6 +1253,8 @@ networks:
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 27322404371584700
         pools:
           usdc:
             pool_id: 2
@@ -1419,6 +1423,8 @@ networks:
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 526315789473684160
         pools:
           usdc:
             pool_id: 2
@@ -1564,6 +1570,8 @@ networks:
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
         pools:
           usdc:
             pool_id: 5
@@ -1697,6 +1705,8 @@ networks:
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
         pools:
           usdc:
             pool_id: 7
@@ -1858,6 +1868,8 @@ networks:
         router: "0x62e78B9C9A6d55C0B9dB554097DB4B9bd4dE6f4d"
         factory: "0xEAef1354819Fe385937f83a7a7eD017f36Ef6f56"
         messenger: "0x2Ff16760321af33A1D7b8bf7477fad0258eAE819"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
         pools:
           usdc:
             pool_id: 2
