@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISo} from "../Interfaces/ISo.sol";
 import {ICorrectSwap} from "../Interfaces/ICorrectSwap.sol";
-import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
+import {ILibSoFeeV2} from "../Interfaces/ILibSoFeeV2.sol";
 import {LibSwap} from "../Libraries/LibSwap.sol";
 import {LibAsset} from "../Libraries/LibAsset.sol";
 import {LibCross} from "../Libraries/LibCross.sol";
@@ -156,6 +156,19 @@ contract BoolFacet is
         uint256 boolSwapValue = isThroughNativePool
             ? boolFee + bridgeAmount
             : boolFee;
+
+        uint256 soBasicFee = getBoolBasicFee();
+        address soBasicBeneficiary = getBoolBasicBeneficiary();
+        if (soBasicBeneficiary != address(0x0) && soBasicFee > 0) {
+            require(msg.value >= boolSwapValue + soBasicFee, "NotEnoughValue");
+            LibAsset.transferAsset(
+                address(0x0),
+                payable(soBasicBeneficiary),
+                soData.amount
+            );
+        } else {
+            require(msg.value >= boolSwapValue, "NotEnoughValue");
+        }
 
         _startBridge(boolSwapData, boolSwapValue, bridgeAmount, payload);
 
@@ -516,7 +529,7 @@ contract BoolFacet is
         if (soFee == address(0x0)) {
             return 30000;
         } else {
-            return ILibSoFee(soFee).getTransferForGas();
+            return ILibSoFeeV2(soFee).getTransferForGas();
         }
     }
 
@@ -527,7 +540,29 @@ contract BoolFacet is
         if (soFee == address(0x0)) {
             return 0;
         } else {
-            return ILibSoFee(soFee).getFees(amount);
+            return ILibSoFeeV2(soFee).getFees(amount);
+        }
+    }
+
+    /// @dev Get so fee
+    function getBoolBasicBeneficiary() public view returns (address) {
+        Storage storage s = getStorage();
+        address soFee = appStorage.gatewaySoFeeSelectors[s.boolSwapRouter];
+        if (soFee == address(0x0)) {
+            return address(0x0);
+        } else {
+            return ILibSoFeeV2(soFee).getBasicBeneficiary();
+        }
+    }
+
+    /// @dev Get so fee
+    function getBoolBasicFee() public view returns (uint256) {
+        Storage storage s = getStorage();
+        address soFee = appStorage.gatewaySoFeeSelectors[s.boolSwapRouter];
+        if (soFee == address(0x0)) {
+            return 0;
+        } else {
+            return ILibSoFeeV2(soFee).getBasicFee();
         }
     }
 
