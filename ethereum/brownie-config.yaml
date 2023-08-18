@@ -1072,6 +1072,24 @@ networks:
     #          base_gas: 700000
     #          per_byte_gas: 68
     bridges:
+      bool:
+        chainid: 56
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 1363636363636363
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 18
+            pool_address: "0x09135a91f6cb6ed6dbdd947fc09a533b4f7ab84d"
+            token_address: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
+          usdt:
+            pool_id: 3
+            decimals: 18
+            pool_address: "0xAff2Aa237A3d9cAc177eC4202bF9700C3430000C"
+            token_address: "0x55d398326f99059fF775485246999027B3197955"
       celer:
         chainid: 56
         message_bus: "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b"
@@ -1230,6 +1248,24 @@ networks:
     #          base_gas: 700000
     #          per_byte_gas: 68
     bridges:
+      bool:
+        chainid: 43114
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 27322404371584700
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x09135a91F6cB6ED6DBdd947FC09a533B4F7AB84D"
+            token_address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E"
+          usdt:
+            pool_id: 1
+            decimals: 6
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
       celer:
         chainid: 43114
         message_bus: "0x5a926eeeafc4d217add17e9641e8ce23cd01ad57"
@@ -1387,6 +1423,8 @@ networks:
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 526315789473684160
         pools:
           usdc:
             pool_id: 2
@@ -1532,6 +1570,8 @@ networks:
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
         pools:
           usdc:
             pool_id: 5
@@ -1665,6 +1705,8 @@ networks:
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
         pools:
           usdc:
             pool_id: 7
@@ -1820,6 +1862,30 @@ networks:
         token_list: "https://docs.spooky.fi/Resources/ftm-token-addresses"
   zksync2-main:
     chainid: 324
+    bridges:
+      bool:
+        chainid: 324
+        router: "0x62e78B9C9A6d55C0B9dB554097DB4B9bd4dE6f4d"
+        factory: "0xEAef1354819Fe385937f83a7a7eD017f36Ef6f56"
+        messenger: "0x2Ff16760321af33A1D7b8bf7477fad0258eAE819"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x45310aDb1688a31F8e690dc4D56E0408214580C0"
+            token_address: "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4"
+          usdt:
+            pool_id: 3
+            decimals: 6
+            pool_address: "0xCfB8DFBdc45A26F9E0d928C233AC812EEF2D844D"
+            token_address: "0x493257fd37edb34451f62edf8d2a0c418852ba4c"
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x4Ee556c8076985F111F56e54B254fd045BB52848"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     token:
       weth:
         address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"

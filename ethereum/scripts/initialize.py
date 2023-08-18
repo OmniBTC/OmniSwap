@@ -17,14 +17,14 @@ from brownie import (
     SerdeFacet,
     LibSoFeeWormholeV1,
     BoolFacet,
-    LibSoFeeBoolV1,
     web3,
     CelerFacet,
     LibSoFeeCelerV1,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
     LibSoFeeCCTPV1,
-    CCTPFacet
+    CCTPFacet,
+    LibSoFeeBoolV2, config
 )
 from brownie.network import priority_fee, max_fee
 
@@ -253,6 +253,7 @@ def batch_set_bool_allowed_address(account, so_diamond):
 
     bool_facet.batchSetBoolAllowedAddresses(pool_addresses, allow, {"from": account})
 
+
 def initialize_cctp(account, so_diamond):
     proxy_cctp = Contract.from_abi("CCTPFacet", so_diamond.address, CCTPFacet.abi)
     net = network.show_active()
@@ -400,7 +401,7 @@ def initialize_dex_manager(account, so_diamond):
         get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
     )
     # proxy_dex.addFee(
-    #     get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
+    #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
     # )
     # proxy_dex.addFee(
     #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
@@ -572,20 +573,26 @@ def redeploy_bool():
 
     # so_fee = 1e-3
     # ray = 1e27
-    # LibSoFeeBoolV1.deploy(int(so_fee * ray), {"from": account})
+    # basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
+    # basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
+    # print(f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
+    # LibSoFeeBoolV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
 
     # 2. add bool's lib so fee to diamond
-    # proxy_dex = Contract.from_abi(
-    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    # )
-    # proxy_dex.addFee(
-    #     get_bool_router(), LibSoFeeBoolV1[-1].address, {"from": account}
-    # )
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    proxy_dex.addFee(
+        get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
+    )
 
-    remove_facet(BoolFacet)
+    try:
+        remove_facet(BoolFacet)
+    except:
+        pass
 
     # 3. deploy BoolFacet
-    BoolFacet.deploy({'from': account})
+    # BoolFacet.deploy({'from': account})
     add_cut([BoolFacet])
     initialize_bool(account, SoDiamond[-1])
     batch_set_bool_allowed_address(account, SoDiamond[-1])

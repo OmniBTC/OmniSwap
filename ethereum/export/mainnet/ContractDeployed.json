@@ -19,6 +19,7 @@
         "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
     },
     "avax-main": {
+        "BoolFacet": "0x5AB267E44F1A9c5CA11950cfD33DC8F61b135E62",
         "CCTPFacet": "0x0E4acb24eF6D0dc819e56085D698773Ec9285847",
         "CelerFacet": "0x13Ee92DFCa712CD3623b2A9ecF3A8f6723674AAA",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
@@ -31,6 +32,7 @@
         "LibSoFeeMultiChainV1": "0xce07B132324Cf55e98DE853e67ca9CC71977C444",
         "LibSoFeeStargateV1": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
         "LibSoFeeWormholeV1": "0xd3e0550D3e4Bc3E02C89377B1586261904F5E1db",
+        "LibSoFeeBoolV2": "0x869dA70C63bD97812295EB8970986262FDE74321",
         "MultiChainFacet": "0x85Ef04B9d1a95E897bc8AAC215c8CF3cA544B45c",
         "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
         "SerdeFacet": "0x73bdB15AAa8797a37cdfa236ca4FC9d6E5a223aD",
@@ -40,6 +42,7 @@
         "WormholeFacet": "0xFc6e7902EcDD5C2Ae7502e2F869f2213B4BF2249"
     },
     "bsc-main": {
+        "BoolFacet": "0xA96cacCf2e4366F0028CC3Dde8668Dd1E36B7904",
         "CelerFacet": "0xF7231a00E08904b064Af8d9436d37286c36751E1",
         "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
         "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
@@ -50,6 +53,7 @@
         "LibSoFeeMultiChainV1": "0xa9f63C7D66c4916848A7f9BDfDbacFF27ed013e0",
         "LibSoFeeStargateV1": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
         "LibSoFeeWormholeV1": "0xda7bc7A71142b6283BEE9206FE2B13c5faF5193B",
+        "LibSoFeeBoolV2": "0xcc6b0e1CE41a5cF58BCe8D9219D806d7044f32f2",
         "MultiChainFacet": "0x5FA85E2C30950a86Be226442D41B0C682135a7Cd",
         "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
         "SerdeFacet": "0x99e010315c78FC03451352A4766243D163fC0e6A",
@@ -116,6 +120,7 @@
         "WormholeFacet": "0x184b4176aebc4598190aa2FFAFFa86c07D2102C7"
     },
     "zksync2-main": {
+        "BoolFacet": "0x01765a7309B6C1085d73c1F31424E720cC921457",
         "CelerFacet": "0x1A8BEEF9299233811C3a9936748e14c8C77876D2",
         "DexManagerFacet": "0xaf641eE8f18e93aF201f7f136E01eD5C9F9f6E6c",
         "DiamondCutFacet": "0x834d27FC014c5D91a2586E5725dE11D6Ef8B2BCD",
@@ -123,6 +128,7 @@
         "GenericSwapFacet": "0xf1bAab57ff6911772B869EA8c0B1ECb49b2E1662",
         "LibCorrectSwapV1": "0xD7E5b59174DD0b417717172340eE0768B4b10820",
         "LibSoFeeCelerV1": "0x8bB2d077D0911459d80d5010f85EBa2232ca6d25",
+        "LibSoFeeBoolV2": "0xABf86bd9f5c6385992B80AcC0286f4B176313a51",
         "OwnershipFacet": "0x61e0feE9Af073f28F017BB497a7152f00db9b0dC",
         "SerdeFacet": "0x73a25CA98F9268114b6501cf22CA911fdba7cb6B",
         "SoDiamond": "0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577",
