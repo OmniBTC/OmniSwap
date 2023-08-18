@@ -164,7 +164,7 @@ contract BoolFacet is
             LibAsset.transferAsset(
                 address(0x0),
                 payable(soBasicBeneficiary),
-                soData.amount
+                soBasicFee
             );
         } else {
             require(msg.value >= boolSwapValue, "NotEnoughValue");
