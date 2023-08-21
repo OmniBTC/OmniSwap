@@ -589,7 +589,7 @@ def process_vaa(
                         wormhole_fee,
                         hex_str_to_vector_u8(vaa_str),
                         clock,
-                        type_arguments=[cross_asset_id],
+                        type_arguments=[str(cross_asset_id)],
                         gas_price=dst_max_gas_price
                     )
                 else:
@@ -598,6 +598,10 @@ def process_vaa(
             receiver = wormhole_data[2][1]
             local_logger.info(f"Compensate to:{receiver}")
             assert final_asset_id is not None
+            if isinstance(ty_args, list) and len(ty_args) > 0:
+                cross_asset_id = ty_args[0]
+            else:
+                cross_asset_id = final_asset_id
             result = sui_package.wormhole_facet.complete_so_swap_by_admin(
                 storage,
                 facet_manager,
@@ -607,7 +611,7 @@ def process_vaa(
                 hex_str_to_vector_u8(vaa_str),
                 str(receiver),
                 clock,
-                type_arguments=[final_asset_id],
+                type_arguments=[str(cross_asset_id)],
                 gas_price=dst_max_gas_price
             )
         gas_price = int(result["transaction"]["data"]['gasData']['price'])
