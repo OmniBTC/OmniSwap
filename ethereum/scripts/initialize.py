@@ -571,12 +571,12 @@ def redeploy_bool():
 
     # 1. deploy bool's lib so fee
 
-    # so_fee = 1e-3
-    # ray = 1e27
-    # basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
-    # basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
-    # print(f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
-    # LibSoFeeBoolV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
+    so_fee = 1e-3
+    ray = 1e27
+    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
+    basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
+    print(f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
+    LibSoFeeBoolV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
 
     # 2. add bool's lib so fee to diamond
     proxy_dex = Contract.from_abi(
@@ -592,7 +592,7 @@ def redeploy_bool():
         pass
 
     # 3. deploy BoolFacet
-    # BoolFacet.deploy({'from': account})
+    BoolFacet.deploy({'from': account})
     add_cut([BoolFacet])
     initialize_bool(account, SoDiamond[-1])
     batch_set_bool_allowed_address(account, SoDiamond[-1])
