@@ -21,9 +21,9 @@ def main(net: str = None):
     p.load_config()
     change_network(net)
     deployed_contract = [
-        "CelerFacet",
-        "GenericSwapFacet",
-        "SerdeFacet",
+        "BoolFacet",
+        # "GenericSwapFacet",
+        # "SerdeFacet",
         # "SoDiamond",
         # "DiamondCutFacet",
         # "DiamondLoupeFacet",
@@ -40,4 +40,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main("zkevm-main")
+    main("optimism-main")
