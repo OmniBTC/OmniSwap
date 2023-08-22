@@ -2049,7 +2049,7 @@ module omniswap::wormhole_facet {
             );
 
             let dst_output_amount = coin::value(&coin_x);
-            let src_remain_amount = coin::value(&coin_y);
+            let src_remain_amount = coin::value(&left_coin_y);
             event::emit(
                 SwapEvent {
                     src_token,
