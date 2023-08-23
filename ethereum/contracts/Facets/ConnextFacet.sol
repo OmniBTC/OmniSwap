@@ -14,7 +14,7 @@ import "../Interfaces/ICorrectSwap.sol";
 import "../Interfaces/IConnext.sol";
 import "../Interfaces/IStableSwap.sol";
 import "../Interfaces/IXReceiver.sol";
-import "../Interfaces/ILibSoFee.sol";
+import "../Interfaces/ILibSoFeeV2.sol";
 import "../Helpers/Swapper.sol";
 import "../Helpers/ReentrancyGuard.sol";
 import "../Errors/GenericErrors.sol";
@@ -118,7 +118,22 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             );
         }
         bytes memory payload = encodeConnextPayload(soDataNo, swapDataDstNo);
-        _checkRelayFee(soData, connextData, bridgeAmount);
+
+        uint256 soBasicFee = getConnextBasicFee();
+        address soBasicBeneficiary = getConnextBasicBeneficiary();
+        if (soBasicBeneficiary == address(0x0)) {
+            soBasicFee = 0;
+        }
+
+        _checkRelayFee(soData, connextData, bridgeAmount, soBasicFee);
+
+        if (soBasicFee > 0) {
+            LibAsset.transferAsset(
+                address(0x0),
+                payable(soBasicBeneficiary),
+                soBasicFee
+            );
+        }
 
         _startBridge(connextData, bridgeAmount, payload);
 
@@ -194,7 +209,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         if (soFee == address(0x0)) {
             return 0;
         } else {
-            return ILibSoFee(soFee).getFees(amount);
+            return ILibSoFeeV2(soFee).getFees(amount);
         }
     }
 
@@ -431,22 +446,30 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     function _checkRelayFee(
         SoData memory soData,
         ConnextData calldata connextData,
-        uint256 bridgeAmount
+        uint256 bridgeAmount,
+        uint256 soBasicFee
     ) private view {
         if (connextData.isNativeRelayerFee) {
             if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
                 require(
-                    msg.value == soData.amount.add(connextData.relayFee),
+                    msg.value ==
+                        soData.amount.add(connextData.relayFee).add(soBasicFee),
                     "CheckNativeFail"
                 );
             } else {
-                require(msg.value == connextData.relayFee, "CheckNativeFail");
+                require(
+                    msg.value == connextData.relayFee.add(soBasicFee),
+                    "CheckNativeFail"
+                );
             }
         } else {
             if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-                require(msg.value == soData.amount, "CheckFail");
+                require(
+                    msg.value == soData.amount.add(soBasicFee),
+                    "CheckFail"
+                );
             } else {
-                require(msg.value == 0, "CheckFail");
+                require(msg.value == soBasicFee, "CheckFail");
             }
             require(bridgeAmount > connextData.relayFee, "CheckNotEnough");
         }
@@ -514,6 +537,28 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
                     connextData.relayFee
                 );
             }
+        }
+    }
+
+    /// @dev Get basic beneficiary
+    function getConnextBasicBeneficiary() public view returns (address) {
+        Storage storage s = getStorage();
+        address soFee = appStorage.gatewaySoFeeSelectors[s.connext];
+        if (soFee == address(0x0)) {
+            return address(0x0);
+        } else {
+            return ILibSoFeeV2(soFee).getBasicBeneficiary();
+        }
+    }
+
+    /// @dev Get basic fee
+    function getConnextBasicFee() public view returns (uint256) {
+        Storage storage s = getStorage();
+        address soFee = appStorage.gatewaySoFeeSelectors[s.connext];
+        if (soFee == address(0x0)) {
+            return 0;
+        } else {
+            return ILibSoFeeV2(soFee).getBasicFee();
         }
     }
 
