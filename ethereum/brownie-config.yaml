@@ -1039,6 +1039,8 @@ networks:
       connext:
         chainid: 56
         domain_id: 6450786
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 1363636363636363
         connext: "0xCd401c10afa37d641d2F594852DA94C700e4F2CE"
         token:
           usdc:
@@ -1359,6 +1361,8 @@ networks:
       connext:
         chainid: 137
         domain_id: 1886350457
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 526315789473684160
         connext: "0x11984dc4465481512eb5b777E44061C158CF2259"
         token:
           usdc:
@@ -1526,6 +1530,8 @@ networks:
       connext:
         chainid: 42161
         domain_id: 1634886255
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
         connext: "0xEE9deC2712cCE65174B561151701Bf54b99C24C8"
         token:
           usdc:
@@ -1665,6 +1671,8 @@ networks:
       connext:
         chainid: 10
         domain_id: 1869640809
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
         connext: "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA"
         token:
           usdc:

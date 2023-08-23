@@ -22,7 +22,8 @@ from brownie import (
     MultiChainFacet,
     LibSoFeeMultiChainV1,
     LibSoFeeConnextV1,
-    ConnextFacet
+    LibSoFeeConnextV2,
+    ConnextFacet, config
 )
 from brownie.network import priority_fee
 
@@ -466,7 +467,27 @@ def redeploy_generic_swap():
 def redeploy_connext():
     account = get_account()
 
-    remove_facet(ConnextFacet)
+    # 1. deploy connext's lib so fee
+
+    so_fee = 1e-3
+    ray = 1e27
+    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["connext"]["basic_beneficiary"]
+    basic_fee = config["networks"][network.show_active()]["bridges"]["connext"]["basic_fee"]
+    print(f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
+    LibSoFeeConnextV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
+
+    # 2. add connext's lib so fee to diamond
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    proxy_dex.addFee(
+        get_connext(), LibSoFeeConnextV2[-1].address, {"from": account}
+    )
+
+    try:
+        remove_facet(ConnextFacet)
+    except:
+        pass
 
     ConnextFacet.deploy({"from": account})
     add_cut([ConnextFacet])
