@@ -1393,8 +1393,11 @@ module omniswap::wormhole_facet {
 
         // X is quote asset, Y is base asset
         // use base asset to cross chain
-        let swap_data_src = cross::decode_normalized_swap_data(&mut swap_data_src);
-        assert!(vector::length(&swap_data_src) > 0, EMULTISWAP_STEP);
+        let swap_data_src = if (vector::is_empty(&swap_data_src)) {
+            vector::empty<NormalizedSwapData>()
+        }else {
+            cross::decode_normalized_swap_data(&mut swap_data_src)
+        };
 
         let multi_swap_data = MultiSwapData<X> {
             receiver: tx_context::sender(ctx),
