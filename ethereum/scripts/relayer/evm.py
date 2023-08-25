@@ -232,7 +232,7 @@ def process_v2(
                 )
                 if vaa is None:
                     continue
-                if int(vaa.get("toChain", -1)) != dstWormholeChainId:
+                if vaa.get("toChain", -1) is not None and int(vaa.get("toChain", -1)) != dstWormholeChainId:
                     continue
                 vaa = vaa["hexString"]
             except Exception as e:
