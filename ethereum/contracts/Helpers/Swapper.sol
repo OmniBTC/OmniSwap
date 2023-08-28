@@ -9,7 +9,7 @@ import {LibAsset} from "../Libraries/LibAsset.sol";
 import {LibUtil} from "../Libraries/LibUtil.sol";
 import {LibStorage} from "../Libraries/LibStorage.sol";
 import {LibAsset} from "../Libraries/LibAsset.sol";
-import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided, NotSupportedSwapRouter, NotEnoughMinAmount} from "../Errors/GenericErrors.sol";
+import {InvalidAmount, ContractCallNotAllowed, NoSwapDataProvided, NotSupportedSwapRouter} from "../Errors/GenericErrors.sol";
 
 /// @title Swapper
 /// @notice Abstract contract to provide swap functionality
@@ -17,6 +17,26 @@ contract Swapper is ISo {
     /// Storage ///
 
     LibStorage internal appStorage;
+
+    struct CacheSwapInnerParam {
+        LibSwap.SwapData currentSwapData;
+        uint256 fromAmount;
+        uint256 minAmount;
+        uint256 swapBalance;
+        address receivedToken;
+    }
+
+    struct CacheSwapParam {
+        address correctSwap;
+        uint256[] sliceIndex;
+        uint256 deltaFromAmount;
+        uint256 deltaMinAmount;
+        uint256 startIndex;
+        uint256 endIndex;
+        bool flag;
+        uint256 fromAmount;
+        uint256 minAmount;
+    }
 
     /// Modifiers ///
 
@@ -52,11 +72,16 @@ contract Swapper is ISo {
         if (nSwaps == 0) revert NoSwapDataProvided();
         address finalTokenId = swapData[swapData.length - 1].receivingAssetId;
         uint256 swapBalance = LibAsset.getOwnBalance(finalTokenId);
-        uint256 minAmount = _executeSwapsV2(soData, swapData);
+        _executeSwapsV2(soData, swapData);
         swapBalance = LibAsset.getOwnBalance(finalTokenId) - swapBalance;
         if (swapBalance == 0) revert InvalidAmount();
-        if (swapBalance < minAmount) revert NotEnoughMinAmount();
         return swapBalance;
+    }
+
+    function swap(bytes32 transactionId, LibSwap.SwapData memory _swapData)
+        external
+    {
+        LibSwap.swap(transactionId, _swapData);
     }
 
     /// Internal Methods ///
@@ -123,41 +148,104 @@ contract Swapper is ISo {
     /// @dev Executes swaps and checks that DEXs used are in the allowList
     /// @param soData So tracking data
     /// @param swapData Array of data used to execute swaps
-    function _executeSwaps(
+    /// @param startIndex Start index used to execute swaps
+    /// @param endIndex End index used to execute swaps
+    /// @param deltaFromAmount Delta fromAmount used to execute swaps,
+    /// @param deltaMinAmount Delta minAmount used to execute swaps,
+    /// @param correctSwap Correct swap address
+    function _executeSwapsInner(
         SoData memory soData,
-        LibSwap.SwapData[] calldata swapData
-    ) private {
-        LibSwap.SwapData memory currentSwapData = swapData[0];
-        for (uint256 i = 0; i < swapData.length; i++) {
-            address receivedToken = currentSwapData.receivingAssetId;
-            uint256 swapBalance = LibAsset.getOwnBalance(receivedToken);
+        LibSwap.SwapData[] calldata swapData,
+        uint256 startIndex,
+        uint256 endIndex,
+        uint256 deltaFromAmount,
+        uint256 deltaMinAmount,
+        address correctSwap
+    )
+        private
+        returns (
+            bool,
+            uint256,
+            uint256
+        )
+    {
+        CacheSwapInnerParam memory cache;
+        cache.currentSwapData = swapData[startIndex];
+        cache.fromAmount = cache.currentSwapData.fromAmount;
+        (cache.minAmount, ) = ICorrectSwap(correctSwap).fixMinAmount(
+            swapData[endIndex - 1].callData,
+            deltaMinAmount
+        );
+        cache.swapBalance = cache.currentSwapData.fromAmount + deltaFromAmount;
+
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            if (i + 1 == endIndex && deltaMinAmount > 0) {
+                (, cache.currentSwapData.callData) = ICorrectSwap(correctSwap)
+                    .fixMinAmount(
+                        cache.currentSwapData.callData,
+                        deltaMinAmount
+                    );
+            }
+            if (cache.swapBalance != cache.currentSwapData.fromAmount) {
+                cache.currentSwapData.callData = ICorrectSwap(correctSwap)
+                    .correctSwap(
+                        cache.currentSwapData.callData,
+                        cache.swapBalance
+                    );
+            }
+
+            cache.receivedToken = cache.currentSwapData.receivingAssetId;
+            cache.swapBalance = LibAsset.getOwnBalance(cache.receivedToken);
 
             if (
-                !(appStorage.dexAllowlist[currentSwapData.approveTo] &&
-                    appStorage.dexAllowlist[currentSwapData.callTo] &&
+                !(appStorage.dexAllowlist[cache.currentSwapData.approveTo] &&
+                    appStorage.dexAllowlist[cache.currentSwapData.callTo] &&
                     appStorage.dexFuncSignatureAllowList[
                         bytes32(
-                            LibUtil.getSlice(currentSwapData.callData, 0, 4)
+                            LibUtil.getSlice(
+                                cache.currentSwapData.callData,
+                                0,
+                                4
+                            )
                         )
                     ])
             ) revert ContractCallNotAllowed();
 
-            LibSwap.swap(soData.transactionId, currentSwapData);
+            try
+                this.swap(soData.transactionId, cache.currentSwapData)
+            {} catch {
+                return (false, cache.fromAmount, cache.minAmount);
+            }
 
-            swapBalance = LibAsset.getOwnBalance(receivedToken) - swapBalance;
+            cache.swapBalance =
+                LibAsset.getOwnBalance(cache.receivedToken) -
+                cache.swapBalance;
 
             if (i + 1 < swapData.length) {
-                currentSwapData = swapData[i + 1];
-                address correctSwap = appStorage.correctSwapRouterSelectors;
-                if (correctSwap == address(0)) revert NotSupportedSwapRouter();
-                currentSwapData.fromAmount = swapBalance;
-                currentSwapData.callData = ICorrectSwap(correctSwap)
-                    .correctSwap(
-                        currentSwapData.callData,
-                        currentSwapData.fromAmount
-                    );
+                cache.currentSwapData = swapData[i + 1];
             }
         }
+        return (true, cache.fromAmount, cache.minAmount);
+    }
+
+    /// @dev Executes swaps and checks that DEXs used are in the allowList
+    /// @param soData So tracking data
+    /// @param swapData Array of data used to execute swaps
+    function _executeSwaps(
+        SoData memory soData,
+        LibSwap.SwapData[] calldata swapData
+    ) private {
+        address correctSwap = appStorage.correctSwapRouterSelectors;
+        if (correctSwap == address(0)) revert NotSupportedSwapRouter();
+        _executeSwapsInner(
+            soData,
+            swapData,
+            0,
+            swapData.length,
+            0,
+            0,
+            correctSwap
+        );
     }
 
     function _findSwapSlice(LibSwap.SwapData[] calldata swapData)
@@ -188,61 +276,38 @@ contract Swapper is ISo {
     function _executeSwapsV2(
         SoData memory soData,
         LibSwap.SwapData[] calldata swapData
-    ) private returns (uint256) {
-        address correctSwap = appStorage.correctSwapRouterSelectors;
-        if (correctSwap == address(0)) revert NotSupportedSwapRouter();
-        (uint256 minAmount, bytes memory swapCallData) = ICorrectSwap(
-            correctSwap
-        ).fixMinAmountZero(swapData[swapData.length - 1].callData);
-
-        uint256[] memory sliceIndex = _findSwapSlice(swapData);
-        for (uint256 k = 0; k < sliceIndex.length; k++) {
-            uint256 endIndex;
-            if (k + 1 == sliceIndex.length) {
-                endIndex = swapData.length;
+    ) private {
+        CacheSwapParam memory cache;
+        cache.correctSwap = appStorage.correctSwapRouterSelectors;
+        if (cache.correctSwap == address(0)) revert NotSupportedSwapRouter();
+        cache.sliceIndex = _findSwapSlice(swapData);
+        for (uint256 k = 0; k < cache.sliceIndex.length; k++) {
+            cache.startIndex = cache.sliceIndex[k];
+            if (k + 1 == cache.sliceIndex.length) {
+                cache.endIndex = swapData.length;
             } else {
-                endIndex = sliceIndex[k + 1];
+                cache.endIndex = cache.sliceIndex[k + 1];
             }
-            LibSwap.SwapData memory currentSwapData = swapData[sliceIndex[k]];
-            for (uint256 i = sliceIndex[k]; i < endIndex; i++) {
-                address receivedToken = currentSwapData.receivingAssetId;
-                uint256 swapBalance = LibAsset.getOwnBalance(receivedToken);
-
-                if (
-                    !(appStorage.dexAllowlist[currentSwapData.approveTo] &&
-                        appStorage.dexAllowlist[currentSwapData.callTo] &&
-                        appStorage.dexFuncSignatureAllowList[
-                            bytes32(
-                                LibUtil.getSlice(currentSwapData.callData, 0, 4)
-                            )
-                        ])
-                ) revert ContractCallNotAllowed();
-
-                LibSwap.swap(soData.transactionId, currentSwapData);
-
-                swapBalance =
-                    LibAsset.getOwnBalance(receivedToken) -
-                    swapBalance;
-
-                if (i + 1 < swapData.length) {
-                    currentSwapData = swapData[i + 1];
-                    currentSwapData.fromAmount = swapBalance;
-                    if (i + 1 == swapData.length - 1) {
-                        currentSwapData.callData = ICorrectSwap(correctSwap)
-                            .correctSwap(
-                                swapCallData,
-                                currentSwapData.fromAmount
-                            );
-                    } else {
-                        currentSwapData.callData = ICorrectSwap(correctSwap)
-                            .correctSwap(
-                                currentSwapData.callData,
-                                currentSwapData.fromAmount
-                            );
-                    }
-                }
+            (
+                bool flag,
+                uint256 fromAmount,
+                uint256 minAmount
+            ) = _executeSwapsInner(
+                    soData,
+                    swapData,
+                    cache.startIndex,
+                    cache.endIndex,
+                    cache.deltaFromAmount,
+                    cache.deltaMinAmount,
+                    cache.correctSwap
+                );
+            if (!flag) {
+                cache.deltaFromAmount += fromAmount;
+                cache.deltaMinAmount += minAmount;
+            } else {
+                cache.deltaFromAmount = 0;
+                cache.deltaMinAmount = 0;
             }
         }
-        return minAmount;
     }
 }

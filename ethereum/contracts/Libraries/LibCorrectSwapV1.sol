@@ -75,8 +75,8 @@ contract LibCorrectSwapV1 {
         return tryBasicCorrectSwap(_data, _amount);
     }
 
-    // @dev Fix min amount into zero
-    function fixMinAmountZero(bytes calldata _data)
+    // @dev Fix min amount
+    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
         external
         view
         returns (uint256, bytes memory)
@@ -91,7 +91,13 @@ contract LibCorrectSwapV1 {
             ) = abi.decode(_data[:4], (uint256, address[], address, uint256));
             return (
                 _amountOutMin,
-                abi.encodeWithSelector(sig, 0, _path, _to, _deadline)
+                abi.encodeWithSelector(
+                    sig,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
             );
         } else if (sig == _FUNC3 || sig == _FUNC4 || sig == _FUNC5) {
             (
@@ -106,7 +112,14 @@ contract LibCorrectSwapV1 {
                 );
             return (
                 _amountOutMin,
-                abi.encodeWithSelector(sig, _amount, 0, _path, _to, _deadline)
+                abi.encodeWithSelector(
+                    sig,
+                    _amount,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
             );
         } else if (sig == _FUNC6) {
             ISwapRouter.ExactInputParams memory params = abi.decode(
@@ -114,7 +127,7 @@ contract LibCorrectSwapV1 {
                 (ISwapRouter.ExactInputParams)
             );
             uint256 _amountOutMin = params.amountOutMinimum;
-            params.amountOutMinimum = 0;
+            params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
             return (_amountOutMin, abi.encodeWithSelector(sig, params));
         } else if (sig == _FUNC7) {
             (
@@ -127,7 +140,12 @@ contract LibCorrectSwapV1 {
                 );
             return (
                 _amountOutMin,
-                abi.encodeWithSelector(sig, _paths, 0, _deadline)
+                abi.encodeWithSelector(
+                    sig,
+                    _paths,
+                    _amountOutMin + _deltaMinAmount,
+                    _deadline
+                )
             );
         } else if (sig == _FUNC8) {
             (
@@ -142,7 +160,14 @@ contract LibCorrectSwapV1 {
                 );
             return (
                 _amountOutMin,
-                abi.encodeWithSelector(sig, 0, _path, _to, _deadline, _stable)
+                abi.encodeWithSelector(
+                    sig,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline,
+                    _stable
+                )
             );
         } else if (sig == _FUNC9 || sig == _FUNC10) {
             (
@@ -161,7 +186,7 @@ contract LibCorrectSwapV1 {
                 abi.encodeWithSelector(
                     sig,
                     _amount,
-                    0,
+                    _amountOutMin + _deltaMinAmount,
                     _path,
                     _to,
                     _deadline,
@@ -174,7 +199,7 @@ contract LibCorrectSwapV1 {
                 (IQuickSwapRouter.ExactInputParams)
             );
             uint256 _amountOutMin = params.amountOutMinimum;
-            params.amountOutMinimum = 0;
+            params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
             return (_amountOutMin, abi.encodeWithSelector(sig, params));
         }
 
