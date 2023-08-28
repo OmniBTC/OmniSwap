@@ -173,8 +173,12 @@ contract LibCorrectSwapV1 {
             fromAmountSum = fromAmountSum + paths[i].amountIn;
         }
 
-        for (uint256 i = 0; i < paths.length; i++) {
-            paths[i].amountIn = (_amount * paths[i].amountIn) / fromAmountSum;
+        if (fromAmountSum > 0) {
+            for (uint256 i = 0; i < paths.length; i++) {
+                paths[i].amountIn =
+                    (_amount * paths[i].amountIn) /
+                    fromAmountSum;
+            }
         }
 
         return
