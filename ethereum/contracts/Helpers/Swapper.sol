@@ -20,32 +20,6 @@ contract Swapper is ISo {
 
     /// Modifiers ///
 
-    /// @dev Sends any leftover balances back to the user
-    modifier noLeftovers(LibSwap.SwapData[] calldata swapData) {
-        uint256 nSwaps = swapData.length;
-        if (nSwaps != 1) {
-            uint256[] memory initialBalances = _fetchBalances(swapData);
-            address finalAsset = swapData[nSwaps - 1].receivingAssetId;
-            uint256 curBalance = 0;
-
-            _;
-
-            for (uint256 i = 0; i < nSwaps - 1; i++) {
-                address curAsset = swapData[i].receivingAssetId;
-                if (curAsset == finalAsset) continue; // Handle multi-to-one swaps
-                curBalance =
-                    LibAsset.getOwnBalance(curAsset) -
-                    initialBalances[i];
-                if (curBalance > 0)
-                    LibAsset.transferAsset(
-                        curAsset,
-                        payable(msg.sender),
-                        curBalance
-                    );
-            }
-        } else _;
-    }
-
     /// External Methods ///
 
     /// @dev Validates input before executing swaps
@@ -270,20 +244,5 @@ contract Swapper is ISo {
             }
         }
         return minAmount;
-    }
-
-    /// @dev Fetches balances of tokens to be swapped before swapping.
-    /// @param swapData Array of data used to execute swaps
-    /// @return uint256[] Array of token balances.
-    function _fetchBalances(LibSwap.SwapData[] calldata swapData)
-        private
-        view
-        returns (uint256[] memory)
-    {
-        uint256 length = swapData.length;
-        uint256[] memory balances = new uint256[](length);
-        for (uint256 i = 0; i < length; i++)
-            balances[i] = LibAsset.getOwnBalance(swapData[i].receivingAssetId);
-        return balances;
     }
 }
