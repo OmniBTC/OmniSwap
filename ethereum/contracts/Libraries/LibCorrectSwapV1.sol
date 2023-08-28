@@ -75,6 +75,60 @@ contract LibCorrectSwapV1 {
         return tryBasicCorrectSwap(_data, _amount);
     }
 
+    // @dev Get min amount
+    function getMinAmount(bytes calldata _data, uint256 _amount)
+        external
+        view
+        returns (uint256)
+    {
+        bytes4 sig = bytes4(_data[:4]);
+        if (sig == _FUNC1 || sig == _FUNC2) {
+            (uint256 _amountOutMin, , , ) = abi.decode(
+                _data[4:],
+                (uint256, address[], address, uint256)
+            );
+            return _amountOutMin;
+        } else if (sig == _FUNC3 || sig == _FUNC4 || sig == _FUNC5) {
+            (, uint256 _amountOutMin, , , ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, address[], address, uint256)
+            );
+            return _amountOutMin;
+        } else if (sig == _FUNC6) {
+            ISwapRouter.ExactInputParams memory params = abi.decode(
+                _data[4:],
+                (ISwapRouter.ExactInputParams)
+            );
+            return params.amountOutMinimum;
+        } else if (sig == _FUNC7) {
+            (, uint256 amountOutMin, ) = abi.decode(
+                _data[4:],
+                (ISyncSwapRouter.SwapPath[], uint256, uint256)
+            );
+            return amountOutMin;
+        } else if (sig == _FUNC8) {
+            (uint256 _amountOutMin, , , , ) = abi.decode(
+                _data[4:],
+                (uint256, address[], address, uint256, bool[])
+            );
+            return _amountOutMin;
+        } else if (sig == _FUNC9 || sig == _FUNC10) {
+            (, uint256 _amountOutMin, , , , ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, address[], address, uint256, bool[])
+            );
+            return _amountOutMin;
+        } else if (sig == _FUNC11) {
+            IQuickSwapRouter.ExactInputParams memory params = abi.decode(
+                _data[4:],
+                (IQuickSwapRouter.ExactInputParams)
+            );
+            return params.amountOutMinimum;
+        }
+
+        return 0;
+    }
+
     function tryBasicCorrectSwap(bytes calldata _data, uint256 _amount)
         public
         view
