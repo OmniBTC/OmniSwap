@@ -2,55 +2,39 @@
 
 pragma solidity 0.8.13;
 
+import {IUniswapV2Router01} from "../Interfaces/IUniswapV2Router01.sol";
+import {IUniswapV2Router01AVAX} from "../Interfaces/IUniswapV2Router01AVAX.sol";
 import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
 import {ISyncSwapRouter} from "../Interfaces/ISyncSwapRouter.sol";
 import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
 import {IQuickSwapRouter} from "../Interfaces/IQuickSwapRouter.sol";
 
 contract LibCorrectSwapV1 {
-    // Exact search for supported function signatures
+    // UniswapV2
     bytes4 private constant _FUNC1 =
-        bytes4(
-            keccak256(
-                "swapExactETHForTokens(uint256,address[],address,uint256)"
-            )
-        );
+        IUniswapV2Router01.swapExactETHForTokens.selector;
     bytes4 private constant _FUNC2 =
-        bytes4(
-            keccak256(
-                "swapExactAVAXForTokens(uint256,address[],address,uint256)"
-                "swapExactAVAXForTokens(uint256,address[],address,uint256)"
-            )
-        );
+        IUniswapV2Router01AVAX.swapExactAVAXForTokens.selector;
     bytes4 private constant _FUNC3 =
-        bytes4(
-            keccak256(
-                "swapExactTokensForETH(uint256,uint256,address[],address,uint256)"
-            )
-        );
+        IUniswapV2Router01.swapExactTokensForETH.selector;
     bytes4 private constant _FUNC4 =
-        bytes4(
-            keccak256(
-                "swapExactTokensForAVAX(uint256,uint256,address[],address,uint256)"
-            )
-        );
+        IUniswapV2Router01AVAX.swapExactTokensForAVAX.selector;
     bytes4 private constant _FUNC5 =
-        bytes4(
-            keccak256(
-                "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)"
-            )
-        );
+        IUniswapV2Router01.swapExactTokensForTokens.selector;
+
+    // UniswapV3
     bytes4 private constant _FUNC6 = ISwapRouter.exactInput.selector;
 
+    // zksync,Syncswap
     bytes4 private constant _FUNC7 = ISyncSwapRouter.swap.selector;
 
+    // zksync,Muteswap
     bytes4 private constant _FUNC8 = IMuteRouter.swapExactETHForTokens.selector;
-
     bytes4 private constant _FUNC9 = IMuteRouter.swapExactTokensForETH.selector;
-
     bytes4 private constant _FUNC10 =
         IMuteRouter.swapExactTokensForTokens.selector;
 
+    // QuickswapV3
     bytes4 private constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
 
     //---------------------------------------------------------------------------
