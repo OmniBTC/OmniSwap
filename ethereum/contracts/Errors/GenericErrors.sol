@@ -16,3 +16,4 @@ error NoTransferToNullAddress(); // 0x21f74345
 error NativeAssetTransferFailed(); // 0x5a046737
 error InvalidContract(); // 0x6eefed20
 error InvalidConfig(); // 0x35be3ac8
+error NotEnoughMinAmount();

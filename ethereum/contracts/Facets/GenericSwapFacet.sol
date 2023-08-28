@@ -43,7 +43,7 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
                 swapData[0].fromAmount
             );
         }
-        uint256 postSwapBalance = this.executeAndCheckSwaps(soData, swapData);
+        uint256 postSwapBalance = this.executeAndCheckSwapsV2(soData, swapData);
         address receivingAssetId = swapData[swapData.length - 1]
             .receivingAssetId;
         transferUnwrappedAsset(
