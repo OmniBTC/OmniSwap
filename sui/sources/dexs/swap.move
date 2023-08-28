@@ -137,7 +137,7 @@ module omniswap::swap {
             flash
         );
 
-        let min_amount = repay_amount * RAY / input_amount * min_amount / RAY;
+        let min_amount = (((repay_amount as u256) * (RAY as u256) / (input_amount as u256) * (min_amount as u256) / (RAY as u256)) as u64);
         let swap_amount = balance::value(&base);
         assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
         (coin::from_balance(base, ctx), coin::from_balance(quote, ctx), swap_amount)
@@ -194,7 +194,7 @@ module omniswap::swap {
             flash
         );
 
-        let min_amount = repay_amount * RAY / input_amount * min_amount / RAY;
+        let min_amount = (((repay_amount as u256) * (RAY as u256) / (input_amount as u256) * (min_amount as u256) / (RAY as u256)) as u64);
         let swap_amount = balance::value(&quote);
         assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
         (coin::from_balance(base, ctx), coin::from_balance(quote, ctx), swap_amount)
@@ -235,7 +235,7 @@ module omniswap::swap {
             );
             let left_quote_amount = coin::value(&quote_asset);
             let swap_quote_amount = input_quote_amount - left_quote_amount;
-            let min_amount = swap_quote_amount * RAY / input_quote_amount * min_amount / RAY;
+            let min_amount = (((swap_quote_amount as u256) * (RAY as u256) / (input_quote_amount as u256) * (min_amount as u256) / (RAY as u256)) as u64);
             assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
             (base_asset, quote_asset, swap_amount)
         }else {
@@ -280,7 +280,7 @@ module omniswap::swap {
             );
             let left_base_amount = coin::value(&base_asset);
             let swap_base_amount = input_base_amount - left_base_amount;
-            let min_amount = swap_base_amount * RAY / input_base_amount * min_amount / RAY;
+            let min_amount = (((swap_base_amount as u256) * (RAY as u256) / (input_base_amount as u256) * (min_amount as u256) / (RAY as u256)) as u64);
             assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
             (base_asset, quote_asset, swap_amount)
         } else {
@@ -327,7 +327,7 @@ module omniswap::swap {
             );
             let left_quote_amount = coin::value(&quote_asset);
             let swap_quote_amount = input_quote_amount - left_quote_amount;
-            let min_amount = swap_quote_amount * RAY / input_quote_amount * min_amount / RAY;
+            let min_amount = (((swap_quote_amount as u256) * (RAY as u256) / (input_quote_amount as u256) * (min_amount as u256) / (RAY as u256)) as u64);
             assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
             (base_asset, quote_asset, swap_amount)
         }else {
@@ -376,7 +376,7 @@ module omniswap::swap {
             );
             let left_base_amount = coin::value(&base_asset);
             let swap_base_amount = input_base_amount - left_base_amount;
-            let min_amount = swap_base_amount * RAY / input_base_amount * min_amount / RAY;
+            let min_amount = (((swap_base_amount as u256) * (RAY as u256) / (input_base_amount as u256) * (min_amount as u256) / (RAY as u256)) as u64);
             assert!(swap_amount >= min_amount, ESWAP_AMOUNT_TOO_LOW);
             (base_asset, quote_asset, swap_amount)
         } else {
