@@ -268,6 +268,7 @@ contract Swapper is ISo {
                 index += 1;
             }
         }
+        return sliceIndex;
     }
 
     /// @dev Executes swaps and checks that DEXs used are in the allowList. Support dynamic slice swap
