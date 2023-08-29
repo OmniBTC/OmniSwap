@@ -38,8 +38,6 @@ contract Swapper is ISo {
         uint256 minAmount;
     }
 
-    /// Modifiers ///
-
     /// External Methods ///
 
     /// @dev Validates input before executing swaps
@@ -187,10 +185,11 @@ contract Swapper is ISo {
                     );
             }
             if (cache.swapBalance != cache.currentSwapData.fromAmount) {
+                cache.currentSwapData.fromAmount = cache.swapBalance;
                 cache.currentSwapData.callData = ICorrectSwap(correctSwap)
                     .correctSwap(
                         cache.currentSwapData.callData,
-                        cache.swapBalance
+                        cache.currentSwapData.fromAmount
                     );
             }
 
