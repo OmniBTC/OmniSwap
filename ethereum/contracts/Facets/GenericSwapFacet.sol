@@ -7,6 +7,7 @@ import "../Helpers/ReentrancyGuard.sol";
 import "../Errors/GenericErrors.sol";
 import "../Helpers/Swapper.sol";
 import "../Libraries/LibCross.sol";
+import "../Interfaces/ILibSoFeeV2.sol";
 
 /// @title Generic Swap Facet
 /// @notice Provides functionality for swapping through ANY APPROVED DEX
@@ -37,15 +38,29 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
         );
 
         if (swapData.length == 0) revert NoSwapDataProvided();
+        uint256 fromAmount = _getSwapAmount(swapData);
+
         if (!LibAsset.isNativeAsset(swapData[0].sendingAssetId)) {
-            LibAsset.depositAsset(
-                swapData[0].sendingAssetId,
-                swapData[0].fromAmount
-            );
+            LibAsset.depositAsset(swapData[0].sendingAssetId, fromAmount);
+        } else {
+            require(msg.value >= fromAmount, "NotEnoughValue");
         }
         uint256 postSwapBalance = this.executeAndCheckSwapsV2(soData, swapData);
         address receivingAssetId = swapData[swapData.length - 1]
             .receivingAssetId;
+
+        uint256 soFee = getGenericSoFee(postSwapBalance);
+        address soBasicBeneficiary = getGenericBasicBeneficiary();
+        if (soBasicBeneficiary != address(0x0) && soFee > 0) {
+            transferUnwrappedAsset(
+                receivingAssetId,
+                soData.receivingAssetId,
+                soFee,
+                soBasicBeneficiary
+            );
+            postSwapBalance -= soFee;
+        }
+
         transferUnwrappedAsset(
             receivingAssetId,
             soData.receivingAssetId,
@@ -57,8 +72,38 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
             soData.transactionId,
             soData.sendingAssetId,
             soData.receivingAssetId,
-            swapData[0].fromAmount,
+            fromAmount,
             postSwapBalance
         );
+    }
+
+    /// @dev Get so fee
+    function getGenericSoFee(uint256 amount) public view returns (uint256) {
+        address soFee = appStorage.gatewaySoFeeSelectors[address(0x0)];
+        if (soFee == address(0x0)) {
+            return 0;
+        } else {
+            return ILibSoFeeV2(soFee).getFees(amount);
+        }
+    }
+
+    /// @dev Get basic beneficiary
+    function getGenericBasicBeneficiary() public view returns (address) {
+        address soFee = appStorage.gatewaySoFeeSelectors[address(0x0)];
+        if (soFee == address(0x0)) {
+            return address(0x0);
+        } else {
+            return ILibSoFeeV2(soFee).getBasicBeneficiary();
+        }
+    }
+
+    /// @dev Get basic fee
+    function getGenericBasicFee() public view returns (uint256) {
+        address soFee = appStorage.gatewaySoFeeSelectors[address(0x0)];
+        if (soFee == address(0x0)) {
+            return 0;
+        } else {
+            return ILibSoFeeV2(soFee).getBasicFee();
+        }
     }
 }

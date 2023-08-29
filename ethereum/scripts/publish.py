@@ -40,4 +40,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main("base-main")
+    main("bsc-main")
