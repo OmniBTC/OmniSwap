@@ -76,7 +76,7 @@ contract Swapper is ISo {
         return swapBalance;
     }
 
-    function swap(bytes32 transactionId, LibSwap.SwapData memory _swapData)
+    function libSwap(bytes32 transactionId, LibSwap.SwapData memory _swapData)
         external
     {
         LibSwap.swap(transactionId, _swapData);
@@ -139,6 +139,22 @@ contract Swapper is ISo {
             );
             LibAsset.transferAsset(expectAssetId, payable(receiver), amount);
         }
+    }
+
+    /// @dev Find swap slice
+    /// @param swapData Array of data used to execute swaps
+    function _getSwapAmount(LibSwap.SwapData[] memory swapData)
+        internal
+        returns (uint256)
+    {
+        address sendingAssetId = swapData[0].sendingAssetId;
+        uint256 amount;
+        for (uint256 i = 0; i < swapData.length; i++) {
+            if (swapData[i].sendingAssetId == sendingAssetId) {
+                amount += swapData[i].fromAmount;
+            }
+        }
+        return amount;
     }
 
     /// Private Methods ///
@@ -211,7 +227,7 @@ contract Swapper is ISo {
             ) revert ContractCallNotAllowed();
 
             try
-                this.swap(soData.transactionId, cache.currentSwapData)
+                this.libSwap(soData.transactionId, cache.currentSwapData)
             {} catch {
                 return (false, cache.fromAmount, cache.minAmount);
             }
@@ -247,6 +263,8 @@ contract Swapper is ISo {
         );
     }
 
+    /// @dev Find swap slice
+    /// @param swapData Array of data used to execute swaps
     function _findSwapSlice(LibSwap.SwapData[] calldata swapData)
         private
         returns (uint256[] memory)

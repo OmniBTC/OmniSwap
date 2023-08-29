@@ -37,11 +37,15 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
         );
 
         if (swapData.length == 0) revert NoSwapDataProvided();
+        uint256 fromAmount = _getSwapAmount(swapData);
+
         if (!LibAsset.isNativeAsset(swapData[0].sendingAssetId)) {
             LibAsset.depositAsset(
                 swapData[0].sendingAssetId,
-                swapData[0].fromAmount
+                fromAmount
             );
+        }else{
+            require(msg.value >= fromAmount, "NotEnoughValue");
         }
         uint256 postSwapBalance = this.executeAndCheckSwapsV2(soData, swapData);
         address receivingAssetId = swapData[swapData.length - 1]
@@ -57,7 +61,7 @@ contract GenericSwapFacet is ISo, Swapper, ReentrancyGuard {
             soData.transactionId,
             soData.sendingAssetId,
             soData.receivingAssetId,
-            swapData[0].fromAmount,
+            fromAmount,
             postSwapBalance
         );
     }
