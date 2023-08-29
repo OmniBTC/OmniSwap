@@ -88,7 +88,7 @@ contract LibCorrectSwapV1 {
                 address[] memory _path,
                 address _to,
                 uint256 _deadline
-            ) = abi.decode(_data[:4], (uint256, address[], address, uint256));
+            ) = abi.decode(_data[4:], (uint256, address[], address, uint256));
             return (
                 _amountOutMin,
                 abi.encodeWithSelector(
