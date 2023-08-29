@@ -21,7 +21,7 @@ def main(net: str = None):
     p.load_config()
     change_network(net)
     deployed_contract = [
-        # "LibCorrectSwapV1",
+        "LibCorrectSwapV1",
         "GenericSwapFacet",
         # "SerdeFacet",
         # "SoDiamond",
@@ -40,4 +40,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main("avax-main")
+    main("base-main")
