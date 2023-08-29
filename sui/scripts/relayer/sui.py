@@ -808,7 +808,7 @@ def main():
 
 def single_process():
     change_network("polygon-main")
-    process_v1(21, sui_project.network_config["SoDiamond"])
+    process_v2(21, sui_project.network_config["SoDiamond"])
 
 
 if __name__ == "__main__":

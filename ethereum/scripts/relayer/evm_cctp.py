@@ -372,8 +372,9 @@ class Session(Process):
         super().__init__(
             group=group, target=self.worker, name=name, args=(dst_storage,), daemon=daemon
         )
+        logger.info(f"Start {self.dstNet}")
         self.start()
-        time.sleep(5)
+        time.sleep(10)
 
     def worker(
             self,
