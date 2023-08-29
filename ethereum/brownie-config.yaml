@@ -843,6 +843,7 @@ networks:
     omnibtc_chainid: 8453
     chainid: 8453
     SoDiamond: "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     stargate:
       router: "0x45f1A95A4D3f3836523F5c83673c797f4d4d263B"
       chainid: 184
@@ -870,6 +871,7 @@ networks:
     omnibtc_chainid: 2
     chainid: 1
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     stargate:
       router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
       chainid: 101
@@ -1035,6 +1037,7 @@ networks:
     omnibtc_chainid: 3
     chainid: 56
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     stargate:
       router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
       chainid: 102
@@ -1210,6 +1213,7 @@ networks:
     omnibtc_chainid: 4
     chainid: 43114
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     stargate:
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
       chainid: 106
@@ -1380,6 +1384,7 @@ networks:
     omnibtc_chainid: 5
     chainid: 137
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     stargate:
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
       chainid: 109
@@ -1558,6 +1563,7 @@ networks:
     omnibtc_chainid: 6
     chainid: 42161
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     stargate:
       router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
       chainid: 110
@@ -1693,6 +1699,7 @@ networks:
     omnibtc_chainid: 7
     chainid: 10
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     stargate:
       router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
       chainid: 111
@@ -1862,6 +1869,7 @@ networks:
         token_list: "https://docs.spooky.fi/Resources/ftm-token-addresses"
   zksync2-main:
     chainid: 324
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     bridges:
       bool:
         chainid: 324
@@ -1892,6 +1900,7 @@ networks:
         decimal: 18
   zkevm-main:
     chainid: 1101
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     token:
       weth:
         address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"

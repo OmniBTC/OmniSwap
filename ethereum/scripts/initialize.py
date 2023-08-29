@@ -24,7 +24,9 @@ from brownie import (
     LibSoFeeMultiChainV1,
     LibSoFeeCCTPV1,
     CCTPFacet,
-    LibSoFeeBoolV2, config
+    LibSoFeeBoolV2,
+    LibSoFeeGenericV2,
+    config
 )
 from brownie.network import priority_fee, max_fee
 
@@ -550,6 +552,24 @@ def remove_facet(facet):
 
 def redeploy_generic_swap():
     account = get_account()
+
+    # 1. deploy bool's lib so fee
+
+    so_fee = 1e-4
+    ray = 1e27
+    basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    basic_fee = 0
+    print(f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
+    LibSoFeeGenericV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
+
+    # 2. add bool's lib so fee to diamond
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    proxy_dex.addFee(
+        zero_address(), LibSoFeeGenericV2[-1].address, {"from": account}
+    )
+
     remove_facet(GenericSwapFacet)
     GenericSwapFacet.deploy({"from": account})
     add_cut([GenericSwapFacet])

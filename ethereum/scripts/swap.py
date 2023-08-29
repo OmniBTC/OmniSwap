@@ -1113,7 +1113,7 @@ def single_swap(
     )
 
 
-def main(src_net="base-main", dst_net="polygon-main", bridge="stargate"):
+def main(src_net="bsc-main", dst_net="bsc-main", bridge="swap"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1187,13 +1187,13 @@ def main(src_net="base-main", dst_net="polygon-main", bridge="stargate"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                0.01 * src_session.put_task(get_token_decimal, args=("usdc",))
+                0.01 * src_session.put_task(get_token_decimal, args=("usdt",))
             ),
-            sendingTokenName="usdc",
+            sendingTokenName="usdt",
             receiveTokenName="eth",
-            sourceSwapType=SwapType.ISwapRouter,
-            sourceSwapFunc=SwapFunc.exactInput,
-            sourceSwapPath=("usdc", 0.0005, "weth"),
+            sourceSwapType=SwapType.IUniswapV2Router02,
+            sourceSwapFunc=SwapFunc.swapExactTokensForETH,
+            sourceSwapPath=("usdt", "weth"),
         )
 
         # dst_session = Session(
