@@ -243,7 +243,7 @@ def process_v1(
     src_chain_id = chain.id
 
     last_process = {}
-    interval = 60
+    interval = 30
 
     while True:
         result = get_pending_data(src_chain_id=src_chain_id)
@@ -308,7 +308,7 @@ def process_v2(
         local_logger.info("Get item from queue")
         try:
             try:
-                data = dst_storage[destinationDomain].get(timeout=3)
+                data = dst_storage[destinationDomain].get()
             except Exception as e:
                 local_logger.warning(f"Get item fail:{e}, wait...")
                 continue
@@ -331,7 +331,7 @@ def process_v2(
             gas_price = web3.eth.gas_price
             gas_limit = int(dst_fee / gas_price)
             if gas_limit == 0:
-                logger.warning(f"Gas limit is zero, refuse relay")
+                logger.warning(f"Gas fee:{src_fee}, gas limit is zero, refuse relay")
                 continue
             else:
                 logger.info(f"Gas limit is {gas_limit} for transaction")
