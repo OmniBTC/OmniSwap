@@ -188,9 +188,9 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
         message = event["message"].hex()
         msg_hash = web3.keccak(hexstr=message)
         cctp_message = CCTPMessage(*cctp_facet.decodeCCTPMessage(message))
-        cctp_message.message = format_hex(str(message))
-        cctp_message.msgHash = format_hex(str(msg_hash.hex()))
-        cctp_message.attestation = format_hex(str(get_cctp_attestation(cctp_message.msgHash)))
+        cctp_message.message = format_hex(message)
+        cctp_message.msgHash = format_hex(msg_hash.hex())
+        cctp_message.attestation = format_hex(get_cctp_attestation(cctp_message.msgHash))
         messages.append(cctp_message)
     result = CCTPFacetMessage()
     result.src_txid = tx_hash
@@ -281,6 +281,9 @@ def process_v1(
 
 
 def format_hex(data):
+    data = str(data)
+    if not is_hex(data):
+        return None
     if "0x" != data[:2]:
         data = f"0x{data}"
     data = data.lower()
