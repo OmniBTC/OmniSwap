@@ -150,7 +150,7 @@ contract Swapper is ISo {
         address sendingAssetId = swapData[0].sendingAssetId;
         uint256 amount;
         for (uint256 i = 0; i < swapData.length; i++) {
-            if (swapData[i].sendingAssetId == sendingAssetId) {
+            if (swapData[i].sendingAssetId == sendingAssetId && swapData[i].fromAmount > 0) {
                 amount += swapData[i].fromAmount;
             }
         }
@@ -272,7 +272,7 @@ contract Swapper is ISo {
         address sendingAssetId = swapData[0].sendingAssetId;
         uint256 sliceLength = 0;
         for (uint256 i = 0; i < swapData.length; i++) {
-            if (swapData[i].sendingAssetId == sendingAssetId) {
+            if (swapData[i].sendingAssetId == sendingAssetId && swapData[i].fromAmount > 0) {
                 sliceLength += 1;
             }
         }
@@ -280,7 +280,7 @@ contract Swapper is ISo {
         uint256[] memory sliceIndex = new uint256[](sliceLength);
         uint256 index = 0;
         for (uint256 i = 0; i < swapData.length; i++) {
-            if (swapData[i].sendingAssetId == sendingAssetId) {
+            if (swapData[i].sendingAssetId == sendingAssetId && swapData[i].fromAmount > 0) {
                 sliceIndex[index] = i;
                 index += 1;
             }
