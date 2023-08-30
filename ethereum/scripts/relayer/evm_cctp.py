@@ -18,7 +18,7 @@ from retrying import retry
 
 from scripts.helpful_scripts import get_account, change_network, get_cctp_message_transmitter, Process, \
     set_start_method, Queue
-from scripts.serde import get_cctp_facet, get_cctp_facet_v1
+from scripts.serde import get_cctp_facet
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
 logging.basicConfig(format=FORMAT)
@@ -509,7 +509,7 @@ def compensate(src_net="arbitrum-test", dst_net="avax-test"):
         network.connect(dst_net)
     logger.info(f"Change net into {network.show_active()}")
 
-    cctp = get_cctp_facet_v1()
+    cctp = get_cctp_facet()
     cctp.receiveCCTPMessageByOwner(
         message.token_message.message,
         message.token_message.attestation,
