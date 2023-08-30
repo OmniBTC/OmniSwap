@@ -143,6 +143,18 @@ class CCTPFacetMessage:
         return result
 
 
+def is_hex(data: str):
+    if str(data[:2]) != "0x":
+        data = "0x" + str(data)
+    if len(data) % 2 != 0:
+        return False
+    try:
+        web3.toInt(hexstr=data)
+        return True
+    except:
+        return False
+
+
 @retry
 def get_cctp_attestation(msg_hash):
     net = network.show_active()
@@ -154,10 +166,14 @@ def get_cctp_attestation(msg_hash):
     url += msg_hash
     result = requests.get(url)
     if result.status_code == 200:
-        return result.json()['attestation']
+        attestation = result.json()['attestation']
+        if not is_hex(attestation):
+            logger.warning(f"Get cctp attestation: {attestation}")
+            attestation = None
+        return attestation
     else:
-        raise ValueError(f"Get cctp attestation failed: {result.json()['status']}")
-
+        logger.warning(f"Get cctp attestation failed: {result.json()['status']}")
+        return None
 
 def get_facet_message(tx_hash) -> CCTPFacetMessage:
     p = project.get_loaded_projects()[-1]
