@@ -202,6 +202,8 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
     if len(relay_event) > 0:
         result.transactionId = format_hex(str(relay_event["transactionId"].hex()))
         result.fee = relay_event["fee"]
+    else:
+        logger.warning("Not found relay event")
     return result
 
 
@@ -330,7 +332,9 @@ def process_v2(
             dst_fee = src_fee * src_price / dst_price
             gas_price = web3.eth.gas_price
             gas_limit = int(dst_fee / gas_price)
-            if gas_limit == 0:
+            if data.fee is None:
+                gas_limit = None
+            elif gas_limit == 0:
                 logger.warning(f"Gas fee:{src_fee}, gas limit is zero, refuse relay")
                 continue
             else:
