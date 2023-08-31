@@ -22,8 +22,9 @@ from brownie import (
     LibSoFeeCelerV1,
     MultiChainFacet,
     LibSoFeeMultiChainV1,
-    LibSoFeeCCTPV1,
     CCTPFacet,
+    CCIPFacet,
+    LibSoFeeCCIPV1,
     LibSoFeeBoolV2, config
 )
 from brownie.network import priority_fee, max_fee
@@ -48,6 +49,8 @@ from scripts.helpful_scripts import (
     zero_address,
     get_stargate_router,
     get_stargate_chain_id,
+    get_ccip_router,
+    get_ccip_chain_selector,
     get_token_address,
     get_swap_info,
     get_token_decimal,
@@ -80,9 +83,13 @@ def main():
     except Exception as e:
         print(f"initialize_cut fail:{e}")
     try:
-        initialize_stargate(account, so_diamond)
+        initialize_ccip(account, so_diamond)
     except Exception as e:
-        print(f"initialize_stargate fail:{e}")
+        print(f"initialize_ccip fail:{e}")
+    # try:
+    #     initialize_stargate(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_stargate fail:{e}")
     # try:
     #     initialize_bool(account, so_diamond)
     # except Exception as e:
@@ -185,9 +192,10 @@ def initialize_cut(account, so_diamond):
         DiamondLoupeFacet,
         DexManagerFacet,
         OwnershipFacet,
+        CCIPFacet,
         # CelerFacet,
         # MultiChainFacet,
-        StargateFacet,
+        # StargateFacet,
         # BoolFacet,
         # CCTPFacet,
         # WormholeFacet,
@@ -221,6 +229,17 @@ def initialize_stargate(account, so_diamond):
     print(f"network:{net}, init stargate...")
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
+    )
+
+
+def initialize_ccip(account, so_diamond):
+    proxy_ccip = Contract.from_abi(
+        "CCIPFacet", so_diamond.address, CCIPFacet.abi
+    )
+    net = network.show_active()
+    print(f"network:{net}, init ccip...")
+    proxy_ccip.initCCIP(
+        get_ccip_chain_selector(), get_ccip_router(), {"from": account}
     )
 
 
@@ -398,8 +417,11 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
     proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+        get_ccip_router(), LibSoFeeCCIPV1[-1].address, {"from": account}
     )
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+    # )
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
     # )

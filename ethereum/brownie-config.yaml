@@ -409,6 +409,13 @@ networks:
       poolid:
         usdc: 1
     bridges:
+      ccip:
+        chain_selector: 3734403246176062136
+        router: "0x554472a2720E5E7D5D3C817529aBA05EEd5F82D8"
+        token:
+          link:
+            address: "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846"
+            decimal: 18
       cctp:
         domain_id: 1
         token_messenger: "0xeb08f243e5d3fcff26a9e38ae5520a669f4019d0"
@@ -528,6 +535,13 @@ networks:
       poolid:
         usdc: 1
     bridges:
+      ccip:
+        chain_selector: 12532609583862916517
+        router: "0x70499c328e1E2a3c41108bd3730F6670a44595D1"
+        token:
+          link:
+            address: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
+            decimal: 18
       bool:
         chainid: 80001
         router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"

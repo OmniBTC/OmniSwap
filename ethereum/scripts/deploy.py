@@ -8,13 +8,9 @@ from brownie import (
     GenericSwapFacet,
     LibCorrectSwapV1,
     SerdeFacet,
-    BoolFacet,
-    LibSoFeeBoolV1,
     network,
-    CCTPFacet,
-    LibSoFeeCCTPV1,
-    StargateFacet,
-    LibSoFeeStargateV1
+    LibSoFeeCCIPV1,
+    CCIPFacet,
 )
 from brownie.network import priority_fee, max_fee
 
@@ -36,7 +32,8 @@ def deploy_contracts(account):
         DiamondCutFacet,
         DiamondLoupeFacet,
         DexManagerFacet,
-        StargateFacet,
+        CCIPFacet,
+        # StargateFacet,
         # CCTPFacet,
         # CelerFacet,
         # MultiChainFacet,
@@ -55,12 +52,11 @@ def deploy_contracts(account):
     SoDiamond.deploy(account, DiamondCutFacet[-1], {"from": account})
 
     so_fee = 1e-3
-
-    print("deploy LibSoFeeStargateV1.sol...")
-    transfer_for_gas = 30000
-    LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {"from": account})
-
     ray = 1e27
+
+    print("deploy LibSoFeeCCIPV1.sol...")
+    # transfer_for_gas = 30000
+    LibSoFeeCCIPV1.deploy(int(so_fee * ray), {"from": account})
 
     # print("deploy LibSoFeeCelerV1.sol...")
     # LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})

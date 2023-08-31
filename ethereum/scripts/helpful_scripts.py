@@ -16,6 +16,7 @@ LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "matic-fork",
 ]
 
+
 def write_json(file: Path, data):
     f = file.parent
     f.mkdir(parents=True, exist_ok=True)
@@ -214,6 +215,18 @@ def get_chain_id():
 
 def get_current_net_info():
     return config["networks"][network.show_active()]
+
+
+def get_ccip_info():
+    return get_current_net_info()["bridges"]["ccip"]
+
+
+def get_ccip_chain_selector():
+    return get_ccip_info()["chain_selector"]
+
+
+def get_ccip_router():
+    return get_ccip_info()["router"]
 
 
 def get_cctp_info():
