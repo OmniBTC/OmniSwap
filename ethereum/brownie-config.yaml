@@ -871,9 +871,10 @@ networks:
         name: Aerodrome
         router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
         token_list: ""
-      ISwapRouterV2:
+      ISwapRouter02:
         name: UniswapV3
-        routerv2: "0x2626664c2603336E57B271c5C0b26F421741e481"
+        # routerV2
+        router: "0x2626664c2603336E57B271c5C0b26F421741e481"
         token_list: ""
         quoterv2: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a"
       IUniswapV2Router02:
