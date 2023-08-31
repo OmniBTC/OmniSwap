@@ -733,18 +733,28 @@ def add_cut(contracts: list = None):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
-def add_dex(dex_address):
+def add_dex(swap_type):
+    swap_info = get_swap_info()
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addDex(
-        dex_address, {"from": get_account()}
+        swap_info[swap_type]["router"], {"from": get_account()}
     )
-    proxy_dex.batchSetFunctionApprovalBySignature(
-        [v + "0" * 56 for v in list(interface.ISwapRouter.selectors.keys())],
-        True,
-        {"from": get_account()},
-    )
+    try:
+        proxy_dex.batchSetFunctionApprovalBySignature(
+            [v + "0" * 56 for v in list(getattr(interface, swap_type).selectors.keys())],
+            True,
+            {"from": get_account()},
+        )
+    except Exception as e:
+        print(f"error:", e)
+
+
+def add_dexs():
+    swap_info = get_swap_info()
+    for swap_type in swap_info:
+        add_dex(swap_type)
 
 
 def reinitialize_dex(old_dex):

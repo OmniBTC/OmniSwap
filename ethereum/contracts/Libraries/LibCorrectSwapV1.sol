@@ -8,6 +8,8 @@ import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
 import {ISyncSwapRouter} from "../Interfaces/ISyncSwapRouter.sol";
 import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
 import {IQuickSwapRouter} from "../Interfaces/IQuickSwapRouter.sol";
+import {IAerodrome} from "../Interfaces/IAerodrome.sol";
+import {ISwapRouter02} from "../Interfaces/ISwapRouter02.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -36,6 +38,15 @@ contract LibCorrectSwapV1 {
 
     // QuickswapV3
     bytes4 private constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
+
+    // base,Aerodrome
+    bytes4 private constant _FUNC12 = IAerodrome.swapExactETHForTokens.selector;
+    bytes4 private constant _FUNC13 = IAerodrome.swapExactTokensForETH.selector;
+    bytes4 private constant _FUNC14 =
+        IAerodrome.swapExactTokensForTokens.selector;
+
+    // UniswapV3
+    bytes4 private constant _FUNC15 = ISwapRouter02.exactInput.selector;
 
     //---------------------------------------------------------------------------
     // External Method
@@ -69,6 +80,14 @@ contract LibCorrectSwapV1 {
             return tryMuteSwap(_data, _amount);
         } else if (sig == _FUNC11) {
             return tryQuickExactInput(_data, _amount);
+        } else if (sig == _FUNC12) {
+            return _data;
+        } else if (sig == _FUNC13) {
+            return tryAerodrome(_data, _amount);
+        } else if (sig == _FUNC14) {
+            return tryAerodrome(_data, _amount);
+        } else if (sig == _FUNC15) {
+            return tryExactInputV2(_data, _amount);
         }
 
         // fuzzy matching
@@ -197,6 +216,56 @@ contract LibCorrectSwapV1 {
             IQuickSwapRouter.ExactInputParams memory params = abi.decode(
                 _data[4:],
                 (IQuickSwapRouter.ExactInputParams)
+            );
+            uint256 _amountOutMin = params.amountOutMinimum;
+            params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
+            return (_amountOutMin, abi.encodeWithSelector(sig, params));
+        } else if (sig == _FUNC12) {
+            (
+                uint256 _amountOutMin,
+                IAerodrome.Route[] memory _path,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, IAerodrome.Route[], address, uint256)
+                );
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC13 || sig == _FUNC14) {
+            (
+                uint256 _amount,
+                uint256 _amountOutMin,
+                IAerodrome.Route[] memory _path,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, uint256, IAerodrome.Route[], address, uint256)
+                );
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    _amount,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC15) {
+            ISwapRouter02.ExactInputParams memory params = abi.decode(
+                _data[4:],
+                (ISwapRouter02.ExactInputParams)
             );
             uint256 _amountOutMin = params.amountOutMinimum;
             params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
@@ -384,6 +453,71 @@ contract LibCorrectSwapV1 {
         IQuickSwapRouter.ExactInputParams memory params = abi.decode(
             _data[4:],
             (IQuickSwapRouter.ExactInputParams)
+        );
+        params.amountIn = _amount;
+
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryAerodrome(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.aerodrome(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("aerodrome fail!");
+        }
+    }
+
+    function aerodrome(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            IAerodrome.Route[] memory _path,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, IAerodrome.Route[], address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryExactInputV2(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.exactInputV2(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("exactInputV2 fail!");
+        }
+    }
+
+    function exactInputV2(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        ISwapRouter02.ExactInputParams memory params = abi.decode(
+            _data[4:],
+            (ISwapRouter02.ExactInputParams)
         );
         params.amountIn = _amount;
 

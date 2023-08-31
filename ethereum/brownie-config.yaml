@@ -858,15 +858,38 @@ networks:
         address: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA"
         decimal: 6
     swap:
-      ISwapRouter:
-        name: SushiswapV3
-        router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
+#       ISwapRouter:
+#         name: SushiswapV3
+#         router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
+#         token_list: ""
+#         quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
+#      IUniswapV2Router02:
+#        name: BaseswapV2
+#        router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
+#        token_list: ""
+      IAerodrome:
+        name: Aerodrome
+        router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
         token_list: ""
-        quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
+      ISwapRouter02:
+        name: UniswapV3
+        # routerV2
+        router: "0x2626664c2603336E57B271c5C0b26F421741e481"
+        token_list: ""
+        quoterv2: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a"
       IUniswapV2Router02:
-        name: BaseswapV2
-        router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
+        name: AlienbaseV2
+        router: "0x8c1A3cF8f83074169FE5D7aD50B978e1cD6b37c7"
         token_list: ""
+      ISwapRouter:
+        name: SwapBasedV3
+        router: "0xD58f563A7D6150a2575C74065CB18f53EC2e9D07"
+        token_list: ""
+        quoter: "0x64F477C68049B554113Bab6526038bcF5643136c"
+#      IUniswapV2Router02:
+#        name: SwapBasedV2
+#        router: "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066"
+#        token_list: ""
   mainnet:
     omnibtc_chainid: 2
     chainid: 1
