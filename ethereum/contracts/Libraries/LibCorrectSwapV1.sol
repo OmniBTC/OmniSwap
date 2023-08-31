@@ -263,9 +263,9 @@ contract LibCorrectSwapV1 {
                 )
             );
         } else if (sig == _FUNC15) {
-            ISwapRouterV2.ExactInputParams memory params = abi.decode(
+            ISwapRouter02.ExactInputParams memory params = abi.decode(
                 _data[4:],
-                (ISwapRouterV2.ExactInputParams)
+                (ISwapRouter02.ExactInputParams)
             );
             uint256 _amountOutMin = params.amountOutMinimum;
             params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
@@ -484,7 +484,7 @@ contract LibCorrectSwapV1 {
             uint256 _deadline
         ) = abi.decode(
                 _data[4:],
-                (uint256, uint256, address[], address, uint256)
+                (uint256, uint256, IAerodrome.Route[], address, uint256)
             );
 
         return
@@ -515,9 +515,9 @@ contract LibCorrectSwapV1 {
         pure
         returns (bytes memory)
     {
-        ISwapRouterV2.ExactInputParams memory params = abi.decode(
+        ISwapRouter02.ExactInputParams memory params = abi.decode(
             _data[4:],
-            (ISwapRouterV2.ExactInputParams)
+            (ISwapRouter02.ExactInputParams)
         );
         params.amountIn = _amount;
 
