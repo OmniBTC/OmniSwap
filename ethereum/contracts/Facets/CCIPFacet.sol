@@ -138,10 +138,9 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         emit SoTransferStarted(soData.transactionId);
     }
 
-    function ccipReceive(Client.Any2EVMMessage calldata message) external {
+    function ccipReceive(Client.Any2EVMMessage calldata message) external override {
         Storage storage s = getStorage();
         require(msg.sender == s.router, "InvalidSender");
-        require(message.sourceChainSelector == s.chainSelector, "InvalidChain");
 
         (
             ISo.NormalizedSoData memory soDataNo,

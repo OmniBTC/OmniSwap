@@ -229,6 +229,10 @@ def get_ccip_router():
     return get_ccip_info()["router"]
 
 
+def get_ccip_token_address(token_name):
+    return get_ccip_info()["token"][token_name]['address']
+
+
 def get_cctp_info():
     return get_current_net_info()['bridges']['cctp']
 

@@ -410,7 +410,7 @@ networks:
         usdc: 1
     bridges:
       ccip:
-        chain_selector: 3734403246176062136
+        chain_selector: 14767482510784806043
         router: "0x554472a2720E5E7D5D3C817529aBA05EEd5F82D8"
         token:
           link:
@@ -447,6 +447,12 @@ networks:
             pair: ETHUSD
             address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     token:
+      CCIP-BnM:
+        address: "0xD21341536c5cF5EB1bcb58f6723cE26e8D8E90e4"
+        decimal: 18
+      link:
+        address: "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846"
+        decimal: 18
       usdc:
         address: "0x5425890298aed601595a70AB815c96711a31Bc65"
         decimal: 6
@@ -567,6 +573,12 @@ networks:
             decimal: 18
             anytoken: "0xb576C9403f39829565BD6051695E2AC7Ecf850E2"
     token:
+      CCIP-BnM:
+        address: "0xf1E3A5842EeEF51F2967b3F05D45DD4f4205FF40"
+        decimal: 18
+      link:
+        address: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
+        decimal: 18
       bool-usdc:
         address: "0x3b65b11a7ed7cd6ce1d2ee279389a1668435396a"
         decimal: 6

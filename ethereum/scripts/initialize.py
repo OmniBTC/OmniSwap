@@ -463,6 +463,15 @@ def redeploy_serde():
     add_cut([SerdeFacet])
 
 
+def redeploy_ccip():
+    account = get_account()
+    remove_facet(CCIPFacet)
+
+    CCIPFacet.deploy({"from": account})
+    add_cut([CCIPFacet])
+    initialize_ccip(account, SoDiamond[-1])
+
+
 def redeploy_cctp():
     if "arbitrum-test" in network.show_active():
         priority_fee("1 gwei")
