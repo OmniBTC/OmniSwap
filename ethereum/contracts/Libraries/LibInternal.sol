@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Client} from "./LibCCIPClient.sol";
+
 //import {MerkleMultiProof} from "./LibMerkleMultiProof.sol";
 
 // Library for CCIP internal definitions common to multiple contracts.
@@ -66,27 +67,28 @@ library Internal {
         });
     }
 
-    bytes32 internal constant EVM_2_EVM_MESSAGE_HASH = keccak256("EVM2EVMMessageEvent");
+    bytes32 internal constant EVM_2_EVM_MESSAGE_HASH =
+        keccak256("EVM2EVMMessageEvent");
 
-//    function _hash(EVM2EVMMessage memory original, bytes32 metadataHash) internal pure returns (bytes32) {
-//        return
-//            keccak256(
-//            abi.encode(
-//                MerkleMultiProof.LEAF_DOMAIN_SEPARATOR,
-//                metadataHash,
-//                original.sequenceNumber,
-//                original.nonce,
-//                original.sender,
-//                original.receiver,
-//                keccak256(original.data),
-//                keccak256(abi.encode(original.tokenAmounts)),
-//                original.gasLimit,
-//                original.strict,
-//                original.feeToken,
-//                original.feeTokenAmount
-//            )
-//        );
-//    }
+    //    function _hash(EVM2EVMMessage memory original, bytes32 metadataHash) internal pure returns (bytes32) {
+    //        return
+    //            keccak256(
+    //            abi.encode(
+    //                MerkleMultiProof.LEAF_DOMAIN_SEPARATOR,
+    //                metadataHash,
+    //                original.sequenceNumber,
+    //                original.nonce,
+    //                original.sender,
+    //                original.receiver,
+    //                keccak256(original.data),
+    //                keccak256(abi.encode(original.tokenAmounts)),
+    //                original.gasLimit,
+    //                original.strict,
+    //                original.feeToken,
+    //                original.feeTokenAmount
+    //            )
+    //        );
+    //    }
 
     /// @notice Enum listing the possible message execution states within
     /// the offRamp contract.

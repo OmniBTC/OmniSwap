@@ -30,7 +30,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-    hex"115c77a130824400d839f1a193041dfaef0cb83dbbe297c6b2d0a2f7a794bc1e"; // keccak256("com.so.facets.ccip")
+        hex"115c77a130824400d839f1a193041dfaef0cb83dbbe297c6b2d0a2f7a794bc1e"; // keccak256("com.so.facets.ccip")
 
     struct Storage {
         uint64 chainSelector;
@@ -52,6 +52,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
 
     /// Events ///
 
+    // Event emitted when setup ccip storage
     event CCIPFacetInitialized(uint64 chainSelector, address router);
 
     // Event emitted when a message is sent to another chain.
@@ -119,7 +120,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
             bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
             require(
                 swapDataSrc[swapDataSrc.length - 1].receivingAssetId ==
-                ccipData.bridgeToken,
+                    ccipData.bridgeToken,
                 "TokenErr"
             );
         }
@@ -129,7 +130,8 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
             amount: bridgeAmount
         });
 
-        Client.EVMTokenAmount[] memory tokenAmounts = new Client.EVMTokenAmount[](1);
+        Client.EVMTokenAmount[]
+            memory tokenAmounts = new Client.EVMTokenAmount[](1);
         tokenAmounts[0] = bridgeTokenAmount;
 
         require(bridgeAmount > 0, "bridgeAmount>0");
@@ -138,7 +140,10 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         emit SoTransferStarted(soData.transactionId);
     }
 
-    function ccipReceive(Client.Any2EVMMessage calldata message) external override {
+    function ccipReceive(Client.Any2EVMMessage calldata message)
+        external
+        override
+    {
         Storage storage s = getStorage();
         require(msg.sender == s.router, "InvalidSender");
 
@@ -234,8 +239,15 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         );
     }
 
-    function getCCIPExtraArgs(uint256 gasLimit, bool strict) public view returns (bytes memory){
-        return Client._argsToBytes(Client.EVMExtraArgsV1({gasLimit: gasLimit, strict: strict}));
+    function getCCIPExtraArgs(uint256 gasLimit, bool strict)
+        public
+        view
+        returns (bytes memory)
+    {
+        return
+            Client._argsToBytes(
+                Client.EVMExtraArgsV1({gasLimit: gasLimit, strict: strict})
+            );
     }
 
     function getCCIPFees(
@@ -251,7 +263,8 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
             amount: 0
         });
 
-        Client.EVMTokenAmount[] memory tokenAmounts = new Client.EVMTokenAmount[](1);
+        Client.EVMTokenAmount[]
+            memory tokenAmounts = new Client.EVMTokenAmount[](1);
         tokenAmounts[0] = bridgeTokenAmount;
 
         Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
@@ -263,7 +276,10 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         });
 
         // Get the fee required to send the message
-        fees = IRouterClient(s.router).getFee(ccipData.dstChainSelector, message);
+        fees = IRouterClient(s.router).getFee(
+            ccipData.dstChainSelector,
+            message
+        );
     }
 
     /// @dev Get so fee
@@ -334,78 +350,75 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function decodeCCIPPayload(bytes memory stargatePayload)
-    public
-    pure
-    returns (
-        ISo.NormalizedSoData memory soData,
-        LibSwap.NormalizedSwapData[] memory swapDataDst
-    )
+    function decodeCCIPPayload(bytes memory ccipPayload)
+        public
+        pure
+        returns (
+            ISo.NormalizedSoData memory soData,
+            LibSwap.NormalizedSwapData[] memory swapDataDst
+        )
     {
         CachePayload memory data;
         uint256 index;
         uint256 nextLen;
 
-        nextLen = uint256(stargatePayload.toUint8(index));
+        nextLen = uint256(ccipPayload.toUint8(index));
         index += 1;
-        data.soData.transactionId = stargatePayload.slice(index, nextLen);
+        data.soData.transactionId = ccipPayload.slice(index, nextLen);
         index += nextLen;
 
-        nextLen = uint256(stargatePayload.toUint8(index));
+        nextLen = uint256(ccipPayload.toUint8(index));
         index += 1;
-        data.soData.receiver = stargatePayload.slice(index, nextLen);
+        data.soData.receiver = ccipPayload.slice(index, nextLen);
         index += nextLen;
 
-        nextLen = uint256(stargatePayload.toUint8(index));
+        nextLen = uint256(ccipPayload.toUint8(index));
         index += 1;
-        data.soData.receivingAssetId = stargatePayload.slice(index, nextLen);
+        data.soData.receivingAssetId = ccipPayload.slice(index, nextLen);
         index += nextLen;
 
-        if (index < stargatePayload.length) {
-            nextLen = uint256(stargatePayload.toUint8(index));
+        if (index < ccipPayload.length) {
+            nextLen = uint256(ccipPayload.toUint8(index));
             index += 1;
             uint256 swap_len = LibCross.deserializeU256WithHexStr(
-                stargatePayload.slice(index, nextLen)
+                ccipPayload.slice(index, nextLen)
             );
             index += nextLen;
 
             data.swapDataDst = new LibSwap.NormalizedSwapData[](swap_len);
             for (uint256 i = 0; i < swap_len; i++) {
-                nextLen = uint256(stargatePayload.toUint8(index));
+                nextLen = uint256(ccipPayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].callTo = stargatePayload.slice(
-                    index,
-                    nextLen
-                );
+                data.swapDataDst[i].callTo = ccipPayload.slice(index, nextLen);
                 data.swapDataDst[i].approveTo = data.swapDataDst[i].callTo;
                 index += nextLen;
 
-                nextLen = uint256(stargatePayload.toUint8(index));
+                nextLen = uint256(ccipPayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].sendingAssetId = stargatePayload.slice(
+                data.swapDataDst[i].sendingAssetId = ccipPayload.slice(
                     index,
                     nextLen
                 );
                 index += nextLen;
 
-                nextLen = uint256(stargatePayload.toUint8(index));
+                nextLen = uint256(ccipPayload.toUint8(index));
                 index += 1;
-                data.swapDataDst[i].receivingAssetId = stargatePayload.slice(
+                data.swapDataDst[i].receivingAssetId = ccipPayload.slice(
                     index,
                     nextLen
                 );
                 index += nextLen;
 
-                nextLen = uint256(stargatePayload.toUint16(index));
+                nextLen = uint256(ccipPayload.toUint16(index));
                 index += 2;
-                data.swapDataDst[i].callData = stargatePayload.slice(
+                data.swapDataDst[i].callData = ccipPayload.slice(
                     index,
                     nextLen
                 );
                 index += nextLen;
             }
         }
-        require(index == stargatePayload.length, "LenErr");
+        require(index == ccipPayload.length, "LenErr");
         return (data.soData, data.swapDataDst);
     }
 
@@ -444,7 +457,10 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
 
         if (ccipData.payFeesIn == address(0)) {
             // Send the message through the router and store the returned message ID
-            bytes32 messageId = router.ccipSend{value: fees}(ccipData.dstChainSelector, evm2AnyMessage);
+            bytes32 messageId = router.ccipSend{value: fees}(
+                ccipData.dstChainSelector,
+                evm2AnyMessage
+            );
 
             emit CCIPMessageSent(
                 messageId,
