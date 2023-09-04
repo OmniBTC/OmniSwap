@@ -753,7 +753,7 @@ def main(src_net="avax-test", dst_net="polygon-test"):
         sourceSwapType=None,
         sourceSwapFunc=None,
         sourceSwapPath=None,
-        destinationTokenName="CCIP-BnM",
+        destinationTokenName="usdc",
         destinationSwapType=SwapType.IUniswapV2Router02,
         destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
         destinationSwapPath=("CCIP-BnM", "usdc"),
