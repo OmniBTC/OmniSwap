@@ -653,7 +653,7 @@ def cross_swap_via_ccip(
             with_project=True,
         )
         print("SourceSwapData:\n", src_swap_data)
-        cross_token = src_swap_data[-1].receivingAssetId
+        cross_token = src_swap_data.format_to_contract()[3]
     else:
         src_swap_data = None
         cross_token = src_session.put_task(get_token_address, args=(sourceTokenName,), with_project=False)
@@ -715,6 +715,36 @@ def main(src_net="avax-test", dst_net="polygon-test"):
     )
 
     # without swap
+    # cross_swap_via_ccip(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(0.1 * 1e18),
+    #     sourceTokenName="CCIP-BnM",
+    #     sourceSwapType=None,
+    #     sourceSwapFunc=None,
+    #     sourceSwapPath=None,
+    #     destinationTokenName="CCIP-BnM",
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
+
+    # with src swap
+    # cross_swap_via_ccip(
+    #     src_session=src_session,
+    #     dst_session=dst_session,
+    #     inputAmount=int(0.1 * 1e6),
+    #     sourceTokenName="usdc",
+    #     sourceSwapType=SwapType.IUniswapV2Router02AVAX,
+    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+    #     sourceSwapPath=("usdc", "CCIP-BnM"),
+    #     destinationTokenName="CCIP-BnM",
+    #     destinationSwapType=None,
+    #     destinationSwapFunc=None,
+    #     destinationSwapPath=None,
+    # )
+
+    # with dst swap
     cross_swap_via_ccip(
         src_session=src_session,
         dst_session=dst_session,
@@ -724,40 +754,10 @@ def main(src_net="avax-test", dst_net="polygon-test"):
         sourceSwapFunc=None,
         sourceSwapPath=None,
         destinationTokenName="CCIP-BnM",
-        destinationSwapType=None,
-        destinationSwapFunc=None,
-        destinationSwapPath=None,
+        destinationSwapType=SwapType.IUniswapV2Router02,
+        destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+        destinationSwapPath=("CCIP-BnM", "usdc"),
     )
-
-    # with src swap
-    # cross_swap_via_cctp(
-    #     src_session=src_session,
-    #     dst_session=dst_session,
-    #     inputAmount=int(0.001 * 1e6),
-    #     sourceTokenName="test-usdc",
-    #     sourceSwapType=SwapType.IUniswapV2Router02AVAX,
-    #     sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-    #     sourceSwapPath=("test-usdc", "usdc"),
-    #     destinationTokenName="usdc",
-    #     destinationSwapType=None,
-    #     destinationSwapFunc=None,
-    #     destinationSwapPath=None,
-    # )
-
-    # # with dst swap
-    # cross_swap_via_cctp(
-    #     src_session=src_session,
-    #     dst_session=dst_session,
-    #     inputAmount=int(0.001 * 1e6),
-    #     sourceTokenName="usdc",
-    #     sourceSwapType=None,
-    #     sourceSwapFunc=None,
-    #     sourceSwapPath=None,
-    #     destinationTokenName="test-usdc",
-    #     destinationSwapType=SwapType.IUniswapV2Router02AVAX,
-    #     destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-    #     destinationSwapPath=("usdc", "test-usdc"),
-    # )
 
     src_session.terminate()
     dst_session.terminate()

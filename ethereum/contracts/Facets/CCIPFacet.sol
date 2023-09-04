@@ -33,6 +33,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
     struct Storage {
         uint64 chainSelector;
         address router;
+        mapping(uint64 => mapping(address => bool)) allowedSources;
     }
 
     struct CCIPData {
@@ -94,6 +95,16 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         emit CCIPFacetInitialized(_chainSelector, _router);
     }
 
+    function setCCIPAllowedSource(
+        uint64 _chainSelector,
+        address _sender,
+        bool _allow
+    ) external {
+        LibDiamond.enforceIsContractOwner();
+        Storage storage s = getStorage();
+        s.allowedSources[_chainSelector][_sender] = _allow;
+    }
+
     /// @notice Bridges tokens via CCIP
     /// @param soDataNo Data for tracking cross-chain transactions and a
     ///                portion of the accompanying cross-chain messages
@@ -152,6 +163,12 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
     {
         Storage storage s = getStorage();
         require(msg.sender == s.router, "InvalidSender");
+        require(
+            s.allowedSources[message.sourceChainSelector][
+                abi.decode(message.sender, (address))
+            ],
+            "InvalidSource"
+        );
 
         (
             ISo.NormalizedSoData memory soDataNo,
