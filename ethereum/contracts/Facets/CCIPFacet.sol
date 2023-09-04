@@ -9,16 +9,14 @@ import "../Libraries/LibDiamond.sol";
 import "../Libraries/LibBytes.sol";
 import "../Libraries/LibCross.sol";
 import "../Libraries/LibAsset.sol";
-import "../Libraries/LibMessageCCTP.sol";
 import "../Helpers/Swapper.sol";
 import "../Helpers/ReentrancyGuard.sol";
 import "../Interfaces/ISo.sol";
 import "../Interfaces/ILibSoFee.sol";
-import "../Interfaces/ITokenMessenger.sol";
-import "../Interfaces/IReceiver.sol";
 import "../Interfaces/ILibPrice.sol";
 import "../Interfaces/ICCIPRouterClient.sol";
 import "../Interfaces/IAny2EVMMessageReceiver.sol";
+import "../Interfaces/IERC165.sol";
 
 /// @title CCIP Facet
 /// @author OmniBTC
@@ -85,6 +83,14 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         Storage storage s = getStorage();
         s.chainSelector = _chainSelector;
         s.router = _router;
+
+        // add supported interface
+        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        ds.supportedInterfaces[type(IERC165).interfaceId] = true;
+        ds.supportedInterfaces[
+            type(IAny2EVMMessageReceiver).interfaceId
+        ] = true;
+
         emit CCIPFacetInitialized(_chainSelector, _router);
     }
 
