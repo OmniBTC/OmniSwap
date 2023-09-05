@@ -10,6 +10,8 @@ import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
 import {IQuickSwapRouter} from "../Interfaces/IQuickSwapRouter.sol";
 import {IAerodrome} from "../Interfaces/IAerodrome.sol";
 import {ISwapRouter02} from "../Interfaces/ISwapRouter02.sol";
+import {IVault} from "../Interfaces/IVault.sol";
+import {ICurveFi} from "../Interfaces/ICurveFi.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -47,6 +49,13 @@ contract LibCorrectSwapV1 {
 
     // UniswapV3
     bytes4 private constant _FUNC15 = ISwapRouter02.exactInput.selector;
+
+    // BalancerV2
+    bytes4 private constant _FUNC16 = IVault.swap.selector;
+
+    // Curve
+    bytes4 private constant _FUNC17 = ICurveFi.exchange.selector;
+    bytes4 private constant _FUNC18 = ICurveFi.exchange_underlying.selector;
 
     //---------------------------------------------------------------------------
     // External Method
@@ -88,6 +97,12 @@ contract LibCorrectSwapV1 {
             return tryAerodrome(_data, _amount);
         } else if (sig == _FUNC15) {
             return tryExactInputV2(_data, _amount);
+        } else if (sig == _FUNC16) {
+            return tryBalancerV2SingleSwap(_data, _amount);
+        } else if (sig == _FUNC17) {
+            return tryCurveExchange(_data, _amount);
+        } else if (sig == _FUNC18) {
+            return tryCurveExchangeUnderlying(_data, _amount);
         }
 
         // fuzzy matching
@@ -270,6 +285,59 @@ contract LibCorrectSwapV1 {
             uint256 _amountOutMin = params.amountOutMinimum;
             params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
             return (_amountOutMin, abi.encodeWithSelector(sig, params));
+        } else if (sig == _FUNC16) {
+            (
+                IVault.SingleSwap memory singleSwap,
+                IVault.FundManagement memory funds,
+                uint256 limit,
+                uint256 deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (IVault.SingleSwap, IVault.FundManagement, uint256, uint256)
+                );
+            if (singleSwap.kind == IVault.SwapKind.GIVEN_OUT) {
+                revert("not support GIVEN_OUT");
+            }
+            return (
+                limit,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    singleSwap,
+                    funds,
+                    limit + _deltaMinAmount,
+                    deadline
+                )
+            );
+        } else if (sig == _FUNC17) {
+            (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+                _data[4:],
+                (int128, int128, uint256, uint256)
+            );
+            return (
+                min_dy,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    i,
+                    j,
+                    dx,
+                    min_dy + _deltaMinAmount
+                )
+            );
+        } else if (sig == _FUNC18) {
+            (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+                _data[4:],
+                (int128, int128, uint256, uint256)
+            );
+            return (
+                min_dy,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    i,
+                    j,
+                    dx,
+                    min_dy + _deltaMinAmount
+                )
+            );
         }
 
         revert("fix amount fail!");
@@ -522,5 +590,96 @@ contract LibCorrectSwapV1 {
         params.amountIn = _amount;
 
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryBalancerV2SingleSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.balcnerV2SingleSwap(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("balcnerV2SingleSwap fail!");
+        }
+    }
+
+    function balcnerV2SingleSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            IVault.SingleSwap memory singleSwap,
+            IVault.FundManagement memory funds,
+            uint256 limit,
+            uint256 deadline
+        ) = abi.decode(
+                _data[4:],
+                (IVault.SingleSwap, IVault.FundManagement, uint256, uint256)
+            );
+        singleSwap.amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                singleSwap,
+                funds,
+                limit,
+                deadline
+            );
+    }
+
+    function tryCurveExchange(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.curveExchange(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("curveV2Exchange fail!");
+        }
+    }
+
+    function curveExchange(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+            _data[4:],
+            (int128, int128, uint256, uint256)
+        );
+        dx = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
+    }
+
+    function tryCurveExchangeUnderlying(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.curveExchangeUnderlying(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("curveV2ExchangeUnderlying fail!");
+        }
+    }
+
+    function curveExchangeUnderlying(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+            _data[4:],
+            (int128, int128, uint256, uint256)
+        );
+        dx = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
     }
 }

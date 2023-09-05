@@ -56,7 +56,10 @@ interface IVelodrome {
     /// @param tokenB   Address of token to sort
     /// @return token0  Lower address value between tokenA and tokenB
     /// @return token1  Higher address value between tokenA and tokenB
-    function sortTokens(address tokenA, address tokenB) external pure returns (address token0, address token1);
+    function sortTokens(address tokenA, address tokenB)
+        external
+        pure
+        returns (address token0, address token1);
 
     /// @notice Calculate the address of a pool by its' factory.
     ///         Used by all Router functions containing a `Route[]` or `_factory` argument.
@@ -96,7 +99,10 @@ interface IVelodrome {
     ) external view returns (uint256 reserveA, uint256 reserveB);
 
     /// @notice Perform chained getAmountOut calculations on any number of pools
-    function getAmountsOut(uint256 amountIn, Route[] memory routes) external view returns (uint256[] memory amounts);
+    function getAmountsOut(uint256 amountIn, Route[] memory routes)
+        external
+        view
+        returns (uint256[] memory amounts);
 
     // **** ADD LIQUIDITY ****
 
@@ -117,7 +123,14 @@ interface IVelodrome {
         address _factory,
         uint256 amountADesired,
         uint256 amountBDesired
-    ) external view returns (uint256 amountA, uint256 amountB, uint256 liquidity);
+    )
+        external
+        view
+        returns (
+            uint256 amountA,
+            uint256 amountB,
+            uint256 liquidity
+        );
 
     /// @notice Quote the amount of liquidity removed from a Pool
     /// @param tokenA       .
@@ -158,7 +171,13 @@ interface IVelodrome {
         uint256 amountBMin,
         address to,
         uint256 deadline
-    ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
+    )
+        external
+        returns (
+            uint256 amountA,
+            uint256 amountB,
+            uint256 liquidity
+        );
 
     /// @notice Add liquidity of a token and WETH (transferred as ETH) to a Pool
     /// @param token                .
@@ -179,7 +198,14 @@ interface IVelodrome {
         uint256 amountETHMin,
         address to,
         uint256 deadline
-    ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
+    )
+        external
+        payable
+        returns (
+            uint256 amountToken,
+            uint256 amountETH,
+            uint256 liquidity
+        );
 
     // **** REMOVE LIQUIDITY ****
 
@@ -411,7 +437,15 @@ interface IVelodrome {
         uint256 amountInB,
         Route[] calldata routesA,
         Route[] calldata routesB
-    ) external view returns (uint256 amountOutMinA, uint256 amountOutMinB, uint256 amountAMin, uint256 amountBMin);
+    )
+        external
+        view
+        returns (
+            uint256 amountOutMinA,
+            uint256 amountOutMinB,
+            uint256 amountAMin,
+            uint256 amountBMin
+        );
 
     /// @notice Used to generate params required for zapping out.
     ///         Zap out => swap then add liquidity.
@@ -436,7 +470,15 @@ interface IVelodrome {
         uint256 liquidity,
         Route[] calldata routesA,
         Route[] calldata routesB
-    ) external view returns (uint256 amountOutMinA, uint256 amountOutMinB, uint256 amountAMin, uint256 amountBMin);
+    )
+        external
+        view
+        returns (
+            uint256 amountOutMinA,
+            uint256 amountOutMinB,
+            uint256 amountAMin,
+            uint256 amountBMin
+        );
 
     /// @notice Used by zapper to determine appropriate ratio of A to B to deposit liquidity. Assumes stable pool.
     /// @dev Returns stable liquidity ratio of B to (A + B).

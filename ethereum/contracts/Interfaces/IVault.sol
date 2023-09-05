@@ -16,6 +16,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IAsset.sol";
+import "./IWETH.sol";
 
 /**
  * @dev Full external interface for the Vault core contract - no external or public methods exist in the contract that
@@ -84,7 +85,10 @@ interface IVault {
     //
     // Finally, Internal Balance can be used when either sending or receiving tokens.
 
-    enum SwapKind {GIVEN_IN, GIVEN_OUT}
+    enum SwapKind {
+        GIVEN_IN,
+        GIVEN_OUT
+    }
 
     /**
      * @dev Performs a swap with a single Pool.
