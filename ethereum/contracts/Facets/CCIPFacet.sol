@@ -28,7 +28,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
     /// Storage ///
 
     bytes32 internal constant NAMESPACE =
-    hex"115c77a130824400d839f1a193041dfaef0cb83dbbe297c6b2d0a2f7a794bc1e"; // keccak256("com.so.facets.ccip")
+        hex"115c77a130824400d839f1a193041dfaef0cb83dbbe297c6b2d0a2f7a794bc1e"; // keccak256("com.so.facets.ccip")
 
     struct Storage {
         uint64 chainSelector;
@@ -53,7 +53,11 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
 
     // Event emitted when setup ccip storage
     event CCIPFacetInitialized(uint64 chainSelector, address router);
-    event setCCIPFacetAllowedSource(uint64 chainSelector, address sender, bool allow);
+    event setCCIPFacetAllowedSource(
+        uint64 chainSelector,
+        address sender,
+        bool allow
+    );
 
     // Event emitted when a message is sent to another chain.
     event CCIPMessageSent(
@@ -90,7 +94,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
         ds.supportedInterfaces[type(IERC165).interfaceId] = true;
         ds.supportedInterfaces[
-        type(IAny2EVMMessageReceiver).interfaceId
+            type(IAny2EVMMessageReceiver).interfaceId
         ] = true;
 
         emit CCIPFacetInitialized(_chainSelector, _router);
@@ -140,7 +144,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
             bridgeAmount = this.executeAndCheckSwaps(soData, swapDataSrc);
             require(
                 swapDataSrc[swapDataSrc.length - 1].receivingAssetId ==
-                ccipData.bridgeToken,
+                    ccipData.bridgeToken,
                 "TokenErr"
             );
         }
@@ -151,7 +155,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         });
 
         Client.EVMTokenAmount[]
-        memory tokenAmounts = new Client.EVMTokenAmount[](1);
+            memory tokenAmounts = new Client.EVMTokenAmount[](1);
         tokenAmounts[0] = bridgeTokenAmount;
 
         require(bridgeAmount > 0, "bridgeAmount>0");
@@ -161,14 +165,14 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
     }
 
     function ccipReceive(Client.Any2EVMMessage calldata message)
-    external
-    override
+        external
+        override
     {
         Storage storage s = getStorage();
         require(msg.sender == s.router, "InvalidSender");
         require(
             s.allowedSources[message.sourceChainSelector][
-            abi.decode(message.sender, (address))
+                abi.decode(message.sender, (address))
             ],
             "InvalidSource"
         );
@@ -266,14 +270,14 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
     }
 
     function getCCIPExtraArgs(uint256 gasLimit, bool strict)
-    public
-    view
-    returns (bytes memory)
+        public
+        view
+        returns (bytes memory)
     {
         return
             Client._argsToBytes(
-            Client.EVMExtraArgsV1({gasLimit: gasLimit, strict: strict})
-        );
+                Client.EVMExtraArgsV1({gasLimit: gasLimit, strict: strict})
+            );
     }
 
     function getCCIPFees(
@@ -290,7 +294,7 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
         });
 
         Client.EVMTokenAmount[]
-        memory tokenAmounts = new Client.EVMTokenAmount[](1);
+            memory tokenAmounts = new Client.EVMTokenAmount[](1);
         tokenAmounts[0] = bridgeTokenAmount;
 
         Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
@@ -377,12 +381,12 @@ contract CCIPFacet is Swapper, ReentrancyGuard, IAny2EVMMessageReceiver {
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
     function decodeCCIPPayload(bytes memory ccipPayload)
-    public
-    pure
-    returns (
-        ISo.NormalizedSoData memory soData,
-        LibSwap.NormalizedSwapData[] memory swapDataDst
-    )
+        public
+        pure
+        returns (
+            ISo.NormalizedSoData memory soData,
+            LibSwap.NormalizedSwapData[] memory swapDataDst
+        )
     {
         CachePayload memory data;
         uint256 index;
