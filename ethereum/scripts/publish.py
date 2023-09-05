@@ -22,14 +22,14 @@ def main(net: str = None):
     change_network(net)
     deployed_contract = [
         "CCIPFacet",
-        "GenericSwapFacet",
-        "SerdeFacet",
-        "SoDiamond",
-        "DiamondCutFacet",
-        "DiamondLoupeFacet",
-        "DexManagerFacet",
-        "WithdrawFacet",
-        "OwnershipFacet",
+        # "GenericSwapFacet",
+        # "SerdeFacet",
+        # "SoDiamond",
+        # "DiamondCutFacet",
+        # "DiamondLoupeFacet",
+        # "DexManagerFacet",
+        # "WithdrawFacet",
+        # "OwnershipFacet",
     ]
     for c in deployed_contract:
         print(f"network:{net} publish source: {c}")
@@ -40,4 +40,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main("avax-test")
+    main("polygon-test")
