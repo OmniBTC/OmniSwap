@@ -1223,10 +1223,22 @@ networks:
         address: '0xB04906e95AB5D797aDA81508115611fee694c2b3'
         decimal: 6
     swap:
+      IWombatRouter:
+        name: WombatExchange
+        router: "0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7"
+        token_list: ""
       IUniswapV2Router02:
-        name: PancakeSwapV2
-        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
-        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
+        name: BiSwap
+        router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
+        token_list: ""
+      #      IUniswapV2Router02:
+      #        name: THENA
+      #        router: "0xd4ae6eCA985340Dd434D38F470aCCce4DC78D109"
+      #        token_list: ""
+      #      IUniswapV2Router02:
+      #        name: PancakeSwapV2
+      #        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
+      #        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
       ISwapRouter:
         name: PancakeSwapV3
         router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
@@ -1395,6 +1407,14 @@ networks:
         address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
         decimal: 6
     swap:
+      IGMXV1Router:
+        name: GMXV1
+        router: "0x5F719c2F1095F7B9fc68a68e35B51194f4b6abe8"
+        token_list: ""
+      ILBRouter:
+        name: Trader Joe
+        router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
+        token_list: ""
       IUniswapV2Router02AVAX:
         name: PangolinV2
         router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
@@ -1573,6 +1593,10 @@ networks:
         address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D'
         decimal: 6
     swap:
+      IPearlRouter:
+        name: PearlFi
+        router: "0xcC25C0FD84737F44a7d38649b69491BBf0c7f083"
+        token_list: ""
       ISwapRouter:
         name: UniswapV3
         router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
@@ -1705,6 +1729,14 @@ networks:
         address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
         decimal: 18
     swap:
+      ILBRouter:
+        name: Trader Joe
+        router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
+        token_list: ""
+      IGMXV1Router:
+        name: GMX V1
+        router: "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064"
+        token_list: ""
       ISwapRouter:
         name: UniswapV3
         router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
