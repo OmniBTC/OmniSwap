@@ -12,6 +12,7 @@ import {IAerodrome} from "../Interfaces/IAerodrome.sol";
 import {ISwapRouter02} from "../Interfaces/ISwapRouter02.sol";
 import {IVault} from "../Interfaces/IVault.sol";
 import {ICurveFi} from "../Interfaces/ICurveFi.sol";
+import {IWombatRouter} from "../Interfaces/IWombatRouter.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -56,6 +57,14 @@ contract LibCorrectSwapV1 {
     // Curve
     bytes4 private constant _FUNC17 = ICurveFi.exchange.selector;
     bytes4 private constant _FUNC18 = ICurveFi.exchange_underlying.selector;
+
+    // bsc,Wombat
+    bytes4 private constant _FUNC19 =
+        IWombatRouter.swapExactTokensForTokens.selector;
+    bytes4 private constant _FUNC20 =
+        IWombatRouter.swapExactNativeForTokens.selector;
+    bytes4 private constant _FUNC21 =
+        IWombatRouter.swapExactTokensForNative.selector;
 
     //---------------------------------------------------------------------------
     // External Method
@@ -103,6 +112,12 @@ contract LibCorrectSwapV1 {
             return tryCurveExchange(_data, _amount);
         } else if (sig == _FUNC18) {
             return tryCurveExchangeUnderlying(_data, _amount);
+        } else if (sig == _FUNC19) {
+            return tryWombatSwap(_data, _amount);
+        } else if (sig == _FUNC20) {
+            return tryWombatSwap(_data, _amount);
+        } else if (sig == _FUNC21) {
+            return tryWombatSwap(_data, _amount);
         }
 
         // fuzzy matching
@@ -336,6 +351,30 @@ contract LibCorrectSwapV1 {
                     j,
                     dx,
                     min_dy + _deltaMinAmount
+                )
+            );
+        } else if (sig == _FUNC19 || sig == _FUNC20 || sig == _FUNC21) {
+            (
+                address[] memory _tokenPath,
+                address[] memory _poolPath,
+                uint256 _amount,
+                uint256 _minimumToAmount,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (address[], address[], uint256, uint256, address, uint256)
+                );
+            return (
+                _minimumToAmount,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _tokenPath,
+                    _poolPath,
+                    _amount,
+                    _minimumToAmount + _deltaMinAmount,
+                    _to,
+                    _deadline
                 )
             );
         }
@@ -681,5 +720,46 @@ contract LibCorrectSwapV1 {
         );
         dx = _amount;
         return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
+    }
+
+    function tryWombatSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.wombatSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("basicCorrectSwap fail!");
+        }
+    }
+
+    function wombatSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            address[] memory _tokenPath,
+            address[] memory _poolPath,
+            ,
+            uint256 _minimumToAmount,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (address[], address[], uint256, uint256, address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _tokenPath,
+                _poolPath,
+                _amount,
+                _minimumToAmount,
+                _to,
+                _deadline
+            );
     }
 }
