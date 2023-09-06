@@ -32,6 +32,11 @@ SUPPORTED_EVM = [
         "dstNet": "avax-main",
     },
     {
+        "destinationDomain": 2,
+        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+        "dstNet": "optimism-main",
+    },
+    {
         "destinationDomain": 3,
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "arbitrum-main",
