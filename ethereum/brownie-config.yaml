@@ -895,6 +895,7 @@ networks:
     chainid: 1
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    endpoints: ['https://rpc.ankr.com/eth/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125', 'https://eth.llamarpc.com', 'https://ethereum.publicnode.com', 'https://1rpc.io/eth']
     stargate:
       router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
       chainid: 101
@@ -1061,6 +1062,7 @@ networks:
     chainid: 56
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    endpoints: ['https://bsc-mainnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3', 'https://bsc-dataseed2.binance.org/', 'https://bsc-dataseed.binance.org/', 'https://bsc.publicnode.com', 'https://bsc-dataseed1.ninicoin.io/', 'https://bsc.blockpi.network/v1/rpc/public', 'https://bsc-dataseed4.ninicoin.io/', 'https://bsc-dataseed3.defibit.io/', 'https://bsc.meowrpc.com', 'https://bsc-rpc.gateway.pokt.network', 'https://bscrpc.com', 'https://bsc-dataseed3.ninicoin.io/', 'https://bsc-mainnet.public.blastapi.io', 'https://binance.nodereal.io', 'https://bsc.rpc.blxrbdn.com/', 'https://bsc-dataseed1.binance.org/', 'https://bsc-dataseed2.defibit.io/', 'https://bsc-dataseed2.ninicoin.io/', 'https://bsc-dataseed4.defibit.io/', 'https://endpoints.omniatech.io/v1/bsc/mainnet/public', 'https://bsc-dataseed3.binance.org/', 'https://rpc-bsc.48.club', 'https://bsc-dataseed1.defibit.io/', 'https://rpc.ankr.com/bsc', 'https://koge-rpc-bsc.48.club', 'https://bsc-dataseed4.binance.org/', 'https://bnb.api.onfinality.io/public']
     stargate:
       router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
       chainid: 102
@@ -1237,6 +1239,7 @@ networks:
     chainid: 43114
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    endpoints: ['https://ava-mainnet.public.blastapi.io/ext/bc/C/rpc', 'https://avalanche.public-rpc.com', 'https://avax.meowrpc.com', 'https://endpoints.omniatech.io/v1/avax/mainnet/public', 'https://rpc.ankr.com/avalanche', 'https://avalanche.blockpi.network/v1/rpc/public', 'https://avalanche.api.onfinality.io/public/ext/bc/C/rpc', 'https://api.avax.network/ext/bc/C/rpc', 'https://avalanche-c-chain.publicnode.com']
     stargate:
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
       chainid: 106
@@ -1408,6 +1411,7 @@ networks:
     chainid: 137
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    endpoints: ['https://gateway.tenderly.co/public/polygon', 'https://rpc.ankr.com/polygon', 'https://polygon.meowrpc.com', 'https://polygon.gateway.tenderly.co', 'https://polygon-mainnet.public.blastapi.io', 'https://rpc-mainnet.matic.quiknode.pro', 'https://polygon.rpc.blxrbdn.com/', 'https://endpoints.omniatech.io/v1/matic/mainnet/public', 'https://poly-rpc.gateway.pokt.network/', 'https://polygon.drpc.org', 'https://polygon-bor.publicnode.com', 'https://polygon.blockpi.network/v1/rpc/public', 'https://rpc-mainnet.maticvigil.com', 'https://polygon.api.onfinality.io/public', 'https://polygon-rpc.com', 'https://rpc.ankr.com/polygon/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125']
     stargate:
       router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
       chainid: 109
@@ -1587,6 +1591,7 @@ networks:
     chainid: 42161
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    endpoints: [ "https://arbitrum.api.onfinality.io/public","https://arbitrum.blockpi.network/v1/rpc/public","https://arb1.arbitrum.io/rpc","https://arb-mainnet-public.unifra.io","https://endpoints.omniatech.io/v1/arbitrum/one/public","https://arbitrum.meowrpc.com","https://arbitrum-one.publicnode.com","https://rpc.arb1.arbitrum.gateway.fm","https://arbitrum-one.public.blastapi.io","https://rpc.ankr.com/arbitrum" ]
     stargate:
       router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
       chainid: 110
@@ -1729,6 +1734,7 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    endpoints: [ "https://optimism.api.onfinality.io/public","https://endpoints.omniatech.io/v1/op/mainnet/public","https://optimism-mainnet.public.blastapi.io","https://optimism.publicnode.com","https://optimism.meowrpc.com","https://optimism.blockpi.network/v1/rpc/public","https://rpc.ankr.com/optimism","https://mainnet.optimism.io/","https://opt-mainnet.g.alchemy.com/v2/LBDzNc9dpFyypmYMY82EjRYKeB2jdGyh","https://opt-mainnet.g.alchemy.com/v2/rhahhrkYMnD5HDZuGA83z6WkcTs_Yihi" ]
     bridges:
       bool:
         chainid: 10
@@ -1821,12 +1827,19 @@ networks:
             address: "0x4200000000000000000000000000000000000006"
             decimal: 18
             anytoken: "0x5fcb9de282af6122ce3518cde28b7089c9f97b26"
+      cctp:
+        domain_id: 2
+        token_messenger: "0x2B4069517957735bE00ceE0fadAE88a26365528f"
+        message_transmitter: "0x4d41f22c5a0e5c74090899e5a8fb597a8842b3e8"
+        token_minter: "0x33E76C5C31cb928dc6FE6487AB3b2C0769B1A1e3"
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"
         decimal: 18
       usdc:
-        address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+        # bridge usdc: 0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+        # circle usdc:
+        address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
         decimal: 6
     swap:
       ISwapRouter:

@@ -1,9 +1,11 @@
 import functools
 import json
+import random
 from multiprocessing import Queue, Process, set_start_method
 from pathlib import Path
 from typing import Union, List
 
+import brownie
 from brownie import network, accounts, config, project, web3
 from brownie.network import priority_fee, max_fee
 from brownie.network.web3 import Web3
@@ -15,6 +17,7 @@ LOCAL_BLOCKCHAIN_ENVIRONMENTS = NON_FORKED_LOCAL_BLOCKCHAIN_ENVIRONMENTS + [
     "binance-fork",
     "matic-fork",
 ]
+
 
 def write_json(file: Path, data):
     f = file.parent
@@ -408,3 +411,11 @@ def get_bridge_token_decimal(bridge: str, token_name: str):
 
 def get_account_address():
     return get_account().address
+
+
+def reconnect_random_rpc():
+    endpoints: list = config["networks"][network.show_active()]["endpoints"]
+    brownie.web3.disconnect()
+    rpc_url = random.choice(endpoints)
+    brownie.web3.connect(rpc_url)
+    return rpc_url
