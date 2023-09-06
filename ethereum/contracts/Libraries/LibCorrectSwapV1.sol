@@ -13,6 +13,7 @@ import {ISwapRouter02} from "../Interfaces/ISwapRouter02.sol";
 import {IVault} from "../Interfaces/IVault.sol";
 import {ICurveFi} from "../Interfaces/ICurveFi.sol";
 import {IWombatRouter} from "../Interfaces/IWombatRouter.sol";
+import {ILBRouter} from "../Interfaces/ILBRouter.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -62,9 +63,17 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC19 =
         IWombatRouter.swapExactTokensForTokens.selector;
     bytes4 private constant _FUNC20 =
-        IWombatRouter.swapExactNativeForTokens.selector;
-    bytes4 private constant _FUNC21 =
         IWombatRouter.swapExactTokensForNative.selector;
+    bytes4 private constant _FUNC21 =
+        IWombatRouter.swapExactNativeForTokens.selector;
+
+    // Trader Joe
+    bytes4 private constant _FUNC22 =
+        ILBRouter.swapExactTokensForTokens.selector;
+    bytes4 private constant _FUNC23 =
+        ILBRouter.swapExactTokensForNATIVE.selector;
+    bytes4 private constant _FUNC24 =
+        ILBRouter.swapExactNATIVEForTokens.selector;
 
     //---------------------------------------------------------------------------
     // External Method
@@ -117,7 +126,11 @@ contract LibCorrectSwapV1 {
         } else if (sig == _FUNC20) {
             return tryWombatSwap(_data, _amount);
         } else if (sig == _FUNC21) {
-            return tryWombatSwap(_data, _amount);
+            return _data;
+        } else if (sig == _FUNC22 || sig == _FUNC23) {
+            return tryTraderJoeSwap(_data, _amount);
+        } else if (sig == _FUNC24) {
+            return _data;
         }
 
         // fuzzy matching
@@ -353,7 +366,7 @@ contract LibCorrectSwapV1 {
                     min_dy + _deltaMinAmount
                 )
             );
-        } else if (sig == _FUNC19 || sig == _FUNC20 || sig == _FUNC21) {
+        } else if (sig == _FUNC19 || sig == _FUNC20) {
             (
                 address[] memory _tokenPath,
                 address[] memory _poolPath,
@@ -373,6 +386,72 @@ contract LibCorrectSwapV1 {
                     _poolPath,
                     _amount,
                     _minimumToAmount + _deltaMinAmount,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC21) {
+            (
+                address[] memory _tokenPath,
+                address[] memory _poolPath,
+                uint256 _minimumToAmount,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (address[], address[], uint256, address, uint256)
+                );
+            return (
+                _minimumToAmount,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _tokenPath,
+                    _poolPath,
+                    _minimumToAmount + _deltaMinAmount,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC22 || sig == _FUNC23) {
+            (
+                uint256 _amount,
+                uint256 _amountOutMin,
+                ILBRouter.Path memory _path,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, uint256, ILBRouter.Path, address, uint256)
+                );
+
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _amount,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC24) {
+            (
+                uint256 _amountOutMin,
+                ILBRouter.Path memory _path,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, ILBRouter.Path, address, uint256)
+                );
+
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
                     _to,
                     _deadline
                 )
@@ -758,6 +837,45 @@ contract LibCorrectSwapV1 {
                 _poolPath,
                 _amount,
                 _minimumToAmount,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryTraderJoeSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.traderJoeSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("basicCorrectSwap fail!");
+        }
+    }
+
+    function traderJoeSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            ILBRouter.Path memory _path,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, ILBRouter.Path, address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
                 _to,
                 _deadline
             );
