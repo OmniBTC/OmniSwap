@@ -15,6 +15,7 @@ import {ICurveFi} from "../Interfaces/ICurveFi.sol";
 import {IWombatRouter} from "../Interfaces/IWombatRouter.sol";
 import {ILBRouter} from "../Interfaces/ILBRouter.sol";
 import {IGMXV1Router} from "../Interfaces/IGMXV1Router.sol";
+import {IPearlRouter} from "../Interfaces/IPearlRouter.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -81,6 +82,14 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC26 = IGMXV1Router.swapTokensToETH.selector;
     bytes4 private constant _FUNC27 = IGMXV1Router.swapETHToTokens.selector;
 
+    // PearlFi
+    bytes4 private constant _FUNC28 =
+        IPearlRouter.swapExactTokensForTokens.selector;
+    bytes4 private constant _FUNC29 =
+        IPearlRouter.swapExactTokensForETH.selector;
+    bytes4 private constant _FUNC30 =
+        IPearlRouter.swapExactETHForTokens.selector;
+
     //---------------------------------------------------------------------------
     // External Method
 
@@ -140,6 +149,10 @@ contract LibCorrectSwapV1 {
         } else if (sig == _FUNC25 || sig == _FUNC26) {
             return tryGMXV1Swap(_data, _amount);
         } else if (sig == _FUNC27) {
+            return _data;
+        } else if (sig == _FUNC28 || sig == _FUNC29) {
+            return tryPearlFiSwap(_data, _amount);
+        } else if (sig == _FUNC30) {
             return _data;
         }
 
@@ -495,6 +508,50 @@ contract LibCorrectSwapV1 {
                     _path,
                     _minOut + _deltaMinAmount,
                     _receiver
+                )
+            );
+        } else if (sig == _FUNC28 || sig == _FUNC29) {
+            (
+                uint256 _amount,
+                uint256 _amountOutMin,
+                IPearlRouter.route[] memory _routes,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, uint256, IPearlRouter.route[], address, uint256)
+                );
+
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _amount,
+                    _amountOutMin + _deltaMinAmount,
+                    _routes,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC30) {
+            (
+                uint256 _amountOutMin,
+                IPearlRouter.route[] memory _routes,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, IPearlRouter.route[], address, uint256)
+                );
+
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _amountOutMin + _deltaMinAmount,
+                    _routes,
+                    _to,
+                    _deadline
                 )
             );
         }
@@ -949,6 +1006,45 @@ contract LibCorrectSwapV1 {
                 _amount,
                 _minOut,
                 _receiver
+            );
+    }
+
+    function tryPearlFiSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.pearlFiSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("trader joe swap fail!");
+        }
+    }
+
+    function pearlFiSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            IPearlRouter.route[] memory _routes,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, IPearlRouter.route[], address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _routes,
+                _to,
+                _deadline
             );
     }
 }
