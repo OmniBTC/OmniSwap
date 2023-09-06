@@ -17,7 +17,7 @@ from brownie.network.transaction import TransactionReceipt
 from retrying import retry
 
 from scripts.helpful_scripts import get_account, change_network, get_cctp_message_transmitter, Process, \
-    set_start_method, Queue
+    set_start_method, Queue, reconnect_random_rpc
 from scripts.serde import get_cctp_facet
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
@@ -180,6 +180,7 @@ def get_cctp_attestation(msg_hash):
         logger.warning(f"Get cctp attestation failed: {result.json()['status']}")
         return None
 
+
 def get_facet_message(tx_hash) -> CCTPFacetMessage:
     p = project.get_loaded_projects()[-1]
     cctp_facet = get_cctp_facet()
@@ -252,10 +253,17 @@ def process_v1(
     last_process = {}
     interval = 30
 
+    last_update_endpoint = 0
+    endpoint_interval = 300
+
     while True:
         result = get_pending_data(src_chain_id=src_chain_id)
         local_logger.info(f"Get pending data len:{len(result)}")
         try:
+            if time.time() > last_update_endpoint + endpoint_interval:
+                reconnect_random_rpc()
+                last_update_endpoint = time.time()
+
             for v in result:
                 if v["extrinsicHash"] in last_process and (time.time() - last_process[v["extrinsicHash"]]) < interval:
                     continue
