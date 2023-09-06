@@ -268,6 +268,7 @@ def initialize_cctp(account, so_diamond):
         "mainnet": 0,
         "avax-main": 1,
         "arbitrum-main": 3,
+        "optimism-main": 2,
         "goerli": 0,
         "avax-test": 1,
         "arbitrum-test": 3

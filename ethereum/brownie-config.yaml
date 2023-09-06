@@ -1821,6 +1821,11 @@ networks:
             address: "0x4200000000000000000000000000000000000006"
             decimal: 18
             anytoken: "0x5fcb9de282af6122ce3518cde28b7089c9f97b26"
+      cctp:
+        domain_id: 2
+        token_messenger: "0x2B4069517957735bE00ceE0fadAE88a26365528f"
+        message_transmitter: "0x4d41f22c5a0e5c74090899e5a8fb597a8842b3e8"
+        token_minter: "0x33E76C5C31cb928dc6FE6487AB3b2C0769B1A1e3"
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"
