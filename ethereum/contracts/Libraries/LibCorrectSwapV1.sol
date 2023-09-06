@@ -14,6 +14,7 @@ import {IVault} from "../Interfaces/IVault.sol";
 import {ICurveFi} from "../Interfaces/ICurveFi.sol";
 import {IWombatRouter} from "../Interfaces/IWombatRouter.sol";
 import {ILBRouter} from "../Interfaces/ILBRouter.sol";
+import {IGMXV1Router} from "../Interfaces/IGMXV1Router.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -75,6 +76,11 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC24 =
         ILBRouter.swapExactNATIVEForTokens.selector;
 
+    // GMX V1
+    bytes4 private constant _FUNC25 = IGMXV1Router.swap.selector;
+    bytes4 private constant _FUNC26 = IGMXV1Router.swapTokensToETH.selector;
+    bytes4 private constant _FUNC27 = IGMXV1Router.swapETHToTokens.selector;
+
     //---------------------------------------------------------------------------
     // External Method
 
@@ -130,6 +136,10 @@ contract LibCorrectSwapV1 {
         } else if (sig == _FUNC22 || sig == _FUNC23) {
             return tryTraderJoeSwap(_data, _amount);
         } else if (sig == _FUNC24) {
+            return _data;
+        } else if (sig == _FUNC25 || sig == _FUNC26) {
+            return tryGMXV1Swap(_data, _amount);
+        } else if (sig == _FUNC27) {
             return _data;
         }
 
@@ -454,6 +464,37 @@ contract LibCorrectSwapV1 {
                     _path,
                     _to,
                     _deadline
+                )
+            );
+        } else if (sig == _FUNC25 || sig == _FUNC26) {
+            (
+                address[] memory _path,
+                uint256 _amount,
+                uint256 _minOut,
+                address _receiver
+            ) = abi.decode(_data[4:], (address[], uint256, uint256, address));
+
+            return (
+                _minOut,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _path,
+                    _amount,
+                    _minOut + _deltaMinAmount,
+                    _receiver
+                )
+            );
+        } else if (sig == _FUNC27) {
+            (address[] memory _path, uint256 _minOut, address _receiver) = abi
+                .decode(_data[4:], (address[], uint256, address));
+
+            return (
+                _minOut,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _path,
+                    _minOut + _deltaMinAmount,
+                    _receiver
                 )
             );
         }
@@ -809,7 +850,7 @@ contract LibCorrectSwapV1 {
         try this.wombatSwap(_data, _amount) returns (bytes memory _result) {
             return _result;
         } catch {
-            revert("basicCorrectSwap fail!");
+            revert("wombat swap fail!");
         }
     }
 
@@ -850,7 +891,7 @@ contract LibCorrectSwapV1 {
         try this.traderJoeSwap(_data, _amount) returns (bytes memory _result) {
             return _result;
         } catch {
-            revert("basicCorrectSwap fail!");
+            revert("trader joe swap fail!");
         }
     }
 
@@ -878,6 +919,36 @@ contract LibCorrectSwapV1 {
                 _path,
                 _to,
                 _deadline
+            );
+    }
+
+    function tryGMXV1Swap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.GMXV1Swap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("GMX v1 swap fail!");
+        }
+    }
+
+    function GMXV1Swap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (address[] memory _path, , uint256 _minOut, address _receiver) = abi
+            .decode(_data[4:], (address[], uint256, uint256, address));
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _path,
+                _amount,
+                _minOut,
+                _receiver
             );
     }
 }
