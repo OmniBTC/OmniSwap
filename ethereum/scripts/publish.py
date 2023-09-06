@@ -21,8 +21,9 @@ def main(net: str = None):
     p.load_config()
     change_network(net)
     deployed_contract = [
-        "LibCorrectSwapV1",
-        "GenericSwapFacet",
+        "CCTPFacet",
+        # "LibCorrectSwapV1",
+        # "GenericSwapFacet",
         # "SerdeFacet",
         # "SoDiamond",
         # "DiamondCutFacet",
@@ -40,4 +41,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main("base-main")
+    main("optimism-main")
