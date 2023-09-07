@@ -197,7 +197,10 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
                       getattr(p.interface, "IMessageTransmitter").abi
                       )
     tx = chain.get_transaction(tx_hash)
-    tx_timestamp = tx.timestamp
+    try:
+        tx_timestamp = tx.timestamp
+    except:
+        tx_timestamp = None
     events = dict(tx.events)
     messages = []
     for event in events.get("MessageSent", []):
