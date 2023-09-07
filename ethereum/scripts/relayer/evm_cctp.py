@@ -132,12 +132,14 @@ class CCTPFacetMessage:
         self.src_txid: str = None
         self.transactionId: str = None
         self.fee: int = None
+        self.src_timestamp = None
 
     def to_dict(self):
         return {
             "token_message": self.token_message.to_dict(),
             "payload_message": self.payload_message.to_dict(),
             "src_txid": self.src_txid,
+            "src_timestamp": self.src_timestamp,
             "transactionId": self.transactionId,
             "fee": self.fee
         }
@@ -150,6 +152,7 @@ class CCTPFacetMessage:
         result.src_txid = data["src_txid"]
         result.transactionId = data["transactionId"]
         result.fee = data["fee"]
+        result.src_timestamp = data["src_timestamp"]
         return result
 
 
@@ -193,7 +196,9 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
                       get_cctp_message_transmitter(),
                       getattr(p.interface, "IMessageTransmitter").abi
                       )
-    events = dict(chain.get_transaction(tx_hash).events)
+    tx = chain.get_transaction(tx_hash)
+    tx_timestamp = tx.timestamp
+    events = dict(tx.events)
     messages = []
     for event in events.get("MessageSent", []):
         message = event["message"].hex()
@@ -204,6 +209,7 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
         cctp_message.attestation = format_hex(get_cctp_attestation(cctp_message.msgHash))
         messages.append(cctp_message)
     result = CCTPFacetMessage()
+    result.src_timestamp = tx_timestamp
     result.src_txid = tx_hash
     if len(messages) > 0:
         result.token_message = messages[0]
@@ -261,13 +267,14 @@ def process_v1(
     """
     local_logger = logger.getChild(f"[v1|{network.show_active()}]")
     local_logger.info("Starting process v1...")
+    reconnect_random_rpc()
     src_chain_id = chain.id
 
     last_process = {}
     interval = 30
 
     last_update_endpoint = 0
-    endpoint_interval = 300
+    endpoint_interval = 30
 
     while True:
         result = get_pending_data(src_chain_id=src_chain_id)
@@ -275,6 +282,7 @@ def process_v1(
         try:
             if time.time() > last_update_endpoint + endpoint_interval:
                 reconnect_random_rpc()
+                local_logger.info(f"Update rpc")
                 last_update_endpoint = time.time()
 
             for v in result:
@@ -332,11 +340,13 @@ def process_v2(
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
     local_logger.info(f"SoDiamond:{dstSoDiamond}, acc:{get_account().address}")
+    reconnect_random_rpc()
     cctp_facet = get_cctp_facet()
     account = get_account()
     local_logger.info("Get token price")
     price_info = get_token_price()
     last_price_update = time.time()
+    tx_max_interval = 1800
     while True:
         local_logger.info("Get item from queue")
         data = None
@@ -371,6 +381,9 @@ def process_v2(
                 continue
             else:
                 logger.info(f"Gas limit is {gas_limit} for transaction")
+            if data.src_timestamp is not None and time.time() > data.src_timestamp + tx_max_interval:
+                logger.info(f"Tx timeout too long")
+                gas_limit = None
             if not is_compensate:
                 result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
                     format_hex(data.token_message.message),
