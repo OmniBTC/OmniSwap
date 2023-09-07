@@ -12,6 +12,11 @@
                         "DomainId": 1
                     },
                     {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "Decimal": 6,
+                        "DomainId": 0
+                    },
+                    {
                         "Address": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
                         "Decimal": 6,
                         "DomainId": 2
@@ -33,6 +38,39 @@
                         "Address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
                         "Decimal": 6,
                         "DomainId": 3
+                    },
+                    {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "Decimal": 6,
+                        "DomainId": 0
+                    },
+                    {
+                        "Address": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+                        "Decimal": 6,
+                        "DomainId": 2
+                    }
+                ],
+                "Decimal": 6,
+                "TokenName": "USDC"
+            }
+        ]
+    },
+    "mainnet": {
+        "ChainId": 1,
+        "DomainId": 0,
+        "SupportTokens": [
+            {
+                "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                "ChainPath": [
+                    {
+                        "Address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                        "Decimal": 6,
+                        "DomainId": 3
+                    },
+                    {
+                        "Address": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                        "Decimal": 6,
+                        "DomainId": 1
                     },
                     {
                         "Address": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
@@ -61,6 +99,11 @@
                         "Address": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
                         "Decimal": 6,
                         "DomainId": 1
+                    },
+                    {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "Decimal": 6,
+                        "DomainId": 0
                     }
                 ],
                 "Decimal": 6,
