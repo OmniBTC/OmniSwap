@@ -1047,6 +1047,10 @@ networks:
         address: "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6"
         decimal: 18
     swap:
+      ICurveFi:
+        name: Curve
+        router: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
+        token_list: ""
       ISwapRouter:
         name: UniswapV3
         router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
@@ -1407,6 +1411,14 @@ networks:
         address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
         decimal: 6
     swap:
+      IVault:
+        name: BalancerV2
+        router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
+        token_list: ""
+      ICurveFi:
+        name: Curve
+        router: "0x1da20Ac34187b2d9c74F729B85acB225D3341b25"
+        token_list: ""
       IGMXV1Router:
         name: GMXV1
         router: "0x5F719c2F1095F7B9fc68a68e35B51194f4b6abe8"
@@ -1593,6 +1605,10 @@ networks:
         address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D'
         decimal: 6
     swap:
+      ICurveFi:
+        name: Curve
+        router: "0x1d8b86e3D88cDb2d34688e87E72F388Cb541B7C8"
+        token_list: ""
       IPearlRouter:
         name: PearlFi
         router: "0xcC25C0FD84737F44a7d38649b69491BBf0c7f083"
@@ -1729,6 +1745,10 @@ networks:
         address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
         decimal: 18
     swap:
+      IVault:
+        name: BalancerV2
+        router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
+        token_list: ""
       ILBRouter:
         name: Trader Joe
         router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
@@ -1861,6 +1881,10 @@ networks:
         address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
         decimal: 6
     swap:
+      ICurveFi:
+        name: Curve
+        router: "0x1337bedc9d22ecbe766df105c9623922a27963ec"
+        token_list: ""
       ISwapRouter:
         name: UniswapV3
         router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
