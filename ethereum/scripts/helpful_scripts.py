@@ -415,7 +415,12 @@ def get_account_address():
 
 def reconnect_random_rpc():
     endpoints: list = config["networks"][network.show_active()]["endpoints"]
-    brownie.web3.disconnect()
-    rpc_url = random.choice(endpoints)
-    brownie.web3.connect(rpc_url)
-    return rpc_url
+    while True:
+        try:
+            brownie.web3.eth.get_block_number()
+            break
+        except:
+            pass
+        brownie.web3.disconnect()
+        rpc_url = random.choice(endpoints)
+        brownie.web3.connect(rpc_url)

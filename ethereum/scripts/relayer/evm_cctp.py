@@ -238,6 +238,14 @@ def get_pending_data(url: str = None, src_chain_id: int = None) -> list:
         return []
 
 
+def clear_queue(q: Queue):
+    while not q.empty():
+        try:
+            q.get_nowait()
+        except:
+            break
+
+
 def process_v1(
         _destinationDomain: int,
         _dstSoDiamond: str,
@@ -285,6 +293,11 @@ def process_v1(
 
                 dst_domain = data.token_message.msgDestinationDomain
                 dst_net = DOMAIN_TO_NET[dst_domain]
+
+                if dst_storage[dst_domain].qsize() > 30:
+                    # Avoid mem leak
+                    clear_queue(dst_storage[dst_domain])
+
                 dst_storage[dst_domain].put(data.to_dict())
                 local_logger.info(f"Put {dst_net} item for txid: {data.src_txid}")
         except:
@@ -321,6 +334,7 @@ def process_v2(
     last_price_update = time.time()
     while True:
         local_logger.info("Get item from queue")
+        data = None
         try:
             try:
                 data = dst_storage[destinationDomain].get()
@@ -384,7 +398,7 @@ def process_v2(
         except:
             import traceback
             err = traceback.format_exc()
-            local_logger.error(f"Get error:{err}")
+            local_logger.error(f"Src txid:{getattr(data, '', None)}, get error:{err}")
 
 
 class Session(Process):
