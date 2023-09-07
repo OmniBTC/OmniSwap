@@ -9,7 +9,7 @@ from brownie import project, network, config, chain
 import threading
 
 from brownie.network.transaction import TransactionReceipt
-from scripts.helpful_scripts import get_account, change_network, padding_to_bytes
+from scripts.helpful_scripts import get_account, change_network, padding_to_bytes, reconnect_random_rpc
 from scripts.relayer.select_evm import (
     get_pending_data,
     get_signed_vaa,
@@ -168,6 +168,9 @@ def process_v1(
     local_logger = logger.getChild(f"[v1|{network.show_active()}]")
     local_logger.info("Starting process v1...")
     local_logger.info(f"SoDiamond:{dstSoDiamond}, acc:{get_account().address}")
+    reconnect_random_rpc()
+    last_update_endpoint = 0
+    endpoint_interval = 30
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
@@ -175,6 +178,10 @@ def process_v1(
         url = "http://wormhole-vaa.chainx.org"
     while True:
         try:
+            if time.time() > last_update_endpoint + endpoint_interval:
+                reconnect_random_rpc()
+                local_logger.info(f"Update rpc")
+                last_update_endpoint = time.time()
             result = get_signed_vaa_by_to(dstWormholeChainId, url=url)
             result = [
                 d
@@ -213,6 +220,9 @@ def process_v2(
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
     local_logger.info(f"SoDiamond:{dstSoDiamond}, acc:{get_account().address}")
+    reconnect_random_rpc()
+    last_update_endpoint = 0
+    endpoint_interval = 30
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
         url = "http://wormhole-testnet.sherpax.io"
@@ -227,6 +237,10 @@ def process_v2(
         local_logger.info(f"Get signed vaa length: {len(pending_data)}")
         for d in pending_data:
             try:
+                if time.time() > last_update_endpoint + endpoint_interval:
+                    reconnect_random_rpc()
+                    local_logger.info(f"Update rpc")
+                    last_update_endpoint = time.time()
                 vaa = get_signed_vaa(
                     int(d["sequence"]), int(d["srcWormholeChainId"]), url=url
                 )

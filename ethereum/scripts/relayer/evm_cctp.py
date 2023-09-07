@@ -347,10 +347,18 @@ def process_v2(
     price_info = get_token_price()
     last_price_update = time.time()
     tx_max_interval = 1800
+
+    last_update_endpoint = 0
+    endpoint_interval = 30
+
     while True:
         local_logger.info("Get item from queue")
         data = None
         try:
+            if time.time() > last_update_endpoint + endpoint_interval:
+                reconnect_random_rpc()
+                local_logger.info(f"Update rpc")
+                last_update_endpoint = time.time()
             try:
                 data = dst_storage[destinationDomain].get()
             except Exception as e:
