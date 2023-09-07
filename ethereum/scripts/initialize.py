@@ -256,7 +256,7 @@ def batch_set_bool_allowed_address(account, so_diamond):
     bool_facet.batchSetBoolAllowedAddresses(pool_addresses, allow, {"from": account})
 
 
-def initialize_cctp(account, so_diamond):
+def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_cctp = Contract.from_abi("CCTPFacet", so_diamond.address, CCTPFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init cctp...")
@@ -281,7 +281,7 @@ def initialize_cctp(account, so_diamond):
     dstBaseGasInfo = {
         3000000: ["arbitrum-main", "optimism-main"],
         1050000: ["avax-main"],
-        700000: ["mainnet"]
+        612500: ["mainnet"]
     }
     for dstBaseGas, nets in dstBaseGasInfo.items():
         dst_domain = [dst_domains[net] for net in nets]
