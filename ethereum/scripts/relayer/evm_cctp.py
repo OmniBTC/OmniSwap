@@ -27,6 +27,11 @@ logger.setLevel("INFO")
 
 SUPPORTED_EVM = [
     {
+        "destinationDomain": 0,
+        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+        "dstNet": "mainnet",
+    },
+    {
         "destinationDomain": 1,
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "avax-main",

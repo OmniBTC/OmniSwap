@@ -277,10 +277,19 @@ def initialize_cctp(account, so_diamond):
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" in k}
     else:
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
-    dstBaseGas = 700000
+
+    dstBaseGasInfo = {
+        3000000: ["arbitrum-main", "optimism-main"],
+        1050000: ["avax-main"],
+        700000: ["mainnet"]
+    }
+    for dstBaseGas, nets in dstBaseGasInfo.items():
+        dst_domain = [dst_domains[net] for net in nets]
+        print(f"Set dst net:{nets} base gas:{dstBaseGas} ")
+        proxy_cctp.setCCTPBaseGas(dst_domain, dstBaseGas, {"from": account})
+
     dstGasPerBytes = 68
-    print(f"Set dst net:{list(dst_domains.keys())} base gas:{dstBaseGas} gas per bytes:{dstGasPerBytes}")
-    proxy_cctp.setCCTPBaseGas(list(dst_domains.values()), dstBaseGas, {"from": account})
+    print(f"Set dst net:{list(dst_domains.keys())} gas per bytes:{dstGasPerBytes}")
     proxy_cctp.setCCTPGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
 
 
