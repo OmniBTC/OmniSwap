@@ -858,15 +858,15 @@ networks:
         address: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA"
         decimal: 6
     swap:
-#       ISwapRouter:
-#         name: SushiswapV3
-#         router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
-#         token_list: ""
-#         quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
-#      IUniswapV2Router02:
-#        name: BaseswapV2
-#        router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
-#        token_list: ""
+      #       ISwapRouter:
+      #         name: SushiswapV3
+      #         router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
+      #         token_list: ""
+      #         quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
+      #      IUniswapV2Router02:
+      #        name: BaseswapV2
+      #        router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
+      #        token_list: ""
       IAerodrome:
         name: Aerodrome
         router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
@@ -886,10 +886,10 @@ networks:
         router: "0xD58f563A7D6150a2575C74065CB18f53EC2e9D07"
         token_list: ""
         quoter: "0x64F477C68049B554113Bab6526038bcF5643136c"
-#      IUniswapV2Router02:
-#        name: SwapBasedV2
-#        router: "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066"
-#        token_list: ""
+  #      IUniswapV2Router02:
+  #        name: SwapBasedV2
+  #        router: "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066"
+  #        token_list: ""
   mainnet:
     omnibtc_chainid: 2
     chainid: 1
@@ -1048,6 +1048,10 @@ networks:
         address: "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6"
         decimal: 18
     swap:
+      ICurveFi:
+        name: Curve
+        router: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
+        token_list: ""
       ISwapRouter:
         name: UniswapV3
         router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
@@ -1225,10 +1229,22 @@ networks:
         address: '0xB04906e95AB5D797aDA81508115611fee694c2b3'
         decimal: 6
     swap:
+      IWombatRouter:
+        name: WombatExchange
+        router: "0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7"
+        token_list: ""
       IUniswapV2Router02:
-        name: PancakeSwapV2
-        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
-        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
+        name: BiSwap
+        router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
+        token_list: ""
+      #      IUniswapV2Router02:
+      #        name: THENA
+      #        router: "0xd4ae6eCA985340Dd434D38F470aCCce4DC78D109"
+      #        token_list: ""
+      #      IUniswapV2Router02:
+      #        name: PancakeSwapV2
+      #        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
+      #        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
       ISwapRouter:
         name: PancakeSwapV3
         router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
@@ -1398,6 +1414,22 @@ networks:
         address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
         decimal: 6
     swap:
+      IVault:
+        name: BalancerV2
+        router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
+        token_list: ""
+      ICurveFi:
+        name: Curve
+        router: "0x1da20Ac34187b2d9c74F729B85acB225D3341b25"
+        token_list: ""
+      IGMXV1Router:
+        name: GMXV1
+        router: "0x5F719c2F1095F7B9fc68a68e35B51194f4b6abe8"
+        token_list: ""
+      ILBRouter:
+        name: Trader Joe
+        router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
+        token_list: ""
       IUniswapV2Router02AVAX:
         name: PangolinV2
         router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
@@ -1577,6 +1609,14 @@ networks:
         address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D'
         decimal: 6
     swap:
+      ICurveFi:
+        name: Curve
+        router: "0x1d8b86e3D88cDb2d34688e87E72F388Cb541B7C8"
+        token_list: ""
+      IPearlRouter:
+        name: PearlFi
+        router: "0xcC25C0FD84737F44a7d38649b69491BBf0c7f083"
+        token_list: ""
       ISwapRouter:
         name: UniswapV3
         router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
@@ -1710,6 +1750,18 @@ networks:
         address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
         decimal: 18
     swap:
+      IVault:
+        name: BalancerV2
+        router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
+        token_list: ""
+      ILBRouter:
+        name: Trader Joe
+        router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
+        token_list: ""
+      IGMXV1Router:
+        name: GMX V1
+        router: "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064"
+        token_list: ""
       ISwapRouter:
         name: UniswapV3
         router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
@@ -1842,6 +1894,10 @@ networks:
         address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
         decimal: 6
     swap:
+      ICurveFi:
+        name: Curve
+        router: "0x1337bedc9d22ecbe766df105c9623922a27963ec"
+        token_list: ""
       ISwapRouter:
         name: UniswapV3
         router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
@@ -1850,6 +1906,10 @@ networks:
       IUniswapV2Router02:
         name: ZipSwapV2
         router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
+        token_list: ""
+      IVelodrome:
+        name: Velodrome
+        router: "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858"
         token_list: ""
   #      IUniswapV2Router02:
   #        name: ZipSwapV2

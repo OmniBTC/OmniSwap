@@ -10,6 +10,12 @@ import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
 import {IQuickSwapRouter} from "../Interfaces/IQuickSwapRouter.sol";
 import {IAerodrome} from "../Interfaces/IAerodrome.sol";
 import {ISwapRouter02} from "../Interfaces/ISwapRouter02.sol";
+import {IVault} from "../Interfaces/IVault.sol";
+import {ICurveFi} from "../Interfaces/ICurveFi.sol";
+import {IWombatRouter} from "../Interfaces/IWombatRouter.sol";
+import {ILBRouter} from "../Interfaces/ILBRouter.sol";
+import {IGMXV1Router} from "../Interfaces/IGMXV1Router.sol";
+import {IPearlRouter} from "../Interfaces/IPearlRouter.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -47,6 +53,42 @@ contract LibCorrectSwapV1 {
 
     // UniswapV3
     bytes4 private constant _FUNC15 = ISwapRouter02.exactInput.selector;
+
+    // BalancerV2
+    bytes4 private constant _FUNC16 = IVault.swap.selector;
+
+    // Curve
+    bytes4 private constant _FUNC17 = ICurveFi.exchange.selector;
+    bytes4 private constant _FUNC18 = ICurveFi.exchange_underlying.selector;
+
+    // bsc,Wombat
+    bytes4 private constant _FUNC19 =
+        IWombatRouter.swapExactTokensForTokens.selector;
+    bytes4 private constant _FUNC20 =
+        IWombatRouter.swapExactTokensForNative.selector;
+    bytes4 private constant _FUNC21 =
+        IWombatRouter.swapExactNativeForTokens.selector;
+
+    // Trader Joe
+    bytes4 private constant _FUNC22 =
+        ILBRouter.swapExactTokensForTokens.selector;
+    bytes4 private constant _FUNC23 =
+        ILBRouter.swapExactTokensForNATIVE.selector;
+    bytes4 private constant _FUNC24 =
+        ILBRouter.swapExactNATIVEForTokens.selector;
+
+    // GMX V1
+    bytes4 private constant _FUNC25 = IGMXV1Router.swap.selector;
+    bytes4 private constant _FUNC26 = IGMXV1Router.swapTokensToETH.selector;
+    bytes4 private constant _FUNC27 = IGMXV1Router.swapETHToTokens.selector;
+
+    // PearlFi
+    bytes4 private constant _FUNC28 =
+        IPearlRouter.swapExactTokensForTokens.selector;
+    bytes4 private constant _FUNC29 =
+        IPearlRouter.swapExactTokensForETH.selector;
+    bytes4 private constant _FUNC30 =
+        IPearlRouter.swapExactETHForTokens.selector;
 
     //---------------------------------------------------------------------------
     // External Method
@@ -88,6 +130,30 @@ contract LibCorrectSwapV1 {
             return tryAerodrome(_data, _amount);
         } else if (sig == _FUNC15) {
             return tryExactInputV2(_data, _amount);
+        } else if (sig == _FUNC16) {
+            return tryBalancerV2SingleSwap(_data, _amount);
+        } else if (sig == _FUNC17) {
+            return tryCurveExchange(_data, _amount);
+        } else if (sig == _FUNC18) {
+            return tryCurveExchangeUnderlying(_data, _amount);
+        } else if (sig == _FUNC19) {
+            return tryWombatSwap(_data, _amount);
+        } else if (sig == _FUNC20) {
+            return tryWombatSwap(_data, _amount);
+        } else if (sig == _FUNC21) {
+            return _data;
+        } else if (sig == _FUNC22 || sig == _FUNC23) {
+            return tryTraderJoeSwap(_data, _amount);
+        } else if (sig == _FUNC24) {
+            return _data;
+        } else if (sig == _FUNC25 || sig == _FUNC26) {
+            return tryGMXV1Swap(_data, _amount);
+        } else if (sig == _FUNC27) {
+            return _data;
+        } else if (sig == _FUNC28 || sig == _FUNC29) {
+            return tryPearlFiSwap(_data, _amount);
+        } else if (sig == _FUNC30) {
+            return _data;
         }
 
         // fuzzy matching
@@ -270,6 +336,224 @@ contract LibCorrectSwapV1 {
             uint256 _amountOutMin = params.amountOutMinimum;
             params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
             return (_amountOutMin, abi.encodeWithSelector(sig, params));
+        } else if (sig == _FUNC16) {
+            (
+                IVault.SingleSwap memory singleSwap,
+                IVault.FundManagement memory funds,
+                uint256 limit,
+                uint256 deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (IVault.SingleSwap, IVault.FundManagement, uint256, uint256)
+                );
+            if (singleSwap.kind == IVault.SwapKind.GIVEN_OUT) {
+                revert("not support GIVEN_OUT");
+            }
+            return (
+                limit,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    singleSwap,
+                    funds,
+                    limit + _deltaMinAmount,
+                    deadline
+                )
+            );
+        } else if (sig == _FUNC17) {
+            (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+                _data[4:],
+                (int128, int128, uint256, uint256)
+            );
+            return (
+                min_dy,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    i,
+                    j,
+                    dx,
+                    min_dy + _deltaMinAmount
+                )
+            );
+        } else if (sig == _FUNC18) {
+            (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+                _data[4:],
+                (int128, int128, uint256, uint256)
+            );
+            return (
+                min_dy,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    i,
+                    j,
+                    dx,
+                    min_dy + _deltaMinAmount
+                )
+            );
+        } else if (sig == _FUNC19 || sig == _FUNC20) {
+            (
+                address[] memory _tokenPath,
+                address[] memory _poolPath,
+                uint256 _amount,
+                uint256 _minimumToAmount,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (address[], address[], uint256, uint256, address, uint256)
+                );
+            return (
+                _minimumToAmount,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _tokenPath,
+                    _poolPath,
+                    _amount,
+                    _minimumToAmount + _deltaMinAmount,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC21) {
+            (
+                address[] memory _tokenPath,
+                address[] memory _poolPath,
+                uint256 _minimumToAmount,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (address[], address[], uint256, address, uint256)
+                );
+            return (
+                _minimumToAmount,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _tokenPath,
+                    _poolPath,
+                    _minimumToAmount + _deltaMinAmount,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC22 || sig == _FUNC23) {
+            (
+                uint256 _amount,
+                uint256 _amountOutMin,
+                ILBRouter.Path memory _path,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, uint256, ILBRouter.Path, address, uint256)
+                );
+
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _amount,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC24) {
+            (
+                uint256 _amountOutMin,
+                ILBRouter.Path memory _path,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, ILBRouter.Path, address, uint256)
+                );
+
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC25 || sig == _FUNC26) {
+            (
+                address[] memory _path,
+                uint256 _amount,
+                uint256 _minOut,
+                address _receiver
+            ) = abi.decode(_data[4:], (address[], uint256, uint256, address));
+
+            return (
+                _minOut,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _path,
+                    _amount,
+                    _minOut + _deltaMinAmount,
+                    _receiver
+                )
+            );
+        } else if (sig == _FUNC27) {
+            (address[] memory _path, uint256 _minOut, address _receiver) = abi
+                .decode(_data[4:], (address[], uint256, address));
+
+            return (
+                _minOut,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _path,
+                    _minOut + _deltaMinAmount,
+                    _receiver
+                )
+            );
+        } else if (sig == _FUNC28 || sig == _FUNC29) {
+            (
+                uint256 _amount,
+                uint256 _amountOutMin,
+                IPearlRouter.route[] memory _routes,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, uint256, IPearlRouter.route[], address, uint256)
+                );
+
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _amount,
+                    _amountOutMin + _deltaMinAmount,
+                    _routes,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC30) {
+            (
+                uint256 _amountOutMin,
+                IPearlRouter.route[] memory _routes,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, IPearlRouter.route[], address, uint256)
+                );
+
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    bytes4(_data[:4]),
+                    _amountOutMin + _deltaMinAmount,
+                    _routes,
+                    _to,
+                    _deadline
+                )
+            );
         }
 
         revert("fix amount fail!");
@@ -522,5 +806,245 @@ contract LibCorrectSwapV1 {
         params.amountIn = _amount;
 
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryBalancerV2SingleSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.balcnerV2SingleSwap(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("balcnerV2SingleSwap fail!");
+        }
+    }
+
+    function balcnerV2SingleSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            IVault.SingleSwap memory singleSwap,
+            IVault.FundManagement memory funds,
+            uint256 limit,
+            uint256 deadline
+        ) = abi.decode(
+                _data[4:],
+                (IVault.SingleSwap, IVault.FundManagement, uint256, uint256)
+            );
+        singleSwap.amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                singleSwap,
+                funds,
+                limit,
+                deadline
+            );
+    }
+
+    function tryCurveExchange(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.curveExchange(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("curveV2Exchange fail!");
+        }
+    }
+
+    function curveExchange(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+            _data[4:],
+            (int128, int128, uint256, uint256)
+        );
+        dx = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
+    }
+
+    function tryCurveExchangeUnderlying(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.curveExchangeUnderlying(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("curveV2ExchangeUnderlying fail!");
+        }
+    }
+
+    function curveExchangeUnderlying(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+            _data[4:],
+            (int128, int128, uint256, uint256)
+        );
+        dx = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
+    }
+
+    function tryWombatSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.wombatSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("wombat swap fail!");
+        }
+    }
+
+    function wombatSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            address[] memory _tokenPath,
+            address[] memory _poolPath,
+            ,
+            uint256 _minimumToAmount,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (address[], address[], uint256, uint256, address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _tokenPath,
+                _poolPath,
+                _amount,
+                _minimumToAmount,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryTraderJoeSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.traderJoeSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("trader joe swap fail!");
+        }
+    }
+
+    function traderJoeSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            ILBRouter.Path memory _path,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, ILBRouter.Path, address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryGMXV1Swap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.GMXV1Swap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("GMX v1 swap fail!");
+        }
+    }
+
+    function GMXV1Swap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (address[] memory _path, , uint256 _minOut, address _receiver) = abi
+            .decode(_data[4:], (address[], uint256, uint256, address));
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _path,
+                _amount,
+                _minOut,
+                _receiver
+            );
+    }
+
+    function tryPearlFiSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.pearlFiSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("trader joe swap fail!");
+        }
+    }
+
+    function pearlFiSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            IPearlRouter.route[] memory _routes,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, IPearlRouter.route[], address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _routes,
+                _to,
+                _deadline
+            );
     }
 }
