@@ -391,6 +391,7 @@ def process_v2(
                 logger.warning(f"Gas fee:{src_fee}, gas limit is zero, refuse relay")
                 continue
             elif gas_limit > 10000000:
+                logger.warning(f"Gas price err:{gas_price}, gas limit too high, set 10000000")
                 gas_limit = 10000000
             else:
                 logger.info(f"Gas limit is {gas_limit} for transaction")
