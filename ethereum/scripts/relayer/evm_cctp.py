@@ -390,6 +390,8 @@ def process_v2(
             elif gas_limit == 0:
                 logger.warning(f"Gas fee:{src_fee}, gas limit is zero, refuse relay")
                 continue
+            elif gas_limit > 10000000:
+                gas_limit = 10000000
             else:
                 logger.info(f"Gas limit is {gas_limit} for transaction")
             if data.src_timestamp is not None and time.time() > data.src_timestamp + tx_max_interval:
