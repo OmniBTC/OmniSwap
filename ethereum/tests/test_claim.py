@@ -41,7 +41,7 @@ def test_claim(token, claim):
     # # Check state
     indexes = random.choices(list(range(len(test_account_data))), k=100)
     for i in indexes:
-        address = indexes[i][1]
+        address = test_account_data[i][0]
         address_index = get_address_index(address)
         assert address_index != "NotClaimed", "NotClaimed"
         proof_data = read_json(file_path.joinpath(f"{address_index}.json"))
