@@ -399,14 +399,13 @@ def process_v2(
                 logger.info(f"Tx timeout too long")
                 gas_limit = None
             if not is_compensate:
+                account_info = {"from": account} if gas_limit is None else {"from": account, "gas_limit": gas_limit}
                 result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
                     format_hex(data.token_message.message),
                     format_hex(data.token_message.attestation),
                     format_hex(data.payload_message.message),
                     format_hex(data.payload_message.attestation),
-                    {"from": account,
-                     "gas_limit": gas_limit
-                     }
+                    account_info
                 )
             else:
                 result: TransactionReceipt = cctp_facet.receiveCCTPMessageByOwner(
