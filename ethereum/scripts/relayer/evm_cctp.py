@@ -270,8 +270,7 @@ def process_v1(
     """
     local_logger = logger.getChild(f"[v1|{network.show_active()}]")
     local_logger.info("Starting process v1...")
-    reconnect_random_rpc()
-    src_chain_id = chain.id
+    src_chain_id = None
 
     last_process = {}
     interval = 30
@@ -287,6 +286,9 @@ def process_v1(
                 reconnect_random_rpc()
                 local_logger.info(f"Update rpc")
                 last_update_endpoint = time.time()
+
+            if src_chain_id is None:
+                src_chain_id = chain.id
 
             for v in result:
                 if v["extrinsicHash"] in last_process and (time.time() - last_process[v["extrinsicHash"]]) < interval:
@@ -343,12 +345,10 @@ def process_v2(
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
     local_logger.info(f"SoDiamond:{dstSoDiamond}, acc:{get_account().address}")
-    reconnect_random_rpc()
-    cctp_facet = get_cctp_facet()
+    cctp_facet = None
     account = get_account()
-    local_logger.info("Get token price")
-    price_info = get_token_price()
-    last_price_update = time.time()
+    price_info = None
+    last_price_update = 0
     tx_max_interval = 1800
 
     last_update_endpoint = 0
@@ -362,6 +362,8 @@ def process_v2(
                 reconnect_random_rpc()
                 local_logger.info(f"Update rpc")
                 last_update_endpoint = time.time()
+            if cctp_facet is None:
+                cctp_facet = get_cctp_facet()
             try:
                 data = dst_storage[destinationDomain].get()
             except Exception as e:
@@ -399,14 +401,13 @@ def process_v2(
                 logger.info(f"Tx timeout too long")
                 gas_limit = None
             if not is_compensate:
+                account_info = {"from": account} if gas_limit is None else {"from": account, "gas_limit": gas_limit}
                 result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
                     format_hex(data.token_message.message),
                     format_hex(data.token_message.attestation),
                     format_hex(data.payload_message.message),
                     format_hex(data.payload_message.attestation),
-                    {"from": account,
-                     "gas_limit": gas_limit
-                     }
+                    account_info
                 )
             else:
                 result: TransactionReceipt = cctp_facet.receiveCCTPMessageByOwner(
