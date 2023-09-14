@@ -497,7 +497,7 @@ def record_gas(
         dst_net: str,
         src_txid=None,
         dst_txid=None,
-        file_path=Path(__file__).parent.joinpath("gas"),
+        file_path=Path(__file__).parent.parent.parent.parent.joinpath("gas"),
 ):
     if isinstance(file_path, str):
         file_path = Path(file_path)
