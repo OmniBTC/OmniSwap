@@ -5,15 +5,15 @@ from multiprocessing import Process, set_start_method
 from pathlib import Path
 
 import pandas as pd
-from brownie import project, network, config, chain
+from brownie import project, network
 import threading
 
 from brownie.network.transaction import TransactionReceipt
-from scripts.helpful_scripts import get_account, change_network, padding_to_bytes, reconnect_random_rpc
+from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc
 from scripts.relayer.select_evm import (
     get_pending_data,
-    get_signed_vaa,
-    get_signed_vaa_by_to,
+    get_signed_vaa_by_wormhole,
+    get_chain_id_to_net
 )
 from scripts.serde import parse_vaa_to_wormhole_payload, get_wormhole_facet
 
@@ -64,10 +64,7 @@ def process_vaa(
         emitterChainId: str,
         sequence: str,
         local_logger,
-        inner_interval: int = None,
-        over_interval: int = None,
-        WORMHOLE_CHAINID_TO_NET: dict = None,
-        limit_gas_price=True,
+        limit_gas_price=True
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
@@ -86,19 +83,7 @@ def process_vaa(
             f"sequence:{sequence} error: {e}"
         )
         return False
-    if inner_interval is not None and time.time() > int(vaa_data[1]) + inner_interval:
-        local_logger.warning(
-            f"For emitterChainId:{emitterChainId}, sequence:{sequence} "
-            f"need in {int(inner_interval / 60)}min"
-        )
-        return False
 
-    if over_interval is not None and time.time() <= int(vaa_data[1]) + over_interval:
-        local_logger.warning(
-            f"For emitterChainId:{emitterChainId}, sequence:{sequence} "
-            f"need out {int(over_interval / 60)}min"
-        )
-        return False
     if transfer_data[4] != dstSoDiamond:
         local_logger.warning(
             f"For emitterChainId:{emitterChainId}, sequence:{sequence} dstSoDiamond: {dstSoDiamond} "
@@ -125,8 +110,8 @@ def process_vaa(
                 dst_max_gas_price,
                 result.gas_used,
                 result.gas_price,
-                src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
-                if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET
+                src_net=get_chain_id_to_net()[vaa_data["emitterChainId"]]
+                if int(vaa_data["emitterChainId"]) in get_chain_id_to_net()
                 else 0,
                 dst_net=network.show_active(),
                 payload_len=int(len(vaa_str) / 2 - 1),
@@ -153,70 +138,10 @@ def process_vaa(
     return True
 
 
-def process_v1(
-        dstWormholeChainId: int,
-        dstSoDiamond: str,
-):
-    WORMHOLE_CHAINID_TO_NET = {
-        config["networks"][net]["wormhole"]["chainid"]: net
-        for net in config["networks"]
-        if "wormhole" in config["networks"][net]
-           and "chainid" in config["networks"][net]["wormhole"]
-        if ("main" in list(SUPPORTED_EVM)[0]["dstNet"] and "main" in net)
-           or ("main" not in list(SUPPORTED_EVM)[0]["dstNet"] and "main" not in net)
-    }
-    local_logger = logger.getChild(f"[v1|{network.show_active()}]")
-    local_logger.info("Starting process v1...")
-    local_logger.info(f"SoDiamond:{dstSoDiamond}, acc:{get_account().address}")
-    reconnect_random_rpc()
-    last_update_endpoint = 0
-    endpoint_interval = 30
-    has_process = {}
-    if "test" in network.show_active() or "test" == "goerli":
-        url = "http://wormhole-testnet.sherpax.io"
-    else:
-        url = "http://wormhole-vaa.chainx.org"
-    while True:
-        try:
-            if time.time() > last_update_endpoint + endpoint_interval:
-                reconnect_random_rpc()
-                local_logger.info(f"Update rpc")
-                last_update_endpoint = time.time()
-            result = get_signed_vaa_by_to(dstWormholeChainId, url=url)
-            result = [
-                d
-                for d in result
-                if (int(d["emitterChainId"]), int(d["sequence"])) not in has_process
-            ]
-        except Exception:
-            continue
-        local_logger.info(f"Get signed vaa by to length: {len(result)}")
-        for d in result[::-1]:
-            has_process[(int(d["emitterChainId"]), int(d["sequence"]))] = True
-            process_vaa(
-                dstSoDiamond,
-                d["hexString"],
-                d["emitterChainId"],
-                d["sequence"],
-                local_logger,
-                inner_interval=10 * 60,
-                WORMHOLE_CHAINID_TO_NET=WORMHOLE_CHAINID_TO_NET,
-            )
-        time.sleep(60)
-
-
 def process_v2(
         dstWormholeChainId: int,
         dstSoDiamond: str,
 ):
-    WORMHOLE_CHAINID_TO_NET = {
-        config["networks"][net]["wormhole"]["chainid"]: net
-        for net in config["networks"]
-        if "wormhole" in config["networks"][net]
-           and "chainid" in config["networks"][net]["wormhole"]
-        if ("main" in list(SUPPORTED_EVM)[0]["dstNet"] and "main" in net)
-           or ("main" not in list(SUPPORTED_EVM)[0]["dstNet"] and "main" not in net)
-    }
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
     local_logger.info(f"SoDiamond:{dstSoDiamond}, acc:{get_account().address}")
@@ -225,30 +150,30 @@ def process_v2(
     endpoint_interval = 30
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
-        url = "http://wormhole-testnet.sherpax.io"
-        pending_url = (
-            "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
-        )
+        pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
     else:
-        url = "http://wormhole-vaa.chainx.org"
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     while True:
-        pending_data = get_pending_data(url=pending_url)
-        local_logger.info(f"Get signed vaa length: {len(pending_data)}")
+        try:
+            pending_data = get_pending_data(url=pending_url, dstWormholeChainId=dstWormholeChainId)
+            local_logger.info(f"Get signed vaa length: {len(pending_data)}")
+        except Exception as e:
+            local_logger.error(
+                f'Get pending data for {network.show_active()} error: {e}'
+            )
+            continue
+
         for d in pending_data:
             try:
                 if time.time() > last_update_endpoint + endpoint_interval:
                     reconnect_random_rpc()
                     local_logger.info(f"Update rpc")
                     last_update_endpoint = time.time()
-                vaa = get_signed_vaa(
-                    int(d["sequence"]), int(d["srcWormholeChainId"]), url=url
-                )
+                vaa = get_signed_vaa_by_wormhole(int(d["sequence"]), int(d["srcWormholeChainId"]))
                 if vaa is None:
+                    local_logger.info(
+                        f'Waiting vaa for emitterChainId: {d["srcWormholeChainId"]}, sequence:{d["sequence"]}')
                     continue
-                if vaa.get("toChain", -1) is not None and int(vaa.get("toChain", -1)) != dstWormholeChainId:
-                    continue
-                vaa = vaa["hexString"]
             except Exception as e:
                 local_logger.error(
                     f'Get signed vaa for: emitterChainId: {d["srcWormholeChainId"]}, '
@@ -280,11 +205,8 @@ def process_v2(
                 d["srcWormholeChainId"],
                 d["sequence"],
                 local_logger,
-                over_interval=10 * 60,
-                WORMHOLE_CHAINID_TO_NET=WORMHOLE_CHAINID_TO_NET,
-                limit_gas_price=limit_gas_price,
+                limit_gas_price=limit_gas_price
             )
-        time.sleep(2 * 60)
 
 
 class Session(Process):
@@ -315,19 +237,11 @@ class Session(Process):
         except:
             logger.error(f"Connect {self.dstNet} fail")
             return
-        t1 = threading.Thread(
-            target=process_v1, args=(self.dstWormholeChainId, self.dstSoDiamond)
-        )
         t2 = threading.Thread(
             target=process_v2, args=(self.dstWormholeChainId, self.dstSoDiamond)
         )
-        t1.start()
         t2.start()
         while True:
-            if not t1.is_alive():
-                if not network.is_connected():
-                    change_network(self.dstNet)
-                t1.start()
             if not t2.is_alive():
                 if not network.is_connected():
                     change_network(self.dstNet)
@@ -401,7 +315,14 @@ def main():
 
 
 def single_process():
-    process_v2(SUPPORTED_EVM[2]["dstWormholeChainId"], SUPPORTED_EVM[2]["dstSoDiamond"])
+    index = 1
+
+    project_path = Path(__file__).parent.parent.parent
+    p = project.load(project_path, raise_if_loaded=False)
+    p.load_config()
+    change_network(SUPPORTED_EVM[index]["dstNet"])
+
+    process_v2(SUPPORTED_EVM[index]["dstWormholeChainId"], SUPPORTED_EVM[index]["dstSoDiamond"])
 
 
 if __name__ == "__main__":

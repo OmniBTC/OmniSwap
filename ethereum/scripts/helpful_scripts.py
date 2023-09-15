@@ -26,11 +26,6 @@ def write_json(file: Path, data):
         json.dump(data, f, indent=2, sort_keys=True)
 
 
-def read_json(file):
-    with open(file, "r") as f:
-        return json.load(f)
-
-
 def hex_str_to_vector_u8(data: str) -> List[int]:
     assert judge_hex_str(data)
     return list(bytearray.fromhex(data.replace("0x", "")))
@@ -423,4 +418,5 @@ def reconnect_random_rpc():
             pass
         brownie.web3.disconnect()
         rpc_url = random.choice(endpoints)
+        print("rpc_url", rpc_url)
         brownie.web3.connect(rpc_url)
