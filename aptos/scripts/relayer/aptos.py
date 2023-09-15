@@ -1,5 +1,7 @@
-import json
+import base64
+import functools
 import logging
+import random
 import threading
 import time
 from datetime import datetime
@@ -10,7 +12,7 @@ import requests
 from brownie import network
 
 from scripts.serde_aptos import parse_vaa_to_wormhole_payload
-from scripts.serde_struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8
+from scripts.serde_struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8, change_network
 import aptos_brownie
 
 FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s'
@@ -24,121 +26,89 @@ while True:
         break
     except:
         pass
-WORMHOLE_CHAINID_TO_NET = {
-    package.config["networks"][net]["wormhole"]["chainid"]: net
-    for net in package.config["networks"]
-    if "wormhole" in package.config["networks"][net]
-       and "chainid" in package.config["networks"][net]["wormhole"]
-    if ("main" in package.network and "main" in net)
-       or ("main" not in package.network and "main" not in net)
+
+
+def format_emitter_address(addr):
+    addr = addr.replace("0x", "")
+    if len(addr) < 64:
+        addr = "0" * (64 - len(addr)) + addr
+    return addr
+
+
+# network name -> wormhole chain id
+NET_TO_WORMHOLE_CHAIN_ID = {
+    # mainnet
+    "mainnet": 2,
+    "bsc-main": 4,
+    "polygon-main": 5,
+    "avax-main": 6,
+    "optimism-main": 24,
+    "arbitrum-main": 23,
+    "aptos-mainnet": 22,
+    "sui-mainnet": 21,
+    "base-main": 30,
+    # testnet
+    "goerli": 2,
+    "bsc-test": 4,
+    "polygon-test": 5,
+    "avax-test": 6,
+    "optimism-test": 24,
+    "arbitrum-test": 23,
+    "aptos-testnet": 22,
+    "sui-testnet": 21,
+}
+
+WORMHOLE_GUARDIAN_RPC = [
+    "https://wormhole-v2-mainnet-api.certus.one",
+    "https://wormhole-v2-mainnet-api.mcf.rocks",
+    "https://wormhole-v2-mainnet-api.chainlayer.network",
+    "https://wormhole-v2-mainnet-api.staking.fund",
+]
+
+# Net -> emitter
+
+NET_TO_EMITTER = {
+    "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
+    "bsc-main": "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
+    "polygon-main": "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE",
+    "avax-main": "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
+    "optimism-main": "0x1D68124e65faFC907325e3EDbF8c4d84499DAa8b",
+    "arbitrum-main": "0x0b2402144Bb366A632D14B83F244D2e0e21bD39c",
+    "aptos-mainnet": "0000000000000000000000000000000000000000000000000000000000000001",
+    "sui-mainnet": "0xc57508ee0d4595e5a8728974a4a93a787d38f339757230d441e895422c07aba9",
+    "base-main": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
 }
 
 
-def get_signed_vaa(
+@functools.lru_cache()
+def get_chain_id_to_net():
+    if "main" in network.show_active():
+        return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" in k}
+    else:
+        return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" not in k}
+
+
+def get_signed_vaa_by_wormhole(
         sequence: int,
-        src_wormhole_id: int = None,
-        url: str = None
+        emitter_chain_id: str = None
 ):
-    """
-    Get signed vaa
-    :param src_wormhole_id:
-    :param sequence:
-    :param url:
-    :return: dict
-        {'_id': '634a804c25eccbc77a0dbcbb',
-        'emitterAddress': '0x000000000000000000000000f890982f9310df57d00f659cf4fd87e65aded8d7',
-        'emitterChainId': 2,
-        'sequence': '2337',
-        'consistencyLevel': 1,
-        'guardianSetIndex': 0,
-        'hash': '0xf94bf64a709ab9aaf70a8ef02676a875648b3ebd7c5940ace790baef36030ca4',
-        'hexString': '010000000001006...',
-        'nonce': 2224160768,
-        'payload': '0x01000000000000000000000000000000000000000000',
-        'signatures': [['0x696d2300a3798196634db775dca14d6e861997f077b0bbb950e01107d8b94026',
-        '0x4d6812a66cf1cca41657c7cba1d83b4c1485776cde0d9e9be24d3a69ab96fcdb', 27, 0]],
-        'timestamp': 1665809748,
-        'version': 1}
-    """
-    if url is None:
-        url = "http://wormhole-testnet.sherpax.io"
-    if src_wormhole_id is None:
-        data = {
-            "method": "GetSignedVAA",
-            "params": [
-                str(sequence),
-            ]
-        }
-    else:
-        data = {
-            "method": "GetSignedVAA",
-            "params": [
-                str(sequence),
-                src_wormhole_id,
-            ]
-        }
-    headers = {'content-type': 'application/json'}
-    response = requests.post(url, data=json.dumps(data), headers=headers)
-    return response.json()
+    wormhole_url = random.choice(WORMHOLE_GUARDIAN_RPC)
+    src_net = get_chain_id_to_net()[emitter_chain_id]
+    emitter = NET_TO_EMITTER[src_net]
+    emitter_address = format_emitter_address(emitter)
+
+    url = f"{wormhole_url}/v1/signed_vaa/{emitter_chain_id}/{emitter_address}/{sequence}"
+    response = requests.get(url)
+
+    if 'vaaBytes' not in response.json():
+        return None
+
+    vaa_bytes = response.json()['vaaBytes']
+    vaa = base64.b64decode(vaa_bytes).hex()
+    return f"0x{vaa}"
 
 
-def get_signed_vaa_by_to(
-        to_chain: int,
-        to: str = None,
-        count: int = None,
-        url: str = None,
-):
-    """
-    Get signed vaa
-    :param to_chain:
-    :param to:
-    :param count:
-    :param url:
-    :return: dict
-        [{'_id': '634a804c25eccbc77a0dbcbb',
-        'emitterAddress': '0x000000000000000000000000f890982f9310df57d00f659cf4fd87e65aded8d7',
-        'emitterChainId': 2,
-        'sequence': '2337',
-        'consistencyLevel': 1,
-        'guardianSetIndex': 0,
-        'hash': '0xf94bf64a709ab9aaf70a8ef02676a875648b3ebd7c5940ace790baef36030ca4',
-        'hexString': '010000000001006...',
-        'nonce': 2224160768,
-        'payload': '0x01000000000000000000000000000000000000000000',
-        'signatures': [['0x696d2300a3798196634db775dca14d6e861997f077b0bbb950e01107d8b94026',
-        '0x4d6812a66cf1cca41657c7cba1d83b4c1485776cde0d9e9be24d3a69ab96fcdb', 27, 0]],
-        'timestamp': 1665809748,
-        'version': 1}]
-    """
-    if url is None:
-        url = "http://wormhole-testnet.sherpax.io"
-    if count is None:
-        count = 10
-    if to is None:
-        data = {
-            "method": "GetSignedVAAByTo",
-            "params": [
-                to_chain
-            ]
-        }
-    else:
-        data = {
-            "method": "GetSignedVAAByTo",
-            "params": [
-                to_chain,
-                str(to),
-                count
-            ]
-        }
-    try:
-        headers = {'content-type': 'application/json'}
-        response = requests.post(url, data=json.dumps(data), headers=headers)
-        return response.json()
-    except:
-        return []
-
-
-def get_pending_data(url: str = None) -> list:
+def get_pending_data(url: str = None, dstWormholeChainId=None) -> list:
     """
     Get data for pending relayer
     :return: list
@@ -156,10 +126,11 @@ def get_pending_data(url: str = None) -> list:
         response = requests.get(url)
         result = response.json()["record"]
         if isinstance(result, list):
-            return result
+            result.sort(key=lambda x: x["sequence"])
+            return [v for v in result if str(v["dstWormholeChainId"]) == str(dstWormholeChainId)]
         else:
             return []
-    except Exception as _e:
+    except:
         return []
 
 
@@ -169,8 +140,6 @@ def process_vaa(
         emitterChainId: str,
         sequence: str,
         local_logger,
-        inner_interval: int = None,
-        over_interval: int = None,
         is_admin: bool = False
 ) -> bool:
     try:
@@ -186,17 +155,6 @@ def process_vaa(
     except Exception as e:
         local_logger.error(f'Parse signed vaa for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
-        return False
-    if inner_interval is not None and time.time() > int(vaa_data[1]) + inner_interval:
-        local_logger.warning(
-            f'For emitterChainId:{emitterChainId}, sequence:{sequence} '
-            f'need in {int(inner_interval / 60)}min')
-        return False
-
-    if over_interval is not None and time.time() <= int(vaa_data[1]) + over_interval:
-        local_logger.warning(
-            f'For emitterChainId:{emitterChainId}, sequence:{sequence} '
-            f'need out {int(over_interval / 60)}min')
         return False
 
     if transfer_data[4] != dstSoDiamond:
@@ -261,8 +219,8 @@ def process_vaa(
                 int(dst_max_gas_price),
                 int(result["response"]["gas_used"]),
                 int(result["gas_unit_price"]),
-                src_net=WORMHOLE_CHAINID_TO_NET[vaa_data["emitterChainId"]]
-                if int(vaa_data["emitterChainId"]) in WORMHOLE_CHAINID_TO_NET else 0,
+                src_net=get_chain_id_to_net()[vaa_data["emitterChainId"]]
+                if int(vaa_data["emitterChainId"]) in get_chain_id_to_net() else 0,
                 dst_net=package.network,
                 payload_len=int(len(vaa_str) / 2 - 1),
                 swap_len=len(wormhole_data[3]),
@@ -277,34 +235,6 @@ def process_vaa(
     return True
 
 
-def process_v1(
-        dstWormholeChainId: int = 22,
-        dstSoDiamond: str = None,
-):
-    local_logger = logger.getChild(f"[v1|{package.network}]")
-    local_logger.info("Starting process v1...")
-    has_process = {}
-    if "test" in package.network or "test" == "goerli":
-        url = "http://wormhole-testnet.sherpax.io"
-    else:
-        url = "http://wormhole-vaa.chainx.org"
-    while True:
-        result = get_signed_vaa_by_to(dstWormholeChainId, url=url)
-        result = [d for d in result if (int(d["emitterChainId"]), int(d["sequence"])) not in has_process]
-        local_logger.info(f"Get signed vaa by to length: {len(result)}")
-        for d in result[::-1]:
-            has_process[(int(d["emitterChainId"]), int(d["sequence"]))] = True
-            process_vaa(
-                dstSoDiamond,
-                d["hexString"],
-                d["emitterChainId"],
-                d["sequence"],
-                local_logger,
-                inner_interval=10 * 60
-            )
-        time.sleep(60)
-
-
 def process_v2(
         dstWormholeChainId: int = 22,
         dstSoDiamond: str = None,
@@ -312,35 +242,49 @@ def process_v2(
     local_logger = logger.getChild(f"[v2|{package.network}]")
     local_logger.info("Starting process v2...")
     if "test" in package.network or "test" == "goerli":
-        url = "http://wormhole-testnet.sherpax.io"
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
     else:
-        url = "http://wormhole-vaa.chainx.org"
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+    has_process = {}
     while True:
-        pending_data = get_pending_data(url=pending_url)
-        local_logger.info(f"Get signed vaa length: {len(pending_data)}")
+        try:
+            pending_data = get_pending_data(url=pending_url, dstWormholeChainId=dstWormholeChainId)
+            local_logger.info(f"Get signed vaa length: {len(pending_data)}")
+        except Exception as e:
+            local_logger.error(
+                f'Get pending data for aptos error: {e}'
+            )
+            continue
         for d in pending_data:
             try:
-                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
+                vaa = get_signed_vaa_by_wormhole(int(d["sequence"]), int(d["srcWormholeChainId"]))
                 if vaa is None:
+                    local_logger.info(
+                        f'Waiting vaa for emitterChainId: {d["srcWormholeChainId"]}, sequence:{d["sequence"]}')
                     continue
-                if vaa.get("toChain", -1) is not None and int(vaa.get("toChain", -1)) != dstWormholeChainId:
-                    continue
-                vaa = vaa["hexString"]
             except Exception as e:
                 local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
+            has_key = (int(d["srcWormholeChainId"]), int(d["sequence"]))
+            if (
+                    has_key in has_process
+                    and (time.time() - has_process[has_key]) <= 3 * 60
+            ):
+                local_logger.warning(
+                    f'emitterChainId:{d["srcWormholeChainId"]} sequence:{d["sequence"]} '
+                    f"inner 10min has process!"
+                )
+                continue
+            else:
+                has_process[has_key] = time.time()
             process_vaa(
                 dstSoDiamond,
                 vaa,
                 d["srcWormholeChainId"],
                 d["sequence"],
-                local_logger,
-                over_interval=10 * 60,
+                local_logger
             )
-        time.sleep(3 * 60)
 
 
 def compensate(
@@ -351,24 +295,27 @@ def compensate(
     local_logger = logger.getChild(f"[v2|{package.network}]")
     local_logger.info("Starting process v2...")
     if "test" in package.network or "test" == "goerli":
-        url = "http://wormhole-testnet.sherpax.io"
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
     else:
-        url = "http://wormhole-vaa.chainx.org"
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     while True:
-        pending_data = get_pending_data(url=pending_url)
-        local_logger.info(f"Get signed vaa length: {len(pending_data)}")
+        try:
+            pending_data = get_pending_data(url=pending_url, dstWormholeChainId=dstWormholeChainId)
+            local_logger.info(f"Get signed vaa length: {len(pending_data)}")
+        except Exception as e:
+            local_logger.error(
+                f'Get pending data for aptos error: {e}'
+            )
+            continue
         for d in pending_data:
             try:
-                vaa = get_signed_vaa(int(d["sequence"]), int(d["srcWormholeChainId"]), url=url)
+                vaa = get_signed_vaa_by_wormhole(int(d["sequence"]), int(d["srcWormholeChainId"]))
                 if vaa is None:
-                    continue
-                if int(vaa.get("toChain", -1)) != dstWormholeChainId:
+                    local_logger.info(
+                        f'Waiting vaa for emitterChainId: {d["srcWormholeChainId"]}, sequence:{d["sequence"]}')
                     continue
                 if int(d["sequence"]) not in sequences:
                     continue
-                vaa = vaa["hexString"]
             except Exception as e:
                 local_logger.error(f'Get signed vaa for :{d["srcWormholeChainId"]}, '
                                    f'sequence:{d["sequence"]} error: {e}')
@@ -379,10 +326,8 @@ def compensate(
                 d["srcWormholeChainId"],
                 d["sequence"],
                 local_logger,
-                over_interval=10 * 60,
                 is_admin=True
             )
-        time.sleep(3 * 60)
 
 
 def record_gas(
@@ -434,13 +379,15 @@ def record_gas(
 
 def main():
     print(f'SoDiamond:{package.network_config["SoDiamond"]}')
-    t1 = threading.Thread(target=process_v1, args=(22, package.network_config["SoDiamond"]))
     t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
-    t1.start()
     t2.start()
-    t1.join()
     t2.join()
 
 
 def single_process():
+    change_network("bsc-main")
     process_v2(22, package.network_config["SoDiamond"])
+
+
+if __name__ == "__main__":
+    main()
