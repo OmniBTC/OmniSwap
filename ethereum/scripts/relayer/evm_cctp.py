@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import logging
 import time
 from datetime import datetime
@@ -15,6 +16,7 @@ import threading
 
 from brownie.network.transaction import TransactionReceipt
 from retrying import retry
+from web3._utils.events import get_event_data
 
 from scripts.helpful_scripts import get_account, change_network, get_cctp_message_transmitter, Process, \
     set_start_method, Queue, reconnect_random_rpc
@@ -189,6 +191,24 @@ def get_cctp_attestation(msg_hash):
         return None
 
 
+@functools.lru_cache()
+def get_event_abi_by_interface(interface_name, event_name):
+    p = project.get_loaded_projects()[-1]
+    for v in getattr(p.interface, interface_name).abi:
+        if v["type"] == "event" and v["name"] == event_name:
+            return v
+    return None
+
+
+@functools.lru_cache()
+def get_event_abi_by_contract(contract_name, event_name):
+    p = project.get_loaded_projects()[-1]
+    for v in getattr(p, contract_name).abi:
+        if v["type"] == "event" and v["name"] == event_name:
+            return v
+    return None
+
+
 def get_facet_message(tx_hash) -> CCTPFacetMessage:
     p = project.get_loaded_projects()[-1]
     cctp_facet = get_cctp_facet()
@@ -201,7 +221,25 @@ def get_facet_message(tx_hash) -> CCTPFacetMessage:
         tx_timestamp = tx.timestamp
     except:
         tx_timestamp = None
-    events = dict(tx.events)
+
+    receipt = web3.eth.get_transaction_receipt(tx_hash)
+    logs = receipt["logs"]
+    message_abi = get_event_abi_by_interface("IMessageTransmitter", "MessageSent")
+    relay_abi = get_event_abi_by_contract("CCTPFacet", "RelayEvent")
+    events = {"MessageSent": [], "RelayEvent": {}}
+
+    for log in logs:
+        try:
+            data = get_event_data(web3.codec, message_abi, log)
+            events["MessageSent"].append(data["args"])
+        except:
+            pass
+        try:
+            data = get_event_data(web3.codec, relay_abi, log)
+            events["RelayEvent"] = data["args"]
+        except:
+            pass
+
     messages = []
     for event in events.get("MessageSent", []):
         message = event["message"].hex()
