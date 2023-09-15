@@ -1,0 +1,2 @@
+aptos filter=lfs diff=lfs merge=lfs -text
+sui filter=lfs diff=lfs merge=lfs -text

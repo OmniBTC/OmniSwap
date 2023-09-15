@@ -1,6 +1,5 @@
-dotenv: .env
+dotenv: ./env/.env
 networks:
-  default: polygon-main
   aptos-devnet:
     faucet_url: https://tap.devnet.prod.gcp.aptosdev.com
     node_url: https://fullnode.devnet.aptoslabs.com/v1
@@ -262,6 +261,9 @@ networks:
       AptosCoin_WORMHOLE:
         address: '0x2Ba98cf7Edd2c5C794e21bc3Dc6973D3C2585eE3'
         decimal: 8
+      USDC_ETH_WORMHOLE:
+        address: '0xB04906e95AB5D797aDA81508115611fee694c2b3'
+        decimal: 6
       busd:
         address: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'
         decimal: 18
@@ -274,9 +276,6 @@ networks:
       weth:
         address: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
         decimal: 18
-      USDC_ETH_WORMHOLE:
-        address: '0xB04906e95AB5D797aDA81508115611fee694c2b3'
-        decimal: 6
     wormhole:
       actual_reserve: 1.1
       chainid: 4
@@ -309,9 +308,6 @@ networks:
         router: '0xD99D1c33F9fC3444f8101754aBC46c52416550D1'
         token_list: ''
     token:
-      sui-usdc:
-        address: "0x6c6eCdeBffe8D7eADC59c35d82E3930934ABd42F"
-        decimal: 6
       AptosCoin_WORMHOLE:
         address: '0x4A7Bd5E135f421057F97BbA8BCeeE5c18334f454'
         decimal: 8
@@ -330,6 +326,9 @@ networks:
       XBTC_WORMHOLE:
         address: '0xf9471131e004dcdBF3325d0B9Fef49162739d87D'
         decimal: 8
+      sui-usdc:
+        address: '0x6c6eCdeBffe8D7eADC59c35d82E3930934ABd42F'
+        decimal: 6
     wormhole:
       actual_reserve: 110000000
       base_gas: 400000
@@ -342,6 +341,7 @@ networks:
       wormhole: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D'
       wormhole_facet_resource: null
       wormhole_fee_resource: null
+  default: polygon-main
   mainnet:
     SoDiamond: '0x2967e7bb9daa5711ac332caf874bd47ef99b3820'
     chainid: 1
@@ -469,8 +469,14 @@ networks:
       AptosCoin_WORMHOLE:
         address: '0xa4ef199d3ad524E9C3C51Ac46B303B103A307Cef'
         decimal: 8
+      USDC_ETH_WORMHOLE:
+        address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D'
+        decimal: 6
       WAVAX:
         address: '0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a'
+        decimal: 18
+      WETH_ETH_WORMHOLE:
+        address: '0x11cd37bb86f65419713f30673a480ea33c826872'
         decimal: 18
       usdc:
         address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
@@ -483,12 +489,6 @@ networks:
         decimal: 6
       weth:
         address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
-        decimal: 18
-      USDC_ETH_WORMHOLE:
-        address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D'
-        decimal: 6
-      WETH_ETH_WORMHOLE:
-        address: '0x11cd37bb86f65419713f30673a480ea33c826872'
         decimal: 18
     wormhole:
       actual_reserve: 1.1
@@ -520,42 +520,67 @@ networks:
   sui-localnet:
     node_url: http://127.0.0.1:9000
   sui-mainnet:
+    Relayer: '0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90'
+    SoDiamond: '0x201a8b38e099b17078f6b9d3826e4d784c8c5656a4d484e7c8f6f57e439fdd2f'
     node_url: https://fullnode.mainnet.sui.io:443
-    SoDiamond: "0x201a8b38e099b17078f6b9d3826e4d784c8c5656a4d484e7c8f6f57e439fdd2f"
-    Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
     objects:
+      AccountCap: '0x87b9a4de5113de14f8743846645d60c75651b6b2d870577ec2c35c2d086bf0a2'
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
+      DeepbookV2Storage: '0x0ebd8b30d4667d41f8d91feb388949a003851bd0c13438ee4793fcc094067195'
       FacetManager: '0xce23885d1f0c19ad582a64b042904f352f3ff1d46991d8a528e02da2275db9c2'
       FacetStorage: '0xf00feec4856093bf41a968947da8cb35f91c304a2df4051f11759fbf7fb7abf0'
-      PriceManager: '0x6c85d499a88237a50d9da06133c9f93e75699602d0b8d035f1dea5f95376dd18'
-      WormholeFee: '0x7f1473487136446d064565294ea445a97c391db1731831eca6ca427802c36a4a'
-      TokenBridgeState: '0xc57508ee0d4595e5a8728974a4a93a787d38f339757230d441e895422c07aba9'
-      WormholeState: '0xaeab97f96cf9877fee2883315d459552b2b921edc16d7ceac6eab944dd88919c'
-      # cetus
       GlobalConfig: '0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f'
+      OmniSwapUpgradeCap: '0xbfdc7c7a6d3414e3fbf49cf9cb151b5c8293364df7f438d09b826327ca4bf76a'
       Pools: '0xf699e7f2276f5c9a75944b37a0c5b5d9ddfd2471bf6242483b03ab2887d198d0'
-      OmniSwapUpgradeCap: "0xbfdc7c7a6d3414e3fbf49cf9cb151b5c8293364df7f438d09b826327ca4bf76a"
-      DeepbookV2Storage: "0x0ebd8b30d4667d41f8d91feb388949a003851bd0c13438ee4793fcc094067195"
-      AccountCap: "0x87b9a4de5113de14f8743846645d60c75651b6b2d870577ec2c35c2d086bf0a2"
+      PriceManager: '0x6c85d499a88237a50d9da06133c9f93e75699602d0b8d035f1dea5f95376dd18'
+      TokenBridgeState: '0xc57508ee0d4595e5a8728974a4a93a787d38f339757230d441e895422c07aba9'
+      WormholeFee: '0x7f1473487136446d064565294ea445a97c391db1731831eca6ca427802c36a4a'
+      WormholeState: '0xaeab97f96cf9877fee2883315d459552b2b921edc16d7ceac6eab944dd88919c'
     omnibtc_chainid: 21
     packages:
-      CetusScripts: "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be"
-      CetusClmm: "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb"
-      IntegerMate: "0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a5a6f5b7f57"
-      MoveSTL: "0xbe21a06129308e0495431d12286127897aff07a8ade3970495a4404d97f9eaaa"
+      CetusClmm: '0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb'
+      CetusScripts: '0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be'
       DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
+      IntegerMate: '0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a5a6f5b7f57'
+      MoveSTL: '0xbe21a06129308e0495431d12286127897aff07a8ade3970495a4404d97f9eaaa'
       OmniSwap: '0x50c4bc8171dc7bc6025891d9bad4550b7d61cb569e591ad2b3daf9569c29466f'
       TokenBridge:
-        origin: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
         latest: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
+        origin: '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d'
       Wormhole:
-        origin: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
         latest: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
+        origin: '0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a'
+    pools:
+      Cetus-USDC-SUI:
+        pool_id: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630'
+      Cetus-USDT-SUI:
+        pool_id: '0x06d8af9e6afd27262db436f0d37b304a041f710c3ea1fa4c3a9bab36b3569ad3'
+      Cetus-USDT-USDC:
+        pool_id: '0xc8d7a1503dc2f9f5b05449a87d8733593e2f0f3e7bffd90541252782e4d2ca20'
+      DeepBook-ETH-USDC:
+        lot_size: 10000
+        pool_id: '0xd9e45ab5440d61cc52e3b2bd915cdd643146f7593d587c715bc7bfa48311d826'
+      DeepBook-SUI-USDC:
+        lot_size: 100000000
+        pool_id: '0x18d871e3c3da99046dfc0d3de612c5d88859bc03b8f0568bd127d0e70dbc58be'
+      DeepBook-SUI-USDC-V2:
+        lot_size: 100000000
+        pool_id: '0x7f526b1263c4b91b43c9e646419b5696f424de28dda3c1e6658cc0a54558baa7'
+      DeepBook-USDT-USDC:
+        lot_size: 100000
+        pool_id: '0x5deafda22b6b86127ea4299503362638bea0ca33bb212ea3a67b029356b8b955'
+      DeepBook-tBTC-USDC:
+        lot_size: 1000
+        pool_id: '0xf0f663cf87f1eb124da2fc9be813e0ce262146f3df60bc2052d738eb41a25899'
     tokens:
       SUI:
         address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
         decimal: 9
         name: SUI
+      Wormhole-ETH:
+        address: 0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN
+        decimal: 8
+        name: ETH
       Wormhole-USDC:
         address: 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN
         decimal: 6
@@ -564,115 +589,67 @@ networks:
         address: 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN
         decimal: 6
         name: USDT
-      Wormhole-ETH:
-        address: 0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN
-        decimal: 8
-        name: ETH
-    pools:
-      # 0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<
-      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN,
-      # 0x2::sui::SUI>
-      Cetus-USDC-SUI:
-        pool_id: '0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630'
-      # type: 0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<
-      # 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN,
-      # 0x2::sui::SUI>
-      Cetus-USDT-SUI:
-        pool_id: '0x06d8af9e6afd27262db436f0d37b304a041f710c3ea1fa4c3a9bab36b3569ad3'
-      # 0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<
-      # 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN,
-      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN>
-      Cetus-USDT-USDC:
-        pool_id: '0xc8d7a1503dc2f9f5b05449a87d8733593e2f0f3e7bffd90541252782e4d2ca20'
-      # 0xdee9::clob_v2::Pool<0x2::sui::SUI,
-      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN>
-      # tick size: 10000
-      DeepBook-SUI-USDC:
-        pool_id: '0x18d871e3c3da99046dfc0d3de612c5d88859bc03b8f0568bd127d0e70dbc58be'
-        lot_size: 100000000
-      # 0xdee9::clob_v2::Pool<0x2::sui::SUI,
-      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN>
-      # tick size: 100
-      DeepBook-SUI-USDC-V2:
-        pool_id: '0x7f526b1263c4b91b43c9e646419b5696f424de28dda3c1e6658cc0a54558baa7'
-        lot_size: 100000000
-      # 0xdee9::clob_v2::Pool<
-      # 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN,
-      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN>
-      DeepBook-USDT-USDC:
-        pool_id: '0x5deafda22b6b86127ea4299503362638bea0ca33bb212ea3a67b029356b8b955'
-        lot_size: 100000
-      # 0xdee9::clob_v2::Pool<0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN,
-      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN>
-      DeepBook-ETH-USDC:
-        pool_id: '0xd9e45ab5440d61cc52e3b2bd915cdd643146f7593d587c715bc7bfa48311d826'
-        lot_size: 10000
-      # 0xdee9::clob_v2::Pool<0xbc3a676894871284b3ccfb2eec66f428612000e2a6e6d23f592ce8833c27c973::coin::COIN,
-      # 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN>
-      DeepBook-tBTC-USDC:
-        pool_id: '0xf0f663cf87f1eb124da2fc9be813e0ce262146f3df60bc2052d738eb41a25899'
-        lot_size: 1000
     wormhole:
-      chainid: 21
       actual_reserve: 1.1
+      chainid: 21
       estimate_reserve: 1.2
       gas:
-        mainnet:
-          dst_chainid: 2
+        aptos-mainnet:
+          base_gas: 10000
+          dst_chainid: 22
+          per_byte_gas: 10
+        avax-main:
           base_gas: 700000
+          dst_chainid: 6
           per_byte_gas: 68
         bsc-main:
-          dst_chainid: 4
           base_gas: 700000
+          dst_chainid: 4
+          per_byte_gas: 68
+        mainnet:
+          base_gas: 700000
+          dst_chainid: 2
           per_byte_gas: 68
         polygon-main:
+          base_gas: 700000
           dst_chainid: 5
-          base_gas: 700000
           per_byte_gas: 68
-        avax-main:
-          dst_chainid: 6
-          base_gas: 700000
-          per_byte_gas: 68
-        aptos-mainnet:
-          dst_chainid: 22
-          base_gas: 10000
-          per_byte_gas: 10
   sui-testnet:
+    Relayer: '0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90'
+    SoDiamond: '0x56ab0b7d355187fa67a27e3e49084ab64b970d1588c508a7d20a21448b15660b'
     node_url: https://fullnode.testnet.sui.io:443
-    SoDiamond: "0x56ab0b7d355187fa67a27e3e49084ab64b970d1588c508a7d20a21448b15660b"
-    Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
     objects:
+      BTCSupply: '0xdf17a296e80416827b9bab70ca2f84a293fdf967815b365c6c7f7b12141703fb'
       Clock: '0x0000000000000000000000000000000000000000000000000000000000000006'
+      ETHSupply: '0x010f8ea766c72e793eb540e21fd795fefd05661b6fb6521cc9c7af581178bad5'
       FacetManager: '0x1bba1e569d1334ee2e2b19e5e32913f63c32631135733a8deb6d06bf36c6ee2e'
       FacetStorage: '0x700354adae438c029fae035faa37b14cf963069335bec4caae791da541891e3e'
-      PriceManager: '0xb39df3366563abad1cae5f90f1ca9ed8a68cc82d9feaae512cbf1711b66028cd'
-      WormholeFee: '0xf27fb21bd29971ac07cd447737af7923e6fdc7301c247c3e855a2c70ded543cd'
       Faucet: '0x1bf9020c0a3c37d17bd31bf0b582bde3e7d1828471aaee301c7dc20b4ccd476b'
-      TokenBridgeState: '0x32422cb2f929b6a4e3f81b4791ea11ac2af896b310f3d9442aa1fe924ce0bab4'
-      WormholeState: '0x69ae41bdef4770895eb4e7aaefee5e4673acc08f6917b4856cf55549c4573ca8'
       GlobalConfig: '0x43e2925f7c5bed04b612cc66c53a850e280a46704ce12cd2f25420b537e23f9d'
+      OmniSwapUpgradeCap: '0xa0b28acc823d375c5ed01968dedc15aed15983f8d30da2efc08f57fee9eab6e5'
       Pools: '0xc8407fc5dfec8d7b7014ee4d244dbe4eb456bfa6a7878e88c9d4bc947b2c2d87'
-      BTCSupply: '0xdf17a296e80416827b9bab70ca2f84a293fdf967815b365c6c7f7b12141703fb'
-      ETHSupply: '0x010f8ea766c72e793eb540e21fd795fefd05661b6fb6521cc9c7af581178bad5'
-      USDTSupply: '0xe1f4bdaa469a0930e7dd6e6f7438ed6a72b2d4085d2f6c20d97213d8f4dd861c'
+      PriceManager: '0xb39df3366563abad1cae5f90f1ca9ed8a68cc82d9feaae512cbf1711b66028cd'
+      TokenBridgeState: '0x32422cb2f929b6a4e3f81b4791ea11ac2af896b310f3d9442aa1fe924ce0bab4'
       USDCSupply: '0xf9db65a36b991de2864b27c0b636800236e31087a7299ded025b2068751b744d'
-      OmniSwapUpgradeCap: "0xa0b28acc823d375c5ed01968dedc15aed15983f8d30da2efc08f57fee9eab6e5"
+      USDTSupply: '0xe1f4bdaa469a0930e7dd6e6f7438ed6a72b2d4085d2f6c20d97213d8f4dd861c'
+      WormholeFee: '0xf27fb21bd29971ac07cd447737af7923e6fdc7301c247c3e855a2c70ded543cd'
+      WormholeState: '0x69ae41bdef4770895eb4e7aaefee5e4673acc08f6917b4856cf55549c4573ca8'
     omnibtc_chainid: 21
     packages:
-      CetusScripts: "0x32ba8c0298964e26161b3b44375ac39eeab6b29207e00c5f44368426096eb902"
-      CetusFaucet: "0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e"
-      CetusClmm: "0x837dddad95c6741474cde3e414a2eebccbeae81d0b378f193d00381bdaf0da62"
-      IntegerMate: "0x32154052233b86d5b413fd140e6a0c7ef5a8d9ab1ee01d644b2690868538547a"
-      MoveSTL: "0x4b0b447943cef3944b29cbbf73faa19b466f98ad8cb468ef28b8640b1c8fd48a"
+      CetusClmm: '0x837dddad95c6741474cde3e414a2eebccbeae81d0b378f193d00381bdaf0da62'
+      CetusFaucet: '0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e'
+      CetusScripts: '0x32ba8c0298964e26161b3b44375ac39eeab6b29207e00c5f44368426096eb902'
       DeepBook: '0x000000000000000000000000000000000000000000000000000000000000dee9'
+      IntegerMate: '0x32154052233b86d5b413fd140e6a0c7ef5a8d9ab1ee01d644b2690868538547a'
+      MoveSTL: '0x4b0b447943cef3944b29cbbf73faa19b466f98ad8cb468ef28b8640b1c8fd48a'
       OmniSwap: '0x51f7e2d93d3bfdefb8967341d194ad3fcbea6a706df45bbd5814c4ac4b558811'
       TestCoins: '0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b'
       TokenBridge:
-        origin: '0x92d81f28c167d90f84638c654b412fe7fa8e55bdfac7f638bdcf70306289be86'
         latest: '0x4eb7c5bca3759ab3064b46044edb5668c9066be8a543b28b58375f041f876a80'
+        origin: '0x92d81f28c167d90f84638c654b412fe7fa8e55bdfac7f638bdcf70306289be86'
       Wormhole:
-        origin: '0x15e1e51cb59fe1f987b037da12745a278855c8ac73050f4f194466096a0ca05b'
         latest: '0x3542d705ec6a7e05045288ec99a6c4b4e3ded999b6feab720fab535b08fa51f8'
+        origin: '0x15e1e51cb59fe1f987b037da12745a278855c8ac73050f4f194466096a0ca05b'
     pools:
       Cetus-USDC-ETH:
         pool_id: '0x93904b1ef7a96510e9b8a957de39937c59d1396c765758797982c51eaabbed0c'
@@ -699,27 +676,15 @@ networks:
         address: 0x4d892ceccd1497b9be7701e09d51c580bc83f22c9c97050821b373a77d0d9a9e::usdt::USDT
         decimal: 6
         name: USDT
-      #      BTC:
-      #        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::btc::BTC
-      #        decimal: 8
-      #        name: BTC
-      #      SUI:
-      #        address: 0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI
-      #        decimal: 9
-      #        name: SUI
-      #      USDC:
-      #        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdc::USDC
-      #        decimal: 6
-      #        name: USDC
-    #      USDT:
-    #        address: 0x86f2cb15623a5f42ac119539cf898d7a6d96415233e63195b8e79f4f2b468c3b::usdt::USDT
-    #        decimal: 6
-    #        name: USDT
     wormhole:
       actual_reserve: 1.1
       chainid: 21
       estimate_reserve: 1.2
       gas:
+        aptos-testnet:
+          base_gas: 80000
+          dst_chainid: 22
+          per_byte_gas: 68
         avax-test:
           base_gas: 700000
           dst_chainid: 6
@@ -736,11 +701,7 @@ networks:
           base_gas: 700000
           dst_chainid: 5
           per_byte_gas: 68
-        aptos-testnet:
-          dst_chainid: 22
-          base_gas: 80000
-          per_byte_gas: 68
 sui_wallets:
   from_mnemonic:
-    Relayer: ${RELAYER_MNEMONIC}
     Fee: ${FEE_MNEMONIC}
+    Relayer: ${RELAYER_MNEMONIC}
