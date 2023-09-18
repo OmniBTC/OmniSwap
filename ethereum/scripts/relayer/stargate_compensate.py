@@ -18,7 +18,7 @@ import threading
 
 from brownie.network.transaction import TransactionReceipt
 
-from scripts.helpful_scripts import get_account, change_network
+from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc
 from scripts.serde import get_stargate_facet
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
@@ -36,12 +36,12 @@ SUPPORTED_EVM = [
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "polygon-main",
-         "dstChainId": 137
+        "dstChainId": 137
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "avax-main",
-         "dstChainId": 43114
+        "dstChainId": 43114
     },
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
@@ -51,12 +51,12 @@ SUPPORTED_EVM = [
     {
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "optimism-main",
-         "dstChainId": 10
+        "dstChainId": 10
     },
     {
         "dstSoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
         "dstNet": "base-main",
-         "dstChainId": 8453
+        "dstChainId": 8453
     },
 ]
 
@@ -133,12 +133,31 @@ def process_v1(
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnhandleStargateTransfer"
     else:
         pending_url = "https://crossswap.coming.chat/v1/getUnhandleStargateTransfer"
+
+    src_chain_id = None
+
+    last_update_endpoint = 0
+    endpoint_interval = 30
+
     while True:
-        pending_data = get_stargate_pending_data(url=pending_url)
-        pending_data = [
-            d for d in pending_data if int(d["srcChainId"]) == int(chain.id)
-        ]
-        local_logger.info(f"Get length: {len(pending_data)}")
+        try:
+            if time.time() > last_update_endpoint + endpoint_interval:
+                reconnect_random_rpc()
+                local_logger.info(f"Update rpc")
+                last_update_endpoint = time.time()
+
+            if src_chain_id is None:
+                src_chain_id = chain.id
+
+            pending_data = get_stargate_pending_data(url=pending_url)
+            pending_data = [
+                d for d in pending_data if int(d["srcChainId"]) == int(src_chain_id)
+            ]
+            local_logger.info(f"Get length: {len(pending_data)}")
+        except:
+            traceback.print_exc()
+            continue
+
         for d in pending_data:
             try:
                 proxy_diamond = get_stargate_facet()
@@ -149,7 +168,6 @@ def process_v1(
                 else:
                     dst_storage[int(d['dstChainId'])].put(d)
             except:
-                print(111)
                 traceback.print_exc()
                 continue
         time.sleep(3 * 60)
@@ -164,9 +182,23 @@ def process_v2(
     local_logger = logger.getChild(f"[v2|{network.show_active()}]")
     local_logger.info("Starting process v2...")
     local_logger.info(f"SoDiamond:{dstSoDiamond}")
+
+    src_chain_id = None
+    last_update_endpoint = 0
+    endpoint_interval = 30
+
     while True:
-        d = dst_storage[chain.id].get()
         try:
+            if time.time() > last_update_endpoint + endpoint_interval:
+                reconnect_random_rpc()
+                local_logger.info(f"Update rpc")
+                last_update_endpoint = time.time()
+
+            if src_chain_id is None:
+                src_chain_id = chain.id
+
+            d = dst_storage[src_chain_id].get()
+
             tx = chain.get_transaction(d["dstTransactionId"])
             info = tx.events["CachedSwapSaved"]
             dv = (
