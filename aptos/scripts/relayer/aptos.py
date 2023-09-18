@@ -82,10 +82,11 @@ NET_TO_EMITTER = {
 
 @functools.lru_cache()
 def get_chain_id_to_net():
-    if "main" in network.show_active():
-        return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" in k}
-    else:
-        return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" not in k}
+    return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" in k}
+    # if "main" in network.show_active():
+    #     return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" in k}
+    # else:
+    #     return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" not in k}
 
 
 def get_signed_vaa_by_wormhole(
@@ -378,7 +379,6 @@ def record_gas(
 
 
 def main():
-    change_network("bsc-main")
     print(f'SoDiamond:{package.network_config["SoDiamond"]}')
     t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
     t2.start()
