@@ -5,6 +5,7 @@ if [ "$1" == "-h" ]; then
   exit 0
 else
   tag="comingweb3/omniswap-relayer:arm64_v$1"
+  echo "Building docker image with tag: $tag"
   bash ./fix_brownie_path.sh
   python3 fix_server_config.py
 

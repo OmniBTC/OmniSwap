@@ -704,4 +704,3 @@ networks:
 sui_wallets:
   from_mnemonic:
     Fee: ${FEE_MNEMONIC}
-    Relayer: ${RELAYER_MNEMONIC}
