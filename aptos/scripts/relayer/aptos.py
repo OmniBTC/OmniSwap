@@ -378,6 +378,7 @@ def record_gas(
 
 
 def main():
+    change_network("bsc-main")
     print(f'SoDiamond:{package.network_config["SoDiamond"]}')
     t2 = threading.Thread(target=process_v2, args=(22, package.network_config["SoDiamond"]))
     t2.start()
