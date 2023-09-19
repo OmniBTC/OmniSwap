@@ -1,6 +1,7 @@
 # @Time    : 2022/11/30 15:34
 # @Author  : WeiDai
 # @FileName: stargate_compensate.py
+import functools
 import hashlib
 import json
 import logging
@@ -13,13 +14,14 @@ from pathlib import Path
 
 import pandas as pd
 import requests
-from brownie import project, network, chain
+from brownie import project, network, chain, web3
 import threading
 
 from brownie.network.transaction import TransactionReceipt
 
 from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc
 from scripts.serde import get_stargate_facet
+from web3._utils.events import get_event_data
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
 logging.basicConfig(format=FORMAT)
@@ -173,6 +175,24 @@ def process_v1(
         time.sleep(3 * 60)
 
 
+@functools.lru_cache()
+def get_event_abi_by_interface(interface_name, event_name):
+    p = project.get_loaded_projects()[-1]
+    for v in getattr(p.interface, interface_name).abi:
+        if v["type"] == "event" and v["name"] == event_name:
+            return v
+    return None
+
+
+@functools.lru_cache()
+def get_event_abi_by_contract(contract_name, event_name):
+    p = project.get_loaded_projects()[-1]
+    for v in getattr(p, contract_name).abi:
+        if v["type"] == "event" and v["name"] == event_name:
+            return v
+    return None
+
+
 def process_v2(
         dstSoDiamond: str,
         dst_storage,
@@ -199,8 +219,23 @@ def process_v2(
 
             d = dst_storage[src_chain_id].get()
 
-            tx = chain.get_transaction(d["dstTransactionId"])
-            info = tx.events["CachedSwapSaved"]
+            receipt = web3.eth.get_transaction_receipt(d["dstTransactionId"])
+            logs = receipt["logs"]
+            message_abi = get_event_abi_by_interface("IStargate", "CachedSwapSaved")
+            events = {"CachedSwapSaved": {}}
+
+            for log in logs:
+                try:
+                    data = get_event_data(web3.codec, message_abi, log)
+                    events["CachedSwapSaved"] = data["args"]
+                except:
+                    pass
+
+            if len(events["CachedSwapSaved"]) == 0:
+                local_logger.warning(f"CachedSwapSaved not found")
+                continue
+
+            info = events["CachedSwapSaved"]
             dv = (
                 f'{info["chainId"]}|{info["srcAddress"]}|{info["nonce"]}|'
                 f'{info["token"]}|{info["amountLD"]}|{info["payload"]}'

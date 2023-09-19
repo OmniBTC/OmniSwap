@@ -844,6 +844,7 @@ networks:
     chainid: 8453
     SoDiamond: "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    endpoints: ["https://rpc.ankr.com/base", "https://base.meowrpc.com", "https://mainnet.base.org"]
     stargate:
       router: "0x45f1A95A4D3f3836523F5c83673c797f4d4d263B"
       chainid: 184
