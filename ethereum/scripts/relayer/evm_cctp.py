@@ -337,6 +337,14 @@ def process_v1(
                 if data.token_message is None:
                     local_logger.warning(f"Get token message is None from {v['extrinsicHash']}")
                     continue
+
+                src_domain = data.token_message.msgSourceDomain
+                src_net = DOMAIN_TO_NET[src_domain]
+
+                dst_domain = data.token_message.msgDestinationDomain
+                dst_net = DOMAIN_TO_NET[dst_domain]
+
+                local_logger.info(f"Process from src net:{src_net} src txid:{v['extrinsicHash']} to dst net:{dst_net}")
                 if data.token_message.attestation is None:
                     local_logger.warning(f"Get token message attestation fail from {v['extrinsicHash']}")
                     continue
@@ -347,9 +355,6 @@ def process_v1(
                 if data.payload_message.attestation is None:
                     local_logger.warning(f"Get payload message attestation fail from {v['extrinsicHash']}")
                     continue
-
-                dst_domain = data.token_message.msgDestinationDomain
-                dst_net = DOMAIN_TO_NET[dst_domain]
 
                 if dst_storage[dst_domain].qsize() > 30:
                     # Avoid mem leak
