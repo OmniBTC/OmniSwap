@@ -231,8 +231,12 @@ def process_vaa(
             vaa_str)
         dst_max_gas = wormhole_data[1]
         dst_max_gas_price = int(wormhole_data[0] / 1e9)
-        if "main" in sui_project.network:
-            assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
+        dst_max_gas_price = min(sui_project.estimate_gas_price(), dst_max_gas_price)
+        if "main" in sui_project.network and dst_max_gas_price == 0:
+            local_logger.warning(f'Parse signed vaa for emitterChainId:{emitterChainId}, '
+                                 f'sequence:{sequence} dst_max_gas_price is zero')
+            return False
+
     except Exception as e:
         local_logger.error(f'Parse signed vaa for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
