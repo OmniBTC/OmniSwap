@@ -3,6 +3,7 @@ from __future__ import annotations
 import functools
 import logging
 import time
+from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
@@ -480,9 +481,12 @@ def process_v2(
                     {"from": account
                      }
                 )
+            actual_value = round(result.gas_used * result.gas_price / 1e18 * dst_price, 4)
+            if destinationDomain == 2:
+                actual_value *= 2
             record_gas(
-                result.gas_used,
-                result.gas_price,
+                send_value=relayer_value,
+                actual_value=actual_value,
                 src_net=DOMAIN_TO_NET[src_domain],
                 dst_net=DOMAIN_TO_NET[dst_domain],
                 src_txid=data.src_txid,
@@ -555,8 +559,8 @@ class Session(Process):
 
 
 def record_gas(
-        gas: int,
-        gas_price: int,
+        send_value: int,
+        actual_value: int,
         src_net: str,
         dst_net: str,
         src_txid=None,
@@ -573,16 +577,16 @@ def record_gas(
     period1 = str(datetime.fromtimestamp(uid))[:13]
     period2 = str(datetime.fromtimestamp(uid + interval))[:13]
     file_name = file_path.joinpath(f"cctp_{dst_net}_{period1}_{period2}.csv")
-    data = {
+    data = OrderedDict({
         "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
         "src_net": src_net,
         "dst_net": dst_net,
-        "gas": gas,
-        "gas_price": gas_price,
-        "sender_value": gas * gas_price,
+        "send_value": send_value,
+        "actual_value": actual_value,
         "src_txid": src_txid,
         "dst_txid": dst_txid,
-    }
+        "diff_value": actual_value - send_value
+    })
     columns = sorted(list(data.keys()))
     data = pd.DataFrame([data])
     data = data[columns]

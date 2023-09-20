@@ -1,10 +1,10 @@
 import base64
 import functools
-import json
 import logging
 import random
 import threading
 import time
+from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 
@@ -220,6 +220,7 @@ def process_vaa(
         vaa_str: str,
         emitterChainId: str,
         sequence: str,
+        extrinsicHash: str,
         local_logger,
         is_admin: bool = False
 ) -> bool:
@@ -521,6 +522,7 @@ def process_vaa(
             payload_len=int(len(vaa_str) / 2 - 1),
             swap_len=len(wormhole_data[3]),
             sequence=sequence,
+            src_txid=extrinsicHash,
             dst_txid=result["digest"]
         )
     except Exception as e:
@@ -574,12 +576,15 @@ def process_v2(
                 continue
             else:
                 has_process[has_key] = time.time()
+
             process_vaa(
-                dstSoDiamond,
-                vaa,
-                d["srcWormholeChainId"],
-                d["sequence"],
-                local_logger,
+                dstSoDiamond=dstSoDiamond,
+                vaa_str=vaa,
+                emitterChainId=d["srcWormholeChainId"],
+                sequence=d["sequence"],
+                extrinsicHash=d["extrinsicHash"],
+                local_logger=local_logger,
+                is_admin=False
             )
 
 
@@ -591,10 +596,8 @@ def compensate(
     local_logger = logger.getChild(f"[compensate|{sui_project.network}]")
     local_logger.info("Starting process compensate...")
     if "test" in sui_project.network or "test" == "goerli":
-        url = "http://wormhole-testnet.sherpax.io"
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
     else:
-        url = "http://wormhole-vaa.chainx.org"
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     while True:
         try:
@@ -619,11 +622,12 @@ def compensate(
                                    f'sequence:{d["sequence"]} error: {e}')
                 continue
             process_vaa(
-                dstSoDiamond,
-                vaa,
-                d["srcWormholeChainId"],
-                d["sequence"],
-                local_logger,
+                dstSoDiamond=dstSoDiamond,
+                vaa_str=vaa,
+                emitterChainId=d["srcWormholeChainId"],
+                sequence=d["sequence"],
+                extrinsicHash=d["extrinsicHash"],
+                local_logger=local_logger,
                 is_admin=True
             )
         time.sleep(3 * 60)
@@ -640,6 +644,7 @@ def record_gas(
         swap_len=0,
         file_path=Path(__file__).parent.parent.parent.parent.joinpath("gas"),
         sequence=None,
+        src_txid=None,
         dst_txid=None
 ):
     if isinstance(file_path, str):
@@ -652,7 +657,7 @@ def record_gas(
     period1 = str(datetime.fromtimestamp(uid))[:13]
     period2 = str(datetime.fromtimestamp(uid + interval))[:13]
     file_name = file_path.joinpath(f"{dst_net}_{period1}_{period2}_v1.csv")
-    data = {
+    data = OrderedDict({
         "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
         "src_net": src_net,
         "dst_net": dst_net,
@@ -665,8 +670,10 @@ def record_gas(
         "payload_len": payload_len,
         "swap_len": swap_len,
         "sequence": sequence,
-        "dst_txid": dst_txid
-    }
+        "dst_txid": dst_txid,
+        "src_txid": src_txid,
+        "diff_gas": sender_gas - actual_gas
+    })
     columns = sorted(list(data.keys()))
     data = pd.DataFrame([data])
     data = data[columns]
