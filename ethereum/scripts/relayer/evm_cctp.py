@@ -314,7 +314,7 @@ def process_v1(
     local_logger = logger.getChild(f"[v1|{network.show_active()}]")
     local_logger.info("Starting process v1...")
     src_chain_id = None
-
+    has_process = {}
     last_process = {}
     interval = 30
 
@@ -360,7 +360,20 @@ def process_v1(
                     local_logger.warning(f"Get payload message attestation fail from {v['extrinsicHash']}")
                     continue
 
-                if dst_storage[dst_domain].qsize() > 30:
+                # Reduce rpc use
+                has_key = v["extrinsicHash"]
+                if (
+                        has_key in has_process
+                        and (time.time() - has_process[has_key]) <= 10 * 60
+                ):
+                    local_logger.warning(
+                        f'{v["extrinsicHash"]} has process in recent 10min '
+                    )
+                    continue
+                else:
+                    has_process[has_key] = time.time()
+
+                if dst_storage[dst_domain].qsize() > 1000:
                     # Avoid mem leak
                     clear_queue(dst_storage[dst_domain])
 
