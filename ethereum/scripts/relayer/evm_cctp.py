@@ -456,7 +456,7 @@ def process_v2(
                 gas_limit = None
             # OP special handling
             elif destinationDomain == 2:
-                op_base_gas = 2200000
+                op_base_gas = 1880000
                 op_fixed_gas_price = int(0.15 * 1e9)
                 op_allow_deviation = 0.97
                 min_relayer_value = op_base_gas * op_fixed_gas_price / 1e18 * dst_price * op_allow_deviation
