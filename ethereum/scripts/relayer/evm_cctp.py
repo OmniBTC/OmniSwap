@@ -445,12 +445,12 @@ def process_v2(
                 gas_limit = None
             # OP special handling
             elif destinationDomain == 2:
-                op_base_gas = 3000000
+                op_base_gas = 2200000
                 op_fixed_gas_price = int(0.15 * 1e9)
                 op_allow_deviation = 0.97
                 min_relayer_value = op_base_gas * op_fixed_gas_price / 1e18 * dst_price * op_allow_deviation
                 if relayer_value < min_relayer_value:
-                    local_logger.warning(f"Src txid:{data.src_txid} relayer value:{src_fee} "
+                    local_logger.warning(f"Src txid:{data.src_txid} relayer value:{relayer_value} "
                                          f"< min_relayer_value: {min_relayer_value}")
                     continue
                 else:

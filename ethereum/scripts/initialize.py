@@ -279,7 +279,8 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
 
     dstBaseGasInfo = {
-        3000000: ["arbitrum-main", "optimism-main"],
+        2200000: ["optimism-main"],
+        3000000: ["arbitrum-main"],
         1050000: ["avax-main"],
         551250: ["mainnet"]
     }
