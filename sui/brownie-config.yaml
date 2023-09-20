@@ -742,5 +742,4 @@ networks:
           per_byte_gas: 68
 sui_wallets:
   from_mnemonic:
-    Relayer: ${RELAYER_MNEMONIC}
     Fee: ${FEE_MNEMONIC}
