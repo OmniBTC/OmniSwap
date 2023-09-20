@@ -106,12 +106,14 @@ def process_vaa(
         dst_max_gas_price = (
             int(10 * 1e9) if dst_max_gas_price == 0 else dst_max_gas_price
         )
-        if dst_max_gas_price < web3.eth.gas_price * 0.5:
+        estimate_gas_price = web3.eth.gas_price
+        if dst_max_gas_price < estimate_gas_price * 0.5:
             local_logger.warning(
                 f"Parse signed vaa for emitterChainId:{emitterChainId}, "
-                f"sequence:{sequence} dst_max_gas_price: {dst_max_gas_price} lower 0.5, pending")
-            return False
-        dst_max_gas_price = min(web3.eth.gas_price, dst_max_gas_price)
+                f"sequence:{sequence} dst_max_gas_price: {dst_max_gas_price} lower 0.5 for "
+                f"{estimate_gas_price}, pending")
+            # return False
+        dst_max_gas_price = min(estimate_gas_price, dst_max_gas_price)
     except Exception as e:
         local_logger.error(
             f"Parse signed vaa for emitterChainId:{emitterChainId}, "
