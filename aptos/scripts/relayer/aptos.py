@@ -241,7 +241,7 @@ def process_vaa(
                 sequence=sequence,
                 src_txid=extrinsicHash,
                 dst_txid=result["hash"],
-                price=price_info
+                price=price
             )
     except Exception as e:
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
