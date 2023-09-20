@@ -464,7 +464,7 @@ def process_v2(
                 local_logger.warning(f"Src txid:{data.src_txid} gas price err:{gas_price}, "
                                      f"gas limit too high, set 10000000")
                 gas_limit = 10000000
-            elif estimate_gas < gas_limit:
+            elif estimate_gas > gas_limit:
                 local_logger.warning(f"Src txid:{data.src_txid} estimate gas:{estimate_gas} > "
                                      f"gas limit:{gas_limit}, refuse relay")
                 continue
