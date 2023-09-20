@@ -3,6 +3,7 @@ from __future__ import annotations
 import functools
 import logging
 import time
+from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
@@ -72,7 +73,11 @@ def get_token_price():
     kucoin = ccxt.kucoin()
     result = {}
     for v in SUPPORTED_EVM:
-        if v["dstNet"] in ["mainnet", "goerli", "arbitrum-main", "arbitrum-test", "optimism-main", "optimism-test"]:
+        if v["dstNet"] in ["mainnet", "goerli",
+                           "arbitrum-main", "arbitrum-test",
+                           "optimism-main", "optimism-test",
+                           "base-main", "base-test",
+                           ]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("ETH/USDT")['close'])
         elif v["dstNet"] in ["bsc-main", "bsc-test"]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("BNB/USDT")['close'])
@@ -336,6 +341,14 @@ def process_v1(
                 if data.token_message is None:
                     local_logger.warning(f"Get token message is None from {v['extrinsicHash']}")
                     continue
+
+                src_domain = data.token_message.msgSourceDomain
+                src_net = DOMAIN_TO_NET[src_domain]
+
+                dst_domain = data.token_message.msgDestinationDomain
+                dst_net = DOMAIN_TO_NET[dst_domain]
+
+                local_logger.info(f"Process from src net:{src_net} src txid:{v['extrinsicHash']} to dst net:{dst_net}")
                 if data.token_message.attestation is None:
                     local_logger.warning(f"Get token message attestation fail from {v['extrinsicHash']}")
                     continue
@@ -346,9 +359,6 @@ def process_v1(
                 if data.payload_message.attestation is None:
                     local_logger.warning(f"Get payload message attestation fail from {v['extrinsicHash']}")
                     continue
-
-                dst_domain = data.token_message.msgDestinationDomain
-                dst_net = DOMAIN_TO_NET[dst_domain]
 
                 if dst_storage[dst_domain].qsize() > 30:
                     # Avoid mem leak
@@ -387,7 +397,9 @@ def process_v2(
     account = get_account()
     price_info = None
     last_price_update = 0
-    tx_max_interval = 1800
+    interval_price = 3 * 60
+
+    tx_max_interval = 7 * 24 * 60 * 60
 
     last_update_endpoint = 0
     endpoint_interval = 30
@@ -412,32 +424,58 @@ def process_v2(
                 local_logger.warning(f"Payload message recipient {data.payload_message.msgRecipient} not "
                                      f"equal dstSoDiamond {dstSoDiamond}")
                 continue
-            if time.time() - last_price_update >= 0:
+            if time.time() >= interval_price + last_price_update:
                 local_logger.info("Get token price")
                 price_info = get_token_price()
                 last_price_update = time.time()
 
             src_domain = data.token_message.msgSourceDomain
             dst_domain = data.token_message.msgDestinationDomain
-            src_fee = data.fee if data.fee is not None else 0
+            src_fee = data.fee
             src_price = price_info[src_domain]
             dst_price = price_info[dst_domain]
-            dst_fee = src_fee * src_price / dst_price
+            relayer_value = src_fee * src_price / 1e18
+            dst_fee = relayer_value * 1e18 / dst_price
             gas_price = web3.eth.gas_price
             gas_limit = int(dst_fee / gas_price)
-            if data.fee is None:
-                gas_limit = None
-            elif gas_limit == 0:
-                logger.warning(f"Gas fee:{src_fee}, gas limit is zero, refuse relay")
+
+            try:
+                estimate_gas = cctp_facet.receiveCCTPMessage.estimate_gas(
+                    format_hex(data.token_message.message),
+                    format_hex(data.token_message.attestation),
+                    format_hex(data.payload_message.message),
+                    format_hex(data.payload_message.attestation),
+                    {"from": account}
+                )
+            except Exception as e:
+                local_logger.warning(f"Src txid:{data.src_txid} estimate gas err:{e}")
                 continue
-            elif gas_limit > 10000000:
-                logger.warning(f"Gas price err:{gas_price}, gas limit too high, set 10000000")
-                gas_limit = 10000000
-            else:
-                logger.info(f"Gas limit is {gas_limit} for transaction")
-            if data.src_timestamp is not None and time.time() > data.src_timestamp + tx_max_interval:
-                logger.info(f"Tx timeout too long")
+
+            if time.time() > data.src_timestamp + tx_max_interval:
+                local_logger.info(f"Src txid:{data.src_txid} timeout too long, auto compensate")
                 gas_limit = None
+            # OP special handling
+            elif destinationDomain == 2:
+                op_base_gas = 2200000
+                op_fixed_gas_price = int(0.15 * 1e9)
+                op_allow_deviation = 0.97
+                min_relayer_value = op_base_gas * op_fixed_gas_price / 1e18 * dst_price * op_allow_deviation
+                if relayer_value < min_relayer_value:
+                    local_logger.warning(f"Src txid:{data.src_txid} relayer value:{relayer_value} "
+                                         f"< min_relayer_value: {min_relayer_value}")
+                    continue
+                else:
+                    gas_limit = None
+            elif gas_limit > 10000000:
+                local_logger.warning(f"Src txid:{data.src_txid} gas price err:{gas_price}, "
+                                     f"gas limit too high, set 10000000")
+                gas_limit = 10000000
+            elif estimate_gas > gas_limit:
+                local_logger.warning(f"Src txid:{data.src_txid} estimate gas:{estimate_gas} > "
+                                     f"gas limit:{gas_limit}, refuse relay")
+                continue
+            else:
+                local_logger.info(f"Gas limit is {gas_limit} for transaction")
             if not is_compensate:
                 account_info = {"from": account} if gas_limit is None else {"from": account, "gas_limit": gas_limit}
                 result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
@@ -454,9 +492,12 @@ def process_v2(
                     {"from": account
                      }
                 )
+            actual_value = round(result.gas_used * result.gas_price / 1e18 * dst_price, 4)
+            if destinationDomain == 2:
+                actual_value *= 2
             record_gas(
-                result.gas_used,
-                result.gas_price,
+                send_value=relayer_value,
+                actual_value=actual_value,
                 src_net=DOMAIN_TO_NET[src_domain],
                 dst_net=DOMAIN_TO_NET[dst_domain],
                 src_txid=data.src_txid,
@@ -529,8 +570,8 @@ class Session(Process):
 
 
 def record_gas(
-        gas: int,
-        gas_price: int,
+        send_value: int,
+        actual_value: int,
         src_net: str,
         dst_net: str,
         src_txid=None,
@@ -547,17 +588,17 @@ def record_gas(
     period1 = str(datetime.fromtimestamp(uid))[:13]
     period2 = str(datetime.fromtimestamp(uid + interval))[:13]
     file_name = file_path.joinpath(f"cctp_{dst_net}_{period1}_{period2}.csv")
-    data = {
+    data = OrderedDict({
         "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
         "src_net": src_net,
         "dst_net": dst_net,
-        "gas": gas,
-        "gas_price": gas_price,
-        "sender_value": gas * gas_price,
+        "send_value": send_value,
+        "actual_value": actual_value,
         "src_txid": src_txid,
         "dst_txid": dst_txid,
-    }
-    columns = sorted(list(data.keys()))
+        "diff_value": send_value - actual_value
+    })
+    columns = list(data.keys())
     data = pd.DataFrame([data])
     data = data[columns]
     if file_name.exists():

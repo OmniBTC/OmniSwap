@@ -1,14 +1,17 @@
 import logging
 import time
+from collections import OrderedDict
 from datetime import datetime
 from multiprocessing import Process, set_start_method
 from pathlib import Path
 
+import ccxt
 import pandas as pd
-from brownie import project, network
+from brownie import project, network, web3
 import threading
 
 from brownie.network.transaction import TransactionReceipt
+from retrying import retry
 from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc
 from scripts.relayer.select_evm import (
     get_pending_data,
@@ -57,26 +60,58 @@ SUPPORTED_EVM = [
 #      },
 # ]
 
+@retry
+def get_token_price():
+    kucoin = ccxt.kucoin()
+    result = {}
+    for v in SUPPORTED_EVM:
+        if v["dstNet"] in ["mainnet", "goerli",
+                           "arbitrum-main", "arbitrum-test",
+                           "optimism-main", "optimism-test",
+                           "base-main", "base-test",
+                           ]:
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("ETH/USDT")['close'])
+        elif v["dstNet"] in ["bsc-main", "bsc-test"]:
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("BNB/USDT")['close'])
+        elif v["dstNet"] in ["polygon-main", "polygon-test"]:
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("MATIC/USDT")['close'])
+        elif v["dstNet"] in ["avax-main", "avax-test"]:
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("AVAX/USDT")['close'])
+        else:
+            raise ValueError(f"{v['dstNet']} not found")
+    return result
+
 
 def process_vaa(
         dstSoDiamond: str,
         vaa_str: str,
         emitterChainId: str,
         sequence: str,
+        extrinsicHash: str,
         local_logger,
-        limit_gas_price=True
+        limit_gas_price=True,
+        price=0
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
         vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(vaa_str)
         dst_max_gas = wormhole_data[1]
         dst_max_gas_price = int(wormhole_data[0])
-        if "main" in network.show_active():
-            assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
-        else:
-            dst_max_gas_price = (
-                int(10 * 1e9) if dst_max_gas_price == 0 else dst_max_gas_price
+        if "main" in network.show_active() and dst_max_gas_price == 0:
+            local_logger.warning(
+                f"Parse signed vaa for emitterChainId:{emitterChainId}, "
+                f"sequence:{sequence} dst_max_gas_price is 0"
             )
+            return False
+        dst_max_gas_price = (
+            int(10 * 1e9) if dst_max_gas_price == 0 else dst_max_gas_price
+        )
+        if dst_max_gas_price < web3.eth.gas_price * 0.5:
+            local_logger.warning(
+                f"Parse signed vaa for emitterChainId:{emitterChainId}, "
+                f"sequence:{sequence} dst_max_gas_price: {dst_max_gas_price} lower 0.5, pending")
+            return False
+        dst_max_gas_price = min(web3.eth.gas_price, dst_max_gas_price)
     except Exception as e:
         local_logger.error(
             f"Parse signed vaa for emitterChainId:{emitterChainId}, "
@@ -117,7 +152,9 @@ def process_vaa(
                 payload_len=int(len(vaa_str) / 2 - 1),
                 swap_len=len(wormhole_data[3]),
                 sequence=sequence,
+                src_txid=extrinsicHash,
                 dst_txid=result.txid,
+                price=price
             )
             local_logger.info(
                 f"Process emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}"
@@ -148,6 +185,9 @@ def process_v2(
     reconnect_random_rpc()
     last_update_endpoint = 0
     endpoint_interval = 30
+    last_price_update = 0
+    interval_price = 3 * 60
+    price_info = {}
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
@@ -161,6 +201,15 @@ def process_v2(
             local_logger.error(
                 f'Get pending data for {network.show_active()} error: {e}'
             )
+            continue
+
+        try:
+            if time.time() >= interval_price + last_price_update:
+                local_logger.info("Get token price")
+                price_info = get_token_price()
+                last_price_update = time.time()
+        except Exception as e:
+            local_logger.error(f'Get token price error: {e}')
             continue
 
         for d in pending_data:
@@ -181,7 +230,8 @@ def process_v2(
                 )
                 continue
             try:
-                if (time.time() - d["blockTimestamp"]) >= 60 * 60:
+                # If gas price not enough, pending 7 day to manual process
+                if (time.time() - d["blockTimestamp"]) >= 7 * 24 * 60 * 60:
                     limit_gas_price = False
                 else:
                     limit_gas_price = True
@@ -200,12 +250,14 @@ def process_v2(
             else:
                 has_process[has_key] = time.time()
             process_vaa(
-                dstSoDiamond,
-                vaa,
-                d["srcWormholeChainId"],
-                d["sequence"],
-                local_logger,
-                limit_gas_price=limit_gas_price
+                dstSoDiamond=dstSoDiamond,
+                vaa_str=vaa,
+                emitterChainId=d["srcWormholeChainId"],
+                sequence=d["sequence"],
+                extrinsicHash=d["extrinsicHash"],
+                local_logger=local_logger,
+                limit_gas_price=limit_gas_price,
+                price=price_info[d["dstWormholeChainId"]]
             )
 
 
@@ -260,7 +312,9 @@ def record_gas(
         swap_len=0,
         file_path=Path(__file__).parent.parent.parent.parent.joinpath("gas"),
         sequence=None,
+        src_txid=None,
         dst_txid=None,
+        price=None,
 ):
     if not isinstance(actual_gas, int):
         actual_gas = sender_gas
@@ -276,22 +330,27 @@ def record_gas(
     period1 = str(datetime.fromtimestamp(uid))[:13]
     period2 = str(datetime.fromtimestamp(uid + interval))[:13]
     file_name = file_path.joinpath(f"{dst_net}_{period1}_{period2}_v1.csv")
-    data = {
+    sender_value = sender_gas * sender_gas_price
+    actual_value = actual_gas * actual_gas_price
+    data = OrderedDict({
         "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
         "src_net": src_net,
         "dst_net": dst_net,
         "sender_gas": sender_gas,
         "sender_gas_price": sender_gas_price,
-        "sender_value": sender_gas * sender_gas_price,
+        "sender_value": sender_value,
         "actual_gas": actual_gas,
         "actual_gas_price": actual_gas_price,
-        "actual_value": actual_gas * actual_gas_price,
+        "actual_value": actual_value,
         "payload_len": payload_len,
         "swap_len": swap_len,
         "sequence": sequence,
+        "src_txid": src_txid,
         "dst_txid": dst_txid,
-    }
-    columns = sorted(list(data.keys()))
+        "diff_gas": sender_value - actual_value,
+        "diff_value": round((sender_value - actual_value) / 1e18 * price, 4)
+    })
+    columns = list(data.keys())
     data = pd.DataFrame([data])
     data = data[columns]
     if file_name.exists():
