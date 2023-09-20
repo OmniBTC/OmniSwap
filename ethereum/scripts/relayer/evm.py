@@ -5,7 +5,7 @@ from multiprocessing import Process, set_start_method
 from pathlib import Path
 
 import pandas as pd
-from brownie import project, network
+from brownie import project, network, web3
 import threading
 
 from brownie.network.transaction import TransactionReceipt
@@ -71,12 +71,16 @@ def process_vaa(
         vaa_data, transfer_data, wormhole_data = parse_vaa_to_wormhole_payload(vaa_str)
         dst_max_gas = wormhole_data[1]
         dst_max_gas_price = int(wormhole_data[0])
-        if "main" in network.show_active():
-            assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
-        else:
-            dst_max_gas_price = (
-                int(10 * 1e9) if dst_max_gas_price == 0 else dst_max_gas_price
+        if "main" in network.show_active() and dst_max_gas_price == 0:
+            local_logger.warning(
+                f"Parse signed vaa for emitterChainId:{emitterChainId}, "
+                f"sequence:{sequence} dst_max_gas_price is 0"
             )
+            return False
+        dst_max_gas_price = (
+            int(10 * 1e9) if dst_max_gas_price == 0 else dst_max_gas_price
+        )
+        dst_max_gas_price = min(web3.eth.gas_price, dst_max_gas_price)
     except Exception as e:
         local_logger.error(
             f"Parse signed vaa for emitterChainId:{emitterChainId}, "
@@ -181,7 +185,8 @@ def process_v2(
                 )
                 continue
             try:
-                if (time.time() - d["blockTimestamp"]) >= 60 * 60:
+                # If gas price not enough, pending 7 day to manual process
+                if (time.time() - d["blockTimestamp"]) >= 7 * 24 * 60 * 60:
                     limit_gas_price = False
                 else:
                     limit_gas_price = True
