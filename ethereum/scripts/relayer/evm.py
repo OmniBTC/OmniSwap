@@ -181,6 +181,7 @@ def process_v2(
     last_update_endpoint = 0
     endpoint_interval = 30
     last_price_update = 0
+    interval_price = 3 * 60
     price_info = {}
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
@@ -198,7 +199,7 @@ def process_v2(
             continue
 
         try:
-            if time.time() - last_price_update >= 0:
+            if time.time() >= interval_price + last_price_update:
                 local_logger.info("Get token price")
                 price_info = get_token_price()
                 last_price_update = time.time()

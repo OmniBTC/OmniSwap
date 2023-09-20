@@ -397,6 +397,8 @@ def process_v2(
     account = get_account()
     price_info = None
     last_price_update = 0
+    interval_price = 3 * 60
+
     tx_max_interval = 7 * 24 * 60 * 60
 
     last_update_endpoint = 0
@@ -422,7 +424,7 @@ def process_v2(
                 local_logger.warning(f"Payload message recipient {data.payload_message.msgRecipient} not "
                                      f"equal dstSoDiamond {dstSoDiamond}")
                 continue
-            if time.time() - last_price_update >= 0:
+            if time.time() >= interval_price + last_price_update:
                 local_logger.info("Get token price")
                 price_info = get_token_price()
                 last_price_update = time.time()
