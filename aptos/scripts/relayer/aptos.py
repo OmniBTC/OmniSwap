@@ -151,8 +151,11 @@ def process_vaa(
             vaa_str)
         dst_max_gas = wormhole_data[1]
         dst_max_gas_price = wormhole_data[0] / 1e10
-        if "main" in package.network:
-            assert dst_max_gas_price > 0, "dst_max_gas_price is 0"
+        dst_max_gas_price = min(package.estimate_gas_price(), dst_max_gas_price)
+        if "main" in package.network and dst_max_gas_price == 0:
+            local_logger.error(f'Parse signed vaa for emitterChainId:{emitterChainId}, '
+                               f'sequence:{sequence} dst_max_gas_price is zero')
+            return False
     except Exception as e:
         local_logger.error(f'Parse signed vaa for emitterChainId:{emitterChainId}, '
                            f'sequence:{sequence} error: {e}')
