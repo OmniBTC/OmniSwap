@@ -8,9 +8,11 @@ from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 
+import ccxt
 import pandas as pd
 import requests
 from brownie import network
+from retrying import retry
 
 from scripts.serde_aptos import parse_vaa_to_wormhole_payload
 from scripts.serde_struct import omniswap_aptos_path, decode_hex_to_ascii, hex_str_to_vector_u8, change_network
@@ -80,6 +82,11 @@ NET_TO_EMITTER = {
     "base-main": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
 }
 
+@retry
+def get_token_price():
+    kucoin = ccxt.kucoin()
+    return float(kucoin.fetch_ticker("APT/USDT")['close'])
+
 
 @functools.lru_cache()
 def get_chain_id_to_net():
@@ -143,7 +150,8 @@ def process_vaa(
         sequence: str,
         extrinsicHash,
         local_logger,
-        is_admin: bool = False
+        is_admin: bool = False,
+        price_info=0
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
@@ -232,7 +240,8 @@ def process_vaa(
                 swap_len=len(wormhole_data[3]),
                 sequence=sequence,
                 src_txid=extrinsicHash,
-                dst_txid=result["hash"]
+                dst_txid=result["hash"],
+                price=price_info
             )
     except Exception as e:
         local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
@@ -253,6 +262,8 @@ def process_v2(
     else:
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     has_process = {}
+    last_price_update = 0
+    price_info = 0
     while True:
         try:
             pending_data = get_pending_data(url=pending_url, dstWormholeChainId=dstWormholeChainId)
@@ -262,6 +273,16 @@ def process_v2(
                 f'Get pending data for aptos error: {e}'
             )
             continue
+
+        try:
+            if time.time() - last_price_update >= 0:
+                local_logger.info("Get token price")
+                price_info = get_token_price()
+                last_price_update = time.time()
+        except Exception as e:
+            local_logger.error(f'Get token price error: {e}')
+            continue
+
         for d in pending_data:
             try:
                 vaa = get_signed_vaa_by_wormhole(int(d["sequence"]), int(d["srcWormholeChainId"]))
@@ -292,7 +313,8 @@ def process_v2(
                 sequence=d["sequence"],
                 extrinsicHash=d["extrinsicHash"],
                 local_logger=local_logger,
-                is_admin=False
+                is_admin=False,
+                price_info=price_info
             )
 
 
@@ -336,7 +358,8 @@ def compensate(
                 sequence=d["sequence"],
                 extrinsicHash=d["extrinsicHash"],
                 local_logger=local_logger,
-                is_admin=True
+                is_admin=True,
+                price_info=get_token_price()
             )
 
 
@@ -352,7 +375,8 @@ def record_gas(
         file_path=Path(__file__).parent.parent.parent.parent.joinpath("gas"),
         sequence=None,
         src_txid=None,
-        dst_txid=None
+        dst_txid=None,
+        price=0
 ):
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -364,24 +388,27 @@ def record_gas(
     period1 = str(datetime.fromtimestamp(uid))[:13]
     period2 = str(datetime.fromtimestamp(uid + interval))[:13]
     file_name = file_path.joinpath(f"{dst_net}_{period1}_{period2}_v1.csv")
+    sender_value = sender_gas * sender_gas_price
+    actual_value = actual_gas * actual_gas_price
     data = OrderedDict({
         "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
         "src_net": src_net,
         "dst_net": dst_net,
         "sender_gas": sender_gas,
         "sender_gas_price": sender_gas_price,
-        "sender_value": sender_gas * sender_gas_price,
+        "sender_value": sender_value,
         "actual_gas": actual_gas,
         "actual_gas_price": actual_gas_price,
-        "actual_value": actual_gas * actual_gas_price,
+        "actual_value": actual_value,
         "payload_len": payload_len,
         "swap_len": swap_len,
         "sequence": sequence,
         "src_txid": src_txid,
         "dst_txid": dst_txid,
-        "diff_gas": sender_gas - actual_gas
+        "diff_gas": sender_value - actual_value,
+        "diff_value": round((sender_value - actual_value) / 1e8 * price, 4)
     })
-    columns = sorted(list(data.keys()))
+    columns = list(data.keys())
     data = pd.DataFrame([data])
     data = data[columns]
     if file_name.exists():

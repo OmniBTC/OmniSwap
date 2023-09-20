@@ -5,11 +5,13 @@ from datetime import datetime
 from multiprocessing import Process, set_start_method
 from pathlib import Path
 
+import ccxt
 import pandas as pd
 from brownie import project, network, web3
 import threading
 
 from brownie.network.transaction import TransactionReceipt
+from retrying import retry
 from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc
 from scripts.relayer.select_evm import (
     get_pending_data,
@@ -58,6 +60,27 @@ SUPPORTED_EVM = [
 #      },
 # ]
 
+@retry
+def get_token_price():
+    kucoin = ccxt.kucoin()
+    result = {}
+    for v in SUPPORTED_EVM:
+        if v["dstNet"] in ["mainnet", "goerli",
+                           "arbitrum-main", "arbitrum-test",
+                           "optimism-main", "optimism-test",
+                           "base-main", "base-test",
+                           ]:
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("ETH/USDT")['close'])
+        elif v["dstNet"] in ["bsc-main", "bsc-test"]:
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("BNB/USDT")['close'])
+        elif v["dstNet"] in ["polygon-main", "polygon-test"]:
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("MATIC/USDT")['close'])
+        elif v["dstNet"] in ["avax-main", "avax-test"]:
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("AVAX/USDT")['close'])
+        else:
+            raise ValueError(f"{v['dstNet']} not found")
+    return result
+
 
 def process_vaa(
         dstSoDiamond: str,
@@ -66,7 +89,8 @@ def process_vaa(
         sequence: str,
         extrinsicHash: str,
         local_logger,
-        limit_gas_price=True
+        limit_gas_price=True,
+        price_info=None
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
@@ -125,6 +149,7 @@ def process_vaa(
                 sequence=sequence,
                 src_txid=extrinsicHash,
                 dst_txid=result.txid,
+                price=price_info[emitterChainId]
             )
             local_logger.info(
                 f"Process emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}"
@@ -155,6 +180,8 @@ def process_v2(
     reconnect_random_rpc()
     last_update_endpoint = 0
     endpoint_interval = 30
+    last_price_update = 0
+    price_info = {}
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
@@ -168,6 +195,15 @@ def process_v2(
             local_logger.error(
                 f'Get pending data for {network.show_active()} error: {e}'
             )
+            continue
+
+        try:
+            if time.time() - last_price_update >= 0:
+                local_logger.info("Get token price")
+                price_info = get_token_price()
+                last_price_update = time.time()
+        except Exception as e:
+            local_logger.error(f'Get token price error: {e}')
             continue
 
         for d in pending_data:
@@ -214,7 +250,8 @@ def process_v2(
                 sequence=d["sequence"],
                 extrinsicHash=d["extrinsicHash"],
                 local_logger=local_logger,
-                limit_gas_price=limit_gas_price
+                limit_gas_price=limit_gas_price,
+                price_info=price_info
             )
 
 
@@ -271,6 +308,7 @@ def record_gas(
         sequence=None,
         src_txid=None,
         dst_txid=None,
+        price=None,
 ):
     if not isinstance(actual_gas, int):
         actual_gas = sender_gas
@@ -301,9 +339,10 @@ def record_gas(
         "sequence": sequence,
         "src_txid": src_txid,
         "dst_txid": dst_txid,
-        "diff_gas": sender_gas - actual_gas
+        "diff_gas": sender_gas - actual_gas,
+        "diff_value": round((sender_gas - actual_gas) / 1e18 * price, 4)
     })
-    columns = sorted(list(data.keys()))
+    columns = list(data.keys())
     data = pd.DataFrame([data])
     data = data[columns]
     if file_name.exists():

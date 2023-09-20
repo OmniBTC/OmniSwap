@@ -336,7 +336,7 @@ def record_gas(
     period1 = str(datetime.fromtimestamp(uid))[:13]
     period2 = str(datetime.fromtimestamp(uid + interval))[:13]
     file_name = file_path.joinpath(f"stargate_{dst_net}_{period1}_{period2}.csv")
-    data = {
+    data = OrderedDict({
         "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
         "src_transaction": src_transaction,
         "dst_transaction1": dst_transaction1,
@@ -346,8 +346,8 @@ def record_gas(
         "actual_gas": actual_gas,
         "actual_gas_price": actual_gas_price,
         "actual_value": actual_gas * actual_gas_price,
-    }
-    columns = sorted(list(data.keys()))
+    })
+    columns = list(data.keys())
     data = pd.DataFrame([data])
     data = data[columns]
     if file_name.exists():

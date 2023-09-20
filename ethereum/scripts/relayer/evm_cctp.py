@@ -73,7 +73,11 @@ def get_token_price():
     kucoin = ccxt.kucoin()
     result = {}
     for v in SUPPORTED_EVM:
-        if v["dstNet"] in ["mainnet", "goerli", "arbitrum-main", "arbitrum-test", "optimism-main", "optimism-test"]:
+        if v["dstNet"] in ["mainnet", "goerli",
+                           "arbitrum-main", "arbitrum-test",
+                           "optimism-main", "optimism-test",
+                           "base-main", "base-test",
+                           ]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("ETH/USDT")['close'])
         elif v["dstNet"] in ["bsc-main", "bsc-test"]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("BNB/USDT")['close'])
@@ -590,9 +594,9 @@ def record_gas(
         "actual_value": actual_value,
         "src_txid": src_txid,
         "dst_txid": dst_txid,
-        "diff_value": actual_value - send_value
+        "diff_value": send_value - actual_value
     })
-    columns = sorted(list(data.keys()))
+    columns = list(data.keys())
     data = pd.DataFrame([data])
     data = data[columns]
     if file_name.exists():
