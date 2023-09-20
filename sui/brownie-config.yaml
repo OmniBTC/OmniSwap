@@ -58,7 +58,7 @@ networks:
     wormhole:
       actual_reserve: 1.1
       chainid: 22
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-main:
           base_gas: 700000
@@ -135,7 +135,7 @@ networks:
     wormhole:
       actual_reserve: 1.1
       chainid: 22
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-test:
           base_gas: 700000
@@ -203,7 +203,7 @@ networks:
     wormhole:
       actual_reserve: 1.1
       chainid: 6
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         bsc-main:
           base_gas: 700000
@@ -280,7 +280,7 @@ networks:
     wormhole:
       actual_reserve: 1.1
       chainid: 4
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-main:
           base_gas: 700000
@@ -404,7 +404,7 @@ networks:
     wormhole:
       actual_reserve: 1.1
       chainid: 2
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-main:
           base_gas: 700000
@@ -493,7 +493,7 @@ networks:
     wormhole:
       actual_reserve: 1.1
       chainid: 5
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-main:
           base_gas: 700000
@@ -615,7 +615,7 @@ networks:
     wormhole:
       chainid: 21
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -718,7 +718,7 @@ networks:
     wormhole:
       actual_reserve: 1.1
       chainid: 21
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-test:
           base_gas: 700000

@@ -361,7 +361,7 @@ def set_wormhole_gas():
     proxy_stargate.setWormholeGas(22, 70000, 68, {"from": get_account()})
 
 
-def initialize_wormhole(account, so_diamond):
+def initialize_wormhole(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_stargate = Contract.from_abi(
         "WormholeFacet", so_diamond.address, WormholeFacet.abi
     )

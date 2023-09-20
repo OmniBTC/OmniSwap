@@ -102,7 +102,7 @@ def set_celer_bnb_price_on_avax(ratio):
         f"[set_celer_bnb_price_on_avax]: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
     )
 
-    if old_ratio < ratio or ratio * 1.1 < old_ratio:
+    if old_ratio < ratio or ratio * 1.03 < old_ratio:
         LibSoFeeCelerV1[-1].setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
 
 
@@ -110,7 +110,7 @@ def set_so_price_for_test():
     prices = get_prices()
 
     decimal = 1e27
-    multiply = 1.2
+    multiply = 1
     if network.show_active() == "avax-test":
         # bnb
         dst_wormhole_id = 4
@@ -120,7 +120,7 @@ def set_so_price_for_test():
             f"Set price ratio for bnb-main: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -135,7 +135,7 @@ def set_so_price_for_test():
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -148,7 +148,7 @@ def set_so_price_for_test():
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -162,7 +162,7 @@ def set_so_price_for_test():
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -175,7 +175,7 @@ def set_so_price_for_test():
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -189,7 +189,7 @@ def set_so_price_for_test():
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -202,7 +202,7 @@ def set_so_price_for_test():
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -216,7 +216,7 @@ def set_so_price_for_test():
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -229,7 +229,7 @@ def set_so_price_for_test():
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -247,7 +247,7 @@ def set_so_price_for_celer_zkevm():
     celer_so_fee = "0x66F440252fe99454df8F8e1EB7743EA08FE7D8e2"
     prices = get_prices()
     decimal = 1e27
-    multiply = 1.2
+    multiply = 1
 
     proxy_celer_so_fee = Contract.from_abi(
         "LibSoFeeCelerV1", celer_so_fee, LibSoFeeCelerV1.abi
@@ -267,7 +267,7 @@ def set_so_price_for_celer_zkevm():
         f"[set_bnb_eth_price_ratio]: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
     )
 
-    if old_ratio < ratio or ratio * 1.1 < old_ratio:
+    if old_ratio < ratio or ratio * 1.03 < old_ratio:
         proxy_celer_so_fee.setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
 
     # matic/eth
@@ -278,7 +278,7 @@ def set_so_price_for_celer_zkevm():
         f"[set_matic_eth_price_ratio]: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
     )
 
-    if old_ratio < ratio or ratio * 1.1 < old_ratio:
+    if old_ratio < ratio or ratio * 1.03 < old_ratio:
         proxy_celer_so_fee.setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
 
     # avax/eth
@@ -289,7 +289,7 @@ def set_so_price_for_celer_zkevm():
         f"[set_avax_eth_price_ratio]: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
     )
 
-    if old_ratio < ratio or ratio * 1.1 < old_ratio:
+    if old_ratio < ratio or ratio * 1.03 < old_ratio:
         proxy_celer_so_fee.setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
 
 
@@ -297,7 +297,7 @@ def set_so_price():
     prices = get_prices()
 
     decimal = 1e27
-    multiply = 1.2
+    multiply = 1
     if network.show_active() == "avax-main":
         # bnb
         dst_wormhole_id = 4
@@ -306,7 +306,7 @@ def set_so_price():
         print(
             f"Set price ratio for bnb-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -320,7 +320,7 @@ def set_so_price():
         print(
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -332,7 +332,7 @@ def set_so_price():
         print(
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -345,7 +345,7 @@ def set_so_price():
         print(
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -357,7 +357,7 @@ def set_so_price():
         print(
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -370,7 +370,7 @@ def set_so_price():
         print(
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -382,7 +382,7 @@ def set_so_price():
         print(
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -395,7 +395,7 @@ def set_so_price():
         print(
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
@@ -407,7 +407,7 @@ def set_so_price():
         print(
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
         )
-        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
                 dst_wormhole_id, ratio, {"from": get_account()}
             )
