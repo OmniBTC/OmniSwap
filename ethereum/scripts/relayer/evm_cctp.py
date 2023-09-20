@@ -387,7 +387,7 @@ def process_v2(
     account = get_account()
     price_info = None
     last_price_update = 0
-    tx_max_interval = 1800
+    tx_max_interval = 7 * 24 * 60 * 60
 
     last_update_endpoint = 0
     endpoint_interval = 30
@@ -419,25 +419,51 @@ def process_v2(
 
             src_domain = data.token_message.msgSourceDomain
             dst_domain = data.token_message.msgDestinationDomain
-            src_fee = data.fee if data.fee is not None else 0
+            src_fee = data.fee
             src_price = price_info[src_domain]
             dst_price = price_info[dst_domain]
-            dst_fee = src_fee * src_price / dst_price
+            relayer_value = src_fee * src_price / 1e18
+            dst_fee = relayer_value * 1e18 / dst_price
             gas_price = web3.eth.gas_price
             gas_limit = int(dst_fee / gas_price)
-            if data.fee is None:
-                gas_limit = None
-            elif gas_limit == 0:
-                logger.warning(f"Gas fee:{src_fee}, gas limit is zero, refuse relay")
+
+            try:
+                estimate_gas = cctp_facet.receiveCCTPMessage.estimate_gas(
+                    format_hex(data.token_message.message),
+                    format_hex(data.token_message.attestation),
+                    format_hex(data.payload_message.message),
+                    format_hex(data.payload_message.attestation),
+                    {"from": account}
+                )
+            except Exception as e:
+                local_logger.warning(f"Src txid:{data.src_txid} estimate gas err:{e}")
                 continue
-            elif gas_limit > 10000000:
-                logger.warning(f"Gas price err:{gas_price}, gas limit too high, set 10000000")
-                gas_limit = 10000000
-            else:
-                logger.info(f"Gas limit is {gas_limit} for transaction")
-            if data.src_timestamp is not None and time.time() > data.src_timestamp + tx_max_interval:
-                logger.info(f"Tx timeout too long")
+
+            if time.time() > data.src_timestamp + tx_max_interval:
+                local_logger.info(f"Src txid:{data.src_txid} timeout too long, auto compensate")
                 gas_limit = None
+            # OP special handling
+            elif destinationDomain == 2:
+                op_base_gas = 3000000
+                op_fixed_gas_price = int(0.15 * 1e9)
+                op_allow_deviation = 0.97
+                min_relayer_value = op_base_gas * op_fixed_gas_price / 1e18 * dst_price * op_allow_deviation
+                if relayer_value < min_relayer_value:
+                    local_logger.warning(f"Src txid:{data.src_txid} relayer value:{src_fee} "
+                                         f"< min_relayer_value: {min_relayer_value}")
+                    continue
+                else:
+                    gas_limit = None
+            elif gas_limit > 10000000:
+                local_logger.warning(f"Src txid:{data.src_txid} gas price err:{gas_price}, "
+                                     f"gas limit too high, set 10000000")
+                gas_limit = 10000000
+            elif estimate_gas < gas_limit:
+                local_logger.warning(f"Src txid:{data.src_txid} estimate gas:{estimate_gas} > "
+                                     f"gas limit:{gas_limit}, refuse relay")
+                continue
+            else:
+                local_logger.info(f"Gas limit is {gas_limit} for transaction")
             if not is_compensate:
                 account_info = {"from": account} if gas_limit is None else {"from": account, "gas_limit": gas_limit}
                 result: TransactionReceipt = cctp_facet.receiveCCTPMessage(
