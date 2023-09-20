@@ -90,7 +90,7 @@ def process_vaa(
         extrinsicHash: str,
         local_logger,
         limit_gas_price=True,
-        price_info=None
+        price=0
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
@@ -154,7 +154,7 @@ def process_vaa(
                 sequence=sequence,
                 src_txid=extrinsicHash,
                 dst_txid=result.txid,
-                price=price_info[emitterChainId]
+                price=price
             )
             local_logger.info(
                 f"Process emitterChainId:{emitterChainId}, sequence:{sequence}, txid:{result.txid}"
@@ -257,7 +257,7 @@ def process_v2(
                 extrinsicHash=d["extrinsicHash"],
                 local_logger=local_logger,
                 limit_gas_price=limit_gas_price,
-                price_info=price_info
+                price=price_info[d["dstWormholeChainId"]]
             )
 
 
@@ -330,23 +330,25 @@ def record_gas(
     period1 = str(datetime.fromtimestamp(uid))[:13]
     period2 = str(datetime.fromtimestamp(uid + interval))[:13]
     file_name = file_path.joinpath(f"{dst_net}_{period1}_{period2}_v1.csv")
+    sender_value = sender_gas * sender_gas_price
+    actual_value = actual_gas * actual_gas_price
     data = OrderedDict({
         "record_time": str(datetime.fromtimestamp(cur_timestamp))[:19],
         "src_net": src_net,
         "dst_net": dst_net,
         "sender_gas": sender_gas,
         "sender_gas_price": sender_gas_price,
-        "sender_value": sender_gas * sender_gas_price,
+        "sender_value": sender_value,
         "actual_gas": actual_gas,
         "actual_gas_price": actual_gas_price,
-        "actual_value": actual_gas * actual_gas_price,
+        "actual_value": actual_value,
         "payload_len": payload_len,
         "swap_len": swap_len,
         "sequence": sequence,
         "src_txid": src_txid,
         "dst_txid": dst_txid,
-        "diff_gas": sender_gas - actual_gas,
-        "diff_value": round((sender_gas - actual_gas) / 1e18 * price, 4)
+        "diff_gas": sender_value - actual_value,
+        "diff_value": round((sender_value - actual_value) / 1e18 * price, 4)
     })
     columns = list(data.keys())
     data = pd.DataFrame([data])

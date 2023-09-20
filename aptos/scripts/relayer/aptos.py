@@ -151,7 +151,7 @@ def process_vaa(
         extrinsicHash,
         local_logger,
         is_admin: bool = False,
-        price_info=0
+        price=0
 ) -> bool:
     try:
         # Use bsc-test to decode, too slow may need to change bsc-mainnet
@@ -315,7 +315,7 @@ def process_v2(
                 extrinsicHash=d["extrinsicHash"],
                 local_logger=local_logger,
                 is_admin=False,
-                price_info=price_info
+                price=price_info
             )
 
 
@@ -360,7 +360,7 @@ def compensate(
                 extrinsicHash=d["extrinsicHash"],
                 local_logger=local_logger,
                 is_admin=True,
-                price_info=get_token_price()
+                price=get_token_price()
             )
 
 
