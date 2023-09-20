@@ -372,3 +372,7 @@ def main():
             dst_storage=dst_storage,
             project_path=str(project_path),
         )
+
+
+if __name__ == "__main__":
+    main()
