@@ -17,7 +17,7 @@ contract StargateHelper {
         view
         returns (uint256, bytes memory)
     {
-        if (inputData.length <= 41) {
+        if (inputData.length < 41) {
             return (0, bytes(""));
         }
         for (uint256 i; i < inputData.length - 41; ++i) {
