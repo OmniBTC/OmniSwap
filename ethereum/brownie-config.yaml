@@ -2038,4 +2038,5 @@ networks:
 
 wallets:
   from_key: ${PRIVATE_KEY}
+  from_deploy_key: ${DEPLOY_PRIVATE_KEY}
   from_mnemonic: ${MNEMONIC}
