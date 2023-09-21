@@ -215,7 +215,7 @@ def initialize_cut(account, so_diamond):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
-def initialize_stargate(account, so_diamond):
+def initialize_stargate(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_stargate = Contract.from_abi(
         "StargateFacet", so_diamond.address, StargateFacet.abi
     )
@@ -223,6 +223,9 @@ def initialize_stargate(account, so_diamond):
     print(f"network:{net}, init stargate...")
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
+    )
+    proxy_stargate.setAllowedAddress(
+        get_stargate_router(), True, {"from": account}
     )
 
 

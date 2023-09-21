@@ -26,10 +26,6 @@ interface IStargate {
         uint16 chainId,
         bytes srcAddress,
         uint256 nonce,
-        address token,
-        uint256 amountLD,
-        address to,
-        bytes payload,
         bytes reason
     );
     event RevertRedeemLocal(
