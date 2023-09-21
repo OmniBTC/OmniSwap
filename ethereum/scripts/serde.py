@@ -52,6 +52,17 @@ def get_stargate_facet():
 
 
 @functools.lru_cache()
+def get_stargate_helper_facet():
+    contract_name = "StargateHelper"
+    net = network.show_active()
+    return Contract.from_abi(
+        contract_name,
+        config["networks"][net]["StargateHelper"],
+        omniswap_ethereum_project[contract_name].abi,
+    )
+
+
+@functools.lru_cache()
 def get_token_bridge():
     contract_name = "TokenBridge"
     net = network.show_active()

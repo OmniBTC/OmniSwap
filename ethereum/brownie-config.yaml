@@ -68,7 +68,7 @@ networks:
       chainid: 22
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         goerli:
           dst_chainid: 2
@@ -103,7 +103,7 @@ networks:
       token_bridge: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7"
       wormhole: "0x706abc4E45D419950511e474C7B9Ed348A4a716c"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         bsc-test:
           dst_chainid: 4
@@ -229,7 +229,7 @@ networks:
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
       wormhole: "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-test:
           dst_chainid: 6
@@ -366,7 +366,7 @@ networks:
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
       wormhole: "0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         bsc-test:
           dst_chainid: 4
@@ -495,7 +495,7 @@ networks:
       token_bridge: "0x377D55a7928c046E18eEbb61977e714d2a76472a"
       wormhole: "0x0CBE91CF822c73C2315FB05100C2F714765d5c20"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-test:
           dst_chainid: 6
@@ -687,7 +687,7 @@ networks:
       chainid: 10
       token_bridge: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-test:
           dst_chainid: 6
@@ -778,7 +778,7 @@ networks:
     wormhole:
       chainid: 21
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -817,7 +817,7 @@ networks:
       chainid: 22
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -844,9 +844,10 @@ networks:
     chainid: 8453
     SoDiamond: "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: [ "https://base.blockpi.network/v1/rpc/public", "https://base.meowrpc.com", "https://base-mainnet.public.blastapi.io", "https://mainnet.base.org" ]
     stargate:
-      router: "0x45f1A95A4D3f3836523F5c83673c797f4d4d263B"
+      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
       chainid: 184
       poolid:
         usdc: 1
@@ -896,9 +897,10 @@ networks:
     chainid: 1
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://rpc.ankr.com/eth/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125', 'https://eth.llamarpc.com', 'https://ethereum.publicnode.com', 'https://1rpc.io/eth']
     stargate:
-      router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
+      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
       chainid: 101
       poolid:
         usdc: 1
@@ -910,7 +912,7 @@ networks:
       token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
       wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         bsc-main:
           dst_chainid: 4
@@ -1067,9 +1069,10 @@ networks:
     chainid: 56
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://bsc-mainnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3', 'https://bsc-dataseed2.binance.org/', 'https://bsc-dataseed.binance.org/', 'https://bsc.publicnode.com', 'https://bsc-dataseed1.ninicoin.io/', 'https://bsc.blockpi.network/v1/rpc/public', 'https://bsc-dataseed4.ninicoin.io/', 'https://bsc-dataseed3.defibit.io/', 'https://bsc.meowrpc.com', 'https://bsc-rpc.gateway.pokt.network', 'https://bscrpc.com', 'https://bsc-dataseed3.ninicoin.io/', 'https://bsc-mainnet.public.blastapi.io', 'https://binance.nodereal.io', 'https://bsc.rpc.blxrbdn.com/', 'https://bsc-dataseed1.binance.org/', 'https://bsc-dataseed2.defibit.io/', 'https://bsc-dataseed2.ninicoin.io/', 'https://bsc-dataseed4.defibit.io/', 'https://endpoints.omniatech.io/v1/bsc/mainnet/public', 'https://bsc-dataseed3.binance.org/', 'https://rpc-bsc.48.club', 'https://bsc-dataseed1.defibit.io/', 'https://rpc.ankr.com/bsc', 'https://koge-rpc-bsc.48.club', 'https://bsc-dataseed4.binance.org/', 'https://bnb.api.onfinality.io/public']
     stargate:
-      router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
+      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
       chainid: 102
       poolid:
         usdt: 2
@@ -1078,7 +1081,7 @@ networks:
       token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
       wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -1256,9 +1259,10 @@ networks:
     chainid: 43114
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://ava-mainnet.public.blastapi.io/ext/bc/C/rpc', 'https://avalanche.public-rpc.com', 'https://avax.meowrpc.com', 'https://endpoints.omniatech.io/v1/avax/mainnet/public', 'https://rpc.ankr.com/avalanche', 'https://avalanche.blockpi.network/v1/rpc/public', 'https://avalanche.api.onfinality.io/public/ext/bc/C/rpc', 'https://api.avax.network/ext/bc/C/rpc', 'https://avalanche-c-chain.publicnode.com']
     stargate:
-      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
       chainid: 106
       poolid:
         usdc: 1
@@ -1268,7 +1272,7 @@ networks:
       token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
       wormhole: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -1444,9 +1448,10 @@ networks:
     chainid: 137
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://gateway.tenderly.co/public/polygon', 'https://rpc.ankr.com/polygon', 'https://polygon.meowrpc.com', 'https://polygon.gateway.tenderly.co', 'https://polygon-mainnet.public.blastapi.io', 'https://rpc-mainnet.matic.quiknode.pro', 'https://polygon.rpc.blxrbdn.com/', 'https://endpoints.omniatech.io/v1/matic/mainnet/public', 'https://poly-rpc.gateway.pokt.network/', 'https://polygon.drpc.org', 'https://polygon-bor.publicnode.com', 'https://polygon.blockpi.network/v1/rpc/public', 'https://rpc-mainnet.maticvigil.com', 'https://polygon.api.onfinality.io/public', 'https://polygon-rpc.com', 'https://rpc.ankr.com/polygon/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125']
     stargate:
-      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
       chainid: 109
       poolid:
         usdc: 1
@@ -1456,7 +1461,7 @@ networks:
       token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
       wormhole: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -1632,9 +1637,10 @@ networks:
     chainid: 42161
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: [ "https://arbitrum.api.onfinality.io/public","https://arbitrum.blockpi.network/v1/rpc/public","https://arb1.arbitrum.io/rpc","https://arb-mainnet-public.unifra.io","https://endpoints.omniatech.io/v1/arbitrum/one/public","https://arbitrum.meowrpc.com","https://arbitrum-one.publicnode.com","https://rpc.arb1.arbitrum.gateway.fm","https://arbitrum-one.public.blastapi.io","https://rpc.ankr.com/arbitrum" ]
     stargate:
-      router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
+      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
       chainid: 110
       poolid:
         usdc: 1
@@ -1677,7 +1683,7 @@ networks:
             address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
             decimal: 18
         actual_reserve: 1.1
-        estimate_reserve: 1.2
+        estimate_reserve: 1.11
         gas:
           base_gas: 700000
           dst_chainid:
@@ -1781,8 +1787,9 @@ networks:
     chainid: 10
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     stargate:
-      router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
+      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
       chainid: 111
       poolid:
         usdc: 1
@@ -1928,7 +1935,7 @@ networks:
       chainid: 10
       token_bridge: "0x7C9Fc5741288cDFdD83CeB07f3ea7e22618D79D2"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -2038,4 +2045,5 @@ networks:
 
 wallets:
   from_key: ${PRIVATE_KEY}
+  from_deploy_key: ${DEPLOY_PRIVATE_KEY}
   from_mnemonic: ${MNEMONIC}

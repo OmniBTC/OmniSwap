@@ -314,7 +314,7 @@ def process_v1(
     local_logger = logger.getChild(f"[v1|{network.show_active()}]")
     local_logger.info("Starting process v1...")
     src_chain_id = None
-
+    has_process = {}
     last_process = {}
     interval = 30
 
@@ -360,7 +360,20 @@ def process_v1(
                     local_logger.warning(f"Get payload message attestation fail from {v['extrinsicHash']}")
                     continue
 
-                if dst_storage[dst_domain].qsize() > 30:
+                # Reduce rpc use
+                has_key = v["extrinsicHash"]
+                if (
+                        has_key in has_process
+                        and (time.time() - has_process[has_key]) <= 10 * 60
+                ):
+                    local_logger.warning(
+                        f'{v["extrinsicHash"]} has process in recent 10min '
+                    )
+                    continue
+                else:
+                    has_process[has_key] = time.time()
+
+                if dst_storage[dst_domain].qsize() > 1000:
                     # Avoid mem leak
                     clear_queue(dst_storage[dst_domain])
 
@@ -456,7 +469,7 @@ def process_v2(
                 gas_limit = None
             # OP special handling
             elif destinationDomain == 2:
-                op_base_gas = 2200000
+                op_base_gas = 1880000
                 op_fixed_gas_price = int(0.15 * 1e9)
                 op_allow_deviation = 0.97
                 min_relayer_value = op_base_gas * op_fixed_gas_price / 1e18 * dst_price * op_allow_deviation

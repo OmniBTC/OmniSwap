@@ -20,7 +20,7 @@ import threading
 from brownie.network.transaction import TransactionReceipt
 
 from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc
-from scripts.serde import get_stargate_facet
+from scripts.serde import get_stargate_facet, get_stargate_helper_facet
 from web3._utils.events import get_event_data
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
@@ -80,6 +80,13 @@ def get_stargate_pending_data(url: str = None) -> list:
     try:
         response = requests.get(url)
         result = response.json()["data"]
+        result = [
+            {"srcTransactionId": "0xf03c9b6b11e4d3fa5e8742f8870453accce68370d8fd54de8c0d183fefa04d1e",
+             "dstTransactionId": "0xdaf1c3ab3b7b546757dd8677499bcb48e5ad533c9cfff815aedd294a7981da95",
+             "srcNet": "optimism",
+             "dstNet": "avax",
+             "srcChainId": 10,
+             "dstChainId": 43114}]
         if isinstance(result, list):
             return result
         else:
@@ -207,8 +214,15 @@ def process_v2(
     last_update_endpoint = 0
     endpoint_interval = 30
 
+    stargate_helper = None
+    proxy_diamond = None
+
     while True:
         try:
+            if stargate_helper is None:
+                stargate_helper = get_stargate_helper_facet()
+            if proxy_diamond is None:
+                proxy_diamond = get_stargate_facet()
             if time.time() > last_update_endpoint + endpoint_interval:
                 reconnect_random_rpc()
                 local_logger.info(f"Update rpc")
@@ -219,15 +233,33 @@ def process_v2(
 
             d = dst_storage[src_chain_id].get()
 
+            tx = chain.get_transaction(d["dstTransactionId"])
+
+            (_, payload) = stargate_helper.tryFindStargatePayload(
+                tx.input,
+                proxy_diamond.address
+            )
+
+            if len(payload) == 0:
+                local_logger.warning(f"Payload not found")
+                continue
+
             receipt = web3.eth.get_transaction_receipt(d["dstTransactionId"])
             logs = receipt["logs"]
             message_abi = get_event_abi_by_interface("IStargate", "CachedSwapSaved")
-            events = {"CachedSwapSaved": {}}
+            transfer_abi = get_event_abi_by_interface("IERC20", "Transfer")
+            events = {"CachedSwapSaved": {}, "Transfer": {}}
 
             for log in logs:
                 try:
                     data = get_event_data(web3.codec, message_abi, log)
-                    events["CachedSwapSaved"] = data["args"]
+                    events["CachedSwapSaved"] = data
+                except:
+                    pass
+                try:
+                    data = get_event_data(web3.codec, transfer_abi, log)
+                    if str(data["args"]["to"]).lower() == str(proxy_diamond.address).lower():
+                        events["Transfer"] = data
                 except:
                     pass
 
@@ -235,7 +267,18 @@ def process_v2(
                 local_logger.warning(f"CachedSwapSaved not found")
                 continue
 
-            info = events["CachedSwapSaved"]
+            if len(events["Transfer"]) == 0:
+                local_logger.warning(f"Transfer not found")
+                continue
+            info = {
+                "chainId": events["CachedSwapSaved"]["args"]["chainId"],
+                "srcAddress": events["CachedSwapSaved"]["args"]["srcAddress"],
+                "nonce": events["CachedSwapSaved"]["args"]["nonce"],
+                "token": events["Transfer"]["address"],
+                "amountLD": events["Transfer"]["args"]["value"],
+                "payload": payload
+            }
+
             dv = (
                 f'{info["chainId"]}|{info["srcAddress"]}|{info["nonce"]}|'
                 f'{info["token"]}|{info["amountLD"]}|{info["payload"]}'
@@ -244,7 +287,6 @@ def process_v2(
             if dk in HAS_PROCESSED:
                 continue
             local_logger.info(f"Process {d['srcTransactionId']}")
-            proxy_diamond = get_stargate_facet()
             result: TransactionReceipt = proxy_diamond.sgReceive(
                 info["chainId"],
                 info["srcAddress"],

@@ -1,5 +1,7 @@
 {
   "arbitrum-main": {
+    "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
+    "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0x206b7075C6b12E3A9B4C6A85C8bc848d6EfF435c",
     "CCTPFacet": "0x452B5F476f4fA706a80C513c52729e47150d343C",
     "CelerFacet": "0x930b39EcEA81678a5033aa3c9Cc1f804fFEE004e",
@@ -19,6 +21,8 @@
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
   },
   "avax-main": {
+    "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
+    "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0x5AB267E44F1A9c5CA11950cfD33DC8F61b135E62",
     "CCTPFacet": "0x0E4acb24eF6D0dc819e56085D698773Ec9285847",
     "CelerFacet": "0x13Ee92DFCa712CD3623b2A9ecF3A8f6723674AAA",
@@ -43,6 +47,8 @@
     "WormholeFacet": "0xFc6e7902EcDD5C2Ae7502e2F869f2213B4BF2249"
   },
   "bsc-main": {
+    "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
+    "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0xA96cacCf2e4366F0028CC3Dde8668Dd1E36B7904",
     "CelerFacet": "0xF7231a00E08904b064Af8d9436d37286c36751E1",
     "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
@@ -65,6 +71,8 @@
     "WormholeFacet": "0x72335F9a83d6468B7Bdf64e25A511D5A719f3Cf2"
   },
   "mainnet": {
+    "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
+    "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "CelerFacet": "0x71834892FE8D818bc892AF4c6D0FecbBF0B46cC2",
     "CCTPFacet": "0xd4756d6006cF3098acdF66C44D0fD175B3f2dDB7",
     "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
@@ -86,6 +94,8 @@
     "WormholeFacet": "0x681bC51FC82bbA792e94e6187B82859f1E982C24"
   },
   "optimism-main": {
+    "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
+    "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0xAc7DCE61Faa5B130B4D3396530EDcE4bf9c68519",
     "CelerFacet": "0xD8dec96b9E22a99f68D48CfB20cd6868a3dcc56b",
     "CCTPFacet": "0xAb937e03354a941d723feB715Fb73C28F2E30Fbe",
@@ -105,6 +115,8 @@
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
   },
   "polygon-main": {
+    "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
+    "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0x7e9b2df5519b88A361A117bc796162F4c0144051",
     "CelerFacet": "0x4E218F45E37f940Eb503b3b9F31426110059d672",
     "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
@@ -154,6 +166,8 @@
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
   },
   "base-main": {
+    "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
+    "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "DexManagerFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
     "DiamondCutFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
     "DiamondLoupeFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",

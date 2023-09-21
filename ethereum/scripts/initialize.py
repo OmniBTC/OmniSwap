@@ -215,7 +215,7 @@ def initialize_cut(account, so_diamond):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
-def initialize_stargate(account, so_diamond):
+def initialize_stargate(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_stargate = Contract.from_abi(
         "StargateFacet", so_diamond.address, StargateFacet.abi
     )
@@ -223,6 +223,9 @@ def initialize_stargate(account, so_diamond):
     print(f"network:{net}, init stargate...")
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
+    )
+    proxy_stargate.setAllowedAddress(
+        get_stargate_router(), True, {"from": account}
     )
 
 
@@ -279,7 +282,7 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
 
     dstBaseGasInfo = {
-        2200000: ["optimism-main"],
+        1880000: ["optimism-main"],
         3000000: ["arbitrum-main"],
         1050000: ["avax-main"],
         551250: ["mainnet"]
@@ -361,7 +364,7 @@ def set_wormhole_gas():
     proxy_stargate.setWormholeGas(22, 70000, 68, {"from": get_account()})
 
 
-def initialize_wormhole(account, so_diamond):
+def initialize_wormhole(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_stargate = Contract.from_abi(
         "WormholeFacet", so_diamond.address, WormholeFacet.abi
     )

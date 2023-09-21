@@ -28,7 +28,10 @@ interface IGMXV1Vault {
 
     function totalTokenWeights() external view returns (uint256);
 
-    function getTargetUsdgAmount(address _token) external view returns (uint256);
+    function getTargetUsdgAmount(address _token)
+        external
+        view
+        returns (uint256);
 
     function inManagerMode() external view returns (bool);
 
@@ -36,13 +39,19 @@ interface IGMXV1Vault {
 
     function maxGasPrice() external view returns (uint256);
 
-    function approvedRouters(address _account, address _router) external view returns (bool);
+    function approvedRouters(address _account, address _router)
+        external
+        view
+        returns (bool);
 
     function isLiquidator(address _account) external view returns (bool);
 
     function isManager(address _account) external view returns (bool);
 
-    function minProfitBasisPoints(address _token) external view returns (uint256);
+    function minProfitBasisPoints(address _token)
+        external
+        view
+        returns (uint256);
 
     function tokenBalances(address _token) external view returns (uint256);
 
@@ -64,11 +73,16 @@ interface IGMXV1Vault {
 
     function setMaxGlobalShortSize(address _token, uint256 _amount) external;
 
-    function setInPrivateLiquidationMode(bool _inPrivateLiquidationMode) external;
+    function setInPrivateLiquidationMode(bool _inPrivateLiquidationMode)
+        external;
 
     function setLiquidator(address _liquidator, bool _isActive) external;
 
-    function setFundingRate(uint256 _fundingInterval, uint256 _fundingRateFactor, uint256 _stableFundingRateFactor) external;
+    function setFundingRate(
+        uint256 _fundingInterval,
+        uint256 _fundingRateFactor,
+        uint256 _stableFundingRateFactor
+    ) external;
 
     function setFees(
         uint256 _taxBasisPoints,
@@ -94,21 +108,48 @@ interface IGMXV1Vault {
 
     function setPriceFeed(address _priceFeed) external;
 
-    function withdrawFees(address _token, address _receiver) external returns (uint256);
+    function withdrawFees(address _token, address _receiver)
+        external
+        returns (uint256);
 
     function directPoolDeposit(address _token) external;
 
-    function buyUSDG(address _token, address _receiver) external returns (uint256);
+    function buyUSDG(address _token, address _receiver)
+        external
+        returns (uint256);
 
-    function sellUSDG(address _token, address _receiver) external returns (uint256);
+    function sellUSDG(address _token, address _receiver)
+        external
+        returns (uint256);
 
-    function swap(address _tokenIn, address _tokenOut, address _receiver) external returns (uint256);
+    function swap(
+        address _tokenIn,
+        address _tokenOut,
+        address _receiver
+    ) external returns (uint256);
 
-    function increasePosition(address _account, address _collateralToken, address _indexToken, uint256 _sizeDelta, bool _isLong) external;
+    function increasePosition(
+        address _account,
+        address _collateralToken,
+        address _indexToken,
+        uint256 _sizeDelta,
+        bool _isLong
+    ) external;
 
-    function decreasePosition(address _account, address _collateralToken, address _indexToken, uint256 _collateralDelta, uint256 _sizeDelta, bool _isLong, address _receiver) external returns (uint256);
+    function decreasePosition(
+        address _account,
+        address _collateralToken,
+        address _indexToken,
+        uint256 _collateralDelta,
+        uint256 _sizeDelta,
+        bool _isLong,
+        address _receiver
+    ) external returns (uint256);
 
-    function tokenToUsdMin(address _token, uint256 _tokenAmount) external view returns (uint256);
+    function tokenToUsdMin(address _token, uint256 _tokenAmount)
+        external
+        view
+        returns (uint256);
 
     function priceFeed() external view returns (address);
 
@@ -116,11 +157,20 @@ interface IGMXV1Vault {
 
     function stableFundingRateFactor() external view returns (uint256);
 
-    function cumulativeFundingRates(address _token) external view returns (uint256);
+    function cumulativeFundingRates(address _token)
+        external
+        view
+        returns (uint256);
 
     function getNextFundingRate(address _token) external view returns (uint256);
 
-    function getFeeBasisPoints(address _token, uint256 _usdgDelta, uint256 _feeBasisPoints, uint256 _taxBasisPoints, bool _increment) external view returns (uint256);
+    function getFeeBasisPoints(
+        address _token,
+        uint256 _usdgDelta,
+        uint256 _feeBasisPoints,
+        uint256 _taxBasisPoints,
+        bool _increment
+    ) external view returns (uint256);
 
     function liquidationFeeUsd() external view returns (uint256);
 
@@ -150,9 +200,15 @@ interface IGMXV1Vault {
 
     function globalShortSizes(address _token) external view returns (uint256);
 
-    function globalShortAveragePrices(address _token) external view returns (uint256);
+    function globalShortAveragePrices(address _token)
+        external
+        view
+        returns (uint256);
 
-    function maxGlobalShortSizes(address _token) external view returns (uint256);
+    function maxGlobalShortSizes(address _token)
+        external
+        view
+        returns (uint256);
 
     function tokenDecimals(address _token) external view returns (uint256);
 
@@ -170,13 +226,39 @@ interface IGMXV1Vault {
 
     function maxUsdgAmounts(address _token) external view returns (uint256);
 
-    function getRedemptionAmount(address _token, uint256 _usdgAmount) external view returns (uint256);
+    function getRedemptionAmount(address _token, uint256 _usdgAmount)
+        external
+        view
+        returns (uint256);
 
     function getMaxPrice(address _token) external view returns (uint256);
 
     function getMinPrice(address _token) external view returns (uint256);
 
-    function getDelta(address _indexToken, uint256 _size, uint256 _averagePrice, bool _isLong, uint256 _lastIncreasedTime) external view returns (bool, uint256);
+    function getDelta(
+        address _indexToken,
+        uint256 _size,
+        uint256 _averagePrice,
+        bool _isLong,
+        uint256 _lastIncreasedTime
+    ) external view returns (bool, uint256);
 
-    function getPosition(address _account, address _collateralToken, address _indexToken, bool _isLong) external view returns (uint256, uint256, uint256, uint256, uint256, uint256, bool, uint256);
+    function getPosition(
+        address _account,
+        address _collateralToken,
+        address _indexToken,
+        bool _isLong
+    )
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            bool,
+            uint256
+        );
 }
