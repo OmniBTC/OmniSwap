@@ -11,7 +11,7 @@ from scripts.helpful_scripts import get_account
 def main():
     acc = get_account()
     deploy_acc = accounts.add(config["wallets"]["from_deploy_key"])
-    acc.transfer(deploy_acc.address, int(0.05 * 1e18))
+    acc.transfer(deploy_acc.address, int(0.03 * 1e18))
 
     ContractDeployerFactory.deploy({"from": deploy_acc})
     print(f"Deploy:{ContractDeployerFactory[-1]}")
@@ -22,7 +22,7 @@ def main():
     ContractDeployerFactory[-1].deployContract(salt, StargateHelper.bytecode, {"from": acc})
 
     remain_balance = deploy_acc.balance()
-    need_gas = web3.eth.gas_price * 21000
+    need_gas = web3.eth.gas_price * 21000 * 30
     deploy_acc.transfer(acc.address, int(remain_balance - need_gas))
 
 
