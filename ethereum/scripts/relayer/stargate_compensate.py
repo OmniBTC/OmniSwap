@@ -241,7 +241,7 @@ def process_v2(
             )
 
             if len(payload) == 0:
-                local_logger.warning(f"Payload not found")
+                local_logger.warning(f"{d['srcTransactionId']}, Payload not found")
                 continue
 
             receipt = web3.eth.get_transaction_receipt(d["dstTransactionId"])
@@ -264,11 +264,11 @@ def process_v2(
                     pass
 
             if len(events["CachedSwapSaved"]) == 0:
-                local_logger.warning(f"CachedSwapSaved not found")
+                local_logger.warning(f"{d['srcTransactionId']}, CachedSwapSaved not found")
                 continue
 
             if len(events["Transfer"]) == 0:
-                local_logger.warning(f"Transfer not found")
+                local_logger.warning(f"{d['srcTransactionId']}, Transfer not found")
                 continue
             info = {
                 "chainId": events["CachedSwapSaved"]["args"]["chainId"],
@@ -285,6 +285,7 @@ def process_v2(
             )
             dk = str(hashlib.sha3_256(dv.encode()).digest().hex())
             if dk in HAS_PROCESSED:
+                local_logger.warning(f"{d['srcTransactionId']}, HAS PROCESSED")
                 continue
             local_logger.info(f"Process {d['srcTransactionId']}")
             result: TransactionReceipt = proxy_diamond.sgReceive(
