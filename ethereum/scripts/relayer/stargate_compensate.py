@@ -336,7 +336,7 @@ class Session(Process):
                 break
             except:
                 logger.error(f"Connect {self.dstNet} fail")
-                reconnect_random_rpc()
+                reconnect_random_rpc(self.dstNet)
         t1 = threading.Thread(
             target=process_v1, args=(self.dstSoDiamond, dst_storage)
         )

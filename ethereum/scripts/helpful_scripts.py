@@ -408,8 +408,10 @@ def get_account_address():
     return get_account().address
 
 
-def reconnect_random_rpc():
-    endpoints: list = config["networks"][network.show_active()]["endpoints"]
+def reconnect_random_rpc(net=None):
+    if net is None:
+        net = network.show_active()
+    endpoints: list = config["networks"][net]["endpoints"]
     while True:
         try:
             brownie.web3.eth.get_block_number()
