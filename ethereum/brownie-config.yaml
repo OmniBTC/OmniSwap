@@ -847,7 +847,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: [ "https://base.blockpi.network/v1/rpc/public", "https://base.meowrpc.com", "https://base-mainnet.public.blastapi.io", "https://mainnet.base.org" ]
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 184
       poolid:
         usdc: 1
@@ -900,7 +900,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://rpc.ankr.com/eth/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125', 'https://eth.llamarpc.com', 'https://ethereum.publicnode.com', 'https://1rpc.io/eth']
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 101
       poolid:
         usdc: 1
@@ -1072,7 +1072,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://bsc-mainnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3', 'https://bsc-dataseed2.binance.org/', 'https://bsc-dataseed.binance.org/', 'https://bsc.publicnode.com', 'https://bsc-dataseed1.ninicoin.io/', 'https://bsc.blockpi.network/v1/rpc/public', 'https://bsc-dataseed4.ninicoin.io/', 'https://bsc-dataseed3.defibit.io/', 'https://bsc.meowrpc.com', 'https://bsc-rpc.gateway.pokt.network', 'https://bscrpc.com', 'https://bsc-dataseed3.ninicoin.io/', 'https://bsc-mainnet.public.blastapi.io', 'https://binance.nodereal.io', 'https://bsc.rpc.blxrbdn.com/', 'https://bsc-dataseed1.binance.org/', 'https://bsc-dataseed2.defibit.io/', 'https://bsc-dataseed2.ninicoin.io/', 'https://bsc-dataseed4.defibit.io/', 'https://endpoints.omniatech.io/v1/bsc/mainnet/public', 'https://bsc-dataseed3.binance.org/', 'https://rpc-bsc.48.club', 'https://bsc-dataseed1.defibit.io/', 'https://rpc.ankr.com/bsc', 'https://koge-rpc-bsc.48.club', 'https://bsc-dataseed4.binance.org/', 'https://bnb.api.onfinality.io/public']
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 102
       poolid:
         usdt: 2
@@ -1262,7 +1262,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://ava-mainnet.public.blastapi.io/ext/bc/C/rpc', 'https://avalanche.public-rpc.com', 'https://avax.meowrpc.com', 'https://endpoints.omniatech.io/v1/avax/mainnet/public', 'https://rpc.ankr.com/avalanche', 'https://avalanche.blockpi.network/v1/rpc/public', 'https://avalanche.api.onfinality.io/public/ext/bc/C/rpc', 'https://api.avax.network/ext/bc/C/rpc', 'https://avalanche-c-chain.publicnode.com']
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 106
       poolid:
         usdc: 1
@@ -1451,7 +1451,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://gateway.tenderly.co/public/polygon', 'https://rpc.ankr.com/polygon', 'https://polygon.meowrpc.com', 'https://polygon.gateway.tenderly.co', 'https://polygon-mainnet.public.blastapi.io', 'https://rpc-mainnet.matic.quiknode.pro', 'https://polygon.rpc.blxrbdn.com/', 'https://endpoints.omniatech.io/v1/matic/mainnet/public', 'https://poly-rpc.gateway.pokt.network/', 'https://polygon.drpc.org', 'https://polygon-bor.publicnode.com', 'https://polygon.blockpi.network/v1/rpc/public', 'https://rpc-mainnet.maticvigil.com', 'https://polygon.api.onfinality.io/public', 'https://polygon-rpc.com', 'https://rpc.ankr.com/polygon/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125']
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 109
       poolid:
         usdc: 1
@@ -1640,7 +1640,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: [ "https://arbitrum.api.onfinality.io/public","https://arbitrum.blockpi.network/v1/rpc/public","https://arb1.arbitrum.io/rpc","https://arb-mainnet-public.unifra.io","https://endpoints.omniatech.io/v1/arbitrum/one/public","https://arbitrum.meowrpc.com","https://arbitrum-one.publicnode.com","https://rpc.arb1.arbitrum.gateway.fm","https://arbitrum-one.public.blastapi.io","https://rpc.ankr.com/arbitrum" ]
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 110
       poolid:
         usdc: 1
@@ -1789,7 +1789,7 @@ networks:
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 111
       poolid:
         usdc: 1

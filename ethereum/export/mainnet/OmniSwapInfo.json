@@ -368,7 +368,7 @@
         "TokenName": "SGETH"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "UniswapV3",
@@ -469,7 +469,7 @@
         "TokenName": "USDbC"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "SushiswapV3",
@@ -591,7 +591,7 @@
         "TokenName": "USDt"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "PangolinV2",
@@ -1088,7 +1088,7 @@
         "TokenName": "USDD"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "PancakeSwapV2",
@@ -1608,7 +1608,7 @@
         "TokenName": "SGETH"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "UniswapV3",
@@ -2073,7 +2073,7 @@
         "TokenName": "SGETH"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "UniswapV3",
@@ -2195,7 +2195,7 @@
         "TokenName": "USDT"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "UniswapV3",
