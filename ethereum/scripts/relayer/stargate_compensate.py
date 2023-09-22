@@ -80,13 +80,6 @@ def get_stargate_pending_data(url: str = None) -> list:
     try:
         response = requests.get(url)
         result = response.json()["data"]
-        result = [
-            {"srcTransactionId": "0xf03c9b6b11e4d3fa5e8742f8870453accce68370d8fd54de8c0d183fefa04d1e",
-             "dstTransactionId": "0xdaf1c3ab3b7b546757dd8677499bcb48e5ad533c9cfff815aedd294a7981da95",
-             "srcNet": "optimism",
-             "dstNet": "avax",
-             "srcChainId": 10,
-             "dstChainId": 43114}]
         if isinstance(result, list):
             return result
         else:
