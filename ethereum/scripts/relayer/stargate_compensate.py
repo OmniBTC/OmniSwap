@@ -80,13 +80,6 @@ def get_stargate_pending_data(url: str = None) -> list:
     try:
         response = requests.get(url)
         result = response.json()["data"]
-        result = [
-            {"srcTransactionId": "0xf03c9b6b11e4d3fa5e8742f8870453accce68370d8fd54de8c0d183fefa04d1e",
-             "dstTransactionId": "0xdaf1c3ab3b7b546757dd8677499bcb48e5ad533c9cfff815aedd294a7981da95",
-             "srcNet": "optimism",
-             "dstNet": "avax",
-             "srcChainId": 10,
-             "dstChainId": 43114}]
         if isinstance(result, list):
             return result
         else:
@@ -175,6 +168,7 @@ def process_v1(
                 if dstGas < 100000:
                     local_logger.warning(f"{d['srcTransactionId']} not enough dst gas:{dstGas}!")
                 else:
+                    local_logger.warning(f"Put {d['srcTransactionId']} into queue!")
                     dst_storage[int(d['dstChainId'])].put(d)
             except:
                 traceback.print_exc()
@@ -241,7 +235,7 @@ def process_v2(
             )
 
             if len(payload) == 0:
-                local_logger.warning(f"Payload not found")
+                local_logger.warning(f"{d['srcTransactionId']}, Payload not found")
                 continue
 
             receipt = web3.eth.get_transaction_receipt(d["dstTransactionId"])
@@ -264,11 +258,11 @@ def process_v2(
                     pass
 
             if len(events["CachedSwapSaved"]) == 0:
-                local_logger.warning(f"CachedSwapSaved not found")
+                local_logger.warning(f"{d['srcTransactionId']}, CachedSwapSaved not found")
                 continue
 
             if len(events["Transfer"]) == 0:
-                local_logger.warning(f"Transfer not found")
+                local_logger.warning(f"{d['srcTransactionId']}, Transfer not found")
                 continue
             info = {
                 "chainId": events["CachedSwapSaved"]["args"]["chainId"],
@@ -285,6 +279,7 @@ def process_v2(
             )
             dk = str(hashlib.sha3_256(dv.encode()).digest().hex())
             if dk in HAS_PROCESSED:
+                local_logger.warning(f"{d['srcTransactionId']}, HAS PROCESSED")
                 continue
             local_logger.info(f"Process {d['srcTransactionId']}")
             result: TransactionReceipt = proxy_diamond.sgReceive(
@@ -335,11 +330,14 @@ class Session(Process):
     def worker(self, dst_storage):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
-        try:
-            change_network(self.dstNet)
-        except:
-            logger.error(f"Connect {self.dstNet} fail")
-            return
+        while True:
+            try:
+                change_network(self.dstNet)
+                break
+            except:
+                err = traceback.format_exc()
+                logger.error(f"Connect {self.dstNet} fail, err:{err}")
+                reconnect_random_rpc(self.dstNet)
         t1 = threading.Thread(
             target=process_v1, args=(self.dstSoDiamond, dst_storage)
         )
