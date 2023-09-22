@@ -103,7 +103,7 @@ def get_event_signature_by_abi(abi):
 
 
 def change_network(dst_net):
-    if network.show_active() == dst_net:
+    if network.is_connected() and network.show_active() == dst_net:
         return
     if network.is_connected():
         network.disconnect()
