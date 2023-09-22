@@ -330,11 +330,13 @@ class Session(Process):
     def worker(self, dst_storage):
         p = project.load(self.project_path, name=self.name)
         p.load_config()
-        try:
-            change_network(self.dstNet)
-        except:
-            logger.error(f"Connect {self.dstNet} fail")
-            return
+        while True:
+            try:
+                change_network(self.dstNet)
+                break
+            except:
+                logger.error(f"Connect {self.dstNet} fail")
+                reconnect_random_rpc()
         t1 = threading.Thread(
             target=process_v1, args=(self.dstSoDiamond, dst_storage)
         )
