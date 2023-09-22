@@ -175,6 +175,7 @@ def process_v1(
                 if dstGas < 100000:
                     local_logger.warning(f"{d['srcTransactionId']} not enough dst gas:{dstGas}!")
                 else:
+                    local_logger.warning(f"Put {d['srcTransactionId']} into queue!")
                     dst_storage[int(d['dstChainId'])].put(d)
             except:
                 traceback.print_exc()
