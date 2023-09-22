@@ -334,8 +334,8 @@ class Session(Process):
             try:
                 change_network(self.dstNet)
                 break
-            except:
-                logger.error(f"Connect {self.dstNet} fail")
+            except Exception as e:
+                logger.error(f"Connect {self.dstNet} fail, err:{e}")
                 reconnect_random_rpc(self.dstNet)
         t1 = threading.Thread(
             target=process_v1, args=(self.dstSoDiamond, dst_storage)
