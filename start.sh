@@ -4,6 +4,8 @@
 cd /OmniSwap/ethereum
 
 # install solidity compiler and compile
+brownie networks add Base base-main host=https://rpc.ankr.com/base name=Mainnet chainid=8453
+
 brownie networks modify polygon-main host=https://rpc.ankr.com/polygon
 
 nohup brownie run ./scripts/relayer/evm_cctp.py > ../cctp_relayer.log 2>&1 &
