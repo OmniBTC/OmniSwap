@@ -129,7 +129,8 @@ def soSwapViaStargate(
         src_swap_data,
         stargate_data,
         dst_swap_data,
-        {"from": get_account(), "value": int(stargate_cross_fee + input_eth_amount)},
+        {"from": get_account(), "value": int(stargate_cross_fee + input_eth_amount)
+         },
     )
 
 
@@ -1113,7 +1114,7 @@ def single_swap(
     )
 
 
-def main(src_net="bsc-main", dst_net="bsc-main", bridge="swap"):
+def main(src_net="base-main", dst_net="optimism-main", bridge="stargate"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1129,18 +1130,18 @@ def main(src_net="bsc-main", dst_net="bsc-main", bridge="swap"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                1e-5 * src_session.put_task(get_token_decimal, args=("eth",))
+                1e-1 * src_session.put_task(get_token_decimal, args=("usdc",))
             ),
-            sourceTokenName="eth",  # stargate
+            sourceTokenName="usdc",  # stargate
             destinationTokenName="eth",  # stargate
             sourceSwapType=SwapType.IUniswapV2Router02,
-            sourceSwapFunc=SwapFunc.swapExactETHForTokens,
-            sourceSwapPath=("weth", "usdc"),
-            sourceStargateToken="usdc",
-            destinationStargateToken="usdc",
-            destinationSwapType=SwapType.IUniswapV2Router02,
-            destinationSwapFunc=SwapFunc.swapExactTokensForETH,
-            destinationSwapPath=("usdc", "weth"),
+            sourceSwapFunc=SwapFunc.swapExactTokensForETH,
+            sourceSwapPath=("usdc", "weth"),
+            sourceStargateToken="weth",
+            destinationStargateToken="weth",
+            destinationSwapType=None,
+            destinationSwapFunc=None,
+            destinationSwapPath=("weth", "weth"),
             slippage=0.001,
         )
 
