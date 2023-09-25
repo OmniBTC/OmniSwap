@@ -752,10 +752,12 @@ def add_dex(swap_type):
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
+    print(f"Add router for:{swap_type}")
     proxy_dex.addDex(
         swap_info[swap_type]["router"], {"from": get_account()}
     )
     try:
+        print(f"Add sig for {swap_type}")
         proxy_dex.batchSetFunctionApprovalBySignature(
             [v + "0" * 56 for v in list(getattr(interface, swap_type).selectors.keys())],
             True,

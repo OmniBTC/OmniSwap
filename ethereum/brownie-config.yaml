@@ -1762,22 +1762,22 @@ networks:
         router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
         token_list: ""
       ILBRouter:
-        name: Trader Joe
+        name: TraderJoe
         router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
         token_list: ""
       IGMXV1Router:
-        name: GMX V1
+        name: GMXV1
         router: "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064"
         token_list: ""
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: ""
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: SushiswapV2
-        router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
-        token_list: ""
+#      ISwapRouter:
+#        name: UniswapV3
+#        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+#        token_list: ""
+#        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+#      IUniswapV2Router02:
+#        name: SushiswapV2
+#        router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
+#        token_list: ""
   #      IUniswapV2Router02:
   #        name: CamelotV2
   #        router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
@@ -1906,23 +1906,19 @@ networks:
         name: Curve
         router: "0x1337bedc9d22ecbe766df105c9623922a27963ec"
         token_list: ""
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: ZipSwapV2
-        router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
-        token_list: ""
+#      ISwapRouter:
+#        name: UniswapV3
+#        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+#        token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
+#        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+#      IUniswapV2Router02:
+#        name: ZipSwapV2
+#        router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
+#        token_list: ""
       IVelodrome:
         name: Velodrome
         router: "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858"
         token_list: ""
-  #      IUniswapV2Router02:
-  #        name: ZipSwapV2
-  #        router: "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
-  #        token_list: ""
   ftm-main:
     omnibtc_chainid: 8
     chainid: 250
