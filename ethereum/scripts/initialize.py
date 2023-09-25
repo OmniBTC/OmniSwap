@@ -224,9 +224,6 @@ def initialize_stargate(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
     )
-    proxy_stargate.setAllowedAddress(
-        get_stargate_router(), True, {"from": account}
-    )
 
 
 def initialize_bool(account, so_diamond):
