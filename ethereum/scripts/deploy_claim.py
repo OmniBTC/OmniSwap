@@ -1,5 +1,6 @@
 import json
 import random
+import secrets
 import time
 from pathlib import Path
 
@@ -104,7 +105,7 @@ def claim_test():
     Claim[-1].claim(index, amount, proof, {"from": new_account})
 
 
-def main():
+def deploy_op():
     account = get_account()
     if "test" in network.show_active():
         MockToken.deploy("OP", "OP", {"from": account})
@@ -114,3 +115,16 @@ def main():
     start = int(time.time() + 10)
     merkle_root = "0x9ae91b8f4b19e1661c68035121d6327515524954587e14f75a8d30254386b9b8"
     Claim.deploy(start, token_address, merkle_root, {"from": account})
+
+
+def deploy_arb():
+    account = get_account()
+    if "test" in network.show_active():
+        MockToken.deploy("OP", "OP", {"from": account})
+        token_address = MockToken[-1].address
+    else:
+        token_address = "0x912CE59144191C1204E64559FE8253a0e49E6548"
+    start = int(time.time() + 10)
+    merkle_root = f"0x{secrets.token_bytes(32).hex()}"
+    Claim.deploy(start, token_address, merkle_root, {"from": account})
+    Claim[-1].pause({"from": account})

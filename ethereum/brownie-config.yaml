@@ -1638,6 +1638,10 @@ networks:
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    Claim:
+      v0: "0x88F453111fE710b36b5b193971b8E7e7576be397"
+      v1: "0xee2174cb3bc411A31Dd10363067E0B6Cf0aB0D37"
+      v2: "0x941ECfC6f02d037aF921fDC7431C78785638acDE"
     endpoints: [ "https://arbitrum.api.onfinality.io/public","https://arbitrum.blockpi.network/v1/rpc/public","https://arb1.arbitrum.io/rpc","https://arb-mainnet-public.unifra.io","https://endpoints.omniatech.io/v1/arbitrum/one/public","https://arbitrum.meowrpc.com","https://arbitrum-one.publicnode.com","https://rpc.arb1.arbitrum.gateway.fm","https://arbitrum-one.public.blastapi.io","https://rpc.ankr.com/arbitrum" ]
     stargate:
       router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
