@@ -1,0 +1,21 @@
+[package]
+name = "wormhole-anchor-sdk"
+version = "0.1.0-alpha.2"
+description = "SDK using Anchor interfaces to interact with Wormhole Solana Programs"
+edition = "2021"
+authors = ["W7"]
+license = "Apache-2.0"
+homepage = "https://github.com/wormhole-foundation/wormhole-scaffolding"
+repository = "https://github.com/wormhole-foundation/wormhole-scaffolding"
+
+[features]
+default = ["mainnet", "token-bridge"]
+mainnet = []
+solana-devnet = []
+tilt-devnet = []
+token-bridge = []
+
+[dependencies]
+anchor-lang = "0.28.0"
+anchor-spl = "0.28.0"
+cfg-if = "1.0.0"

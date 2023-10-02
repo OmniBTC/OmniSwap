@@ -7,7 +7,9 @@
     },
     "dependencies": {
         "@certusone/wormhole-sdk": "^0.10.3",
-        "@coral-xyz/anchor": "^0.28.0"
+        "@coral-xyz/anchor": "^0.28.0",
+        "axios": "^1.5.1",
+        "toml": "^3.0.0"
     },
     "devDependencies": {
         "@types/bn.js": "^5.1.0",
