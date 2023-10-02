@@ -17,7 +17,7 @@ function logWithTimestamp(message) {
 }
 
 const generateChunk = () => {
-    let jsonData = require("./op_account_20230911.json");
+    let jsonData = require("./op_account_20231002.json");
     jsonData.sort((a, b) => a[0].toLowerCase() < b[0].toLowerCase() ? -1 : 1)
     jsonData = jsonData.map((d, index) => {
         return [index, d[0], d[1]];
