@@ -113,7 +113,7 @@ def deploy_op():
     else:
         token_address = "0x4200000000000000000000000000000000000042"
     start = int(time.time() + 10)
-    merkle_root = "0x9ae91b8f4b19e1661c68035121d6327515524954587e14f75a8d30254386b9b8"
+    merkle_root = "0xbffe5101179a4eb2955b92ec64142334ad44e75a7eb6adf0fca1f1dc4df9264f"
     Claim.deploy(start, token_address, merkle_root, {"from": account})
 
 
