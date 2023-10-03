@@ -19,7 +19,7 @@ import threading
 
 from brownie.network.transaction import TransactionReceipt
 
-from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc
+from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc, zero_address
 from scripts.serde import get_stargate_facet, get_stargate_helper_facet
 from web3._utils.events import get_event_data
 
@@ -242,6 +242,7 @@ def process_v2(
             logs = receipt["logs"]
             message_abi = get_event_abi_by_interface("IStargate", "CachedSwapSaved")
             transfer_abi = get_event_abi_by_interface("IERC20", "Transfer")
+            transfer_native_abi = get_event_abi_by_interface("IStargateEthVault", "TransferNative")
             events = {"CachedSwapSaved": {}, "Transfer": {}}
 
             for log in logs:
@@ -254,6 +255,13 @@ def process_v2(
                     data = get_event_data(web3.codec, transfer_abi, log)
                     if str(data["args"]["to"]).lower() == str(proxy_diamond.address).lower():
                         events["Transfer"] = data
+                except:
+                    pass
+                try:
+                    data = get_event_data(web3.codec, transfer_native_abi, log)
+                    if str(data["args"]["dst"]).lower() == str(proxy_diamond.address).lower():
+                        events["Transfer"] = data
+                        events["Transfer"]["address"] = zero_address()
                 except:
                     pass
 
@@ -269,7 +277,8 @@ def process_v2(
                 "srcAddress": events["CachedSwapSaved"]["args"]["srcAddress"],
                 "nonce": events["CachedSwapSaved"]["args"]["nonce"],
                 "token": events["Transfer"]["address"],
-                "amountLD": events["Transfer"]["args"]["value"],
+                "amountLD": events["Transfer"]["args"]["value"] if "value" in events["Transfer"]["args"]
+                else events["Transfer"]["args"]["wad"],
                 "payload": payload
             }
 
