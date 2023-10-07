@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-so_diamond = "EvTsJYjLKCK1iMX9aExiYEBxdNBGgY8FQ7NFRd2jJNk5"
+so_diamond = "9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU"
 
 [registry]
 url = "https://api.apr.dev"
