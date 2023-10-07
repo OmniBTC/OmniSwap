@@ -863,7 +863,7 @@ def reset_so_gas():
 
 def redeploy_correct_swap():
     account = get_account()
-    LibCorrectSwapV1.deploy({"from": account})
+    # LibCorrectSwapV1.deploy({"from": account})
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
