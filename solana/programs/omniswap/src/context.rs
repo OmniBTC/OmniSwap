@@ -7,7 +7,7 @@ use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use super::{
     state::{ForeignContract, RedeemerConfig, SenderConfig},
-    HelloTokenError, PostedHelloTokenMessage,
+    SoSwapError, PostedSoSwapMessage,
 };
 
 /// AKA `b"bridged"`.
@@ -149,7 +149,7 @@ pub struct RegisterForeignContract<'info> {
     pub owner: Signer<'info>,
 
     #[account(
-        has_one = owner @ HelloTokenError::OwnerOnly,
+        has_one = owner @ SoSwapError::OwnerOnly,
         seeds = [SenderConfig::SEED_PREFIX],
         bump
     )]
@@ -201,7 +201,7 @@ pub struct UpdateRelayerFee<'info> {
 
     #[account(
         mut,
-        has_one = owner @ HelloTokenError::OwnerOnly,
+        has_one = owner @ SoSwapError::OwnerOnly,
         seeds = [RedeemerConfig::SEED_PREFIX],
         bump
     )]
@@ -287,7 +287,7 @@ pub struct SendNativeTokensWithPayload<'info> {
     pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
 
     #[account(
-        address = config.token_bridge.config @ HelloTokenError::InvalidTokenBridgeConfig
+        address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
     )]
     /// Token Bridge config. Read-only.
     pub token_bridge_config: Account<'info, token_bridge::Config>,
@@ -305,20 +305,20 @@ pub struct SendNativeTokensWithPayload<'info> {
     pub token_bridge_custody: UncheckedAccount<'info>,
 
     #[account(
-        address = config.token_bridge.authority_signer @ HelloTokenError::InvalidTokenBridgeAuthoritySigner
+        address = config.token_bridge.authority_signer @ SoSwapError::InvalidTokenBridgeAuthoritySigner
     )]
     /// CHECK: Token Bridge authority signer. Read-only.
     pub token_bridge_authority_signer: UncheckedAccount<'info>,
 
     #[account(
-        address = config.token_bridge.custody_signer @ HelloTokenError::InvalidTokenBridgeCustodySigner
+        address = config.token_bridge.custody_signer @ SoSwapError::InvalidTokenBridgeCustodySigner
     )]
     /// CHECK: Token Bridge custody signer. Read-only.
     pub token_bridge_custody_signer: UncheckedAccount<'info>,
 
     #[account(
         mut,
-        address = config.token_bridge.wormhole_bridge @ HelloTokenError::InvalidWormholeBridge,
+        address = config.token_bridge.wormhole_bridge @ SoSwapError::InvalidWormholeBridge,
     )]
     /// Wormhole bridge data. Mutable.
     pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
@@ -337,21 +337,21 @@ pub struct SendNativeTokensWithPayload<'info> {
 
     #[account(
         mut,
-        address = config.token_bridge.emitter @ HelloTokenError::InvalidTokenBridgeEmitter
+        address = config.token_bridge.emitter @ SoSwapError::InvalidTokenBridgeEmitter
     )]
     /// CHECK: Token Bridge emitter. Read-only.
     pub token_bridge_emitter: UncheckedAccount<'info>,
 
     #[account(
         mut,
-        address = config.token_bridge.sequence @ HelloTokenError::InvalidTokenBridgeSequence
+        address = config.token_bridge.sequence @ SoSwapError::InvalidTokenBridgeSequence
     )]
     /// CHECK: Token Bridge sequence. Mutable.
     pub token_bridge_sequence: Account<'info, wormhole::SequenceTracker>,
 
     #[account(
         mut,
-        address = config.token_bridge.wormhole_fee_collector @ HelloTokenError::InvalidWormholeFeeCollector
+        address = config.token_bridge.wormhole_fee_collector @ SoSwapError::InvalidWormholeFeeCollector
     )]
     /// Wormhole fee collector. Mutable.
     pub wormhole_fee_collector: Account<'info, wormhole::FeeCollector>,
@@ -382,7 +382,7 @@ pub struct RedeemNativeTransferWithPayload<'info> {
 
     #[account(
         mut,
-        constraint = payer.key() == recipient.key() || payer_token_account.key() == anchor_spl::associated_token::get_associated_token_address(&payer.key(), &mint.key()) @ HelloTokenError::InvalidPayerAta
+        constraint = payer.key() == recipient.key() || payer_token_account.key() == anchor_spl::associated_token::get_associated_token_address(&payer.key(), &mint.key()) @ SoSwapError::InvalidPayerAta
     )]
     /// CHECK: Payer's token account. If payer != recipient, must be an
     /// associated token account. Mutable.
@@ -402,7 +402,7 @@ pub struct RedeemNativeTransferWithPayload<'info> {
             &vaa.emitter_chain().to_le_bytes()[..]
         ],
         bump,
-        constraint = foreign_contract.verify(&vaa) @ HelloTokenError::InvalidForeignContract
+        constraint = foreign_contract.verify(&vaa) @ SoSwapError::InvalidForeignContract
     )]
     /// Foreign Contract account. The registered contract specified in this
     /// account must agree with the target address for the Token Bridge's token
@@ -455,7 +455,7 @@ pub struct RedeemNativeTransferWithPayload<'info> {
     pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
 
     #[account(
-        address = config.token_bridge.config @ HelloTokenError::InvalidTokenBridgeConfig
+        address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
     )]
     /// Token Bridge config. Read-only.
     pub token_bridge_config: Account<'info, token_bridge::Config>,
@@ -467,13 +467,13 @@ pub struct RedeemNativeTransferWithPayload<'info> {
         ],
         bump,
         seeds::program = wormhole_program,
-        constraint = vaa.data().to() == crate::ID || vaa.data().to() == config.key() @ HelloTokenError::InvalidTransferToAddress,
-        constraint = vaa.data().to_chain() == wormhole::CHAIN_ID_SOLANA @ HelloTokenError::InvalidTransferToChain,
-        constraint = vaa.data().token_chain() == wormhole::CHAIN_ID_SOLANA @ HelloTokenError::InvalidTransferTokenChain
+        constraint = vaa.data().to() == crate::ID || vaa.data().to() == config.key() @ SoSwapError::InvalidTransferToAddress,
+        constraint = vaa.data().to_chain() == wormhole::CHAIN_ID_SOLANA @ SoSwapError::InvalidTransferToChain,
+        constraint = vaa.data().token_chain() == wormhole::CHAIN_ID_SOLANA @ SoSwapError::InvalidTransferTokenChain
     )]
     /// Verified Wormhole message account. The Wormhole program verified
     /// signatures and posted the account data here. Read-only.
-    pub vaa: Box<Account<'info, PostedHelloTokenMessage>>,
+    pub vaa: Box<Account<'info, PostedSoSwapMessage>>,
 
     #[account(mut)]
     /// CHECK: Token Bridge claim account. It stores a boolean, whose value
@@ -482,7 +482,7 @@ pub struct RedeemNativeTransferWithPayload<'info> {
     pub token_bridge_claim: UncheckedAccount<'info>,
 
     #[account(
-        address = foreign_contract.token_bridge_foreign_endpoint @ HelloTokenError::InvalidTokenBridgeForeignEndpoint
+        address = foreign_contract.token_bridge_foreign_endpoint @ SoSwapError::InvalidTokenBridgeForeignEndpoint
     )]
     /// Token Bridge foreign endpoint. This account should really be one
     /// endpoint per chain, but the PDA allows for multiple endpoints for each
@@ -500,7 +500,7 @@ pub struct RedeemNativeTransferWithPayload<'info> {
     pub token_bridge_custody: Account<'info, TokenAccount>,
 
     #[account(
-        address = config.token_bridge.custody_signer @ HelloTokenError::InvalidTokenBridgeCustodySigner
+        address = config.token_bridge.custody_signer @ SoSwapError::InvalidTokenBridgeCustodySigner
     )]
     /// CHECK: Token Bridge custody signer. Read-only.
     pub token_bridge_custody_signer: UncheckedAccount<'info>,
@@ -610,20 +610,20 @@ pub struct SendWrappedTokensWithPayload<'info> {
 
     #[account(
         mut,
-        address = config.token_bridge.config @ HelloTokenError::InvalidTokenBridgeConfig
+        address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
     )]
     /// Token Bridge config. Mutable.
     pub token_bridge_config: Account<'info, token_bridge::Config>,
 
     #[account(
-        address = config.token_bridge.authority_signer @ HelloTokenError::InvalidTokenBridgeAuthoritySigner
+        address = config.token_bridge.authority_signer @ SoSwapError::InvalidTokenBridgeAuthoritySigner
     )]
     /// CHECK: Token Bridge authority signer. Read-only.
     pub token_bridge_authority_signer: UncheckedAccount<'info>,
 
     #[account(
         mut,
-        address = config.token_bridge.wormhole_bridge @ HelloTokenError::InvalidWormholeBridge,
+        address = config.token_bridge.wormhole_bridge @ SoSwapError::InvalidWormholeBridge,
     )]
     /// Wormhole bridge data. Mutable.
     pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
@@ -642,21 +642,21 @@ pub struct SendWrappedTokensWithPayload<'info> {
 
     #[account(
         mut,
-        address = config.token_bridge.emitter @ HelloTokenError::InvalidTokenBridgeEmitter
+        address = config.token_bridge.emitter @ SoSwapError::InvalidTokenBridgeEmitter
     )]
     /// CHECK: Token Bridge emitter. Read-only.
     pub token_bridge_emitter: UncheckedAccount<'info>,
 
     #[account(
         mut,
-        address = config.token_bridge.sequence @ HelloTokenError::InvalidTokenBridgeSequence
+        address = config.token_bridge.sequence @ SoSwapError::InvalidTokenBridgeSequence
     )]
     /// CHECK: Token Bridge sequence. Mutable.
     pub token_bridge_sequence: Account<'info, wormhole::SequenceTracker>,
 
     #[account(
         mut,
-        address = config.token_bridge.wormhole_fee_collector @ HelloTokenError::InvalidWormholeFeeCollector
+        address = config.token_bridge.wormhole_fee_collector @ SoSwapError::InvalidWormholeFeeCollector
     )]
     /// Wormhole fee collector. Mutable.
     pub wormhole_fee_collector: Account<'info, wormhole::FeeCollector>,
@@ -687,7 +687,7 @@ pub struct RedeemWrappedTransferWithPayload<'info> {
 
     #[account(
         mut,
-        constraint = payer.key() == recipient.key() || payer_token_account.key() == anchor_spl::associated_token::get_associated_token_address(&payer.key(), &token_bridge_wrapped_mint.key()) @ HelloTokenError::InvalidPayerAta
+        constraint = payer.key() == recipient.key() || payer_token_account.key() == anchor_spl::associated_token::get_associated_token_address(&payer.key(), &token_bridge_wrapped_mint.key()) @ SoSwapError::InvalidPayerAta
     )]
     /// CHECK: Payer's token account. If payer != recipient, must be an
     /// associated token account.
@@ -707,7 +707,7 @@ pub struct RedeemWrappedTransferWithPayload<'info> {
             &vaa.emitter_chain().to_le_bytes()[..]
         ],
         bump,
-        constraint = foreign_contract.verify(&vaa) @ HelloTokenError::InvalidForeignContract
+        constraint = foreign_contract.verify(&vaa) @ SoSwapError::InvalidForeignContract
     )]
     /// Foreign Contract account. The registered contract specified in this
     /// account must agree with the target address for the Token Bridge's token
@@ -782,7 +782,7 @@ pub struct RedeemWrappedTransferWithPayload<'info> {
     pub token_bridge_wrapped_meta: Account<'info, token_bridge::WrappedMeta>,
 
     #[account(
-        address = config.token_bridge.config @ HelloTokenError::InvalidTokenBridgeConfig
+        address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
     )]
     /// Token Bridge config. Read-only.
     pub token_bridge_config: Account<'info, token_bridge::Config>,
@@ -794,13 +794,13 @@ pub struct RedeemWrappedTransferWithPayload<'info> {
         ],
         bump,
         seeds::program = wormhole_program,
-        constraint = vaa.data().to() == crate::ID || vaa.data().to() == config.key() @ HelloTokenError::InvalidTransferToAddress,
-        constraint = vaa.data().to_chain() == wormhole::CHAIN_ID_SOLANA @ HelloTokenError::InvalidTransferToChain,
-        constraint = vaa.data().token_chain() != wormhole::CHAIN_ID_SOLANA @ HelloTokenError::InvalidTransferTokenChain
+        constraint = vaa.data().to() == crate::ID || vaa.data().to() == config.key() @ SoSwapError::InvalidTransferToAddress,
+        constraint = vaa.data().to_chain() == wormhole::CHAIN_ID_SOLANA @ SoSwapError::InvalidTransferToChain,
+        constraint = vaa.data().token_chain() != wormhole::CHAIN_ID_SOLANA @ SoSwapError::InvalidTransferTokenChain
     )]
     /// Verified Wormhole message account. The Wormhole program verified
     /// signatures and posted the account data here. Read-only.
-    pub vaa: Box<Account<'info, PostedHelloTokenMessage>>,
+    pub vaa: Box<Account<'info, PostedSoSwapMessage>>,
 
     #[account(mut)]
     /// CHECK: Token Bridge claim account. It stores a boolean, whose value
@@ -809,7 +809,7 @@ pub struct RedeemWrappedTransferWithPayload<'info> {
     pub token_bridge_claim: UncheckedAccount<'info>,
 
     #[account(
-        address = foreign_contract.token_bridge_foreign_endpoint @ HelloTokenError::InvalidTokenBridgeForeignEndpoint
+        address = foreign_contract.token_bridge_foreign_endpoint @ SoSwapError::InvalidTokenBridgeForeignEndpoint
     )]
     /// Token Bridge foreign endpoint. This account should really be one
     /// endpoint per chain, but the PDA allows for multiple endpoints for each
@@ -817,7 +817,7 @@ pub struct RedeemWrappedTransferWithPayload<'info> {
     pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
 
     #[account(
-        address = config.token_bridge.mint_authority @ HelloTokenError::InvalidTokenBridgeMintAuthority
+        address = config.token_bridge.mint_authority @ SoSwapError::InvalidTokenBridgeMintAuthority
     )]
     /// CHECK: Token Bridge custody signer. Read-only.
     pub token_bridge_mint_authority: UncheckedAccount<'info>,

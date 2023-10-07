@@ -181,11 +181,11 @@ pub struct TransferWith<P> {
     payload: P,
 }
 
-impl<P: AnchorDeserialize + AnchorSerialize + Copy> TransferWith<P> {
+impl<P: AnchorDeserialize + AnchorSerialize + Clone> TransferWith<P> {
     pub fn new(meta: &TransferWithMeta, payload: &P) -> Self {
         Self {
-            meta: *meta,
-            payload: *payload,
+            meta: meta.clone(),
+            payload: payload.clone(),
         }
     }
 

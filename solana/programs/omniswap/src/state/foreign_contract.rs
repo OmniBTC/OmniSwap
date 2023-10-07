@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::PostedHelloTokenMessage;
+use crate::PostedSoSwapMessage;
 
 #[account]
 #[derive(Default)]
@@ -25,7 +25,7 @@ impl ForeignContract {
 
     /// Convenience method to check whether an address equals the one saved in
     /// this account.
-    pub fn verify(&self, vaa: &PostedHelloTokenMessage) -> bool {
+    pub fn verify(&self, vaa: &PostedSoSwapMessage) -> bool {
         vaa.emitter_chain() == self.chain && *vaa.data().from_address() == self.address
     }
 }
@@ -34,9 +34,10 @@ impl ForeignContract {
 pub mod test {
     use super::*;
 
-    use crate::HelloTokenMessage;
+    use crate::SoSwapMessage;
     use std::mem::size_of;
     use wormhole_anchor_sdk::{token_bridge, wormhole};
+    use crate::cross::NormalizedSoData;
 
     #[test]
     fn test_foreign_emitter() -> Result<()> {
@@ -54,7 +55,7 @@ pub mod test {
             token_bridge_foreign_endpoint,
         };
 
-        let vaa = PostedHelloTokenMessage {
+        let vaa = PostedSoSwapMessage {
             meta: wormhole::PostedVaaMeta {
                 version: 1,
                 finality: 200,
@@ -77,8 +78,19 @@ pub mod test {
                         to_address: Pubkey::new_unique().to_bytes(),
                         from_address: address,
                     },
-                    &HelloTokenMessage::Hello {
-                        recipient: Pubkey::new_unique().to_bytes(),
+                    &SoSwapMessage {
+                        dst_max_gas_price: Default::default(),
+                        dst_max_gas: Default::default(),
+                        normalized_so_data: NormalizedSoData {
+                            transaction_id: vec![],
+                            receiver: vec![],
+                            source_chain_id: 0,
+                            sending_asset_id: vec![],
+                            destination_chain_id: 0,
+                            receiving_asset_id: vec![],
+                            amount: Default::default(),
+                        },
+                        normalized_swap_data: vec![],
                     },
                 ),
             ),

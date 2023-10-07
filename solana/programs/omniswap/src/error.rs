@@ -1,7 +1,7 @@
 use anchor_lang::prelude::error_code;
 
 #[error_code]
-pub enum HelloTokenError {
+pub enum SoSwapError {
     #[msg("InvalidWormholeBridge")]
     /// Specified Wormhole bridge data PDA is wrong.
     InvalidWormholeBridge,

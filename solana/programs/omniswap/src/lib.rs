@@ -1,21 +1,26 @@
+extern crate core;
+
 use anchor_lang::prelude::*;
 
 pub use context::*;
 pub use error::*;
-pub use message::*;
+pub use message::{PostedSoSwapMessage, SoSwapMessage};
 pub use state::*;
 
 pub mod context;
 pub mod error;
 pub mod message;
 pub mod state;
+pub mod cross;
+pub mod serde;
 
-declare_id!("EvTsJYjLKCK1iMX9aExiYEBxdNBGgY8FQ7NFRd2jJNk5");
+declare_id!("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
 
 #[program]
-pub mod hello_token {
+pub mod omniswap {
     use super::*;
     use wormhole_anchor_sdk::{token_bridge, wormhole};
+    use crate::cross::{NormalizedSoData, NormalizedSwapData, NormalizedWormholeData};
 
     /// This instruction can be used to generate your program's config.
     /// And for convenience, we will store Wormhole-related PDAs in the
@@ -27,7 +32,7 @@ pub mod hello_token {
     ) -> Result<()> {
         require!(
             relayer_fee < relayer_fee_precision,
-            HelloTokenError::InvalidRelayerFee,
+            SoSwapError::InvalidRelayerFee,
         );
 
         // Initialize program's sender config
@@ -39,7 +44,7 @@ pub mod hello_token {
         sender_config.bump = *ctx
             .bumps
             .get("sender_config")
-            .ok_or(HelloTokenError::BumpNotFound)?;
+            .ok_or(SoSwapError::BumpNotFound)?;
 
         // Set Token Bridge related addresses.
         {
@@ -62,7 +67,7 @@ pub mod hello_token {
         redeemer_config.bump = *ctx
             .bumps
             .get("redeemer_config")
-            .ok_or(HelloTokenError::BumpNotFound)?;
+            .ok_or(SoSwapError::BumpNotFound)?;
         redeemer_config.relayer_fee = relayer_fee;
         redeemer_config.relayer_fee_precision = relayer_fee_precision;
 
@@ -98,7 +103,7 @@ pub mod hello_token {
         // Solana Wormhole program's. And cannot register a zero address.
         require!(
             chain > 0 && chain != wormhole::CHAIN_ID_SOLANA && !address.iter().all(|&x| x == 0),
-            HelloTokenError::InvalidForeignContract,
+            SoSwapError::InvalidForeignContract,
         );
 
         // Save the emitter info into the ForeignEmitter account.
@@ -118,7 +123,7 @@ pub mod hello_token {
     ) -> Result<()> {
         require!(
             relayer_fee < relayer_fee_precision,
-            HelloTokenError::InvalidRelayerFee,
+            SoSwapError::InvalidRelayerFee,
         );
 
         let config = &mut ctx.accounts.config;
@@ -133,14 +138,17 @@ pub mod hello_token {
         ctx: Context<SendNativeTokensWithPayload>,
         batch_id: u32,
         amount: u64,
-        recipient_address: [u8; 32],
-        recipient_chain: u16,
+        // recipient_address: [u8; 32],
+        // recipient_chain: u16,
+        wormhole_data: Vec<u8>,
+        so_data: Vec<u8>,
+        swap_data: Vec<u8>
     ) -> Result<()> {
         // Token Bridge program truncates amounts to 8 decimals, so there will
         // be a residual amount if decimals of SPL is >8. We need to take into
         // account how much will actually be bridged.
         let truncated_amount = token_bridge::truncate_amount(amount, ctx.accounts.mint.decimals);
-        require!(truncated_amount > 0, HelloTokenError::ZeroBridgeAmount);
+        require!(truncated_amount > 0, SoSwapError::ZeroBridgeAmount);
         if truncated_amount != amount {
             msg!(
                 "SendNativeTokensWithPayload :: truncating amount {} to {}",
@@ -149,11 +157,17 @@ pub mod hello_token {
             );
         }
 
+        let normalized_wormhole_data = NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data);
+        let normalized_so_data = NormalizedSoData::decode_normalized_so_data(&so_data);
+        let normalized_swap_data = NormalizedSwapData::decode_normalized_swap_data(&swap_data);
+
+        let recipient_chain = normalized_wormhole_data.dst_wormhole_chain_id;
         require!(
             recipient_chain > 0
                 && recipient_chain != wormhole::CHAIN_ID_SOLANA
-                && !recipient_address.iter().all(|&x| x == 0),
-            HelloTokenError::InvalidRecipient,
+                && !normalized_wormhole_data.dst_so_diamond.iter().all(|&x| x == 0)
+                && normalized_wormhole_data.dst_so_diamond == ctx.accounts.foreign_contract.address.to_vec(),
+            SoSwapError::InvalidRecipient,
         );
 
         // These seeds are used to:
@@ -193,10 +207,14 @@ pub mod hello_token {
             truncated_amount,
         )?;
 
-        // Serialize HelloTokenMessage as encoded payload for Token Bridge
+        // Serialize SoSwapMessage as encoded payload for Token Bridge
         // transfer.
-        let payload = HelloTokenMessage::Hello {
-            recipient: recipient_address,
+        let payload = SoSwapMessage {
+            dst_max_gas_price: normalized_wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+            // TODO: dst_max_gas
+            dst_max_gas: Default::default(),
+            normalized_so_data,
+            normalized_swap_data,
         }
             .try_to_vec()?;
 
@@ -235,7 +253,7 @@ pub mod hello_token {
                         &[*ctx
                             .bumps
                             .get("wormhole_message")
-                            .ok_or(HelloTokenError::BumpNotFound)?],
+                            .ok_or(SoSwapError::BumpNotFound)?],
                     ],
                 ],
             ),
@@ -272,14 +290,15 @@ pub mod hello_token {
         // first evaluation of this instruction.
         require!(
             ctx.accounts.token_bridge_claim.data_is_empty(),
-            HelloTokenError::AlreadyRedeemed
+            SoSwapError::AlreadyRedeemed
         );
 
         // The intended recipient must agree with the recipient.
-        let HelloTokenMessage::Hello { recipient } = ctx.accounts.vaa.message().data();
+        // TODO: dst swap
+        let soswap_message = ctx.accounts.vaa.message().data();
         require!(
-            ctx.accounts.recipient.key().to_bytes() == *recipient,
-            HelloTokenError::InvalidRecipient
+            ctx.accounts.recipient.key().to_bytes() == soswap_message.recipient(),
+            SoSwapError::InvalidRecipient
         );
 
         // These seeds are used to:
@@ -328,7 +347,7 @@ pub mod hello_token {
             // not, he needs to create one.
             require!(
                 !ctx.accounts.payer_token_account.data_is_empty(),
-                HelloTokenError::NonExistentRelayerAta
+                SoSwapError::NonExistentRelayerAta
             );
 
             let relayer_amount = ctx.accounts.config.compute_relayer_amount(amount);
@@ -399,15 +418,26 @@ pub mod hello_token {
         ctx: Context<SendWrappedTokensWithPayload>,
         batch_id: u32,
         amount: u64,
-        recipient_address: [u8; 32],
-        recipient_chain: u16,
+        // recipient_address: [u8; 32],
+        // recipient_chain: u16,
+        wormhole_data: Vec<u8>,
+        so_data: Vec<u8>,
+        swap_data: Vec<u8>
     ) -> Result<()> {
-        require!(amount > 0, HelloTokenError::ZeroBridgeAmount);
+        require!(amount > 0, SoSwapError::ZeroBridgeAmount);
+
+        let normalized_wormhole_data = NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data);
+        let normalized_so_data = NormalizedSoData::decode_normalized_so_data(&so_data);
+        let normalized_swap_data = NormalizedSwapData::decode_normalized_swap_data(&swap_data);
+
+        let recipient_chain = normalized_wormhole_data.dst_wormhole_chain_id;
+
         require!(
             recipient_chain > 0
                 && recipient_chain != wormhole::CHAIN_ID_SOLANA
-                && !recipient_address.iter().all(|&x| x == 0),
-            HelloTokenError::InvalidRecipient,
+                && !normalized_wormhole_data.dst_so_diamond.iter().all(|&x| x == 0)
+                && normalized_wormhole_data.dst_so_diamond == ctx.accounts.foreign_contract.address.to_vec(),
+            SoSwapError::InvalidRecipient,
         );
 
         // These seeds are used to:
@@ -447,10 +477,14 @@ pub mod hello_token {
             amount,
         )?;
 
-        // Serialize HelloTokenMessage as encoded payload for Token Bridge
+        // Serialize SoSwapMessage as encoded payload for Token Bridge
         // transfer.
-        let payload = HelloTokenMessage::Hello {
-            recipient: recipient_address,
+        let payload = SoSwapMessage {
+            dst_max_gas_price: normalized_wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+            // TODO: dst_max_gas
+            dst_max_gas: Default::default(),
+            normalized_so_data,
+            normalized_swap_data,
         }
             .try_to_vec()?;
 
@@ -489,7 +523,7 @@ pub mod hello_token {
                         &[*ctx
                             .bumps
                             .get("wormhole_message")
-                            .ok_or(HelloTokenError::BumpNotFound)?],
+                            .ok_or(SoSwapError::BumpNotFound)?],
                     ],
                 ],
             ),
@@ -526,14 +560,15 @@ pub mod hello_token {
         // first evaluation of this instruction.
         require!(
             ctx.accounts.token_bridge_claim.data_is_empty(),
-            HelloTokenError::AlreadyRedeemed
+            SoSwapError::AlreadyRedeemed
         );
 
         // The intended recipient must agree with the recipient.
-        let HelloTokenMessage::Hello { recipient } = ctx.accounts.vaa.message().data();
+        // TODO: dst swap
+        let soswap_message = ctx.accounts.vaa.message().data();
         require!(
-            ctx.accounts.recipient.key().to_bytes() == *recipient,
-            HelloTokenError::InvalidRecipient
+            ctx.accounts.recipient.key().to_bytes() == soswap_message.recipient(),
+            SoSwapError::InvalidRecipient
         );
 
         // These seeds are used to:
@@ -579,7 +614,7 @@ pub mod hello_token {
             // not, he needs to create one.
             require!(
                 !ctx.accounts.payer_token_account.data_is_empty(),
-                HelloTokenError::NonExistentRelayerAta
+                SoSwapError::NonExistentRelayerAta
             );
 
             let relayer_amount = ctx.accounts.config.compute_relayer_amount(amount);
