@@ -21,7 +21,10 @@ def main(net: str = None):
     p.load_config()
     change_network(net)
     deployed_contract = [
-        "Claim"
+        "LibSoFeeGenericV2",
+        "GenericSwapFacet",
+        "LibCorrectSwapV1"
+        # "Claim"
         # "CCTPFacet",
         # "LibCorrectSwapV1",
         # "GenericSwapFacet",
@@ -36,10 +39,10 @@ def main(net: str = None):
     for c in deployed_contract:
         print(f"network:{net} publish source: {c}")
         try:
-            p[c].publish_source(p[c][-3])
+            p[c].publish_source(p[c][-1])
         except Exception as e:
             print("error:", e)
 
 
 if __name__ == "__main__":
-    main("arbitrum-main")
+    main("avax-main")

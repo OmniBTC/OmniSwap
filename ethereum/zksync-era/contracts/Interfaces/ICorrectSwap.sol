@@ -7,4 +7,9 @@ interface ICorrectSwap {
         external
         pure
         returns (bytes memory);
+
+    function fixMinAmount(bytes calldata, uint256)
+        external
+        view
+        returns (uint256, bytes memory);
 }
