@@ -1233,27 +1233,27 @@ networks:
         address: '0xB04906e95AB5D797aDA81508115611fee694c2b3'
         decimal: 6
     swap:
-      IWombatRouter:
-        name: WombatExchange
-        router: "0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7"
-        token_list: ""
-      IUniswapV2Router02:
-        name: BiSwap
-        router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
-        token_list: ""
-      #      IUniswapV2Router02:
-      #        name: THENA
-      #        router: "0xd4ae6eCA985340Dd434D38F470aCCce4DC78D109"
+      #      IWombatRouter:
+      #        name: WombatExchange
+      #        router: "0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7"
       #        token_list: ""
+      #      IUniswapV2Router02:
+      #        name: BiSwap
+      #        router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
+      #        token_list: ""
+        IUniswapV2Router02:
+          name: THENA
+          router: "0xd4ae6eCA985340Dd434D38F470aCCce4DC78D109"
+          token_list: ""
       #      IUniswapV2Router02:
       #        name: PancakeSwapV2
       #        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
       #        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
-      ISwapRouter:
-        name: PancakeSwapV3
-        router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
-        token_list: ""
-        quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
+      #      ISwapRouter:
+      #        name: PancakeSwapV3
+      #        router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+      #        token_list: ""
+      #        quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
   avax-main:
     omnibtc_chainid: 4
     chainid: 43114
