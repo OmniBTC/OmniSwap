@@ -320,8 +320,16 @@ def process_v1(
 
     last_update_endpoint = 0
     endpoint_interval = 30
+    last_pending_time = 0
+    pending_interval = 10
 
     while True:
+
+        if time.time() < last_pending_time + pending_interval:
+            continue
+        else:
+            last_pending_time = time.time()
+
         result = get_pending_data(src_chain_id=src_chain_id)
         local_logger.info(f"Get pending data len:{len(result)}")
         try:

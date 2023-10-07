@@ -140,6 +140,8 @@ def process_v1(
 
     last_update_endpoint = 0
     endpoint_interval = 30
+    last_pending_time = 0
+    pending_interval = 10
 
     while True:
         try:
@@ -150,6 +152,11 @@ def process_v1(
 
             if src_chain_id is None:
                 src_chain_id = chain.id
+
+            if time.time() < last_pending_time + pending_interval:
+                continue
+            else:
+                last_pending_time = time.time()
 
             pending_data = get_stargate_pending_data(url=pending_url)
             pending_data = [
@@ -165,7 +172,7 @@ def process_v1(
                 proxy_diamond = get_stargate_facet()
                 tx = chain.get_transaction(d["srcTransactionId"])
                 dstGas = int(proxy_diamond.decode_input(tx.input)[-1][-2][-2])
-                if dstGas < 100000:
+                if dstGas < 160000:
                     local_logger.warning(f"{d['srcTransactionId']} not enough dst gas:{dstGas}!")
                 else:
                     local_logger.warning(f"Put {d['srcTransactionId']} into queue!")
