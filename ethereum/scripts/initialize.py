@@ -596,6 +596,13 @@ def redeploy_stargate():
     add_cut([StargateFacet])
     initialize_stargate(account, SoDiamond[-1])
 
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    proxy_dex.addFee(
+        get_stargate_router(), "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449", {"from": account}
+    )
+
 
 def redeploy_bool():
     account = get_account()
