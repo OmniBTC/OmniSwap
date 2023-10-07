@@ -195,8 +195,14 @@ def process_v2(
         pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
     else:
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+    last_pending_time = 0
+    pending_interval = 10
     while True:
         try:
+            if time.time() < last_pending_time + pending_interval:
+                continue
+            else:
+                last_pending_time = time.time()
             pending_data = get_pending_data(url=pending_url, dstWormholeChainId=dstWormholeChainId)
             local_logger.info(f"Get signed vaa length: {len(pending_data)}")
         except Exception as e:

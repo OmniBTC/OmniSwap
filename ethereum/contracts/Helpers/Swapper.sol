@@ -103,11 +103,16 @@ contract Swapper is ISo {
             try IWETH(expectAssetId).deposit{value: amount}() {} catch {
                 revert("DepositErr");
             }
+        } else if (LibAsset.isNativeAsset(expectAssetId)) {
+            // weth -> eth
+            try IWETH(currentAssetId).withdraw(amount) {} catch {
+                revert("WithdrawErr");
+            }
         } else {
             // weth -> eth -> weth
             if (currentAssetId != expectAssetId) {
                 try IWETH(currentAssetId).withdraw(amount) {} catch {
-                    revert("DepositWithdrawErr");
+                    revert("WithdrawDepositErr");
                 }
                 try IWETH(expectAssetId).deposit{value: amount}() {} catch {
                     revert("WithdrawDepositErr");

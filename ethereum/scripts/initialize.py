@@ -224,9 +224,6 @@ def initialize_stargate(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_stargate.initStargate(
         get_stargate_router(), get_stargate_chain_id(), {"from": account}
     )
-    proxy_stargate.setAllowedAddress(
-        get_stargate_router(), True, {"from": account}
-    )
 
 
 def initialize_bool(account, so_diamond):
@@ -752,10 +749,12 @@ def add_dex(swap_type):
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
+    print(f"Add router for:{swap_type}")
     proxy_dex.addDex(
         swap_info[swap_type]["router"], {"from": get_account()}
     )
     try:
+        print(f"Add sig for {swap_type}")
         proxy_dex.batchSetFunctionApprovalBySignature(
             [v + "0" * 56 for v in list(getattr(interface, swap_type).selectors.keys())],
             True,

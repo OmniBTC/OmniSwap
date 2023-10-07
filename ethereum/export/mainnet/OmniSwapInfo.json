@@ -368,7 +368,7 @@
         "TokenName": "SGETH"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "UniswapV3",
@@ -390,6 +390,27 @@
         "RouterAddress": "0xc873fEcbd354f5A56E00E710B90EF4201db2448d",
         "TokenList": "",
         "Type": "ICamelotRouter"
+      },
+      {
+        "Name": "BalancerV2",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0xba12222222228d8ba445958a75a0704d566bf2c8",
+        "TokenList": "",
+        "Type": "IVault"
+      },
+      {
+        "Name": "TraderJoe",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30",
+        "TokenList": "",
+        "Type": "ILBRouter"
+      },
+      {
+        "Name": "GMXV1",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064",
+        "TokenList": "",
+        "Type": "IGMXV1Router"
       }
     ],
     "WETH": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
@@ -469,7 +490,7 @@
         "TokenName": "USDbC"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "SushiswapV3",
@@ -591,7 +612,7 @@
         "TokenName": "USDt"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "PangolinV2",
@@ -1088,7 +1109,7 @@
         "TokenName": "USDD"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "PancakeSwapV2",
@@ -1608,7 +1629,7 @@
         "TokenName": "SGETH"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "UniswapV3",
@@ -2073,7 +2094,7 @@
         "TokenName": "SGETH"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "UniswapV3",
@@ -2088,6 +2109,20 @@
         "RouterAddress": "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6",
         "TokenList": "",
         "Type": "IUniswapV2Router02"
+      },
+      {
+        "Name": "Curve",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0x1337bedc9d22ecbe766df105c9623922a27963ec",
+        "TokenList": "",
+        "Type": "ICurveFi"
+      },
+      {
+        "Name": "Velodrome",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858",
+        "TokenList": "",
+        "Type": "IVelodrome"
       }
     ],
     "WETH": "0x4200000000000000000000000000000000000006"
@@ -2195,7 +2230,7 @@
         "TokenName": "USDT"
       }
     ],
-    "StargateRouter": "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F",
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
     "UniswapRouter": [
       {
         "Name": "UniswapV3",

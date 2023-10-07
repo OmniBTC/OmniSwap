@@ -36,7 +36,7 @@ def claim(token):
 def test_claim(token, claim):
     account = get_account()
     # Load test account data
-    test_account_data = read_json(file_path.parent.joinpath("op_account_20230911.json"))
+    test_account_data = read_json(file_path.parent.joinpath("op_account_20231002.json"))
 
     # # Check state
     indexes = random.choices(list(range(len(test_account_data))), k=100)

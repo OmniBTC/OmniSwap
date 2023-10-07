@@ -847,7 +847,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: [ "https://base.blockpi.network/v1/rpc/public", "https://base.meowrpc.com", "https://base-mainnet.public.blastapi.io", "https://mainnet.base.org" ]
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 184
       poolid:
         usdc: 1
@@ -860,34 +860,34 @@ networks:
         address: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA"
         decimal: 6
     swap:
-      #       ISwapRouter:
-      #         name: SushiswapV3
-      #         router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
-      #         token_list: ""
-      #         quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
-      #      IUniswapV2Router02:
-      #        name: BaseswapV2
-      #        router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
-      #        token_list: ""
-      IAerodrome:
-        name: Aerodrome
-        router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
-        token_list: ""
-      ISwapRouter02:
-        name: UniswapV3
-        # routerV2
-        router: "0x2626664c2603336E57B271c5C0b26F421741e481"
-        token_list: ""
-        quoterv2: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a"
-      IUniswapV2Router02:
-        name: AlienbaseV2
-        router: "0x8c1A3cF8f83074169FE5D7aD50B978e1cD6b37c7"
-        token_list: ""
       ISwapRouter:
-        name: SwapBasedV3
-        router: "0xD58f563A7D6150a2575C74065CB18f53EC2e9D07"
+        name: SushiswapV3
+        router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
         token_list: ""
-        quoter: "0x64F477C68049B554113Bab6526038bcF5643136c"
+        quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
+      IUniswapV2Router02:
+        name: BaseswapV2
+        router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
+        token_list: ""
+#      IAerodrome:
+#        name: Aerodrome
+#        router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
+#        token_list: ""
+#      ISwapRouter02:
+#        name: UniswapV3
+#        # routerV2
+#        router: "0x2626664c2603336E57B271c5C0b26F421741e481"
+#        token_list: ""
+#        quoterv2: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a"
+#      IUniswapV2Router02:
+#        name: AlienbaseV2
+#        router: "0x8c1A3cF8f83074169FE5D7aD50B978e1cD6b37c7"
+#        token_list: ""
+#      ISwapRouter:
+#        name: SwapBasedV3
+#        router: "0xD58f563A7D6150a2575C74065CB18f53EC2e9D07"
+#        token_list: ""
+#        quoter: "0x64F477C68049B554113Bab6526038bcF5643136c"
   #      IUniswapV2Router02:
   #        name: SwapBasedV2
   #        router: "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066"
@@ -900,7 +900,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://rpc.ankr.com/eth/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125', 'https://eth.llamarpc.com', 'https://ethereum.publicnode.com', 'https://1rpc.io/eth']
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 101
       poolid:
         usdc: 1
@@ -1072,7 +1072,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://bsc-mainnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3', 'https://bsc-dataseed2.binance.org/', 'https://bsc-dataseed.binance.org/', 'https://bsc.publicnode.com', 'https://bsc-dataseed1.ninicoin.io/', 'https://bsc.blockpi.network/v1/rpc/public', 'https://bsc-dataseed4.ninicoin.io/', 'https://bsc-dataseed3.defibit.io/', 'https://bsc.meowrpc.com', 'https://bsc-rpc.gateway.pokt.network', 'https://bscrpc.com', 'https://bsc-dataseed3.ninicoin.io/', 'https://bsc-mainnet.public.blastapi.io', 'https://binance.nodereal.io', 'https://bsc.rpc.blxrbdn.com/', 'https://bsc-dataseed1.binance.org/', 'https://bsc-dataseed2.defibit.io/', 'https://bsc-dataseed2.ninicoin.io/', 'https://bsc-dataseed4.defibit.io/', 'https://endpoints.omniatech.io/v1/bsc/mainnet/public', 'https://bsc-dataseed3.binance.org/', 'https://rpc-bsc.48.club', 'https://bsc-dataseed1.defibit.io/', 'https://rpc.ankr.com/bsc', 'https://koge-rpc-bsc.48.club', 'https://bsc-dataseed4.binance.org/', 'https://bnb.api.onfinality.io/public']
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 102
       poolid:
         usdt: 2
@@ -1262,7 +1262,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://ava-mainnet.public.blastapi.io/ext/bc/C/rpc', 'https://avalanche.public-rpc.com', 'https://avax.meowrpc.com', 'https://endpoints.omniatech.io/v1/avax/mainnet/public', 'https://rpc.ankr.com/avalanche', 'https://avalanche.blockpi.network/v1/rpc/public', 'https://avalanche.api.onfinality.io/public/ext/bc/C/rpc', 'https://api.avax.network/ext/bc/C/rpc', 'https://avalanche-c-chain.publicnode.com']
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 106
       poolid:
         usdc: 1
@@ -1451,7 +1451,7 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints: ['https://gateway.tenderly.co/public/polygon', 'https://rpc.ankr.com/polygon', 'https://polygon.meowrpc.com', 'https://polygon.gateway.tenderly.co', 'https://polygon-mainnet.public.blastapi.io', 'https://rpc-mainnet.matic.quiknode.pro', 'https://polygon.rpc.blxrbdn.com/', 'https://endpoints.omniatech.io/v1/matic/mainnet/public', 'https://poly-rpc.gateway.pokt.network/', 'https://polygon.drpc.org', 'https://polygon-bor.publicnode.com', 'https://polygon.blockpi.network/v1/rpc/public', 'https://rpc-mainnet.maticvigil.com', 'https://polygon.api.onfinality.io/public', 'https://polygon-rpc.com', 'https://rpc.ankr.com/polygon/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125']
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 109
       poolid:
         usdc: 1
@@ -1638,9 +1638,13 @@ networks:
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    Claim:
+      v0: "0x88F453111fE710b36b5b193971b8E7e7576be397"
+      v1: "0xee2174cb3bc411A31Dd10363067E0B6Cf0aB0D37"
+      v2: "0x941ECfC6f02d037aF921fDC7431C78785638acDE"
     endpoints: [ "https://arbitrum.api.onfinality.io/public","https://arbitrum.blockpi.network/v1/rpc/public","https://arb1.arbitrum.io/rpc","https://arb-mainnet-public.unifra.io","https://endpoints.omniatech.io/v1/arbitrum/one/public","https://arbitrum.meowrpc.com","https://arbitrum-one.publicnode.com","https://rpc.arb1.arbitrum.gateway.fm","https://arbitrum-one.public.blastapi.io","https://rpc.ankr.com/arbitrum" ]
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 110
       poolid:
         usdc: 1
@@ -1762,22 +1766,22 @@ networks:
         router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
         token_list: ""
       ILBRouter:
-        name: Trader Joe
+        name: TraderJoe
         router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
         token_list: ""
       IGMXV1Router:
-        name: GMX V1
+        name: GMXV1
         router: "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064"
         token_list: ""
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: ""
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: SushiswapV2
-        router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
-        token_list: ""
+#      ISwapRouter:
+#        name: UniswapV3
+#        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+#        token_list: ""
+#        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+#      IUniswapV2Router02:
+#        name: SushiswapV2
+#        router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
+#        token_list: ""
   #      IUniswapV2Router02:
   #        name: CamelotV2
   #        router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
@@ -1789,7 +1793,7 @@ networks:
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     stargate:
-      router: "0x3b83D454A50aBe06d94cb0d5d367825e190bDA8F"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 111
       poolid:
         usdc: 1
@@ -1906,23 +1910,19 @@ networks:
         name: Curve
         router: "0x1337bedc9d22ecbe766df105c9623922a27963ec"
         token_list: ""
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: ZipSwapV2
-        router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
-        token_list: ""
+#      ISwapRouter:
+#        name: UniswapV3
+#        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+#        token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
+#        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+#      IUniswapV2Router02:
+#        name: ZipSwapV2
+#        router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
+#        token_list: ""
       IVelodrome:
         name: Velodrome
         router: "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858"
         token_list: ""
-  #      IUniswapV2Router02:
-  #        name: ZipSwapV2
-  #        router: "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
-  #        token_list: ""
   ftm-main:
     omnibtc_chainid: 8
     chainid: 250
