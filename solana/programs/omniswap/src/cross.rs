@@ -165,7 +165,10 @@ impl NormalizedSwapData {
 
     pub fn decode_normalized_swap_data(data: &[u8]) -> Vec<NormalizedSwapData> {
         let data_len = data.len();
-        assert!(data_len > 0, "EINVALID_LENGTH");
+        if data_len == 0 {
+            return Vec::new()
+        }
+
         let mut index = 0;
         let mut next_len;
         let mut swap_data = Vec::<NormalizedSwapData>::new();

@@ -7,6 +7,7 @@ use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use super::{
     state::{ForeignContract, RedeemerConfig, SenderConfig},
+    cross::NormalizedSoData,
     SoSwapError, PostedSoSwapMessage,
 };
 
@@ -218,8 +219,9 @@ pub struct UpdateRelayerFee<'info> {
 #[instruction(
     batch_id: u32,
     amount: u64,
-    recipient_address: [u8; 32],
-    recipient_chain: u16,
+    wormhole_data: Vec<u8>,
+    so_data: Vec<u8>,
+    swap_data: Vec<u8>
 )]
 pub struct SendNativeTokensWithPayload<'info> {
     /// Payer will pay Wormhole fee to transfer tokens and create temporary
@@ -238,7 +240,7 @@ pub struct SendNativeTokensWithPayload<'info> {
     #[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
-            &recipient_chain.to_le_bytes()[..]
+            &NormalizedSoData::decode_normalized_so_data(&so_data).destination_chain_id.to_le_bytes()[..]
         ],
         bump,
     )]
@@ -522,8 +524,9 @@ pub struct RedeemNativeTransferWithPayload<'info> {
 #[instruction(
     batch_id: u32,
     amount: u64,
-    recipient_address: [u8; 32],
-    recipient_chain: u16,
+    wormhole_data: Vec<u8>,
+    so_data: Vec<u8>,
+    swap_data: Vec<u8>
 )]
 pub struct SendWrappedTokensWithPayload<'info> {
     #[account(mut)]
@@ -541,7 +544,7 @@ pub struct SendWrappedTokensWithPayload<'info> {
     #[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
-            &recipient_chain.to_le_bytes()[..]
+            &NormalizedSoData::decode_normalized_so_data(&so_data).destination_chain_id.to_le_bytes()[..]
         ],
         bump,
     )]

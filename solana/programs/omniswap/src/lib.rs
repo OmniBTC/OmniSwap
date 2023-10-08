@@ -138,8 +138,6 @@ pub mod omniswap {
         ctx: Context<SendNativeTokensWithPayload>,
         batch_id: u32,
         amount: u64,
-        // recipient_address: [u8; 32],
-        // recipient_chain: u16,
         wormhole_data: Vec<u8>,
         so_data: Vec<u8>,
         swap_data: Vec<u8>
@@ -418,8 +416,6 @@ pub mod omniswap {
         ctx: Context<SendWrappedTokensWithPayload>,
         batch_id: u32,
         amount: u64,
-        // recipient_address: [u8; 32],
-        // recipient_chain: u16,
         wormhole_data: Vec<u8>,
         so_data: Vec<u8>,
         swap_data: Vec<u8>
