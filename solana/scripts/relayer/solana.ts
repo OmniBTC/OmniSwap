@@ -1,20 +1,33 @@
 import {ParsedTokenTransferVaa, parseTokenTransferVaa, postVaaSolana} from "@certusone/wormhole-sdk";
-import {Connection, Keypair} from "@solana/web3.js";
-import path from "path";
+import {
+    Connection,
+    Keypair,
+    PublicKey,
+    sendAndConfirmTransaction,
+    Transaction,
+    TransactionInstruction
+} from "@solana/web3.js";
 import fs from "fs";
 import axios from "axios";
+import {
+    createRedeemNativeTransferWithPayloadInstruction,
+    createRedeemWrappedTransferWithPayloadInstruction
+} from "./helper";
+import {createObjectCsvWriter} from 'csv-writer';
 
-const NET = "DEVNET";
+const NET = "solana-test";
 let SOLANA_EMITTER_CHAIN: number;
-let SOLANA_WORMHOLE_ADDRESS: string;
-let SOLANA_TOKEN_BRIDGE_ADDRESS: string;
+let CORE_BRIDGE_PID;
+let TOKEN_BRIDGE_PID;
 let WORMHOLE_URL: string[];
 let NET_TO_WORMHOLE_CHAIN_ID;
 let NET_TO_EMITTER;
 let PENDING_URL;
+let OMNISWAP_PID;
+let SOLANA_URL;
 
 // @ts-ignore
-if (NET !== "MAINNET") {
+if (NET !== "solana-mainnet") {
     WORMHOLE_URL = [
         "https://wormhole-v2-testnet-api.certus.one"
     ];
@@ -27,6 +40,7 @@ if (NET !== "MAINNET") {
         "arbitrum-test": 23,
         "aptos-testnet": 22,
         "sui-testnet": 21,
+        "solana-testnet": 1
     }
     NET_TO_EMITTER = {
         "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
@@ -38,11 +52,14 @@ if (NET !== "MAINNET") {
         "aptos-mainnet": "0000000000000000000000000000000000000000000000000000000000000001",
         "sui-mainnet": "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5",
         "base-main": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
+        "solana-mainnet": "0x2b1246c9eefa3c466792253111f35fec1ee8ee5e9debc412d2e9adadfecdcc72"
     }
-    SOLANA_WORMHOLE_ADDRESS = "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5";
-    SOLANA_TOKEN_BRIDGE_ADDRESS = "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe";
+    CORE_BRIDGE_PID = new PublicKey("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5");
+    TOKEN_BRIDGE_PID = new PublicKey("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+    OMNISWAP_PID = new PublicKey("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
+    SOLANA_URL = "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/";
 } else {
     WORMHOLE_URL = [
         "https://wormhole-v2-mainnet-api.certus.one",
@@ -60,6 +77,7 @@ if (NET !== "MAINNET") {
         "aptos-mainnet": 22,
         "sui-mainnet": 21,
         "base-main": 30,
+        "solana-mainnet": 1
     }
     NET_TO_EMITTER = {
         "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
@@ -71,11 +89,14 @@ if (NET !== "MAINNET") {
         "aptos-mainnet": "0000000000000000000000000000000000000000000000000000000000000001",
         "sui-mainnet": "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5",
         "base-main": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
+        "solana-mainnet": "0x0e0a589a41a55fbd66c52a475f2d92a6d3dc9b4747114cb9af825a98b545d3ce"
     }
-    SOLANA_WORMHOLE_ADDRESS = "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth";
-    SOLANA_TOKEN_BRIDGE_ADDRESS = "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb";
+    CORE_BRIDGE_PID = new PublicKey("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth");
+    TOKEN_BRIDGE_PID = new PublicKey("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+    OMNISWAP_PID = new PublicKey("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
+    SOLANA_URL = "";
 }
 
 function getRandomWormholeUrl() {
@@ -174,7 +195,18 @@ function logWithTimestamp(message: string): void {
     console.log(logMessage);
 }
 
+const sendAndConfirmIx = async (
+    connection: Connection,
+    payer: Keypair,
+    ix: TransactionInstruction | Promise<TransactionInstruction>
+) => {
+    const tx = new Transaction().add(await ix);
+    return await sendAndConfirmTransaction(connection, tx, [payer]);
+}
+
 async function process_vaa(
+    connection: Connection,
+    payer: Keypair,
     dstSoDiamond,
     vaa: Buffer,
     emitterChainId,
@@ -182,6 +214,7 @@ async function process_vaa(
     extrinsicHash,
 ): Promise<boolean> {
     const payload = parseVaaToWormholePayload(vaa);
+    const payAddress = payer.publicKey.toString();
     if (payload.dstMaxGasPrice !== 10000000n) {
         logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} 
         dstMaxGasPrice != ${payload.dstMaxGasPrice}`)
@@ -193,37 +226,117 @@ async function process_vaa(
         return false;
     }
 
+    try {
+        await postVaaSolana(
+            connection,
+            async (transaction) => {
+                transaction.partialSign(payer);
+                return transaction;
+            },
+            CORE_BRIDGE_PID,
+            payAddress,
+            vaa
+        );
+    } catch (error) {
+    }
+
+    let dstTx;
+    try {
+        const ix = await createRedeemNativeTransferWithPayloadInstruction(
+            connection,
+            OMNISWAP_PID,
+            payAddress,
+            TOKEN_BRIDGE_PID,
+            CORE_BRIDGE_PID,
+            vaa
+        );
+        dstTx = await sendAndConfirmIx(connection, payer, ix);
+
+    } catch (error) {
+        const ix = await createRedeemWrappedTransferWithPayloadInstruction(
+            connection,
+            OMNISWAP_PID,
+            payAddress,
+            TOKEN_BRIDGE_PID,
+            CORE_BRIDGE_PID,
+            vaa
+        );
+        dstTx = await sendAndConfirmIx(connection, payer, ix);
+    }
+    record_gas(extrinsicHash, dstTx);
+}
+
+function record_gas(
+    srcTx,
+    dstTx,
+) {
+    const data = [
+        {srcTx: srcTx, dstTx: dstTx},
+    ];
+    const fileExists = fs.existsSync('solana.csv');
+
+    const csvWriter = createObjectCsvWriter({
+        path: 'solana.csv',
+        header: [
+            {id: 'srcTx', title: 'srcTx'},
+            {id: 'dstTx', title: 'dstTx'},
+        ],
+        append: fileExists,
+        alwaysQuote: true,
+    });
+
+    csvWriter.writeRecords(data)
+        .then(() => {
+        })
+        .catch((error) => {
+        });
+}
+
+async function process_v2(
+    dstWormholeChainId,
+    dstSoDiamond,
+) {
+    const connection = new Connection(
+        SOLANA_URL,
+        "processed"
+    );
+    let payer: Keypair;
+    const has_process = new Map<any[], number>();
+    const pending_interval = 10;
+    let last_pending_time = 0;
+    while (true) {
+        const currentTimeStamp: number = Date.now();
+        if (currentTimeStamp < last_pending_time + pending_interval) {
+            continue;
+        } else {
+            last_pending_time = currentTimeStamp;
+        }
+        const pending_data = await getPendingData(dstWormholeChainId);
+
+        for (const d of pending_data) {
+            const vaa = await getSignedVaaByWormhole(d["sequence"], d["srcWormholeChainId"])
+            if (vaa == null) {
+                logWithTimestamp(`Waiting vaa for emitterChainId: ${d["srcWormholeChainId"]}, 
+                sequence:${d["sequence"]}`);
+                continue;
+            }
+            const has_key = [d["sequence"], d["srcWormholeChainId"]];
+            if (has_process.has(has_key) && currentTimeStamp - has_process.get(has_key) <= 10 * 60) {
+                logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} inner 10min has process`);
+                continue;
+            } else {
+                has_process.set(has_key, currentTimeStamp);
+            }
+            await process_vaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"]);
+        }
+    }
+
 
 }
 
 
 async function main() {
-    const connection = new Connection(
-        "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/",
-        "processed"
-    );
-
-    const defaultPath = path.join(process.env.HOME, ".config/solana/id.json");
-    const rawKey = JSON.parse(fs.readFileSync(defaultPath, "utf-8"));
-    const wallet = Keypair.fromSecretKey(Uint8Array.from(rawKey));
-
-    const payerAddress = wallet.publicKey.toString();
-    const SOL_BRIDGE_ADDRESS = "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5";
-    const signedVAA =
-        "01000000000100cafc1955b08730243327375cd826063f375968dc9f85ccde3a820d47621d12397314aea6c90095c25b795fc58e00f2879248519b1a0bdb79760609b9781b58cb016513f84100000000001540440411a170b4842ae7dee4f4a7b7a58bc0a98566e998850a7bb87bf5dc05b9000000000000007c000300000000000000000000000000000000000000000000000000000002540be400bda28aeb93874baba2273db9c92fb7b7fe2f412352e9633c0258978a32620a230015ceda17841d79db34bd17721d2024343b5d9dd0320626958e10f4cf3d800a719e000135fbfedfe4ba06b311b86ae1d2064e08e583e6d550524307fc626648c4718c0c0138e121709ad96bd37a2f87022932336e9a290f62aef3d41dae00b1547c6f1938";
-
-    await postVaaSolana(
-        connection,
-        async (transaction) => {
-            transaction.partialSign(wallet);
-            return transaction;
-        },
-        SOL_BRIDGE_ADDRESS,
-        payerAddress,
-        Buffer.from(signedVAA, "hex")
-    );
-
-    console.log("payer: ", payerAddress);
+    await process_v2(SOLANA_EMITTER_CHAIN, NET_TO_EMITTER[NET]);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
