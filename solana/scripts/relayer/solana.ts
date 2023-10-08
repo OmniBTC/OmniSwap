@@ -17,25 +17,26 @@ import {createObjectCsvWriter} from 'csv-writer';
 import * as dotenv from 'dotenv';
 
 const ARGS = process.argv.slice(2);
-if (ARGS.length != 2){
+if (ARGS.length != 2) {
     throw new Error("Please set .env path and gas path")
 }
 const ENV_FILE = ARGS[0];
 const GAS_FILE = ARGS[1];
-if (dotenv.config({path: ENV_FILE}).error){
+if (dotenv.config({path: ENV_FILE}).error) {
     throw new Error(".env format error")
 }
 
-if (process.env.SOLANA_KEY == null){
+if (process.env.SOLANA_KEY == null) {
     throw new Error(".env SOLANA_KEY not found")
 }
 
-const NET = "solana-test";
+const NET = "solana-mainnet";
 let SOLANA_EMITTER_CHAIN: number;
 let CORE_BRIDGE_PID;
 let TOKEN_BRIDGE_PID;
 let WORMHOLE_URL: string[];
 let NET_TO_WORMHOLE_CHAIN_ID;
+let WORMHOLE_CHAIN_ID_TO_NET;
 let NET_TO_EMITTER;
 let PENDING_URL;
 let OMNISWAP_PID;
@@ -64,7 +65,7 @@ if (NET !== "solana-mainnet") {
         "avax-main": "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
         "optimism-main": "0x1D68124e65faFC907325e3EDbF8c4d84499DAa8b",
         "arbitrum-main": "0x0b2402144Bb366A632D14B83F244D2e0e21bD39c",
-        "aptos-mainnet": "0000000000000000000000000000000000000000000000000000000000000001",
+        "aptos-mainnet": "0x0000000000000000000000000000000000000000000000000000000000000002",
         "sui-mainnet": "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5",
         "base-main": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
         "solana-mainnet": "0x2b1246c9eefa3c466792253111f35fec1ee8ee5e9debc412d2e9adadfecdcc72"
@@ -101,7 +102,7 @@ if (NET !== "solana-mainnet") {
         "avax-main": "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
         "optimism-main": "0x1D68124e65faFC907325e3EDbF8c4d84499DAa8b",
         "arbitrum-main": "0x0b2402144Bb366A632D14B83F244D2e0e21bD39c",
-        "aptos-mainnet": "0000000000000000000000000000000000000000000000000000000000000001",
+        "aptos-mainnet": "0x0000000000000000000000000000000000000000000000000000000000000002",
         "sui-mainnet": "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5",
         "base-main": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
         "solana-mainnet": "0x0e0a589a41a55fbd66c52a475f2d92a6d3dc9b4747114cb9af825a98b545d3ce"
@@ -111,8 +112,13 @@ if (NET !== "solana-mainnet") {
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     OMNISWAP_PID = new PublicKey("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
-    SOLANA_URL = "";
+    SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
 }
+WORMHOLE_CHAIN_ID_TO_NET = Object.keys(NET_TO_WORMHOLE_CHAIN_ID).reduce((returnValue, key) => {
+    const value = NET_TO_WORMHOLE_CHAIN_ID[key];
+    returnValue[value] = key;
+    return returnValue;
+}, {})
 
 function getRandomWormholeUrl() {
     const randomIndex: number = Math.floor(Math.random() * WORMHOLE_URL.length);
@@ -128,7 +134,7 @@ function remove0x(addr) {
 
 function formatEmitterAddress(addr) {
     addr = remove0x(addr);
-    while (addr.length < 62) {
+    while (addr.length < 64) {
         addr = "0" + addr;
     }
     return addr
@@ -140,7 +146,7 @@ async function getSignedVaaByWormhole(
     emitterChainId
 ): Promise<Buffer> {
     const wormholeUrl = getRandomWormholeUrl()
-    const srcNet = NET_TO_WORMHOLE_CHAIN_ID[emitterChainId]
+    const srcNet = WORMHOLE_CHAIN_ID_TO_NET[emitterChainId]
     const emitter = NET_TO_EMITTER[srcNet]
     const emitterAddress = formatEmitterAddress(emitter)
 
@@ -177,9 +183,19 @@ async function getPendingData(dstWormholeChainId) {
 
     try {
         const response = await axios.get(PENDING_URL);
-        let data = response.data;
+        let data = response.data["record"];
         data.sort((x0, x1) => x0["sequence"] - x1["sequence"]);
         data = data.filter((x) => x["dstWormholeChainId"].toString() == dstWormholeChainId.toString())
+        return [
+            {
+                "chainName": "binance",
+                "extrinsicHash": "0xc6f9f194a546ed12eac4d704fe987c0ed08f2f028949901a0ec8fc20468ce1a1",
+                "srcWormholeChainId": 4,
+                "dstWormholeChainId": 1,
+                "sequence": 275732,
+                "blockTimestamp": 1695210280
+            }
+        ]
         return data;
     } catch (error) {
         return [];
@@ -188,7 +204,7 @@ async function getPendingData(dstWormholeChainId) {
 }
 
 export interface WormholeData {
-    dstMaxGasPrice: bigint;
+    dstMaxGasPrice: number;
 }
 
 export interface ParsedPayload extends ParsedTokenTransferVaa, WormholeData {
@@ -197,7 +213,7 @@ export interface ParsedPayload extends ParsedTokenTransferVaa, WormholeData {
 
 function parseVaaToWormholePayload(vaa: Buffer): ParsedPayload {
     const tokenTransfer = parseTokenTransferVaa(vaa);
-    const dstMaxGasPrice = {dstMaxGasPrice: tokenTransfer.tokenTransferPayload.readBigUInt64BE(0)};
+    const dstMaxGasPrice = {dstMaxGasPrice: tokenTransfer.tokenTransferPayload.readUIntBE(1, 5)};
     return {
         ...dstMaxGasPrice,
         ...tokenTransfer,
@@ -230,14 +246,12 @@ async function processVaa(
 ): Promise<boolean> {
     const payload = parseVaaToWormholePayload(vaa);
     const payAddress = payer.publicKey.toString();
-    if (payload.dstMaxGasPrice !== BigInt("10000000")) {
-        logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} 
-        dstMaxGasPrice != ${payload.dstMaxGasPrice}`)
+    if (payload.dstMaxGasPrice !== 1000000000000) {
+        logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstMaxGasPrice != ${payload.dstMaxGasPrice}`)
         return false;
     }
-    if (!vaa.toString("hex").includes(dstSoDiamond)) {
-        logWithTimestamp(`Parse signed vaa for 
-        emitterChainId:${emitterChainId} sequence:${sequence} not found ${dstSoDiamond}`)
+    if (!vaa.toString("hex").includes(remove0x(dstSoDiamond))) {
+        logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} not found dstSoDiamond:${dstSoDiamond}`)
         return false;
     }
 
@@ -316,11 +330,11 @@ async function processV2(
         "processed"
     );
     let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.SOLANA_KEY)));
-    const hasProcess = new Map<any[], number>();
+    const hasProcess = new Map<string, number>();
     const pendingInterval = 10;
     let lastPendingTime = 0;
     while (true) {
-        const currentTimeStamp: number = Date.now();
+        const currentTimeStamp: number = Math.floor(Date.now() / 1000);
         if (currentTimeStamp < lastPendingTime + pendingInterval) {
             continue;
         } else {
@@ -331,12 +345,11 @@ async function processV2(
         for (const d of pendingData) {
             const vaa = await getSignedVaaByWormhole(d["sequence"], d["srcWormholeChainId"])
             if (vaa == null) {
-                logWithTimestamp(`Waiting vaa for emitterChainId: ${d["srcWormholeChainId"]}, 
-                sequence:${d["sequence"]}`);
+                logWithTimestamp(`Waiting vaa for emitterChainId: ${d["srcWormholeChainId"]}, sequence:${d["sequence"]}`);
                 continue;
             }
-            const hasKey = [d["sequence"], d["srcWormholeChainId"]];
-            if (hasProcess.has(hasKey) && currentTimeStamp - hasProcess.get(hasKey) <= 10 * 60) {
+            const hasKey = `${d["sequence"]}@${d["srcWormholeChainId"]}`;
+            if (hasProcess.has(hasKey) && currentTimeStamp <= hasProcess.get(hasKey) + 10 * 60 ) {
                 logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} inner 10min has process`);
                 continue;
             } else {
