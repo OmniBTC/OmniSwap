@@ -215,7 +215,7 @@ async function process_vaa(
 ): Promise<boolean> {
     const payload = parseVaaToWormholePayload(vaa);
     const payAddress = payer.publicKey.toString();
-    if (payload.dstMaxGasPrice !== 10000000n) {
+    if (payload.dstMaxGasPrice !== BigInt("10000000")) {
         logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} 
         dstMaxGasPrice != ${payload.dstMaxGasPrice}`)
         return false;
@@ -330,12 +330,11 @@ async function process_v2(
             await process_vaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"]);
         }
     }
-
-
 }
 
 
 async function main() {
+    logWithTimestamp("Start solana relayer....")
     await process_v2(SOLANA_EMITTER_CHAIN, NET_TO_EMITTER[NET]);
 }
 
