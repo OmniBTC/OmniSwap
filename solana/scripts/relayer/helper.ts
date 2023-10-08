@@ -1,5 +1,5 @@
-import {HelloToken} from "../../../target/types/hello_token";
-import IDL from "../../../target/idl/hello_token.json";
+import {Omniswap} from "./types/omniswap";
+import IDL from "./idl/omniswap.json";
 import {Program, Provider} from "@coral-xyz/anchor";
 import {
     Connection,
@@ -60,12 +60,12 @@ export function createHelloTokenProgramInterface(
     connection: Connection,
     programId: PublicKeyInitData,
     payer?: PublicKeyInitData
-): Program<HelloToken> {
+): Program<Omniswap> {
     const provider: Provider = {
         connection,
         publicKey: payer == undefined ? undefined : new PublicKey(payer),
     };
-    return new Program<HelloToken>(
+    return new Program<Omniswap>(
         IDL as any,
         new PublicKey(programId),
         provider
@@ -104,7 +104,7 @@ export async function createRedeemNativeTransferWithPayloadInstruction(
         .redeemNativeTransferWithPayload([...parsed.hash])
         .accounts({
             config: deriveRedeemerConfigKey(programId),
-            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain),
+            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             tmpTokenAccount,
             recipientTokenAccount,
             recipient,
@@ -197,7 +197,7 @@ export async function createRedeemWrappedTransferWithPayloadInstruction(
         .redeemWrappedTransferWithPayload([...parsed.hash])
         .accounts({
             config: deriveRedeemerConfigKey(programId),
-            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain),
+            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             tmpTokenAccount,
             recipientTokenAccount,
             recipient,

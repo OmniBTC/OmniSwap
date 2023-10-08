@@ -9,6 +9,8 @@
         "@certusone/wormhole-sdk": "^0.10.3",
         "@coral-xyz/anchor": "^0.28.0",
         "axios": "^1.5.1",
+        "csv-writer": "^1.6.0",
+        "dotenv": "^16.3.1",
         "toml": "^3.0.0"
     },
     "devDependencies": {
