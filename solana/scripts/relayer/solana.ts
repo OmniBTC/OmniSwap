@@ -122,14 +122,14 @@ function formatEmitterAddress(addr) {
 
 async function getSignedVaaByWormhole(
     sequence,
-    emitter_chain_id
+    emitterChainId
 ): Promise<Buffer> {
-    const wormhole_url = getRandomWormholeUrl()
-    const src_net = NET_TO_WORMHOLE_CHAIN_ID[emitter_chain_id]
-    const emitter = NET_TO_EMITTER[src_net]
-    const emitter_address = formatEmitterAddress(emitter)
+    const wormholeUrl = getRandomWormholeUrl()
+    const srcNet = NET_TO_WORMHOLE_CHAIN_ID[emitterChainId]
+    const emitter = NET_TO_EMITTER[srcNet]
+    const emitterAddress = formatEmitterAddress(emitter)
 
-    const url = `${wormhole_url}/v1/signed_vaa/${emitter_chain_id}/${emitter_address}/${sequence}`
+    const url = `${wormholeUrl}/v1/signed_vaa/${emitterChainId}/${emitterAddress}/${sequence}`
     try {
         const response = await axios.get(url);
         let data = response.data;
@@ -181,11 +181,11 @@ export interface ParsedPayload extends ParsedTokenTransferVaa, WormholeData {
 
 
 function parseVaaToWormholePayload(vaa: Buffer): ParsedPayload {
-    const token_transfer = parseTokenTransferVaa(vaa);
-    const dstMaxGasPrice = {dstMaxGasPrice: token_transfer.tokenTransferPayload.readBigUInt64BE(0)};
+    const tokenTransfer = parseTokenTransferVaa(vaa);
+    const dstMaxGasPrice = {dstMaxGasPrice: tokenTransfer.tokenTransferPayload.readBigUInt64BE(0)};
     return {
         ...dstMaxGasPrice,
-        ...token_transfer,
+        ...tokenTransfer,
     }
 }
 
@@ -204,7 +204,7 @@ const sendAndConfirmIx = async (
     return await sendAndConfirmTransaction(connection, tx, [payer]);
 }
 
-async function process_vaa(
+async function processVaa(
     connection: Connection,
     payer: Keypair,
     dstSoDiamond,
@@ -263,10 +263,10 @@ async function process_vaa(
         );
         dstTx = await sendAndConfirmIx(connection, payer, ix);
     }
-    record_gas(extrinsicHash, dstTx);
+    recordGas(extrinsicHash, dstTx);
 }
 
-function record_gas(
+function recordGas(
     srcTx,
     dstTx,
 ) {
@@ -292,7 +292,7 @@ function record_gas(
         });
 }
 
-async function process_v2(
+async function processV2(
     dstWormholeChainId,
     dstSoDiamond,
 ) {
@@ -301,33 +301,33 @@ async function process_v2(
         "processed"
     );
     let payer: Keypair;
-    const has_process = new Map<any[], number>();
-    const pending_interval = 10;
-    let last_pending_time = 0;
+    const hasProcess = new Map<any[], number>();
+    const pendingInterval = 10;
+    let lastPendingTime = 0;
     while (true) {
         const currentTimeStamp: number = Date.now();
-        if (currentTimeStamp < last_pending_time + pending_interval) {
+        if (currentTimeStamp < lastPendingTime + pendingInterval) {
             continue;
         } else {
-            last_pending_time = currentTimeStamp;
+            lastPendingTime = currentTimeStamp;
         }
-        const pending_data = await getPendingData(dstWormholeChainId);
+        const pendingData = await getPendingData(dstWormholeChainId);
 
-        for (const d of pending_data) {
+        for (const d of pendingData) {
             const vaa = await getSignedVaaByWormhole(d["sequence"], d["srcWormholeChainId"])
             if (vaa == null) {
                 logWithTimestamp(`Waiting vaa for emitterChainId: ${d["srcWormholeChainId"]}, 
                 sequence:${d["sequence"]}`);
                 continue;
             }
-            const has_key = [d["sequence"], d["srcWormholeChainId"]];
-            if (has_process.has(has_key) && currentTimeStamp - has_process.get(has_key) <= 10 * 60) {
+            const hasKey = [d["sequence"], d["srcWormholeChainId"]];
+            if (hasProcess.has(hasKey) && currentTimeStamp - hasProcess.get(hasKey) <= 10 * 60) {
                 logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} inner 10min has process`);
                 continue;
             } else {
-                has_process.set(has_key, currentTimeStamp);
+                hasProcess.set(hasKey, currentTimeStamp);
             }
-            await process_vaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"]);
+            await processVaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"]);
         }
     }
 }
@@ -335,7 +335,7 @@ async function process_v2(
 
 async function main() {
     logWithTimestamp("Start solana relayer....")
-    await process_v2(SOLANA_EMITTER_CHAIN, NET_TO_EMITTER[NET]);
+    await processV2(SOLANA_EMITTER_CHAIN, NET_TO_EMITTER[NET]);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
