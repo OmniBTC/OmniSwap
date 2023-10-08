@@ -17,10 +17,11 @@ import {createObjectCsvWriter} from 'csv-writer';
 import * as dotenv from 'dotenv';
 
 const ARGS = process.argv.slice(2);
-if (ARGS.length ==0){
-    throw new Error("Please set .env path")
+if (ARGS.length != 2){
+    throw new Error("Please set .env path and gas path")
 }
 const ENV_FILE = ARGS[0];
+const GAS_FILE = ARGS[1];
 if (dotenv.config({path: ENV_FILE}).error){
     throw new Error(".env format error")
 }
@@ -287,7 +288,7 @@ function recordGas(
     const data = [
         {srcTx: srcTx, dstTx: dstTx},
     ];
-    const fileExists = fs.existsSync('solana.csv');
+    const fileExists = fs.existsSync(GAS_FILE);
 
     const csvWriter = createObjectCsvWriter({
         path: 'solana.csv',
