@@ -14,6 +14,20 @@ import {
     createRedeemWrappedTransferWithPayloadInstruction
 } from "./helper";
 import {createObjectCsvWriter} from 'csv-writer';
+import * as dotenv from 'dotenv';
+
+const ARGS = process.argv.slice(2);
+if (ARGS.length ==0){
+    throw new Error("Please set .env path")
+}
+const ENV_FILE = ARGS[0];
+if (dotenv.config({path: ENV_FILE}).error){
+    throw new Error(".env format error")
+}
+
+if (process.env.SOLANA_KEY == null){
+    throw new Error(".env SOLANA_KEY not found")
+}
 
 const NET = "solana-test";
 let SOLANA_EMITTER_CHAIN: number;
@@ -300,7 +314,7 @@ async function processV2(
         SOLANA_URL,
         "processed"
     );
-    let payer: Keypair;
+    let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.SOLANA_KEY)));
     const hasProcess = new Map<any[], number>();
     const pendingInterval = 10;
     let lastPendingTime = 0;
