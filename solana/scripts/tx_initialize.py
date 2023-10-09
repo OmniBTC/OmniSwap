@@ -101,6 +101,15 @@ async def omniswap_register_foreign_contract():
     tx_sig = await client.send_transaction(tx, payer)
     print(tx_sig)
 
+    while True:
+        resp = await client.get_transaction(tx_sig.value)
+        if resp.value is not None:
+            print(resp.value.to_json())
+            break
+        else:
+            print("Transaction not confirmed yet. Waiting...")
+            await asyncio.sleep(5)  # 5 seconds
+
     await client.close()
 
 
