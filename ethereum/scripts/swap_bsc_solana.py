@@ -162,4 +162,5 @@ def complete_swap_via_wormhole():
     proxy_diamond.completeSoSwap(vaa, {"from": get_account()})
 
 def main():
-    complete_swap_via_wormhole()
+    # complete_swap_via_wormhole()
+    cross_swap_via_wormhole()

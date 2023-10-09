@@ -13,7 +13,7 @@ from helper import (
     getRedeemNativeTransferAccounts,
 )
 from config import get_client, get_payer, wormhole_devnet, token_bridge_devnet
-from parse import ParsedVaa
+from parse import ParsedVaa, ParsedTransfer
 
 
 async def omniswap_redeem_wrapped_transfer_with_payload(vaa: str):
@@ -74,10 +74,9 @@ async def omniswap_redeem_native_transfer_with_payload(vaa: str):
 
     payer = get_payer()
 
-    # wrapped_sol_mint = Pubkey.from_string("So11111111111111111111111111111111111111112")
-    usdc_mint = Pubkey.from_string("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU")
-
     parsed_vaa = ParsedVaa.parse(vaa)
+    parsed_transfer = ParsedTransfer.parse(parsed_vaa.payload)
+    usdc_mint = Pubkey.from_bytes(parsed_transfer.token_address)
 
     redeem_native_accounts = getRedeemNativeTransferAccounts(
         token_bridge_devnet, wormhole_devnet, PROGRAM_ID, payer.pubkey(), vaa, usdc_mint
