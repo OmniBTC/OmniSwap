@@ -1,8 +1,9 @@
 import {Omniswap} from "./types/omniswap";
 import IDL from "./idl/omniswap.json";
 import {Program, Provider} from "@coral-xyz/anchor";
+import { getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token"
 import {
-    Connection,
+    Connection, Keypair,
     PublicKey,
     PublicKeyInitData,
     SystemProgram,
@@ -15,7 +16,6 @@ import {
     CompleteTransferWrappedWithPayloadCpiAccounts,
     deriveAddress
 } from "@certusone/wormhole-sdk/lib/cjs/solana";
-import {getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID,} from "@solana/spl-token";
 import {
     deriveCustodyKey,
     deriveCustodySignerKey,
@@ -75,11 +75,12 @@ export function createHelloTokenProgramInterface(
 export async function createRedeemNativeTransferWithPayloadInstruction(
     connection: Connection,
     programId: PublicKeyInitData,
-    payer: PublicKeyInitData,
+    payer: Keypair,
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
     wormholeMessage: SignedVaa | ParsedTokenTransferVaa
 ): Promise<TransactionInstruction> {
+    const payAddress = payer.publicKey.toString();
     const program = createHelloTokenProgramInterface(connection, programId);
 
     const parsed = isBytes(wormholeMessage)
@@ -92,28 +93,38 @@ export async function createRedeemNativeTransferWithPayloadInstruction(
     const tokenBridgeAccounts = getCompleteTransferNativeWithPayloadCpiAccounts(
         tokenBridgeProgramId,
         wormholeProgramId,
-        payer,
+        payAddress,
         parsed,
         tmpTokenAccount
     );
 
     const recipient = new PublicKey(parsed.tokenTransferPayload.subarray(1, 33));
-    const recipientTokenAccount = getAssociatedTokenAddressSync(mint, recipient);
+    const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient);
 
     return program.methods
         .redeemNativeTransferWithPayload([...parsed.hash])
         .accounts({
+            payer: tokenBridgeAccounts.payer,
+            payerTokenAccount: await getOrCreateAssociatedTokenAccount(
+                connection,
+                payer,
+                mint,
+                new PublicKey(payAddress)
+            ),
             config: deriveRedeemerConfigKey(programId),
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
-            tmpTokenAccount,
+            mint,
             recipientTokenAccount,
             recipient,
-            payerTokenAccount: getAssociatedTokenAddressSync(
-                mint,
-                new PublicKey(payer)
-            ),
+            tmpTokenAccount,
+            wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
-            ...tokenBridgeAccounts,
+            tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
+            vaa: tokenBridgeAccounts.vaa,
+            tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
+            tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
+            tokenBridgeCustody: tokenBridgeAccounts.tokenBridgeCustody,
+            tokenBridgeCustodySigner: tokenBridgeAccounts.tokenBridgeCustodySigner,
         })
         .instruction();
 }
@@ -161,11 +172,12 @@ export function getCompleteTransferNativeWithPayloadCpiAccounts(
 export async function createRedeemWrappedTransferWithPayloadInstruction(
     connection: Connection,
     programId: PublicKeyInitData,
-    payer: PublicKeyInitData,
+    payer: Keypair,
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
     wormholeMessage: SignedVaa | ParsedTokenTransferVaa
 ): Promise<TransactionInstruction> {
+    const payAddress = payer.publicKey.toString();
     const program = createHelloTokenProgramInterface(connection, programId);
 
     const parsed = isBytes(wormholeMessage)
@@ -178,35 +190,46 @@ export async function createRedeemWrappedTransferWithPayloadInstruction(
         parsed.tokenAddress
     );
 
-    const tmpTokenAccount = deriveTmpTokenAccountKey(programId, wrappedMint);
+    const tmpTokenAccount =  deriveTmpTokenAccountKey(programId, wrappedMint);
     const tokenBridgeAccounts = getCompleteTransferWrappedWithPayloadCpiAccounts(
         tokenBridgeProgramId,
         wormholeProgramId,
-        payer,
+        payAddress,
         parsed,
         tmpTokenAccount
     );
 
     const recipient = new PublicKey(parsed.tokenTransferPayload.subarray(1, 33));
-    const recipientTokenAccount = getAssociatedTokenAddressSync(
-        wrappedMint,
-        recipient
-    );
 
     return program.methods
         .redeemWrappedTransferWithPayload([...parsed.hash])
         .accounts({
-            config: deriveRedeemerConfigKey(programId),
-            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
-            tmpTokenAccount,
-            recipientTokenAccount,
-            recipient,
-            payerTokenAccount: getAssociatedTokenAddressSync(
+            payer: tokenBridgeAccounts.payer,
+            payerTokenAccount: await getOrCreateAssociatedTokenAccount(
+                connection,
+                payer,
                 wrappedMint,
                 new PublicKey(payer)
             ),
+            config: deriveRedeemerConfigKey(programId),
+            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
+            tokenBridgeWrappedMint: tokenBridgeAccounts.tokenBridgeWrappedMint,
+            recipientTokenAccount: await getOrCreateAssociatedTokenAccount(
+                connection,
+                payer,
+                wrappedMint,
+                recipient
+            ),
+            recipient,
+            tmpTokenAccount,
+            wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
-            ...tokenBridgeAccounts,
+            tokenBridgeWrappedMeta: tokenBridgeAccounts.tokenBridgeWrappedMeta,
+            tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
+            vaa: tokenBridgeAccounts.vaa,
+            tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
+            tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
+            tokenBridgeMintAuthority: tokenBridgeAccounts.tokenBridgeMintAuthority
         })
         .instruction();
 }
