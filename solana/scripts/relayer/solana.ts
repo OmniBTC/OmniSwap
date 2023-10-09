@@ -8,9 +8,15 @@ import {
 } from "@solana/web3.js";
 import fs from "fs";
 import axios from "axios";
-import {createRedeemNativeTransferWithPayloadInstruction, parseVaaToWormholePayload} from "./helper";
+import {
+    createRedeemNativeTransferWithPayloadInstruction,
+    parseVaaToWormholePayload,
+    PersistentDictionary,
+    queryRelayEventByGetLogs
+} from "./helper";
 import {createObjectCsvWriter} from 'csv-writer';
 import * as dotenv from 'dotenv';
+import {ethers} from 'ethers';
 
 
 const ARGS = process.argv.slice(2);
@@ -38,6 +44,9 @@ let NET_TO_EMITTER;
 let PENDING_URL;
 let OMNISWAP_PID;
 let SOLANA_URL;
+let NET_TO_RPC;
+let NET_TO_CONTRACT;
+let NET_TO_DEFAULT_FROM_BLOCK;
 
 // @ts-ignore
 if (NET !== "solana-mainnet") {
@@ -54,6 +63,15 @@ if (NET !== "solana-mainnet") {
         "aptos-testnet": 22,
         "sui-testnet": 21,
         "solana-testnet": 1
+    }
+    NET_TO_RPC = {
+        "bsc-test": ["https://rpc.ankr.com/bsc_testnet_chapel"]
+    }
+    NET_TO_CONTRACT = {
+        "bsc-test": "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
+    }
+    NET_TO_DEFAULT_FROM_BLOCK = {
+        "bsc-test": 34041250
     }
     NET_TO_EMITTER = {
         "goerli": "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
@@ -92,6 +110,16 @@ if (NET !== "solana-mainnet") {
         "sui-mainnet": 21,
         "base-main": 30,
         "solana-mainnet": 1
+    }
+    NET_TO_RPC = {
+        "bsc-main": ["https://bsc-dataseed1.ninicoin.io"]
+    }
+    NET_TO_DEFAULT_FROM_BLOCK = {}
+    NET_TO_CONTRACT = {
+        "bsc-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+        "polygon-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+        "avax-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+        "mainnet": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
     }
     NET_TO_EMITTER = {
         "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
@@ -168,6 +196,55 @@ async function getSignedVaaByWormhole(
     }
 }
 
+function getRandomItem<T>(items: T[]): T | undefined {
+    if (items.length === 0) {
+        return undefined;
+    }
+
+    const randomIndex = Math.floor(Math.random() * items.length);
+    return items[randomIndex];
+}
+
+async function getPendingDataFromEvm(net) {
+    const url: string = getRandomItem(NET_TO_RPC[net])
+    const provider = new ethers.providers.JsonRpcProvider(url);
+    const contractAddress = NET_TO_CONTRACT[net];
+    const defaultValue = NET_TO_DEFAULT_FROM_BLOCK[net];
+    const fromBlockDict = new PersistentDictionary("latestFromBlock.json");
+    let fromBlock = fromBlockDict.get(net, defaultValue);
+    const latestBlock = await provider.getBlockNumber();
+    const data = [];
+
+    while (fromBlock < latestBlock) {
+        const toBlock = Math.min(fromBlock + 1000, latestBlock);
+        logWithTimestamp(`Query log fromBlock:${fromBlock} toBlock:${toBlock}`);
+        const logs = await queryRelayEventByGetLogs(provider, contractAddress, fromBlock, toBlock);
+        fromBlock = toBlock;
+        fromBlockDict.set(net, fromBlock);
+        if (logs.length == 0) {
+            continue
+        }
+        for (const log of logs) {
+            const txReceipt = await provider.getTransactionReceipt(log["transactionHash"]);
+            const wormholeLog = txReceipt.logs.find(element => element.topics[0] == "0x6eb224fb001ed210e379b335e35efe88672a8ce935d981a6896b27ffdf52a3b2");
+            const wormholeLogData = Buffer.from(remove0x(wormholeLog.data), "hex");
+            const sequence = wormholeLogData.readUintBE(26,6);
+            data.push({
+                "chainName": net,
+                "extrinsicHash": log["transactionHash"],
+                "srcWormholeChainId": NET_TO_WORMHOLE_CHAIN_ID[net],
+                "dstWormholeChainId": 1,
+                "sequence": sequence,
+                "blockTimestamp": 1695210280
+            })
+        }
+        if (data.length > 0) {
+            return data;
+        }
+    }
+    return data;
+}
+
 async function getPendingData(dstWormholeChainId) {
     /*
     Get data for pending relayer
@@ -184,16 +261,6 @@ async function getPendingData(dstWormholeChainId) {
         let data = response.data["record"];
         data.sort((x0, x1) => x0["sequence"] - x1["sequence"]);
         data = data.filter((x) => x["dstWormholeChainId"].toString() == dstWormholeChainId.toString())
-        return [
-            {
-                "chainName": "binance",
-                "extrinsicHash": "0x2d33bcd25b8724f77bf2263bf1828fbfd840c4a9582a30c04ab94565ffede831",
-                "srcWormholeChainId": 4,
-                "dstWormholeChainId": 1,
-                "sequence": 4973,
-                "blockTimestamp": 1695210280
-            }
-        ]
         return data;
     } catch (error) {
         return [];
@@ -331,7 +398,9 @@ async function processV2(
             lastPendingTime = currentTimeStamp;
         }
         logWithTimestamp("Get pending data")
-        const pendingData = await getPendingData(dstWormholeChainId);
+        const pendingData = await getPendingDataFromEvm("bsc-test");
+        // const pendingData = await getPendingData(dstWormholeChainId);
+        logWithTimestamp(`Get signed vaa length: ${pendingData.length}`)
         for (const d of pendingData) {
             logWithTimestamp("Get signed vaa")
             const vaa = await getSignedVaaByWormhole(d["sequence"], d["srcWormholeChainId"])

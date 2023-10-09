@@ -11,7 +11,7 @@ import {
     SYSVAR_RENT_PUBKEY,
     TransactionInstruction
 } from "@solana/web3.js";
-import {ChainId, isBytes, ParsedTokenTransferVaa, parseTokenTransferVaa, SignedVaa} from "@certusone/wormhole-sdk";
+import {ChainId, ParsedTokenTransferVaa, parseTokenTransferVaa} from "@certusone/wormhole-sdk";
 import {
     CompleteTransferNativeWithPayloadCpiAccounts,
     CompleteTransferWrappedWithPayloadCpiAccounts,
@@ -29,6 +29,54 @@ import {
 } from "@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge";
 import {deriveClaimKey, derivePostedVaaKey} from "@certusone/wormhole-sdk/lib/cjs/solana/wormhole";
 import * as bs58 from "bs58";
+import {ethers} from 'ethers';
+import fs from "fs";
+
+export class PersistentDictionary {
+    private data: Record<string, any>;
+    private filename: string;
+
+    constructor(filename: string) {
+        this.filename = filename;
+        this.loadDataFromFile();
+    }
+
+    private loadDataFromFile() {
+        try {
+            const fileContent = fs.readFileSync(this.filename, 'utf8');
+            this.data = JSON.parse(fileContent);
+        } catch (error) {
+            this.data = {};
+        }
+    }
+
+    private saveDataToFile() {
+        fs.writeFileSync(this.filename, JSON.stringify(this.data, null, 2), 'utf8');
+    }
+
+    get(key: string, defaultValue: any = null): any {
+        if (key in this.data) {
+            return this.data[key];
+        } else {
+            this.set(key, defaultValue);
+            return defaultValue;
+        }
+    }
+
+    set(key: string, value: any) {
+        this.data[key] = value;
+        this.saveDataToFile();
+    }
+
+    // delete(key: string) {
+    //     delete this.data[key];
+    //     this.saveDataToFile();
+    // }
+    //
+    // getAll(): Record<string, any> {
+    //     return this.data;
+    // }
+}
 
 export interface WormholeData {
     dstMaxGasPrice: number;
@@ -38,11 +86,11 @@ export interface WormholeData {
     soReceivingAssetId: Buffer
 }
 
-export interface ParsedPayload extends ParsedTokenTransferVaa, WormholeData {
+export interface ParsedOmniswapPayload extends ParsedTokenTransferVaa, WormholeData {
 }
 
 
-export function parseVaaToWormholePayload(vaa: Buffer): ParsedPayload {
+export function parseVaaToWormholePayload(vaa: Buffer): ParsedOmniswapPayload {
     const tokenTransfer = parseTokenTransferVaa(vaa);
 
     let index = 0;
@@ -91,6 +139,21 @@ export function parseVaaToWormholePayload(vaa: Buffer): ParsedPayload {
         ...tokenTransfer,
     }
 }
+
+export async function queryRelayEventByGetLogs(provider: ethers.providers.JsonRpcProvider, contractAddress, fromBlock, toBlock) {
+    const filter = {
+        address: contractAddress,
+        topics: ["0x0f0fd0ad174232a46f92a8d76b425830f45436483106ee965bbe91d3b7d1cd26"],
+        fromBlock,
+        toBlock
+    };
+    try {
+        return await provider.getLogs(filter);
+    } catch (error) {
+        return []
+    }
+}
+
 
 export function deriveRedeemerConfigKey(programId: PublicKeyInitData) {
     return deriveAddress([Buffer.from("redeemer")], programId);
@@ -203,10 +266,10 @@ export function getCompleteTransferNativeWithPayloadCpiAccounts(
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
     payer: PublicKeyInitData,
-    vaa: SignedVaa | ParsedTokenTransferVaa,
+    vaa: ParsedOmniswapPayload,
     toTokenAccount: PublicKeyInitData
 ): CompleteTransferNativeWithPayloadCpiAccounts {
-    const parsed = isBytes(vaa) ? parseTokenTransferVaa(vaa) : vaa;
+    const parsed = vaa;
     const mint = new PublicKey(parsed.tokenAddress);
     const cpiProgramId = new PublicKey(parsed.to);
 
@@ -309,10 +372,10 @@ export function getCompleteTransferWrappedWithPayloadCpiAccounts(
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
     payer: PublicKeyInitData,
-    vaa: SignedVaa | ParsedTokenTransferVaa,
+    vaa: ParsedOmniswapPayload,
     toTokenAccount: PublicKeyInitData
 ): CompleteTransferWrappedWithPayloadCpiAccounts {
-    const parsed = isBytes(vaa) ? parseTokenTransferVaa(vaa) : vaa;
+    const parsed = vaa;
     const mint = deriveWrappedMintKey(
         tokenBridgeProgramId,
         parsed.tokenChain,
