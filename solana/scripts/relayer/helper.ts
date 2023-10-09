@@ -1,9 +1,10 @@
 import {Omniswap} from "./types/omniswap";
 import IDL from "./idl/omniswap.json";
 import {Program, Provider} from "@coral-xyz/anchor";
-import { getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token"
+import {ASSOCIATED_TOKEN_PROGRAM_ID, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID} from "@solana/spl-token"
 import {
-    Connection, Keypair,
+    Connection,
+    Keypair,
     PublicKey,
     PublicKeyInitData,
     SystemProgram,
@@ -19,11 +20,77 @@ import {
 import {
     deriveCustodyKey,
     deriveCustodySignerKey,
-    deriveEndpointKey, deriveMintAuthorityKey,
+    deriveEndpointKey,
+    deriveMintAuthorityKey,
     deriveRedeemerAccountKey,
-    deriveTokenBridgeConfigKey, deriveWrappedMetaKey, deriveWrappedMintKey
+    deriveTokenBridgeConfigKey,
+    deriveWrappedMetaKey,
+    deriveWrappedMintKey
 } from "@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge";
 import {deriveClaimKey, derivePostedVaaKey} from "@certusone/wormhole-sdk/lib/cjs/solana/wormhole";
+import * as bs58 from "bs58";
+
+export interface WormholeData {
+    dstMaxGasPrice: number;
+    dstMaxGas: number,
+    soTransactionId: Buffer,
+    soReceiver: string,
+    soReceivingAssetId: Buffer
+}
+
+export interface ParsedPayload extends ParsedTokenTransferVaa, WormholeData {
+}
+
+
+export function parseVaaToWormholePayload(vaa: Buffer): ParsedPayload {
+    const tokenTransfer = parseTokenTransferVaa(vaa);
+
+    let index = 0;
+
+    let len = tokenTransfer.tokenTransferPayload.readUint8(index);
+    index += 1;
+    let dstMaxGasPrice;
+    try {
+        dstMaxGasPrice = tokenTransfer.tokenTransferPayload.readUIntBE(index, len);
+    } catch (error) {
+        dstMaxGasPrice = tokenTransfer.tokenTransferPayload.readUIntBE(index, 5);
+    }
+    index += len;
+
+    len = tokenTransfer.tokenTransferPayload.readUint8(index);
+    index += 1;
+    let dstMaxGas;
+    try {
+        dstMaxGas = tokenTransfer.tokenTransferPayload.readUIntBE(index, len);
+    } catch (error) {
+        dstMaxGas = tokenTransfer.tokenTransferPayload.readUIntBE(index, 5);
+    }
+    index += len;
+
+    len = tokenTransfer.tokenTransferPayload.readUint8(index);
+    index += 1;
+    let soTransactionId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+    index += len;
+
+    len = tokenTransfer.tokenTransferPayload.readUint8(index);
+    index += 1;
+    let soReceiver = bs58.encode(tokenTransfer.tokenTransferPayload.subarray(index, index + len));
+    index += len;
+
+    len = tokenTransfer.tokenTransferPayload.readUint8(index);
+    index += 1;
+    let soReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+    // index += len;
+
+    return {
+        dstMaxGasPrice: dstMaxGasPrice,
+        dstMaxGas: dstMaxGas,
+        soTransactionId,
+        soReceiver,
+        soReceivingAssetId,
+        ...tokenTransfer,
+    }
+}
 
 export function deriveRedeemerConfigKey(programId: PublicKeyInitData) {
     return deriveAddress([Buffer.from("redeemer")], programId);
@@ -78,14 +145,12 @@ export async function createRedeemNativeTransferWithPayloadInstruction(
     payer: Keypair,
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
-    wormholeMessage: SignedVaa | ParsedTokenTransferVaa
+    wormholeMessage: Buffer
 ): Promise<TransactionInstruction> {
     const payAddress = payer.publicKey.toString();
     const program = createHelloTokenProgramInterface(connection, programId);
 
-    const parsed = isBytes(wormholeMessage)
-        ? parseTokenTransferVaa(wormholeMessage)
-        : wormholeMessage;
+    const parsed = parseVaaToWormholePayload(wormholeMessage);
 
     const mint = new PublicKey(parsed.tokenAddress);
 
@@ -98,19 +163,19 @@ export async function createRedeemNativeTransferWithPayloadInstruction(
         tmpTokenAccount
     );
 
-    const recipient = new PublicKey(parsed.tokenTransferPayload.subarray(1, 33));
-    const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient);
+    const recipient = new PublicKey(parsed.soReceiver);
+    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient)).address;
 
     return program.methods
         .redeemNativeTransferWithPayload([...parsed.hash])
         .accounts({
             payer: tokenBridgeAccounts.payer,
-            payerTokenAccount: await getOrCreateAssociatedTokenAccount(
+            payerTokenAccount: (await getOrCreateAssociatedTokenAccount(
                 connection,
                 payer,
                 mint,
                 new PublicKey(payAddress)
-            ),
+            )).address,
             config: deriveRedeemerConfigKey(programId),
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             mint,
@@ -179,14 +244,12 @@ export async function createRedeemWrappedTransferWithPayloadInstruction(
     payer: Keypair,
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
-    wormholeMessage: SignedVaa | ParsedTokenTransferVaa
+    wormholeMessage: Buffer
 ): Promise<TransactionInstruction> {
     const payAddress = payer.publicKey.toString();
     const program = createHelloTokenProgramInterface(connection, programId);
 
-    const parsed = isBytes(wormholeMessage)
-        ? parseTokenTransferVaa(wormholeMessage)
-        : wormholeMessage;
+    const parsed = parseVaaToWormholePayload(wormholeMessage);
 
     const wrappedMint = deriveWrappedMintKey(
         tokenBridgeProgramId,
@@ -194,7 +257,7 @@ export async function createRedeemWrappedTransferWithPayloadInstruction(
         parsed.tokenAddress
     );
 
-    const tmpTokenAccount =  deriveTmpTokenAccountKey(programId, wrappedMint);
+    const tmpTokenAccount = deriveTmpTokenAccountKey(programId, wrappedMint);
     const tokenBridgeAccounts = getCompleteTransferWrappedWithPayloadCpiAccounts(
         tokenBridgeProgramId,
         wormholeProgramId,
@@ -203,27 +266,27 @@ export async function createRedeemWrappedTransferWithPayloadInstruction(
         tmpTokenAccount
     );
 
-    const recipient = new PublicKey(parsed.tokenTransferPayload.subarray(1, 33));
+    const recipient = new PublicKey(parsed.soReceiver);
 
     return program.methods
         .redeemWrappedTransferWithPayload([...parsed.hash])
         .accounts({
             payer: tokenBridgeAccounts.payer,
-            payerTokenAccount: await getOrCreateAssociatedTokenAccount(
+            payerTokenAccount: (await getOrCreateAssociatedTokenAccount(
                 connection,
                 payer,
                 wrappedMint,
                 new PublicKey(payer)
-            ),
+            )).address,
             config: deriveRedeemerConfigKey(programId),
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             tokenBridgeWrappedMint: tokenBridgeAccounts.tokenBridgeWrappedMint,
-            recipientTokenAccount: await getOrCreateAssociatedTokenAccount(
+            recipientTokenAccount: (await getOrCreateAssociatedTokenAccount(
                 connection,
                 payer,
                 wrappedMint,
                 recipient
-            ),
+            )).address,
             recipient,
             tmpTokenAccount,
             wormholeProgram: tokenBridgeAccounts.wormholeProgram,

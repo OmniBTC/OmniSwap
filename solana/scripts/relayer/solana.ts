@@ -1,4 +1,3 @@
-import {ParsedTokenTransferVaa, parseTokenTransferVaa, postVaaSolana} from "@certusone/wormhole-sdk";
 import {
     Connection,
     Keypair,
@@ -9,12 +8,10 @@ import {
 } from "@solana/web3.js";
 import fs from "fs";
 import axios from "axios";
-import {
-    createRedeemNativeTransferWithPayloadInstruction,
-    createRedeemWrappedTransferWithPayloadInstruction
-} from "./helper";
+import {createRedeemNativeTransferWithPayloadInstruction, parseVaaToWormholePayload} from "./helper";
 import {createObjectCsvWriter} from 'csv-writer';
 import * as dotenv from 'dotenv';
+
 
 const ARGS = process.argv.slice(2);
 if (ARGS.length != 2) {
@@ -204,23 +201,6 @@ async function getPendingData(dstWormholeChainId) {
 
 }
 
-export interface WormholeData {
-    dstMaxGasPrice: number;
-}
-
-export interface ParsedPayload extends ParsedTokenTransferVaa, WormholeData {
-}
-
-
-function parseVaaToWormholePayload(vaa: Buffer): ParsedPayload {
-    const tokenTransfer = parseTokenTransferVaa(vaa);
-    const dstMaxGasPrice = {dstMaxGasPrice: tokenTransfer.tokenTransferPayload.readUIntBE(1, 5)};
-    return {
-        ...dstMaxGasPrice,
-        ...tokenTransfer,
-    }
-}
-
 function logWithTimestamp(message: string): void {
     const currentDatetime: string = new Date().toLocaleString();
     const logMessage: string = `[${currentDatetime}] ${message}`;
@@ -360,7 +340,7 @@ async function processV2(
                 continue;
             }
             const hasKey = `${d["sequence"]}@${d["srcWormholeChainId"]}`;
-            if (hasProcess.has(hasKey) && currentTimeStamp <= hasProcess.get(hasKey) + 10 * 60 ) {
+            if (hasProcess.has(hasKey) && currentTimeStamp <= hasProcess.get(hasKey) + 10 * 60) {
                 logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} inner 10min has process`);
                 continue;
             } else {
