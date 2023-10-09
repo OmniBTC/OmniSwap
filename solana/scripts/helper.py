@@ -4,8 +4,8 @@ from spl.token.instructions import get_associated_token_address
 from parse import ParsedVaa, ParsedTransfer
 
 
-def deriveWormholeEmitterKey(emitter_program_id: str):
-    program_id = Pubkey.from_string(emitter_program_id)
+def deriveWormholeEmitterKey(token_bridge_program_id: str):
+    program_id = Pubkey.from_string(token_bridge_program_id)
     program_address, _nonce = Pubkey.find_program_address([b"emitter"], program_id)
     return program_address
 
@@ -105,11 +105,11 @@ def getWormholeDerivedAccounts(token_bridge_program_id: str, wormhole_program_id
     token_bridge_emitter, token_bridge_sequence = getEmitterKeys(
         token_bridge_program_id, wormhole_program_id
     )
-    wormhole_bridge = deriveWormholeBridgeDataKey(wormhole_program_id)
+    wormhole_bridge_data = deriveWormholeBridgeDataKey(wormhole_program_id)
     wormhole_fee_collector = deriveFeeCollectorKey(wormhole_program_id)
 
     return (
-        wormhole_bridge,
+        wormhole_bridge_data,
         token_bridge_emitter,
         wormhole_fee_collector,
         token_bridge_sequence,
