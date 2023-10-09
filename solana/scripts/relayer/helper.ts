@@ -1,7 +1,7 @@
 import {Omniswap} from "./types/omniswap";
 import IDL from "./idl/omniswap.json";
 import {Program, Provider} from "@coral-xyz/anchor";
-import { getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token"
+import { getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token"
 import {
     Connection, Keypair,
     PublicKey,
@@ -125,6 +125,10 @@ export async function createRedeemNativeTransferWithPayloadInstruction(
             tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
             tokenBridgeCustody: tokenBridgeAccounts.tokenBridgeCustody,
             tokenBridgeCustodySigner: tokenBridgeAccounts.tokenBridgeCustodySigner,
+            systemProgram: tokenBridgeAccounts.systemProgram,
+            tokenProgram: tokenBridgeAccounts.tokenProgram,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            rent: tokenBridgeAccounts.rent
         })
         .instruction();
 }
@@ -229,7 +233,10 @@ export async function createRedeemWrappedTransferWithPayloadInstruction(
             vaa: tokenBridgeAccounts.vaa,
             tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
             tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
-            tokenBridgeMintAuthority: tokenBridgeAccounts.tokenBridgeMintAuthority
+            tokenBridgeMintAuthority: tokenBridgeAccounts.tokenBridgeMintAuthority,
+            systemProgram: tokenBridgeAccounts.systemProgram,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            rent: tokenBridgeAccounts.rent
         })
         .instruction();
 }
