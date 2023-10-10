@@ -17,6 +17,7 @@ import {
 import {createObjectCsvWriter} from 'csv-writer';
 import * as dotenv from 'dotenv';
 import {ethers} from 'ethers';
+import {parseTokenTransferPayload} from "@certusone/wormhole-sdk/lib/cjs/vaa/tokenBridge";
 
 
 const ARGS = process.argv.slice(2);
@@ -84,7 +85,7 @@ if (NET !== "solana-mainnet") {
         // todo! fix
         "sui-testnet": "0x6fb10cdb7aa299e9a4308752dadecb049ff55a892de92992a1edbd7912b3d6da",
         "base-test": "0xA31aa3FDb7aF7Db93d18DDA4e19F811342EDF780",
-        "solana-testnet": "0x2b1246c9eefa3c466792253111f35fec1ee8ee5e9debc412d2e9adadfecdcc72"
+        "solana-testnet": "0x3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98"
     }
     CORE_BRIDGE_PID = new PublicKey("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5");
     TOKEN_BRIDGE_PID = new PublicKey("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
@@ -131,7 +132,7 @@ if (NET !== "solana-mainnet") {
         "aptos-mainnet": "0x0000000000000000000000000000000000000000000000000000000000000002",
         "sui-mainnet": "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5",
         "base-main": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
-        "solana-mainnet": "0x0e0a589a41a55fbd66c52a475f2d92a6d3dc9b4747114cb9af825a98b545d3ce"
+        "solana-mainnet": "0xec7372995d5cc8732397fb0ad35c0121e0eaa90d26f828a534cab54391b3a4f5",
     }
     CORE_BRIDGE_PID = new PublicKey("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth");
     TOKEN_BRIDGE_PID = new PublicKey("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
@@ -206,6 +207,26 @@ function getRandomItem<T>(items: T[]): T | undefined {
 }
 
 async function getPendingDataFromEvm(net) {
+    /*
+    struct TransferWithPayload {
+        // PayloadID uint8 = 3
+        uint8 payloadID;
+        // Amount being transferred (big-endian uint256)
+        uint256 amount;
+        // Address of the token. Left-zero-padded if shorter than 32 bytes
+        bytes32 tokenAddress;
+        // Chain ID of the token
+        uint16 tokenChain;
+        // Address of the recipient. Left-zero-padded if shorter than 32 bytes
+        bytes32 to;
+        // Chain ID of the recipient
+        uint16 toChain;
+        // Address of the message sender. Left-zero-padded if shorter than 32 bytes
+        bytes32 fromAddress;
+        // An arbitrary payload
+        bytes payload;
+    }
+    */
     const url: string = getRandomItem(NET_TO_RPC[net])
     const provider = new ethers.providers.JsonRpcProvider(url);
     const contractAddress = NET_TO_CONTRACT[net];
@@ -214,12 +235,11 @@ async function getPendingDataFromEvm(net) {
     let fromBlock = fromBlockDict.get(net, defaultValue);
     const latestBlock = await provider.getBlockNumber();
     const data = [];
-
-    while (fromBlock < latestBlock) {
+    while (fromBlock <= latestBlock) {
         const toBlock = Math.min(fromBlock + 1000, latestBlock);
         logWithTimestamp(`Query log fromBlock:${fromBlock} toBlock:${toBlock}`);
         const logs = await queryRelayEventByGetLogs(provider, contractAddress, fromBlock, toBlock);
-        fromBlock = toBlock;
+        fromBlock = toBlock + 1;
         fromBlockDict.set(net, fromBlock);
         if (logs.length == 0) {
             continue
@@ -228,15 +248,18 @@ async function getPendingDataFromEvm(net) {
             const txReceipt = await provider.getTransactionReceipt(log["transactionHash"]);
             const wormholeLog = txReceipt.logs.find(element => element.topics[0] == "0x6eb224fb001ed210e379b335e35efe88672a8ce935d981a6896b27ffdf52a3b2");
             const wormholeLogData = Buffer.from(remove0x(wormholeLog.data), "hex");
-            const sequence = wormholeLogData.readUintBE(26,6);
-            data.push({
-                "chainName": net,
-                "extrinsicHash": log["transactionHash"],
-                "srcWormholeChainId": NET_TO_WORMHOLE_CHAIN_ID[net],
-                "dstWormholeChainId": 1,
-                "sequence": sequence,
-                "blockTimestamp": 1695210280
-            })
+            const sequence = wormholeLogData.readUintBE(26, 6);
+            const toChain = wormholeLogData.readUintBE(160 + 99, 2);
+            if (toChain == 1) {
+                data.push({
+                    "chainName": net,
+                    "extrinsicHash": log["transactionHash"],
+                    "srcWormholeChainId": NET_TO_WORMHOLE_CHAIN_ID[net],
+                    "dstWormholeChainId": 1,
+                    "sequence": sequence,
+                    "blockTimestamp": 1695210280
+                })
+            }
         }
         if (data.length > 0) {
             return data;

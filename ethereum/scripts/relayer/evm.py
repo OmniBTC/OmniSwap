@@ -59,7 +59,7 @@ else:
     ]
 
 
-def get_pending_data_from_solana():
+def get_pending_data_from_solana(dstWormholeChainId):
     evm_net = network.show_active()
     if evm_net is None:
         evm_net = "bsc-test"
@@ -94,6 +94,8 @@ def get_pending_data_from_solana():
         except:
             continue
         if dst_diamond not in parsed_transfer["redeemer"].lower():
+            continue
+        if parsed_transfer["redeemerChain"] != dstWormholeChainId:
             continue
         info = {'chainName': solana_net,
                 'extrinsicHash': parsed_vaa["hash"],
@@ -223,7 +225,7 @@ def process_vaa(
 
 
 def process_v1(
-        _dstWormholeChainId: int,
+        dstWormholeChainId: int,
         dstSoDiamond: str,
 ):
     local_logger = logger.getChild(f"[v1|{network.show_active()}]")
@@ -246,7 +248,7 @@ def process_v1(
             local_logger.error(f'Get token price error: {e}')
             continue
         try:
-            d, vaa = get_pending_data_from_solana()
+            d, vaa = get_pending_data_from_solana(dstWormholeChainId)
         except Exception as e:
             local_logger.error(
                 f'Get pending data from solana for {network.show_active()} error: {e}'
