@@ -60,10 +60,10 @@ else:
 
 
 def get_pending_data_from_solana():
-    local_logger = logger.getChild(f"[QuerySolana]")
     evm_net = network.show_active()
     if evm_net is None:
         evm_net = "bsc-test"
+    local_logger = logger.getChild(f"[{evm_net}|QuerySolana]")
     sequence_dict = PersistentDictionary(f"./cache/solana_{evm_net}_sequence.json")
     dst_diamond = list(filter(lambda d: d["dstNet"] == evm_net, SUPPORTED_EVM))[0]["dstSoDiamond"]
     dst_diamond = dst_diamond.replace("0x", "").lower()
@@ -80,7 +80,7 @@ def get_pending_data_from_solana():
             vaa = get_signed_vaa_by_wormhole(sequence, emitter_chain_id)
             if vaa is None:
                 local_logger.info(f"Query sequence {sequence} is None, waiting")
-                time.sleep(2)
+                time.sleep(10)
                 continue
             else:
                 local_logger.info(f"Query sequence {sequence} finish")
