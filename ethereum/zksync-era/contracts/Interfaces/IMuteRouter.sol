@@ -18,13 +18,7 @@ interface IMuteRouter {
         uint256 deadline,
         uint256 feeType,
         bool stable
-    )
-        external
-        returns (
-            uint256 amountA,
-            uint256 amountB,
-            uint256 liquidity
-        );
+    ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
 
     function addLiquidityETH(
         address token,
@@ -38,11 +32,7 @@ interface IMuteRouter {
     )
         external
         payable
-        returns (
-            uint256 amountToken,
-            uint256 amountETH,
-            uint256 liquidity
-        );
+        returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
 
     function removeLiquidity(
         address tokenA,
@@ -137,16 +127,12 @@ interface IMuteRouter {
         uint256 amountIn,
         address tokenIn,
         address tokenOut
-    )
-        external
-        view
-        returns (
-            uint256 amountOut,
-            bool stable,
-            uint256 fee
-        );
+    ) external view returns (uint256 amountOut, bool stable, uint256 fee);
 
-    function getAmountsOutExpanded(uint256 amountIn, address[] calldata path)
+    function getAmountsOutExpanded(
+        uint256 amountIn,
+        address[] calldata path
+    )
         external
         view
         returns (
@@ -168,7 +154,10 @@ interface IMuteRouter {
             uint256[] memory fees
         );
 
-    function getPairInfo(address[] calldata path, bool stable)
+    function getPairInfo(
+        address[] calldata path,
+        bool stable
+    )
         external
         view
         returns (
