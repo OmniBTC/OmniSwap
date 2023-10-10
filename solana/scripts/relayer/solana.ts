@@ -75,7 +75,7 @@ if (NET !== "solana-mainnet") {
     }
     SODIAMOND = "0x7ef1dcda48c0b739dfd4da982c187838573cc044d8ded9fe382b84ceb6fa6b53"
     NET_TO_DEFAULT_FROM_BLOCK = {
-        "bsc-test": 34041250
+        "bsc-test": 34075043
     }
     NET_TO_EMITTER = {
         "goerli": "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
@@ -150,6 +150,7 @@ WORMHOLE_CHAIN_ID_TO_NET = Object.keys(NET_TO_WORMHOLE_CHAIN_ID).reduce((returnV
     returnValue[value] = key;
     return returnValue;
 }, {})
+const fromBlockDict = new PersistentDictionary("./cache/latestFromBlock.json");
 
 function getRandomWormholeUrl() {
     const randomIndex: number = Math.floor(Math.random() * WORMHOLE_URL.length);
@@ -239,11 +240,11 @@ async function getPendingDataFromEvm(net) {
     const provider = new ethers.providers.JsonRpcProvider(url);
     const contractAddress = NET_TO_CONTRACT[net];
     const defaultValue = NET_TO_DEFAULT_FROM_BLOCK[net];
-    const fromBlockDict = new PersistentDictionary("./cache/latestFromBlock.json");
     let fromBlock = fromBlockDict.get(net, defaultValue);
     const latestBlock = await provider.getBlockNumber();
     const data = [];
     while (fromBlock <= latestBlock) {
+        const curBlock = fromBlock;
         const toBlock = Math.min(fromBlock + 1000, latestBlock);
         logWithTimestamp(`Query log fromBlock:${fromBlock} toBlock:${toBlock} latestBlock:${latestBlock}`);
         const logs = await queryRelayEventByGetLogs(provider, contractAddress, fromBlock, toBlock);
@@ -265,7 +266,8 @@ async function getPendingDataFromEvm(net) {
                     "srcWormholeChainId": NET_TO_WORMHOLE_CHAIN_ID[net],
                     "dstWormholeChainId": 1,
                     "sequence": sequence,
-                    "blockTimestamp": 1695210280
+                    "blockTimestamp": 1695210280,
+                    "fromBlock": curBlock
                 })
             }
         }
@@ -353,7 +355,7 @@ async function processVaa(
         );
         logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} finish`)
     } catch (error) {
-        logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
+        logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
     }
 
     try {
@@ -366,10 +368,11 @@ async function processVaa(
             vaa
         );
         const dstTx = await sendAndConfirmIx(connection, payer, ix);
+        logWithTimestamp(`RedeemNative for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
         recordGas(extrinsicHash, dstTx);
         return true;
     } catch (error) {
-        logWithTimestamp(`RedeemNative for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
+        logWithTimestamp(`RedeemNative for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
     }
 
     try {
@@ -382,10 +385,11 @@ async function processVaa(
             vaa
         );
         const dstTx = await sendAndConfirmIx(connection, payer, ix);
+        logWithTimestamp(`RedeemWrapped for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
         recordGas(extrinsicHash, dstTx);
         return true;
     } catch (error) {
-        logWithTimestamp(`RedeemWrapped for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
+        logWithTimestamp(`RedeemWrapped for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
     }
 
     return false;
@@ -451,6 +455,7 @@ async function processV2(
             try {
                 vaa = await getSignedVaaByWormhole(d["sequence"], d["srcWormholeChainId"])
                 if (vaa == null) {
+                    fromBlockDict.set(d["chainName"], d["fromBlock"]);
                     logWithTimestamp(`Waiting vaa for emitterChainId: ${d["srcWormholeChainId"]}, sequence:${d["sequence"]}`);
                     continue;
                 }

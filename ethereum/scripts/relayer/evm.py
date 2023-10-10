@@ -63,7 +63,7 @@ def get_pending_data_from_solana(dstWormholeChainId):
     evm_net = network.show_active()
     if evm_net is None:
         evm_net = "bsc-test"
-    local_logger = logger.getChild(f"[{evm_net}|QuerySolana]")
+    local_logger = logger.getChild(f"[{evm_net}]")
     sequence_dict = PersistentDictionary(f"./cache/solana_{evm_net}_sequence.json")
     dst_diamond = list(filter(lambda d: d["dstNet"] == evm_net, SUPPORTED_EVM))[0]["dstSoDiamond"]
     dst_diamond = dst_diamond.replace("0x", "").lower()
