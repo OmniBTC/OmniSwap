@@ -85,10 +85,13 @@ def get_pending_data_from_solana():
                 local_logger.info(f"Query sequence {sequence} finish")
             break
         sequence_dict.set(solana_net, sequence)
-        parsed_vaa, parsed_transfer, parsed_transfer_payload = parseTransferWithPayloadVaa(vaa)
-        parsed_vaa = parsed_vaa.format_json()
-        parsed_transfer = parsed_transfer.format_json()
-        _parsed_transfer_payload = parsed_transfer_payload.format_json()
+        try:
+            parsed_vaa, parsed_transfer, parsed_transfer_payload = parseTransferWithPayloadVaa(vaa)
+            parsed_vaa = parsed_vaa.format_json()
+            parsed_transfer = parsed_transfer.format_json()
+            _parsed_transfer_payload = parsed_transfer_payload.format_json()
+        except:
+            continue
         if dst_diamond not in parsed_transfer["redeemer"].lower():
             continue
         info = {'chainName': solana_net,
