@@ -81,6 +81,7 @@ def get_pending_data_from_solana():
             if vaa is None:
                 local_logger.info(f"Query sequence {sequence} is None, waiting")
                 time.sleep(2)
+                continue
             else:
                 local_logger.info(f"Query sequence {sequence} finish")
             break
@@ -269,7 +270,7 @@ def process_v1(
             continue
         try:
             # If gas price not enough, pending 7 day to manual process
-            if (time.time() - d["blockTimestamp"]) >= 7 * 24 * 60 * 60:
+            if (time.time() - d["blockTimestamp"]) >= 7 * 24 * 60 * 60 or NET != "mainnet":
                 limit_gas_price = False
             else:
                 limit_gas_price = True
