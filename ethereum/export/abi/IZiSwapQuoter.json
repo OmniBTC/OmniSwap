@@ -1,0 +1,420 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "path",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint128",
+              "name": "amount",
+              "type": "uint128"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minAcquired",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IZiSwapQuoter.SwapAmountParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "swapAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "cost",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "acquire",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "allSourcePaths": {
+    "103": "contracts/Interfaces/IiZiSwapQuoter.sol"
+  },
+  "ast": {
+    "absolutePath": "contracts/Interfaces/IiZiSwapQuoter.sol",
+    "exportedSymbols": {
+      "IZiSwapQuoter": [
+        18442
+      ]
+    },
+    "id": 18443,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 18418,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".4"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:103"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IZiSwapQuoter",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 18419,
+          "nodeType": "StructuredDocumentation",
+          "src": "58:42:103",
+          "text": "@title Interface for LiquidityManager"
+        },
+        "fullyImplemented": false,
+        "id": 18442,
+        "linearizedBaseContracts": [
+          18442
+        ],
+        "name": "IZiSwapQuoter",
+        "nameLocation": "110:13:103",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "IZiSwapQuoter.SwapAmountParams",
+            "id": 18430,
+            "members": [
+              {
+                "constant": false,
+                "id": 18421,
+                "mutability": "mutable",
+                "name": "path",
+                "nameLocation": "171:4:103",
+                "nodeType": "VariableDeclaration",
+                "scope": 18430,
+                "src": "165:10:103",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 18420,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "165:5:103",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 18423,
+                "mutability": "mutable",
+                "name": "recipient",
+                "nameLocation": "193:9:103",
+                "nodeType": "VariableDeclaration",
+                "scope": 18430,
+                "src": "185:17:103",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 18422,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "185:7:103",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 18425,
+                "mutability": "mutable",
+                "name": "amount",
+                "nameLocation": "220:6:103",
+                "nodeType": "VariableDeclaration",
+                "scope": 18430,
+                "src": "212:14:103",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint128",
+                  "typeString": "uint128"
+                },
+                "typeName": {
+                  "id": 18424,
+                  "name": "uint128",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "212:7:103",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint128",
+                    "typeString": "uint128"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 18427,
+                "mutability": "mutable",
+                "name": "minAcquired",
+                "nameLocation": "244:11:103",
+                "nodeType": "VariableDeclaration",
+                "scope": 18430,
+                "src": "236:19:103",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 18426,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "236:7:103",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 18429,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "274:8:103",
+                "nodeType": "VariableDeclaration",
+                "scope": 18430,
+                "src": "266:16:103",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 18428,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "266:7:103",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SwapAmountParams",
+            "nameLocation": "138:16:103",
+            "nodeType": "StructDefinition",
+            "scope": 18442,
+            "src": "131:158:103",
+            "visibility": "public"
+          },
+          {
+            "documentation": {
+              "id": 18431,
+              "nodeType": "StructuredDocumentation",
+              "src": "294:77:103",
+              "text": "@notice Swap given amount of input token, usually used in multi-hop case."
+            },
+            "functionSelector": "75ceafe6",
+            "id": 18441,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapAmount",
+            "nameLocation": "385:10:103",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 18435,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 18434,
+                  "mutability": "mutable",
+                  "name": "params",
+                  "nameLocation": "422:6:103",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18441,
+                  "src": "396:32:103",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SwapAmountParams_$18430_calldata_ptr",
+                    "typeString": "struct IZiSwapQuoter.SwapAmountParams"
+                  },
+                  "typeName": {
+                    "id": 18433,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 18432,
+                      "name": "SwapAmountParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 18430,
+                      "src": "396:16:103"
+                    },
+                    "referencedDeclaration": 18430,
+                    "src": "396:16:103",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapAmountParams_$18430_storage_ptr",
+                      "typeString": "struct IZiSwapQuoter.SwapAmountParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "395:34:103"
+            },
+            "returnParameters": {
+              "id": 18440,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 18437,
+                  "mutability": "mutable",
+                  "name": "cost",
+                  "nameLocation": "488:4:103",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18441,
+                  "src": "480:12:103",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 18436,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "480:7:103",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 18439,
+                  "mutability": "mutable",
+                  "name": "acquire",
+                  "nameLocation": "502:7:103",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18441,
+                  "src": "494:15:103",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 18438,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "494:7:103",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "479:31:103"
+            },
+            "scope": 18442,
+            "src": "376:135:103",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 18443,
+        "src": "100:413:103",
+        "usedErrors": []
+      }
+    ],
+    "src": "32:481:103"
+  },
+  "bytecode": "",
+  "bytecodeSha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "compiler": {
+    "evm_version": "istanbul",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "version": "0.8.13+commit.abaa5c0e"
+  },
+  "contractName": "IZiSwapQuoter",
+  "coverageMap": {
+    "branches": {},
+    "statements": {}
+  },
+  "dependencies": [],
+  "deployedBytecode": "",
+  "deployedSourceMap": "",
+  "language": "Solidity",
+  "natspec": {
+    "kind": "dev",
+    "methods": {
+      "swapAmount((bytes,address,uint128,uint256,uint256))": {
+        "notice": "Swap given amount of input token, usually used in multi-hop case."
+      }
+    },
+    "title": "Interface for LiquidityManager",
+    "version": 1
+  },
+  "offset": [
+    100,
+    513
+  ],
+  "opcodes": "",
+  "pcMap": {},
+  "sha1": "3d147ededf94db97ac55a2d3545769c1db9fe0b5",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\n\n/// @title Interface for LiquidityManager\ninterface IZiSwapQuoter {\n\n    struct SwapAmountParams {\n        bytes path;\n        address recipient;\n        uint128 amount;\n        uint256 minAcquired;\n\n        uint256 deadline;\n    }\n    /// @notice Swap given amount of input token, usually used in multi-hop case.\n    function swapAmount(SwapAmountParams calldata params)\n        external\n        payable\n        returns (uint256 cost, uint256 acquire);\n}",
+  "sourceMap": "",
+  "sourcePath": "contracts/Interfaces/IiZiSwapQuoter.sol",
+  "type": "interface"
+}
