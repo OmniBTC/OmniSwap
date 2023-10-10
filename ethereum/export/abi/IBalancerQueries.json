@@ -1,0 +1,634 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "enum IVault.SwapKind",
+          "name": "kind",
+          "type": "uint8"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "poolId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assetInIndex",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assetOutIndex",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "userData",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct IVault.BatchSwapStep[]",
+          "name": "swaps",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "contract IAsset[]",
+          "name": "assets",
+          "type": "address[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "fromInternalBalance",
+              "type": "bool"
+            },
+            {
+              "internalType": "address payable",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "toInternalBalance",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IVault.FundManagement",
+          "name": "funds",
+          "type": "tuple"
+        }
+      ],
+      "name": "queryBatchSwap",
+      "outputs": [
+        {
+          "internalType": "int256[]",
+          "name": "assetDeltas",
+          "type": "int256[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "poolId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IVault.SwapKind",
+              "name": "kind",
+              "type": "uint8"
+            },
+            {
+              "internalType": "contract IAsset",
+              "name": "assetIn",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IAsset",
+              "name": "assetOut",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "userData",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct IVault.SingleSwap",
+          "name": "singleSwap",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "fromInternalBalance",
+              "type": "bool"
+            },
+            {
+              "internalType": "address payable",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "toInternalBalance",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IVault.FundManagement",
+          "name": "funds",
+          "type": "tuple"
+        }
+      ],
+      "name": "querySwap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "allSourcePaths": {
+    "39": "contracts/Interfaces/IAsset.sol",
+    "40": "contracts/Interfaces/IBalancerQueries.sol"
+  },
+  "ast": {
+    "absolutePath": "contracts/Interfaces/IBalancerQueries.sol",
+    "exportedSymbols": {
+      "IAsset": [
+        17988
+      ],
+      "IBalancerQueries": [
+        18025
+      ],
+      "IERC20": [
+        36162
+      ],
+      "IVault": [
+        26308
+      ],
+      "IWETH": [
+        27107
+      ]
+    },
+    "id": 18026,
+    "license": "GPL-3.0-or-later",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 17990,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "688:23:40"
+      },
+      {
+        "id": 17991,
+        "literals": [
+          "experimental",
+          "ABIEncoderV2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "712:33:40"
+      },
+      {
+        "absolutePath": "contracts/Interfaces/IVault.sol",
+        "file": "./IVault.sol",
+        "id": 17992,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 18026,
+        "sourceUnit": 26309,
+        "src": "747:22:40",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IBalancerQueries",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 17993,
+          "nodeType": "StructuredDocumentation",
+          "src": "771:945:40",
+          "text": " @dev Provides a way to perform queries on swaps, joins and exits, simulating these operations and returning the exact\n result they would have if called on the Vault given the current state. Note that the results will be affected by\n other transactions interacting with the Pools involved.\n All query functions can be called both on-chain and off-chain.\n If calling them from a contract, note that all query functions are not `view`. Despite this, these functions produce\n no net state change, and for all intents and purposes can be thought of as if they were indeed `view`. However,\n calling them via STATICCALL will fail.\n If calling them from an off-chain client, make sure to use eth_call: most clients default to eth_sendTransaction for\n non-view functions.\n In all cases, the `fromInternalBalance` and `toInternalBalance` fields are entirely ignored: we just use the same\n structs for simplicity."
+        },
+        "fullyImplemented": false,
+        "id": 18025,
+        "linearizedBaseContracts": [
+          18025
+        ],
+        "name": "IBalancerQueries",
+        "nameLocation": "1727:16:40",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "functionSelector": "e969f6b3",
+            "id": 18004,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "querySwap",
+            "nameLocation": "1759:9:40",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 18000,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17996,
+                  "mutability": "mutable",
+                  "name": "singleSwap",
+                  "nameLocation": "1803:10:40",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18004,
+                  "src": "1778:35:40",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SingleSwap_$26218_memory_ptr",
+                    "typeString": "struct IVault.SingleSwap"
+                  },
+                  "typeName": {
+                    "id": 17995,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 17994,
+                      "name": "IVault.SingleSwap",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 26218,
+                      "src": "1778:17:40"
+                    },
+                    "referencedDeclaration": 26218,
+                    "src": "1778:17:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SingleSwap_$26218_storage_ptr",
+                      "typeString": "struct IVault.SingleSwap"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 17999,
+                  "mutability": "mutable",
+                  "name": "funds",
+                  "nameLocation": "1852:5:40",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18004,
+                  "src": "1823:34:40",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_FundManagement_$26279_memory_ptr",
+                    "typeString": "struct IVault.FundManagement"
+                  },
+                  "typeName": {
+                    "id": 17998,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 17997,
+                      "name": "IVault.FundManagement",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 26279,
+                      "src": "1823:21:40"
+                    },
+                    "referencedDeclaration": 26279,
+                    "src": "1823:21:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_FundManagement_$26279_storage_ptr",
+                      "typeString": "struct IVault.FundManagement"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1768:95:40"
+            },
+            "returnParameters": {
+              "id": 18003,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 18002,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18004,
+                  "src": "1882:7:40",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 18001,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1882:7:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1881:9:40"
+            },
+            "scope": 18025,
+            "src": "1750:141:40",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "f84d066e",
+            "id": 18024,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "queryBatchSwap",
+            "nameLocation": "1906:14:40",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 18019,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 18007,
+                  "mutability": "mutable",
+                  "name": "kind",
+                  "nameLocation": "1946:4:40",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18024,
+                  "src": "1930:20:40",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_SwapKind_$26186",
+                    "typeString": "enum IVault.SwapKind"
+                  },
+                  "typeName": {
+                    "id": 18006,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 18005,
+                      "name": "IVault.SwapKind",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 26186,
+                      "src": "1930:15:40"
+                    },
+                    "referencedDeclaration": 26186,
+                    "src": "1930:15:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_SwapKind_$26186",
+                      "typeString": "enum IVault.SwapKind"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 18011,
+                  "mutability": "mutable",
+                  "name": "swaps",
+                  "nameLocation": "1990:5:40",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18024,
+                  "src": "1960:35:40",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_BatchSwapStep_$26255_memory_ptr_$dyn_memory_ptr",
+                    "typeString": "struct IVault.BatchSwapStep[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 18009,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 18008,
+                        "name": "IVault.BatchSwapStep",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 26255,
+                        "src": "1960:20:40"
+                      },
+                      "referencedDeclaration": 26255,
+                      "src": "1960:20:40",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_BatchSwapStep_$26255_storage_ptr",
+                        "typeString": "struct IVault.BatchSwapStep"
+                      }
+                    },
+                    "id": 18010,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1960:22:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_BatchSwapStep_$26255_storage_$dyn_storage_ptr",
+                      "typeString": "struct IVault.BatchSwapStep[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 18015,
+                  "mutability": "mutable",
+                  "name": "assets",
+                  "nameLocation": "2021:6:40",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18024,
+                  "src": "2005:22:40",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_contract$_IAsset_$17988_$dyn_memory_ptr",
+                    "typeString": "contract IAsset[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 18013,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 18012,
+                        "name": "IAsset",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 17988,
+                        "src": "2005:6:40"
+                      },
+                      "referencedDeclaration": 17988,
+                      "src": "2005:6:40",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_IAsset_$17988",
+                        "typeString": "contract IAsset"
+                      }
+                    },
+                    "id": 18014,
+                    "nodeType": "ArrayTypeName",
+                    "src": "2005:8:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_contract$_IAsset_$17988_$dyn_storage_ptr",
+                      "typeString": "contract IAsset[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 18018,
+                  "mutability": "mutable",
+                  "name": "funds",
+                  "nameLocation": "2066:5:40",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18024,
+                  "src": "2037:34:40",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_FundManagement_$26279_memory_ptr",
+                    "typeString": "struct IVault.FundManagement"
+                  },
+                  "typeName": {
+                    "id": 18017,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 18016,
+                      "name": "IVault.FundManagement",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 26279,
+                      "src": "2037:21:40"
+                    },
+                    "referencedDeclaration": 26279,
+                    "src": "2037:21:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_FundManagement_$26279_storage_ptr",
+                      "typeString": "struct IVault.FundManagement"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1920:157:40"
+            },
+            "returnParameters": {
+              "id": 18023,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 18022,
+                  "mutability": "mutable",
+                  "name": "assetDeltas",
+                  "nameLocation": "2112:11:40",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18024,
+                  "src": "2096:27:40",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_int256_$dyn_memory_ptr",
+                    "typeString": "int256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 18020,
+                      "name": "int256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "2096:6:40",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int256",
+                        "typeString": "int256"
+                      }
+                    },
+                    "id": 18021,
+                    "nodeType": "ArrayTypeName",
+                    "src": "2096:8:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_int256_$dyn_storage_ptr",
+                      "typeString": "int256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2095:29:40"
+            },
+            "scope": 18025,
+            "src": "1897:228:40",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 18026,
+        "src": "1717:410:40",
+        "usedErrors": []
+      }
+    ],
+    "src": "688:1440:40"
+  },
+  "bytecode": "",
+  "bytecodeSha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "compiler": {
+    "evm_version": "istanbul",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "version": "0.8.13+commit.abaa5c0e"
+  },
+  "contractName": "IBalancerQueries",
+  "coverageMap": {
+    "branches": {},
+    "statements": {}
+  },
+  "dependencies": [
+    "IAsset"
+  ],
+  "deployedBytecode": "",
+  "deployedSourceMap": "",
+  "language": "Solidity",
+  "natspec": {
+    "details": "Provides a way to perform queries on swaps, joins and exits, simulating these operations and returning the exact result they would have if called on the Vault given the current state. Note that the results will be affected by other transactions interacting with the Pools involved. All query functions can be called both on-chain and off-chain. If calling them from a contract, note that all query functions are not `view`. Despite this, these functions produce no net state change, and for all intents and purposes can be thought of as if they were indeed `view`. However, calling them via STATICCALL will fail. If calling them from an off-chain client, make sure to use eth_call: most clients default to eth_sendTransaction for non-view functions. In all cases, the `fromInternalBalance` and `toInternalBalance` fields are entirely ignored: we just use the same structs for simplicity.",
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "offset": [
+    1717,
+    2127
+  ],
+  "opcodes": "",
+  "pcMap": {},
+  "sha1": "48710850d9b101444989fcb5f835b393b9bb8cba",
+  "source": "// SPDX-License-Identifier: GPL-3.0-or-later\n// This program is free software: you can redistribute it and/or modify\n// it under the terms of the GNU General Public License as published by\n// the Free Software Foundation, either version 3 of the License, or\n// (at your option) any later version.\n\n// This program is distributed in the hope that it will be useful,\n// but WITHOUT ANY WARRANTY; without even the implied warranty of\n// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n// GNU General Public License for more details.\n\n// You should have received a copy of the GNU General Public License\n// along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\npragma solidity ^0.8.0;\npragma experimental ABIEncoderV2;\n\nimport \"./IVault.sol\";\n\n/**\n * @dev Provides a way to perform queries on swaps, joins and exits, simulating these operations and returning the exact\n * result they would have if called on the Vault given the current state. Note that the results will be affected by\n * other transactions interacting with the Pools involved.\n *\n * All query functions can be called both on-chain and off-chain.\n *\n * If calling them from a contract, note that all query functions are not `view`. Despite this, these functions produce\n * no net state change, and for all intents and purposes can be thought of as if they were indeed `view`. However,\n * calling them via STATICCALL will fail.\n *\n * If calling them from an off-chain client, make sure to use eth_call: most clients default to eth_sendTransaction for\n * non-view functions.\n *\n * In all cases, the `fromInternalBalance` and `toInternalBalance` fields are entirely ignored: we just use the same\n * structs for simplicity.\n */\ninterface IBalancerQueries {\n    function querySwap(\n        IVault.SingleSwap memory singleSwap,\n        IVault.FundManagement memory funds\n    ) external returns (uint256);\n\n    function queryBatchSwap(\n        IVault.SwapKind kind,\n        IVault.BatchSwapStep[] memory swaps,\n        IAsset[] memory assets,\n        IVault.FundManagement memory funds\n    ) external returns (int256[] memory assetDeltas);\n}\n",
+  "sourceMap": "",
+  "sourcePath": "contracts/Interfaces/IBalancerQueries.sol",
+  "type": "interface"
+}
