@@ -3,7 +3,6 @@ import functools
 import random
 
 import requests
-from brownie import network
 
 
 def get_wormhole_info(package) -> dict:
@@ -24,38 +23,45 @@ def format_emitter_address(addr):
     return addr
 
 
-# network name -> wormhole chain id
-NET_TO_WORMHOLE_CHAIN_ID = {
-    # mainnet
-    "mainnet": 2,
-    "bsc-main": 4,
-    "polygon-main": 5,
-    "avax-main": 6,
-    "optimism-main": 24,
-    "arbitrum-main": 23,
-    "aptos-mainnet": 22,
-    "sui-mainnet": 21,
-    "base-main": 30,
-    # testnet
-    "goerli": 2,
-    "bsc-test": 4,
-    "polygon-test": 5,
-    "avax-test": 6,
-    "optimism-test": 24,
-    "arbitrum-test": 23,
-    "aptos-testnet": 22,
-    "sui-testnet": 21,
-}
+NET = "testnet"
 
-WORMHOLE_GUARDIAN_RPC = [
-    "https://wormhole-v2-mainnet-api.certus.one",
-    "https://wormhole-v2-mainnet-api.mcf.rocks",
-    "https://wormhole-v2-mainnet-api.chainlayer.network",
-    "https://wormhole-v2-mainnet-api.staking.fund",
-]
+# network name -> wormhole chain id
+if NET == "mainnet":
+    NET_TO_WORMHOLE_CHAIN_ID = {
+        # mainnet
+        "mainnet": 2,
+        "bsc-main": 4,
+        "polygon-main": 5,
+        "avax-main": 6,
+        "optimism-main": 24,
+        "arbitrum-main": 23,
+        "aptos-mainnet": 22,
+        "sui-mainnet": 21,
+        "base-main": 30,
+        "solana-mainnet": 1,
+    }
+    WORMHOLE_GUARDIAN_RPC = [
+        "https://wormhole-v2-mainnet-api.certus.one",
+        "https://wormhole-v2-mainnet-api.mcf.rocks",
+        "https://wormhole-v2-mainnet-api.chainlayer.network",
+        "https://wormhole-v2-mainnet-api.staking.fund",
+    ]
+else:
+    NET_TO_WORMHOLE_CHAIN_ID = {
+        # testnet
+        "goerli": 2,
+        "bsc-test": 4,
+        "polygon-test": 5,
+        "avax-test": 6,
+        "optimism-test": 24,
+        "arbitrum-test": 23,
+        "aptos-testnet": 22,
+        "sui-testnet": 21,
+        "solana-testnet": 1,
+    }
+    WORMHOLE_GUARDIAN_RPC = ["https://wormhole-v2-testnet-api.certus.one"]
 
 # Net -> emitter
-
 NET_TO_EMITTER = {
     "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
     "bsc-main": "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
@@ -66,21 +72,29 @@ NET_TO_EMITTER = {
     "aptos-mainnet": "0000000000000000000000000000000000000000000000000000000000000001",
     "sui-mainnet": "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5",
     "base-main": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
+    "solana-mainnet": "0xec7372995d5cc8732397fb0ad35c0121e0eaa90d26f828a534cab54391b3a4f5",
+
+    "goerli": "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
+    "bsc-test": "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
+    "polygon-test": "0x377D55a7928c046E18eEbb61977e714d2a76472a",
+    "avax-test": "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
+    "optimism-test": "0xC7A204bDBFe983FCD8d8E61D02b475D4073fF97e",
+    "arbitrum-test": "0x23908A62110e21C04F3A4e011d24F901F911744A",
+    "aptos-testnet": "0x0000000000000000000000000000000000000000000000000000000000000002",
+    "sui-testnet": "0x6fb10cdb7aa299e9a4308752dadecb049ff55a892de92992a1edbd7912b3d6da",
+    "base-test": "0xA31aa3FDb7aF7Db93d18DDA4e19F811342EDF780",
+    "solana-testnet": "0x3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98"
 }
 
 
 @functools.lru_cache()
 def get_chain_id_to_net():
-    return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" in k}
-    # if "main" in network.show_active():
-    #     return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" in k}
-    # else:
-    #     return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items() if "main" not in k}
+    return {v: k for k, v in NET_TO_WORMHOLE_CHAIN_ID.items()}
 
 
 def get_signed_vaa_by_wormhole(
         sequence: int,
-        emitter_chain_id: str = None
+        emitter_chain_id: str = None,
 ):
     wormhole_url = random.choice(WORMHOLE_GUARDIAN_RPC)
     src_net = get_chain_id_to_net()[emitter_chain_id]

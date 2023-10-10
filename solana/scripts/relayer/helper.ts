@@ -31,12 +31,17 @@ import {deriveClaimKey, derivePostedVaaKey} from "@certusone/wormhole-sdk/lib/cj
 import * as bs58 from "bs58";
 import {ethers} from 'ethers';
 import fs from "fs";
+import path from 'path';
 
 export class PersistentDictionary {
     private data: Record<string, any>;
     private filename: string;
 
     constructor(filename: string) {
+        const directory = path.dirname(filename);
+        if (!fs.existsSync(directory)) {
+            fs.mkdirSync(directory, { recursive: true });
+        }
         this.filename = filename;
         this.loadDataFromFile();
     }

@@ -210,7 +210,7 @@ async function getPendingDataFromEvm(net) {
     const provider = new ethers.providers.JsonRpcProvider(url);
     const contractAddress = NET_TO_CONTRACT[net];
     const defaultValue = NET_TO_DEFAULT_FROM_BLOCK[net];
-    const fromBlockDict = new PersistentDictionary("latestFromBlock.json");
+    const fromBlockDict = new PersistentDictionary("./cache/latestFromBlock.json");
     let fromBlock = fromBlockDict.get(net, defaultValue);
     const latestBlock = await provider.getBlockNumber();
     const data = [];
