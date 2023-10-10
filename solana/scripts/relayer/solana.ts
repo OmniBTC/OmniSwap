@@ -10,6 +10,7 @@ import fs from "fs";
 import axios from "axios";
 import {
     createRedeemNativeTransferWithPayloadInstruction,
+    createRedeemWrappedTransferWithPayloadInstruction,
     parseVaaToWormholePayload,
     PersistentDictionary,
     queryRelayEventByGetLogs
@@ -17,7 +18,7 @@ import {
 import {createObjectCsvWriter} from 'csv-writer';
 import * as dotenv from 'dotenv';
 import {ethers} from 'ethers';
-import {parseTokenTransferPayload} from "@certusone/wormhole-sdk/lib/cjs/vaa/tokenBridge";
+import {postVaaSolana} from "@certusone/wormhole-sdk";
 
 
 const ARGS = process.argv.slice(2);
@@ -48,6 +49,7 @@ let SOLANA_URL;
 let NET_TO_RPC;
 let NET_TO_CONTRACT;
 let NET_TO_DEFAULT_FROM_BLOCK;
+let SODIAMOND;
 
 // @ts-ignore
 if (NET !== "solana-mainnet") {
@@ -71,6 +73,7 @@ if (NET !== "solana-mainnet") {
     NET_TO_CONTRACT = {
         "bsc-test": "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
     }
+    SODIAMOND = "0x7ef1dcda48c0b739dfd4da982c187838573cc044d8ded9fe382b84ceb6fa6b53"
     NET_TO_DEFAULT_FROM_BLOCK = {
         "bsc-test": 34041250
     }
@@ -122,6 +125,7 @@ if (NET !== "solana-mainnet") {
         "avax-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "mainnet": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
     }
+    SODIAMOND = ""
     NET_TO_EMITTER = {
         "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
         "bsc-main": "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
@@ -206,6 +210,10 @@ function getRandomItem<T>(items: T[]): T | undefined {
     return items[randomIndex];
 }
 
+function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function getPendingDataFromEvm(net) {
     /*
     struct TransferWithPayload {
@@ -237,7 +245,7 @@ async function getPendingDataFromEvm(net) {
     const data = [];
     while (fromBlock <= latestBlock) {
         const toBlock = Math.min(fromBlock + 1000, latestBlock);
-        logWithTimestamp(`Query log fromBlock:${fromBlock} toBlock:${toBlock}`);
+        logWithTimestamp(`Query log fromBlock:${fromBlock} toBlock:${toBlock} latestBlock:${latestBlock}`);
         const logs = await queryRelayEventByGetLogs(provider, contractAddress, fromBlock, toBlock);
         fromBlock = toBlock + 1;
         fromBlockDict.set(net, fromBlock);
@@ -265,6 +273,8 @@ async function getPendingDataFromEvm(net) {
             return data;
         }
     }
+    logWithTimestamp(`Pending latest block, sleep 3s`);
+    await sleep(3000);
     return data;
 }
 
@@ -315,64 +325,70 @@ async function processVaa(
     sequence,
     extrinsicHash,
 ): Promise<boolean> {
-    const payload = parseVaaToWormholePayload(vaa);
-    const payAddress = payer.publicKey.toString();
-    // if (payload.dstMaxGasPrice !== 1000000000000) {
-    //     logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstMaxGasPrice != ${payload.dstMaxGasPrice}`)
-    //     return false;
-    // }
-    // if (!vaa.toString("hex").includes(remove0x(dstSoDiamond))) {
-    //     logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} not found dstSoDiamond:${dstSoDiamond}`)
-    //     return false;
-    // }
-    // logWithTimestamp("postVaaSolana")
-    // await postVaaSolana(
-    //     connection,
-    //     async (transaction) => {
-    //         transaction.partialSign(payer);
-    //         return transaction;
-    //     },
-    //     CORE_BRIDGE_PID,
-    //     payAddress,
-    //     vaa
-    // );
-    logWithTimestamp("createRedeemNativeTransferWithPayloadInstruction")
-    let dstTx;
-    const ix = await createRedeemNativeTransferWithPayloadInstruction(
-        connection,
-        OMNISWAP_PID,
-        payer,
-        TOKEN_BRIDGE_PID,
-        CORE_BRIDGE_PID,
-        vaa
-    );
-    dstTx = await sendAndConfirmIx(connection, payer, ix);
+    try {
+        const payload = parseVaaToWormholePayload(vaa);
+        // if (payload.dstMaxGasPrice !== 1000000000000) {
+        //     logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstMaxGasPrice ${payload.dstMaxGasPrice}!=1000000000000`)
+        //     return false;
+        // }
+        if (payload.to.toString("hex") !== remove0x(dstSoDiamond)) {
+            logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstSoDiamond:${payload.to.toString("hex")}!=${dstSoDiamond}`)
+            return false;
+        }
+    } catch (error) {
+        logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
+        return false;
+    }
+    try {
+        const payAddress = payer.publicKey.toString();
+        await postVaaSolana(
+            connection,
+            async (transaction) => {
+                transaction.partialSign(payer);
+                return transaction;
+            },
+            CORE_BRIDGE_PID,
+            payAddress,
+            vaa
+        );
+        logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} finish`)
+    } catch (error) {
+        logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
+    }
 
-    // try {
-    //     const ix = await createRedeemNativeTransferWithPayloadInstruction(
-    //         connection,
-    //         OMNISWAP_PID,
-    //         payAddress,
-    //         TOKEN_BRIDGE_PID,
-    //         CORE_BRIDGE_PID,
-    //         vaa
-    //     );
-    //     dstTx = await sendAndConfirmIx(connection, payer, ix);
-    //
-    // } catch (error) {
-    //     logWithTimestamp(error)
-    //     const ix = await createRedeemWrappedTransferWithPayloadInstruction(
-    //         connection,
-    //         OMNISWAP_PID,
-    //         payAddress,
-    //         TOKEN_BRIDGE_PID,
-    //         CORE_BRIDGE_PID,
-    //         vaa
-    //     );
-    //     dstTx = await sendAndConfirmIx(connection, payer, ix);
-    // }
-    recordGas(extrinsicHash, dstTx);
-    return true;
+    try {
+        const ix = await createRedeemNativeTransferWithPayloadInstruction(
+            connection,
+            OMNISWAP_PID,
+            payer,
+            TOKEN_BRIDGE_PID,
+            CORE_BRIDGE_PID,
+            vaa
+        );
+        const dstTx = await sendAndConfirmIx(connection, payer, ix);
+        recordGas(extrinsicHash, dstTx);
+        return true;
+    } catch (error) {
+        logWithTimestamp(`RedeemNative for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
+    }
+
+    try {
+        const ix = await createRedeemWrappedTransferWithPayloadInstruction(
+            connection,
+            OMNISWAP_PID,
+            payer,
+            TOKEN_BRIDGE_PID,
+            CORE_BRIDGE_PID,
+            vaa
+        );
+        const dstTx = await sendAndConfirmIx(connection, payer, ix);
+        recordGas(extrinsicHash, dstTx);
+        return true;
+    } catch (error) {
+        logWithTimestamp(`RedeemWrapped for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
+    }
+
+    return false;
 }
 
 function recordGas(
@@ -397,7 +413,7 @@ function recordGas(
     csvWriter.writeRecords(data)
         .then(() => {
         })
-        .catch((error) => {
+        .catch(() => {
         });
 }
 
@@ -420,16 +436,27 @@ async function processV2(
         } else {
             lastPendingTime = currentTimeStamp;
         }
-        logWithTimestamp("Get pending data")
-        const pendingData = await getPendingDataFromEvm("bsc-test");
-        // const pendingData = await getPendingData(dstWormholeChainId);
-        logWithTimestamp(`Get signed vaa length: ${pendingData.length}`)
+        let pendingData;
+        try {
+            pendingData = await getPendingDataFromEvm("bsc-test");
+            // const pendingData = await getPendingData(dstWormholeChainId);
+            logWithTimestamp(`Get signed vaa length: ${pendingData.length}`)
+        } catch (error) {
+            logWithTimestamp(`Get pending data error: ${error}`)
+            continue
+        }
+
         for (const d of pendingData) {
-            logWithTimestamp("Get signed vaa")
-            const vaa = await getSignedVaaByWormhole(d["sequence"], d["srcWormholeChainId"])
-            if (vaa == null) {
-                logWithTimestamp(`Waiting vaa for emitterChainId: ${d["srcWormholeChainId"]}, sequence:${d["sequence"]}`);
-                continue;
+            let vaa;
+            try {
+                vaa = await getSignedVaaByWormhole(d["sequence"], d["srcWormholeChainId"])
+                if (vaa == null) {
+                    logWithTimestamp(`Waiting vaa for emitterChainId: ${d["srcWormholeChainId"]}, sequence:${d["sequence"]}`);
+                    continue;
+                }
+            } catch (error) {
+                logWithTimestamp(`Get signed vaa for: emitterChainId: ${d["srcWormholeChainId"]}, sequence:${d["sequence"]} error: ${error}`);
+                continue
             }
             const hasKey = `${d["sequence"]}@${d["srcWormholeChainId"]}`;
             if (hasProcess.has(hasKey) && currentTimeStamp <= hasProcess.get(hasKey) + 10 * 60) {
@@ -446,7 +473,7 @@ async function processV2(
 
 async function main() {
     logWithTimestamp(`Start solana relayer ${NET} ....`)
-    await processV2(SOLANA_EMITTER_CHAIN, NET_TO_EMITTER[NET]);
+    await processV2(SOLANA_EMITTER_CHAIN, SODIAMOND);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
