@@ -36,6 +36,10 @@ pub struct SenderConfig {
     pub bump: u8,
     /// Token Bridge program's relevant addresses.
     pub token_bridge: OutboundTokenBridgeAddresses,
+    /// Actual relayer fee scale factor
+    pub actual_reserve: u64,
+    /// Estimate relayer fee scale factor
+    pub estimate_reserve: u64,
 }
 
 impl SenderConfig {
@@ -43,6 +47,8 @@ impl SenderConfig {
         + 32 // owner
         + 1 // bump
         + OutboundTokenBridgeAddresses::LEN
+        + 8 // actual_reserve
+        + 8 // estimate_reserve
     ;
     /// AKA `b"sender"`.
     pub const SEED_PREFIX: &'static [u8; 6] = token_bridge::SEED_PREFIX_SENDER;
@@ -64,6 +70,8 @@ pub mod test {
             + size_of::<Pubkey>()
             + size_of::<u8>()
             + size_of::<OutboundTokenBridgeAddresses>()
+            + size_of::<u64>()
+            + size_of::<u64>()
         );
 
         Ok(())

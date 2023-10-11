@@ -5,3 +5,4 @@ pub use sender_config::{OutboundTokenBridgeAddresses, SenderConfig};
 pub mod foreign_contract;
 pub mod redeemer_config;
 pub mod sender_config;
+pub mod price_manager;

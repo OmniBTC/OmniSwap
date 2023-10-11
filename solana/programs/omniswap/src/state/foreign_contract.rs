@@ -1,6 +1,8 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, AnchorDeserialize, AnchorSerialize};
+use spl_math::uint::U256;
 
 use crate::PostedSoSwapMessage;
+use crate::cross::NormalizedWormholeData;
 
 #[account]
 #[derive(Default)]
@@ -9,9 +11,14 @@ pub struct ForeignContract {
     /// Emitter chain. Cannot equal `1` (Solana's Chain ID).
     pub chain: u16,
     /// Emitter address. Cannot be zero address.
+    /// Left-zero-padded if shorter than 32 bytes
     pub address: [u8; 32],
     /// Token Bridge program's foreign endpoint account key.
     pub token_bridge_foreign_endpoint: Pubkey,
+    /// Normalized target chain minimum consumption of gas
+    pub normalized_dst_base_gas: [u8; 32],
+    /// Normalized target chain gas per bytes
+    pub normalized_dst_gas_per_bytes: [u8; 32],
 }
 
 impl ForeignContract {
@@ -19,6 +26,8 @@ impl ForeignContract {
         + 2 // chain
         + 32 // address
         + 32 // token_bridge_foreign_endpoint
+        + 32 // normalized_dst_base_gas
+        + 32 // normalized_dst_gas_per_bytes
     ;
     /// AKA `b"foreign_contract"`.
     pub const SEED_PREFIX: &'static [u8; 16] = b"foreign_contract";
@@ -27,6 +36,27 @@ impl ForeignContract {
     /// this account.
     pub fn verify(&self, vaa: &PostedSoSwapMessage) -> bool {
         vaa.emitter_chain() == self.chain && *vaa.data().from_address() == self.address
+    }
+
+    pub fn estimate_complete_soswap_gas(
+        &self,
+        so_data: Vec<u8>,
+        wormhole_data: NormalizedWormholeData,
+        swap_data_dst: Vec<u8>
+    ) -> U256 {
+        let len = 32 + 32 + 1 + so_data.len() + 1 + swap_data_dst.len();
+
+        if wormhole_data.dst_wormhole_chain_id != self.chain {
+            return U256::zero()
+        }
+
+        let dst_base_gas = U256::from_little_endian(&self.normalized_dst_base_gas);
+        let dst_gas_per_bytes = U256::from_little_endian(&self.normalized_dst_gas_per_bytes);
+
+        dst_base_gas.checked_add(
+            dst_gas_per_bytes
+                .checked_mul(U256::from(len)).unwrap()
+        ).unwrap_or_default()
     }
 }
 
@@ -48,11 +78,17 @@ pub mod test {
 
         let chain: u16 = 2;
         let address = Pubkey::new_unique().to_bytes();
+        let dst_base_gas = U256::one();
+        let dst_gas_per_bytes = U256::one();
         let token_bridge_foreign_endpoint = Pubkey::new_unique();
+        let normalized_dst_base_gas = Pubkey::new_unique().to_bytes();
+        let normalized_dst_gas_per_bytes = Pubkey::new_unique().to_bytes();
         let foreign_contract = ForeignContract {
             chain,
             address,
             token_bridge_foreign_endpoint,
+            normalized_dst_base_gas,
+            normalized_dst_gas_per_bytes,
         };
 
         let vaa = PostedSoSwapMessage {

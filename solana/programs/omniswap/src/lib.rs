@@ -27,13 +27,9 @@ pub mod omniswap {
     /// config so we can verify these accounts with a simple == constraint.
     pub fn initialize(
         ctx: Context<Initialize>,
-        relayer_fee: u32,
-        relayer_fee_precision: u32,
+        actual_reserve: u64,
+        estimate_reserve: u64,
     ) -> Result<()> {
-        require!(
-            relayer_fee < relayer_fee_precision,
-            SoSwapError::InvalidRelayerFee,
-        );
 
         // Initialize program's sender config
         let sender_config = &mut ctx.accounts.sender_config;
@@ -41,6 +37,8 @@ pub mod omniswap {
         // Set the owner of the sender config (effectively the owner of the
         // program).
         sender_config.owner = ctx.accounts.owner.key();
+        sender_config.actual_reserve = actual_reserve;
+        sender_config.estimate_reserve = estimate_reserve;
         sender_config.bump = *ctx
             .bumps
             .get("sender_config")
@@ -81,8 +79,24 @@ pub mod omniswap {
         Ok(())
     }
 
+    /// Set relayer fee scale factor
+    pub fn set_wormhole_reserve(
+        ctx: Context<SetWormholeReserve>,
+        actual_reserve: u64,
+        estimate_reserve: u64
+    ) -> Result<()> {
+
+        let config = &mut ctx.accounts.config;
+        config.actual_reserve = actual_reserve;
+        config.estimate_reserve = estimate_reserve;
+
+        // Done.
+        Ok(())
+    }
+
     /// This instruction registers a new foreign contract (from another
-    /// network) and saves the emitter information in a ForeignEmitter account.
+    /// network) and saves the emitter information in a ForeignEmitter account
+    /// and price ratio information in a PriceManager account.
     /// This instruction is owner-only, meaning that only the owner of the
     /// program (defined in the [Config] account) can add and update foreign
     /// contracts.
@@ -91,11 +105,19 @@ pub mod omniswap {
     ///
     /// * `ctx`     - `RegisterForeignContract` context
     /// * `chain`   - Wormhole Chain ID
-    /// * `address` - Wormhole Emitter Address
+    /// * `address` - Wormhole Emitter Address. Left-zero-padded if shorter than 32 bytes
+    /// * `normalized_dst_base_gas_le` - Normalized target chain minimum consumption of gas
+    /// * `normalized_dst_gas_per_bytes_le` - Normalized target chain gas per bytes
+    /// * `price_manager` - Who can update current_price_ratio
+    /// * `init_price_ratio` - Current price ratio
     pub fn register_foreign_contract(
         ctx: Context<RegisterForeignContract>,
         chain: u16,
         address: [u8; 32],
+        normalized_dst_base_gas_le: [u8; 32],
+        normalized_dst_gas_per_bytes_le: [u8; 32],
+        price_manager_owner: Pubkey,
+        init_price_ratio: u64
     ) -> Result<()> {
         // Foreign emitter cannot share the same Wormhole Chain ID as the
         // Solana Wormhole program's. And cannot register a zero address.
@@ -109,6 +131,29 @@ pub mod omniswap {
         emitter.chain = chain;
         emitter.address = address;
         emitter.token_bridge_foreign_endpoint = ctx.accounts.token_bridge_foreign_endpoint.key();
+        emitter.normalized_dst_base_gas = normalized_dst_base_gas_le;
+        emitter.normalized_dst_gas_per_bytes = normalized_dst_gas_per_bytes_le;
+
+        let price_manager = &mut ctx.accounts.price_manager;
+        price_manager.owner = price_manager_owner;
+        price_manager.current_price_ratio = init_price_ratio;
+        price_manager.last_update_timestamp = ctx.accounts.clock.unix_timestamp as u64;
+
+        // Done.
+        Ok(())
+    }
+
+    /// Set the target chain price ratio
+    /// Note: the owner of PriceManager can be overwrite by register_foreign_contract
+    pub fn set_price_ratio(
+        ctx: Context<SetPriceManager>,
+        _chain: u16,
+        new_price_ratio: u64,
+    ) -> Result<()> {
+
+        let price_manager = &mut ctx.accounts.price_manager;
+        price_manager.current_price_ratio = new_price_ratio;
+        price_manager.last_update_timestamp = ctx.accounts.clock.unix_timestamp as u64;
 
         // Done.
         Ok(())

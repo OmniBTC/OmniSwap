@@ -8,6 +8,7 @@ use wormhole_anchor_sdk::{token_bridge, wormhole};
 use super::{
     state::{ForeignContract, RedeemerConfig, SenderConfig},
     cross::NormalizedSoData,
+    price_manager::PriceManager,
     SoSwapError, PostedSoSwapMessage,
 };
 
@@ -142,6 +143,23 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
+pub struct SetWormholeReserve<'info> {
+    #[account(mut)]
+    /// Whoever initializes the config will be the owner of the program. Signer
+    /// for creating the [`SenderConfig`] and [`RedeemerConfig`] accounts.
+    pub owner: Signer<'info>,
+
+    #[account(
+        mut,
+        has_one = owner @ SoSwapError::OwnerOnly,
+        seeds = [SenderConfig::SEED_PREFIX],
+        bump
+    )]
+    /// Sender Config account.
+    pub config: Box<Account<'info, SenderConfig>>,
+}
+
+#[derive(Accounts)]
 #[instruction(chain: u16)]
 pub struct RegisterForeignContract<'info> {
     #[account(mut)]
@@ -174,6 +192,22 @@ pub struct RegisterForeignContract<'info> {
     pub foreign_contract: Box<Account<'info, ForeignContract>>,
 
     #[account(
+        init_if_needed,
+        payer = owner,
+        seeds = [
+            ForeignContract::SEED_PREFIX,
+            &chain.to_le_bytes()[..],
+            PriceManager::SEED_PREFIX
+        ],
+        bump,
+        space = PriceManager::MAXIMUM_SIZE
+    )]
+    /// Price manager account. Create this account if an emitter has not been
+    /// registered yet for this Wormhole chain ID. If there already is a
+    /// contract address saved in this account, overwrite it.
+    pub price_manager: Account<'info, PriceManager>,
+
+    #[account(
         seeds = [
             &chain.to_be_bytes(),
             token_bridge_foreign_endpoint.emitter_address.as_ref()
@@ -192,8 +226,35 @@ pub struct RegisterForeignContract<'info> {
 
     /// System program.
     pub system_program: Program<'info, System>,
+
+    /// Clock used for price manager.
+    pub clock: Sysvar<'info, Clock>,
 }
 
+#[derive(Accounts)]
+#[instruction(chain: u16)]
+pub struct SetPriceManager<'info> {
+    #[account(mut)]
+    /// Owner of the program set in the [`PriceManager`] account. Signer for
+    /// updating [`PriceManager`] account.
+    pub owner: Signer<'info>,
+
+    #[account(
+        mut,
+        has_one = owner @ SoSwapError::OwnerOnly,
+        seeds = [
+            ForeignContract::SEED_PREFIX,
+            &chain.to_le_bytes()[..],
+            PriceManager::SEED_PREFIX
+        ],
+        bump
+    )]
+    /// Price Manager account.
+    pub price_manager: Box<Account<'info, PriceManager>>,
+
+    /// Clock used for price manager.
+    pub clock: Sysvar<'info, Clock>,
+}
 
 #[derive(Accounts)]
 #[instruction(
@@ -201,7 +262,6 @@ pub struct RegisterForeignContract<'info> {
     amount: u64,
     wormhole_data: Vec<u8>,
     so_data: Vec<u8>,
-    swap_data: Vec<u8>
 )]
 pub struct SendNativeTokensWithPayload<'info> {
     /// Payer will pay Wormhole fee to transfer tokens and create temporary
@@ -498,7 +558,6 @@ pub struct RedeemNativeTransferWithPayload<'info> {
     amount: u64,
     wormhole_data: Vec<u8>,
     so_data: Vec<u8>,
-    swap_data: Vec<u8>
 )]
 pub struct SendWrappedTokensWithPayload<'info> {
     #[account(mut)]
