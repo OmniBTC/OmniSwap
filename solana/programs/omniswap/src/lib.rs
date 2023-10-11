@@ -68,8 +68,6 @@ pub mod omniswap {
             .bumps
             .get("redeemer_config")
             .ok_or(SoSwapError::BumpNotFound)?;
-        redeemer_config.relayer_fee = relayer_fee;
-        redeemer_config.relayer_fee_precision = relayer_fee_precision;
 
         // Set Token Bridge related addresses.
         {
@@ -111,24 +109,6 @@ pub mod omniswap {
         emitter.chain = chain;
         emitter.address = address;
         emitter.token_bridge_foreign_endpoint = ctx.accounts.token_bridge_foreign_endpoint.key();
-
-        // Done.
-        Ok(())
-    }
-
-    pub fn update_relayer_fee(
-        ctx: Context<UpdateRelayerFee>,
-        relayer_fee: u32,
-        relayer_fee_precision: u32,
-    ) -> Result<()> {
-        require!(
-            relayer_fee < relayer_fee_precision,
-            SoSwapError::InvalidRelayerFee,
-        );
-
-        let config = &mut ctx.accounts.config;
-        config.relayer_fee = relayer_fee;
-        config.relayer_fee_precision = relayer_fee_precision;
 
         // Done.
         Ok(())
@@ -300,11 +280,9 @@ pub mod omniswap {
         );
 
         // These seeds are used to:
-        // 1.  Redeem Token Bridge program's
-        //     complete_transfer_native_with_payload.
-        // 2.  Transfer tokens to relayer if he exists.
-        // 3.  Transfer remaining tokens to recipient.
-        // 4.  Close tmp_token_account.
+        // 1.  Redeem Token Bridge program's complete_transfer_native_with_payload.
+        // 2.  Transfer tokens to recipient.
+        // 3.  Close tmp_token_account.
         let config_seeds = &[
             RedeemerConfig::SEED_PREFIX.as_ref(),
             &[ctx.accounts.config.bump],
@@ -337,68 +315,19 @@ pub mod omniswap {
             ctx.accounts.mint.decimals,
         );
 
-        // If this instruction were executed by a relayer, send some of the
-        // token amount (determined by the relayer fee) to the payer's token
-        // account.
-        if ctx.accounts.payer.key() != ctx.accounts.recipient.key() {
-            // Does the relayer have an aassociated token account already? If
-            // not, he needs to create one.
-            require!(
-                !ctx.accounts.payer_token_account.data_is_empty(),
-                SoSwapError::NonExistentRelayerAta
-            );
-
-            let relayer_amount = ctx.accounts.config.compute_relayer_amount(amount);
-
-            // Pay the relayer if there is anything for him.
-            if relayer_amount > 0 {
-                anchor_spl::token::transfer(
-                    CpiContext::new_with_signer(
-                        ctx.accounts.token_program.to_account_info(),
-                        anchor_spl::token::Transfer {
-                            from: ctx.accounts.tmp_token_account.to_account_info(),
-                            to: ctx.accounts.payer_token_account.to_account_info(),
-                            authority: ctx.accounts.config.to_account_info(),
-                        },
-                        &[&config_seeds[..]],
-                    ),
-                    relayer_amount,
-                )?;
-            }
-
-            msg!(
-                "RedeemNativeTransferWithPayload :: relayed by {:?}",
-                ctx.accounts.payer.key()
-            );
-
-            // Transfer tokens from tmp_token_account to recipient.
-            anchor_spl::token::transfer(
-                CpiContext::new_with_signer(
-                    ctx.accounts.token_program.to_account_info(),
-                    anchor_spl::token::Transfer {
-                        from: ctx.accounts.tmp_token_account.to_account_info(),
-                        to: ctx.accounts.recipient_token_account.to_account_info(),
-                        authority: ctx.accounts.config.to_account_info(),
-                    },
-                    &[&config_seeds[..]],
-                ),
-                amount - relayer_amount,
-            )?;
-        } else {
-            // Transfer tokens from tmp_token_account to recipient.
-            anchor_spl::token::transfer(
-                CpiContext::new_with_signer(
-                    ctx.accounts.token_program.to_account_info(),
-                    anchor_spl::token::Transfer {
-                        from: ctx.accounts.tmp_token_account.to_account_info(),
-                        to: ctx.accounts.recipient_token_account.to_account_info(),
-                        authority: ctx.accounts.config.to_account_info(),
-                    },
-                    &[&config_seeds[..]],
-                ),
-                amount,
-            )?;
-        }
+        // Transfer tokens from tmp_token_account to recipient.
+        anchor_spl::token::transfer(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                anchor_spl::token::Transfer {
+                    from: ctx.accounts.tmp_token_account.to_account_info(),
+                    to: ctx.accounts.recipient_token_account.to_account_info(),
+                    authority: ctx.accounts.config.to_account_info(),
+                },
+                &[&config_seeds[..]],
+            ),
+            amount,
+        )?;
 
         // Finish instruction by closing tmp_token_account.
         anchor_spl::token::close_account(CpiContext::new_with_signer(
@@ -570,9 +499,8 @@ pub mod omniswap {
         // These seeds are used to:
         // 1.  Redeem Token Bridge program's
         //     complete_transfer_wrapped_with_payload.
-        // 2.  Transfer tokens to relayer if he exists.
-        // 3.  Transfer remaining tokens to recipient.
-        // 4.  Close tmp_token_account.
+        // 2.  Transfer tokens to recipient.
+        // 3.  Close tmp_token_account.
         let config_seeds = &[
             RedeemerConfig::SEED_PREFIX.as_ref(),
             &[ctx.accounts.config.bump],
@@ -602,68 +530,19 @@ pub mod omniswap {
 
         let amount = ctx.accounts.vaa.data().amount();
 
-        // If this instruction were executed by a relayer, send some of the
-        // token amount (determined by the relayer fee) to the payer's token
-        // account.
-        if ctx.accounts.payer.key() != ctx.accounts.recipient.key() {
-            // Does the relayer have an aassociated token account already? If
-            // not, he needs to create one.
-            require!(
-                !ctx.accounts.payer_token_account.data_is_empty(),
-                SoSwapError::NonExistentRelayerAta
-            );
-
-            let relayer_amount = ctx.accounts.config.compute_relayer_amount(amount);
-
-            // Pay the relayer if there is anything for him.
-            if relayer_amount > 0 {
-                anchor_spl::token::transfer(
-                    CpiContext::new_with_signer(
-                        ctx.accounts.token_program.to_account_info(),
-                        anchor_spl::token::Transfer {
-                            from: ctx.accounts.tmp_token_account.to_account_info(),
-                            to: ctx.accounts.payer_token_account.to_account_info(),
-                            authority: ctx.accounts.config.to_account_info(),
-                        },
-                        &[&config_seeds[..]],
-                    ),
-                    relayer_amount,
-                )?;
-            }
-
-            msg!(
-                "RedeemWrappedTransferWithPayload :: relayed by {:?}",
-                ctx.accounts.payer.key()
-            );
-
-            // Transfer tokens from tmp_token_account to recipient.
-            anchor_spl::token::transfer(
-                CpiContext::new_with_signer(
-                    ctx.accounts.token_program.to_account_info(),
-                    anchor_spl::token::Transfer {
-                        from: ctx.accounts.tmp_token_account.to_account_info(),
-                        to: ctx.accounts.recipient_token_account.to_account_info(),
-                        authority: ctx.accounts.config.to_account_info(),
-                    },
-                    &[&config_seeds[..]],
-                ),
-                amount - relayer_amount,
-            )?;
-        } else {
-            // Transfer tokens from tmp_token_account to recipient.
-            anchor_spl::token::transfer(
-                CpiContext::new_with_signer(
-                    ctx.accounts.token_program.to_account_info(),
-                    anchor_spl::token::Transfer {
-                        from: ctx.accounts.tmp_token_account.to_account_info(),
-                        to: ctx.accounts.recipient_token_account.to_account_info(),
-                        authority: ctx.accounts.config.to_account_info(),
-                    },
-                    &[&config_seeds[..]],
-                ),
-                amount,
-            )?;
-        }
+        // Transfer tokens from tmp_token_account to recipient.
+        anchor_spl::token::transfer(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                anchor_spl::token::Transfer {
+                    from: ctx.accounts.tmp_token_account.to_account_info(),
+                    to: ctx.accounts.recipient_token_account.to_account_info(),
+                    authority: ctx.accounts.config.to_account_info(),
+                },
+                &[&config_seeds[..]],
+            ),
+            amount,
+        )?;
 
         // Finish instruction by closing tmp_token_account.
         anchor_spl::token::close_account(CpiContext::new_with_signer(

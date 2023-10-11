@@ -194,26 +194,6 @@ pub struct RegisterForeignContract<'info> {
     pub system_program: Program<'info, System>,
 }
 
-#[derive(Accounts)]
-pub struct UpdateRelayerFee<'info> {
-    #[account(mut)]
-    /// CHECK: Owner of the program set in the [`RedeemerConfig`] account.
-    pub owner: UncheckedAccount<'info>,
-
-    #[account(
-        mut,
-        has_one = owner @ SoSwapError::OwnerOnly,
-        seeds = [RedeemerConfig::SEED_PREFIX],
-        bump
-    )]
-    /// Redeemer Config account. This program requires that the `owner`
-    /// specified in the context equals the pubkey specified in this account.
-    /// Mutable.
-    pub config: Box<Account<'info, RedeemerConfig>>,
-
-    /// System program.
-    pub system_program: Program<'info, System>,
-}
 
 #[derive(Accounts)]
 #[instruction(
@@ -381,14 +361,6 @@ pub struct RedeemNativeTransferWithPayload<'info> {
     /// Payer will pay Wormhole fee to transfer tokens and create temporary
     /// token account.
     pub payer: Signer<'info>,
-
-    #[account(
-        mut,
-        constraint = payer.key() == recipient.key() || payer_token_account.key() == anchor_spl::associated_token::get_associated_token_address(&payer.key(), &mint.key()) @ SoSwapError::InvalidPayerAta
-    )]
-    /// CHECK: Payer's token account. If payer != recipient, must be an
-    /// associated token account. Mutable.
-    pub payer_token_account: UncheckedAccount<'info>,
 
     #[account(
         seeds = [RedeemerConfig::SEED_PREFIX],
@@ -687,14 +659,6 @@ pub struct RedeemWrappedTransferWithPayload<'info> {
     /// Payer will pay Wormhole fee to transfer tokens and create temporary
     /// token account.
     pub payer: Signer<'info>,
-
-    #[account(
-        mut,
-        constraint = payer.key() == recipient.key() || payer_token_account.key() == anchor_spl::associated_token::get_associated_token_address(&payer.key(), &token_bridge_wrapped_mint.key()) @ SoSwapError::InvalidPayerAta
-    )]
-    /// CHECK: Payer's token account. If payer != recipient, must be an
-    /// associated token account.
-    pub payer_token_account: UncheckedAccount<'info>,
 
     #[account(
         seeds = [RedeemerConfig::SEED_PREFIX],

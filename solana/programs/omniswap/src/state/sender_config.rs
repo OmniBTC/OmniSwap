@@ -36,10 +36,6 @@ pub struct SenderConfig {
     pub bump: u8,
     /// Token Bridge program's relevant addresses.
     pub token_bridge: OutboundTokenBridgeAddresses,
-
-    /// AKA consistency level. u8 representation of Solana's
-    /// [Finality](wormhole_anchor_sdk::wormhole::Finality).
-    pub finality: u8,
 }
 
 impl SenderConfig {
@@ -47,8 +43,6 @@ impl SenderConfig {
         + 32 // owner
         + 1 // bump
         + OutboundTokenBridgeAddresses::LEN
-        + 1 // finality
-        
     ;
     /// AKA `b"sender"`.
     pub const SEED_PREFIX: &'static [u8; 6] = token_bridge::SEED_PREFIX_SENDER;
@@ -70,7 +64,7 @@ pub mod test {
             + size_of::<Pubkey>()
             + size_of::<u8>()
             + size_of::<OutboundTokenBridgeAddresses>()
-            + size_of::<u8>());
+        );
 
         Ok(())
     }

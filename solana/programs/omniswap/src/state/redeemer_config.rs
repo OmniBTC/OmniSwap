@@ -25,11 +25,7 @@ pub struct RedeemerConfig {
     /// PDA bump.
     pub bump: u8,
     /// Token Bridge program's relevant addresses.
-    pub token_bridge: InboundTokenBridgeAddresses,
-
-    /// Relayer Fee
-    pub relayer_fee: u32,
-    pub relayer_fee_precision: u32,
+    pub token_bridge: InboundTokenBridgeAddresses
 }
 
 impl RedeemerConfig {
@@ -37,16 +33,10 @@ impl RedeemerConfig {
         + 32 // owner
         + 1 // bump
         + InboundTokenBridgeAddresses::LEN
-        + 4 // relayer_fee
-        + 4 // relayer_fee_precision
-        ;
+    ;
 
     /// AKA `b"redeemer"`.
     pub const SEED_PREFIX: &'static [u8; 8] = token_bridge::SEED_PREFIX_REDEEMER;
-
-    pub fn compute_relayer_amount(&self, amount: u64) -> u64 {
-        (amount * self.relayer_fee as u64) / self.relayer_fee_precision as u64
-    }
 }
 
 #[cfg(test)]
@@ -66,8 +56,6 @@ pub mod test {
                 + size_of::<Pubkey>()
                 + size_of::<u8>()
                 + size_of::<InboundTokenBridgeAddresses>()
-                + size_of::<u32>()
-                + size_of::<u32>()
         );
 
         Ok(())
