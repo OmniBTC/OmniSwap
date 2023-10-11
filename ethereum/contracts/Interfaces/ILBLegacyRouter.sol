@@ -37,32 +37,43 @@ interface ILBLegacyRouter {
 
     function oldFactory() external view returns (address);
 
-    function getIdFromPrice(ILBLegacyPair LBPair, uint256 price) external view returns (uint24);
+    function getIdFromPrice(ILBLegacyPair LBPair, uint256 price)
+        external
+        view
+        returns (uint24);
 
-    function getPriceFromId(ILBLegacyPair LBPair, uint24 id) external view returns (uint256);
+    function getPriceFromId(ILBLegacyPair LBPair, uint24 id)
+        external
+        view
+        returns (uint256);
 
-    function getSwapIn(ILBLegacyPair lbPair, uint256 amountOut, bool swapForY)
-    external
-    view
-    returns (uint256 amountIn, uint256 feesIn);
+    function getSwapIn(
+        ILBLegacyPair lbPair,
+        uint256 amountOut,
+        bool swapForY
+    ) external view returns (uint256 amountIn, uint256 feesIn);
 
-    function getSwapOut(ILBLegacyPair lbPair, uint256 amountIn, bool swapForY)
-    external
-    view
-    returns (uint256 amountOut, uint256 feesIn);
+    function getSwapOut(
+        ILBLegacyPair lbPair,
+        uint256 amountIn,
+        bool swapForY
+    ) external view returns (uint256 amountOut, uint256 feesIn);
 
-    function createLBPair(IERC20 tokenX, IERC20 tokenY, uint24 activeId, uint16 binStep)
-    external
-    returns (ILBLegacyPair pair);
+    function createLBPair(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint24 activeId,
+        uint16 binStep
+    ) external returns (ILBLegacyPair pair);
 
     function addLiquidity(LiquidityParameters calldata liquidityParameters)
-    external
-    returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
+        external
+        returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
 
     function addLiquidityAVAX(LiquidityParameters calldata liquidityParameters)
-    external
-    payable
-    returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
+        external
+        payable
+        returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
 
     function removeLiquidity(
         IERC20 tokenX,
@@ -165,8 +176,16 @@ interface ILBLegacyRouter {
         uint256 deadline
     ) external payable returns (uint256 amountOut);
 
-    function sweep(IERC20 token, address to, uint256 amount) external;
+    function sweep(
+        IERC20 token,
+        address to,
+        uint256 amount
+    ) external;
 
-    function sweepLBToken(ILBToken _lbToken, address _to, uint256[] calldata _ids, uint256[] calldata _amounts)
-    external;
+    function sweepLBToken(
+        ILBToken _lbToken,
+        address _to,
+        uint256[] calldata _ids,
+        uint256[] calldata _amounts
+    ) external;
 }

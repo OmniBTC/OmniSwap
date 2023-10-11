@@ -17,9 +17,21 @@ interface ILBFactory is IPendingOwnable {
     error LBFactory__QuoteAssetNotWhitelisted(IERC20 quoteAsset);
     error LBFactory__QuoteAssetAlreadyWhitelisted(IERC20 quoteAsset);
     error LBFactory__AddressZero();
-    error LBFactory__LBPairAlreadyExists(IERC20 tokenX, IERC20 tokenY, uint256 _binStep);
-    error LBFactory__LBPairDoesNotExist(IERC20 tokenX, IERC20 tokenY, uint256 binStep);
-    error LBFactory__LBPairNotCreated(IERC20 tokenX, IERC20 tokenY, uint256 binStep);
+    error LBFactory__LBPairAlreadyExists(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint256 _binStep
+    );
+    error LBFactory__LBPairDoesNotExist(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint256 binStep
+    );
+    error LBFactory__LBPairNotCreated(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint256 binStep
+    );
     error LBFactory__FlashLoanFeeAboveMax(uint256 fees, uint256 maxFees);
     error LBFactory__BinStepTooLow(uint256 binStep);
     error LBFactory__PresetIsLockedForUsers(address user, uint256 binStep);
@@ -47,14 +59,21 @@ interface ILBFactory is IPendingOwnable {
     }
 
     event LBPairCreated(
-        IERC20 indexed tokenX, IERC20 indexed tokenY, uint256 indexed binStep, ILBPair LBPair, uint256 pid
+        IERC20 indexed tokenX,
+        IERC20 indexed tokenY,
+        uint256 indexed binStep,
+        ILBPair LBPair,
+        uint256 pid
     );
 
     event FeeRecipientSet(address oldRecipient, address newRecipient);
 
     event FlashLoanFeeSet(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
 
-    event LBPairImplementationSet(address oldLBPairImplementation, address LBPairImplementation);
+    event LBPairImplementationSet(
+        address oldLBPairImplementation,
+        address LBPairImplementation
+    );
 
     event LBPairIgnoredStateChanged(ILBPair indexed LBPair, bool ignored);
 
@@ -97,41 +116,56 @@ interface ILBFactory is IPendingOwnable {
 
     function isQuoteAsset(IERC20 token) external view returns (bool);
 
-    function getLBPairInformation(IERC20 tokenX, IERC20 tokenY, uint256 binStep)
-    external
-    view
-    returns (LBPairInformation memory);
+    function getLBPairInformation(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint256 binStep
+    ) external view returns (LBPairInformation memory);
 
     function getPreset(uint256 binStep)
-    external
-    view
-    returns (
-        uint256 baseFactor,
-        uint256 filterPeriod,
-        uint256 decayPeriod,
-        uint256 reductionFactor,
-        uint256 variableFeeControl,
-        uint256 protocolShare,
-        uint256 maxAccumulator,
-        bool isOpen
-    );
+        external
+        view
+        returns (
+            uint256 baseFactor,
+            uint256 filterPeriod,
+            uint256 decayPeriod,
+            uint256 reductionFactor,
+            uint256 variableFeeControl,
+            uint256 protocolShare,
+            uint256 maxAccumulator,
+            bool isOpen
+        );
 
-    function getAllBinSteps() external view returns (uint256[] memory presetsBinStep);
+    function getAllBinSteps()
+        external
+        view
+        returns (uint256[] memory presetsBinStep);
 
-    function getOpenBinSteps() external view returns (uint256[] memory openBinStep);
+    function getOpenBinSteps()
+        external
+        view
+        returns (uint256[] memory openBinStep);
 
     function getAllLBPairs(IERC20 tokenX, IERC20 tokenY)
-    external
-    view
-    returns (LBPairInformation[] memory LBPairsBinStep);
+        external
+        view
+        returns (LBPairInformation[] memory LBPairsBinStep);
 
     function setLBPairImplementation(address lbPairImplementation) external;
 
-    function createLBPair(IERC20 tokenX, IERC20 tokenY, uint24 activeId, uint16 binStep)
-    external
-    returns (ILBPair pair);
+    function createLBPair(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint24 activeId,
+        uint16 binStep
+    ) external returns (ILBPair pair);
 
-    function setLBPairIgnored(IERC20 tokenX, IERC20 tokenY, uint16 binStep, bool ignored) external;
+    function setLBPairIgnored(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint16 binStep,
+        bool ignored
+    ) external;
 
     function setPreset(
         uint16 binStep,
