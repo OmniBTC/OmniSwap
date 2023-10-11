@@ -16,7 +16,10 @@ interface IPendingOwnable {
 
     event PendingOwnerSet(address indexed pendingOwner);
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     function owner() external view returns (address);
 

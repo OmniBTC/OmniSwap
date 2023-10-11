@@ -21,9 +21,9 @@ def main(net: str = None):
     p.load_config()
     change_network(net)
     deployed_contract = [
-        "LibSoFeeGenericV2",
+        # "LibSoFeeGenericV2",
         "GenericSwapFacet",
-        "LibCorrectSwapV1"
+        # "LibCorrectSwapV1"
         # "Claim"
         # "CCTPFacet",
         # "LibCorrectSwapV1",
@@ -45,4 +45,4 @@ def main(net: str = None):
 
 
 if __name__ == "__main__":
-    main("avax-main")
+    main("zkevm-main")

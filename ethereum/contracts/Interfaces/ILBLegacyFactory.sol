@@ -24,7 +24,11 @@ interface ILBLegacyFactory is IPendingOwnable {
     }
 
     event LBPairCreated(
-        IERC20 indexed tokenX, IERC20 indexed tokenY, uint256 indexed binStep, ILBLegacyPair LBPair, uint256 pid
+        IERC20 indexed tokenX,
+        IERC20 indexed tokenY,
+        uint256 indexed binStep,
+        ILBLegacyPair LBPair,
+        uint256 pid
     );
 
     event FeeRecipientSet(address oldRecipient, address newRecipient);
@@ -46,7 +50,10 @@ interface ILBLegacyFactory is IPendingOwnable {
 
     event FactoryLockedStatusUpdated(bool unlocked);
 
-    event LBPairImplementationSet(address oldLBPairImplementation, address LBPairImplementation);
+    event LBPairImplementationSet(
+        address oldLBPairImplementation,
+        address LBPairImplementation
+    );
 
     event LBPairIgnoredStateChanged(ILBLegacyPair indexed LBPair, bool ignored);
 
@@ -94,39 +101,51 @@ interface ILBLegacyFactory is IPendingOwnable {
 
     function getNumberOfLBPairs() external view returns (uint256);
 
-    function getLBPairInformation(IERC20 tokenX, IERC20 tokenY, uint256 binStep)
-    external
-    view
-    returns (LBPairInformation memory);
+    function getLBPairInformation(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint256 binStep
+    ) external view returns (LBPairInformation memory);
 
     function getPreset(uint16 binStep)
-    external
-    view
-    returns (
-        uint256 baseFactor,
-        uint256 filterPeriod,
-        uint256 decayPeriod,
-        uint256 reductionFactor,
-        uint256 variableFeeControl,
-        uint256 protocolShare,
-        uint256 maxAccumulator,
-        uint256 sampleLifetime
-    );
+        external
+        view
+        returns (
+            uint256 baseFactor,
+            uint256 filterPeriod,
+            uint256 decayPeriod,
+            uint256 reductionFactor,
+            uint256 variableFeeControl,
+            uint256 protocolShare,
+            uint256 maxAccumulator,
+            uint256 sampleLifetime
+        );
 
-    function getAllBinSteps() external view returns (uint256[] memory presetsBinStep);
+    function getAllBinSteps()
+        external
+        view
+        returns (uint256[] memory presetsBinStep);
 
     function getAllLBPairs(IERC20 tokenX, IERC20 tokenY)
-    external
-    view
-    returns (LBPairInformation[] memory LBPairsBinStep);
+        external
+        view
+        returns (LBPairInformation[] memory LBPairsBinStep);
 
     function setLBPairImplementation(address LBPairImplementation) external;
 
-    function createLBPair(IERC20 tokenX, IERC20 tokenY, uint24 activeId, uint16 binStep)
-    external
-    returns (ILBLegacyPair pair);
+    function createLBPair(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint24 activeId,
+        uint16 binStep
+    ) external returns (ILBLegacyPair pair);
 
-    function setLBPairIgnored(IERC20 tokenX, IERC20 tokenY, uint256 binStep, bool ignored) external;
+    function setLBPairIgnored(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint256 binStep,
+        bool ignored
+    ) external;
 
     function setPreset(
         uint16 binStep,

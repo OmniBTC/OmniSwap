@@ -141,9 +141,7 @@ interface IiZiSwapPool {
     /// @return lastFeeScaleY_128 fee growth of tokenY inside the range as of the last mint/burn/collect,
     /// @return tokenOwedX the computed amount of tokenX miner can collect as of the last mint/burn/collect,
     /// @return tokenOwedY the computed amount of tokenY miner can collect as of the last mint/burn/collect
-    function liquidity(
-        bytes32 key
-    )
+    function liquidity(bytes32 key)
         external
         view
         returns (
@@ -162,9 +160,7 @@ interface IiZiSwapPool {
     /// @return earn amount of unlegacy earned tokenX in this limit order not assigned
     /// @return legacyEarn amount of legacy earned tokenX in this limit order not assgined
     /// @return earnAssign assigned amount of tokenX earned (both legacy and unlegacy) in this limit order
-    function userEarnX(
-        bytes32 key
-    )
+    function userEarnX(bytes32 key)
         external
         view
         returns (
@@ -184,9 +180,7 @@ interface IiZiSwapPool {
     /// @return earn amount of unlegacy earned tokenY in this limit order not assigned
     /// @return legacyEarn amount of legacy earned tokenY in this limit order not assgined
     /// @return earnAssign assigned amount of tokenY earned (both legacy and unlegacy) in this limit order
-    function userEarnY(
-        bytes32 key
-    )
+    function userEarnY(bytes32 key)
         external
         view
         returns (
@@ -225,20 +219,18 @@ interface IiZiSwapPool {
     /// @param deltaX max amount of tokenX seller wants to decrease
     /// @return actualDeltaX actual amount of tokenX decreased
     /// @return legacyAccEarn legacyAccEarnY of pointOrder at point when calling this interface
-    function decLimOrderWithX(
-        int24 point,
-        uint128 deltaX
-    ) external returns (uint128 actualDeltaX, uint256 legacyAccEarn);
+    function decLimOrderWithX(int24 point, uint128 deltaX)
+        external
+        returns (uint128 actualDeltaX, uint256 legacyAccEarn);
 
     /// @notice Decrease limitorder of selling Y.
     /// @param point point of seller's limit order, be sure to be times of pointDelta
     /// @param deltaY max amount of tokenY seller wants to decrease
     /// @return actualDeltaY actual amount of tokenY decreased
     /// @return legacyAccEarn legacyAccEarnX of pointOrder at point when calling this interface
-    function decLimOrderWithY(
-        int24 point,
-        uint128 deltaY
-    ) external returns (uint128 actualDeltaY, uint256 legacyAccEarn);
+    function decLimOrderWithY(int24 point, uint128 deltaY)
+        external
+        returns (uint128 actualDeltaY, uint256 legacyAccEarn);
 
     /// @notice Add a limit order (selling x) in the pool.
     /// @param recipient owner of the limit order
@@ -422,9 +414,7 @@ interface IiZiSwapPool {
     /// @return legacyEarnX total amount of unclaimed earned tokenX for legacy (cleared during swap) sellingY
     /// @return accEarnX total amount of earned tokenX(via selling tokenY) by all users at this point as of the last swap
     /// @return legacyAccEarnX latest recorded 'accEarnX' value when sellingY is clear (legacy)
-    function limitOrderData(
-        int24 point
-    )
+    function limitOrderData(int24 point)
         external
         view
         returns (
@@ -450,9 +440,14 @@ interface IiZiSwapPool {
     /// @return timestamp the timestamp of the observation,
     /// @return accPoint the point multiplied by seconds elapsed for the life of the pool as of the observation timestamp,
     /// @return init whether the observation has been initialized and the above values are safe to use
-    function observations(
-        uint256 index
-    ) external view returns (uint32 timestamp, int56 accPoint, bool init);
+    function observations(uint256 index)
+        external
+        view
+        returns (
+            uint32 timestamp,
+            int56 accPoint,
+            bool init
+        );
 
     /// @notice Point status in the pool.
     /// @param point the point
@@ -461,9 +456,7 @@ interface IiZiSwapPool {
     /// @return accFeeXOut_128 the fee growth on the other side of the point from the current point in tokenX
     /// @return accFeeYOut_128 the fee growth on the other side of the point from the current point in tokenY
     /// @return isEndpt whether the point is an endpoint of a some miner's liquidity, true if liquidSum > 0
-    function points(
-        int24 point
-    )
+    function points(int24 point)
         external
         view
         returns (
@@ -484,9 +477,10 @@ interface IiZiSwapPool {
     /// (accPoints[1] - accPoints[0]) / 3600
     /// @param secondsAgos describe the target timestamp , targetTimestimp[i] = block.timestamp - secondsAgo[i]
     /// @return accPoints integral value of point(time) from 0 to each target timestamp
-    function observe(
-        uint32[] calldata secondsAgos
-    ) external view returns (int56[] memory accPoints);
+    function observe(uint32[] calldata secondsAgos)
+        external
+        view
+        returns (int56[] memory accPoints);
 
     /// @notice Expand max-length of observation queue.
     /// @param newNextQueueLen new value of observationNextQueueLen, which should be greater than current observationNextQueueLen
@@ -512,10 +506,10 @@ interface IiZiSwapPool {
     ///    note 1. delta liquidity here is amount of liquidity changed when cross a point from left to right
     ///    note 2. deltaLiquidities only contains points which are times of pointDelta
     ///    note 3. this function may cost a ENORMOUS amount of gas, be careful to call
-    function liquiditySnapshot(
-        int24 leftPoint,
-        int24 rightPoint
-    ) external view returns (int128[] memory deltaLiquidities);
+    function liquiditySnapshot(int24 leftPoint, int24 rightPoint)
+        external
+        view
+        returns (int128[] memory deltaLiquidities);
 
     struct LimitOrderStruct {
         uint128 sellingX;
@@ -531,10 +525,10 @@ interface IiZiSwapPool {
     /// @param rightPoint right endpoint of range, should be times of pointDelta
     /// @return limitOrders an array of Limit Orders for points in the range
     ///    note 1. this function may cost a HUGE amount of gas, be careful to call
-    function limitOrderSnapshot(
-        int24 leftPoint,
-        int24 rightPoint
-    ) external view returns (LimitOrderStruct[] memory limitOrders);
+    function limitOrderSnapshot(int24 leftPoint, int24 rightPoint)
+        external
+        view
+        returns (LimitOrderStruct[] memory limitOrders);
 
     /// @notice Amount of charged fee on tokenX.
     function totalFeeXCharged() external view returns (uint256);

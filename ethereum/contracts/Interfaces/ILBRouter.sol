@@ -19,7 +19,11 @@ import {IWNATIVE} from "./IWNATIVE.sol";
  */
 interface ILBRouter {
     error LBRouter__SenderIsNotWNATIVE();
-    error LBRouter__PairNotCreated(address tokenX, address tokenY, uint256 binStep);
+    error LBRouter__PairNotCreated(
+        address tokenX,
+        address tokenY,
+        uint256 binStep
+    );
     error LBRouter__WrongAmounts(uint256 amount, uint256 reserve);
     error LBRouter__SwapOverflows(uint256 id);
     error LBRouter__BrokenSwapSafetyCheck();
@@ -29,18 +33,37 @@ interface ILBRouter {
     error LBRouter__IdOverflows(int256 id);
     error LBRouter__LengthsMismatch();
     error LBRouter__WrongTokenOrder();
-    error LBRouter__IdSlippageCaught(uint256 activeIdDesired, uint256 idSlippage, uint256 activeId);
-    error LBRouter__AmountSlippageCaught(uint256 amountXMin, uint256 amountX, uint256 amountYMin, uint256 amountY);
+    error LBRouter__IdSlippageCaught(
+        uint256 activeIdDesired,
+        uint256 idSlippage,
+        uint256 activeId
+    );
+    error LBRouter__AmountSlippageCaught(
+        uint256 amountXMin,
+        uint256 amountX,
+        uint256 amountYMin,
+        uint256 amountY
+    );
     error LBRouter__IdDesiredOverflows(uint256 idDesired, uint256 idSlippage);
     error LBRouter__FailedToSendNATIVE(address recipient, uint256 amount);
-    error LBRouter__DeadlineExceeded(uint256 deadline, uint256 currentTimestamp);
+    error LBRouter__DeadlineExceeded(
+        uint256 deadline,
+        uint256 currentTimestamp
+    );
     error LBRouter__AmountSlippageBPTooBig(uint256 amountSlippage);
-    error LBRouter__InsufficientAmountOut(uint256 amountOutMin, uint256 amountOut);
+    error LBRouter__InsufficientAmountOut(
+        uint256 amountOutMin,
+        uint256 amountOut
+    );
     error LBRouter__MaxAmountInExceeded(uint256 amountInMax, uint256 amountIn);
     error LBRouter__InvalidTokenPath(address wrongToken);
     error LBRouter__InvalidVersion(uint256 version);
     error LBRouter__WrongNativeLiquidityParameters(
-        address tokenX, address tokenY, uint256 amountX, uint256 amountY, uint256 msgValue
+        address tokenX,
+        address tokenY,
+        uint256 amountX,
+        uint256 amountY,
+        uint256 msgValue
     );
 
     /**
@@ -113,46 +136,73 @@ interface ILBRouter {
 
     function getWNATIVE() external view returns (IWNATIVE);
 
-    function getIdFromPrice(ILBPair LBPair, uint256 price) external view returns (uint24);
+    function getIdFromPrice(ILBPair LBPair, uint256 price)
+        external
+        view
+        returns (uint24);
 
-    function getPriceFromId(ILBPair LBPair, uint24 id) external view returns (uint256);
+    function getPriceFromId(ILBPair LBPair, uint24 id)
+        external
+        view
+        returns (uint256);
 
-    function getSwapIn(ILBPair LBPair, uint128 amountOut, bool swapForY)
-    external
-    view
-    returns (uint128 amountIn, uint128 amountOutLeft, uint128 fee);
+    function getSwapIn(
+        ILBPair LBPair,
+        uint128 amountOut,
+        bool swapForY
+    )
+        external
+        view
+        returns (
+            uint128 amountIn,
+            uint128 amountOutLeft,
+            uint128 fee
+        );
 
-    function getSwapOut(ILBPair LBPair, uint128 amountIn, bool swapForY)
-    external
-    view
-    returns (uint128 amountInLeft, uint128 amountOut, uint128 fee);
+    function getSwapOut(
+        ILBPair LBPair,
+        uint128 amountIn,
+        bool swapForY
+    )
+        external
+        view
+        returns (
+            uint128 amountInLeft,
+            uint128 amountOut,
+            uint128 fee
+        );
 
-    function createLBPair(IERC20 tokenX, IERC20 tokenY, uint24 activeId, uint16 binStep)
-    external
-    returns (ILBPair pair);
+    function createLBPair(
+        IERC20 tokenX,
+        IERC20 tokenY,
+        uint24 activeId,
+        uint16 binStep
+    ) external returns (ILBPair pair);
 
     function addLiquidity(LiquidityParameters calldata liquidityParameters)
-    external
-    returns (
-        uint256 amountXAdded,
-        uint256 amountYAdded,
-        uint256 amountXLeft,
-        uint256 amountYLeft,
-        uint256[] memory depositIds,
-        uint256[] memory liquidityMinted
-    );
+        external
+        returns (
+            uint256 amountXAdded,
+            uint256 amountYAdded,
+            uint256 amountXLeft,
+            uint256 amountYLeft,
+            uint256[] memory depositIds,
+            uint256[] memory liquidityMinted
+        );
 
-    function addLiquidityNATIVE(LiquidityParameters calldata liquidityParameters)
-    external
-    payable
-    returns (
-        uint256 amountXAdded,
-        uint256 amountYAdded,
-        uint256 amountXLeft,
-        uint256 amountYLeft,
-        uint256[] memory depositIds,
-        uint256[] memory liquidityMinted
-    );
+    function addLiquidityNATIVE(
+        LiquidityParameters calldata liquidityParameters
+    )
+        external
+        payable
+        returns (
+            uint256 amountXAdded,
+            uint256 amountYAdded,
+            uint256 amountXLeft,
+            uint256 amountYLeft,
+            uint256[] memory depositIds,
+            uint256[] memory liquidityMinted
+        );
 
     function removeLiquidity(
         IERC20 tokenX,
@@ -193,10 +243,12 @@ interface ILBRouter {
         uint256 deadline
     ) external returns (uint256 amountOut);
 
-    function swapExactNATIVEForTokens(uint256 amountOutMin, Path memory path, address to, uint256 deadline)
-    external
-    payable
-    returns (uint256 amountOut);
+    function swapExactNATIVEForTokens(
+        uint256 amountOutMin,
+        Path memory path,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256 amountOut);
 
     function swapTokensForExactTokens(
         uint256 amountOut,
@@ -214,10 +266,12 @@ interface ILBRouter {
         uint256 deadline
     ) external returns (uint256[] memory amountsIn);
 
-    function swapNATIVEForExactTokens(uint256 amountOut, Path memory path, address to, uint256 deadline)
-    external
-    payable
-    returns (uint256[] memory amountsIn);
+    function swapNATIVEForExactTokens(
+        uint256 amountOut,
+        Path memory path,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256[] memory amountsIn);
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint256 amountIn,
@@ -242,8 +296,16 @@ interface ILBRouter {
         uint256 deadline
     ) external payable returns (uint256 amountOut);
 
-    function sweep(IERC20 token, address to, uint256 amount) external;
+    function sweep(
+        IERC20 token,
+        address to,
+        uint256 amount
+    ) external;
 
-    function sweepLBToken(ILBToken _lbToken, address _to, uint256[] calldata _ids, uint256[] calldata _amounts)
-    external;
+    function sweepLBToken(
+        ILBToken _lbToken,
+        address _to,
+        uint256[] calldata _ids,
+        uint256[] calldata _amounts
+    ) external;
 }

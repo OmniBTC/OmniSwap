@@ -868,3 +868,16 @@ def redeploy_correct_swap():
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {"from": account})
+
+
+def fix_libswap():
+    account = get_account()
+    register_data = [[zero_address(), 2, ["0xdedaee82"]]]
+    proxy_cut = Contract.from_abi(
+        "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi
+    )
+    try:
+        proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
+    except Exception as e:
+        print(e)
+    add_cut([GenericSwapFacet])
