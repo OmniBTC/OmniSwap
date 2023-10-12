@@ -43,25 +43,17 @@ interface IiZiSwap {
 
     /// @notice Swap tokenY for tokenX, given max amount of tokenY user willing to pay
     /// @param swapParams params(for example: max amount in above line), see SwapParams for more
-    function swapY2X(SwapParams calldata swapParams)
-        external
-        payable;
+    function swapY2X(SwapParams calldata swapParams) external payable;
 
     /// @notice Swap tokenY for tokenX, given user's desired amount of tokenX.
     /// @param swapParams params(for example: desired amount in above line), see SwapParams for more
-    function swapY2XDesireX(SwapParams calldata swapParams)
-        external
-        payable;
+    function swapY2XDesireX(SwapParams calldata swapParams) external payable;
 
     /// @notice Swap tokenX for tokenY, given max amount of tokenX user willing to pay.
     /// @param swapParams params(for example: max amount in above line), see SwapParams for more
-    function swapX2Y(SwapParams calldata swapParams)
-        external
-        payable;
+    function swapX2Y(SwapParams calldata swapParams) external payable;
 
     /// @notice Swap tokenX for tokenY, given amount of tokenY user desires.
     /// @param swapParams params(for example: desired amount in above line), see SwapParams for more
-    function swapX2YDesireY(SwapParams calldata swapParams)
-        external
-        payable;
+    function swapX2YDesireY(SwapParams calldata swapParams) external payable;
 }
