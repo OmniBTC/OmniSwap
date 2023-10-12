@@ -108,4 +108,12 @@ pub enum SoSwapError {
     #[msg("InvalidTokenBridgeMintAuthority")]
     /// Specified Token Bridge mint authority PDA is wrong.
     InvalidTokenBridgeMintAuthority,
+
+    #[msg("InvalidDataLength")]
+    /// Deserialize SoSwapMessage must be valid data len
+    InvalidDataLength,
+
+    #[msg("DeserializeSoSwapMessageFail")]
+    /// Deserialize SoSwapMessage fail
+    DeserializeSoSwapMessageFail,
 }

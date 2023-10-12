@@ -1,4 +1,5 @@
 use spl_math::uint::U256;
+use crate::error::SoSwapError;
 
 pub fn serialize_u8(buf: &mut Vec<u8>, v: u8) {
     buf.push(v)
@@ -69,62 +70,103 @@ pub fn serialize_vector_with_length(buf: &mut Vec<u8>, v: &[u8]) {
     serialize_vector(buf, v);
 }
 
-pub fn get_vector_length(buf: &[u8]) -> u64 {
+pub fn get_vector_length(buf: &[u8]) -> Result<u64, SoSwapError> {
     deserialize_u64(&buf[0..8])
 }
 
-pub fn deserialize_vector_with_length(buf: &[u8]) -> Vec<u8> {
+pub fn deserialize_vector_with_length(buf: &[u8]) -> Result<Vec<u8>, SoSwapError> {
     let buf_len = buf.len();
     if buf_len == 0 {
-        return Vec::new()
+        return Ok(Vec::new())
     }
 
-    assert!(buf_len > 8, "EINVALID_LENGTH");
-    let data_len = deserialize_u64(&buf[0..8]);
+    let data_len = deserialize_u64(&buf[0..8])?;
     let total_len = (data_len + 8) as usize;
 
-    assert_eq!(buf_len, total_len, "EINVALID_LENGTH");
+    if buf_len != total_len {
+        return Err(SoSwapError::InvalidDataLength)
+    }
 
-    buf[8..total_len].to_vec()
+    Ok(buf[8..total_len].to_vec())
 }
 
-pub fn deserialize_u8(buf: &[u8]) -> u8 {
-    assert_eq!(buf.len(), 1, "EINVALID_LENGTH");
+pub fn deserialize_u8(buf: &[u8]) -> Result<u8, SoSwapError> {
+    if buf.len() != 1 {
+        return Err(SoSwapError::InvalidDataLength)
+    }
 
-    buf[0]
+    Ok(buf[0])
 }
 
-pub fn deserialize_u16(buf: &[u8]) -> u16 {
-    assert_eq!(buf.len(), 2, "EINVALID_LENGTH");
+pub fn deserialize_u16(buf: &[u8]) -> Result<u16, SoSwapError> {
+    if buf.len() != 2 {
+        return Err(SoSwapError::InvalidDataLength)
+    }
 
-    u16::from_be_bytes(buf.try_into().unwrap())
+    Ok(
+        u16::from_be_bytes(
+            buf
+                .try_into()
+                .map_err(|_| SoSwapError::InvalidDataLength)?
+        )
+    )
 }
 
-pub fn deserialize_u64(buf: &[u8]) -> u64 {
-    assert_eq!(buf.len(), 8, "EINVALID_LENGTH");
+pub fn deserialize_u64(buf: &[u8]) -> Result<u64, SoSwapError> {
+    if buf.len() != 8 {
+        return Err(SoSwapError::InvalidDataLength)
+    }
 
-    u64::from_be_bytes(buf.try_into().unwrap())
+    Ok(
+        u64::from_be_bytes(
+            buf
+                .try_into()
+                .map_err(|_| SoSwapError::InvalidDataLength)?
+        )
+    )
 }
 
-pub fn deserialize_u128(buf: &[u8]) -> u128 {
-    assert_eq!(buf.len(), 16, "EINVALID_LENGTH");
+pub fn deserialize_u128(buf: &[u8]) -> Result<u128, SoSwapError> {
+    if buf.len() != 16 {
+        return Err(SoSwapError::InvalidDataLength)
+    }
 
-    u128::from_be_bytes(buf.try_into().unwrap())
+    Ok(
+        u128::from_be_bytes(
+            buf
+                .try_into()
+                .map_err(|_| SoSwapError::InvalidDataLength)?
+        )
+    )
 }
 
-pub fn deserialize_u256(buf: &[u8]) -> U256 {
-    assert_eq!(buf.len(), 32, "EINVALID_LENGTH");
+pub fn deserialize_u256(buf: &[u8]) -> Result<U256, SoSwapError> {
+    if buf.len() != 32 {
+        return Err(SoSwapError::InvalidDataLength)
+    }
 
-    U256::from_big_endian(buf.try_into().unwrap())
+    Ok(
+        U256::from_big_endian(
+            buf
+                .try_into()
+                .map_err(|_| SoSwapError::InvalidDataLength)?
+        )
+    )
 }
 
-pub fn deserialize_u128_with_hex_str(buf: &[u8]) -> u128 {
+pub fn deserialize_u128_with_hex_str(buf: &[u8]) -> Result<u128, SoSwapError> {
     const  MAX_LEN: usize = 16usize;
 
     let buf_len = buf.len();
 
     if buf_len >= MAX_LEN {
-        return u128::from_be_bytes(buf.try_into().unwrap())
+        return Ok(
+            u128::from_be_bytes(
+                buf
+                    .try_into()
+                    .map_err(|_| SoSwapError::InvalidDataLength)?
+            )
+        )
     }
 
     let padding_len = MAX_LEN - buf_len;
@@ -132,16 +174,29 @@ pub fn deserialize_u128_with_hex_str(buf: &[u8]) -> u128 {
 
     padding_buf.extend_from_slice(buf);
 
-    u128::from_be_bytes(padding_buf.try_into().unwrap())
+    Ok(
+        u128::from_be_bytes(
+            padding_buf
+                .as_slice()
+                .try_into()
+                .map_err(|_| SoSwapError::InvalidDataLength)?
+        )
+    )
 }
 
-pub fn deserialize_u256_with_hex_str(buf: &[u8]) -> U256 {
+pub fn deserialize_u256_with_hex_str(buf: &[u8]) -> Result<U256, SoSwapError> {
     const  MAX_LEN: usize = 32usize;
 
     let buf_len = buf.len();
 
     if buf_len >= MAX_LEN {
-        return U256::from_big_endian(buf.try_into().unwrap())
+        return Ok(
+            U256::from_big_endian(
+                buf
+                    .try_into()
+                    .map_err(|_| SoSwapError::InvalidDataLength)?
+            )
+        )
     }
 
     let padding_len = MAX_LEN - buf_len;
@@ -149,7 +204,12 @@ pub fn deserialize_u256_with_hex_str(buf: &[u8]) -> U256 {
 
     padding_buf.extend_from_slice(buf);
 
-    U256::from_big_endian(padding_buf.as_slice().try_into().unwrap())
+    Ok(U256::from_big_endian(
+        padding_buf
+            .as_slice()
+            .try_into()
+            .map_err(|_| SoSwapError::InvalidDataLength)?
+    ))
 }
 
 
@@ -159,7 +219,7 @@ pub mod test {
     use super::*;
 
     #[test]
-    fn test_serialize() {
+    fn test_serialize() -> Result<(), SoSwapError> {
         let mut data = Vec::<u8>::new();
 
         serialize_u8(&mut data, 1);
@@ -208,45 +268,49 @@ pub mod test {
         let mut data = Vec::<u8>::new();
         serialize_u128_with_hex_str(&mut data, 0);
         assert_eq!(data, vec![0]);
+
+        Ok(())
     }
 
     #[test]
-    fn test_deserialize() {
-        let data = deserialize_u8(&vec![1]);
+    fn test_deserialize() -> Result<(), SoSwapError> {
+        let data = deserialize_u8(&vec![1])?;
         assert_eq!(data, 1);
 
-        let data = deserialize_u16(&vec![1, 2]);
+        let data = deserialize_u16(&vec![1, 2])?;
         assert_eq!(data, 258u16);
 
-        let data = deserialize_u64(&vec![1, 2, 3, 4, 5, 6, 7, 8]);
+        let data = deserialize_u64(&vec![1, 2, 3, 4, 5, 6, 7, 8])?;
         assert_eq!(data, 72623859790382856u64);
 
-        let data = deserialize_u128(&vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+        let data = deserialize_u128(&vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])?;
         assert_eq!(data, 1339673755198158349044581307228491536u128);
 
         let data = deserialize_u256(
             &vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
-        );
+        )?;
         assert_eq!(data, U256::from(1339673755198158349044581307228491536u128).shl(128).add(22690724228668807036942595891182575392u128));
 
-        let data = deserialize_vector_with_length(&vec![0, 0, 0, 0, 0, 0, 0, 8, 1, 2, 3, 4, 5, 6, 7, 8]);
+        let data = deserialize_vector_with_length(&vec![0, 0, 0, 0, 0, 0, 0, 8, 1, 2, 3, 4, 5, 6, 7, 8])?;
         assert_eq!(data, vec![1, 2, 3, 4, 5, 6, 7, 8]);
 
         let data = deserialize_u256_with_hex_str(
             &vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
-        );
+        )?;
         assert_eq!(data, U256::from(1339673755198158349044581307228491536u128).shl(128).add(22690724228668807036942595891182575392u128));
 
-        let data = deserialize_u256_with_hex_str(&vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        let data = deserialize_u256_with_hex_str(&vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])?;
         assert_eq!(data, U256::from(1).shl(128));
 
-        let data = deserialize_u256_with_hex_str(&vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 123]);
+        let data = deserialize_u256_with_hex_str(&vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 123])?;
         assert_eq!(data, U256::from(1).shl(128).add(123));
 
-        let data = deserialize_u256_with_hex_str(&vec![123]);
+        let data = deserialize_u256_with_hex_str(&vec![123])?;
         assert_eq!(data, U256::from(123));
 
-        let data = deserialize_u256_with_hex_str(&vec![0]);
+        let data = deserialize_u256_with_hex_str(&vec![0])?;
         assert_eq!(data, U256::zero());
+
+        Ok(())
     }
 }

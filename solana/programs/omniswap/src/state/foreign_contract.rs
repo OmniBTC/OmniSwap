@@ -1,7 +1,7 @@
 use anchor_lang::{prelude::*, AnchorDeserialize, AnchorSerialize};
 use spl_math::uint::U256;
 
-use crate::PostedSoSwapMessage;
+use crate::message::PostedSoSwapMessage;
 use crate::cross::NormalizedWormholeData;
 
 #[account]
@@ -64,22 +64,25 @@ impl ForeignContract {
 pub mod test {
     use super::*;
 
-    use crate::SoSwapMessage;
     use std::mem::size_of;
     use wormhole_anchor_sdk::{token_bridge, wormhole};
     use crate::cross::NormalizedSoData;
+    use crate::message::SoSwapMessage;
 
     #[test]
     fn test_foreign_emitter() -> Result<()> {
         assert_eq!(
             ForeignContract::MAXIMUM_SIZE,
-            size_of::<u64>() + size_of::<u16>() + size_of::<[u8; 32]>() + size_of::<Pubkey>()
+            size_of::<u64>()
+                + size_of::<u16>()
+                + size_of::<[u8; 32]>()
+                + size_of::<Pubkey>()
+                + size_of::<[u8; 32]>()
+                + size_of::<[u8; 32]>()
         );
 
         let chain: u16 = 2;
         let address = Pubkey::new_unique().to_bytes();
-        let dst_base_gas = U256::one();
-        let dst_gas_per_bytes = U256::one();
         let token_bridge_foreign_endpoint = Pubkey::new_unique();
         let normalized_dst_base_gas = Pubkey::new_unique().to_bytes();
         let normalized_dst_gas_per_bytes = Pubkey::new_unique().to_bytes();

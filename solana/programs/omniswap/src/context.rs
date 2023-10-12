@@ -8,8 +8,9 @@ use wormhole_anchor_sdk::{token_bridge, wormhole};
 use super::{
     state::{ForeignContract, RedeemerConfig, SenderConfig},
     cross::NormalizedSoData,
+    message::PostedSoSwapMessage,
     price_manager::PriceManager,
-    SoSwapError, PostedSoSwapMessage,
+    SoSwapError,
 };
 
 /// AKA `b"bridged"`.
@@ -258,12 +259,11 @@ pub struct SetPriceManager<'info> {
 
 #[derive(Accounts)]
 #[instruction(
-    batch_id: u32,
     amount: u64,
     wormhole_data: Vec<u8>,
     so_data: Vec<u8>,
 )]
-pub struct SendNativeTokensWithPayload<'info> {
+pub struct SoSwapNativeWithoutSwap<'info> {
     /// Payer will pay Wormhole fee to transfer tokens and create temporary
     /// token account.
     #[account(mut)]
@@ -280,7 +280,7 @@ pub struct SendNativeTokensWithPayload<'info> {
     #[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
-            &NormalizedSoData::decode_normalized_so_data(&so_data).destination_chain_id.to_le_bytes()[..]
+            &NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..]
         ],
         bump,
     )]
@@ -416,7 +416,7 @@ pub struct SendNativeTokensWithPayload<'info> {
 
 #[derive(Accounts)]
 #[instruction(vaa_hash: [u8; 32])]
-pub struct RedeemNativeTransferWithPayload<'info> {
+pub struct CompleteSoSwapNativeWithoutSwap<'info> {
     #[account(mut)]
     /// Payer will pay Wormhole fee to transfer tokens and create temporary
     /// token account.
@@ -554,12 +554,11 @@ pub struct RedeemNativeTransferWithPayload<'info> {
 
 #[derive(Accounts)]
 #[instruction(
-    batch_id: u32,
     amount: u64,
     wormhole_data: Vec<u8>,
     so_data: Vec<u8>,
 )]
-pub struct SendWrappedTokensWithPayload<'info> {
+pub struct SoSwapWrappedWithoutSwap<'info> {
     #[account(mut)]
     /// Payer will pay Wormhole fee to transfer tokens and create temporary
     /// token account.
@@ -575,7 +574,7 @@ pub struct SendWrappedTokensWithPayload<'info> {
     #[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
-            &NormalizedSoData::decode_normalized_so_data(&so_data).destination_chain_id.to_le_bytes()[..]
+            &NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..]
         ],
         bump,
     )]
@@ -713,7 +712,7 @@ pub struct SendWrappedTokensWithPayload<'info> {
 
 #[derive(Accounts)]
 #[instruction(vaa_hash: [u8; 32])]
-pub struct RedeemWrappedTransferWithPayload<'info> {
+pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
     #[account(mut)]
     /// Payer will pay Wormhole fee to transfer tokens and create temporary
     /// token account.
