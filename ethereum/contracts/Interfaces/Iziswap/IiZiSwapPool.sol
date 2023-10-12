@@ -14,7 +14,6 @@ interface IiZiSwap {
     function swapDesire(SwapDesireParams calldata params)
         external
         payable
-        checkDeadline(params.deadline)
         returns (uint256 cost, uint256 acquire);
 
     /// parameters when calling Swap.swap..., grouped together to avoid stake too deep
@@ -46,27 +45,23 @@ interface IiZiSwap {
     /// @param swapParams params(for example: max amount in above line), see SwapParams for more
     function swapY2X(SwapParams calldata swapParams)
         external
-        payable
-        checkDeadline(swapParams.deadline);
+        payable;
 
     /// @notice Swap tokenY for tokenX, given user's desired amount of tokenX.
     /// @param swapParams params(for example: desired amount in above line), see SwapParams for more
     function swapY2XDesireX(SwapParams calldata swapParams)
         external
-        payable
-        checkDeadline(swapParams.deadline);
+        payable;
 
     /// @notice Swap tokenX for tokenY, given max amount of tokenX user willing to pay.
     /// @param swapParams params(for example: max amount in above line), see SwapParams for more
     function swapX2Y(SwapParams calldata swapParams)
         external
-        payable
-        checkDeadline(swapParams.deadline);
+        payable;
 
     /// @notice Swap tokenX for tokenY, given amount of tokenY user desires.
     /// @param swapParams params(for example: desired amount in above line), see SwapParams for more
     function swapX2YDesireY(SwapParams calldata swapParams)
         external
-        payable
-        checkDeadline(swapParams.deadline);
+        payable;
 }
