@@ -2105,6 +2105,23 @@ networks:
       weth:
         address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
         decimal: 18
+    swap:
+      - ISyncSwapRouter:
+          name: SyncSwap
+          router: "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295"
+          token_list: ""
+      - IMuteRouter:
+          name: MuteIO
+          router: "0x8B791913eB07C32779a16750e3868aA8495F5964"
+          token_list: ""
+      - ISwapRouter:
+          name: MaverickProtocol
+          router: "0x39E098A153Ad69834a9Dac32f0FCa92066aD03f4"
+          token_list: ""
+      - IiZiSwap:
+          name: iZiSwap
+          router: "0x943ac2310D9BC703d6AB5e5e76876e212100f894"
+          token_list: ""
   zkevm-main:
     chainid: 1101
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"

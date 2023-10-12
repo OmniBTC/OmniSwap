@@ -751,12 +751,12 @@ def add_cut(contracts: list = None):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
-def add_dex(swap_type):
-    swap_info = get_swap_info()
+def add_dex(swap_info):
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
-    print(f"Add router for:{swap_type}")
+    swap_type = list(swap_info.keys())[0]
+    print(f"Add router for:{swap_info[swap_type]['name']}")
     proxy_dex.addDex(
         swap_info[swap_type]["router"], {"from": get_account()}
     )
@@ -772,9 +772,9 @@ def add_dex(swap_type):
 
 
 def add_dexs():
-    swap_info = get_swap_info()
-    for swap_type in swap_info:
-        add_dex(swap_type)
+    swap_infos = get_swap_info()
+    for swap_info in swap_infos:
+        add_dex(swap_info)
 
 
 def reinitialize_dex(old_dex):
