@@ -2,10 +2,12 @@ extern crate core;
 
 use anchor_lang::prelude::*;
 
+pub use constants::*;
 pub use context::*;
 pub use error::*;
 pub use state::*;
 
+pub mod constants;
 pub mod context;
 pub mod cross;
 pub mod error;
@@ -125,6 +127,22 @@ pub mod omniswap {
 			ctx,
 			vaa_hash,
 			skip_verify_soswap_message,
+		)
+	}
+
+	pub fn estimate_relayer_fee(
+		ctx: Context<EstimateRelayerLee>,
+		chain_id: u16,
+		so_data: Vec<u8>,
+		wormhole_data: Vec<u8>,
+		swap_data_dst: Vec<u8>,
+	) -> Result<(u64, u64, Vec<u8>)> {
+		instructions::estimate_relayer_fee::handler(
+			ctx,
+			chain_id,
+			so_data,
+			wormhole_data,
+			swap_data_dst,
 		)
 	}
 }

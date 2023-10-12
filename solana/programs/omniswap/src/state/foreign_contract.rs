@@ -39,9 +39,9 @@ impl ForeignContract {
 
 	pub fn estimate_complete_soswap_gas(
 		&self,
-		so_data: Vec<u8>,
-		wormhole_data: NormalizedWormholeData,
-		swap_data_dst: Vec<u8>,
+		so_data: &Vec<u8>,
+		wormhole_data: &NormalizedWormholeData,
+		swap_data_dst: &Vec<u8>,
 	) -> U256 {
 		let len = 32 + 32 + 1 + so_data.len() + 1 + swap_data_dst.len();
 

@@ -10,13 +10,8 @@ use super::{
 	message::PostedSoSwapMessage,
 	price_manager::PriceManager,
 	state::{ForeignContract, RedeemerConfig, SenderConfig},
-	SoSwapError,
+	SoSwapError, SEED_PREFIX_BRIDGED, SEED_PREFIX_TMP,
 };
-
-/// AKA `b"bridged"`.
-pub const SEED_PREFIX_BRIDGED: &[u8; 7] = b"bridged";
-/// AKA `b"tmp"`.
-pub const SEED_PREFIX_TMP: &[u8; 3] = b"tmp";
 
 #[derive(Accounts)]
 /// Context used to initialize program data (i.e. configs).
@@ -858,4 +853,36 @@ pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
 
 	/// Rent sysvar.
 	pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+#[instruction(chain: u16)]
+pub struct EstimateRelayerLee<'info> {
+	#[account(
+        seeds = [
+            ForeignContract::SEED_PREFIX,
+            &chain.to_le_bytes()[..]
+        ],
+        bump,
+    )]
+	/// Foreign contract account.
+	pub foreign_contract: Box<Account<'info, ForeignContract>>,
+
+	#[account(
+        seeds = [
+            ForeignContract::SEED_PREFIX,
+            &chain.to_le_bytes()[..],
+            PriceManager::SEED_PREFIX
+        ],
+        bump
+    )]
+	/// Price Manager account.
+	pub price_manager: Box<Account<'info, PriceManager>>,
+
+	/// Wormhole bridge data.
+	/// Query bridge.config.fee
+	pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
+
+	/// Clock used for price manager.
+	pub clock: Sysvar<'info, Clock>,
 }

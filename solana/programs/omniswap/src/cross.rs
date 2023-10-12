@@ -65,7 +65,7 @@ impl NormalizedSoData {
 			amount: U256::zero(),
 		}
 	}
-	pub fn encode_normalized_so_data(so_data: NormalizedSoData) -> Vec<u8> {
+	pub fn encode_normalized_so_data(so_data: &NormalizedSoData) -> Vec<u8> {
 		let mut data = Vec::<u8>::new();
 		serde::serialize_vector_with_length(&mut data, &so_data.transaction_id);
 		serde::serialize_vector_with_length(&mut data, &so_data.receiver);
@@ -307,7 +307,7 @@ pub mod test {
 			receiving_asset_id: hex!("957Eb0316f02ba4a9De3D308742eefd44a3c1719").to_vec(),
 			amount: 100000000.into(),
 		};
-		let encode_data = NormalizedSoData::encode_normalized_so_data(so_data.clone());
+		let encode_data = NormalizedSoData::encode_normalized_so_data(&so_data);
 		let data = hex!("00000000000000204450040bc7ea55def9182559ceffc0652d88541538b30a43477364f475f4a4ed00000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af0001000000000000001a3078313a3a6170746f735f636f696e3a3a4170746f73436f696e00020000000000000014957eb0316f02ba4a9de3d308742eefd44a3c17190000000000000000000000000000000000000000000000000000000005f5e100").to_vec();
 
 		assert_eq!(data, encode_data);

@@ -1,5 +1,6 @@
 pub mod complete_so_swap_native_without_swap;
 pub mod complete_so_swap_wrapped_without_swap;
+pub mod estimate_relayer_fee;
 pub mod initialize;
 pub mod register_foreign_contract;
 pub mod set_price_ratio;

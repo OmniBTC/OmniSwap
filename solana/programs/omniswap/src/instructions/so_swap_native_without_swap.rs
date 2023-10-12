@@ -2,7 +2,8 @@ use anchor_lang::prelude::*;
 use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use crate::{
-	context::{SoSwapNativeWithoutSwap, SEED_PREFIX_BRIDGED},
+	constants::SEED_PREFIX_BRIDGED,
+	context::SoSwapNativeWithoutSwap,
 	cross::{NormalizedSoData, NormalizedWormholeData},
 	error::SoSwapError,
 	message::SoSwapMessage,
