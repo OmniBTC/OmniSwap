@@ -10,6 +10,20 @@ interface IiZiSwap {
         uint256 deadline;
     }
 
+    struct SwapAmountParams {
+        bytes path;
+        address recipient;
+        // uint256 deadline;
+        uint128 amount;
+        uint256 minAcquired;
+        uint256 deadline;
+    }
+
+    function swapAmount(SwapAmountParams calldata params)
+        external
+        payable
+        returns (uint256 cost, uint256 acquire);
+
     /// @notice Swap given amount of target token, usually used in multi-hop case.
     function swapDesire(SwapDesireParams calldata params)
         external
