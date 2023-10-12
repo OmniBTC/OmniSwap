@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import {ILibPriceV2} from "../Interfaces/ILibPriceV2.sol";
-import {IAggregatorV3Interface} from "../Interfaces/IAggregatorV3Interface.sol";
+import {IAggregatorV3Interface} from "../Interfaces/Chainlink/IAggregatorV3Interface.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 
 // Celer

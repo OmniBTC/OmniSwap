@@ -13,11 +13,11 @@ import "../Helpers/TypedMemView.sol";
 import "../Helpers/ReentrancyGuard.sol";
 import "../Interfaces/ISo.sol";
 import "../Interfaces/ILibSoFee.sol";
-import "../Interfaces/ITokenMessenger.sol";
-import "../Interfaces/IReceiver.sol";
+import "../Interfaces/CCTP/ITokenMessenger.sol";
+import "../Interfaces/CCTP/IReceiver.sol";
 import "../Interfaces/ILibPrice.sol";
-import "../Interfaces/IMessageHandler.sol";
-import "../Interfaces/IMessageTransmitter.sol";
+import "../Interfaces/CCTP/IMessageHandler.sol";
+import "../Interfaces/CCTP/IMessageTransmitter.sol";
 
 /// @title CCTP Facet
 /// @author OmniBTC

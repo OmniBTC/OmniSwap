@@ -10,7 +10,7 @@ import "../Libraries/LibCross.sol";
 import "../Interfaces/ISo.sol";
 import "../Interfaces/ILibPrice.sol";
 import "../Helpers/Swapper.sol";
-import "../Interfaces/IWormholeBridge.sol";
+import "../Interfaces/Wormhole/IWormholeBridge.sol";
 import "../Interfaces/ILibSoFee.sol";
 
 /// @title Wormhole Facet

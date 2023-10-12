@@ -2,20 +2,20 @@
 
 pragma solidity 0.8.13;
 
-import {IUniswapV2Router01} from "../Interfaces/IUniswapV2Router01.sol";
-import {IUniswapV2Router01AVAX} from "../Interfaces/IUniswapV2Router01AVAX.sol";
-import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
-import {ISyncSwapRouter} from "../Interfaces/ISyncSwapRouter.sol";
-import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
-import {IQuickSwapRouter} from "../Interfaces/IQuickSwapRouter.sol";
-import {IAerodrome} from "../Interfaces/IAerodrome.sol";
-import {ISwapRouter02} from "../Interfaces/ISwapRouter02.sol";
-import {IVault} from "../Interfaces/IVault.sol";
-import {ICurveFi} from "../Interfaces/ICurveFi.sol";
-import {IWombatRouter} from "../Interfaces/IWombatRouter.sol";
-import {ILBRouter} from "../Interfaces/ILBRouter.sol";
-import {IGMXV1Router} from "../Interfaces/IGMXV1Router.sol";
-import {IPearlRouter} from "../Interfaces/IPearlRouter.sol";
+import {IUniswapV2Router01} from "../Interfaces/UniswapV2/IUniswapV2Router01.sol";
+import {IUniswapV2Router01AVAX} from "../Interfaces/UniswapV2/IUniswapV2Router01AVAX.sol";
+import {ISwapRouter} from "../Interfaces/UniswapV3/ISwapRouter.sol";
+import {ISyncSwapRouter} from "../Interfaces/Syncswap/ISyncSwapRouter.sol";
+import {IMuteRouter} from "../Interfaces/Mute/IMuteRouter.sol";
+import {IQuickSwapRouter} from "../Interfaces/Quickswap/IQuickSwapRouter.sol";
+import {IAerodrome} from "../Interfaces/Velodrome/IAerodrome.sol";
+import {ISwapRouter02} from "../Interfaces/UniswapV3/ISwapRouter02.sol";
+import {IVault} from "../Interfaces/Balancer/IVault.sol";
+import {ICurveFi} from "../Interfaces/Curve/ICurveFi.sol";
+import {IWombatRouter} from "../Interfaces/Wormbat/IWombatRouter.sol";
+import {ILBRouter} from "../Interfaces/TraderJoe/ILBRouter.sol";
+import {IGMXV1Router} from "../Interfaces/GMX/IGMXV1Router.sol";
+import {IPearlRouter} from "../Interfaces/Pearl/IPearlRouter.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2

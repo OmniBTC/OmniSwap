@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.13;
 
-import "./IERC165.sol";
+import "../IERC165.sol";
 
 /// @title Liquidity Book V2 Token Interface
 /// @author Trader Joe

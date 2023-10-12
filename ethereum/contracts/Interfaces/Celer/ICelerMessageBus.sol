@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.13;
 
-import "../Libraries/LibCelerMsgDataTypes.sol";
+import "../../Libraries/LibCelerMsgDataTypes.sol";
 
 interface ICelerMessageBus {
     /**
