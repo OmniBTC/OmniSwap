@@ -1,16 +1,16 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
-    associated_token::AssociatedToken,
-    token::{Mint, Token, TokenAccount},
+	associated_token::AssociatedToken,
+	token::{Mint, Token, TokenAccount},
 };
 use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use super::{
-    state::{ForeignContract, RedeemerConfig, SenderConfig},
-    cross::NormalizedSoData,
-    message::PostedSoSwapMessage,
-    price_manager::PriceManager,
-    SoSwapError,
+	cross::NormalizedSoData,
+	message::PostedSoSwapMessage,
+	price_manager::PriceManager,
+	state::{ForeignContract, RedeemerConfig, SenderConfig},
+	SoSwapError,
 };
 
 /// AKA `b"bridged"`.
@@ -21,112 +21,112 @@ pub const SEED_PREFIX_TMP: &[u8; 3] = b"tmp";
 #[derive(Accounts)]
 /// Context used to initialize program data (i.e. configs).
 pub struct Initialize<'info> {
-    #[account(mut)]
-    /// Whoever initializes the config will be the owner of the program. Signer
-    /// for creating the [`SenderConfig`] and [`RedeemerConfig`] accounts.
-    pub owner: Signer<'info>,
+	#[account(mut)]
+	/// Whoever initializes the config will be the owner of the program. Signer
+	/// for creating the [`SenderConfig`] and [`RedeemerConfig`] accounts.
+	pub owner: Signer<'info>,
 
-    #[account(
+	#[account(
         init,
         payer = owner,
         seeds = [SenderConfig::SEED_PREFIX],
         bump,
         space = SenderConfig::MAXIMUM_SIZE,
     )]
-    /// Sender Config account, which saves program data useful for other
-    /// instructions, specifically for outbound transfers. Also saves the payer
-    /// of the [`initialize`](crate::initialize) instruction as the program's
-    /// owner.
-    pub sender_config: Box<Account<'info, SenderConfig>>,
+	/// Sender Config account, which saves program data useful for other
+	/// instructions, specifically for outbound transfers. Also saves the payer
+	/// of the [`initialize`](crate::initialize) instruction as the program's
+	/// owner.
+	pub sender_config: Box<Account<'info, SenderConfig>>,
 
-    #[account(
+	#[account(
         init,
         payer = owner,
         seeds = [RedeemerConfig::SEED_PREFIX],
         bump,
         space = RedeemerConfig::MAXIMUM_SIZE,
     )]
-    /// Redeemer Config account, which saves program data useful for other
-    /// instructions, specifically for inbound transfers. Also saves the payer
-    /// of the [`initialize`](crate::initialize) instruction as the program's
-    /// owner.
-    pub redeemer_config: Box<Account<'info, RedeemerConfig>>,
+	/// Redeemer Config account, which saves program data useful for other
+	/// instructions, specifically for inbound transfers. Also saves the payer
+	/// of the [`initialize`](crate::initialize) instruction as the program's
+	/// owner.
+	pub redeemer_config: Box<Account<'info, RedeemerConfig>>,
 
-    /// Wormhole program.
-    pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
+	/// Wormhole program.
+	pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
 
-    /// Token Bridge program.
-    pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
+	/// Token Bridge program.
+	pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
 
-    #[account(
+	#[account(
         seeds = [token_bridge::Config::SEED_PREFIX],
         bump,
         seeds::program = token_bridge_program,
     )]
-    /// Token Bridge config. Token Bridge program needs this account to
-    /// invoke the Wormhole program to post messages. Even though it is a
-    /// required account for redeeming token transfers, it is not actually
-    /// used for completing these transfers.
-    pub token_bridge_config: Account<'info, token_bridge::Config>,
+	/// Token Bridge config. Token Bridge program needs this account to
+	/// invoke the Wormhole program to post messages. Even though it is a
+	/// required account for redeeming token transfers, it is not actually
+	/// used for completing these transfers.
+	pub token_bridge_config: Account<'info, token_bridge::Config>,
 
-    #[account(
+	#[account(
         seeds = [token_bridge::SEED_PREFIX_AUTHORITY_SIGNER],
         bump,
         seeds::program = token_bridge_program,
     )]
-    /// CHECK: Token Bridge authority signer. This isn't an account that holds
-    /// data; it is purely just a signer for SPL tranfers when it is delegated
-    /// spending approval for the SPL token.
-    pub token_bridge_authority_signer: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge authority signer. This isn't an account that holds
+	/// data; it is purely just a signer for SPL tranfers when it is delegated
+	/// spending approval for the SPL token.
+	pub token_bridge_authority_signer: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         seeds = [token_bridge::SEED_PREFIX_CUSTODY_SIGNER],
         bump,
         seeds::program = token_bridge_program,
     )]
-    /// CHECK: Token Bridge custody signer. This isn't an account that holds
-    /// data; it is purely just a signer for Token Bridge SPL tranfers.
-    pub token_bridge_custody_signer: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge custody signer. This isn't an account that holds
+	/// data; it is purely just a signer for Token Bridge SPL tranfers.
+	pub token_bridge_custody_signer: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         seeds = [token_bridge::SEED_PREFIX_MINT_AUTHORITY],
         bump,
         seeds::program = token_bridge_program,
     )]
-    /// CHECK: Token Bridge mint authority. This isn't an account that holds
-    /// data; it is purely just a signer (SPL mint authority) for Token Bridge
-    /// wrapped assets.
-    pub token_bridge_mint_authority: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge mint authority. This isn't an account that holds
+	/// data; it is purely just a signer (SPL mint authority) for Token Bridge
+	/// wrapped assets.
+	pub token_bridge_mint_authority: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         seeds = [wormhole::BridgeData::SEED_PREFIX],
         bump,
         seeds::program = wormhole_program,
     )]
-    /// Wormhole bridge data account (a.k.a. its config).
-    pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
+	/// Wormhole bridge data account (a.k.a. its config).
+	pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
 
-    #[account(
+	#[account(
         seeds = [token_bridge::SEED_PREFIX_EMITTER],
         bump,
         seeds::program = token_bridge_program
     )]
-    /// CHECK: Token Bridge program's emitter account. This isn't an account
-    /// that holds data; it is purely just a signer for posting Wormhole
-    /// messages on behalf of the Token Bridge program.
-    pub token_bridge_emitter: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge program's emitter account. This isn't an account
+	/// that holds data; it is purely just a signer for posting Wormhole
+	/// messages on behalf of the Token Bridge program.
+	pub token_bridge_emitter: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         seeds = [wormhole::FeeCollector::SEED_PREFIX],
         bump,
         seeds::program = wormhole_program
     )]
-    /// Wormhole fee collector account, which requires lamports before the
-    /// program can post a message (if there is a fee). Token Bridge program
-    /// handles the fee payments.
-    pub wormhole_fee_collector: Account<'info, wormhole::FeeCollector>,
+	/// Wormhole fee collector account, which requires lamports before the
+	/// program can post a message (if there is a fee). Token Bridge program
+	/// handles the fee payments.
+	pub wormhole_fee_collector: Account<'info, wormhole::FeeCollector>,
 
-    #[account(
+	#[account(
         seeds = [
             wormhole::SequenceTracker::SEED_PREFIX,
             token_bridge_emitter.key().as_ref()
@@ -134,50 +134,50 @@ pub struct Initialize<'info> {
         bump,
         seeds::program = wormhole_program
     )]
-    /// Token Bridge emitter's sequence account. Like with all Wormhole
-    /// emitters, this account keeps track of the sequence number of the last
-    /// posted message.
-    pub token_bridge_sequence: Account<'info, wormhole::SequenceTracker>,
+	/// Token Bridge emitter's sequence account. Like with all Wormhole
+	/// emitters, this account keeps track of the sequence number of the last
+	/// posted message.
+	pub token_bridge_sequence: Account<'info, wormhole::SequenceTracker>,
 
-    /// System program.
-    pub system_program: Program<'info, System>,
+	/// System program.
+	pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct SetWormholeReserve<'info> {
-    #[account(mut)]
-    /// Whoever initializes the config will be the owner of the program. Signer
-    /// for creating the [`SenderConfig`] and [`RedeemerConfig`] accounts.
-    pub owner: Signer<'info>,
+	#[account(mut)]
+	/// Whoever initializes the config will be the owner of the program. Signer
+	/// for creating the [`SenderConfig`] and [`RedeemerConfig`] accounts.
+	pub owner: Signer<'info>,
 
-    #[account(
+	#[account(
         mut,
         has_one = owner @ SoSwapError::OwnerOnly,
         seeds = [SenderConfig::SEED_PREFIX],
         bump
     )]
-    /// Sender Config account.
-    pub config: Box<Account<'info, SenderConfig>>,
+	/// Sender Config account.
+	pub config: Box<Account<'info, SenderConfig>>,
 }
 
 #[derive(Accounts)]
 #[instruction(chain: u16)]
 pub struct RegisterForeignContract<'info> {
-    #[account(mut)]
-    /// Owner of the program set in the [`SenderConfig`] account. Signer for
-    /// creating [`ForeignContract`] account.
-    pub owner: Signer<'info>,
+	#[account(mut)]
+	/// Owner of the program set in the [`SenderConfig`] account. Signer for
+	/// creating [`ForeignContract`] account.
+	pub owner: Signer<'info>,
 
-    #[account(
+	#[account(
         has_one = owner @ SoSwapError::OwnerOnly,
         seeds = [SenderConfig::SEED_PREFIX],
         bump
     )]
-    /// Sender Config account. This program requires that the `owner` specified
-    /// in the context equals the pubkey specified in this account. Read-only.
-    pub config: Box<Account<'info, SenderConfig>>,
+	/// Sender Config account. This program requires that the `owner` specified
+	/// in the context equals the pubkey specified in this account. Read-only.
+	pub config: Box<Account<'info, SenderConfig>>,
 
-    #[account(
+	#[account(
         init_if_needed,
         payer = owner,
         seeds = [
@@ -187,12 +187,12 @@ pub struct RegisterForeignContract<'info> {
         bump,
         space = ForeignContract::MAXIMUM_SIZE
     )]
-    /// Foreign Contract account. Create this account if an emitter has not been
-    /// registered yet for this Wormhole chain ID. If there already is a
-    /// contract address saved in this account, overwrite it.
-    pub foreign_contract: Box<Account<'info, ForeignContract>>,
+	/// Foreign Contract account. Create this account if an emitter has not been
+	/// registered yet for this Wormhole chain ID. If there already is a
+	/// contract address saved in this account, overwrite it.
+	pub foreign_contract: Box<Account<'info, ForeignContract>>,
 
-    #[account(
+	#[account(
         init_if_needed,
         payer = owner,
         seeds = [
@@ -203,12 +203,12 @@ pub struct RegisterForeignContract<'info> {
         bump,
         space = PriceManager::MAXIMUM_SIZE
     )]
-    /// Price manager account. Create this account if an emitter has not been
-    /// registered yet for this Wormhole chain ID. If there already is a
-    /// contract address saved in this account, overwrite it.
-    pub price_manager: Account<'info, PriceManager>,
+	/// Price manager account. Create this account if an emitter has not been
+	/// registered yet for this Wormhole chain ID. If there already is a
+	/// contract address saved in this account, overwrite it.
+	pub price_manager: Account<'info, PriceManager>,
 
-    #[account(
+	#[account(
         seeds = [
             &chain.to_be_bytes(),
             token_bridge_foreign_endpoint.emitter_address.as_ref()
@@ -216,31 +216,31 @@ pub struct RegisterForeignContract<'info> {
         bump,
         seeds::program = token_bridge_program
     )]
-    /// Token Bridge foreign endpoint. This account should really be one
-    /// endpoint per chain, but Token Bridge's PDA allows for multiple
-    /// endpoints for each chain. We store the proper endpoint for the
-    /// emitter chain.
-    pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
+	/// Token Bridge foreign endpoint. This account should really be one
+	/// endpoint per chain, but Token Bridge's PDA allows for multiple
+	/// endpoints for each chain. We store the proper endpoint for the
+	/// emitter chain.
+	pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
 
-    /// Token Bridge program.
-    pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
+	/// Token Bridge program.
+	pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
 
-    /// System program.
-    pub system_program: Program<'info, System>,
+	/// System program.
+	pub system_program: Program<'info, System>,
 
-    /// Clock used for price manager.
-    pub clock: Sysvar<'info, Clock>,
+	/// Clock used for price manager.
+	pub clock: Sysvar<'info, Clock>,
 }
 
 #[derive(Accounts)]
 #[instruction(chain: u16)]
 pub struct SetPriceManager<'info> {
-    #[account(mut)]
-    /// Owner of the program set in the [`PriceManager`] account. Signer for
-    /// updating [`PriceManager`] account.
-    pub owner: Signer<'info>,
+	#[account(mut)]
+	/// Owner of the program set in the [`PriceManager`] account. Signer for
+	/// updating [`PriceManager`] account.
+	pub owner: Signer<'info>,
 
-    #[account(
+	#[account(
         mut,
         has_one = owner @ SoSwapError::OwnerOnly,
         seeds = [
@@ -250,11 +250,11 @@ pub struct SetPriceManager<'info> {
         ],
         bump
     )]
-    /// Price Manager account.
-    pub price_manager: Box<Account<'info, PriceManager>>,
+	/// Price Manager account.
+	pub price_manager: Box<Account<'info, PriceManager>>,
 
-    /// Clock used for price manager.
-    pub clock: Sysvar<'info, Clock>,
+	/// Clock used for price manager.
+	pub clock: Sysvar<'info, Clock>,
 }
 
 #[derive(Accounts)]
@@ -264,48 +264,48 @@ pub struct SetPriceManager<'info> {
     so_data: Vec<u8>,
 )]
 pub struct SoSwapNativeWithoutSwap<'info> {
-    /// Payer will pay Wormhole fee to transfer tokens and create temporary
-    /// token account.
-    #[account(mut)]
-    pub payer: Signer<'info>,
+	/// Payer will pay Wormhole fee to transfer tokens and create temporary
+	/// token account.
+	#[account(mut)]
+	pub payer: Signer<'info>,
 
-    #[account(
+	#[account(
         seeds = [SenderConfig::SEED_PREFIX],
         bump
     )]
-    /// Sender Config account. Acts as the signer for the Token Bridge token
-    /// transfer. Read-only.
-    pub config: Box<Account<'info, SenderConfig>>,
+	/// Sender Config account. Acts as the signer for the Token Bridge token
+	/// transfer. Read-only.
+	pub config: Box<Account<'info, SenderConfig>>,
 
-    #[account(
+	#[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
             &NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..]
         ],
         bump,
     )]
-    /// Foreign Contract account. Send tokens to the contract specified in this
-    /// account. Funnily enough, the Token Bridge program does not have any
-    /// requirements for outbound transfers for the recipient chain to be
-    /// registered. This account provides extra protection against sending
-    /// tokens to an unregistered Wormhole chain ID. Read-only.
-    pub foreign_contract: Box<Account<'info, ForeignContract>>,
+	/// Foreign Contract account. Send tokens to the contract specified in this
+	/// account. Funnily enough, the Token Bridge program does not have any
+	/// requirements for outbound transfers for the recipient chain to be
+	/// registered. This account provides extra protection against sending
+	/// tokens to an unregistered Wormhole chain ID. Read-only.
+	pub foreign_contract: Box<Account<'info, ForeignContract>>,
 
-    #[account(mut)]
-    /// Mint info. This is the SPL token that will be bridged over to the
-    /// foreign contract. Mutable.
-    pub mint: Box<Account<'info, Mint>>,
+	#[account(mut)]
+	/// Mint info. This is the SPL token that will be bridged over to the
+	/// foreign contract. Mutable.
+	pub mint: Box<Account<'info, Mint>>,
 
-    #[account(
+	#[account(
         mut,
         associated_token::mint = mint,
         associated_token::authority = payer,
     )]
-    /// Payer's associated token account. We may want to make this a generic
-    /// token account in the future.
-    pub from_token_account: Account<'info, TokenAccount>,
+	/// Payer's associated token account. We may want to make this a generic
+	/// token account in the future.
+	pub from_token_account: Account<'info, TokenAccount>,
 
-    #[account(
+	#[account(
         init,
         payer = payer,
         seeds = [
@@ -316,56 +316,56 @@ pub struct SoSwapNativeWithoutSwap<'info> {
         token::mint = mint,
         token::authority = config,
     )]
-    /// Program's temporary token account. This account is created before the
-    /// instruction is invoked to temporarily take custody of the payer's
-    /// tokens. When the tokens are finally bridged out, the token account
-    /// will have zero balance and can be closed.
-    pub tmp_token_account: Box<Account<'info, TokenAccount>>,
+	/// Program's temporary token account. This account is created before the
+	/// instruction is invoked to temporarily take custody of the payer's
+	/// tokens. When the tokens are finally bridged out, the token account
+	/// will have zero balance and can be closed.
+	pub tmp_token_account: Box<Account<'info, TokenAccount>>,
 
-    /// Wormhole program.
-    pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
+	/// Wormhole program.
+	pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
 
-    /// Token Bridge program.
-    pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
+	/// Token Bridge program.
+	pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
 
-    #[account(
+	#[account(
         address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
     )]
-    /// Token Bridge config. Read-only.
-    pub token_bridge_config: Account<'info, token_bridge::Config>,
+	/// Token Bridge config. Read-only.
+	pub token_bridge_config: Account<'info, token_bridge::Config>,
 
-    #[account(
+	#[account(
         mut,
         seeds = [mint.key().as_ref()],
         bump,
         seeds::program = token_bridge_program
     )]
-    /// CHECK: Token Bridge custody. This is the Token Bridge program's token
-    /// account that holds this mint's balance. This account needs to be
-    /// unchecked because a token account may not have been created for this
-    /// mint yet. Mutable.
-    pub token_bridge_custody: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge custody. This is the Token Bridge program's token
+	/// account that holds this mint's balance. This account needs to be
+	/// unchecked because a token account may not have been created for this
+	/// mint yet. Mutable.
+	pub token_bridge_custody: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         address = config.token_bridge.authority_signer @ SoSwapError::InvalidTokenBridgeAuthoritySigner
     )]
-    /// CHECK: Token Bridge authority signer. Read-only.
-    pub token_bridge_authority_signer: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge authority signer. Read-only.
+	pub token_bridge_authority_signer: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         address = config.token_bridge.custody_signer @ SoSwapError::InvalidTokenBridgeCustodySigner
     )]
-    /// CHECK: Token Bridge custody signer. Read-only.
-    pub token_bridge_custody_signer: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge custody signer. Read-only.
+	pub token_bridge_custody_signer: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.wormhole_bridge @ SoSwapError::InvalidWormholeBridge,
     )]
-    /// Wormhole bridge data. Mutable.
-    pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
+	/// Wormhole bridge data. Mutable.
+	pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
 
-    #[account(
+	#[account(
         mut,
         seeds = [
             SEED_PREFIX_BRIDGED,
@@ -373,64 +373,64 @@ pub struct SoSwapNativeWithoutSwap<'info> {
         ],
         bump,
     )]
-    /// CHECK: Wormhole Message. Token Bridge program writes info about the
-    /// tokens transferred in this account for our program. Mutable.
-    pub wormhole_message: UncheckedAccount<'info>,
+	/// CHECK: Wormhole Message. Token Bridge program writes info about the
+	/// tokens transferred in this account for our program. Mutable.
+	pub wormhole_message: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.emitter @ SoSwapError::InvalidTokenBridgeEmitter
     )]
-    /// CHECK: Token Bridge emitter. Read-only.
-    pub token_bridge_emitter: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge emitter. Read-only.
+	pub token_bridge_emitter: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.sequence @ SoSwapError::InvalidTokenBridgeSequence
     )]
-    /// CHECK: Token Bridge sequence. Mutable.
-    pub token_bridge_sequence: Account<'info, wormhole::SequenceTracker>,
+	/// CHECK: Token Bridge sequence. Mutable.
+	pub token_bridge_sequence: Account<'info, wormhole::SequenceTracker>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.wormhole_fee_collector @ SoSwapError::InvalidWormholeFeeCollector
     )]
-    /// Wormhole fee collector. Mutable.
-    pub wormhole_fee_collector: Account<'info, wormhole::FeeCollector>,
+	/// Wormhole fee collector. Mutable.
+	pub wormhole_fee_collector: Account<'info, wormhole::FeeCollector>,
 
-    /// System program.
-    pub system_program: Program<'info, System>,
+	/// System program.
+	pub system_program: Program<'info, System>,
 
-    /// Token program.
-    pub token_program: Program<'info, Token>,
+	/// Token program.
+	pub token_program: Program<'info, Token>,
 
-    /// Associated Token program.
-    pub associated_token_program: Program<'info, AssociatedToken>,
+	/// Associated Token program.
+	pub associated_token_program: Program<'info, AssociatedToken>,
 
-    /// Clock sysvar.
-    pub clock: Sysvar<'info, Clock>,
+	/// Clock sysvar.
+	pub clock: Sysvar<'info, Clock>,
 
-    /// Rent sysvar.
-    pub rent: Sysvar<'info, Rent>,
+	/// Rent sysvar.
+	pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
 #[instruction(vaa_hash: [u8; 32])]
 pub struct CompleteSoSwapNativeWithoutSwap<'info> {
-    #[account(mut)]
-    /// Payer will pay Wormhole fee to transfer tokens and create temporary
-    /// token account.
-    pub payer: Signer<'info>,
+	#[account(mut)]
+	/// Payer will pay Wormhole fee to transfer tokens and create temporary
+	/// token account.
+	pub payer: Signer<'info>,
 
-    #[account(
+	#[account(
         seeds = [RedeemerConfig::SEED_PREFIX],
         bump
     )]
-    /// Redeemer Config account. Acts as the Token Bridge redeemer, which signs
-    /// for the complete transfer instruction. Read-only.
-    pub config: Box<Account<'info, RedeemerConfig>>,
+	/// Redeemer Config account. Acts as the Token Bridge redeemer, which signs
+	/// for the complete transfer instruction. Read-only.
+	pub config: Box<Account<'info, RedeemerConfig>>,
 
-    #[account(
+	#[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
             &vaa.emitter_chain().to_le_bytes()[..]
@@ -438,33 +438,33 @@ pub struct CompleteSoSwapNativeWithoutSwap<'info> {
         bump,
         constraint = foreign_contract.verify(&vaa) @ SoSwapError::InvalidForeignContract
     )]
-    /// Foreign Contract account. The registered contract specified in this
-    /// account must agree with the target address for the Token Bridge's token
-    /// transfer. Read-only.
-    pub foreign_contract: Box<Account<'info, ForeignContract>>,
+	/// Foreign Contract account. The registered contract specified in this
+	/// account must agree with the target address for the Token Bridge's token
+	/// transfer. Read-only.
+	pub foreign_contract: Box<Account<'info, ForeignContract>>,
 
-    #[account(
+	#[account(
         address = vaa.data().mint()
     )]
-    /// Mint info. This is the SPL token that will be bridged over from the
-    /// foreign contract. This must match the token address specified in the
-    /// signed Wormhole message. Read-only.
-    pub mint: Account<'info, Mint>,
+	/// Mint info. This is the SPL token that will be bridged over from the
+	/// foreign contract. This must match the token address specified in the
+	/// signed Wormhole message. Read-only.
+	pub mint: Account<'info, Mint>,
 
-    #[account(
+	#[account(
         mut,
         associated_token::mint = mint,
         associated_token::authority = recipient
     )]
-    /// Recipient associated token account.
-    pub recipient_token_account: Box<Account<'info, TokenAccount>>,
+	/// Recipient associated token account.
+	pub recipient_token_account: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut)]
-    /// CHECK: Recipient may differ from payer if a relayer paid for this
-    /// transaction.
-    pub recipient: UncheckedAccount<'info>,
+	#[account(mut)]
+	/// CHECK: Recipient may differ from payer if a relayer paid for this
+	/// transaction.
+	pub recipient: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         init,
         payer = payer,
         seeds = [
@@ -475,26 +475,26 @@ pub struct CompleteSoSwapNativeWithoutSwap<'info> {
         token::mint = mint,
         token::authority = config
     )]
-    /// Program's temporary token account. This account is created before the
-    /// instruction is invoked to temporarily take custody of the payer's
-    /// tokens. When the tokens are finally bridged in, the tokens will be
-    /// transferred to the destination token accounts. This account will have
-    /// zero balance and can be closed.
-    pub tmp_token_account: Box<Account<'info, TokenAccount>>,
+	/// Program's temporary token account. This account is created before the
+	/// instruction is invoked to temporarily take custody of the payer's
+	/// tokens. When the tokens are finally bridged in, the tokens will be
+	/// transferred to the destination token accounts. This account will have
+	/// zero balance and can be closed.
+	pub tmp_token_account: Box<Account<'info, TokenAccount>>,
 
-    /// Wormhole program.
-    pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
+	/// Wormhole program.
+	pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
 
-    /// Token Bridge program.
-    pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
+	/// Token Bridge program.
+	pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
 
-    #[account(
+	#[account(
         address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
     )]
-    /// Token Bridge config. Read-only.
-    pub token_bridge_config: Account<'info, token_bridge::Config>,
+	/// Token Bridge config. Read-only.
+	pub token_bridge_config: Account<'info, token_bridge::Config>,
 
-    #[account(
+	#[account(
         seeds = [
             wormhole::SEED_PREFIX_POSTED_VAA,
             &vaa_hash
@@ -505,51 +505,51 @@ pub struct CompleteSoSwapNativeWithoutSwap<'info> {
         constraint = vaa.data().to_chain() == wormhole::CHAIN_ID_SOLANA @ SoSwapError::InvalidTransferToChain,
         constraint = vaa.data().token_chain() == wormhole::CHAIN_ID_SOLANA @ SoSwapError::InvalidTransferTokenChain
     )]
-    /// Verified Wormhole message account. The Wormhole program verified
-    /// signatures and posted the account data here. Read-only.
-    pub vaa: Box<Account<'info, PostedSoSwapMessage>>,
+	/// Verified Wormhole message account. The Wormhole program verified
+	/// signatures and posted the account data here. Read-only.
+	pub vaa: Box<Account<'info, PostedSoSwapMessage>>,
 
-    #[account(mut)]
-    /// CHECK: Token Bridge claim account. It stores a boolean, whose value
-    /// is true if the bridged assets have been claimed. If the transfer has
-    /// not been redeemed, this account will not exist yet.
-    pub token_bridge_claim: UncheckedAccount<'info>,
+	#[account(mut)]
+	/// CHECK: Token Bridge claim account. It stores a boolean, whose value
+	/// is true if the bridged assets have been claimed. If the transfer has
+	/// not been redeemed, this account will not exist yet.
+	pub token_bridge_claim: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         address = foreign_contract.token_bridge_foreign_endpoint @ SoSwapError::InvalidTokenBridgeForeignEndpoint
     )]
-    /// Token Bridge foreign endpoint. This account should really be one
-    /// endpoint per chain, but the PDA allows for multiple endpoints for each
-    /// chain! We store the proper endpoint for the emitter chain.
-    pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
+	/// Token Bridge foreign endpoint. This account should really be one
+	/// endpoint per chain, but the PDA allows for multiple endpoints for each
+	/// chain! We store the proper endpoint for the emitter chain.
+	pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
 
-    #[account(
+	#[account(
         mut,
         seeds = [mint.key().as_ref()],
         bump,
         seeds::program = token_bridge_program
     )]
-    /// CHECK: Token Bridge custody. This is the Token Bridge program's token
-    /// account that holds this mint's balance.
-    pub token_bridge_custody: Account<'info, TokenAccount>,
+	/// CHECK: Token Bridge custody. This is the Token Bridge program's token
+	/// account that holds this mint's balance.
+	pub token_bridge_custody: Account<'info, TokenAccount>,
 
-    #[account(
+	#[account(
         address = config.token_bridge.custody_signer @ SoSwapError::InvalidTokenBridgeCustodySigner
     )]
-    /// CHECK: Token Bridge custody signer. Read-only.
-    pub token_bridge_custody_signer: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge custody signer. Read-only.
+	pub token_bridge_custody_signer: UncheckedAccount<'info>,
 
-    /// System program.
-    pub system_program: Program<'info, System>,
+	/// System program.
+	pub system_program: Program<'info, System>,
 
-    /// Token program.
-    pub token_program: Program<'info, Token>,
+	/// Token program.
+	pub token_program: Program<'info, Token>,
 
-    /// Associated Token program.
-    pub associated_token_program: Program<'info, AssociatedToken>,
+	/// Associated Token program.
+	pub associated_token_program: Program<'info, AssociatedToken>,
 
-    /// Rent sysvar.
-    pub rent: Sysvar<'info, Rent>,
+	/// Rent sysvar.
+	pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
@@ -559,33 +559,33 @@ pub struct CompleteSoSwapNativeWithoutSwap<'info> {
     so_data: Vec<u8>,
 )]
 pub struct SoSwapWrappedWithoutSwap<'info> {
-    #[account(mut)]
-    /// Payer will pay Wormhole fee to transfer tokens and create temporary
-    /// token account.
-    pub payer: Signer<'info>,
+	#[account(mut)]
+	/// Payer will pay Wormhole fee to transfer tokens and create temporary
+	/// token account.
+	pub payer: Signer<'info>,
 
-    #[account(
+	#[account(
         seeds = [SenderConfig::SEED_PREFIX],
         bump
     )]
-    /// Sender Config account. Acts as the Token Bridge sender PDA. Mutable.
-    pub config: Box<Account<'info, SenderConfig>>,
+	/// Sender Config account. Acts as the Token Bridge sender PDA. Mutable.
+	pub config: Box<Account<'info, SenderConfig>>,
 
-    #[account(
+	#[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
             &NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..]
         ],
         bump,
     )]
-    /// Foreign Contract account. Send tokens to the contract specified in this
-    /// account. Funnily enough, the Token Bridge program does not have any
-    /// requirements for outbound transfers for the recipient chain to be
-    /// registered. This account provides extra protection against sending
-    /// tokens to an unregistered Wormhole chain ID. Read-only.
-    pub foreign_contract: Box<Account<'info, ForeignContract>>,
+	/// Foreign Contract account. Send tokens to the contract specified in this
+	/// account. Funnily enough, the Token Bridge program does not have any
+	/// requirements for outbound transfers for the recipient chain to be
+	/// registered. This account provides extra protection against sending
+	/// tokens to an unregistered Wormhole chain ID. Read-only.
+	pub foreign_contract: Box<Account<'info, ForeignContract>>,
 
-    #[account(
+	#[account(
         mut,
         seeds = [
             token_bridge::WrappedMint::SEED_PREFIX,
@@ -595,19 +595,19 @@ pub struct SoSwapWrappedWithoutSwap<'info> {
         bump,
         seeds::program = token_bridge_program
     )]
-    /// Token Bridge wrapped mint info. This is the SPL token that will be
-    /// bridged to the foreign contract. The wrapped mint PDA must agree
-    /// with the native token's metadata. Mutable.
-    pub token_bridge_wrapped_mint: Box<Account<'info, token_bridge::WrappedMint>>,
+	/// Token Bridge wrapped mint info. This is the SPL token that will be
+	/// bridged to the foreign contract. The wrapped mint PDA must agree
+	/// with the native token's metadata. Mutable.
+	pub token_bridge_wrapped_mint: Box<Account<'info, token_bridge::WrappedMint>>,
 
-    #[account(
+	#[account(
         mut,
         associated_token::mint = token_bridge_wrapped_mint,
         associated_token::authority = payer,
     )]
-    pub from_token_account: Account<'info, TokenAccount>,
+	pub from_token_account: Account<'info, TokenAccount>,
 
-    #[account(
+	#[account(
         init,
         payer = payer,
         seeds = [
@@ -618,15 +618,15 @@ pub struct SoSwapWrappedWithoutSwap<'info> {
         token::mint = token_bridge_wrapped_mint,
         token::authority = config,
     )]
-    pub tmp_token_account: Box<Account<'info, TokenAccount>>,
+	pub tmp_token_account: Box<Account<'info, TokenAccount>>,
 
-    /// Wormhole program.
-    pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
+	/// Wormhole program.
+	pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
 
-    /// Token Bridge program.
-    pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
+	/// Token Bridge program.
+	pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
 
-    #[account(
+	#[account(
         seeds = [
             token_bridge::WrappedMeta::SEED_PREFIX,
             token_bridge_wrapped_mint.key().as_ref()
@@ -634,34 +634,34 @@ pub struct SoSwapWrappedWithoutSwap<'info> {
         bump,
         seeds::program = token_bridge_program
     )]
-    /// Token Bridge program's wrapped metadata, which stores info
-    /// about the token from its native chain:
-    ///   * Wormhole Chain ID
-    ///   * Token's native contract address
-    ///   * Token's native decimals
-    pub token_bridge_wrapped_meta: Account<'info, token_bridge::WrappedMeta>,
+	/// Token Bridge program's wrapped metadata, which stores info
+	/// about the token from its native chain:
+	///   * Wormhole Chain ID
+	///   * Token's native contract address
+	///   * Token's native decimals
+	pub token_bridge_wrapped_meta: Account<'info, token_bridge::WrappedMeta>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
     )]
-    /// Token Bridge config. Mutable.
-    pub token_bridge_config: Account<'info, token_bridge::Config>,
+	/// Token Bridge config. Mutable.
+	pub token_bridge_config: Account<'info, token_bridge::Config>,
 
-    #[account(
+	#[account(
         address = config.token_bridge.authority_signer @ SoSwapError::InvalidTokenBridgeAuthoritySigner
     )]
-    /// CHECK: Token Bridge authority signer. Read-only.
-    pub token_bridge_authority_signer: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge authority signer. Read-only.
+	pub token_bridge_authority_signer: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.wormhole_bridge @ SoSwapError::InvalidWormholeBridge,
     )]
-    /// Wormhole bridge data. Mutable.
-    pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
+	/// Wormhole bridge data. Mutable.
+	pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
 
-    #[account(
+	#[account(
         mut,
         seeds = [
             SEED_PREFIX_BRIDGED,
@@ -669,64 +669,64 @@ pub struct SoSwapWrappedWithoutSwap<'info> {
         ],
         bump,
     )]
-    /// CHECK: Wormhole Message. Token Bridge program writes info about the
-    /// tokens transferred in this account.
-    pub wormhole_message: UncheckedAccount<'info>,
+	/// CHECK: Wormhole Message. Token Bridge program writes info about the
+	/// tokens transferred in this account.
+	pub wormhole_message: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.emitter @ SoSwapError::InvalidTokenBridgeEmitter
     )]
-    /// CHECK: Token Bridge emitter. Read-only.
-    pub token_bridge_emitter: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge emitter. Read-only.
+	pub token_bridge_emitter: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.sequence @ SoSwapError::InvalidTokenBridgeSequence
     )]
-    /// CHECK: Token Bridge sequence. Mutable.
-    pub token_bridge_sequence: Account<'info, wormhole::SequenceTracker>,
+	/// CHECK: Token Bridge sequence. Mutable.
+	pub token_bridge_sequence: Account<'info, wormhole::SequenceTracker>,
 
-    #[account(
+	#[account(
         mut,
         address = config.token_bridge.wormhole_fee_collector @ SoSwapError::InvalidWormholeFeeCollector
     )]
-    /// Wormhole fee collector. Mutable.
-    pub wormhole_fee_collector: Account<'info, wormhole::FeeCollector>,
+	/// Wormhole fee collector. Mutable.
+	pub wormhole_fee_collector: Account<'info, wormhole::FeeCollector>,
 
-    /// System program.
-    pub system_program: Program<'info, System>,
+	/// System program.
+	pub system_program: Program<'info, System>,
 
-    /// Token program.
-    pub token_program: Program<'info, Token>,
+	/// Token program.
+	pub token_program: Program<'info, Token>,
 
-    /// Associated Token program.
-    pub associated_token_program: Program<'info, AssociatedToken>,
+	/// Associated Token program.
+	pub associated_token_program: Program<'info, AssociatedToken>,
 
-    /// Clock sysvar.
-    pub clock: Sysvar<'info, Clock>,
+	/// Clock sysvar.
+	pub clock: Sysvar<'info, Clock>,
 
-    /// Rent sysvar.
-    pub rent: Sysvar<'info, Rent>,
+	/// Rent sysvar.
+	pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
 #[instruction(vaa_hash: [u8; 32])]
 pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
-    #[account(mut)]
-    /// Payer will pay Wormhole fee to transfer tokens and create temporary
-    /// token account.
-    pub payer: Signer<'info>,
+	#[account(mut)]
+	/// Payer will pay Wormhole fee to transfer tokens and create temporary
+	/// token account.
+	pub payer: Signer<'info>,
 
-    #[account(
+	#[account(
         seeds = [RedeemerConfig::SEED_PREFIX],
         bump
     )]
-    /// Redeemer Config account. Acts as the Token Bridge redeemer, which signs
-    /// for the complete transfer instruction. Read-only.
-    pub config: Box<Account<'info, RedeemerConfig>>,
+	/// Redeemer Config account. Acts as the Token Bridge redeemer, which signs
+	/// for the complete transfer instruction. Read-only.
+	pub config: Box<Account<'info, RedeemerConfig>>,
 
-    #[account(
+	#[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
             &vaa.emitter_chain().to_le_bytes()[..]
@@ -734,12 +734,12 @@ pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
         bump,
         constraint = foreign_contract.verify(&vaa) @ SoSwapError::InvalidForeignContract
     )]
-    /// Foreign Contract account. The registered contract specified in this
-    /// account must agree with the target address for the Token Bridge's token
-    /// transfer. Read-only.
-    pub foreign_contract: Box<Account<'info, ForeignContract>>,
+	/// Foreign Contract account. The registered contract specified in this
+	/// account must agree with the target address for the Token Bridge's token
+	/// transfer. Read-only.
+	pub foreign_contract: Box<Account<'info, ForeignContract>>,
 
-    #[account(
+	#[account(
         mut,
         seeds = [
             token_bridge::WrappedMint::SEED_PREFIX,
@@ -749,25 +749,25 @@ pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
         bump,
         seeds::program = token_bridge_program
     )]
-    /// Token Bridge wrapped mint info. This is the SPL token that will be
-    /// bridged from the foreign contract. The wrapped mint PDA must agree
-    /// with the native token's metadata in the wormhole message. Mutable.
-    pub token_bridge_wrapped_mint: Box<Account<'info, token_bridge::WrappedMint>>,
+	/// Token Bridge wrapped mint info. This is the SPL token that will be
+	/// bridged from the foreign contract. The wrapped mint PDA must agree
+	/// with the native token's metadata in the wormhole message. Mutable.
+	pub token_bridge_wrapped_mint: Box<Account<'info, token_bridge::WrappedMint>>,
 
-    #[account(
+	#[account(
         mut,
         associated_token::mint = token_bridge_wrapped_mint,
         associated_token::authority = recipient
     )]
-    /// Recipient associated token account.
-    pub recipient_token_account: Box<Account<'info, TokenAccount>>,
+	/// Recipient associated token account.
+	pub recipient_token_account: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut)]
-    /// CHECK: recipient may differ from payer if a relayer paid for this
-    /// transaction.
-    pub recipient: UncheckedAccount<'info>,
+	#[account(mut)]
+	/// CHECK: recipient may differ from payer if a relayer paid for this
+	/// transaction.
+	pub recipient: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         init,
         payer = payer,
         seeds = [
@@ -778,20 +778,20 @@ pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
         token::mint = token_bridge_wrapped_mint,
         token::authority = config
     )]
-    /// Program's temporary token account. This account is created before the
-    /// instruction is invoked to temporarily take custody of the payer's
-    /// tokens. When the tokens are finally bridged in, the tokens will be
-    /// transferred to the destination token accounts. This account will have
-    /// zero balance and can be closed.
-    pub tmp_token_account: Box<Account<'info, TokenAccount>>,
+	/// Program's temporary token account. This account is created before the
+	/// instruction is invoked to temporarily take custody of the payer's
+	/// tokens. When the tokens are finally bridged in, the tokens will be
+	/// transferred to the destination token accounts. This account will have
+	/// zero balance and can be closed.
+	pub tmp_token_account: Box<Account<'info, TokenAccount>>,
 
-    /// Wormhole program.
-    pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
+	/// Wormhole program.
+	pub wormhole_program: Program<'info, wormhole::program::Wormhole>,
 
-    /// Token Bridge program.
-    pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
+	/// Token Bridge program.
+	pub token_bridge_program: Program<'info, token_bridge::program::TokenBridge>,
 
-    #[account(
+	#[account(
         seeds = [
             token_bridge::WrappedMeta::SEED_PREFIX,
             token_bridge_wrapped_mint.key().as_ref()
@@ -799,20 +799,20 @@ pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
         bump,
         seeds::program = token_bridge_program
     )]
-    /// Token Bridge program's wrapped metadata, which stores info
-    /// about the token from its native chain:
-    ///   * Wormhole Chain ID
-    ///   * Token's native contract address
-    ///   * Token's native decimals
-    pub token_bridge_wrapped_meta: Account<'info, token_bridge::WrappedMeta>,
+	/// Token Bridge program's wrapped metadata, which stores info
+	/// about the token from its native chain:
+	///   * Wormhole Chain ID
+	///   * Token's native contract address
+	///   * Token's native decimals
+	pub token_bridge_wrapped_meta: Account<'info, token_bridge::WrappedMeta>,
 
-    #[account(
+	#[account(
         address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
     )]
-    /// Token Bridge config. Read-only.
-    pub token_bridge_config: Account<'info, token_bridge::Config>,
+	/// Token Bridge config. Read-only.
+	pub token_bridge_config: Account<'info, token_bridge::Config>,
 
-    #[account(
+	#[account(
         seeds = [
             wormhole::SEED_PREFIX_POSTED_VAA,
             &vaa_hash
@@ -823,39 +823,39 @@ pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
         constraint = vaa.data().to_chain() == wormhole::CHAIN_ID_SOLANA @ SoSwapError::InvalidTransferToChain,
         constraint = vaa.data().token_chain() != wormhole::CHAIN_ID_SOLANA @ SoSwapError::InvalidTransferTokenChain
     )]
-    /// Verified Wormhole message account. The Wormhole program verified
-    /// signatures and posted the account data here. Read-only.
-    pub vaa: Box<Account<'info, PostedSoSwapMessage>>,
+	/// Verified Wormhole message account. The Wormhole program verified
+	/// signatures and posted the account data here. Read-only.
+	pub vaa: Box<Account<'info, PostedSoSwapMessage>>,
 
-    #[account(mut)]
-    /// CHECK: Token Bridge claim account. It stores a boolean, whose value
-    /// is true if the bridged assets have been claimed. If the transfer has
-    /// not been redeemed, this account will not exist yet.
-    pub token_bridge_claim: UncheckedAccount<'info>,
+	#[account(mut)]
+	/// CHECK: Token Bridge claim account. It stores a boolean, whose value
+	/// is true if the bridged assets have been claimed. If the transfer has
+	/// not been redeemed, this account will not exist yet.
+	pub token_bridge_claim: UncheckedAccount<'info>,
 
-    #[account(
+	#[account(
         address = foreign_contract.token_bridge_foreign_endpoint @ SoSwapError::InvalidTokenBridgeForeignEndpoint
     )]
-    /// Token Bridge foreign endpoint. This account should really be one
-    /// endpoint per chain, but the PDA allows for multiple endpoints for each
-    /// chain! We store the proper endpoint for the emitter chain.
-    pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
+	/// Token Bridge foreign endpoint. This account should really be one
+	/// endpoint per chain, but the PDA allows for multiple endpoints for each
+	/// chain! We store the proper endpoint for the emitter chain.
+	pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
 
-    #[account(
+	#[account(
         address = config.token_bridge.mint_authority @ SoSwapError::InvalidTokenBridgeMintAuthority
     )]
-    /// CHECK: Token Bridge custody signer. Read-only.
-    pub token_bridge_mint_authority: UncheckedAccount<'info>,
+	/// CHECK: Token Bridge custody signer. Read-only.
+	pub token_bridge_mint_authority: UncheckedAccount<'info>,
 
-    /// System program.
-    pub system_program: Program<'info, System>,
+	/// System program.
+	pub system_program: Program<'info, System>,
 
-    /// Token program.
-    pub token_program: Program<'info, Token>,
+	/// Token program.
+	pub token_program: Program<'info, Token>,
 
-    /// Associated Token program.
-    pub associated_token_program: Program<'info, AssociatedToken>,
+	/// Associated Token program.
+	pub associated_token_program: Program<'info, AssociatedToken>,
 
-    /// Rent sysvar.
-    pub rent: Sysvar<'info, Rent>,
+	/// Rent sysvar.
+	pub rent: Sysvar<'info, Rent>,
 }
