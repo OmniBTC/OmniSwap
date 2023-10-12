@@ -866,38 +866,37 @@ networks:
         address: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA"
         decimal: 6
     swap:
-      ISwapRouter:
-        name: SushiswapV3
-        router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
-        token_list: ""
-        quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
-      IUniswapV2Router02:
-        name: BaseswapV2
-        router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
-        token_list: ""
-  #      IAerodrome:
-  #        name: Aerodrome
-  #        router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
-  #        token_list: ""
-  #      ISwapRouter02:
-  #        name: UniswapV3
-  #        # routerV2
-  #        router: "0x2626664c2603336E57B271c5C0b26F421741e481"
-  #        token_list: ""
-  #        quoterv2: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a"
-  #      IUniswapV2Router02:
-  #        name: AlienbaseV2
-  #        router: "0x8c1A3cF8f83074169FE5D7aD50B978e1cD6b37c7"
-  #        token_list: ""
-  #      ISwapRouter:
-  #        name: SwapBasedV3
-  #        router: "0xD58f563A7D6150a2575C74065CB18f53EC2e9D07"
-  #        token_list: ""
-  #        quoter: "0x64F477C68049B554113Bab6526038bcF5643136c"
-  #      IUniswapV2Router02:
-  #        name: SwapBasedV2
-  #        router: "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066"
-  #        token_list: ""
+      - ISwapRouter:
+          name: SushiswapV3
+          router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
+          token_list: ""
+          quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
+      - IUniswapV2Router02:
+          name: BaseswapV2
+          router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
+          token_list: ""
+      - IAerodrome:
+          name: Aerodrome
+          router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
+          token_list: ""
+      - ISwapRouter02:
+          name: UniswapV3
+          router: "0x2626664c2603336E57B271c5C0b26F421741e481"
+          token_list: ""
+          quoterv2: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a"
+      - IUniswapV2Router02:
+          name: AlienbaseV2
+          router: "0x8c1A3cF8f83074169FE5D7aD50B978e1cD6b37c7"
+          token_list: ""
+      - ISwapRouter:
+          name: SwapBasedV3
+          router: "0xD58f563A7D6150a2575C74065CB18f53EC2e9D07"
+          token_list: ""
+          quoter: "0x64F477C68049B554113Bab6526038bcF5643136c"
+      - IUniswapV2Router02:
+          name: SwapBasedV2
+          router: "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066"
+          token_list: ""
   mainnet:
     omnibtc_chainid: 2
     chainid: 1
@@ -946,10 +945,6 @@ networks:
           dst_chainid: 21
           base_gas: 210000
           per_byte_gas: 68
-    #        ftm-main:
-    #          dst_chainid: 10
-    #          base_gas: 700000
-    #          per_byte_gas: 68
     bridges:
       celer:
         chainid: 1
@@ -1041,10 +1036,6 @@ networks:
         chainid: 6
         currency: USD
         address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
-    #      ftm:
-    #        chainid: 10
-    #        currency: ETH
-    #        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
     token:
       weth:
         address: "0xf1277d1Ed8AD466beddF92ef448A132661956621"
@@ -1063,28 +1054,28 @@ networks:
         address: "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6"
         decimal: 18
     swap:
-      ICurveFi:
-        name: Curve
-        router: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
-        token_list: ""
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: ""
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: UniswapV2
-        router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
-        token_list: "https://tokens.uniswap.org/"
-      IVault:
-        name: BalancerV2
-        router: "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
-        token_list: ""
-        quoter: "0xE39B5e3B6D74016b2F6A9673D7d7493B6DF549d5"
-      # IUniswapV2Router02:
-      #   name: SushiSwapV2
-      #   router: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
-      #   token_list: ""
+      - ICurveFi:
+          name: Curve
+          router: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
+          token_list: ""
+      - ISwapRouter:
+          name: UniswapV3
+          router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+          token_list: ""
+          quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      - IUniswapV2Router02:
+          name: UniswapV2
+          router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+          token_list: "https://tokens.uniswap.org/"
+      - IVault:
+          name: BalancerV2
+          router: "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+          token_list: ""
+          quoter: "0xE39B5e3B6D74016b2F6A9673D7d7493B6DF549d5"
+      - IUniswapV2Router02:
+         name: SushiSwapV2
+         router: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+         token_list: ""
   bsc-main:
     omnibtc_chainid: 3
     chainid: 56
@@ -1153,10 +1144,6 @@ networks:
           dst_chainid: 21
           base_gas: 210000
           per_byte_gas: 68
-    #        ftm-main:
-    #          dst_chainid: 10
-    #          base_gas: 700000
-    #          per_byte_gas: 68
     bridges:
       bool:
         chainid: 56
@@ -1261,11 +1248,6 @@ networks:
         chainid: 6
         currency: USD
         address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
-
-    #      ftm:
-    #        chainid: 10
-    #        currency: USD
-    #        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
     token:
       usdt:
         address: "0x55d398326f99059fF775485246999027B3197955"
@@ -1283,27 +1265,27 @@ networks:
         address: "0xB04906e95AB5D797aDA81508115611fee694c2b3"
         decimal: 6
     swap:
-      #      IWombatRouter:
-      #        name: WombatExchange
-      #        router: "0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7"
-      #        token_list: ""
-      #      IUniswapV2Router02:
-      #        name: BiSwap
-      #        router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
-      #        token_list: ""
-      IUniswapV2Router02:
-        name: THENA
-        router: "0xd4ae6eCA985340Dd434D38F470aCCce4DC78D109"
-        token_list: ""
-      #      IUniswapV2Router02:
-      #        name: PancakeSwapV2
-      #        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
-      #        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
-      #      ISwapRouter:
-      #        name: PancakeSwapV3
-      #        router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
-      #        token_list: ""
-      #        quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
+      - IWombatRouter:
+          name: WombatExchange
+          router: "0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7"
+          token_list: ""
+      - IUniswapV2Router02:
+          name: BiSwap
+          router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
+          token_list: ""
+      - IUniswapV2Router02:
+          name: THENA
+          router: "0xd4ae6eCA985340Dd434D38F470aCCce4DC78D109"
+          token_list: ""
+      - IUniswapV2Router02:
+          name: PancakeSwapV2
+          router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
+          token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
+      - ISwapRouter:
+          name: PancakeSwapV3
+          router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+          token_list: ""
+          quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
   avax-main:
     omnibtc_chainid: 4
     chainid: 43114
@@ -1355,10 +1337,6 @@ networks:
           dst_chainid: 21
           base_gas: 210000
           per_byte_gas: 68
-    #        ftm-main:
-    #          dst_chainid: 10
-    #          base_gas: 700000
-    #          per_byte_gas: 68
     bridges:
       bool:
         chainid: 43114
@@ -1465,10 +1443,6 @@ networks:
         chainid: 6
         currency: USD
         address: "0x0A77230d17318075983913bC2145DB16C7366156"
-    #      ftm:
-    #        chainid: 10
-    #        currency: USD
-    #        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
     token:
       weth:
         address: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
@@ -1480,30 +1454,30 @@ networks:
         address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
         decimal: 6
     swap:
-      IVault:
-        name: BalancerV2
-        router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
-        token_list: ""
-      ICurveFi:
-        name: Curve
-        router: "0x1da20Ac34187b2d9c74F729B85acB225D3341b25"
-        token_list: ""
-      IGMXV1Router:
-        name: GMXV1
-        router: "0x5F719c2F1095F7B9fc68a68e35B51194f4b6abe8"
-        token_list: ""
-      ILBRouter:
-        name: Trader Joe
-        router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
-        token_list: ""
-      IUniswapV2Router02AVAX:
-        name: PangolinV2
-        router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
-        token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
-  #      IUniswapV2Router02AVAX:
-  #        name: TraderJoeV2
-  #        router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
-  #        token_list: ""
+      - IVault:
+          name: BalancerV2
+          router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
+          token_list: ""
+      - ICurveFi:
+          name: Curve
+          router: "0x1da20Ac34187b2d9c74F729B85acB225D3341b25"
+          token_list: ""
+      - IGMXV1Router:
+          name: GMXV1
+          router: "0x5F719c2F1095F7B9fc68a68e35B51194f4b6abe8"
+          token_list: ""
+      - ILBRouter:
+          name: Trader Joe
+          router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
+          token_list: ""
+      - IUniswapV2Router02AVAX:
+          name: PangolinV2
+          router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
+          token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
+      - IUniswapV2Router02AVAX:
+          name: TraderJoeV2
+          router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
+          token_list: ""
   polygon-main:
     omnibtc_chainid: 5
     chainid: 137
@@ -1562,10 +1536,6 @@ networks:
           dst_chainid: 21
           base_gas: 210000
           per_byte_gas: 68
-    #        ftm-main:
-    #          dst_chainid: 10
-    #          base_gas: 700000
-    #          per_byte_gas: 68
     bridges:
       bool:
         chainid: 137
@@ -1670,10 +1640,6 @@ networks:
         chainid: 6
         currency: USD
         address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
-    #      ftm:
-    #        chainid: 10
-    #        currency: USD
-    #        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
     token:
       weth:
         address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
@@ -1694,23 +1660,23 @@ networks:
         address: "0x4318CB63A2b8edf2De971E2F17F77097e499459D"
         decimal: 6
     swap:
-      ICurveFi:
-        name: Curve
-        router: "0x1d8b86e3D88cDb2d34688e87E72F388Cb541B7C8"
-        token_list: ""
-      IPearlRouter:
-        name: PearlFi
-        router: "0xcC25C0FD84737F44a7d38649b69491BBf0c7f083"
-        token_list: ""
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: ""
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: QuickswapV2
-        router: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"
-        token_list: "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json"
+      - ICurveFi:
+          name: Curve
+          router: "0x1d8b86e3D88cDb2d34688e87E72F388Cb541B7C8"
+          token_list: ""
+      - IPearlRouter:
+          name: PearlFi
+          router: "0xcC25C0FD84737F44a7d38649b69491BBf0c7f083"
+          token_list: ""
+      - ISwapRouter:
+          name: UniswapV3
+          router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+          token_list: ""
+          quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      - IUniswapV2Router02:
+          name: QuickswapV2
+          router: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"
+          token_list: "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json"
   arbitrum-main:
     omnibtc_chainid: 6
     chainid: 42161
@@ -1852,31 +1818,31 @@ networks:
         address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
         decimal: 18
     swap:
-      IVault:
-        name: BalancerV2
-        router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
-        token_list: ""
-      ILBRouter:
-        name: TraderJoe
-        router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
-        token_list: ""
-      IGMXV1Router:
-        name: GMXV1
-        router: "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064"
-        token_list: ""
-  #      ISwapRouter:
-  #        name: UniswapV3
-  #        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-  #        token_list: ""
-  #        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-  #      IUniswapV2Router02:
-  #        name: SushiswapV2
-  #        router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
-  #        token_list: ""
-  #      IUniswapV2Router02:
-  #        name: CamelotV2
-  #        router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
-  #        token_list: ""
+      - IVault:
+          name: BalancerV2
+          router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
+          token_list: ""
+      - ILBRouter:
+          name: TraderJoe
+          router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
+          token_list: ""
+      - IGMXV1Router:
+          name: GMXV1
+          router: "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064"
+          token_list: ""
+      - ISwapRouter:
+          name: UniswapV3
+          router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+          token_list: ""
+          quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      - IUniswapV2Router02:
+          name: SushiswapV2
+          router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
+          token_list: ""
+      - IUniswapV2Router02:
+          name: CamelotV2
+          router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
+          token_list: ""
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10
@@ -2009,23 +1975,23 @@ networks:
         address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
         decimal: 6
     swap:
-      ICurveFi:
-        name: Curve
-        router: "0x1337bedc9d22ecbe766df105c9623922a27963ec"
-        token_list: ""
-      #      ISwapRouter:
-      #        name: UniswapV3
-      #        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-      #        token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
-      #        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      #      IUniswapV2Router02:
-      #        name: ZipSwapV2
-      #        router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
-      #        token_list: ""
-      IVelodrome:
-        name: Velodrome
-        router: "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858"
-        token_list: ""
+      - ICurveFi:
+          name: Curve
+          router: "0x1337bedc9d22ecbe766df105c9623922a27963ec"
+          token_list: ""
+      - ISwapRouter:
+          name: UniswapV3
+          router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+          token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
+          quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      - IUniswapV2Router02:
+          name: ZipSwapV2
+          router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
+          token_list: ""
+      - IVelodrome:
+          name: Velodrome
+          router: "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858"
+          token_list: ""
   ftm-main:
     omnibtc_chainid: 8
     chainid: 250
@@ -2105,6 +2071,23 @@ networks:
       weth:
         address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
         decimal: 18
+    swap:
+      - ISyncSwapRouter:
+          name: SyncSwap
+          router: "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295"
+          token_list: ""
+      - IMuteRouter:
+          name: MuteIO
+          router: "0x8B791913eB07C32779a16750e3868aA8495F5964"
+          token_list: ""
+      - ISwapRouter:
+          name: MaverickProtocol
+          router: "0x39E098A153Ad69834a9Dac32f0FCa92066aD03f4"
+          token_list: ""
+      - IiZiSwap:
+          name: iZiSwap
+          router: "0x943ac2310D9BC703d6AB5e5e76876e212100f894"
+          token_list: ""
   zkevm-main:
     chainid: 1101
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
@@ -2113,24 +2096,24 @@ networks:
         address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
         decimal: 18
     swap:
-      IQuickSwapRouter:
-        name: QuickSwapV3
-        router: "0xF6Ad3CcF71Abb3E12beCf6b3D2a74C963859ADCd"
-        token_list: ""
-        quoter: "0x55BeE1bD3Eb9986f6d2d963278de09eE92a3eF1D"
-        factory: "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57"
-      ISwapRouter:
-        name: PancakeSwapV3
-        router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
-        token_list: ""
-        quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
-        factory: "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865"
-      IVault:
-        name: BalancerV2
-        router: "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
-        token_list: ""
-        quoter: "0x809B79b53F18E9bc08A961ED4678B901aC93213a"
-        factory: ""
+      - IQuickSwapRouter:
+          name: QuickSwapV3
+          router: "0xF6Ad3CcF71Abb3E12beCf6b3D2a74C963859ADCd"
+          token_list: ""
+          quoter: "0x55BeE1bD3Eb9986f6d2d963278de09eE92a3eF1D"
+          factory: "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57"
+      - ISwapRouter:
+          name: PancakeSwapV3
+          router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+          token_list: ""
+          quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
+          factory: "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865"
+      - IVault:
+          name: BalancerV2
+          router: "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+          token_list: ""
+          quoter: "0x809B79b53F18E9bc08A961ED4678B901aC93213a"
+          factory: ""
     bridges:
       celer:
         chainid: 1101
@@ -2139,7 +2122,6 @@ networks:
           weth:
             address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
             decimal: 18
-
         gas:
           base_gas: 700000
           dst_chainid:

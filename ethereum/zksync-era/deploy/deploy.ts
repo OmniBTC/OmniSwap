@@ -32,54 +32,54 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     let contract
 
     ///===== facet start ====
-    /// DiamondCutFacet
-    artifact = await deployer.loadArtifact("DiamondCutFacet");
-    contract = await deployer.deploy(artifact);
-    const DiamondCutFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${DiamondCutFacet}`);
-    deployed["DiamondCutFacet"] = DiamondCutFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// DiamondLoupeFacet
-    artifact = await deployer.loadArtifact("DiamondLoupeFacet");
-    contract = await deployer.deploy(artifact);
-    const DiamondLoupeFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${DiamondLoupeFacet}`);
-    deployed["DiamondLoupeFacet"] = DiamondLoupeFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// LibSoFeeBoolV2
-    artifact = await deployer.loadArtifact("LibSoFeeBoolV2");
-    contract = await deployer.deploy(artifact, ["0xd3c21bcecceda1000000",
-    "0xb5e620f48000", "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"]);
-    const LibSoFeeBoolV2 = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${LibSoFeeBoolV2}`);
-    deployed["LibSoFeeBoolV2"] = LibSoFeeBoolV2
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// BoolFacet
-    artifact = await deployer.loadArtifact("BoolFacet");
-    contract = await deployer.deploy(artifact, []);
-    const BoolFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${BoolFacet}`);
-    deployed["BoolFacet"] = BoolFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// GenericSwapFacet
-    artifact = await deployer.loadArtifact("GenericSwapFacet");
-    contract = await deployer.deploy(artifact, []);
-    const GenericSwapFacet = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${GenericSwapFacet}`);
-    deployed["GenericSwapFacet"] = GenericSwapFacet
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-
-    /// LibSoFeeGenericV2
-    artifact = await deployer.loadArtifact("LibSoFeeGenericV2");
-    contract = await deployer.deploy(artifact, ["0x152d02c7e14af6800000", "0x0", "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"]);
-    const LibSoFeeGenericV2 = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${LibSoFeeGenericV2}`);
-    deployed["LibSoFeeGenericV2"] = LibSoFeeGenericV2
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+//     /// DiamondCutFacet
+//     artifact = await deployer.loadArtifact("DiamondCutFacet");
+//     contract = await deployer.deploy(artifact);
+//     const DiamondCutFacet = contract.address;
+//     console.log(`${artifact.contractName} was deployed to ${DiamondCutFacet}`);
+//     deployed["DiamondCutFacet"] = DiamondCutFacet
+//     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+//
+//     /// DiamondLoupeFacet
+//     artifact = await deployer.loadArtifact("DiamondLoupeFacet");
+//     contract = await deployer.deploy(artifact);
+//     const DiamondLoupeFacet = contract.address;
+//     console.log(`${artifact.contractName} was deployed to ${DiamondLoupeFacet}`);
+//     deployed["DiamondLoupeFacet"] = DiamondLoupeFacet
+//     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+//
+//     /// LibSoFeeBoolV2
+//     artifact = await deployer.loadArtifact("LibSoFeeBoolV2");
+//     contract = await deployer.deploy(artifact, ["0xd3c21bcecceda1000000",
+//     "0xb5e620f48000", "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"]);
+//     const LibSoFeeBoolV2 = contract.address;
+//     console.log(`${artifact.contractName} was deployed to ${LibSoFeeBoolV2}`);
+//     deployed["LibSoFeeBoolV2"] = LibSoFeeBoolV2
+//     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+//
+//     /// BoolFacet
+//     artifact = await deployer.loadArtifact("BoolFacet");
+//     contract = await deployer.deploy(artifact, []);
+//     const BoolFacet = contract.address;
+//     console.log(`${artifact.contractName} was deployed to ${BoolFacet}`);
+//     deployed["BoolFacet"] = BoolFacet
+//     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+//
+//     /// GenericSwapFacet
+//     artifact = await deployer.loadArtifact("GenericSwapFacet");
+//     contract = await deployer.deploy(artifact, []);
+//     const GenericSwapFacet = contract.address;
+//     console.log(`${artifact.contractName} was deployed to ${GenericSwapFacet}`);
+//     deployed["GenericSwapFacet"] = GenericSwapFacet
+//     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+//
+//     /// LibSoFeeGenericV2
+//     artifact = await deployer.loadArtifact("LibSoFeeGenericV2");
+//     contract = await deployer.deploy(artifact, ["0x152d02c7e14af6800000", "0x0", "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"]);
+//     const LibSoFeeGenericV2 = contract.address;
+//     console.log(`${artifact.contractName} was deployed to ${LibSoFeeGenericV2}`);
+//     deployed["LibSoFeeGenericV2"] = LibSoFeeGenericV2
+//     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
 
     /// LibCorrectSwapV1
     artifact = await deployer.loadArtifact("LibCorrectSwapV1");
