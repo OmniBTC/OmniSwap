@@ -6,12 +6,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
-import {ILibPriceV2} from "../Interfaces/ILibPriceV2.sol";
+import {ILibPrice} from "../Interfaces/ILibPrice.sol";
 import {IAggregatorV3Interface} from "../Interfaces/Chainlink/IAggregatorV3Interface.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 
-// Celer
-contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
+contract LibSoFeeWormholeV1 is ILibSoFee, ILibPrice, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     //---------------------------------------------------------------------------
@@ -40,18 +39,18 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
 
     uint256 public soFee;
 
-    // Destination celer chain id => Oracle config
-    mapping(uint64 => PriceConfig) public priceConfig;
-    mapping(uint64 => PriceData) public priceData;
+    // Destination wormhole chain id => Oracle config
+    mapping(uint16 => PriceConfig) priceConfig;
+    mapping(uint16 => PriceData) priceData;
 
     //---------------------------------------------------------------------------
     // EVENT
     event UpdatePriceConfig(
-        uint64 chainId,
+        uint16 chainId,
         ChainlinkConfig[] chainlink,
         uint256 interval
     );
-    event UpdatePriceInterval(uint64 chainId, uint256 interval);
+    event UpdatePriceInterval(uint16 chainId, uint256 interval);
     event UpdatePriceRatio(address sender, uint256 currentRatio);
 
     constructor(uint256 _soFee) {
@@ -63,7 +62,7 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
     }
 
     function setPriceConfig(
-        uint64 _chainId,
+        uint16 _chainId,
         ChainlinkConfig[] memory _chainlink,
         uint256 _interval
     ) external onlyOwner {
@@ -77,7 +76,7 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
         emit UpdatePriceConfig(_chainId, _chainlink, _interval);
     }
 
-    function setPriceInterval(uint64 _chainId, uint256 _interval)
+    function setPriceInterval(uint16 _chainId, uint256 _interval)
         external
         onlyOwner
     {
@@ -86,7 +85,7 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
     }
 
     function getPriceRatioByChainlink(
-        uint64 _chainId,
+        uint16 _chainId,
         PriceConfig memory _config
     ) external view returns (uint256) {
         uint256 _ratio = RAY;
@@ -108,13 +107,12 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
         return _ratio;
     }
 
-    function getPriceRatio(uint64 _chainId)
+    function getPriceRatio(uint16 _chainId)
         public
         view
         returns (uint256, bool)
     {
         PriceConfig memory _config = priceConfig[_chainId];
-
         if (_config.chainlink.length == 0) {
             return (priceData[_chainId].currentPriceRatio, false);
         }
@@ -124,7 +122,6 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
         ) {
             return (priceData[_chainId].currentPriceRatio, false);
         }
-
         try this.getPriceRatioByChainlink(_chainId, _config) returns (
             uint256 _result
         ) {
@@ -134,7 +131,7 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
         }
     }
 
-    function updatePriceRatio(uint64 _chainId) external returns (uint256) {
+    function updatePriceRatio(uint16 _chainId) external returns (uint256) {
         (uint256 _ratio, bool _flag) = getPriceRatio(_chainId);
         if (_flag) {
             priceData[_chainId].currentPriceRatio = _ratio;
@@ -144,7 +141,7 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
         return _ratio;
     }
 
-    function setPriceRatio(uint64 _chainId, uint256 _ratio) external onlyOwner {
+    function setPriceRatio(uint16 _chainId, uint256 _ratio) external onlyOwner {
         priceData[_chainId].currentPriceRatio = _ratio;
         priceData[_chainId].lastUpdateTimestamp = block.timestamp;
         emit UpdatePriceRatio(msg.sender, _ratio);
@@ -177,6 +174,6 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
     }
 
     function getVersion() external pure override returns (string memory) {
-        return "CelerV1";
+        return "WormholeV1";
     }
 }
