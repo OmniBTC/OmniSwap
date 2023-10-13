@@ -21,7 +21,7 @@ impl SoSwapMessage {
 		let mut encoded_recipient = [0u8; 32];
 		encoded_recipient.copy_from_slice(&self.normalized_so_data.receiver);
 
-		return encoded_recipient
+		encoded_recipient
 	}
 
 	pub fn decode_message(data: Vec<u8>) -> Result<Self, SoSwapError> {
@@ -43,31 +43,31 @@ impl SoSwapMessage {
 		let mut next_len;
 
 		next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-		index = index + 1;
+		index += 1;
 		let dst_max_gas_price =
 			serde::deserialize_u256_with_hex_str(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-		index = index + 1;
+		index += 1;
 		let dst_max_gas = serde::deserialize_u256_with_hex_str(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		// SoData
 		next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-		index = index + 1;
+		index += 1;
 		let so_transaction_id = data[index..index + next_len].to_vec();
-		index = index + next_len;
+		index += next_len;
 
 		next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-		index = index + 1;
+		index += 1;
 		let so_receiver = data[index..index + next_len].to_vec();
-		index = index + next_len;
+		index += next_len;
 
 		next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-		index = index + 1;
+		index += 1;
 		let so_receiving_asset_id = data[index..index + next_len].to_vec();
-		index = index + next_len;
+		index += next_len;
 		let so_data = NormalizedSoData::padding_so_data(
 			so_transaction_id,
 			so_receiver,
@@ -77,8 +77,8 @@ impl SoSwapMessage {
 		// Skip len
 		if index < data_len {
 			next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-			index = index + 1;
-			index = index + next_len;
+			index += 1;
+			index += next_len;
 		};
 
 		// Swap data
@@ -86,24 +86,24 @@ impl SoSwapMessage {
 
 		while index < data_len {
 			next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-			index = index + 1;
+			index += 1;
 			let swap_call_to = data[index..index + next_len].to_vec();
-			index = index + next_len;
+			index += next_len;
 
 			next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-			index = index + 1;
+			index += 1;
 			let swap_sending_asset_id = data[index..index + next_len].to_vec();
-			index = index + next_len;
+			index += next_len;
 
 			next_len = serde::deserialize_u8(&data[index..index + 1])? as usize;
-			index = index + 1;
+			index += 1;
 			let swap_receiving_asset_id = data[index..index + next_len].to_vec();
-			index = index + next_len;
+			index += next_len;
 
 			next_len = serde::deserialize_u16(&data[index..index + 2])? as usize;
-			index = index + 2;
+			index += 2;
 			let swap_call_data = data[index..index + next_len].to_vec();
-			index = index + next_len;
+			index += next_len;
 
 			swap_data.push(NormalizedSwapData::padding_swap_data(
 				swap_call_to,

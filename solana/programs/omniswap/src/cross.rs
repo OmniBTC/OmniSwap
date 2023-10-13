@@ -85,33 +85,33 @@ impl NormalizedSoData {
 
 		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 		let transaction_id = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 		let receiver = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = 2;
 		let source_chain_id = serde::deserialize_u16(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 		let sending_asset_id =
 			serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = 2;
 		let destination_chain_id = serde::deserialize_u16(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 		let receiving_asset_id =
 			serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = 32;
 		let amount = serde::deserialize_u256(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		if index != data_len {
 			return Err(SoSwapError::InvalidDataLength)
@@ -177,34 +177,34 @@ impl NormalizedSwapData {
 
 		next_len = 8;
 		let _swap_len = serde::deserialize_u64(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		while index < data_len {
 			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 			let call_to = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-			index = index + next_len;
+			index += next_len;
 
 			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 			let approve_to = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-			index = index + next_len;
+			index += next_len;
 
 			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 			let sending_asset_id =
 				serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-			index = index + next_len;
+			index += next_len;
 
 			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 			let receiving_asset_id =
 				serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-			index = index + next_len;
+			index += next_len;
 
 			next_len = 32;
 			let from_amount = serde::deserialize_u256(&data[index..index + next_len])?;
-			index = index + next_len;
+			index += next_len;
 
 			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 			let call_data = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-			index = index + next_len;
+			index += next_len;
 
 			swap_data.push(NormalizedSwapData {
 				call_to,
@@ -242,20 +242,20 @@ impl NormalizedWormholeData {
 
 		next_len = 2;
 		let dst_wormhole_chain_id = serde::deserialize_u16(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = 32;
 		let dst_max_gas_price_in_wei_for_relayer =
 			serde::deserialize_u256(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = 32;
 		let wormhole_fee = serde::deserialize_u256(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 		let dst_so_diamond = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
-		index = index + next_len;
+		index += next_len;
 
 		if index != data_len {
 			return Err(SoSwapError::InvalidDataLength)

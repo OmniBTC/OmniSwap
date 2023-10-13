@@ -183,7 +183,7 @@ pub struct TransferWith<P> {
 
 impl<P: AnchorDeserialize + AnchorSerialize + Clone> TransferWith<P> {
 	pub fn new(meta: &TransferWithMeta, payload: &P) -> Self {
-		Self { meta: meta.clone(), payload: payload.clone() }
+		Self { meta: *meta, payload: payload.clone() }
 	}
 
 	pub fn amount(&self) -> u64 {

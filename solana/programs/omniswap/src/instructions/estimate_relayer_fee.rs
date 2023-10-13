@@ -99,7 +99,7 @@ pub fn handler(
 	let mut consume_value = ctx.accounts.wormhole_bridge.config.fee;
 
 	let src_fee = src_fee.as_u64();
-	consume_value = consume_value + src_fee;
+	consume_value += src_fee;
 
 	let mut u256_le_bytes = [0u8; 32];
 	dst_max_gas.to_little_endian(u256_le_bytes.as_mut_slice());

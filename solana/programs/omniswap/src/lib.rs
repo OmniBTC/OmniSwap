@@ -1,3 +1,6 @@
+#![allow(unknown_lints)]
+#![allow(clippy::result_large_err)]
+
 extern crate core;
 
 use anchor_lang::prelude::*;
@@ -32,7 +35,13 @@ pub mod omniswap {
 		estimate_reserve: u64,
 		so_fee_by_ray: u64,
 	) -> Result<()> {
-		instructions::initialize::handler(ctx, beneficiary, actual_reserve, estimate_reserve, so_fee_by_ray)
+		instructions::initialize::handler(
+			ctx,
+			beneficiary,
+			actual_reserve,
+			estimate_reserve,
+			so_fee_by_ray,
+		)
 	}
 
 	/// Set relayer fee scale factor
@@ -109,7 +118,11 @@ pub mod omniswap {
 		vaa_hash: [u8; 32],
 		skip_verify_soswap_message: bool,
 	) -> Result<()> {
-		instructions::complete_so_swap_native_without_swap::handler(ctx, vaa_hash, skip_verify_soswap_message)
+		instructions::complete_so_swap_native_without_swap::handler(
+			ctx,
+			vaa_hash,
+			skip_verify_soswap_message,
+		)
 	}
 
 	pub fn so_swap_wrapped_without_swap(
@@ -126,7 +139,11 @@ pub mod omniswap {
 		vaa_hash: [u8; 32],
 		skip_verify_soswap_message: bool,
 	) -> Result<()> {
-		instructions::complete_so_swap_wrapped_without_swap::handler(ctx, vaa_hash, skip_verify_soswap_message)
+		instructions::complete_so_swap_wrapped_without_swap::handler(
+			ctx,
+			vaa_hash,
+			skip_verify_soswap_message,
+		)
 	}
 
 	pub fn estimate_relayer_fee(
@@ -136,6 +153,12 @@ pub mod omniswap {
 		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
 	) -> Result<(u64, u64, Vec<u8>)> {
-		instructions::estimate_relayer_fee::handler(ctx, chain_id, so_data, wormhole_data, swap_data_dst)
+		instructions::estimate_relayer_fee::handler(
+			ctx,
+			chain_id,
+			so_data,
+			wormhole_data,
+			swap_data_dst,
+		)
 	}
 }

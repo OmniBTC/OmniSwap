@@ -123,7 +123,7 @@ pub fn deserialize_u256(buf: &[u8]) -> Result<U256, SoSwapError> {
 		return Err(SoSwapError::InvalidDataLength)
 	}
 
-	Ok(U256::from_big_endian(buf.try_into().map_err(|_| SoSwapError::InvalidDataLength)?))
+	Ok(U256::from_big_endian(buf))
 }
 
 pub fn deserialize_u128_with_hex_str(buf: &[u8]) -> Result<u128, SoSwapError> {
@@ -151,9 +151,7 @@ pub fn deserialize_u256_with_hex_str(buf: &[u8]) -> Result<U256, SoSwapError> {
 	let buf_len = buf.len();
 
 	if buf_len >= MAX_LEN {
-		return Ok(U256::from_big_endian(
-			buf.try_into().map_err(|_| SoSwapError::InvalidDataLength)?,
-		))
+		return Ok(U256::from_big_endian(buf))
 	}
 
 	let padding_len = MAX_LEN - buf_len;
@@ -161,9 +159,7 @@ pub fn deserialize_u256_with_hex_str(buf: &[u8]) -> Result<U256, SoSwapError> {
 
 	padding_buf.extend_from_slice(buf);
 
-	Ok(U256::from_big_endian(
-		padding_buf.as_slice().try_into().map_err(|_| SoSwapError::InvalidDataLength)?,
-	))
+	Ok(U256::from_big_endian(padding_buf.as_slice()))
 }
 
 #[cfg(test)]
