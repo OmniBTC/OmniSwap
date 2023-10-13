@@ -9,7 +9,7 @@ use super::{
 	cross::NormalizedSoData,
 	message::PostedSoSwapMessage,
 	price_manager::PriceManager,
-	state::{ForeignContract, RedeemerConfig, SenderConfig},
+	state::{ForeignContract, RedeemerConfig, SenderConfig, SoFeeConfig},
 	SoSwapError, SEED_PREFIX_BRIDGED, SEED_PREFIX_TMP,
 };
 
@@ -20,6 +20,16 @@ pub struct Initialize<'info> {
 	/// Whoever initializes the config will be the owner of the program. Signer
 	/// for creating the [`SenderConfig`] and [`RedeemerConfig`] accounts.
 	pub owner: Signer<'info>,
+
+	#[account(
+        init,
+        payer = owner,
+        seeds = [SoFeeConfig::SEED_PREFIX],
+        bump,
+        space = SoFeeConfig::MAXIMUM_SIZE,
+    )]
+	/// SoFee Config account
+	pub fee_config: Box<Account<'info, SoFeeConfig>>,
 
 	#[account(
         init,
@@ -142,17 +152,32 @@ pub struct Initialize<'info> {
 pub struct SetWormholeReserve<'info> {
 	#[account(mut)]
 	/// Whoever initializes the config will be the owner of the program. Signer
-	/// for creating the [`SenderConfig`] and [`RedeemerConfig`] accounts.
+	/// for creating the [`SenderConfig`],[`RedeemerConfig`] and [`SoFeeConfig`] accounts.
 	pub owner: Signer<'info>,
 
 	#[account(
         mut,
         has_one = owner @ SoSwapError::OwnerOnly,
-        seeds = [SenderConfig::SEED_PREFIX],
+        seeds = [SoFeeConfig::SEED_PREFIX],
         bump
     )]
 	/// Sender Config account.
-	pub config: Box<Account<'info, SenderConfig>>,
+	pub config: Box<Account<'info, SoFeeConfig>>,
+}
+
+#[derive(Accounts)]
+pub struct SetSoFee<'info> {
+	#[account(mut)]
+	pub payer: Signer<'info>,
+
+	#[account(
+        mut,
+        seeds = [SoFeeConfig::SEED_PREFIX],
+        bump,
+        constraint = payer.key() == config.owner || payer.key() == config.beneficiary @ SoSwapError::OwnerOnly
+    )]
+	/// Sender Config account.
+	pub config: Box<Account<'info, SoFeeConfig>>,
 }
 
 #[derive(Accounts)]
@@ -857,7 +882,14 @@ pub struct CompleteSoSwapWrappedWithoutSwap<'info> {
 
 #[derive(Accounts)]
 #[instruction(chain: u16)]
-pub struct EstimateRelayerLee<'info> {
+pub struct EstimateRelayerFee<'info> {
+	#[account(
+        seeds = [SoFeeConfig::SEED_PREFIX],
+        bump,
+    )]
+	/// SoFee Config account. Read-only.
+	pub fee_config: Box<Account<'info, SoFeeConfig>>,
+
 	#[account(
         seeds = [
             ForeignContract::SEED_PREFIX,
@@ -865,7 +897,7 @@ pub struct EstimateRelayerLee<'info> {
         ],
         bump,
     )]
-	/// Foreign contract account.
+	/// Foreign contract account. Read-only.
 	pub foreign_contract: Box<Account<'info, ForeignContract>>,
 
 	#[account(
@@ -876,7 +908,7 @@ pub struct EstimateRelayerLee<'info> {
         ],
         bump
     )]
-	/// Price Manager account.
+	/// Price Manager account. Read-only.
 	pub price_manager: Box<Account<'info, PriceManager>>,
 
 	/// Wormhole bridge data.

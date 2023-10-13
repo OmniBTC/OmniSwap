@@ -2,15 +2,28 @@ use anchor_lang::prelude::*;
 
 use crate::{context::Initialize, error::SoSwapError};
 
-pub fn handler(ctx: Context<Initialize>, actual_reserve: u64, estimate_reserve: u64) -> Result<()> {
+pub fn handler(
+	ctx: Context<Initialize>,
+	beneficiary: Pubkey,
+	actual_reserve: u64,
+	estimate_reserve: u64,
+	so_fee_by_ray: u64,
+) -> Result<()> {
+	// Initialize program's fee config
+	let so_fee_config = &mut ctx.accounts.fee_config;
+	{
+		so_fee_config.beneficiary = beneficiary;
+		so_fee_config.so_fee = so_fee_by_ray;
+		so_fee_config.actual_reserve = actual_reserve;
+		so_fee_config.estimate_reserve = estimate_reserve;
+	}
+
 	// Initialize program's sender config
 	let sender_config = &mut ctx.accounts.sender_config;
 
 	// Set the owner of the sender config (effectively the owner of the
 	// program).
 	sender_config.owner = ctx.accounts.owner.key();
-	sender_config.actual_reserve = actual_reserve;
-	sender_config.estimate_reserve = estimate_reserve;
 	sender_config.bump = *ctx.bumps.get("sender_config").ok_or(SoSwapError::BumpNotFound)?;
 
 	// Set Token Bridge related addresses.

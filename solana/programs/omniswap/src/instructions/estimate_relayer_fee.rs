@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
 use spl_math::uint::U256;
 
-use crate::{constants::RAY, context::EstimateRelayerLee, cross::*};
+use crate::{constants::RAY, context::EstimateRelayerFee, cross::*};
 
 pub fn handler(
-	ctx: Context<EstimateRelayerLee>,
+	ctx: Context<EstimateRelayerFee>,
 	chain_id: u16,
 	so_data: Vec<u8>,
 	wormhole_data: Vec<u8>,
@@ -15,8 +15,7 @@ pub fn handler(
 		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
 	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
 
-	let estimate_reserve =
-		U256::from_little_endian(ctx.accounts.foreign_contract.normalized_dst_base_gas.as_slice());
+	let estimate_reserve = U256::from(ctx.accounts.fee_config.estimate_reserve);
 
 	let ratio = ctx.accounts.price_manager.current_price_ratio;
 

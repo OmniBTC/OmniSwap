@@ -27,10 +27,18 @@ pub mod omniswap {
 	/// config so we can verify these accounts with a simple == constraint.
 	pub fn initialize(
 		ctx: Context<Initialize>,
+		beneficiary: Pubkey,
 		actual_reserve: u64,
 		estimate_reserve: u64,
+		so_fee_by_ray: u64,
 	) -> Result<()> {
-		instructions::initialize::handler(ctx, actual_reserve, estimate_reserve)
+		instructions::initialize::handler(
+			ctx,
+			beneficiary,
+			actual_reserve,
+			estimate_reserve,
+			so_fee_by_ray,
+		)
 	}
 
 	/// Set relayer fee scale factor
@@ -40,6 +48,11 @@ pub mod omniswap {
 		estimate_reserve: u64,
 	) -> Result<()> {
 		instructions::set_wormhole_reserve::handler(ctx, actual_reserve, estimate_reserve)
+	}
+
+	/// Set so fee
+	pub fn set_so_fee(ctx: Context<SetSoFee>, so_fee_by_ray: u64) -> Result<()> {
+		instructions::set_so_fee::handler(ctx, so_fee_by_ray)
 	}
 
 	/// This instruction registers a new foreign contract (from another
@@ -131,7 +144,7 @@ pub mod omniswap {
 	}
 
 	pub fn estimate_relayer_fee(
-		ctx: Context<EstimateRelayerLee>,
+		ctx: Context<EstimateRelayerFee>,
 		chain_id: u16,
 		so_data: Vec<u8>,
 		wormhole_data: Vec<u8>,
