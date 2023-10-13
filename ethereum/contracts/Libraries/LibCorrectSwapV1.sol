@@ -96,9 +96,18 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC31 = IiZiSwap.swapAmount.selector;
 
     // Camelot
-    bytes4 private constant _FUNC32 = ICamelotRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens.selector;
-    bytes4 private constant _FUNC33 = ICamelotRouter.swapExactETHForTokensSupportingFeeOnTransferTokens.selector;
-    bytes4 private constant _FUNC34 = ICamelotRouter.swapExactTokensForETHSupportingFeeOnTransferTokens.selector;
+    bytes4 private constant _FUNC32 =
+        ICamelotRouter
+            .swapExactTokensForTokensSupportingFeeOnTransferTokens
+            .selector;
+    bytes4 private constant _FUNC33 =
+        ICamelotRouter
+            .swapExactETHForTokensSupportingFeeOnTransferTokens
+            .selector;
+    bytes4 private constant _FUNC34 =
+        ICamelotRouter
+            .swapExactTokensForETHSupportingFeeOnTransferTokens
+            .selector;
 
     //---------------------------------------------------------------------------
     // External Method
@@ -587,7 +596,10 @@ contract LibCorrectSwapV1 {
                 address _to,
                 address _referrer,
                 uint256 _deadline
-            ) = abi.decode(_data[4:], (uint256, address[], address, address, uint256));
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, address[], address, address, uint256)
+                );
             return (
                 _amountOutMin,
                 abi.encodeWithSelector(
@@ -1148,9 +1160,7 @@ contract LibCorrectSwapV1 {
         view
         returns (bytes memory)
     {
-        try this.camelot(_data, _amount) returns (
-            bytes memory _result
-        ) {
+        try this.camelot(_data, _amount) returns (bytes memory _result) {
             return _result;
         } catch {
             revert("camelot fail!");
