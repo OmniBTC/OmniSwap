@@ -1,7 +1,51 @@
 use anchor_lang::prelude::*;
 use spl_math::uint::U256;
+use wormhole_anchor_sdk::wormhole;
 
-use crate::{constants::RAY, context::EstimateRelayerFee, cross::*};
+use crate::{
+	constants::RAY,
+	cross::*,
+	state::{ForeignContract, PriceManager, SoFeeConfig},
+};
+
+#[derive(Accounts)]
+#[instruction(chain: u16)]
+pub struct EstimateRelayerFee<'info> {
+	#[account(
+		seeds = [SoFeeConfig::SEED_PREFIX],
+		bump,
+	)]
+	/// SoFee Config account. Read-only.
+	pub fee_config: Box<Account<'info, SoFeeConfig>>,
+
+	#[account(
+		seeds = [
+			ForeignContract::SEED_PREFIX,
+			&chain.to_le_bytes()[..]
+		],
+		bump,
+	)]
+	/// Foreign contract account. Read-only.
+	pub foreign_contract: Box<Account<'info, ForeignContract>>,
+
+	#[account(
+		seeds = [
+			ForeignContract::SEED_PREFIX,
+			&chain.to_le_bytes()[..],
+			PriceManager::SEED_PREFIX
+		],
+		bump
+	)]
+	/// Price Manager account. Read-only.
+	pub price_manager: Box<Account<'info, PriceManager>>,
+
+	/// Wormhole bridge data.
+	/// Query bridge.config.fee
+	pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
+
+	/// Clock used for price manager.
+	pub clock: Sysvar<'info, Clock>,
+}
 
 pub fn handler(
 	ctx: Context<EstimateRelayerFee>,
