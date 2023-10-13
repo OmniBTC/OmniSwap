@@ -1273,7 +1273,7 @@ networks:
           name: BiSwap
           router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
           token_list: ""
-      - IUniswapV2Router02:
+      - IPearlRouter:
           name: THENA
           router: "0xd4ae6eCA985340Dd434D38F470aCCce4DC78D109"
           token_list: ""
@@ -1839,7 +1839,7 @@ networks:
           name: SushiswapV2
           router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
           token_list: ""
-      - IUniswapV2Router02:
+      - ICamelotRouter:
           name: CamelotV2
           router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
           token_list: ""
