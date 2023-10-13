@@ -10,6 +10,7 @@ use crate::{
 	error::SoSwapError,
 	message::PostedSoSwapMessage,
 	state::{ForeignContract, RedeemerConfig, SoFeeConfig},
+	utils::bytes_to_hex,
 };
 
 #[derive(Accounts)]
@@ -196,7 +197,6 @@ pub fn handler(
 	}
 
 	// The intended recipient must agree with the recipient.
-	// TODO: dst swap
 	let soswap_message = ctx.accounts.vaa.message().data();
 	require!(*soswap_message != Default::default(), SoSwapError::DeserializeSoSwapMessageFail);
 	require!(
@@ -245,23 +245,66 @@ fn complete_transfer(
 	let so_fee =
 		(((amount as u128) * (ctx.accounts.fee_config.so_fee) as u128) / (RAY as u128)) as u64;
 
-	if require_so_fee && so_fee > 0 && so_fee <= amount {
-		// Transfer tokens so_fee from tmp_token_account to beneficiary.
-		anchor_spl::token::transfer(
-			CpiContext::new_with_signer(
-				ctx.accounts.token_program.to_account_info(),
-				anchor_spl::token::Transfer {
-					from: ctx.accounts.tmp_token_account.to_account_info(),
-					to: ctx.accounts.beneficiary_token_account.to_account_info(),
-					authority: ctx.accounts.config.to_account_info(),
-				},
-				&[&config_seeds[..]],
-			),
-			so_fee,
-		)?;
-	}
+	if require_so_fee {
+		let tx_sender = ctx.accounts.payer.key;
+		let so_receiver = Pubkey::try_from(
+			ctx.accounts.vaa.data().message().normalized_so_data.receiver.as_slice(),
+		)
+		.map_err(|_| SoSwapError::DeserializeSoSwapMessageFail)?;
+		let token = Pubkey::try_from(
+			ctx.accounts
+				.vaa
+				.data()
+				.message()
+				.normalized_so_data
+				.receiving_asset_id
+				.as_slice(),
+		)
+		.map_err(|_| SoSwapError::DeserializeSoSwapMessageFail)?;
+		let transaction_id =
+			bytes_to_hex(&ctx.accounts.vaa.data().message().normalized_so_data.transaction_id);
 
-	amount -= so_fee;
+		msg!(
+			"[OriginEvnet]: tx_sender={}, so_receiver={}, token={}, amount={}",
+			tx_sender,
+			so_receiver,
+			token,
+			amount
+		);
+
+		let actual_fee = if so_fee <= amount {
+			// Transfer tokens so_fee from tmp_token_account to beneficiary.
+			anchor_spl::token::transfer(
+				CpiContext::new_with_signer(
+					ctx.accounts.token_program.to_account_info(),
+					anchor_spl::token::Transfer {
+						from: ctx.accounts.tmp_token_account.to_account_info(),
+						to: ctx.accounts.beneficiary_token_account.to_account_info(),
+						authority: ctx.accounts.config.to_account_info(),
+					},
+					&[&config_seeds[..]],
+				),
+				so_fee,
+			)?;
+
+			so_fee
+		} else {
+			0
+		};
+
+		amount -= actual_fee;
+
+		msg!(
+			"[SoTransferCompleted] transaction_id={}, actual_receiving_amount={}",
+			transaction_id,
+			amount
+		);
+
+		msg!("[DstAmount] so_fee={}", actual_fee);
+	} else {
+		let receiver = ctx.accounts.recipient_token_account.key();
+		msg!("[Admin] recipient={}, actual_receiving_amount={}", receiver, amount)
+	}
 
 	// Transfer tokens from tmp_token_account to recipient.
 	anchor_spl::token::transfer(

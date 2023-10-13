@@ -16,6 +16,7 @@ pub mod instructions;
 pub mod message;
 pub mod serde;
 pub mod state;
+pub mod utils;
 
 declare_id!("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
 

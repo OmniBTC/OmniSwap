@@ -12,6 +12,7 @@ use crate::{
 	error::SoSwapError,
 	message::SoSwapMessage,
 	state::{ForeignContract, PriceManager, SenderConfig, SoFeeConfig},
+	utils::bytes_to_hex,
 };
 
 #[derive(Accounts)]
@@ -230,9 +231,40 @@ pub fn handler(
 
 	charge_relayer_fee(&ctx, fee)?;
 
+	msg!("[SoTransferStarted]: transaction_id={}", bytes_to_hex(&parsed_so_data.transaction_id));
+
+	let sequence = ctx.accounts.token_bridge_sequence.sequence;
+	msg!(
+		"[TransferFromWormholeEvent]: src_wormhole_chain_id={}, dst_wormhole_chain_id={}, sequence={}",
+		&parsed_so_data.source_chain_id,
+		&parsed_so_data.destination_chain_id,
+		sequence
+	);
+
+	msg!("[SrcAmount] relayer_fee={}, cross_amount={}", fee, truncated_amount);
+
+	publish_transfer(
+		&ctx,
+		truncated_amount,
+		parsed_wormhole_data,
+		parsed_so_data,
+		parsed_swap_data_dst,
+		recipient_chain,
+		dst_max_gas,
+	)
+}
+
+fn publish_transfer(
+	ctx: &Context<SoSwapNativeWithoutSwap>,
+	truncated_amount: u64,
+	parsed_wormhole_data: NormalizedWormholeData,
+	parsed_so_data: NormalizedSoData,
+	parsed_swap_data_dst: Vec<NormalizedSwapData>,
+	recipient_chain: u16,
+	dst_max_gas: U256,
+) -> Result<()> {
 	// These seeds are used to:
-	// 1.  Sign the Sender Config's token account to delegate approval
-	//     of truncated_amount.
+	// 1.  Sign the Sender Config's token account to delegate approval of truncated_amount.
 	// 2.  Sign Token Bridge program's transfer_native instruction.
 	// 3.  Close tmp_token_account.
 	let config_seeds = &[SenderConfig::SEED_PREFIX.as_ref(), &[ctx.accounts.config.bump]];
