@@ -116,4 +116,12 @@ pub enum SoSwapError {
 	#[msg("DeserializeSoSwapMessageFail")]
 	/// Deserialize SoSwapMessage fail
 	DeserializeSoSwapMessageFail,
+
+	#[msg("InvalidBeneficiary")]
+	/// Specified beneficiary account is wrong.
+	InvalidBeneficiary,
+
+	#[msg("CheckFeeFail")]
+	/// Insufficient relayer fee.
+	CheckFeeFail,
 }

@@ -1,16 +1,17 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, system_program::Transfer};
 use anchor_spl::{
 	associated_token::AssociatedToken,
 	token::{Mint, Token, TokenAccount},
 };
+use spl_math::uint::U256;
 use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use crate::{
-	constants::{SEED_PREFIX_BRIDGED, SEED_PREFIX_TMP},
-	cross::{NormalizedSoData, NormalizedWormholeData},
+	constants::{RAY, SEED_PREFIX_BRIDGED, SEED_PREFIX_TMP},
+	cross::{NormalizedSoData, NormalizedSwapData, NormalizedWormholeData},
 	error::SoSwapError,
 	message::SoSwapMessage,
-	state::{ForeignContract, SenderConfig},
+	state::{ForeignContract, PriceManager, SenderConfig, SoFeeConfig},
 };
 
 #[derive(Accounts)]
@@ -34,9 +35,34 @@ pub struct SoSwapNativeWithoutSwap<'info> {
 	pub config: Box<Account<'info, SenderConfig>>,
 
 	#[account(
+		seeds = [SoFeeConfig::SEED_PREFIX],
+		bump,
+	)]
+	/// SoFee Config account. Read-only.
+	pub fee_config: Box<Account<'info, SoFeeConfig>>,
+
+	#[account(
 		seeds = [
-		ForeignContract::SEED_PREFIX,
-		&NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..]
+			ForeignContract::SEED_PREFIX,
+			&NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..],
+			PriceManager::SEED_PREFIX
+		],
+		bump
+	)]
+	/// Price Manager account. Read-only.
+	pub price_manager: Box<Account<'info, PriceManager>>,
+
+	#[account(
+		mut,
+		address = fee_config.beneficiary @ SoSwapError::InvalidBeneficiary
+	)]
+	/// CHECK: collect relayer fee
+	pub beneficiary_account: UncheckedAccount<'info>,
+
+	#[account(
+		seeds = [
+			ForeignContract::SEED_PREFIX,
+			&NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..]
 		],
 		bump,
 	)]
@@ -103,16 +129,16 @@ pub struct SoSwapNativeWithoutSwap<'info> {
 	pub token_bridge_custody: UncheckedAccount<'info>,
 
 	#[account(
-		address = config.token_bridge.authority_signer @ SoSwapError::InvalidTokenBridgeAuthoritySigner
-	)]
-	/// CHECK: Token Bridge authority signer. Read-only.
-	pub token_bridge_authority_signer: UncheckedAccount<'info>,
-
-	#[account(
 		address = config.token_bridge.custody_signer @ SoSwapError::InvalidTokenBridgeCustodySigner
 	)]
 	/// CHECK: Token Bridge custody signer. Read-only.
 	pub token_bridge_custody_signer: UncheckedAccount<'info>,
+
+	#[account(
+		address = config.token_bridge.authority_signer @ SoSwapError::InvalidTokenBridgeAuthoritySigner
+	)]
+	/// CHECK: Token Bridge authority signer. Read-only.
+	pub token_bridge_authority_signer: UncheckedAccount<'info>,
 
 	#[account(
 		mut,
@@ -175,6 +201,7 @@ pub fn handler(
 	amount: u64,
 	wormhole_data: Vec<u8>,
 	so_data: Vec<u8>,
+	swap_data_dst: Vec<u8>,
 ) -> Result<()> {
 	// Token Bridge program truncates amounts to 8 decimals, so there will
 	// be a residual amount if decimals of SPL is >8. We need to take into
@@ -185,19 +212,23 @@ pub fn handler(
 		msg!("SendNativeTokensWithPayload :: truncating amount {} to {}", amount, truncated_amount);
 	}
 
-	let normalized_wormhole_data =
+	let parsed_wormhole_data =
 		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
-	let normalized_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
+	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
+	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
 
-	let recipient_chain = normalized_wormhole_data.dst_wormhole_chain_id;
-	require!(
-		recipient_chain > 0 &&
-			recipient_chain != wormhole::CHAIN_ID_SOLANA &&
-			!normalized_wormhole_data.dst_so_diamond.iter().all(|&x| x == 0) &&
-			normalized_wormhole_data.dst_so_diamond ==
-				ctx.accounts.foreign_contract.address.to_vec(),
-		SoSwapError::InvalidRecipient,
-	);
+	let recipient_chain = check_parameters(&ctx, &parsed_wormhole_data)?;
+
+	let (flag, fee, _consume_value, dst_max_gas) = check_relayer_fee(
+		&ctx,
+		&parsed_wormhole_data,
+		&parsed_so_data,
+		&parsed_swap_data_dst,
+		recipient_chain,
+	)?;
+	require!(flag, SoSwapError::CheckFeeFail);
+
+	charge_relayer_fee(&ctx, fee)?;
 
 	// These seeds are used to:
 	// 1.  Sign the Sender Config's token account to delegate approval
@@ -236,11 +267,10 @@ pub fn handler(
 	// Serialize SoSwapMessage as encoded payload for Token Bridge
 	// transfer.
 	let payload = SoSwapMessage {
-		dst_max_gas_price: normalized_wormhole_data.dst_max_gas_price_in_wei_for_relayer,
-		// TODO: dst_max_gas
-		dst_max_gas: Default::default(),
-		normalized_so_data,
-		normalized_swap_data: Default::default(),
+		dst_max_gas_price: parsed_wormhole_data.dst_max_gas_price_in_wei_for_relayer,
+		dst_max_gas,
+		normalized_so_data: parsed_so_data,
+		normalized_swap_data: parsed_swap_data_dst,
 	}
 	.try_to_vec()?;
 
@@ -295,4 +325,98 @@ pub fn handler(
 		},
 		&[&config_seeds[..]],
 	))
+}
+
+fn check_parameters(
+	ctx: &Context<SoSwapNativeWithoutSwap>,
+	parsed_wormhole_data: &NormalizedWormholeData,
+) -> Result<u16> {
+	let recipient_chain = parsed_wormhole_data.dst_wormhole_chain_id;
+
+	require!(
+		recipient_chain > 0 &&
+			recipient_chain != wormhole::CHAIN_ID_SOLANA &&
+			!parsed_wormhole_data.dst_so_diamond.iter().all(|&x| x == 0) &&
+			parsed_wormhole_data.dst_so_diamond ==
+				ctx.accounts.foreign_contract.address.to_vec(),
+		SoSwapError::InvalidRecipient,
+	);
+
+	Ok(recipient_chain)
+}
+
+fn check_relayer_fee(
+	ctx: &Context<SoSwapNativeWithoutSwap>,
+	parsed_wormhole_data: &NormalizedWormholeData,
+	parsed_so_data: &NormalizedSoData,
+	parsed_swap_data_dst: &Vec<NormalizedSwapData>,
+	recipient_chain: u16,
+) -> Result<(bool, u64, u64, U256)> {
+	let estimate_reserve = U256::from(ctx.accounts.fee_config.estimate_reserve);
+
+	let ratio = ctx.accounts.price_manager.current_price_ratio;
+
+	let dst_max_gas = ctx.accounts.foreign_contract.estimate_complete_soswap_gas(
+		&NormalizedSoData::encode_normalized_so_data(parsed_so_data),
+		parsed_wormhole_data,
+		&NormalizedSwapData::encode_normalized_swap_data(parsed_swap_data_dst),
+	);
+
+	let dst_fee = parsed_wormhole_data
+		.dst_max_gas_price_in_wei_for_relayer
+		.checked_mul(dst_max_gas)
+		.unwrap();
+
+	let one = U256::from(RAY);
+	let mut src_fee = dst_fee
+		.checked_mul(U256::from(ratio))
+		.unwrap()
+		.checked_div(one)
+		.unwrap()
+		.checked_mul(estimate_reserve)
+		.unwrap()
+		.checked_div(one)
+		.unwrap();
+
+	// Solana decimals = 9
+	if recipient_chain == 22 {
+		// Aptos chain, decimals=8
+		// decimal * 10
+		src_fee = src_fee.checked_mul(10u64.into()).unwrap();
+	} else {
+		// Evm chain, decimals=18
+		// decimal / 1e9
+		src_fee = src_fee.checked_div(1_000_000_000u64.into()).unwrap();
+	};
+
+	let mut consume_value = ctx.accounts.wormhole_bridge.config.fee;
+
+	let src_fee = src_fee.as_u64();
+	consume_value += src_fee;
+
+	let mut u256_le_bytes = [0u8; 32];
+	dst_max_gas.to_little_endian(u256_le_bytes.as_mut_slice());
+
+	let mut flag = false;
+
+	let wormhole_fee = parsed_wormhole_data.wormhole_fee.as_u64();
+	if consume_value <= wormhole_fee {
+		flag = true;
+	};
+
+	Ok((flag, src_fee, consume_value, dst_max_gas))
+}
+
+fn charge_relayer_fee(ctx: &Context<SoSwapNativeWithoutSwap>, relayer_fee: u64) -> Result<()> {
+	// Pay fee
+	anchor_lang::system_program::transfer(
+		CpiContext::new(
+			ctx.accounts.system_program.to_account_info(),
+			Transfer {
+				from: ctx.accounts.payer.to_account_info(),
+				to: ctx.accounts.beneficiary_account.to_account_info(),
+			},
+		),
+		relayer_fee,
+	)
 }

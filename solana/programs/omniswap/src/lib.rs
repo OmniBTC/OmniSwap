@@ -109,8 +109,15 @@ pub mod omniswap {
 		amount: u64,
 		wormhole_data: Vec<u8>,
 		so_data: Vec<u8>,
+		swap_data_dst: Vec<u8>,
 	) -> Result<()> {
-		instructions::so_swap_native_without_swap::handler(ctx, amount, wormhole_data, so_data)
+		instructions::so_swap_native_without_swap::handler(
+			ctx,
+			amount,
+			wormhole_data,
+			so_data,
+			swap_data_dst,
+		)
 	}
 
 	pub fn complete_so_swap_native_without_swap(
@@ -130,8 +137,15 @@ pub mod omniswap {
 		amount: u64,
 		wormhole_data: Vec<u8>,
 		so_data: Vec<u8>,
+		swap_data_dst: Vec<u8>,
 	) -> Result<()> {
-		instructions::so_swap_wrapped_without_swap::handler(ctx, amount, wormhole_data, so_data)
+		instructions::so_swap_wrapped_without_swap::handler(
+			ctx,
+			amount,
+			wormhole_data,
+			so_data,
+			swap_data_dst,
+		)
 	}
 
 	pub fn complete_so_swap_wrapped_without_swap(

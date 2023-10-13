@@ -42,9 +42,6 @@ pub struct EstimateRelayerFee<'info> {
 	/// Wormhole bridge data.
 	/// Query bridge.config.fee
 	pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
-
-	/// Clock used for price manager.
-	pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(
