@@ -6,10 +6,10 @@ use anchor_spl::{
 use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use crate::{
-	constants::SEED_PREFIX_TMP,
+	constants::{RAY, SEED_PREFIX_TMP},
 	error::SoSwapError,
 	message::PostedSoSwapMessage,
-	state::{ForeignContract, RedeemerConfig},
+	state::{ForeignContract, RedeemerConfig, SoFeeConfig},
 };
 
 #[derive(Accounts)]
@@ -27,6 +27,21 @@ pub struct CompleteSoSwapNativeWithoutSwap<'info> {
 	/// Redeemer Config account. Acts as the Token Bridge redeemer, which signs
 	/// for the complete transfer instruction. Read-only.
 	pub config: Box<Account<'info, RedeemerConfig>>,
+
+	#[account(
+		seeds = [SoFeeConfig::SEED_PREFIX],
+		bump,
+	)]
+	/// SoFee Config account. Read-only.
+	pub fee_config: Box<Account<'info, SoFeeConfig>>,
+
+	#[account(
+		mut,
+		associated_token::mint = mint,
+		associated_token::authority = fee_config.beneficiary
+	)]
+	/// CHECK: collect relayer fee
+	pub beneficiary_token_account: Box<Account<'info, TokenAccount>>,
 
 	#[account(
 		seeds = [
@@ -165,7 +180,7 @@ pub fn handler(
 	require!(ctx.accounts.token_bridge_claim.data_is_empty(), SoSwapError::AlreadyRedeemed);
 
 	if skip_verify_soswap_message && ctx.accounts.payer.key() == ctx.accounts.config.owner {
-		return complete_transfer(&ctx)
+		return complete_transfer(&ctx, false)
 	}
 
 	// The intended recipient must agree with the recipient.
@@ -177,10 +192,13 @@ pub fn handler(
 		SoSwapError::InvalidRecipient
 	);
 
-	complete_transfer(&ctx)
+	complete_transfer(&ctx, true)
 }
 
-fn complete_transfer(ctx: &Context<CompleteSoSwapNativeWithoutSwap>) -> Result<()> {
+fn complete_transfer(
+	ctx: &Context<CompleteSoSwapNativeWithoutSwap>,
+	require_so_fee: bool,
+) -> Result<()> {
 	// These seeds are used to:
 	// 1.  Redeem Token Bridge program's complete_transfer_native_with_payload.
 	// 2.  Transfer tokens to recipient.
@@ -209,12 +227,33 @@ fn complete_transfer(ctx: &Context<CompleteSoSwapNativeWithoutSwap>) -> Result<(
 		&[&config_seeds[..]],
 	))?;
 
-	let amount = token_bridge::denormalize_amount(
+	let mut amount = token_bridge::denormalize_amount(
 		ctx.accounts.vaa.data().amount(),
 		ctx.accounts.mint.decimals,
 	);
 
-	// Transfer tokens from tmp_token_account to recipient.
+	let so_fee =
+		(((amount as u128) * (ctx.accounts.fee_config.so_fee) as u128) / (RAY as u128)) as u64;
+
+	if require_so_fee && so_fee > 0 && so_fee <= amount {
+		// Transfer tokens so_fee from tmp_token_account to beneficiary.
+		anchor_spl::token::transfer(
+			CpiContext::new_with_signer(
+				ctx.accounts.token_program.to_account_info(),
+				anchor_spl::token::Transfer {
+					from: ctx.accounts.tmp_token_account.to_account_info(),
+					to: ctx.accounts.beneficiary_token_account.to_account_info(),
+					authority: ctx.accounts.config.to_account_info(),
+				},
+				&[&config_seeds[..]],
+			),
+			so_fee,
+		)?;
+	}
+
+	amount -= so_fee;
+
+	// Transfer the other tokens from tmp_token_account to recipient.
 	anchor_spl::token::transfer(
 		CpiContext::new_with_signer(
 			ctx.accounts.token_program.to_account_info(),
