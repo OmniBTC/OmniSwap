@@ -1,7 +1,8 @@
+pragma solidity >=0.6.2;
 // Experimental Extension [ftm.guru/solidly/BaseV1Router02]
 // contract BaseV1Router02 is BaseV1Router01
 // with Support for Fee-on-Transfer Tokens
-contract IRouterV2 {
+interface IRouterV2 {
     struct route {
         address from;
         address to;
