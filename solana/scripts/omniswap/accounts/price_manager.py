@@ -9,27 +9,25 @@ from anchorpy.error import AccountInvalidDiscriminator
 from anchorpy.utils.rpc import get_multiple_accounts
 from anchorpy.borsh_extension import BorshPubkey
 from ..program_id import PROGRAM_ID
-from .. import types
 
 
-class SenderConfigJSON(typing.TypedDict):
+class PriceManagerJSON(typing.TypedDict):
     owner: str
-    bump: int
-    token_bridge: types.outbound_token_bridge_addresses.OutboundTokenBridgeAddressesJSON
+    current_price_ratio: int
+    last_update_timestamp: int
 
 
 @dataclass
-class SenderConfig:
-    discriminator: typing.ClassVar = b"\x00\xf1\xdcM\xa7\x80O\x98"
+class PriceManager:
+    discriminator: typing.ClassVar = b'k\xe3\xe7M5\xf6\x05"'
     layout: typing.ClassVar = borsh.CStruct(
         "owner" / BorshPubkey,
-        "bump" / borsh.U8,
-        "token_bridge"
-        / types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.layout,
+        "current_price_ratio" / borsh.U64,
+        "last_update_timestamp" / borsh.U64,
     )
     owner: Pubkey
-    bump: int
-    token_bridge: types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses
+    current_price_ratio: int
+    last_update_timestamp: int
 
     @classmethod
     async def fetch(
@@ -38,7 +36,7 @@ class SenderConfig:
         address: Pubkey,
         commitment: typing.Optional[Commitment] = None,
         program_id: Pubkey = PROGRAM_ID,
-    ) -> typing.Optional["SenderConfig"]:
+    ) -> typing.Optional["PriceManager"]:
         resp = await conn.get_account_info(address, commitment=commitment)
         info = resp.value
         if info is None:
@@ -55,9 +53,9 @@ class SenderConfig:
         addresses: list[Pubkey],
         commitment: typing.Optional[Commitment] = None,
         program_id: Pubkey = PROGRAM_ID,
-    ) -> typing.List[typing.Optional["SenderConfig"]]:
+    ) -> typing.List[typing.Optional["PriceManager"]]:
         infos = await get_multiple_accounts(conn, addresses, commitment=commitment)
-        res: typing.List[typing.Optional["SenderConfig"]] = []
+        res: typing.List[typing.Optional["PriceManager"]] = []
         for info in infos:
             if info is None:
                 res.append(None)
@@ -68,33 +66,29 @@ class SenderConfig:
         return res
 
     @classmethod
-    def decode(cls, data: bytes) -> "SenderConfig":
+    def decode(cls, data: bytes) -> "PriceManager":
         if data[:ACCOUNT_DISCRIMINATOR_SIZE] != cls.discriminator:
             raise AccountInvalidDiscriminator(
                 "The discriminator for this account is invalid"
             )
-        dec = SenderConfig.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
+        dec = PriceManager.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
         return cls(
             owner=dec.owner,
-            bump=dec.bump,
-            token_bridge=types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.from_decoded(
-                dec.token_bridge
-            ),
+            current_price_ratio=dec.current_price_ratio,
+            last_update_timestamp=dec.last_update_timestamp,
         )
 
-    def to_json(self) -> SenderConfigJSON:
+    def to_json(self) -> PriceManagerJSON:
         return {
             "owner": str(self.owner),
-            "bump": self.bump,
-            "token_bridge": self.token_bridge.to_json(),
+            "current_price_ratio": self.current_price_ratio,
+            "last_update_timestamp": self.last_update_timestamp,
         }
 
     @classmethod
-    def from_json(cls, obj: SenderConfigJSON) -> "SenderConfig":
+    def from_json(cls, obj: PriceManagerJSON) -> "PriceManager":
         return cls(
             owner=Pubkey.from_string(obj["owner"]),
-            bump=obj["bump"],
-            token_bridge=types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.from_json(
-                obj["token_bridge"]
-            ),
+            current_price_ratio=obj["current_price_ratio"],
+            last_update_timestamp=obj["last_update_timestamp"],
         )

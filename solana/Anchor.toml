@@ -1,9 +1,8 @@
 [features]
 seeds = false
 skip-lint = false
-
 [programs.devnet]
-omniswap = "9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU"
+omniswap = "8kaBfAy1pYaQzmHgWiUHcBqQfhgv8ahnMrSfcNVrkKFJ"
 
 [registry]
 url = "https://api.apr.dev"

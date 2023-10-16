@@ -16,8 +16,6 @@ class RedeemerConfigJSON(typing.TypedDict):
     owner: str
     bump: int
     token_bridge: types.inbound_token_bridge_addresses.InboundTokenBridgeAddressesJSON
-    relayer_fee: int
-    relayer_fee_precision: int
 
 
 @dataclass
@@ -28,14 +26,10 @@ class RedeemerConfig:
         "bump" / borsh.U8,
         "token_bridge"
         / types.inbound_token_bridge_addresses.InboundTokenBridgeAddresses.layout,
-        "relayer_fee" / borsh.U32,
-        "relayer_fee_precision" / borsh.U32,
     )
     owner: Pubkey
     bump: int
     token_bridge: types.inbound_token_bridge_addresses.InboundTokenBridgeAddresses
-    relayer_fee: int
-    relayer_fee_precision: int
 
     @classmethod
     async def fetch(
@@ -86,8 +80,6 @@ class RedeemerConfig:
             token_bridge=types.inbound_token_bridge_addresses.InboundTokenBridgeAddresses.from_decoded(
                 dec.token_bridge
             ),
-            relayer_fee=dec.relayer_fee,
-            relayer_fee_precision=dec.relayer_fee_precision,
         )
 
     def to_json(self) -> RedeemerConfigJSON:
@@ -95,8 +87,6 @@ class RedeemerConfig:
             "owner": str(self.owner),
             "bump": self.bump,
             "token_bridge": self.token_bridge.to_json(),
-            "relayer_fee": self.relayer_fee,
-            "relayer_fee_precision": self.relayer_fee_precision,
         }
 
     @classmethod
@@ -107,6 +97,4 @@ class RedeemerConfig:
             token_bridge=types.inbound_token_bridge_addresses.InboundTokenBridgeAddresses.from_json(
                 obj["token_bridge"]
             ),
-            relayer_fee=obj["relayer_fee"],
-            relayer_fee_precision=obj["relayer_fee_precision"],
         )

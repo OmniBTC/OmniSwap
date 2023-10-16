@@ -9,27 +9,31 @@ from anchorpy.error import AccountInvalidDiscriminator
 from anchorpy.utils.rpc import get_multiple_accounts
 from anchorpy.borsh_extension import BorshPubkey
 from ..program_id import PROGRAM_ID
-from .. import types
 
 
-class SenderConfigJSON(typing.TypedDict):
+class SoFeeConfigJSON(typing.TypedDict):
     owner: str
-    bump: int
-    token_bridge: types.outbound_token_bridge_addresses.OutboundTokenBridgeAddressesJSON
+    beneficiary: str
+    so_fee: int
+    actual_reserve: int
+    estimate_reserve: int
 
 
 @dataclass
-class SenderConfig:
-    discriminator: typing.ClassVar = b"\x00\xf1\xdcM\xa7\x80O\x98"
+class SoFeeConfig:
+    discriminator: typing.ClassVar = b")h!l\xf5ZM\x82"
     layout: typing.ClassVar = borsh.CStruct(
         "owner" / BorshPubkey,
-        "bump" / borsh.U8,
-        "token_bridge"
-        / types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.layout,
+        "beneficiary" / BorshPubkey,
+        "so_fee" / borsh.U64,
+        "actual_reserve" / borsh.U64,
+        "estimate_reserve" / borsh.U64,
     )
     owner: Pubkey
-    bump: int
-    token_bridge: types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses
+    beneficiary: Pubkey
+    so_fee: int
+    actual_reserve: int
+    estimate_reserve: int
 
     @classmethod
     async def fetch(
@@ -38,7 +42,7 @@ class SenderConfig:
         address: Pubkey,
         commitment: typing.Optional[Commitment] = None,
         program_id: Pubkey = PROGRAM_ID,
-    ) -> typing.Optional["SenderConfig"]:
+    ) -> typing.Optional["SoFeeConfig"]:
         resp = await conn.get_account_info(address, commitment=commitment)
         info = resp.value
         if info is None:
@@ -55,9 +59,9 @@ class SenderConfig:
         addresses: list[Pubkey],
         commitment: typing.Optional[Commitment] = None,
         program_id: Pubkey = PROGRAM_ID,
-    ) -> typing.List[typing.Optional["SenderConfig"]]:
+    ) -> typing.List[typing.Optional["SoFeeConfig"]]:
         infos = await get_multiple_accounts(conn, addresses, commitment=commitment)
-        res: typing.List[typing.Optional["SenderConfig"]] = []
+        res: typing.List[typing.Optional["SoFeeConfig"]] = []
         for info in infos:
             if info is None:
                 res.append(None)
@@ -68,33 +72,35 @@ class SenderConfig:
         return res
 
     @classmethod
-    def decode(cls, data: bytes) -> "SenderConfig":
+    def decode(cls, data: bytes) -> "SoFeeConfig":
         if data[:ACCOUNT_DISCRIMINATOR_SIZE] != cls.discriminator:
             raise AccountInvalidDiscriminator(
                 "The discriminator for this account is invalid"
             )
-        dec = SenderConfig.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
+        dec = SoFeeConfig.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
         return cls(
             owner=dec.owner,
-            bump=dec.bump,
-            token_bridge=types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.from_decoded(
-                dec.token_bridge
-            ),
+            beneficiary=dec.beneficiary,
+            so_fee=dec.so_fee,
+            actual_reserve=dec.actual_reserve,
+            estimate_reserve=dec.estimate_reserve,
         )
 
-    def to_json(self) -> SenderConfigJSON:
+    def to_json(self) -> SoFeeConfigJSON:
         return {
             "owner": str(self.owner),
-            "bump": self.bump,
-            "token_bridge": self.token_bridge.to_json(),
+            "beneficiary": str(self.beneficiary),
+            "so_fee": self.so_fee,
+            "actual_reserve": self.actual_reserve,
+            "estimate_reserve": self.estimate_reserve,
         }
 
     @classmethod
-    def from_json(cls, obj: SenderConfigJSON) -> "SenderConfig":
+    def from_json(cls, obj: SoFeeConfigJSON) -> "SoFeeConfig":
         return cls(
             owner=Pubkey.from_string(obj["owner"]),
-            bump=obj["bump"],
-            token_bridge=types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.from_json(
-                obj["token_bridge"]
-            ),
+            beneficiary=Pubkey.from_string(obj["beneficiary"]),
+            so_fee=obj["so_fee"],
+            actual_reserve=obj["actual_reserve"],
+            estimate_reserve=obj["estimate_reserve"],
         )
