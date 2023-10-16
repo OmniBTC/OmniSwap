@@ -5,15 +5,13 @@ use crate::{error::SoSwapError, state::SoFeeConfig};
 #[derive(Accounts)]
 pub struct SetWormholeReserve<'info> {
 	#[account(mut)]
-	/// Whoever initializes the config will be the owner of the program. Signer
-	/// for creating the [`SenderConfig`],[`RedeemerConfig`] and [`SoFeeConfig`] accounts.
-	pub owner: Signer<'info>,
+	pub payer: Signer<'info>,
 
 	#[account(
 		mut,
-		has_one = owner @ SoSwapError::OwnerOnly,
 		seeds = [SoFeeConfig::SEED_PREFIX],
-		bump
+		bump,
+		constraint = payer.key() == config.owner || payer.key() == config.beneficiary @ SoSwapError::OwnerOnly
 	)]
 	/// Sender Config account.
 	pub config: Box<Account<'info, SoFeeConfig>>,

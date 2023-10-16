@@ -5,7 +5,8 @@ use wormhole_anchor_sdk::wormhole;
 use crate::{
 	constants::RAY,
 	cross::*,
-	state::{ForeignContract, PriceManager, SoFeeConfig},
+	SoSwapError,
+	state::{ForeignContract, PriceManager, SoFeeConfig}
 };
 
 #[derive(Accounts)]
@@ -50,7 +51,7 @@ pub fn handler(
 	so_data: Vec<u8>,
 	wormhole_data: Vec<u8>,
 	swap_data_dst: Vec<u8>,
-) -> Result<(u64, u64, Vec<u8>)> {
+) -> Result<(u64, u64, u128)> {
 	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
 	let parsed_wormhole_data =
 		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
@@ -98,8 +99,10 @@ pub fn handler(
 	let src_fee = src_fee.as_u64();
 	consume_value += src_fee;
 
-	let mut u256_le_bytes = [0u8; 32];
-	dst_max_gas.to_little_endian(u256_le_bytes.as_mut_slice());
+	require!(
+		dst_max_gas < U256::from(u128::MAX),
+		SoSwapError::UnexpectValue
+	);
 
-	Ok((src_fee, consume_value, u256_le_bytes.to_vec()))
+	Ok((src_fee, consume_value, dst_max_gas.as_u128()))
 }

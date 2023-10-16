@@ -151,6 +151,7 @@ pub fn handler(
 	// Initialize program's fee config
 	let so_fee_config = &mut ctx.accounts.fee_config;
 	{
+		so_fee_config.owner = ctx.accounts.owner.key();
 		so_fee_config.beneficiary = beneficiary;
 		so_fee_config.so_fee = so_fee_by_ray;
 		so_fee_config.actual_reserve = actual_reserve;

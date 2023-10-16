@@ -167,7 +167,7 @@ pub mod omniswap {
 		so_data: Vec<u8>,
 		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
-	) -> Result<(u64, u64, Vec<u8>)> {
+	) -> Result<(u64, u64, u128)> {
 		instructions::estimate_relayer_fee::handler(
 			ctx,
 			chain_id,

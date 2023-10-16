@@ -124,4 +124,8 @@ pub enum SoSwapError {
 	#[msg("CheckFeeFail")]
 	/// Insufficient relayer fee.
 	CheckFeeFail,
+
+	#[msg("UnexpectValue")]
+	/// Expect integer value less than u128::MAX.
+	UnexpectValue,
 }

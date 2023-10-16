@@ -27,8 +27,8 @@ pub struct RegisterForeignContract<'info> {
 		init_if_needed,
 		payer = owner,
 		seeds = [
-		ForeignContract::SEED_PREFIX,
-		&chain.to_le_bytes()[..]
+			ForeignContract::SEED_PREFIX,
+			&chain.to_le_bytes()[..]
 		],
 		bump,
 		space = ForeignContract::MAXIMUM_SIZE
@@ -42,9 +42,9 @@ pub struct RegisterForeignContract<'info> {
 		init_if_needed,
 		payer = owner,
 		seeds = [
-		ForeignContract::SEED_PREFIX,
-		&chain.to_le_bytes()[..],
-		PriceManager::SEED_PREFIX
+			ForeignContract::SEED_PREFIX,
+			&chain.to_le_bytes()[..],
+			PriceManager::SEED_PREFIX
 		],
 		bump,
 		space = PriceManager::MAXIMUM_SIZE
@@ -56,8 +56,8 @@ pub struct RegisterForeignContract<'info> {
 
 	#[account(
 		seeds = [
-		&chain.to_be_bytes(),
-		token_bridge_foreign_endpoint.emitter_address.as_ref()
+			&chain.to_be_bytes(),
+			token_bridge_foreign_endpoint.emitter_address.as_ref()
 		],
 		bump,
 		seeds::program = token_bridge_program

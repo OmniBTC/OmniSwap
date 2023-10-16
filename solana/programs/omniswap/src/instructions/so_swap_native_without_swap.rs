@@ -426,9 +426,6 @@ fn check_relayer_fee(
 	let src_fee = src_fee.as_u64();
 	consume_value += src_fee;
 
-	let mut u256_le_bytes = [0u8; 32];
-	dst_max_gas.to_little_endian(u256_le_bytes.as_mut_slice());
-
 	let mut flag = false;
 
 	let wormhole_fee = parsed_wormhole_data.wormhole_fee.as_u64();

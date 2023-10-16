@@ -33,6 +33,15 @@ def deriveFeeCollectorKey(wormhole_program_id: str):
     return program_address
 
 
+def deriveSoFeeConfigKey(omniswap_program_id: Union[str, Pubkey]):
+    if isinstance(omniswap_program_id, str):
+        program_id = Pubkey.from_string(omniswap_program_id)
+    else:
+        program_id = omniswap_program_id
+    program_address, _nonce = Pubkey.find_program_address([b"so_fee"], program_id)
+    return program_address
+
+
 def deriveSenderConfigKey(omniswap_program_id: Union[str, Pubkey]):
     if isinstance(omniswap_program_id, str):
         program_id = Pubkey.from_string(omniswap_program_id)
@@ -63,6 +72,22 @@ def deriveForeignContractKey(omniswap_program_id: Union[str, Pubkey], chain: int
     return program_address
 
 
+def derivePriceManagerKey(omniswap_program_id: Union[str, Pubkey], chain: int):
+    if isinstance(omniswap_program_id, str):
+        program_id = Pubkey.from_string(omniswap_program_id)
+    else:
+        program_id = omniswap_program_id
+
+    seed = [
+        b"foreign_contract",
+        chain.to_bytes(length=2, byteorder="little", signed=False),
+        b"price_manager"
+    ]
+
+    program_address, _nonce = Pubkey.find_program_address(seed, program_id)
+    return program_address
+
+
 def deriveTokenTransferMessageKey(
     omniswap_program_id: Union[str, Pubkey], next_seq: int
 ):
@@ -79,10 +104,10 @@ def deriveTokenTransferMessageKey(
 
 
 def deriveForeignEndPointKey(
-    token_bridge_program_id: str, chain: int, foreign_contract: Pubkey
+        token_bridge_program_id: str, chain: int, foreign_contract: Pubkey
 ):
     assert (
-        chain != 1
+            chain != 1
     ), "emitterChain == CHAIN_ID_SOLANA cannot exist as foreign token bridge emitter"
 
     program_id = Pubkey.from_string(token_bridge_program_id)
@@ -131,8 +156,8 @@ def deriveAuthoritySignerKey(token_bridge_program_id: str):
 
 
 def deriveCustodyKey(
-    token_bridge_program_id: str,
-    native_mint: Pubkey,
+        token_bridge_program_id: str,
+        native_mint: Pubkey,
 ):
     program_id = Pubkey.from_string(token_bridge_program_id)
     program_address, _nonce = Pubkey.find_program_address(
@@ -156,7 +181,7 @@ def deriveMintAuthorityKey(token_bridge_program_id: str):
 
 
 def getTokenBridgeDerivedAccounts(
-    token_bridge_program_id: str, wormhole_program_id: str
+        token_bridge_program_id: str, wormhole_program_id: str
 ):
     wormhole_accounts = getWormholeDerivedAccounts(
         token_bridge_program_id, wormhole_program_id
@@ -177,10 +202,10 @@ def getTokenBridgeDerivedAccounts(
 
 
 def deriveWrappedMintKey(
-    token_bridge_program_id: str, token_chain: int, token_address: Union[str, bytes]
+        token_bridge_program_id: str, token_chain: int, token_address: Union[str, bytes]
 ):
     assert (
-        token_chain != 1
+            token_chain != 1
     ), "tokenChain == CHAIN_ID_SOLANA does not have wrapped mint key"
 
     if isinstance(token_address, str):
@@ -220,10 +245,10 @@ def deriveGuardianSetKey(wormhole_program_id: str, index: int):
 
 
 def deriveClaimKey(
-    token_bridge_program_id: str,
-    emitter_address: Union[str, bytes],
-    emitter_chain: int,
-    sequence: int,
+        token_bridge_program_id: str,
+        emitter_address: Union[str, bytes],
+        emitter_chain: int,
+        sequence: int,
 ):
     if isinstance(emitter_address, str):
         emitter_address = bytes.fromhex(emitter_address.replace("0x", ""))
@@ -251,7 +276,7 @@ def deriveWrappedMetaKey(token_bridge_program_id: str, mint_key: Pubkey):
 
 
 def deriveTmpTokenAccountKey(
-    omniswap_program_id: Union[str, Pubkey], wrapped_mint: Pubkey
+        omniswap_program_id: Union[str, Pubkey], wrapped_mint: Pubkey
 ):
     if isinstance(omniswap_program_id, str):
         program_id = Pubkey.from_string(omniswap_program_id)
@@ -266,11 +291,11 @@ def deriveTmpTokenAccountKey(
 
 
 def getRedeemWrappedTransferAccounts(
-    token_bridge_program_id: str,
-    wormhole_program_id: str,
-    omniswap_program_id: str,
-    payer: Pubkey,
-    vaa: Union[str, bytes],
+        token_bridge_program_id: str,
+        wormhole_program_id: str,
+        omniswap_program_id: str,
+        payer: Pubkey,
+        vaa: Union[str, bytes],
 ):
     parsed_vaa = ParsedVaa.parse(vaa)
     token_transfer = ParsedTransfer.parse(parsed_vaa.payload)
@@ -324,12 +349,12 @@ def getRedeemWrappedTransferAccounts(
 
 
 def getRedeemNativeTransferAccounts(
-    token_bridge_program_id: str,
-    wormhole_program_id: str,
-    omniswap_program_id: str,
-    payer: Pubkey,
-    vaa: Union[str, bytes],
-    native_mint: Pubkey,
+        token_bridge_program_id: str,
+        wormhole_program_id: str,
+        omniswap_program_id: str,
+        payer: Pubkey,
+        vaa: Union[str, bytes],
+        native_mint: Pubkey,
 ):
     parsed_vaa = ParsedVaa.parse(vaa)
     token_transfer = ParsedTransfer.parse(parsed_vaa.payload)
@@ -374,11 +399,11 @@ def getRedeemNativeTransferAccounts(
 
 
 def getSendWrappedTransferAccounts(
-    token_bridge_program_id: str,
-    wormhole_program_id: str,
-    omniswap_program_id: str,
-    recipient_chain: int,
-    recipient_token: bytes,
+        token_bridge_program_id: str,
+        wormhole_program_id: str,
+        omniswap_program_id: str,
+        recipient_chain: int,
+        recipient_token: bytes,
 ):
     wrapped_mint_key = deriveWrappedMintKey(
         token_bridge_program_id, recipient_chain, recipient_token
@@ -421,11 +446,11 @@ def getSendWrappedTransferAccounts(
 
 
 def getSendNativeTransferAccounts(
-    token_bridge_program_id: str,
-    wormhole_program_id: str,
-    omniswap_program_id: str,
-    recipient_chain: int,
-    native_mint_key: Pubkey,
+        token_bridge_program_id: str,
+        wormhole_program_id: str,
+        omniswap_program_id: str,
+        recipient_chain: int,
+        native_mint_key: Pubkey,
 ):
     tmp_token_key = deriveTmpTokenAccountKey(omniswap_program_id, native_mint_key)
 

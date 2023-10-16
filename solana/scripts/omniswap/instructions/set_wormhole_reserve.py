@@ -15,7 +15,7 @@ layout = borsh.CStruct("actual_reserve" / borsh.U64, "estimate_reserve" / borsh.
 
 
 class SetWormholeReserveAccounts(typing.TypedDict):
-    owner: Pubkey
+    payer: Pubkey
     config: Pubkey
 
 
@@ -26,7 +26,7 @@ def set_wormhole_reserve(
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> Instruction:
     keys: list[AccountMeta] = [
-        AccountMeta(pubkey=accounts["owner"], is_signer=True, is_writable=True),
+        AccountMeta(pubkey=accounts["payer"], is_signer=True, is_writable=True),
         AccountMeta(pubkey=accounts["config"], is_signer=False, is_writable=True),
     ]
     if remaining_accounts is not None:

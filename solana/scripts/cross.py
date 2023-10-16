@@ -1,9 +1,14 @@
 import json
+import serde
 from random import choice
 from typing import List
-from brownie import web3
-import serde
+from typing import (
+    NewType,
+    Union,
+)
 
+HexStr = NewType('HexStr', str)
+Primitives = Union[bytes, int, bool]
 
 def generate_random_bytes32():
     """Produce random transactions iD for tracking transactions on both chains
@@ -32,6 +37,42 @@ def padding_to_bytes(data: str, padding="right", length=32):
     else:
         return "0x" + "0" * padding_length + data
 
+def int_to_big_endian(value: int) -> bytes:
+    return value.to_bytes((value.bit_length() + 7) // 8 or 1, "big")
+
+
+def big_endian_to_int(value: bytes) -> int:
+    return int.from_bytes(value, "big")
+
+def to_int(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+) -> int:
+    """
+    Converts value to its integer representation.
+    Values are converted this way:
+
+     * primitive:
+
+       * bytes, bytearrays: big-endian integer
+       * bool: True => 1, False => 0
+     * hexstr: interpret hex as integer
+     * text: interpret as string of digits, like '12' => 12
+    """
+    if hexstr is not None:
+        return int(hexstr, 16)
+    elif text is not None:
+        return int(text)
+    elif isinstance(primitive, (bytes, bytearray)):
+        return big_endian_to_int(primitive)
+    elif isinstance(primitive, str):
+        raise TypeError("Pass in strings with keyword hexstr or text")
+    elif isinstance(primitive, (int, bool)):
+        return int(primitive)
+    else:
+        raise TypeError(
+            "Invalid type.  Expected one of int/bool/str/bytes/bytearray.  Got "
+            "{0}".format(type(primitive))
+        )
 
 def judge_hex_str(data: str):
     if not data.startswith("0x"):
@@ -39,7 +80,7 @@ def judge_hex_str(data: str):
     if len(data) % 2 != 0:
         return False
     try:
-        web3.toInt(hexstr=data)
+        to_int(None, data, None)
         return True
     except:
         return False

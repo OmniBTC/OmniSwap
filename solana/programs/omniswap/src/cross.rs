@@ -169,6 +169,10 @@ impl NormalizedSwapData {
 	pub fn decode_normalized_swap_data(
 		data: &[u8],
 	) -> Result<Vec<NormalizedSwapData>, SoSwapError> {
+		if data.is_empty() {
+			return Ok(Vec::new())
+		}
+
 		let data_len = data.len();
 
 		let mut index = 0;
@@ -274,6 +278,7 @@ impl NormalizedWormholeData {
 pub mod test {
 	use super::*;
 	use hex_literal::hex;
+	use anchor_lang::AnchorSerialize;
 
 	#[test]
 	fn test_wormhole_data() -> Result<(), SoSwapError> {
@@ -344,6 +349,13 @@ pub mod test {
 
 		assert_eq!(data, encode_data);
 		assert_eq!(NormalizedSwapData::decode_normalized_swap_data(&data)?, swap_data);
+
+		let mut u256_le_bytes = [0u8;32];
+		U256::from(1000).to_little_endian(u256_le_bytes.as_mut_slice());
+		let mut buffer = [0u8;32];
+		AnchorSerialize::serialize(&mut u256_le_bytes.to_vec(), &mut buffer.as_mut_slice());
+
+		println!("{:?}", buffer);
 
 		Ok(())
 	}
