@@ -17,7 +17,7 @@ import {ILBRouter} from "../Interfaces/TraderJoe/ILBRouter.sol";
 import {IGMXV1Router} from "../Interfaces/GMX/IGMXV1Router.sol";
 import {IPearlRouter} from "../Interfaces/Pearl/IPearlRouter.sol";
 import {IiZiSwap} from "../Interfaces/Iziswap/IiZiSwap.sol";
-import {ICamelotRouter} from "../Interfaces/camelot/ICamelotRouter.sol";
+import {ICamelotRouter} from "../Interfaces/Camelot/ICamelotRouter.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
