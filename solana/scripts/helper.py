@@ -294,7 +294,7 @@ def getRedeemWrappedTransferAccounts(
         token_bridge_program_id: str,
         wormhole_program_id: str,
         omniswap_program_id: str,
-        payer: Pubkey,
+        beneficiary: Pubkey,
         vaa: Union[str, bytes],
 ):
     parsed_vaa = ParsedVaa.parse(vaa)
@@ -311,21 +311,24 @@ def getRedeemWrappedTransferAccounts(
     recipient_key = Pubkey.from_bytes(token_transfer.recipient())
 
     recipient_token_key = get_associated_token_address(recipient_key, wrapped_mint_key)
-    payer_token_key = get_associated_token_address(payer, wrapped_mint_key)
+    beneficiary_token_key = get_associated_token_address(beneficiary, wrapped_mint_key)
 
     redeemer_config_key = deriveRedeemerConfigKey(omniswap_program_id)
     foreign_contract_key = deriveForeignContractKey(
         omniswap_program_id, parsed_vaa.emitter_chain
     )
 
+    fee_config_key = deriveSoFeeConfigKey(omniswap_program_id)
+
     return {
         "vaa": derivePostedVaaKey(wormhole_program_id, parsed_vaa.hash),
-        "tmp_token_key": tmp_token_key,
-        "redeemer_config_key": redeemer_config_key,
-        "payer_token_key": payer_token_key,
+        "tmp_token_account": tmp_token_key,
+        "redeemer_config": redeemer_config_key,
+        "beneficiary_token_account": beneficiary_token_key,
+        "fee_config": fee_config_key,
         "recipient": recipient_key,
-        "recipient_token_key": recipient_token_key,
-        "foreign_contract_key": foreign_contract_key,
+        "recipient_token_account": recipient_token_key,
+        "foreign_contract": foreign_contract_key,
         "token_bridge_config": deriveTokenBridgeConfigKey(token_bridge_program_id),
         "token_bridge_claim": deriveClaimKey(
             token_bridge_program_id,
@@ -352,7 +355,7 @@ def getRedeemNativeTransferAccounts(
         token_bridge_program_id: str,
         wormhole_program_id: str,
         omniswap_program_id: str,
-        payer: Pubkey,
+        beneficiary: Pubkey,
         vaa: Union[str, bytes],
         native_mint: Pubkey,
 ):
@@ -364,15 +367,18 @@ def getRedeemNativeTransferAccounts(
     recipient_key = Pubkey.from_bytes(token_transfer.recipient())
 
     recipient_token_key = get_associated_token_address(recipient_key, native_mint)
-    payer_token_key = get_associated_token_address(payer, native_mint)
+    beneficiary_token_key = get_associated_token_address(beneficiary, native_mint)
 
     redeemer_config_key = deriveRedeemerConfigKey(omniswap_program_id)
     foreign_contract_key = deriveForeignContractKey(
         omniswap_program_id, parsed_vaa.emitter_chain
     )
 
+    fee_config_key = deriveSoFeeConfigKey(omniswap_program_id)
+
     return {
-        "payer_token_account": payer_token_key,
+        "fee_config": fee_config_key,
+        "beneficiary_token_account": beneficiary_token_key,
         "redeemer_config": redeemer_config_key,
         "foreign_contract": foreign_contract_key,
         "recipient_token_account": recipient_token_key,
@@ -426,8 +432,16 @@ def getSendWrappedTransferAccounts(
 
     authority_signer_key = deriveAuthoritySignerKey(token_bridge_program_id)
 
+    fee_config_key = deriveSoFeeConfigKey(omniswap_program_id)
+
+    price_manager_key = derivePriceManagerKey(
+        omniswap_program_id, recipient_chain
+    )
+
     return {
         "send_config": send_config_key,
+        "fee_config": fee_config_key,
+        "price_manager": price_manager_key,
         "foreign_contract": foreign_contract_key,
         "token_bridge_wrapped_mint": wrapped_mint_key,
         "tmp_token_account": tmp_token_key,
@@ -474,8 +488,16 @@ def getSendNativeTransferAccounts(
 
     custody_signer_key = deriveCustodySignerKey(token_bridge_program_id)
 
+    fee_config_key = deriveSoFeeConfigKey(omniswap_program_id)
+
+    price_manager_key = derivePriceManagerKey(
+        omniswap_program_id, recipient_chain
+    )
+
     return {
         "send_config": send_config_key,
+        "fee_config": fee_config_key,
+        "price_manager": price_manager_key,
         "foreign_contract": foreign_contract_key,
         "tmp_token_account": tmp_token_key,
         "wormhole_program": Pubkey.from_string(wormhole_program_id),
