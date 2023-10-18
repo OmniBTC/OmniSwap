@@ -27,8 +27,9 @@ lookup_table_addresses_devnet = [
     # wormhole_fee_collector
     Pubkey.from_string("7s3a1ycs16d6SNDumaRtjcoyMaTDZPavzgsmS3uUZYWX"),
     # token_bridge_sequence
-    Pubkey.from_string("9QzqZZvhxoHzXbNY9y2hyAUfJUzDwyDb7fbDs9RXwH3")
+    Pubkey.from_string("9QzqZZvhxoHzXbNY9y2hyAUfJUzDwyDb7fbDs9RXwH3"),
 ]
+
 
 def get_payer():
     default_path = Path.home().joinpath(".config/solana/id.json")

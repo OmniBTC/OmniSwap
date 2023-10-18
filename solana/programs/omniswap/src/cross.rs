@@ -277,8 +277,8 @@ impl NormalizedWormholeData {
 #[cfg(test)]
 pub mod test {
 	use super::*;
-	use hex_literal::hex;
 	use anchor_lang::AnchorSerialize;
+	use hex_literal::hex;
 
 	#[test]
 	fn test_wormhole_data() -> Result<(), SoSwapError> {
@@ -350,12 +350,30 @@ pub mod test {
 		assert_eq!(data, encode_data);
 		assert_eq!(NormalizedSwapData::decode_normalized_swap_data(&data)?, swap_data);
 
-		let mut u256_le_bytes = [0u8;32];
-		U256::from(1000).to_little_endian(u256_le_bytes.as_mut_slice());
-		let mut buffer = [0u8;32];
-		AnchorSerialize::serialize(&mut u256_le_bytes.to_vec(), &mut buffer.as_mut_slice());
+		let mut u256_le_bytes = [0u8; 32];
+		let expect = [
+			232u8, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0,
+		];
 
-		println!("{:?}", buffer);
+		U256::from(1000).to_little_endian(u256_le_bytes.as_mut_slice());
+
+		assert_eq!(u256_le_bytes, expect);
+
+		let expect = [
+			32u8, 0, 0, 0, 232, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0,
+		];
+		let mut buffer = [0u8; 32];
+		let _ = AnchorSerialize::serialize(&mut u256_le_bytes.to_vec(), &mut buffer.as_mut_slice());
+		assert_eq!(buffer, expect);
+
+		let expect = [
+			232u8, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0,
+		];
+		let _ = AnchorSerialize::serialize(&mut u256_le_bytes, &mut buffer.as_mut_slice());
+		assert_eq!(buffer, expect);
 
 		Ok(())
 	}

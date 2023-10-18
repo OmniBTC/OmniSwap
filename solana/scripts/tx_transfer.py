@@ -18,8 +18,12 @@ from helper import (
     getSendNativeTransferAccounts,
 )
 from config import (
-    get_client, get_payer, wormhole_devnet, token_bridge_devnet,
-    lookup_table_devnet, lookup_table_addresses_devnet
+    get_client,
+    get_payer,
+    wormhole_devnet,
+    token_bridge_devnet,
+    lookup_table_devnet,
+    lookup_table_addresses_devnet,
 )
 
 from cross import WormholeData, SoData, generate_random_bytes32
@@ -48,7 +52,9 @@ async def omniswap_send_wrapped_tokens_with_payload():
     )
 
     # collect relayer gas fee
-    beneficiary_account = Pubkey.from_string("vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS")
+    beneficiary_account = Pubkey.from_string(
+        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
+    )
 
     send_wrapped_accounts = getSendWrappedTransferAccounts(
         token_bridge_devnet,
@@ -147,7 +153,9 @@ async def omniswap_send_native_tokens_with_payload():
         "00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
     )
     # collect relayer gas fee
-    beneficiary_account = Pubkey.from_string("vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS")
+    beneficiary_account = Pubkey.from_string(
+        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
+    )
 
     send_native_accounts = getSendNativeTransferAccounts(
         token_bridge_devnet,
@@ -222,8 +230,7 @@ async def omniswap_send_native_tokens_with_payload():
 
     blockhash = await client.get_latest_blockhash()
     lookup_table = AddressLookupTableAccount(
-        key=lookup_table_devnet,
-        addresses=lookup_table_addresses_devnet
+        key=lookup_table_devnet, addresses=lookup_table_addresses_devnet
     )
 
     message0 = MessageV0.try_compile(

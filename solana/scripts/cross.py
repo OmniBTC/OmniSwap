@@ -7,8 +7,9 @@ from typing import (
     Union,
 )
 
-HexStr = NewType('HexStr', str)
+HexStr = NewType("HexStr", str)
 Primitives = Union[bytes, int, bool]
+
 
 def generate_random_bytes32():
     """Produce random transactions iD for tracking transactions on both chains
@@ -37,6 +38,7 @@ def padding_to_bytes(data: str, padding="right", length=32):
     else:
         return "0x" + "0" * padding_length + data
 
+
 def int_to_big_endian(value: int) -> bytes:
     return value.to_bytes((value.bit_length() + 7) // 8 or 1, "big")
 
@@ -44,8 +46,9 @@ def int_to_big_endian(value: int) -> bytes:
 def big_endian_to_int(value: bytes) -> int:
     return int.from_bytes(value, "big")
 
+
 def to_int(
-        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    primitive: Primitives = None, hexstr: HexStr = None, text: str = None
 ) -> int:
     """
     Converts value to its integer representation.
@@ -73,6 +76,7 @@ def to_int(
             "Invalid type.  Expected one of int/bool/str/bytes/bytearray.  Got "
             "{0}".format(type(primitive))
         )
+
 
 def judge_hex_str(data: str):
     if not data.startswith("0x"):

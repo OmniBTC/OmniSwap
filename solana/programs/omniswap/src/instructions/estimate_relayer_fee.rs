@@ -5,8 +5,8 @@ use wormhole_anchor_sdk::wormhole;
 use crate::{
 	constants::RAY,
 	cross::*,
+	state::{ForeignContract, PriceManager, SoFeeConfig},
 	SoSwapError,
-	state::{ForeignContract, PriceManager, SoFeeConfig}
 };
 
 #[derive(Accounts)]
@@ -99,10 +99,7 @@ pub fn handler(
 	let src_fee = src_fee.as_u64();
 	consume_value += src_fee;
 
-	require!(
-		dst_max_gas < U256::from(u128::MAX),
-		SoSwapError::UnexpectValue
-	);
+	require!(dst_max_gas < U256::from(u128::MAX), SoSwapError::UnexpectValue);
 
 	Ok((src_fee, consume_value, dst_max_gas.as_u128()))
 }

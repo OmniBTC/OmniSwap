@@ -25,22 +25,23 @@ async def omniswap_redeem_wrapped_transfer_with_payload(vaa: str):
     parsed_vaa = ParsedVaa.parse(vaa)
 
     # collect token so fee
-    beneficiary_account = Pubkey.from_string("vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS")
+    beneficiary_account = Pubkey.from_string(
+        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
+    )
 
     redeem_wrapped_accounts = getRedeemWrappedTransferAccounts(
         token_bridge_devnet, wormhole_devnet, PROGRAM_ID, beneficiary_account, vaa
     )
 
     ix = complete_so_swap_wrapped_without_swap(
-        args={
-            "vaa_hash": parsed_vaa.hash,
-            "skip_verify_soswap_message": False
-        },
+        args={"vaa_hash": parsed_vaa.hash, "skip_verify_soswap_message": False},
         accounts={
             "payer": payer.pubkey(),
             "config": redeem_wrapped_accounts["redeemer_config"],
             "fee_config": redeem_wrapped_accounts["fee_config"],
-            "beneficiary_token_account": redeem_wrapped_accounts["beneficiary_token_account"],
+            "beneficiary_token_account": redeem_wrapped_accounts[
+                "beneficiary_token_account"
+            ],
             "foreign_contract": redeem_wrapped_accounts["foreign_contract"],
             "token_bridge_wrapped_mint": redeem_wrapped_accounts[
                 "token_bridge_wrapped_mint"
@@ -91,21 +92,27 @@ async def omniswap_redeem_native_transfer_with_payload(vaa: str):
     usdc_mint = Pubkey.from_bytes(parsed_transfer.token_address)
 
     # collect token so fee
-    beneficiary_account = Pubkey.from_string("vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS")
+    beneficiary_account = Pubkey.from_string(
+        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
+    )
     redeem_native_accounts = getRedeemNativeTransferAccounts(
-        token_bridge_devnet, wormhole_devnet, PROGRAM_ID, beneficiary_account, vaa, usdc_mint
+        token_bridge_devnet,
+        wormhole_devnet,
+        PROGRAM_ID,
+        beneficiary_account,
+        vaa,
+        usdc_mint,
     )
 
     ix = complete_so_swap_native_without_swap(
-        args={
-            "vaa_hash": parsed_vaa.hash,
-            "skip_verify_soswap_message": False
-        },
+        args={"vaa_hash": parsed_vaa.hash, "skip_verify_soswap_message": False},
         accounts={
             "payer": payer.pubkey(),
             "config": redeem_native_accounts["redeemer_config"],
             "fee_config": redeem_native_accounts["fee_config"],
-            "beneficiary_token_account": redeem_native_accounts["beneficiary_token_account"],
+            "beneficiary_token_account": redeem_native_accounts[
+                "beneficiary_token_account"
+            ],
             "foreign_contract": redeem_native_accounts["foreign_contract"],
             "mint": usdc_mint,
             "recipient_token_account": redeem_native_accounts[
@@ -127,7 +134,6 @@ async def omniswap_redeem_native_transfer_with_payload(vaa: str):
             ],
         },
     )
-
 
     tx = Transaction(fee_payer=payer.pubkey())
 
