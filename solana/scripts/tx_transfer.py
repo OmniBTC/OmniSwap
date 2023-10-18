@@ -1,11 +1,15 @@
 import asyncio
 
 from solana.transaction import Transaction
+from solders.compute_budget import set_compute_unit_limit
+from solders.message import MessageV0
 from solders.pubkey import Pubkey
+from solders.address_lookup_table_account import AddressLookupTableAccount
+from solders.transaction import VersionedTransaction
 
 from omniswap.instructions import (
-    send_wrapped_tokens_with_payload,
-    send_native_tokens_with_payload,
+    so_swap_native_without_swap,
+    so_swap_wrapped_without_swap,
 )
 from omniswap.program_id import PROGRAM_ID
 from helper import (
@@ -13,9 +17,16 @@ from helper import (
     deriveTokenTransferMessageKey,
     getSendNativeTransferAccounts,
 )
-from config import get_client, get_payer, wormhole_devnet, token_bridge_devnet
+from config import (
+    get_client,
+    get_payer,
+    wormhole_devnet,
+    token_bridge_devnet,
+    lookup_table_devnet,
+    lookup_table_addresses_devnet,
+)
 
-from cross import WormholeData, SwapData, SoData, generate_random_bytes32
+from cross import WormholeData, SoData, generate_random_bytes32
 
 
 async def omniswap_send_wrapped_tokens_with_payload():
@@ -40,6 +51,11 @@ async def omniswap_send_wrapped_tokens_with_payload():
         "00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
     )
 
+    # collect relayer gas fee
+    beneficiary_account = Pubkey.from_string(
+        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
+    )
+
     send_wrapped_accounts = getSendWrappedTransferAccounts(
         token_bridge_devnet,
         wormhole_devnet,
@@ -57,9 +73,8 @@ async def omniswap_send_wrapped_tokens_with_payload():
     next_seq = current_seq + 1
     wormhole_message = deriveTokenTransferMessageKey(PROGRAM_ID, next_seq)
 
-    ix = send_wrapped_tokens_with_payload(
+    ix = so_swap_wrapped_without_swap(
         args={
-            "batch_id": 0,
             "amount": amount,
             "wormhole_data": WormholeData(
                 dstWormholeChainId=4,
@@ -78,11 +93,14 @@ async def omniswap_send_wrapped_tokens_with_payload():
                 receivingAssetId=token_on_bsc,
                 amount=amount,
             ).encode_normalized(),
-            "swap_data": bytes(),
+            "swap_data_dst": bytes(),
         },
         accounts={
             "payer": payer.pubkey(),
             "config": send_wrapped_accounts["send_config"],
+            "fee_config": send_wrapped_accounts["fee_config"],
+            "price_manager": send_wrapped_accounts["price_manager"],
+            "beneficiary_account": beneficiary_account,
             "foreign_contract": send_wrapped_accounts["foreign_contract"],
             "token_bridge_wrapped_mint": send_wrapped_accounts[
                 "token_bridge_wrapped_mint"
@@ -134,6 +152,10 @@ async def omniswap_send_native_tokens_with_payload():
     dst_so_diamond_padding = bytes.fromhex(
         "00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
     )
+    # collect relayer gas fee
+    beneficiary_account = Pubkey.from_string(
+        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
+    )
 
     send_native_accounts = getSendNativeTransferAccounts(
         token_bridge_devnet,
@@ -152,14 +174,17 @@ async def omniswap_send_native_tokens_with_payload():
     next_seq = current_seq + 1
     wormhole_message = deriveTokenTransferMessageKey(PROGRAM_ID, next_seq)
 
-    ix = send_native_tokens_with_payload(
+    # ExceededMaxInstructions
+    # devnet_limit=200_000, real=212433
+    ix0 = set_compute_unit_limit(300_000)
+
+    ix1 = so_swap_native_without_swap(
         args={
-            "batch_id": 0,
             "amount": amount,
             "wormhole_data": WormholeData(
                 dstWormholeChainId=4,
                 dstMaxGasPriceInWeiForRelayer=100000,
-                wormholeFee=0,
+                wormholeFee=716184,
                 dstSoDiamond=dst_so_diamond_padding,
             ).encode_normalized(),
             "so_data": SoData(
@@ -173,11 +198,14 @@ async def omniswap_send_native_tokens_with_payload():
                 receivingAssetId=usdc_token_on_bsc,
                 amount=amount,
             ).encode_normalized(),
-            "swap_data": bytes(),
+            "swap_data_dst": bytes(),
         },
         accounts={
             "payer": payer.pubkey(),
             "config": send_native_accounts["send_config"],
+            "fee_config": send_native_accounts["fee_config"],
+            "price_manager": send_native_accounts["price_manager"],
+            "beneficiary_account": beneficiary_account,
             "foreign_contract": send_native_accounts["foreign_contract"],
             "mint": usdc_mint,
             "from_token_account": usdc_account,
@@ -200,9 +228,23 @@ async def omniswap_send_native_tokens_with_payload():
         },
     )
 
-    tx = Transaction(fee_payer=payer.pubkey()).add(ix)
+    blockhash = await client.get_latest_blockhash()
+    lookup_table = AddressLookupTableAccount(
+        key=lookup_table_devnet, addresses=lookup_table_addresses_devnet
+    )
 
-    tx_sig = await client.send_transaction(tx, payer)
+    message0 = MessageV0.try_compile(
+        payer=payer.pubkey(),
+        instructions=[ix0, ix1],
+        address_lookup_table_accounts=[lookup_table],
+        recent_blockhash=blockhash.value.blockhash,
+    )
+    # print(message0.address_table_lookups)
+
+    txn = VersionedTransaction(message0, [payer])
+
+    tx_sig = await client.send_transaction(txn)
+
     print(tx_sig)
 
     await client.close()

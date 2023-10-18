@@ -3,20 +3,29 @@ import typing
 from solders.pubkey import Pubkey
 from solders.system_program import ID as SYS_PROGRAM_ID
 from solders.instruction import Instruction, AccountMeta
+from anchorpy.borsh_extension import BorshPubkey
 import borsh_construct as borsh
 from ..program_id import PROGRAM_ID
 
 
 class InitializeArgs(typing.TypedDict):
-    relayer_fee: int
-    relayer_fee_precision: int
+    beneficiary: Pubkey
+    actual_reserve: int
+    estimate_reserve: int
+    so_fee_by_ray: int
 
 
-layout = borsh.CStruct("relayer_fee" / borsh.U32, "relayer_fee_precision" / borsh.U32)
+layout = borsh.CStruct(
+    "beneficiary" / BorshPubkey,
+    "actual_reserve" / borsh.U64,
+    "estimate_reserve" / borsh.U64,
+    "so_fee_by_ray" / borsh.U64,
+)
 
 
 class InitializeAccounts(typing.TypedDict):
     owner: Pubkey
+    fee_config: Pubkey
     sender_config: Pubkey
     redeemer_config: Pubkey
     wormhole_program: Pubkey
@@ -39,6 +48,7 @@ def initialize(
 ) -> Instruction:
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["owner"], is_signer=True, is_writable=True),
+        AccountMeta(pubkey=accounts["fee_config"], is_signer=False, is_writable=True),
         AccountMeta(
             pubkey=accounts["sender_config"], is_signer=False, is_writable=True
         ),
@@ -90,8 +100,10 @@ def initialize(
     identifier = b"\xaf\xafm\x1f\r\x98\x9b\xed"
     encoded_args = layout.build(
         {
-            "relayer_fee": args["relayer_fee"],
-            "relayer_fee_precision": args["relayer_fee_precision"],
+            "beneficiary": args["beneficiary"],
+            "actual_reserve": args["actual_reserve"],
+            "estimate_reserve": args["estimate_reserve"],
+            "so_fee_by_ray": args["so_fee_by_ray"],
         }
     )
     data = identifier + encoded_args

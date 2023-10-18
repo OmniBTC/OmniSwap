@@ -121,7 +121,7 @@ def cross_swap_via_wormhole():
     swap_data_dst = []
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x"+b58decode("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU").hex()
+    dst_diamond_address = "0x"+b58decode("8kaBfAy1pYaQzmHgWiUHcBqQfhgv8ahnMrSfcNVrkKFJ").hex()
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
     proxy_diamond = Contract.from_abi(

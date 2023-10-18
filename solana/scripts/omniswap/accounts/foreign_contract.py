@@ -15,6 +15,8 @@ class ForeignContractJSON(typing.TypedDict):
     chain: int
     address: list[int]
     token_bridge_foreign_endpoint: str
+    normalized_dst_base_gas: list[int]
+    normalized_dst_gas_per_bytes: list[int]
 
 
 @dataclass
@@ -24,10 +26,14 @@ class ForeignContract:
         "chain" / borsh.U16,
         "address" / borsh.U8[32],
         "token_bridge_foreign_endpoint" / BorshPubkey,
+        "normalized_dst_base_gas" / borsh.U8[32],
+        "normalized_dst_gas_per_bytes" / borsh.U8[32],
     )
     chain: int
     address: list[int]
     token_bridge_foreign_endpoint: Pubkey
+    normalized_dst_base_gas: list[int]
+    normalized_dst_gas_per_bytes: list[int]
 
     @classmethod
     async def fetch(
@@ -76,6 +82,8 @@ class ForeignContract:
             chain=dec.chain,
             address=dec.address,
             token_bridge_foreign_endpoint=dec.token_bridge_foreign_endpoint,
+            normalized_dst_base_gas=dec.normalized_dst_base_gas,
+            normalized_dst_gas_per_bytes=dec.normalized_dst_gas_per_bytes,
         )
 
     def to_json(self) -> ForeignContractJSON:
@@ -83,6 +91,8 @@ class ForeignContract:
             "chain": self.chain,
             "address": self.address,
             "token_bridge_foreign_endpoint": str(self.token_bridge_foreign_endpoint),
+            "normalized_dst_base_gas": self.normalized_dst_base_gas,
+            "normalized_dst_gas_per_bytes": self.normalized_dst_gas_per_bytes,
         }
 
     @classmethod
@@ -93,4 +103,6 @@ class ForeignContract:
             token_bridge_foreign_endpoint=Pubkey.from_string(
                 obj["token_bridge_foreign_endpoint"]
             ),
+            normalized_dst_base_gas=obj["normalized_dst_base_gas"],
+            normalized_dst_gas_per_bytes=obj["normalized_dst_gas_per_bytes"],
         )

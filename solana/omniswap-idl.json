@@ -20,6 +20,14 @@
           ]
         },
         {
+          "name": "feeConfig",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account"
+          ]
+        },
+        {
           "name": "senderConfig",
           "isMut": true,
           "isSigner": false,
@@ -142,12 +150,78 @@
       ],
       "args": [
         {
-          "name": "relayerFee",
-          "type": "u32"
+          "name": "beneficiary",
+          "type": "publicKey"
         },
         {
-          "name": "relayerFeePrecision",
-          "type": "u32"
+          "name": "actualReserve",
+          "type": "u64"
+        },
+        {
+          "name": "estimateReserve",
+          "type": "u64"
+        },
+        {
+          "name": "soFeeByRay",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "setWormholeReserve",
+      "docs": [
+        "Set relayer fee scale factor"
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Sender Config account."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "actualReserve",
+          "type": "u64"
+        },
+        {
+          "name": "estimateReserve",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "setSoFee",
+      "docs": [
+        "Set so fee"
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Sender Config account."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "soFeeByRay",
+          "type": "u64"
         }
       ]
     },
@@ -155,7 +229,8 @@
       "name": "registerForeignContract",
       "docs": [
         "This instruction registers a new foreign contract (from another",
-        "network) and saves the emitter information in a ForeignEmitter account.",
+        "network) and saves the emitter information in a ForeignEmitter account",
+        "and price ratio information in a PriceManager account.",
         "This instruction is owner-only, meaning that only the owner of the",
         "program (defined in the [Config] account) can add and update foreign",
         "contracts.",
@@ -164,7 +239,11 @@
         "",
         "* `ctx`     - `RegisterForeignContract` context",
         "* `chain`   - Wormhole Chain ID",
-        "* `address` - Wormhole Emitter Address"
+        "* `address` - Wormhole Emitter Address. Left-zero-padded if shorter than 32 bytes",
+        "* `normalized_dst_base_gas_le` - Normalized target chain minimum consumption of gas",
+        "* `normalized_dst_gas_per_bytes_le` - Normalized target chain gas per bytes",
+        "* `price_manager` - Who can update current_price_ratio",
+        "* `init_price_ratio` - Current price ratio"
       ],
       "accounts": [
         {
@@ -196,6 +275,16 @@
           ]
         },
         {
+          "name": "priceManager",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Price manager account. Create this account if an emitter has not been",
+            "registered yet for this Wormhole chain ID. If there already is a",
+            "contract address saved in this account, overwrite it."
+          ]
+        },
+        {
           "name": "tokenBridgeForeignEndpoint",
           "isMut": false,
           "isSigner": false,
@@ -221,6 +310,14 @@
           "docs": [
             "System program."
           ]
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Clock used for price manager."
+          ]
         }
       ],
       "args": [
@@ -236,49 +333,81 @@
               32
             ]
           }
+        },
+        {
+          "name": "normalizedDstBaseGasLe",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "normalizedDstGasPerBytesLe",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "priceManagerOwner",
+          "type": "publicKey"
+        },
+        {
+          "name": "initPriceRatio",
+          "type": "u64"
         }
       ]
     },
     {
-      "name": "updateRelayerFee",
+      "name": "setPriceRatio",
+      "docs": [
+        "Set the target chain price ratio",
+        "Note: the owner of PriceManager can be overwrite by register_foreign_contract"
+      ],
       "accounts": [
         {
           "name": "owner",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "config",
-          "isMut": true,
-          "isSigner": false,
+          "isSigner": true,
           "docs": [
-            "Redeemer Config account. This program requires that the `owner`",
-            "specified in the context equals the pubkey specified in this account.",
-            "Mutable."
+            "Owner of the program set in the [`PriceManager`] account. Signer for",
+            "updating [`PriceManager`] account."
           ]
         },
         {
-          "name": "systemProgram",
+          "name": "priceManager",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Price Manager account."
+          ]
+        },
+        {
+          "name": "clock",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "System program."
+            "Clock used for price manager."
           ]
         }
       ],
       "args": [
         {
-          "name": "relayerFee",
-          "type": "u32"
+          "name": "chain",
+          "type": "u16"
         },
         {
-          "name": "relayerFeePrecision",
-          "type": "u32"
+          "name": "newPriceRatio",
+          "type": "u64"
         }
       ]
     },
     {
-      "name": "sendNativeTokensWithPayload",
+      "name": "soSwapNativeWithoutSwap",
       "accounts": [
         {
           "name": "payer",
@@ -297,6 +426,27 @@
             "Sender Config account. Acts as the signer for the Token Bridge token",
             "transfer. Read-only."
           ]
+        },
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "priceManager",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Price Manager account. Read-only."
+          ]
+        },
+        {
+          "name": "beneficiaryAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "foreignContract",
@@ -374,12 +524,12 @@
           ]
         },
         {
-          "name": "tokenBridgeAuthoritySigner",
+          "name": "tokenBridgeCustodySigner",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "tokenBridgeCustodySigner",
+          "name": "tokenBridgeAuthoritySigner",
           "isMut": false,
           "isSigner": false
         },
@@ -460,10 +610,6 @@
       ],
       "args": [
         {
-          "name": "batchId",
-          "type": "u32"
-        },
-        {
           "name": "amount",
           "type": "u64"
         },
@@ -476,13 +622,13 @@
           "type": "bytes"
         },
         {
-          "name": "swapData",
+          "name": "swapDataDst",
           "type": "bytes"
         }
       ]
     },
     {
-      "name": "redeemNativeTransferWithPayload",
+      "name": "completeSoSwapNativeWithoutSwap",
       "accounts": [
         {
           "name": "payer",
@@ -494,14 +640,6 @@
           ]
         },
         {
-          "name": "payerTokenAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "associated token account. Mutable."
-          ]
-        },
-        {
           "name": "config",
           "isMut": false,
           "isSigner": false,
@@ -509,6 +647,19 @@
             "Redeemer Config account. Acts as the Token Bridge redeemer, which signs",
             "for the complete transfer instruction. Read-only."
           ]
+        },
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "beneficiaryTokenAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "foreignContract",
@@ -665,11 +816,15 @@
               32
             ]
           }
+        },
+        {
+          "name": "skipVerifySoswapMessage",
+          "type": "bool"
         }
       ]
     },
     {
-      "name": "sendWrappedTokensWithPayload",
+      "name": "soSwapWrappedWithoutSwap",
       "accounts": [
         {
           "name": "payer",
@@ -685,8 +840,30 @@
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "Sender Config account. Acts as the Token Bridge sender PDA. Mutable."
+            "Sender Config account. Acts as the signer for the Token Bridge token",
+            "transfer. Read-only."
           ]
+        },
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "priceManager",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Price Manager account. Read-only."
+          ]
+        },
+        {
+          "name": "beneficiaryAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "foreignContract",
@@ -718,7 +895,13 @@
         {
           "name": "tmpTokenAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Program's temporary token account. This account is created before the",
+            "instruction is invoked to temporarily take custody of the payer's",
+            "tokens. When the tokens are finally bridged out, the token account",
+            "will have zero balance and can be closed."
+          ]
         },
         {
           "name": "wormholeProgram",
@@ -737,6 +920,14 @@
           ]
         },
         {
+          "name": "tokenBridgeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge config. Read-only."
+          ]
+        },
+        {
           "name": "tokenBridgeWrappedMeta",
           "isMut": false,
           "isSigner": false,
@@ -746,14 +937,6 @@
             "* Wormhole Chain ID",
             "* Token's native contract address",
             "* Token's native decimals"
-          ]
-        },
-        {
-          "name": "tokenBridgeConfig",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Token Bridge config. Mutable."
           ]
         },
         {
@@ -774,7 +957,7 @@
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "tokens transferred in this account."
+            "tokens transferred in this account for our program. Mutable."
           ]
         },
         {
@@ -838,10 +1021,6 @@
       ],
       "args": [
         {
-          "name": "batchId",
-          "type": "u32"
-        },
-        {
           "name": "amount",
           "type": "u64"
         },
@@ -854,13 +1033,13 @@
           "type": "bytes"
         },
         {
-          "name": "swapData",
+          "name": "swapDataDst",
           "type": "bytes"
         }
       ]
     },
     {
-      "name": "redeemWrappedTransferWithPayload",
+      "name": "completeSoSwapWrappedWithoutSwap",
       "accounts": [
         {
           "name": "payer",
@@ -872,14 +1051,6 @@
           ]
         },
         {
-          "name": "payerTokenAccount",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "associated token account."
-          ]
-        },
-        {
           "name": "config",
           "isMut": false,
           "isSigner": false,
@@ -887,6 +1058,19 @@
             "Redeemer Config account. Acts as the Token Bridge redeemer, which signs",
             "for the complete transfer instruction. Read-only."
           ]
+        },
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "beneficiaryTokenAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "foreignContract",
@@ -1047,11 +1231,120 @@
               32
             ]
           }
+        },
+        {
+          "name": "skipVerifySoswapMessage",
+          "type": "bool"
         }
       ]
+    },
+    {
+      "name": "estimateRelayerFee",
+      "accounts": [
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "foreignContract",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Foreign contract account. Read-only."
+          ]
+        },
+        {
+          "name": "priceManager",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Price Manager account. Read-only."
+          ]
+        },
+        {
+          "name": "wormholeBridge",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Wormhole bridge data.",
+            "Query bridge.config.fee"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "chainId",
+          "type": "u16"
+        },
+        {
+          "name": "soData",
+          "type": "bytes"
+        },
+        {
+          "name": "wormholeData",
+          "type": "bytes"
+        },
+        {
+          "name": "swapDataDst",
+          "type": "bytes"
+        }
+      ],
+      "returns": {
+        "defined": "(u64,u64,u128)"
+      }
     }
   ],
   "accounts": [
+    {
+      "name": "SoFeeConfig",
+      "docs": [
+        "The so fee of cross token"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "docs": [
+              "Program's owner."
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "beneficiary",
+            "docs": [
+              "The recipient of [relayer_fee + so_fee]."
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "soFee",
+            "docs": [
+              "SoFee by RAY"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "actualReserve",
+            "docs": [
+              "Actual relayer fee scale factor"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "estimateReserve",
+            "docs": [
+              "Estimate relayer fee scale factor"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
     {
       "name": "ForeignContract",
       "docs": [
@@ -1070,7 +1363,8 @@
           {
             "name": "address",
             "docs": [
-              "Emitter address. Cannot be zero address."
+              "Emitter address. Cannot be zero address.",
+              "Left-zero-padded if shorter than 32 bytes"
             ],
             "type": {
               "array": [
@@ -1085,6 +1379,56 @@
               "Token Bridge program's foreign endpoint account key."
             ],
             "type": "publicKey"
+          },
+          {
+            "name": "normalizedDstBaseGas",
+            "docs": [
+              "Normalized target chain minimum consumption of gas"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "normalizedDstGasPerBytes",
+            "docs": [
+              "Normalized target chain gas per bytes"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PriceManager",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "docs": [
+              "Who can update current_price_ratio"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "currentPriceRatio",
+            "docs": [
+              "The currnet price ratio of native coins"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "lastUpdateTimestamp",
+            "type": "u64"
           }
         ]
       }
@@ -1116,17 +1460,6 @@
             "type": {
               "defined": "InboundTokenBridgeAddresses"
             }
-          },
-          {
-            "name": "relayerFee",
-            "docs": [
-              "Relayer Fee"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "relayerFeePrecision",
-            "type": "u32"
           }
         ]
       }
@@ -1158,14 +1491,6 @@
             "type": {
               "defined": "OutboundTokenBridgeAddresses"
             }
-          },
-          {
-            "name": "finality",
-            "docs": [
-              "AKA consistency level. u8 representation of Solana's",
-              "[Finality](wormhole_anchor_sdk::wormhole::Finality)."
-            ],
-            "type": "u8"
           }
         ]
       }
@@ -1365,6 +1690,34 @@
       "code": 6025,
       "name": "InvalidTokenBridgeMintAuthority",
       "msg": "InvalidTokenBridgeMintAuthority"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidDataLength",
+      "msg": "InvalidDataLength"
+    },
+    {
+      "code": 6027,
+      "name": "DeserializeSoSwapMessageFail",
+      "msg": "DeserializeSoSwapMessageFail"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidBeneficiary",
+      "msg": "InvalidBeneficiary"
+    },
+    {
+      "code": 6029,
+      "name": "CheckFeeFail",
+      "msg": "CheckFeeFail"
+    },
+    {
+      "code": 6030,
+      "name": "UnexpectValue",
+      "msg": "UnexpectValue"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "8kaBfAy1pYaQzmHgWiUHcBqQfhgv8ahnMrSfcNVrkKFJ"
+  }
 }

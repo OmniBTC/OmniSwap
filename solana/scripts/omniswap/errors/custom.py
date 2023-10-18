@@ -236,6 +236,42 @@ class InvalidTokenBridgeMintAuthority(ProgramError):
     msg = "InvalidTokenBridgeMintAuthority"
 
 
+class InvalidDataLength(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6026, "InvalidDataLength")
+
+    code = 6026
+    name = "InvalidDataLength"
+    msg = "InvalidDataLength"
+
+
+class DeserializeSoSwapMessageFail(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6027, "DeserializeSoSwapMessageFail")
+
+    code = 6027
+    name = "DeserializeSoSwapMessageFail"
+    msg = "DeserializeSoSwapMessageFail"
+
+
+class InvalidBeneficiary(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6028, "InvalidBeneficiary")
+
+    code = 6028
+    name = "InvalidBeneficiary"
+    msg = "InvalidBeneficiary"
+
+
+class CheckFeeFail(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6029, "CheckFeeFail")
+
+    code = 6029
+    name = "CheckFeeFail"
+    msg = "CheckFeeFail"
+
+
 CustomError = typing.Union[
     InvalidWormholeBridge,
     InvalidWormholeFeeCollector,
@@ -263,6 +299,10 @@ CustomError = typing.Union[
     InvalidTokenBridgeForeignEndpoint,
     NonExistentRelayerAta,
     InvalidTokenBridgeMintAuthority,
+    InvalidDataLength,
+    DeserializeSoSwapMessageFail,
+    InvalidBeneficiary,
+    CheckFeeFail,
 ]
 CUSTOM_ERROR_MAP: dict[int, CustomError] = {
     6000: InvalidWormholeBridge(),
@@ -291,6 +331,10 @@ CUSTOM_ERROR_MAP: dict[int, CustomError] = {
     6023: InvalidTokenBridgeForeignEndpoint(),
     6024: NonExistentRelayerAta(),
     6025: InvalidTokenBridgeMintAuthority(),
+    6026: InvalidDataLength(),
+    6027: DeserializeSoSwapMessageFail(),
+    6028: InvalidBeneficiary(),
+    6029: CheckFeeFail(),
 }
 
 

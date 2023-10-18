@@ -9,34 +9,36 @@ import borsh_construct as borsh
 from ..program_id import PROGRAM_ID
 
 
-class SendWrappedTokensWithPayloadArgs(typing.TypedDict):
-    batch_id: int
+class SoSwapNativeWithoutSwapArgs(typing.TypedDict):
     amount: int
     wormhole_data: bytes
     so_data: bytes
-    swap_data: bytes
+    swap_data_dst: bytes
 
 
 layout = borsh.CStruct(
-    "batch_id" / borsh.U32,
     "amount" / borsh.U64,
     "wormhole_data" / borsh.Bytes,
     "so_data" / borsh.Bytes,
-    "swap_data" / borsh.Bytes,
+    "swap_data_dst" / borsh.Bytes,
 )
 
 
-class SendWrappedTokensWithPayloadAccounts(typing.TypedDict):
+class SoSwapNativeWithoutSwapAccounts(typing.TypedDict):
     payer: Pubkey
     config: Pubkey
+    fee_config: Pubkey
+    price_manager: Pubkey
+    beneficiary_account: Pubkey
     foreign_contract: Pubkey
-    token_bridge_wrapped_mint: Pubkey
+    mint: Pubkey
     from_token_account: Pubkey
     tmp_token_account: Pubkey
     wormhole_program: Pubkey
     token_bridge_program: Pubkey
-    token_bridge_wrapped_meta: Pubkey
     token_bridge_config: Pubkey
+    token_bridge_custody: Pubkey
+    token_bridge_custody_signer: Pubkey
     token_bridge_authority_signer: Pubkey
     wormhole_bridge: Pubkey
     wormhole_message: Pubkey
@@ -45,23 +47,26 @@ class SendWrappedTokensWithPayloadAccounts(typing.TypedDict):
     wormhole_fee_collector: Pubkey
 
 
-def send_wrapped_tokens_with_payload(
-    args: SendWrappedTokensWithPayloadArgs,
-    accounts: SendWrappedTokensWithPayloadAccounts,
+def so_swap_native_without_swap(
+    args: SoSwapNativeWithoutSwapArgs,
+    accounts: SoSwapNativeWithoutSwapAccounts,
     program_id: Pubkey = PROGRAM_ID,
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> Instruction:
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["payer"], is_signer=True, is_writable=True),
         AccountMeta(pubkey=accounts["config"], is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["fee_config"], is_signer=False, is_writable=False),
+        AccountMeta(
+            pubkey=accounts["price_manager"], is_signer=False, is_writable=False
+        ),
+        AccountMeta(
+            pubkey=accounts["beneficiary_account"], is_signer=False, is_writable=True
+        ),
         AccountMeta(
             pubkey=accounts["foreign_contract"], is_signer=False, is_writable=False
         ),
-        AccountMeta(
-            pubkey=accounts["token_bridge_wrapped_mint"],
-            is_signer=False,
-            is_writable=True,
-        ),
+        AccountMeta(pubkey=accounts["mint"], is_signer=False, is_writable=True),
         AccountMeta(
             pubkey=accounts["from_token_account"], is_signer=False, is_writable=True
         ),
@@ -75,12 +80,15 @@ def send_wrapped_tokens_with_payload(
             pubkey=accounts["token_bridge_program"], is_signer=False, is_writable=False
         ),
         AccountMeta(
-            pubkey=accounts["token_bridge_wrapped_meta"],
-            is_signer=False,
-            is_writable=False,
+            pubkey=accounts["token_bridge_config"], is_signer=False, is_writable=False
         ),
         AccountMeta(
-            pubkey=accounts["token_bridge_config"], is_signer=False, is_writable=True
+            pubkey=accounts["token_bridge_custody"], is_signer=False, is_writable=True
+        ),
+        AccountMeta(
+            pubkey=accounts["token_bridge_custody_signer"],
+            is_signer=False,
+            is_writable=False,
         ),
         AccountMeta(
             pubkey=accounts["token_bridge_authority_signer"],
@@ -112,14 +120,13 @@ def send_wrapped_tokens_with_payload(
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts
-    identifier = b"\xe1\x01N\xa0\xbd\xbe^T"
+    identifier = b"d\x91\x88I_T]\xb1"
     encoded_args = layout.build(
         {
-            "batch_id": args["batch_id"],
             "amount": args["amount"],
             "wormhole_data": args["wormhole_data"],
             "so_data": args["so_data"],
-            "swap_data": args["swap_data"],
+            "swap_data_dst": args["swap_data_dst"],
         }
     )
     data = identifier + encoded_args

@@ -9,48 +9,59 @@ import borsh_construct as borsh
 from ..program_id import PROGRAM_ID
 
 
-class RedeemNativeTransferWithPayloadArgs(typing.TypedDict):
+class CompleteSoSwapWrappedWithoutSwapArgs(typing.TypedDict):
     vaa_hash: list[int]
+    skip_verify_soswap_message: bool
 
 
-layout = borsh.CStruct("vaa_hash" / borsh.U8[32])
+layout = borsh.CStruct(
+    "vaa_hash" / borsh.U8[32], "skip_verify_soswap_message" / borsh.Bool
+)
 
 
-class RedeemNativeTransferWithPayloadAccounts(typing.TypedDict):
+class CompleteSoSwapWrappedWithoutSwapAccounts(typing.TypedDict):
     payer: Pubkey
-    payer_token_account: Pubkey
     config: Pubkey
+    fee_config: Pubkey
+    beneficiary_token_account: Pubkey
     foreign_contract: Pubkey
-    mint: Pubkey
+    token_bridge_wrapped_mint: Pubkey
     recipient_token_account: Pubkey
     recipient: Pubkey
     tmp_token_account: Pubkey
     wormhole_program: Pubkey
     token_bridge_program: Pubkey
+    token_bridge_wrapped_meta: Pubkey
     token_bridge_config: Pubkey
     vaa: Pubkey
     token_bridge_claim: Pubkey
     token_bridge_foreign_endpoint: Pubkey
-    token_bridge_custody: Pubkey
-    token_bridge_custody_signer: Pubkey
+    token_bridge_mint_authority: Pubkey
 
 
-def redeem_native_transfer_with_payload(
-    args: RedeemNativeTransferWithPayloadArgs,
-    accounts: RedeemNativeTransferWithPayloadAccounts,
+def complete_so_swap_wrapped_without_swap(
+    args: CompleteSoSwapWrappedWithoutSwapArgs,
+    accounts: CompleteSoSwapWrappedWithoutSwapAccounts,
     program_id: Pubkey = PROGRAM_ID,
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> Instruction:
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["payer"], is_signer=True, is_writable=True),
-        AccountMeta(
-            pubkey=accounts["payer_token_account"], is_signer=False, is_writable=True
-        ),
         AccountMeta(pubkey=accounts["config"], is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["fee_config"], is_signer=False, is_writable=False),
+        AccountMeta(
+            pubkey=accounts["beneficiary_token_account"],
+            is_signer=False,
+            is_writable=True,
+        ),
         AccountMeta(
             pubkey=accounts["foreign_contract"], is_signer=False, is_writable=False
         ),
-        AccountMeta(pubkey=accounts["mint"], is_signer=False, is_writable=False),
+        AccountMeta(
+            pubkey=accounts["token_bridge_wrapped_mint"],
+            is_signer=False,
+            is_writable=True,
+        ),
         AccountMeta(
             pubkey=accounts["recipient_token_account"],
             is_signer=False,
@@ -67,6 +78,11 @@ def redeem_native_transfer_with_payload(
             pubkey=accounts["token_bridge_program"], is_signer=False, is_writable=False
         ),
         AccountMeta(
+            pubkey=accounts["token_bridge_wrapped_meta"],
+            is_signer=False,
+            is_writable=False,
+        ),
+        AccountMeta(
             pubkey=accounts["token_bridge_config"], is_signer=False, is_writable=False
         ),
         AccountMeta(pubkey=accounts["vaa"], is_signer=False, is_writable=False),
@@ -79,10 +95,7 @@ def redeem_native_transfer_with_payload(
             is_writable=False,
         ),
         AccountMeta(
-            pubkey=accounts["token_bridge_custody"], is_signer=False, is_writable=True
-        ),
-        AccountMeta(
-            pubkey=accounts["token_bridge_custody_signer"],
+            pubkey=accounts["token_bridge_mint_authority"],
             is_signer=False,
             is_writable=False,
         ),
@@ -95,10 +108,11 @@ def redeem_native_transfer_with_payload(
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts
-    identifier = b"a0\x06\x0c\xd1\x81\xe4*"
+    identifier = b"f\xc9R\xefqcDd"
     encoded_args = layout.build(
         {
             "vaa_hash": args["vaa_hash"],
+            "skip_verify_soswap_message": args["skip_verify_soswap_message"],
         }
     )
     data = identifier + encoded_args
