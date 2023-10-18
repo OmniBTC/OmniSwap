@@ -1843,6 +1843,10 @@ networks:
           name: CamelotV2
           router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
           token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10
