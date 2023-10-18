@@ -114,6 +114,8 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC35 =
         IMetaAggregationRouterV2.swapGeneric.selector;
     bytes4 private constant _FUNC36 = IMetaAggregationRouterV2.swap.selector;
+    bytes4 private constant _FUNC37 =
+        IMetaAggregationRouterV2.swapSimpleMode.selector;
 
     //---------------------------------------------------------------------------
     // External Method
@@ -189,6 +191,8 @@ contract LibCorrectSwapV1 {
             return tryCamelot(_data, _amount);
         } else if (sig == _FUNC35 || sig == _FUNC36) {
             return tryKyberswap(_data, _amount);
+        } else if (sig == _FUNC37) {
+            return tryKyberswapSimple(_data, _amount);
         }
 
         // fuzzy matching
@@ -652,6 +656,34 @@ contract LibCorrectSwapV1 {
             uint256 _amountOutMin = params.desc.minReturnAmount;
             params.desc.minReturnAmount = _amountOutMin + _deltaMinAmount;
             return (_amountOutMin, abi.encodeWithSelector(sig, params));
+        } else if (sig == _FUNC37) {
+            (
+                address caller,
+                IMetaAggregationRouterV2.SwapDescriptionV2 memory desc,
+                bytes memory executorData,
+                bytes memory clientData
+            ) = abi.decode(
+                    _data[4:],
+                    (
+                        address,
+                        IMetaAggregationRouterV2.SwapDescriptionV2,
+                        bytes,
+                        bytes
+                    )
+                );
+
+            uint256 _amountOutMin = desc.minReturnAmount;
+            desc.minReturnAmount = _amountOutMin + _deltaMinAmount;
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    caller,
+                    desc,
+                    executorData,
+                    clientData
+                )
+            );
         }
 
         revert("fix amount fail!");
@@ -1236,5 +1268,49 @@ contract LibCorrectSwapV1 {
         );
         params.desc.amount = _amount;
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryKyberswapSimple(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.kyberswapSimple(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("kyberswap simple fail!");
+        }
+    }
+
+    function kyberswapSimple(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            address caller,
+            IMetaAggregationRouterV2.SwapDescriptionV2 memory desc,
+            bytes memory executorData,
+            bytes memory clientData
+        ) = abi.decode(
+                _data[4:],
+                (
+                    address,
+                    IMetaAggregationRouterV2.SwapDescriptionV2,
+                    bytes,
+                    bytes
+                )
+            );
+        desc.amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                caller,
+                desc,
+                executorData,
+                clientData
+            );
     }
 }
