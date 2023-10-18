@@ -54,7 +54,7 @@ library LibSwap {
             : 0;
 
         if (!LibAsset.isNativeAsset(fromAssetId)) {
-            LibAsset.maxApproveERC20(
+            LibAsset.safeApproveERC20(
                 IERC20(fromAssetId),
                 _swapData.approveTo,
                 fromAmount
@@ -73,8 +73,8 @@ library LibSwap {
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory res) = _swapData.callTo.call{
-            value: nativeValue
-        }(_swapData.callData);
+                value: nativeValue
+            }(_swapData.callData);
         if (!success) {
             string memory reason = LibUtil.getRevertMsg(res);
             revert(reason);
