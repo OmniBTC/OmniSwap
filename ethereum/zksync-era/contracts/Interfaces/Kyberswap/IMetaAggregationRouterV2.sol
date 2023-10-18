@@ -66,4 +66,11 @@ interface IMetaAggregationRouterV2 {
         external
         payable
         returns (uint256 returnAmount, uint256 gasUsed);
+
+    function swapSimpleMode(
+        address caller,
+        SwapDescriptionV2 memory desc,
+        bytes calldata executorData,
+        bytes calldata clientData
+    ) external returns (uint256 returnAmount, uint256 gasUsed);
 }
