@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.13;
+
 import {NullAddrIsNotAnERC20Token, NullAddrIsNotAValidSpender, NoTransferToNullAddress, InvalidAmount, NativeValueWithERC, NativeAssetTransferFailed} from "../Errors/GenericErrors.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -57,6 +58,20 @@ library LibAsset {
         uint256 allowance = assetId.allowance(address(this), spender);
         if (allowance < amount)
             SafeERC20.safeApprove(IERC20(assetId), spender, MAX_INT);
+    }
+
+    /// @notice Gives amount approval for another address to spend tokens
+    /// @param assetId Token address to transfer
+    /// @param spender Address to give spend approval to
+    /// @param amount Amount to approve for spending
+    function safeApproveERC20(
+        IERC20 assetId,
+        address spender,
+        uint256 amount
+    ) internal {
+        if (address(assetId) == NATIVE_ASSETID) return;
+        if (spender == NULL_ADDRESS) revert NullAddrIsNotAValidSpender();
+        SafeERC20.safeApprove(IERC20(assetId), spender, amount);
     }
 
     /// @notice Transfers tokens from the inheriting contract to a given
