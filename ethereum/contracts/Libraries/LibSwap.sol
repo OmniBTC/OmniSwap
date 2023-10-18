@@ -73,8 +73,8 @@ library LibSwap {
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory res) = _swapData.callTo.call{
-                value: nativeValue
-            }(_swapData.callData);
+            value: nativeValue
+        }(_swapData.callData);
         if (!success) {
             string memory reason = LibUtil.getRevertMsg(res);
             revert(reason);

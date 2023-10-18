@@ -14,7 +14,7 @@ library LibAsset {
     uint256 private constant MAX_INT = type(uint256).max;
 
     address internal constant NULL_ADDRESS =
-    0x0000000000000000000000000000000000000000; //address(0)
+        0x0000000000000000000000000000000000000000; //address(0)
 
     /// @dev All native assets use the empty address for their asset id
     ///      by convention
@@ -36,11 +36,11 @@ library LibAsset {
     /// @param recipient Address to send ether to
     /// @param amount Amount to send to given recipient
     function transferNativeAsset(address payable recipient, uint256 amount)
-    private
+        private
     {
         if (recipient == NULL_ADDRESS) revert NoTransferToNullAddress();
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success,) = recipient.call{value: amount}("");
+        (bool success, ) = recipient.call{value: amount}("");
         if (!success) revert NativeAssetTransferFailed();
     }
 
