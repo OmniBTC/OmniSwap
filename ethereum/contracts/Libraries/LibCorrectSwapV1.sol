@@ -18,6 +18,7 @@ import {IGMXV1Router} from "../Interfaces/GMX/IGMXV1Router.sol";
 import {IPearlRouter} from "../Interfaces/Pearl/IPearlRouter.sol";
 import {IiZiSwap} from "../Interfaces/Iziswap/IiZiSwap.sol";
 import {ICamelotRouter} from "../Interfaces/Camelot/ICamelotRouter.sol";
+import {IMetaAggregationRouterV2} from "../Interfaces/Kyberswap/IMetaAggregationRouterV2.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -109,6 +110,11 @@ contract LibCorrectSwapV1 {
             .swapExactTokensForETHSupportingFeeOnTransferTokens
             .selector;
 
+    // Kyberswap
+    bytes4 private constant _FUNC35 =
+        IMetaAggregationRouterV2.swapGeneric.selector;
+    bytes4 private constant _FUNC36 = IMetaAggregationRouterV2.swap.selector;
+
     //---------------------------------------------------------------------------
     // External Method
 
@@ -181,6 +187,8 @@ contract LibCorrectSwapV1 {
             return _data;
         } else if (sig == _FUNC34) {
             return tryCamelot(_data, _amount);
+        } else if (sig == _FUNC35 || sig == _FUNC36) {
+            return tryKyberswap(_data, _amount);
         }
 
         // fuzzy matching
@@ -635,6 +643,15 @@ contract LibCorrectSwapV1 {
                     _deadline
                 )
             );
+        } else if (sig == _FUNC35 || sig == _FUNC36) {
+            IMetaAggregationRouterV2.SwapExecutionParams memory params = abi
+                .decode(
+                    _data[4:],
+                    (IMetaAggregationRouterV2.SwapExecutionParams)
+                );
+            uint256 _amountOutMin = params.desc.minReturnAmount;
+            params.desc.minReturnAmount = _amountOutMin + _deltaMinAmount;
+            return (_amountOutMin, abi.encodeWithSelector(sig, params));
         }
 
         revert("fix amount fail!");
@@ -1194,5 +1211,30 @@ contract LibCorrectSwapV1 {
                 _referrer,
                 _deadline
             );
+    }
+
+    function tryKyberswap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.kyberswap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("kyberswap fail!");
+        }
+    }
+
+    function kyberswap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        IMetaAggregationRouterV2.SwapExecutionParams memory params = abi.decode(
+            _data[4:],
+            (IMetaAggregationRouterV2.SwapExecutionParams)
+        );
+        params.desc.amount = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
     }
 }
