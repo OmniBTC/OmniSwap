@@ -15,7 +15,7 @@ from omniswap.program_id import PROGRAM_ID
 from helper import (
     getSendWrappedTransferAccounts,
     deriveTokenTransferMessageKey,
-    getSendNativeTransferAccounts,
+    getSendNativeTransferAccounts, decode_address_look_up_table,
 )
 from config import (
     get_client,
@@ -23,7 +23,6 @@ from config import (
     wormhole_devnet,
     token_bridge_devnet,
     lookup_table_devnet,
-    lookup_table_addresses_devnet,
 )
 
 from cross import WormholeData, SoData, generate_random_bytes32
@@ -229,8 +228,12 @@ async def omniswap_send_native_tokens_with_payload():
     )
 
     blockhash = await client.get_latest_blockhash()
+
+    lookup_table_data = await client.get_account_info(lookup_table_devnet)
+    lookup_table_addresses = decode_address_look_up_table(lookup_table_data.value.data)
+
     lookup_table = AddressLookupTableAccount(
-        key=lookup_table_devnet, addresses=lookup_table_addresses_devnet
+        key=lookup_table_devnet, addresses=lookup_table_addresses
     )
 
     message0 = MessageV0.try_compile(
@@ -239,7 +242,7 @@ async def omniswap_send_native_tokens_with_payload():
         address_lookup_table_accounts=[lookup_table],
         recent_blockhash=blockhash.value.blockhash,
     )
-    # print(message0.address_table_lookups)
+    print(message0.address_table_lookups)
 
     txn = VersionedTransaction(message0, [payer])
 

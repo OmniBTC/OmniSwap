@@ -26,6 +26,14 @@ lookup_table_addresses_devnet = [
     Pubkey.from_string("7s3a1ycs16d6SNDumaRtjcoyMaTDZPavzgsmS3uUZYWX"),
     # token_bridge_sequence
     Pubkey.from_string("9QzqZZvhxoHzXbNY9y2hyAUfJUzDwyDb7fbDs9RXwH3"),
+    # Rent
+    Pubkey.from_string("SysvarRent111111111111111111111111111111111"),
+    # Clock
+    Pubkey.from_string("SysvarC1ock11111111111111111111111111111111"),
+    # ComputeBudget
+    Pubkey.from_string("ComputeBudget111111111111111111111111111111"),
+    # System
+    Pubkey.from_string("11111111111111111111111111111111"),
 ]
 
 
