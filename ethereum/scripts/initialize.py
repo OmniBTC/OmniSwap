@@ -561,6 +561,16 @@ def remove_facet(facet):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
+def reset_generic_fee():
+    account = get_account()
+    so_fee = 3 * 1e-4
+    ray = 1e27
+    LibSoFeeGenericV2[-1].setFee(
+        int(so_fee * ray),
+        {"from": account}
+    )
+
+
 def redeploy_generic_swap():
     account = get_account()
 
