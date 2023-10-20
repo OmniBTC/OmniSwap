@@ -11,6 +11,7 @@ pub use state::*;
 
 pub mod constants;
 pub mod cross;
+pub mod dex;
 pub mod error;
 pub mod instructions;
 pub mod message;
@@ -173,6 +174,38 @@ pub mod omniswap {
 			chain_id,
 			so_data,
 			wormhole_data,
+			swap_data_dst,
+		)
+	}
+
+	pub fn so_swap_native_with_whirlpool(
+		ctx: Context<SoSwapNativeWithWhirlpool>,
+		wormhole_data: Vec<u8>,
+		swap_data_src: Vec<u8>,
+		so_data: Vec<u8>,
+		swap_data_dst: Vec<u8>,
+	) -> Result<()> {
+		instructions::so_swap_native_with_whirlpool::handler(
+			ctx,
+			wormhole_data,
+			swap_data_src,
+			so_data,
+			swap_data_dst,
+		)
+	}
+
+	pub fn so_swap_wrapped_with_whirlpool(
+		ctx: Context<SoSwapWrappedWithWhirlpool>,
+		wormhole_data: Vec<u8>,
+		swap_data_src: Vec<u8>,
+		so_data: Vec<u8>,
+		swap_data_dst: Vec<u8>,
+	) -> Result<()> {
+		instructions::so_swap_wrapped_with_whirlpool::handler(
+			ctx,
+			wormhole_data,
+			swap_data_src,
+			so_data,
 			swap_data_dst,
 		)
 	}

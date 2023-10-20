@@ -128,4 +128,8 @@ pub enum SoSwapError {
 	#[msg("UnexpectValue")]
 	/// Expect integer value less than u128::MAX.
 	UnexpectValue,
+
+	#[msg("InvalidCallData")]
+	/// SwapData.call_data is valid
+	InvalidCallData,
 }
