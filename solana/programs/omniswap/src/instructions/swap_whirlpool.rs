@@ -23,15 +23,18 @@ pub trait SoSwapWithWhirlpool<'info> {
 	fn tick_array_2(&self) -> AccountInfo<'info>;
 	fn oracle(&self) -> AccountInfo<'info>;
 	fn mint(&self) -> AccountInfo<'info>;
+	fn is_origin(&self) -> bool {
+		true
+	}
 }
 
 pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 	ctx: &S,
-	parsed_swap_data_src: &Vec<NormalizedSwapData>,
+	parsed_swap_data: &Vec<NormalizedSwapData>,
 	parsed_so_data: &NormalizedSoData,
 ) -> Result<(bool, u64)> {
-	assert_eq!(parsed_swap_data_src.len(), 1, "Unsupported more than one swap");
-	let swap_data = parsed_swap_data_src.first().unwrap();
+	assert_eq!(parsed_swap_data.len(), 1, "Unsupported more than one swap");
+	let swap_data = parsed_swap_data.first().unwrap();
 
 	// sending_asset -> receiving_asset
 	assert!(swap_data.from_amount < u64::MAX.into(), "swap.amount >= u64.max");
@@ -50,6 +53,8 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 
 	let a_to_b = check_a_to_b::<S>(ctx)?;
 
+	S::token_owner_account_a(ctx).reload()?;
+	S::token_owner_account_b(ctx).reload()?;
 	let token_value_a_before = S::token_owner_account_a(ctx).amount;
 	let token_value_b_before = S::token_owner_account_b(ctx).amount;
 
@@ -91,13 +96,21 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 	Ok((a_to_b, amount_out_value))
 }
 
-fn check_a_to_b<'info, S: SoSwapWithWhirlpool<'info>>(ctx: &S) -> Result<bool> {
+pub fn check_a_to_b<'info, S: SoSwapWithWhirlpool<'info>>(ctx: &S) -> Result<bool> {
 	if S::mint(ctx).key() == S::token_owner_account_a(ctx).mint {
-		return Ok(false)
+		if S::is_origin(ctx) {
+			return Ok(false)
+		} else {
+			return Ok(true)
+		}
 	};
 
 	if S::mint(ctx).key() == S::token_owner_account_b(ctx).mint {
-		return Ok(true)
+		if S::is_origin(ctx) {
+			return Ok(true)
+		} else {
+			return Ok(false)
+		}
 	}
 
 	panic!("mint is neither a nor b");

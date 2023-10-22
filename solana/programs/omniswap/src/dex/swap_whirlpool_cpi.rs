@@ -90,8 +90,6 @@ pub fn parse_whirlpool_call_data(data: &[u8]) -> std::result::Result<u64, SoSwap
 	}
 	parts.push(&data[start..]);
 
-	println!("{:?}", parts);
-
 	if parts.len() != 2 {
 		return Err(SoSwapError::InvalidCallData)
 	};

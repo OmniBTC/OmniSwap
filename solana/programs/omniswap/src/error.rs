@@ -132,4 +132,8 @@ pub enum SoSwapError {
 	#[msg("InvalidCallData")]
 	/// SwapData.call_data is valid
 	InvalidCallData,
+
+	#[msg("InvalidProxy")]
+	/// Invalid proxy to redeem the bridge token
+	InvalidProxy,
 }

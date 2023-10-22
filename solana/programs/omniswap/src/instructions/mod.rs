@@ -1,5 +1,7 @@
 #![allow(ambiguous_glob_reexports)]
+pub mod complete_so_swap_native_with_whirlpool;
 pub mod complete_so_swap_native_without_swap;
+pub mod complete_so_swap_wrapped_with_whirlpool;
 pub mod complete_so_swap_wrapped_without_swap;
 pub mod estimate_relayer_fee;
 pub mod initialize;
@@ -13,7 +15,9 @@ pub mod so_swap_wrapped_with_whirlpool;
 pub mod so_swap_wrapped_without_swap;
 mod swap_whirlpool;
 
+pub use complete_so_swap_native_with_whirlpool::*;
 pub use complete_so_swap_native_without_swap::*;
+pub use complete_so_swap_wrapped_with_whirlpool::*;
 pub use complete_so_swap_wrapped_without_swap::*;
 pub use estimate_relayer_fee::*;
 pub use initialize::*;

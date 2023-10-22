@@ -211,4 +211,18 @@ pub mod omniswap {
 			swap_data_dst,
 		)
 	}
+
+	pub fn complete_so_swap_native_with_whirlpool(
+		ctx: Context<CompleteSoSwapNativeWithWhirlpool>,
+		vaa_hash: [u8; 32],
+	) -> Result<()> {
+		instructions::complete_so_swap_native_with_whirlpool::handler(ctx, vaa_hash)
+	}
+
+	pub fn complete_so_swap_wrapped_with_whirlpool(
+		ctx: Context<CompleteSoSwapWrappedWithWhirlpool>,
+		vaa_hash: [u8; 32],
+	) -> Result<()> {
+		instructions::complete_so_swap_wrapped_with_whirlpool::handler(ctx, vaa_hash)
+	}
 }
