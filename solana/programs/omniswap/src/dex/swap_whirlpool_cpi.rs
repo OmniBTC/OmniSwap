@@ -3,11 +3,18 @@ use anchor_lang::{
 	solana_program::{hash::Hasher, instruction::Instruction, program::invoke_signed},
 };
 
-use crate::{
-	constants::DELIMITER,
-	error::SoSwapError,
-	serde::{deserialize_u128, deserialize_u64},
-};
+use crate::{constants::DELIMITER, error::SoSwapError};
+
+pub const MAX_SQRT_PRICE_X64: u128 = 79226673515401279992447579055;
+pub const MIN_SQRT_PRICE_X64: u128 = 4295048016;
+
+pub fn get_default_price_limit(a_to_b: bool) -> u128 {
+	if a_to_b {
+		MIN_SQRT_PRICE_X64
+	} else {
+		MAX_SQRT_PRICE_X64
+	}
+}
 
 #[derive(Accounts)]
 pub struct OrcaWhirlpoolSwap<'info> {
@@ -54,9 +61,24 @@ pub struct OrcaWhirlpoolSwap<'info> {
 	pub oracle: AccountInfo<'info>,
 }
 
-/// Format: "swap_name,min_amount_out_u64,sqrt_price_limit_u128"
-/// example: "Whirlpool,1235678,1234567890"
-pub fn parse_whirlpool_call_data(data: &[u8]) -> std::result::Result<(u64, u128), SoSwapError> {
+pub fn ascii_to_u64(data: &[u8]) -> u64 {
+	let mut amount = 0u64;
+
+	for &byte in data {
+		if byte < 48 || byte > 57 {
+			return 0 // Invalid character, return 0
+		}
+		let digit = (byte - 48) as u64;
+
+		amount = amount.checked_mul(10u64).unwrap().checked_add(digit).unwrap();
+	}
+
+	amount
+}
+
+/// Format: "swap_name,min_amount_out_u64"
+/// example: "Whirlpool,1235678"
+pub fn parse_whirlpool_call_data(data: &[u8]) -> std::result::Result<u64, SoSwapError> {
 	let mut parts: Vec<&[u8]> = Vec::new();
 	let mut start = 0;
 
@@ -68,7 +90,9 @@ pub fn parse_whirlpool_call_data(data: &[u8]) -> std::result::Result<(u64, u128)
 	}
 	parts.push(&data[start..]);
 
-	if parts.len() != 3 {
+	println!("{:?}", parts);
+
+	if parts.len() != 2 {
 		return Err(SoSwapError::InvalidCallData)
 	};
 
@@ -78,12 +102,9 @@ pub fn parse_whirlpool_call_data(data: &[u8]) -> std::result::Result<(u64, u128)
 	}
 
 	// Check min_amout_out_u64
-	let min_amount_out = deserialize_u64(parts[1]).map_err(|_| SoSwapError::InvalidCallData)?;
+	let min_amount_out = ascii_to_u64(&parts[1]);
 
-	// Check sqrt_price_limit_u128
-	let sqrt_price_limit = deserialize_u128(parts[2]).map_err(|_| SoSwapError::InvalidCallData)?;
-
-	Ok((min_amount_out, sqrt_price_limit))
+	Ok(min_amount_out)
 }
 
 pub fn orca_whirlpool_swap_cpi<'info>(
@@ -138,4 +159,29 @@ pub fn orca_whirlpool_swap_cpi<'info>(
 		Instruction { program_id: ctx.program.key(), accounts: whirlpool_accounts, data };
 
 	invoke_signed(&instruction, accounts, ctx.signer_seeds).map_err(Into::into)
+}
+
+#[cfg(test)]
+pub mod test {
+	use super::*;
+	use anchor_lang::prelude::Result;
+
+	#[test]
+	fn test_parse_call_data() -> Result<()> {
+		let call_data = b"Whirlpool,1235678".as_slice();
+		let parsed = parse_whirlpool_call_data(call_data)?;
+		assert_eq!(parsed, 1235678u64);
+
+		let call_data = b"Whirlpool,".as_slice();
+		let parsed = parse_whirlpool_call_data(call_data)?;
+		assert_eq!(parsed, 0u64);
+
+		let call_data = b"whirlpool,1235678".as_slice();
+		assert!(parse_whirlpool_call_data(call_data).is_err());
+
+		let call_data = b"Whirlpool,1235,678".as_slice();
+		assert!(parse_whirlpool_call_data(call_data).is_err());
+
+		Ok(())
+	}
 }

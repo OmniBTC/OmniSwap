@@ -4,7 +4,8 @@ use anchor_spl::token::TokenAccount;
 use crate::{
 	cross::{NormalizedSoData, NormalizedSwapData},
 	dex::swap_whirlpool_cpi::{
-		orca_whirlpool_swap_cpi, parse_whirlpool_call_data, OrcaWhirlpoolSwap,
+		get_default_price_limit, orca_whirlpool_swap_cpi, parse_whirlpool_call_data,
+		OrcaWhirlpoolSwap,
 	},
 };
 
@@ -45,7 +46,7 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 		"swap.call != crate::ID"
 	);
 
-	let (min_amount_out, sqrt_price_limit) = parse_whirlpool_call_data(&swap_data.call_data)?;
+	let min_amount_out = parse_whirlpool_call_data(&swap_data.call_data)?;
 
 	let a_to_b = check_a_to_b::<S>(ctx)?;
 
@@ -71,7 +72,7 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 		),
 		swap_data.from_amount.as_u64(),
 		min_amount_out,
-		sqrt_price_limit,
+		get_default_price_limit(a_to_b),
 		true,
 		a_to_b,
 	)?;
