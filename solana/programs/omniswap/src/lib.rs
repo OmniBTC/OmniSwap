@@ -33,6 +33,7 @@ pub mod omniswap {
 	pub fn initialize(
 		ctx: Context<Initialize>,
 		beneficiary: Pubkey,
+		redeemer_proxy: Pubkey,
 		actual_reserve: u64,
 		estimate_reserve: u64,
 		so_fee_by_ray: u64,
@@ -40,6 +41,7 @@ pub mod omniswap {
 		instructions::initialize::handler(
 			ctx,
 			beneficiary,
+			redeemer_proxy,
 			actual_reserve,
 			estimate_reserve,
 			so_fee_by_ray,

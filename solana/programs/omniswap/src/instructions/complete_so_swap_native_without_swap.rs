@@ -180,8 +180,12 @@ pub fn handler(
 	// first evaluation of this instruction.
 	require!(ctx.accounts.token_bridge_claim.data_is_empty(), SoSwapError::AlreadyRedeemed);
 
-	if skip_verify_soswap_message && ctx.accounts.payer.key() == ctx.accounts.config.owner {
-		return complete_transfer(&ctx, false)
+	if ctx.accounts.payer.key() == ctx.accounts.config.proxy {
+		if skip_verify_soswap_message {
+			return complete_transfer(&ctx, false)
+		} else {
+			return complete_transfer(&ctx, true)
+		}
 	}
 
 	// The intended recipient must agree with the recipient.
@@ -262,6 +266,10 @@ fn complete_transfer(
 			amount
 		);
 
+		if ctx.accounts.payer.key() == ctx.accounts.config.proxy {
+			msg!("[Proxy] proxy={}", ctx.accounts.recipient.key());
+		}
+
 		let actual_fee = if so_fee <= amount {
 			// Transfer tokens so_fee from tmp_token_account to beneficiary.
 			anchor_spl::token::transfer(
@@ -293,7 +301,7 @@ fn complete_transfer(
 		msg!("[DstAmount] so_fee={}", actual_fee);
 	} else {
 		let receiver = ctx.accounts.recipient_token_account.key();
-		msg!("[Admin] recipient={}, actual_receiving_amount={}", receiver, amount)
+		msg!("[Proxy] recipient={}, actual_receiving_amount={}", receiver, amount)
 	}
 
 	// Transfer the other tokens from tmp_token_account to recipient.

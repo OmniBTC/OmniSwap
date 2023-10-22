@@ -144,6 +144,7 @@ pub struct Initialize<'info> {
 pub fn handler(
 	ctx: Context<Initialize>,
 	beneficiary: Pubkey,
+	proxy: Pubkey,
 	actual_reserve: u64,
 	estimate_reserve: u64,
 	so_fee_by_ray: u64,
@@ -184,6 +185,7 @@ pub fn handler(
 	// Set the owner of the redeemer config (effectively the owner of the
 	// program).
 	redeemer_config.owner = ctx.accounts.owner.key();
+	redeemer_config.proxy = proxy;
 	redeemer_config.bump = *ctx.bumps.get("redeemer_config").ok_or(SoSwapError::BumpNotFound)?;
 
 	// Set Token Bridge related addresses.

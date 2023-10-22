@@ -26,13 +26,16 @@ pub struct RedeemerConfig {
 	pub bump: u8,
 	/// Token Bridge program's relevant addresses.
 	pub token_bridge: InboundTokenBridgeAddresses,
+	/// Proxy account
+	pub proxy: Pubkey,
 }
 
 impl RedeemerConfig {
 	pub const MAXIMUM_SIZE: usize = 8 // discriminator
         + 32 // owner
         + 1 // bump
-        + InboundTokenBridgeAddresses::LEN;
+        + InboundTokenBridgeAddresses::LEN
+		+ 32; // proxy
 
 	/// AKA `b"redeemer"`.
 	pub const SEED_PREFIX: &'static [u8; 8] = token_bridge::SEED_PREFIX_REDEEMER;
@@ -50,7 +53,8 @@ pub mod test {
 			RedeemerConfig::MAXIMUM_SIZE,
 			size_of::<u64>() +
 				size_of::<Pubkey>() +
-				size_of::<u8>() + size_of::<InboundTokenBridgeAddresses>()
+				size_of::<u8>() + size_of::<InboundTokenBridgeAddresses>() +
+				size_of::<Pubkey>()
 		);
 
 		Ok(())

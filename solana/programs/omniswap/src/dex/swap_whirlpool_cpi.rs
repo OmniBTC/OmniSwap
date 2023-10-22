@@ -65,7 +65,7 @@ pub fn ascii_to_u64(data: &[u8]) -> u64 {
 	let mut amount = 0u64;
 
 	for &byte in data {
-		if byte < 48 || byte > 57 {
+		if !(48..=57).contains(&byte) {
 			return 0 // Invalid character, return 0
 		}
 		let digit = (byte - 48) as u64;
@@ -102,7 +102,7 @@ pub fn parse_whirlpool_call_data(data: &[u8]) -> std::result::Result<u64, SoSwap
 	}
 
 	// Check min_amout_out_u64
-	let min_amount_out = ascii_to_u64(&parts[1]);
+	let min_amount_out = ascii_to_u64(parts[1]);
 
 	Ok(min_amount_out)
 }
@@ -173,6 +173,10 @@ pub mod test {
 		assert_eq!(parsed, 1235678u64);
 
 		let call_data = b"Whirlpool,".as_slice();
+		let parsed = parse_whirlpool_call_data(call_data)?;
+		assert_eq!(parsed, 0u64);
+
+		let call_data = b"Whirlpool,abc".as_slice();
 		let parsed = parse_whirlpool_call_data(call_data)?;
 		assert_eq!(parsed, 0u64);
 
