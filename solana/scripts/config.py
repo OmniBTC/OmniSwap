@@ -5,7 +5,7 @@ from solders.pubkey import Pubkey
 from solana.rpc.async_api import AsyncClient
 
 # solana-devnet
-rpc_url_devnet = ("https://api.devnet.solana.com")
+rpc_url_devnet = "https://api.devnet.solana.com"
 wormhole_devnet = "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5"
 token_bridge_devnet = "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe"
 lookup_table_devnet = Pubkey.from_string("ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8")

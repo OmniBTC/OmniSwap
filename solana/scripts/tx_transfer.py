@@ -1,10 +1,17 @@
 import asyncio
 
 from solana.transaction import Transaction
+from solders.commitment_config import CommitmentLevel
 from solders.compute_budget import set_compute_unit_limit
 from solders.message import MessageV0
 from solders.pubkey import Pubkey
 from solders.address_lookup_table_account import AddressLookupTableAccount
+from solders.rpc.config import (
+    RpcSimulateTransactionConfig,
+    RpcSimulateTransactionAccountsConfig,
+)
+from solders.rpc.requests import SimulateVersionedTransaction, SimulateLegacyTransaction
+from solders.rpc.responses import SimulateTransactionResp
 from solders.transaction import VersionedTransaction
 
 from omniswap.instructions import (
@@ -15,7 +22,8 @@ from omniswap.program_id import PROGRAM_ID
 from helper import (
     getSendWrappedTransferAccounts,
     deriveTokenTransferMessageKey,
-    getSendNativeTransferAccounts, decode_address_look_up_table,
+    getSendNativeTransferAccounts,
+    decode_address_look_up_table,
 )
 from config import (
     get_client,
@@ -26,6 +34,7 @@ from config import (
 )
 
 from cross import WormholeData, SoData, generate_random_bytes32
+from custom_simulate import custom_simulate
 
 
 async def omniswap_send_wrapped_tokens_with_payload():
@@ -246,9 +255,11 @@ async def omniswap_send_native_tokens_with_payload():
 
     txn = VersionedTransaction(message0, [payer])
 
-    tx_sig = await client.send_transaction(txn)
+    # tx_sig = await client.simulate_transaction(txn, sig_verify=True, commitment=None)
+    # print(tx_sig.value)
 
-    print(tx_sig)
+    resp = await custom_simulate(client, txn, addresses=[usdc_account])
+    print(resp.value.to_json())
 
     await client.close()
 
