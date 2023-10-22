@@ -9,6 +9,7 @@ from omniswap.instructions import (
     set_wormhole_reserve,
     register_foreign_contract,
     set_price_ratio,
+    set_redeem_proxy,
 )
 from omniswap.program_id import PROGRAM_ID
 from omniswap.accounts import SoFeeConfig, PriceManager
@@ -277,6 +278,40 @@ async def omniswap_set_price_ratio():
     await client.close()
 
 
+async def omniswap_set_redeem_proxy():
+    client = get_client()
+    await client.is_connected()
+
+    payer = get_payer()
+
+    new_proxy = payer.pubkey()
+    redeemer_config_key = deriveRedeemerConfigKey(PROGRAM_ID)
+
+    ix = set_redeem_proxy(
+        args={"new_proxy": new_proxy},
+        accounts={
+            "owner": payer.pubkey(),
+            "config": redeemer_config_key,
+        },
+    )
+
+    tx = Transaction(fee_payer=payer.pubkey()).add(ix)
+
+    tx_sig = await client.send_transaction(tx, payer)
+    print(tx_sig)
+
+    while True:
+        resp = await client.get_transaction(tx_sig.value)
+        if resp.value is not None:
+            print(resp.value.to_json())
+            break
+        else:
+            print("Transaction not confirmed yet. Waiting...")
+            await asyncio.sleep(5)  # 5 seconds
+
+    await client.close()
+
+
 async def initialize_all():
     print("initialize...")
     await omniswap_initialize()
@@ -290,4 +325,5 @@ async def initialize_all():
     print("set_price_ratio...")
     await omniswap_set_price_ratio()
 
-asyncio.run(initialize_all())
+
+asyncio.run(omniswap_set_redeem_proxy())

@@ -56,3 +56,8 @@ from .complete_so_swap_wrapped_with_whirlpool import (
     CompleteSoSwapWrappedWithWhirlpoolArgs,
     CompleteSoSwapWrappedWithWhirlpoolAccounts,
 )
+from .set_redeem_proxy import (
+    set_redeem_proxy,
+    SetRedeemProxyArgs,
+    SetRedeemProxyAccounts,
+)

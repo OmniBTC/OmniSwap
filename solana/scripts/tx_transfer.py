@@ -380,7 +380,9 @@ async def omniswap_send_native_tokens_with_whirlpool():
 
     await client.close()
 
+
 async def omniswap_send_wrapped_tokens_with_whirlpool():
     pass
+
 
 asyncio.run(omniswap_send_native_tokens_with_whirlpool())

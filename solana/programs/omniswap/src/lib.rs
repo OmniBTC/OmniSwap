@@ -225,4 +225,8 @@ pub mod omniswap {
 	) -> Result<()> {
 		instructions::complete_so_swap_wrapped_with_whirlpool::handler(ctx, vaa_hash)
 	}
+
+	pub fn set_redeem_proxy(ctx: Context<SetRedeemProxy>, new_proxy: Pubkey) -> Result<()> {
+		instructions::set_redeem_proxy::handler(ctx, new_proxy)
+	}
 }
