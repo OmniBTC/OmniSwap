@@ -27,7 +27,6 @@ class CompleteSoSwapNativeWithoutSwapAccounts(typing.TypedDict):
     foreign_contract: Pubkey
     mint: Pubkey
     recipient_token_account: Pubkey
-    recipient: Pubkey
     tmp_token_account: Pubkey
     wormhole_program: Pubkey
     token_bridge_program: Pubkey
@@ -63,7 +62,6 @@ def complete_so_swap_native_without_swap(
             is_signer=False,
             is_writable=True,
         ),
-        AccountMeta(pubkey=accounts["recipient"], is_signer=False, is_writable=True),
         AccountMeta(
             pubkey=accounts["tmp_token_account"], is_signer=False, is_writable=True
         ),

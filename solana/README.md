@@ -9,5 +9,5 @@ anchor deploy
 
 ## generate python sdk
 ```bash
-anchorpy client-gen target/idl/omniswap.json scripts/omniswap --program-id 9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU
+anchorpy client-gen target/idl/omniswap.json scripts/omniswap --program-id FpdkugsrDzCn57xeFPo6fwRmsnH7FUdJiDK717p3dico
 ```

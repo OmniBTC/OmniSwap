@@ -10,6 +10,7 @@ from ..program_id import PROGRAM_ID
 
 class InitializeArgs(typing.TypedDict):
     beneficiary: Pubkey
+    redeemer_proxy: Pubkey
     actual_reserve: int
     estimate_reserve: int
     so_fee_by_ray: int
@@ -17,6 +18,7 @@ class InitializeArgs(typing.TypedDict):
 
 layout = borsh.CStruct(
     "beneficiary" / BorshPubkey,
+    "redeemer_proxy" / BorshPubkey,
     "actual_reserve" / borsh.U64,
     "estimate_reserve" / borsh.U64,
     "so_fee_by_ray" / borsh.U64,
@@ -101,6 +103,7 @@ def initialize(
     encoded_args = layout.build(
         {
             "beneficiary": args["beneficiary"],
+            "redeemer_proxy": args["redeemer_proxy"],
             "actual_reserve": args["actual_reserve"],
             "estimate_reserve": args["estimate_reserve"],
             "so_fee_by_ray": args["so_fee_by_ray"],

@@ -19,7 +19,7 @@ pub mod serde;
 pub mod state;
 pub mod utils;
 
-declare_id!("8kaBfAy1pYaQzmHgWiUHcBqQfhgv8ahnMrSfcNVrkKFJ");
+declare_id!("FpdkugsrDzCn57xeFPo6fwRmsnH7FUdJiDK717p3dico");
 
 use instructions::*;
 

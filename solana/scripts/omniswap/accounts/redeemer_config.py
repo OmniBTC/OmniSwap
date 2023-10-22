@@ -16,6 +16,7 @@ class RedeemerConfigJSON(typing.TypedDict):
     owner: str
     bump: int
     token_bridge: types.inbound_token_bridge_addresses.InboundTokenBridgeAddressesJSON
+    proxy: str
 
 
 @dataclass
@@ -26,10 +27,12 @@ class RedeemerConfig:
         "bump" / borsh.U8,
         "token_bridge"
         / types.inbound_token_bridge_addresses.InboundTokenBridgeAddresses.layout,
+        "proxy" / BorshPubkey,
     )
     owner: Pubkey
     bump: int
     token_bridge: types.inbound_token_bridge_addresses.InboundTokenBridgeAddresses
+    proxy: Pubkey
 
     @classmethod
     async def fetch(
@@ -80,6 +83,7 @@ class RedeemerConfig:
             token_bridge=types.inbound_token_bridge_addresses.InboundTokenBridgeAddresses.from_decoded(
                 dec.token_bridge
             ),
+            proxy=dec.proxy,
         )
 
     def to_json(self) -> RedeemerConfigJSON:
@@ -87,6 +91,7 @@ class RedeemerConfig:
             "owner": str(self.owner),
             "bump": self.bump,
             "token_bridge": self.token_bridge.to_json(),
+            "proxy": str(self.proxy),
         }
 
     @classmethod
@@ -97,4 +102,5 @@ class RedeemerConfig:
             token_bridge=types.inbound_token_bridge_addresses.InboundTokenBridgeAddresses.from_json(
                 obj["token_bridge"]
             ),
+            proxy=Pubkey.from_string(obj["proxy"]),
         )

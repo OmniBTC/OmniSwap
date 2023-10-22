@@ -36,3 +36,23 @@ from .estimate_relayer_fee import (
     EstimateRelayerFeeArgs,
     EstimateRelayerFeeAccounts,
 )
+from .so_swap_native_with_whirlpool import (
+    so_swap_native_with_whirlpool,
+    SoSwapNativeWithWhirlpoolArgs,
+    SoSwapNativeWithWhirlpoolAccounts,
+)
+from .so_swap_wrapped_with_whirlpool import (
+    so_swap_wrapped_with_whirlpool,
+    SoSwapWrappedWithWhirlpoolArgs,
+    SoSwapWrappedWithWhirlpoolAccounts,
+)
+from .complete_so_swap_native_with_whirlpool import (
+    complete_so_swap_native_with_whirlpool,
+    CompleteSoSwapNativeWithWhirlpoolArgs,
+    CompleteSoSwapNativeWithWhirlpoolAccounts,
+)
+from .complete_so_swap_wrapped_with_whirlpool import (
+    complete_so_swap_wrapped_with_whirlpool,
+    CompleteSoSwapWrappedWithWhirlpoolArgs,
+    CompleteSoSwapWrappedWithWhirlpoolAccounts,
+)

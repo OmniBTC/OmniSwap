@@ -154,6 +154,10 @@
           "type": "publicKey"
         },
         {
+          "name": "redeemerProxy",
+          "type": "publicKey"
+        },
+        {
           "name": "actualReserve",
           "type": "u64"
         },
@@ -690,14 +694,6 @@
           ]
         },
         {
-          "name": "recipient",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "transaction."
-          ]
-        },
-        {
           "name": "tmpTokenAccount",
           "isMut": true,
           "isSigner": false,
@@ -1101,14 +1097,6 @@
           ]
         },
         {
-          "name": "recipient",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "transaction."
-          ]
-        },
-        {
           "name": "tmpTokenAccount",
           "isMut": true,
           "isSigner": false,
@@ -1296,6 +1284,1056 @@
       "returns": {
         "defined": "(u64,u64,u128)"
       }
+    },
+    {
+      "name": "soSwapNativeWithWhirlpool",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Payer will pay Wormhole fee to transfer tokens and create temporary",
+            "token account."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Sender Config account. Acts as the signer for the Token Bridge token",
+            "transfer. Read-only."
+          ]
+        },
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "priceManager",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Price Manager account. Read-only."
+          ]
+        },
+        {
+          "name": "beneficiaryAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "foreignContract",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Foreign Contract account. Send tokens to the contract specified in this",
+            "account. Funnily enough, the Token Bridge program does not have any",
+            "requirements for outbound transfers for the recipient chain to be",
+            "registered. This account provides extra protection against sending",
+            "tokens to an unregistered Wormhole chain ID. Read-only."
+          ]
+        },
+        {
+          "name": "whirlpoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTokenOwnerAccountA",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Payer's associated token account."
+          ]
+        },
+        {
+          "name": "whirlpoolTokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTokenOwnerAccountB",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Payer's associated token account."
+          ]
+        },
+        {
+          "name": "whirlpoolTokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray2",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolOracle",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Oracle is currently unused and will be enabled on subsequent updates"
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Mint info. This is the SPL token that will be bridged over to the",
+            "foreign contract. Mutable."
+          ]
+        },
+        {
+          "name": "tmpTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Program's temporary token account. This account is created before the",
+            "instruction is invoked to temporarily take custody of the payer's",
+            "tokens. When the tokens are finally bridged out, the token account",
+            "will have zero balance and can be closed."
+          ]
+        },
+        {
+          "name": "wormholeProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Wormhole program."
+          ]
+        },
+        {
+          "name": "tokenBridgeProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge program."
+          ]
+        },
+        {
+          "name": "tokenBridgeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge config. Read-only."
+          ]
+        },
+        {
+          "name": "tokenBridgeCustody",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "account that holds this mint's balance. This account needs to be",
+            "unchecked because a token account may not have been created for this",
+            "mint yet. Mutable."
+          ]
+        },
+        {
+          "name": "tokenBridgeCustodySigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeAuthoritySigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "wormholeBridge",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Wormhole bridge data. Mutable."
+          ]
+        },
+        {
+          "name": "wormholeMessage",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "tokens transferred in this account for our program. Mutable."
+          ]
+        },
+        {
+          "name": "tokenBridgeEmitter",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeSequence",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wormholeFeeCollector",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Wormhole fee collector. Mutable."
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token program."
+          ]
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Associated Token program."
+          ]
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Clock sysvar."
+          ]
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Rent sysvar."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "wormholeData",
+          "type": "bytes"
+        },
+        {
+          "name": "swapDataSrc",
+          "type": "bytes"
+        },
+        {
+          "name": "soData",
+          "type": "bytes"
+        },
+        {
+          "name": "swapDataDst",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "soSwapWrappedWithWhirlpool",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Payer will pay Wormhole fee to transfer tokens and create temporary",
+            "token account."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Sender Config account. Acts as the signer for the Token Bridge token",
+            "transfer. Read-only."
+          ]
+        },
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "priceManager",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Price Manager account. Read-only."
+          ]
+        },
+        {
+          "name": "beneficiaryAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "foreignContract",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Foreign Contract account. Send tokens to the contract specified in this",
+            "account. Funnily enough, the Token Bridge program does not have any",
+            "requirements for outbound transfers for the recipient chain to be",
+            "registered. This account provides extra protection against sending",
+            "tokens to an unregistered Wormhole chain ID. Read-only."
+          ]
+        },
+        {
+          "name": "whirlpoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTokenOwnerAccountA",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Payer's associated token account."
+          ]
+        },
+        {
+          "name": "whirlpoolTokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTokenOwnerAccountB",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Payer's associated token account."
+          ]
+        },
+        {
+          "name": "whirlpoolTokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray2",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolOracle",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Oracle is currently unused and will be enabled on subsequent updates"
+          ]
+        },
+        {
+          "name": "tokenBridgeWrappedMint",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge wrapped mint info. This is the SPL token that will be",
+            "bridged to the foreign contract. The wrapped mint PDA must agree",
+            "with the native token's metadata. Mutable."
+          ]
+        },
+        {
+          "name": "tmpTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Program's temporary token account. This account is created before the",
+            "instruction is invoked to temporarily take custody of the payer's",
+            "tokens. When the tokens are finally bridged out, the token account",
+            "will have zero balance and can be closed."
+          ]
+        },
+        {
+          "name": "wormholeProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Wormhole program."
+          ]
+        },
+        {
+          "name": "tokenBridgeProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge program."
+          ]
+        },
+        {
+          "name": "tokenBridgeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge config. Read-only."
+          ]
+        },
+        {
+          "name": "tokenBridgeWrappedMeta",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge program's wrapped metadata, which stores info",
+            "about the token from its native chain:",
+            "* Wormhole Chain ID",
+            "* Token's native contract address",
+            "* Token's native decimals"
+          ]
+        },
+        {
+          "name": "tokenBridgeAuthoritySigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "wormholeBridge",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Wormhole bridge data. Mutable."
+          ]
+        },
+        {
+          "name": "wormholeMessage",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "tokens transferred in this account for our program. Mutable."
+          ]
+        },
+        {
+          "name": "tokenBridgeEmitter",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeSequence",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wormholeFeeCollector",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Wormhole fee collector. Mutable."
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token program."
+          ]
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Associated Token program."
+          ]
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Clock sysvar."
+          ]
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Rent sysvar."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "wormholeData",
+          "type": "bytes"
+        },
+        {
+          "name": "swapDataSrc",
+          "type": "bytes"
+        },
+        {
+          "name": "soData",
+          "type": "bytes"
+        },
+        {
+          "name": "swapDataDst",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "completeSoSwapNativeWithWhirlpool",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Payer will pay Wormhole fee to transfer tokens and create temporary",
+            "token account."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Redeemer Config account. Acts as the Token Bridge redeemer, which signs",
+            "for the complete transfer instruction. Read-only."
+          ]
+        },
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "beneficiaryTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "foreignContract",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Foreign Contract account. The registered contract specified in this",
+            "account must agree with the target address for the Token Bridge's token",
+            "transfer. Read-only."
+          ]
+        },
+        {
+          "name": "whirlpoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTokenOwnerAccountA",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Payer's associated token account."
+          ]
+        },
+        {
+          "name": "whirlpoolTokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTokenOwnerAccountB",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Payer's associated token account."
+          ]
+        },
+        {
+          "name": "whirlpoolTokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray2",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolOracle",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Oracle is currently unused and will be enabled on subsequent updates"
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Mint info. This is the SPL token that will be bridged over from the",
+            "foreign contract. This must match the token address specified in the",
+            "signed Wormhole message. Read-only."
+          ]
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Recipient associated token account.",
+            "If swap ok, transfer the receiving token to this account"
+          ]
+        },
+        {
+          "name": "recipientBridgeTokenToken",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Recipient associated token account.",
+            "If swap failed, transfer the bridge token to this account"
+          ]
+        },
+        {
+          "name": "tmpTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Program's temporary token account. This account is created before the",
+            "instruction is invoked to temporarily take custody of the payer's",
+            "tokens. When the tokens are finally bridged in, the tokens will be",
+            "transferred to the destination token accounts. This account will have",
+            "zero balance and can be closed."
+          ]
+        },
+        {
+          "name": "wormholeProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Wormhole program."
+          ]
+        },
+        {
+          "name": "tokenBridgeProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge program."
+          ]
+        },
+        {
+          "name": "tokenBridgeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge config. Read-only."
+          ]
+        },
+        {
+          "name": "vaa",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Verified Wormhole message account. The Wormhole program verified",
+            "signatures and posted the account data here. Read-only."
+          ]
+        },
+        {
+          "name": "tokenBridgeClaim",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "is true if the bridged assets have been claimed. If the transfer has",
+            "not been redeemed, this account will not exist yet."
+          ]
+        },
+        {
+          "name": "tokenBridgeForeignEndpoint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge foreign endpoint. This account should really be one",
+            "endpoint per chain, but the PDA allows for multiple endpoints for each",
+            "chain! We store the proper endpoint for the emitter chain."
+          ]
+        },
+        {
+          "name": "tokenBridgeCustody",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "account that holds this mint's balance."
+          ]
+        },
+        {
+          "name": "tokenBridgeCustodySigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token program."
+          ]
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Associated Token program."
+          ]
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Rent sysvar."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "vaaHash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "completeSoSwapWrappedWithWhirlpool",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Payer will pay Wormhole fee to transfer tokens and create temporary",
+            "token account."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Redeemer Config account. Acts as the Token Bridge redeemer, which signs",
+            "for the complete transfer instruction. Read-only."
+          ]
+        },
+        {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "beneficiaryTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "foreignContract",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Foreign Contract account. The registered contract specified in this",
+            "account must agree with the target address for the Token Bridge's token",
+            "transfer. Read-only."
+          ]
+        },
+        {
+          "name": "whirlpoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTokenOwnerAccountA",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Payer's associated token account."
+          ]
+        },
+        {
+          "name": "whirlpoolTokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTokenOwnerAccountB",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Payer's associated token account."
+          ]
+        },
+        {
+          "name": "whirlpoolTokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolTickArray2",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolOracle",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Oracle is currently unused and will be enabled on subsequent updates"
+          ]
+        },
+        {
+          "name": "tokenBridgeWrappedMint",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge wrapped mint info. This is the SPL token that will be",
+            "bridged from the foreign contract. The wrapped mint PDA must agree",
+            "with the native token's metadata in the wormhole message. Mutable."
+          ]
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Recipient associated token account.",
+            "If swap ok, transfer the receiving token to this account"
+          ]
+        },
+        {
+          "name": "recipientBridgeTokenToken",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Recipient associated token account.",
+            "If swap failed, transfer the bridge token to this account"
+          ]
+        },
+        {
+          "name": "tmpTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Program's temporary token account. This account is created before the",
+            "instruction is invoked to temporarily take custody of the payer's",
+            "tokens. When the tokens are finally bridged in, the tokens will be",
+            "transferred to the destination token accounts. This account will have",
+            "zero balance and can be closed."
+          ]
+        },
+        {
+          "name": "wormholeProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Wormhole program."
+          ]
+        },
+        {
+          "name": "tokenBridgeProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge program."
+          ]
+        },
+        {
+          "name": "tokenBridgeWrappedMeta",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge program's wrapped metadata, which stores info",
+            "about the token from its native chain:",
+            "* Wormhole Chain ID",
+            "* Token's native contract address",
+            "* Token's native decimals"
+          ]
+        },
+        {
+          "name": "tokenBridgeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge config. Read-only."
+          ]
+        },
+        {
+          "name": "vaa",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Verified Wormhole message account. The Wormhole program verified",
+            "signatures and posted the account data here. Read-only."
+          ]
+        },
+        {
+          "name": "tokenBridgeClaim",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "is true if the bridged assets have been claimed. If the transfer has",
+            "not been redeemed, this account will not exist yet."
+          ]
+        },
+        {
+          "name": "tokenBridgeForeignEndpoint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token Bridge foreign endpoint. This account should really be one",
+            "endpoint per chain, but the PDA allows for multiple endpoints for each",
+            "chain! We store the proper endpoint for the emitter chain."
+          ]
+        },
+        {
+          "name": "tokenBridgeMintAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token program."
+          ]
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Associated Token program."
+          ]
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Rent sysvar."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "vaaHash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
     }
   ],
   "accounts": [
@@ -1460,6 +2498,13 @@
             "type": {
               "defined": "InboundTokenBridgeAddresses"
             }
+          },
+          {
+            "name": "proxy",
+            "docs": [
+              "Proxy account"
+            ],
+            "type": "publicKey"
           }
         ]
       }
@@ -1715,9 +2760,16 @@
       "code": 6030,
       "name": "UnexpectValue",
       "msg": "UnexpectValue"
+    },
+    {
+      "code": 6031,
+      "name": "InvalidCallData",
+      "msg": "InvalidCallData"
+    },
+    {
+      "code": 6032,
+      "name": "InvalidProxy",
+      "msg": "InvalidProxy"
     }
-  ],
-  "metadata": {
-    "address": "8kaBfAy1pYaQzmHgWiUHcBqQfhgv8ahnMrSfcNVrkKFJ"
-  }
+  ]
 }

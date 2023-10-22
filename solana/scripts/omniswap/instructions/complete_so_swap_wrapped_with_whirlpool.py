@@ -9,24 +9,32 @@ import borsh_construct as borsh
 from ..program_id import PROGRAM_ID
 
 
-class CompleteSoSwapWrappedWithoutSwapArgs(typing.TypedDict):
+class CompleteSoSwapWrappedWithWhirlpoolArgs(typing.TypedDict):
     vaa_hash: list[int]
-    skip_verify_soswap_message: bool
 
 
-layout = borsh.CStruct(
-    "vaa_hash" / borsh.U8[32], "skip_verify_soswap_message" / borsh.Bool
-)
+layout = borsh.CStruct("vaa_hash" / borsh.U8[32])
 
 
-class CompleteSoSwapWrappedWithoutSwapAccounts(typing.TypedDict):
+class CompleteSoSwapWrappedWithWhirlpoolAccounts(typing.TypedDict):
     payer: Pubkey
     config: Pubkey
     fee_config: Pubkey
     beneficiary_token_account: Pubkey
     foreign_contract: Pubkey
+    whirlpool_program: Pubkey
+    whirlpool_account: Pubkey
+    whirlpool_token_owner_account_a: Pubkey
+    whirlpool_token_vault_a: Pubkey
+    whirlpool_token_owner_account_b: Pubkey
+    whirlpool_token_vault_b: Pubkey
+    whirlpool_tick_array0: Pubkey
+    whirlpool_tick_array1: Pubkey
+    whirlpool_tick_array2: Pubkey
+    whirlpool_oracle: Pubkey
     token_bridge_wrapped_mint: Pubkey
     recipient_token_account: Pubkey
+    recipient_bridge_token_token: Pubkey
     tmp_token_account: Pubkey
     wormhole_program: Pubkey
     token_bridge_program: Pubkey
@@ -38,9 +46,9 @@ class CompleteSoSwapWrappedWithoutSwapAccounts(typing.TypedDict):
     token_bridge_mint_authority: Pubkey
 
 
-def complete_so_swap_wrapped_without_swap(
-    args: CompleteSoSwapWrappedWithoutSwapArgs,
-    accounts: CompleteSoSwapWrappedWithoutSwapAccounts,
+def complete_so_swap_wrapped_with_whirlpool(
+    args: CompleteSoSwapWrappedWithWhirlpoolArgs,
+    accounts: CompleteSoSwapWrappedWithWhirlpoolAccounts,
     program_id: Pubkey = PROGRAM_ID,
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> Instruction:
@@ -57,12 +65,55 @@ def complete_so_swap_wrapped_without_swap(
             pubkey=accounts["foreign_contract"], is_signer=False, is_writable=False
         ),
         AccountMeta(
+            pubkey=accounts["whirlpool_program"], is_signer=False, is_writable=False
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_account"], is_signer=False, is_writable=True
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_token_owner_account_a"],
+            is_signer=False,
+            is_writable=True,
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_token_vault_a"],
+            is_signer=False,
+            is_writable=True,
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_token_owner_account_b"],
+            is_signer=False,
+            is_writable=True,
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_token_vault_b"],
+            is_signer=False,
+            is_writable=True,
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_tick_array0"], is_signer=False, is_writable=True
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_tick_array1"], is_signer=False, is_writable=True
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_tick_array2"], is_signer=False, is_writable=True
+        ),
+        AccountMeta(
+            pubkey=accounts["whirlpool_oracle"], is_signer=False, is_writable=False
+        ),
+        AccountMeta(
             pubkey=accounts["token_bridge_wrapped_mint"],
             is_signer=False,
             is_writable=True,
         ),
         AccountMeta(
             pubkey=accounts["recipient_token_account"],
+            is_signer=False,
+            is_writable=True,
+        ),
+        AccountMeta(
+            pubkey=accounts["recipient_bridge_token_token"],
             is_signer=False,
             is_writable=True,
         ),
@@ -106,11 +157,10 @@ def complete_so_swap_wrapped_without_swap(
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts
-    identifier = b"f\xc9R\xefqcDd"
+    identifier = b"\x8fP\xbc\xee\xf9Zr\x96"
     encoded_args = layout.build(
         {
             "vaa_hash": args["vaa_hash"],
-            "skip_verify_soswap_message": args["skip_verify_soswap_message"],
         }
     )
     data = identifier + encoded_args

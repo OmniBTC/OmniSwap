@@ -272,6 +272,33 @@ class CheckFeeFail(ProgramError):
     msg = "CheckFeeFail"
 
 
+class UnexpectValue(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6030, "UnexpectValue")
+
+    code = 6030
+    name = "UnexpectValue"
+    msg = "UnexpectValue"
+
+
+class InvalidCallData(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6031, "InvalidCallData")
+
+    code = 6031
+    name = "InvalidCallData"
+    msg = "InvalidCallData"
+
+
+class InvalidProxy(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6032, "InvalidProxy")
+
+    code = 6032
+    name = "InvalidProxy"
+    msg = "InvalidProxy"
+
+
 CustomError = typing.Union[
     InvalidWormholeBridge,
     InvalidWormholeFeeCollector,
@@ -303,6 +330,9 @@ CustomError = typing.Union[
     DeserializeSoSwapMessageFail,
     InvalidBeneficiary,
     CheckFeeFail,
+    UnexpectValue,
+    InvalidCallData,
+    InvalidProxy,
 ]
 CUSTOM_ERROR_MAP: dict[int, CustomError] = {
     6000: InvalidWormholeBridge(),
@@ -335,6 +365,9 @@ CUSTOM_ERROR_MAP: dict[int, CustomError] = {
     6027: DeserializeSoSwapMessageFail(),
     6028: InvalidBeneficiary(),
     6029: CheckFeeFail(),
+    6030: UnexpectValue(),
+    6031: InvalidCallData(),
+    6032: InvalidProxy(),
 }
 
 

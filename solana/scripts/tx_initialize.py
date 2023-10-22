@@ -43,6 +43,7 @@ async def omniswap_initialize():
             "beneficiary": Pubkey.from_string(
                 "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
             ),
+            "redeemer_proxy": payer.pubkey(),
             "actual_reserve": 110000000,
             "estimate_reserve": 120000000,
             "so_fee_by_ray": 0,
@@ -76,6 +77,17 @@ async def omniswap_initialize():
     tx_sig = await client.send_transaction(tx, payer)
     print(tx_sig)
 
+    while True:
+        resp = await client.get_transaction(tx_sig.value)
+        if resp.value is not None:
+            print(resp.value.to_json())
+            break
+        else:
+            print("Transaction not confirmed yet. Waiting...")
+            await asyncio.sleep(5)  # 5 seconds
+
+    await client.close()
+
     await client.close()
 
 
@@ -104,6 +116,17 @@ async def omniswap_set_so_fee():
     tx_sig = await client.send_transaction(tx, payer)
     print(tx_sig)
 
+    while True:
+        resp = await client.get_transaction(tx_sig.value)
+        if resp.value is not None:
+            print(resp.value.to_json())
+            break
+        else:
+            print("Transaction not confirmed yet. Waiting...")
+            await asyncio.sleep(5)  # 5 seconds
+
+    await client.close()
+
     await client.close()
 
 
@@ -130,6 +153,17 @@ async def omniswap_set_wormhole_reserve():
 
     tx_sig = await client.send_transaction(tx, payer)
     print(tx_sig)
+
+    while True:
+        resp = await client.get_transaction(tx_sig.value)
+        if resp.value is not None:
+            print(resp.value.to_json())
+            break
+        else:
+            print("Transaction not confirmed yet. Waiting...")
+            await asyncio.sleep(5)  # 5 seconds
+
+    await client.close()
 
     await client.close()
 
@@ -243,4 +277,17 @@ async def omniswap_set_price_ratio():
     await client.close()
 
 
-asyncio.run(omniswap_set_price_ratio())
+async def initialize_all():
+    print("initialize...")
+    await omniswap_initialize()
+
+    print("set_so_fee...")
+    await omniswap_set_so_fee()
+
+    print("register_foreign_contract...")
+    await omniswap_register_foreign_contract()
+
+    print("set_price_ratio...")
+    await omniswap_set_price_ratio()
+
+asyncio.run(initialize_all())
