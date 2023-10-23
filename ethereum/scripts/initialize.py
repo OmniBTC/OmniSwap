@@ -604,8 +604,7 @@ def redeploy_stargate():
     # print("deploy LibSoFeeStargateV2.sol...")
     # so_fee = 1e-3
     # transfer_for_gas = 40000
-    # basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
-    # basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
+    # basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
     # basic_fee = 0
     # LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
     #                           basic_fee, basic_beneficiary,
@@ -899,17 +898,20 @@ def redeploy_correct_swap():
     proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {"from": account})
 
 
-def transferOwnership(owner="0xB12A47A0e8402896981507f63B8d12C813BE102f"):
-    account = get_account()
+def transferOwnership():
+    deploy_account = get_account("deploy_key")
     proxy = Contract.from_abi(
         "OwnershipFacet", SoDiamond[-1].address, OwnershipFacet.abi
     )
-    proxy.transferOwnership(owner, {"from": account})
+    account = get_account()
+    owner = account.address
+    proxy.transferOwnership(owner, {"from": deploy_account})
+    deploy_account.transfer(owner, int(deploy_account.balance() / 2))
     proxy.confirmOwnershipTransfer({"from": account})
     print(proxy.owner())
 
 
-def transferOwnershipForFee(owner="0xB12A47A0e8402896981507f63B8d12C813BE102f"):
+def transferOwnershipForFee(owner):
     account = get_account()
     LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
 

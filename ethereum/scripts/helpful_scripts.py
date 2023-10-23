@@ -52,14 +52,10 @@ def to_hex_str(data: str, with_prefix=True):
         return bytes(data, "ascii").hex()
 
 
-def get_account(index=None, id=None):
-    if index:
-        return accounts[index]
-    if network.show_active() in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
-        return accounts[0]
-    if id:
-        return accounts.load(id)
-    return accounts.add(config["wallets"]["from_key"])
+def get_account(name=None):
+    if name is None:
+        name = "from_key"
+    return accounts.add(config["wallets"][name])
 
 
 def get_func_prototype(data):

@@ -2176,5 +2176,7 @@ networks:
 
 wallets:
   from_key: ${PRIVATE_KEY}
-  from_deploy_key: ${DEPLOY_PRIVATE_KEY}
+  deploy_key: ${DEPLOY_KEY}
+  # In order to deploy a unified contract address
+  create_key: ${CREATE_KEY}
   from_mnemonic: ${MNEMONIC}
