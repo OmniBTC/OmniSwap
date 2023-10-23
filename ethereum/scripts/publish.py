@@ -1,16 +1,18 @@
 # @Time    : 2022/7/22 14:41
 # @Author  : WeiDai
 # @FileName: publish.py
+import functools
 import os
 
 from brownie import project, network
+from sui_brownie.parallelism import ProcessExecutor
 
 from helpful_scripts import change_network
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
-def main(net: str = None):
+def worker(net: str = None):
     if net is None:
         if network.is_connected():
             net = network.show_active()
@@ -22,7 +24,8 @@ def main(net: str = None):
     change_network(net)
     deployed_contract = [
         # "LibSoFeeGenericV2",
-        "GenericSwapFacet",
+        # "GenericSwapFacet",
+        "StargateFacet"
         # "LibCorrectSwapV1"
         # "Claim"
         # "CCTPFacet",
@@ -44,5 +47,11 @@ def main(net: str = None):
             print("error:", e)
 
 
+def main():
+    nets = ["avax-main", "base-main", "optimism-main", "arbitrum-main", "bsc-main", "mainnet", "polygon-main"]
+    pt = ProcessExecutor(executor=len(nets))
+    pt.run([functools.partial(worker, net) for net in nets])
+
+
 if __name__ == "__main__":
-    main("zkevm-main")
+    main()
