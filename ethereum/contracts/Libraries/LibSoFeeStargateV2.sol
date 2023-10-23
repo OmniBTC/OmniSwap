@@ -22,7 +22,7 @@ contract LibSoFeeStargateV2 is ILibSoFeeV2, Ownable, ReentrancyGuard {
     address public soBasicBeneficiary;
 
     constructor(
-        uint256 _soFee, 
+        uint256 _soFee,
         uint256 _transferForGas,
         uint256 _soBasicFee,
         address _soBasicBeneficiary

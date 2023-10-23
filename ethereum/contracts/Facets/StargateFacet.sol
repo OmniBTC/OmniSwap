@@ -639,16 +639,13 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     }
 
     /// @dev Calculate the fee for paying the stargate bridge
-    function _getStargateValue(SoData memory soData)
-        private
-        returns (uint256)
-    {
+    function _getStargateValue(SoData memory soData) private returns (uint256) {
         uint256 soBasicFee = getStargateBasicFee();
         address soBasicBeneficiary = getStargateBasicBeneficiary();
         if (soBasicBeneficiary == address(0x0)) {
             soBasicFee = 0;
         }
-        if (soBasicFee > 0){
+        if (soBasicFee > 0) {
             LibAsset.transferAsset(
                 address(0x0),
                 payable(soBasicBeneficiary),
