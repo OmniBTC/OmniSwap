@@ -656,9 +656,9 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
             );
         }
 
-        require(msg.value >= soBasicFee, "NotEnough");
+        require(msg.value >= soBasicFee, "NotEnoughFee");
         if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-            require(msg.value > soData.amount + soBasicFee, "NotEnough");
+            require(msg.value > soData.amount + soBasicFee, "NotEnoughAmt");
             return msg.value.sub(soData.amount).sub(soBasicFee);
         } else {
             return msg.value.sub(soBasicFee);

@@ -10,7 +10,7 @@ from brownie import (
     Contract,
     network,
     interface,
-    LibSoFeeStargateV1,
+    LibSoFeeStargateV2,
     MockToken,
     LibCorrectSwapV1,
     WormholeFacet,
@@ -411,7 +411,7 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
     proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
     )
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
@@ -600,18 +600,36 @@ def redeploy_generic_swap():
 def redeploy_stargate():
     account = get_account()
 
-    # remove_facet(StargateFacet)
-
-    StargateFacet.deploy({"from": account})
-    add_cut([StargateFacet])
-    initialize_stargate(account, SoDiamond[-1])
+    print("deploy LibSoFeeStargateV2.sol...")
+    so_fee = 1e-3
+    transfer_for_gas = 40000
+    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
+    basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
+    basic_fee = 0
+    LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
+                              basic_fee, basic_beneficiary,
+                              {"from": account})
 
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
+    print("addFee...")
     proxy_dex.addFee(
-        get_stargate_router(), "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449", {"from": account}
+        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
     )
+
+    try:
+        print("Remove cut...")
+        remove_facet(StargateFacet)
+    except Exception as e:
+        print(f"Remove err:{e}")
+
+    print("Deploy stargate...")
+    StargateFacet.deploy({"from": account})
+    print("Add cut...")
+    add_cut([StargateFacet])
+    print("Initialize stargate...")
+    initialize_stargate(account, SoDiamond[-1])
 
 
 def redeploy_bool():
@@ -860,15 +878,15 @@ def initialize_eth():
 def reset_so_fee():
     account = get_account()
     so_fee = int(1e-3 * 1e18)
-    LibSoFeeStargateV1[-1].setFee(so_fee, {"from": account})
-    print("Cur soFee is", LibSoFeeStargateV1[-1].soFee() / 1e18)
+    LibSoFeeStargateV2[-1].setFee(so_fee, {"from": account})
+    print("Cur soFee is", LibSoFeeStargateV2[-1].soFee() / 1e18)
 
 
 def reset_so_gas():
     account = get_account()
     gas = 30000
-    LibSoFeeStargateV1[-1].setTransferForGas(gas, {"from": account})
-    print("Cur gas is", LibSoFeeStargateV1[-1].getTransferForGas())
+    LibSoFeeStargateV2[-1].setTransferForGas(gas, {"from": account})
+    print("Cur gas is", LibSoFeeStargateV2[-1].getTransferForGas())
 
 
 def redeploy_correct_swap():
