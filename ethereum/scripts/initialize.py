@@ -909,6 +909,11 @@ def transferOwnership(owner="0xB12A47A0e8402896981507f63B8d12C813BE102f"):
     print(proxy.owner())
 
 
+def transferOwnershipForFee(owner="0xB12A47A0e8402896981507f63B8d12C813BE102f"):
+    account = get_account()
+    LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
+
+
 def fix_libswap():
     account = get_account()
     register_data = [[zero_address(), 2, ["0xdedaee82"]]]
