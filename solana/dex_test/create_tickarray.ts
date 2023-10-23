@@ -1,4 +1,4 @@
-import {Connection, PublicKey} from "@solana/web3.js";
+import {Connection, Keypair, PublicKey} from "@solana/web3.js";
 import {
   ORCA_WHIRLPOOL_PROGRAM_ID,
   PDAUtil,
@@ -12,11 +12,16 @@ import {PDA, TransactionBuilder} from "@orca-so/common-sdk";
 import * as prompt from "prompt";
 import Decimal from "decimal.js";
 import {Wallet} from "@coral-xyz/anchor";
+import path from "path";
+import fs from "fs";
 
 // export ANCHOR_PROVIDER_URL=""
 const ANCHOR_PROVIDER_URL = process.env.ANCHOR_PROVIDER_URL;
 const connection = new Connection(ANCHOR_PROVIDER_URL);
-const local_wallet = Wallet.local();
+const defaultPath = path.join(process.env.HOME, '.config/solana/id.json');
+const rawKey = JSON.parse(fs.readFileSync(defaultPath, 'utf-8'));
+const keypair = Keypair.fromSecretKey(Uint8Array.from(rawKey));
+const local_wallet = new Wallet(keypair);
 console.log("wallet", local_wallet.publicKey.toBase58());
 
 const ORCA_WHIRLPOOLS_CONFIG = new PublicKey("FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR");

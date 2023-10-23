@@ -235,7 +235,6 @@ class SwapData:
         swapType: str = None,
         swapFuncName: str = None,
         swapPath: list = None,
-        swapEncodePath: list = None,
     ):
         # The swap address
         self.callTo = callTo
@@ -252,7 +251,6 @@ class SwapData:
         self.swapType = swapType
         self.swapFuncName = swapFuncName
         self.swapPath = swapPath
-        self.swapEncodePath = swapEncodePath
 
     def __eq__(self, other):
         if isinstance(other, SwapData):

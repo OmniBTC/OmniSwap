@@ -10,6 +10,8 @@ from solders.transaction import VersionedTransaction
 from omniswap.instructions import (
     so_swap_native_without_swap,
     so_swap_wrapped_without_swap,
+    so_swap_native_with_whirlpool,
+    so_swap_wrapped_with_whirlpool,
 )
 from omniswap.program_id import PROGRAM_ID
 from helper import (
@@ -17,6 +19,7 @@ from helper import (
     deriveTokenTransferMessageKey,
     getSendNativeTransferAccounts,
     decode_address_look_up_table,
+    deriveWhirlpoolOracleKey,
 )
 from config import (
     get_client,
@@ -26,8 +29,9 @@ from config import (
     lookup_table_devnet,
 )
 
-from cross import WormholeData, SoData, generate_random_bytes32
+from cross import WormholeData, SoData, generate_random_bytes32, SwapData
 from custom_simulate import custom_simulate
+from get_quote_config import get_test_usdc_quote_config
 
 
 async def omniswap_send_wrapped_tokens_without_swap():
@@ -261,16 +265,30 @@ async def omniswap_send_native_tokens_with_whirlpool():
     client = get_client()
     await client.is_connected()
 
+    # 1. swap(TEST => USDC) on solana
+    # 2. bridge(USDC) to bsc
+
     payer = get_payer()
 
     # bsc-testnet
     recipient_chain = 4
-    usdc_mint = Pubkey.from_string("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU")
-    usdc_token_on_solana = bytes(usdc_mint)
-    # usdc account
-    usdc_account = Pubkey.from_string("68DjnBuZ6UtM6dGoTGhu2rqV5ZSowsPGgv2AWD1xuGB4")
-    # send 1 usdc
-    amount = 1000000
+
+    # TEST is tokenA
+    TEST = "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"
+    # USDC is tokenB
+    USDC = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+
+    # 10.1 TEST
+    ui_amount = "10.1"
+    quote_config = get_test_usdc_quote_config(TEST, ui_amount)
+
+    print("TEST amount_in: ", quote_config["amount_in"])
+    print("USDC estimated_amount_out: ", quote_config["estimated_amount_out"])
+    print("USDC min_amount_out: ", quote_config["min_amount_out"])
+
+    usdc_mint = Pubkey.from_string(USDC)
+    sendingAssetId = bytes(Pubkey.from_string(TEST))
+
     # recipient
     recipient_address = bytes.fromhex("cAF084133CBdBE27490d3afB0Da220a40C32E307")
     usdc_token_on_bsc = bytes.fromhex("51a3cc54eA30Da607974C5D07B8502599801AC08")
@@ -301,27 +319,43 @@ async def omniswap_send_native_tokens_with_whirlpool():
 
     # ExceededMaxInstructions
     # devnet_limit=200_000, real=212433
-    ix0 = set_compute_unit_limit(300_000)
+    ix0 = set_compute_unit_limit(1_200_000)
 
-    ix1 = so_swap_native_without_swap(
+    ix1 = so_swap_native_with_whirlpool(
         args={
-            "amount": amount,
             "wormhole_data": WormholeData(
                 dstWormholeChainId=4,
                 dstMaxGasPriceInWeiForRelayer=100000,
                 wormholeFee=716184,
                 dstSoDiamond=dst_so_diamond_padding,
             ).encode_normalized(),
+            "swap_data_src": SwapData.encode_normalized(
+                [
+                    SwapData(
+                        callTo=bytes(quote_config["whirlpool_program"]),
+                        approveTo=bytes(quote_config["whirlpool_program"]),
+                        sendingAssetId=sendingAssetId,
+                        receivingAssetId=bytes(Pubkey.from_string(USDC)),
+                        fromAmount=quote_config["amount_in"],
+                        callData=bytes(
+                            f"Whirlpool,{quote_config['min_amount_out']}", "ascii"
+                        ),
+                        swapType="Whirlpool",
+                        swapFuncName="swap",
+                        swapPath=["TEST", "USDC"],
+                    )
+                ]
+            ),
             "so_data": SoData(
                 transactionId=bytes.fromhex(
                     generate_random_bytes32().replace("0x", "")
                 ),
                 receiver=recipient_address,
                 sourceChainId=1,
-                sendingAssetId=usdc_token_on_solana,
+                sendingAssetId=sendingAssetId,
                 destinationChainId=4,
                 receivingAssetId=usdc_token_on_bsc,
-                amount=amount,
+                amount=quote_config["amount_in"],
             ).encode_normalized(),
             "swap_data_dst": bytes(),
         },
@@ -332,8 +366,17 @@ async def omniswap_send_native_tokens_with_whirlpool():
             "price_manager": send_native_accounts["price_manager"],
             "beneficiary_account": beneficiary_account,
             "foreign_contract": send_native_accounts["foreign_contract"],
+            "whirlpool_program": quote_config["whirlpool_program"],
+            "whirlpool_account": quote_config["whirlpool"],
+            "whirlpool_token_owner_account_a": quote_config["token_owner_account_a"],
+            "whirlpool_token_vault_a": quote_config["token_vault_a"],
+            "whirlpool_token_owner_account_b": quote_config["token_owner_account_b"],
+            "whirlpool_token_vault_b": quote_config["token_vault_b"],
+            "whirlpool_tick_array0": quote_config["tick_array_0"],
+            "whirlpool_tick_array1": quote_config["tick_array_1"],
+            "whirlpool_tick_array2": quote_config["tick_array_2"],
+            "whirlpool_oracle": quote_config["oracle"],
             "mint": usdc_mint,
-            "from_token_account": usdc_account,
             "tmp_token_account": send_native_accounts["tmp_token_account"],
             "wormhole_program": send_native_accounts["wormhole_program"],
             "token_bridge_program": send_native_accounts["token_bridge_program"],
@@ -372,17 +415,28 @@ async def omniswap_send_native_tokens_with_whirlpool():
 
     txn = VersionedTransaction(message0, [payer])
 
-    # tx_sig = await client.simulate_transaction(txn, sig_verify=True, commitment=None)
-    # print(tx_sig.value)
+    # resp = await custom_simulate(
+    #     client,
+    #     txn,
+    #     addresses=[
+    #         quote_config["token_owner_account_a"],
+    #         quote_config["token_owner_account_b"]
+    #     ]
+    # )
+    # print(resp)
 
-    resp = await custom_simulate(client, txn, addresses=[usdc_account])
-    print(resp.value.to_json())
+    tx_sig = await client.send_transaction(txn)
+    print(tx_sig)
 
     await client.close()
 
 
 async def omniswap_send_wrapped_tokens_with_whirlpool():
-    pass
+    quote_config = get_test_usdc_quote_config(
+        "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", "10"
+    )
+
+    print(quote_config)
 
 
-asyncio.run(omniswap_send_native_tokens_with_whirlpool())
+asyncio.run(omniswap_send_wrapped_tokens_with_whirlpool())

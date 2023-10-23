@@ -290,6 +290,14 @@ def deriveTmpTokenAccountKey(
     return program_address
 
 
+def deriveWhirlpoolOracleKey(whirlpool_program: Pubkey, whirlpool: Pubkey):
+    seed = [b"oracle"]
+    seed.append(bytes(whirlpool))
+
+    program_address, _nonce = Pubkey.find_program_address(seed, whirlpool_program)
+    return program_address
+
+
 def getRedeemWrappedTransferAccounts(
     token_bridge_program_id: str,
     wormhole_program_id: str,
