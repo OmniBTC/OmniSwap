@@ -26,6 +26,7 @@ from brownie import (
     CCTPFacet,
     LibSoFeeBoolV2,
     LibSoFeeGenericV2,
+    OwnershipFacet,
     config
 )
 from brownie.network import priority_fee, max_fee
@@ -600,23 +601,23 @@ def redeploy_generic_swap():
 def redeploy_stargate():
     account = get_account()
 
-    print("deploy LibSoFeeStargateV2.sol...")
-    so_fee = 1e-3
-    transfer_for_gas = 40000
-    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
-    basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
-    basic_fee = 0
-    LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
-                              basic_fee, basic_beneficiary,
-                              {"from": account})
-
-    proxy_dex = Contract.from_abi(
-        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    )
-    print("addFee...")
-    proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
-    )
+    # print("deploy LibSoFeeStargateV2.sol...")
+    # so_fee = 1e-3
+    # transfer_for_gas = 40000
+    # basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
+    # basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
+    # basic_fee = 0
+    # LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
+    #                           basic_fee, basic_beneficiary,
+    #                           {"from": account})
+    #
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    # print("addFee...")
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
+    # )
 
     try:
         print("Remove cut...")
@@ -896,6 +897,16 @@ def redeploy_correct_swap():
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {"from": account})
+
+
+def transferOwnership(owner="0xB12A47A0e8402896981507f63B8d12C813BE102f"):
+    account = get_account()
+    proxy = Contract.from_abi(
+        "OwnershipFacet", SoDiamond[-1].address, OwnershipFacet.abi
+    )
+    proxy.transferOwnership(owner, {"from": account})
+    proxy.confirmOwnershipTransfer({"from": account})
+    print(proxy.owner())
 
 
 def fix_libswap():
