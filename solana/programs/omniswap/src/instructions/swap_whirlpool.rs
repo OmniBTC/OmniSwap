@@ -14,9 +14,9 @@ pub trait SoSwapWithWhirlpool<'info> {
 	fn token_program(&self) -> AccountInfo<'info>;
 	fn token_authority(&self) -> AccountInfo<'info>;
 	fn whirlpool(&self) -> AccountInfo<'info>;
-	fn token_owner_account_a(&self) -> Box<Account<'info, TokenAccount>>;
+	fn token_owner_account_a(&self) -> &Account<'info, TokenAccount>;
 	fn token_vault_a(&self) -> AccountInfo<'info>;
-	fn token_owner_account_b(&self) -> Box<Account<'info, TokenAccount>>;
+	fn token_owner_account_b(&self) -> &Account<'info, TokenAccount>;
 	fn token_vault_b(&self) -> AccountInfo<'info>;
 	fn tick_array_0(&self) -> AccountInfo<'info>;
 	fn tick_array_1(&self) -> AccountInfo<'info>;
@@ -32,8 +32,8 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 	ctx: &S,
 	parsed_swap_data: &Vec<NormalizedSwapData>,
 	parsed_so_data: &NormalizedSoData,
-) -> Result<(bool, u64)> {
-	assert_eq!(parsed_swap_data.len(), 1, "Unsupported more than one swap");
+) -> Result<bool> {
+	assert_eq!(parsed_swap_data.len(), 1, "Only support one swap");
 	let swap_data = parsed_swap_data.first().unwrap();
 
 	// sending_asset -> receiving_asset
@@ -45,18 +45,13 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 	);
 	assert_eq!(
 		Pubkey::try_from(swap_data.call_to.clone()).unwrap(),
-		crate::ID,
-		"swap.call != crate::ID"
+		S::whirlpool_program(ctx).key.clone(),
+		"swap.call != whirlpool_program"
 	);
 
 	let min_amount_out = parse_whirlpool_call_data(&swap_data.call_data)?;
 
 	let a_to_b = check_a_to_b::<S>(ctx)?;
-
-	S::token_owner_account_a(ctx).reload()?;
-	S::token_owner_account_b(ctx).reload()?;
-	let token_value_a_before = S::token_owner_account_a(ctx).amount;
-	let token_value_b_before = S::token_owner_account_b(ctx).amount;
 
 	orca_whirlpool_swap_cpi(
 		CpiContext::new(
@@ -82,18 +77,9 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 		a_to_b,
 	)?;
 
-	S::token_owner_account_a(ctx).reload()?;
-	S::token_owner_account_b(ctx).reload()?;
-	let token_value_a_after = S::token_owner_account_a(ctx).amount;
-	let token_value_b_after = S::token_owner_account_b(ctx).amount;
+	msg!("a_to_b: {:?}", a_to_b);
 
-	let amount_out_value = if a_to_b {
-		token_value_b_after.checked_sub(token_value_b_before).unwrap()
-	} else {
-		token_value_a_after.checked_sub(token_value_a_before).unwrap()
-	};
-
-	Ok((a_to_b, amount_out_value))
+	Ok(a_to_b)
 }
 
 pub fn check_a_to_b<'info, S: SoSwapWithWhirlpool<'info>>(ctx: &S) -> Result<bool> {

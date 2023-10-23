@@ -96,7 +96,14 @@ pub struct CompleteSoSwapNativeWithWhirlpool<'info> {
 	#[account(mut)]
 	pub whirlpool_tick_array_2: AccountInfo<'info>,
 	/// CHECK:
-	#[account(seeds = [b"oracle", whirlpool_account.key().as_ref()],bump)]
+	#[account(
+		seeds = [
+			b"oracle",
+			whirlpool_account.key().as_ref()
+		],
+		bump,
+		seeds::program = whirlpool_program
+	)]
 	/// Oracle is currently unused and will be enabled on subsequent updates
 	pub whirlpool_oracle: AccountInfo<'info>,
 
@@ -230,16 +237,16 @@ impl<'info> SoSwapWithWhirlpool<'info>
 		self.accounts.whirlpool_account.to_account_info()
 	}
 
-	fn token_owner_account_a(&self) -> Box<Account<'info, TokenAccount>> {
-		self.accounts.whirlpool_token_owner_account_a.clone()
+	fn token_owner_account_a(&self) -> &Account<'info, TokenAccount> {
+		self.accounts.whirlpool_token_owner_account_a.as_ref()
 	}
 
 	fn token_vault_a(&self) -> AccountInfo<'info> {
 		self.accounts.whirlpool_token_vault_a.to_account_info()
 	}
 
-	fn token_owner_account_b(&self) -> Box<Account<'info, TokenAccount>> {
-		self.accounts.whirlpool_token_owner_account_b.clone()
+	fn token_owner_account_b(&self) -> &Account<'info, TokenAccount> {
+		self.accounts.whirlpool_token_owner_account_b.as_ref()
 	}
 
 	fn token_vault_b(&self) -> AccountInfo<'info> {
@@ -299,14 +306,28 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 
 	// 2. swap bridge token to receiving token: proxy_a <=> proxy_b
 	let so_msg = ctx.accounts.vaa.data().data();
-	if let Ok((a_to_b, amount)) =
+	if let Ok(a_to_b) =
 		swap_by_whirlpool(&ctx, &so_msg.normalized_swap_data, &so_msg.normalized_so_data)
 	{
 		// 3. swap ok, send receiving token: proxy_a_or_b => recipient
-		let other_proxy_recipient_account = if a_to_b {
-			ctx.accounts.whirlpool_token_owner_account_b.to_account_info()
+		let (other_proxy_recipient_account, amount) = if a_to_b {
+			let token_value_b_before = ctx.accounts.whirlpool_token_owner_account_b.amount;
+			ctx.accounts.whirlpool_token_owner_account_b.reload()?;
+			let token_value_b_after = ctx.accounts.whirlpool_token_owner_account_b.amount;
+
+			let amount = token_value_b_after.checked_sub(token_value_b_before).unwrap();
+			let account = ctx.accounts.whirlpool_token_owner_account_b.to_account_info();
+
+			(account, amount)
 		} else {
-			ctx.accounts.whirlpool_token_owner_account_a.to_account_info()
+			let token_value_a_before = ctx.accounts.whirlpool_token_owner_account_a.amount;
+			ctx.accounts.whirlpool_token_owner_account_a.reload()?;
+			let token_value_a_after = ctx.accounts.whirlpool_token_owner_account_a.amount;
+
+			let amount = token_value_a_after.checked_sub(token_value_a_before).unwrap();
+			let account = ctx.accounts.whirlpool_token_owner_account_a.to_account_info();
+
+			(account, amount)
 		};
 
 		anchor_spl::token::transfer(
