@@ -611,7 +611,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
 
         // Give Stargate approval to bridge tokens
         if (cache.bridgeToken != address(0x0)) {
-            LibAsset.maxApproveERC20(
+            LibAsset.safeApproveERC20(
                 IERC20(
                     _getStargateTokenByPoolId(stargateData.srcStargatePoolId)
                 ),
