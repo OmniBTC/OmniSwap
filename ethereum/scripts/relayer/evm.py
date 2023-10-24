@@ -196,7 +196,7 @@ def process_v2(
     else:
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     last_pending_time = 0
-    pending_interval = 10
+    pending_interval = 30
     while True:
         try:
             if time.time() < last_pending_time + pending_interval:

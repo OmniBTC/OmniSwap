@@ -321,7 +321,7 @@ def process_v1(
     last_update_endpoint = 0
     endpoint_interval = 30
     last_pending_time = 0
-    pending_interval = 10
+    pending_interval = 30
 
     while True:
 
