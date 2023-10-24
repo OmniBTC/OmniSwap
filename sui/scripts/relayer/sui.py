@@ -558,7 +558,7 @@ def process_v2(
     interval_price = 3 * 60
     price_info = 0
     last_pending_time = 0
-    pending_interval = 10
+    pending_interval = 30
     while True:
         try:
             if time.time() < last_pending_time + pending_interval:
