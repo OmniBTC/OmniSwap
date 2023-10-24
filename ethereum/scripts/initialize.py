@@ -280,9 +280,9 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
 
     dstBaseGasInfo = {
-        1880000: ["optimism-main"],
-        3000000: ["arbitrum-main"],
-        1050000: ["avax-main"],
+        2951600: ["optimism-main"],
+        4500000: ["arbitrum-main"],
+        1575000: ["avax-main"],
         551250: ["mainnet"]
     }
     for dstBaseGas, nets in dstBaseGasInfo.items():
@@ -878,8 +878,29 @@ def initialize_eth():
 def reset_so_fee():
     account = get_account()
     so_fee = 0
-    LibSoFeeStargateV2[-1].setFee(so_fee, {"from": account})
-    print("Cur soFee is", LibSoFeeStargateV2[-1].soFee() / 1e18)
+    try:
+        LibSoFeeStargateV2[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeStargateV2 is", LibSoFeeStargateV2[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeStargateV2 error")
+    try:
+        LibSoFeeBoolV2[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeBoolV2 is", LibSoFeeBoolV2[-1].soFee() / 1e27)
+    except:
+        import traceback
+        traceback.print_exc()
+        print(f"LibSoFeeBoolV2 error")
+    try:
+        LibSoFeeCCTPV1[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeCCTPV1 is", LibSoFeeCCTPV1[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeCCTPV1 error")
+
+    try:
+        LibSoFeeWormholeV1[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeWormholeV1 is", LibSoFeeWormholeV1[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeWormholeV1 error")
 
 
 def reset_basic_fee():
@@ -929,9 +950,33 @@ def transferOwnership():
     print(proxy.owner())
 
 
-def transferOwnershipForFee(owner):
-    account = get_account()
-    LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
+def transferOwnershipForFee():
+    account = get_account("deploy_key")
+    owner_account = get_account()
+    owner = owner_account.address
+    print(f'owner: {owner}')
+    try:
+        LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeStargateV2 success")
+    except:
+        print(f"LibSoFeeStargateV2 error")
+
+    try:
+        LibSoFeeBoolV2[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeBoolV2 success")
+    except:
+        print(f"LibSoFeeBoolV2 error")
+    try:
+        LibSoFeeCCTPV1[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeCCTPV1 success")
+    except:
+        print(f"LibSoFeeCCTPV1 error")
+
+    try:
+        LibSoFeeWormholeV1[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeWormholeV1 success")
+    except:
+        print(f"LibSoFeeWormholeV1 error")
 
 
 def fix_libswap():
