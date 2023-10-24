@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 from solders.pubkey import Pubkey
-from config import get_config
+from config import get_config, get_payer
 
 
 def get_test_usdc_quote_config(token_mint_in: str, ui_amount_in: str, network="devnet"):
@@ -13,7 +13,10 @@ def get_test_usdc_quote_config(token_mint_in: str, ui_amount_in: str, network="d
     js_file_name = "get_test_usdc_quote_config.js"
     js_file_path = Path(__file__).parent.joinpath("test_dex").joinpath(js_file_name)
 
-    new_env = {"ANCHOR_PROVIDER_URL": config["rpc_url"]}
+    new_env = {
+        "ANCHOR_PROVIDER_URL": config["rpc_url"],
+        "ANCHOR_WALLET": os.environ.get('TEST_OWNER')
+    }
 
     result = subprocess.run(
         ["node", str(js_file_path), token_mint_in, ui_amount_in],

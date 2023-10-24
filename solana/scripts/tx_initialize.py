@@ -21,7 +21,7 @@ from helper import (
     getTokenBridgeDerivedAccounts,
     deriveForeignEndPointKey,
 )
-from config import get_client, get_payer, get_config
+from config import get_client, get_payer, get_config, get_price_manager
 
 
 async def omniswap_initialize(network="devnet"):
@@ -259,7 +259,7 @@ async def omniswap_set_price_ratio(
     client = get_client(network)
     await client.is_connected()
 
-    payer = get_payer()
+    price_manager = get_price_manager()
 
     config = get_config(network)
 
@@ -279,14 +279,14 @@ async def omniswap_set_price_ratio(
             "new_price_ratio": new_price_ratio_by_ray,
         },
         accounts={
-            "owner": payer.pubkey(),
+            "owner": price_manager.pubkey(),
             "price_manager": price_manager_key,
         },
     )
 
-    tx = Transaction(fee_payer=payer.pubkey()).add(ix)
+    tx = Transaction(fee_payer=price_manager.pubkey()).add(ix)
 
-    tx_sig = await client.send_transaction(tx, payer)
+    tx_sig = await client.send_transaction(tx, price_manager)
     print(tx_sig)
 
     while True:

@@ -1,4 +1,6 @@
 
+dotenv: .env
+
 devnet:
   #rpc_url: "https://api.devnet.solana.com"
   rpc_url: 'https://solana-devnet.g.alchemy.com/v2/VaTALh1zwDTmrzIkcN_zPJG4QCym--nR'
@@ -90,6 +92,10 @@ devnet:
   so_fee_by_ray: 0
 
 
-
+mainnet:
+#  todo
 
 solana-wallet:
+  Owner: ${TEST_OWNER}
+  Proxy: ${TEST_REDEEM_PROXY}
+  PriceManager: ${TEST_PRICE_MANAGER}

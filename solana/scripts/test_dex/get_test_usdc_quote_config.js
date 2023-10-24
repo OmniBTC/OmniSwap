@@ -49,20 +49,29 @@ var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
 // export ANCHOR_PROVIDER_URL=""
 var ANCHOR_PROVIDER_URL = process.env.ANCHOR_PROVIDER_URL;
+var ANCHOR_WALLET = process.env.ANCHOR_WALLET;
 var connection = new web3_js_1.Connection(ANCHOR_PROVIDER_URL);
 var defaultPath = path_1["default"].join(process.env.HOME, '.config/solana/id.json');
 var rawKey = JSON.parse(fs_1["default"].readFileSync(defaultPath, 'utf-8'));
 var keypair = web3_js_1.Keypair.fromSecretKey(Uint8Array.from(rawKey));
-var local_wallet = new anchor_1.Wallet(keypair);
+var default_wallet = new anchor_1.Wallet(keypair);
 var rent_ta = function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
     return [2 /*return*/, connection.getMinimumBalanceForRentExemption(spl_token_1.AccountLayout.span)];
 }); }); };
 function main(token_mint_in, amount_in) {
     return __awaiter(this, void 0, void 0, function () {
-        var ctx, client, acountFetcher, test_usdc_pool_pda, TEST, USDC, whirlpool, default_slippage, input_token_mint, shift_decimals, shift_amount_in, quote, quote_config, whirlpool_data, token_owner_account_a, token_owner_account_b, oracle_pda;
+        var local_wallet, rawKey_1, keypair_1, ctx, client, acountFetcher, test_usdc_pool_pda, TEST, USDC, whirlpool, default_slippage, input_token_mint, shift_decimals, shift_amount_in, quote, quote_config, whirlpool_data, token_owner_account_a, token_owner_account_b, oracle_pda;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    if (ANCHOR_WALLET === undefined || ANCHOR_WALLET === "") {
+                        local_wallet = default_wallet;
+                    }
+                    else {
+                        rawKey_1 = new Uint8Array(JSON.parse(ANCHOR_WALLET));
+                        keypair_1 = web3_js_1.Keypair.fromSecretKey(Uint8Array.from(rawKey_1));
+                        local_wallet = new anchor_1.Wallet(keypair_1);
+                    }
                     ctx = whirlpools_sdk_1.WhirlpoolContext.from(connection, local_wallet, whirlpools_sdk_1.ORCA_WHIRLPOOL_PROGRAM_ID);
                     client = (0, whirlpools_sdk_1.buildWhirlpoolClient)(ctx);
                     acountFetcher = (0, whirlpools_sdk_1.buildDefaultAccountFetcher)(connection);

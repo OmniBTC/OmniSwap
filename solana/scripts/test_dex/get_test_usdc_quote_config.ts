@@ -16,12 +16,13 @@ import fs from "fs";
 
 // export ANCHOR_PROVIDER_URL=""
 const ANCHOR_PROVIDER_URL = process.env.ANCHOR_PROVIDER_URL;
+const ANCHOR_WALLET = process.env.ANCHOR_WALLET;
 const connection = new Connection(ANCHOR_PROVIDER_URL);
 
 const defaultPath = path.join(process.env.HOME, '.config/solana/id.json');
 const rawKey = JSON.parse(fs.readFileSync(defaultPath, 'utf-8'));
 const keypair = Keypair.fromSecretKey(Uint8Array.from(rawKey));
-const local_wallet = new Wallet(keypair);
+const default_wallet = new Wallet(keypair);
 
 const rent_ta = async () => { return connection.getMinimumBalanceForRentExemption(AccountLayout.span) }
 
@@ -29,6 +30,15 @@ async function main(
     token_mint_in: string,
     amount_in: string
 ) {
+    let local_wallet
+    if (ANCHOR_WALLET === undefined || ANCHOR_WALLET === "") {
+        local_wallet = default_wallet;
+    } else {
+        const rawKey = new Uint8Array(JSON.parse(ANCHOR_WALLET));
+        const keypair = Keypair.fromSecretKey(Uint8Array.from(rawKey));
+        local_wallet = new Wallet(keypair);
+    }
+
     const ctx = WhirlpoolContext.from(
         connection,
         local_wallet,
