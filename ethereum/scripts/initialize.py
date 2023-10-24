@@ -261,9 +261,9 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_cctp = Contract.from_abi("CCTPFacet", so_diamond.address, CCTPFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init cctp...")
-    # proxy_cctp.initCCTP(
-    #     get_cctp_token_messenger(), get_cctp_message_transmitter(), {"from": account}
-    # )
+    proxy_cctp.initCCTP(
+        get_cctp_token_messenger(), get_cctp_message_transmitter(), {"from": account}
+    )
 
     dst_domain_info = {
         "mainnet": 0,
@@ -283,16 +283,16 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         2951600: ["optimism-main"],
         4500000: ["arbitrum-main"],
         1575000: ["avax-main"],
-        # 551250: ["mainnet"]
+        551250: ["mainnet"]
     }
     for dstBaseGas, nets in dstBaseGasInfo.items():
         dst_domain = [dst_domains[net] for net in nets]
         print(f"Set dst net:{nets} base gas:{dstBaseGas} ")
         proxy_cctp.setCCTPBaseGas(dst_domain, dstBaseGas, {"from": account})
 
-    # dstGasPerBytes = 68
-    # print(f"Set dst net:{list(dst_domains.keys())} gas per bytes:{dstGasPerBytes}")
-    # proxy_cctp.setCCTPGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
+    dstGasPerBytes = 68
+    print(f"Set dst net:{list(dst_domains.keys())} gas per bytes:{dstGasPerBytes}")
+    proxy_cctp.setCCTPGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
 
 
 def initialize_celer(account, so_diamond):
