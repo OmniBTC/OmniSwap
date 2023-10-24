@@ -11,6 +11,7 @@ from solana.rpc.async_api import AsyncClient
 
 load_dotenv()
 
+
 @cache
 def get_config(network: str = "devnet"):
     with Path(__file__).parent.parent.joinpath("config.yaml").open() as fp:
@@ -19,22 +20,22 @@ def get_config(network: str = "devnet"):
 
 
 @cache
-def get_payer(silent=False):
-    bytes_string =  os.environ.get('TEST_OWNER')
+def get_payer():
+    bytes_string = os.environ.get("TEST_OWNER")
     assert bytes_string is not None, "empty solana wallet envs"
 
     raw_key = eval(bytes_string)
 
     owner = Keypair.from_bytes(bytes(raw_key))
 
-    if not silent:
-        print(f"owner={owner.pubkey()}")
+    print(f"owner={owner.pubkey()}")
 
     return owner
 
+
 @cache
 def get_proxy():
-    bytes_string =  os.environ.get('TEST_REDEEM_PROXY')
+    bytes_string = os.environ.get("TEST_REDEEM_PROXY")
     assert bytes_string is not None, "empty solana wallet envs"
 
     raw_key = eval(bytes_string)
@@ -45,9 +46,10 @@ def get_proxy():
 
     return proxy
 
+
 @cache
 def get_price_manager():
-    bytes_string =  os.environ.get('TEST_PRICE_MANAGER')
+    bytes_string = os.environ.get("TEST_PRICE_MANAGER")
     assert bytes_string is not None, "empty solana wallet envs"
 
     raw_key = eval(bytes_string)
@@ -64,5 +66,5 @@ def get_client(network: str = "devnet"):
     return AsyncClient(rpc_url)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     get_payer().pubkey()

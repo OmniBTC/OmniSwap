@@ -15,7 +15,7 @@ def get_test_usdc_quote_config(token_mint_in: str, ui_amount_in: str, network="d
 
     new_env = {
         "ANCHOR_PROVIDER_URL": config["rpc_url"],
-        "ANCHOR_WALLET": os.environ.get('TEST_OWNER')
+        "ANCHOR_WALLET": os.environ.get("TEST_OWNER"),
     }
 
     result = subprocess.run(
