@@ -1,0 +1,1523 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "path",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint128",
+              "name": "amount",
+              "type": "uint128"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minAcquired",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IiZiSwap.SwapAmountParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "swapAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "cost",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "acquire",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "path",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint128",
+              "name": "desire",
+              "type": "uint128"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxPayed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IiZiSwap.SwapDesireParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "swapDesire",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "cost",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "acquire",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "tokenX",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenY",
+              "type": "address"
+            },
+            {
+              "internalType": "uint24",
+              "name": "fee",
+              "type": "uint24"
+            },
+            {
+              "internalType": "int24",
+              "name": "boundaryPt",
+              "type": "int24"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint128",
+              "name": "amount",
+              "type": "uint128"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxPayed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minAcquired",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IiZiSwap.SwapParams",
+          "name": "swapParams",
+          "type": "tuple"
+        }
+      ],
+      "name": "swapX2Y",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "tokenX",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenY",
+              "type": "address"
+            },
+            {
+              "internalType": "uint24",
+              "name": "fee",
+              "type": "uint24"
+            },
+            {
+              "internalType": "int24",
+              "name": "boundaryPt",
+              "type": "int24"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint128",
+              "name": "amount",
+              "type": "uint128"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxPayed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minAcquired",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IiZiSwap.SwapParams",
+          "name": "swapParams",
+          "type": "tuple"
+        }
+      ],
+      "name": "swapX2YDesireY",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "tokenX",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenY",
+              "type": "address"
+            },
+            {
+              "internalType": "uint24",
+              "name": "fee",
+              "type": "uint24"
+            },
+            {
+              "internalType": "int24",
+              "name": "boundaryPt",
+              "type": "int24"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint128",
+              "name": "amount",
+              "type": "uint128"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxPayed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minAcquired",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IiZiSwap.SwapParams",
+          "name": "swapParams",
+          "type": "tuple"
+        }
+      ],
+      "name": "swapY2X",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "tokenX",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenY",
+              "type": "address"
+            },
+            {
+              "internalType": "uint24",
+              "name": "fee",
+              "type": "uint24"
+            },
+            {
+              "internalType": "int24",
+              "name": "boundaryPt",
+              "type": "int24"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint128",
+              "name": "amount",
+              "type": "uint128"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxPayed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minAcquired",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IiZiSwap.SwapParams",
+          "name": "swapParams",
+          "type": "tuple"
+        }
+      ],
+      "name": "swapY2XDesireX",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "allSourcePaths": {
+    "8": "contracts/Interfaces/Iziswap/IiZiSwap.sol"
+  },
+  "ast": {
+    "absolutePath": "contracts/Interfaces/Iziswap/IiZiSwap.sol",
+    "exportedSymbols": {
+      "IiZiSwap": [
+        3227
+      ]
+    },
+    "id": 3228,
+    "license": "BUSL-1.1",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 3136,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".4"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "37:23:8"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IiZiSwap",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "id": 3227,
+        "linearizedBaseContracts": [
+          3227
+        ],
+        "name": "IiZiSwap",
+        "nameLocation": "72:8:8",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "IiZiSwap.SwapDesireParams",
+            "id": 3147,
+            "members": [
+              {
+                "constant": false,
+                "id": 3138,
+                "mutability": "mutable",
+                "name": "path",
+                "nameLocation": "127:4:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3147,
+                "src": "121:10:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 3137,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "121:5:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3140,
+                "mutability": "mutable",
+                "name": "recipient",
+                "nameLocation": "149:9:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3147,
+                "src": "141:17:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 3139,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "141:7:8",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3142,
+                "mutability": "mutable",
+                "name": "desire",
+                "nameLocation": "176:6:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3147,
+                "src": "168:14:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint128",
+                  "typeString": "uint128"
+                },
+                "typeName": {
+                  "id": 3141,
+                  "name": "uint128",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "168:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint128",
+                    "typeString": "uint128"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3144,
+                "mutability": "mutable",
+                "name": "maxPayed",
+                "nameLocation": "200:8:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3147,
+                "src": "192:16:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 3143,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "192:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3146,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "226:8:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3147,
+                "src": "218:16:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 3145,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "218:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SwapDesireParams",
+            "nameLocation": "94:16:8",
+            "nodeType": "StructDefinition",
+            "scope": 3227,
+            "src": "87:154:8",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "IiZiSwap.SwapAmountParams",
+            "id": 3158,
+            "members": [
+              {
+                "constant": false,
+                "id": 3149,
+                "mutability": "mutable",
+                "name": "path",
+                "nameLocation": "287:4:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3158,
+                "src": "281:10:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 3148,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "281:5:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3151,
+                "mutability": "mutable",
+                "name": "recipient",
+                "nameLocation": "309:9:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3158,
+                "src": "301:17:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 3150,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "301:7:8",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3153,
+                "mutability": "mutable",
+                "name": "amount",
+                "nameLocation": "365:6:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3158,
+                "src": "357:14:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint128",
+                  "typeString": "uint128"
+                },
+                "typeName": {
+                  "id": 3152,
+                  "name": "uint128",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "357:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint128",
+                    "typeString": "uint128"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3155,
+                "mutability": "mutable",
+                "name": "minAcquired",
+                "nameLocation": "389:11:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3158,
+                "src": "381:19:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 3154,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "381:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3157,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "418:8:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3158,
+                "src": "410:16:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 3156,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "410:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SwapAmountParams",
+            "nameLocation": "254:16:8",
+            "nodeType": "StructDefinition",
+            "scope": 3227,
+            "src": "247:186:8",
+            "visibility": "public"
+          },
+          {
+            "functionSelector": "75ceafe6",
+            "id": 3168,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapAmount",
+            "nameLocation": "448:10:8",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3162,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3161,
+                  "mutability": "mutable",
+                  "name": "params",
+                  "nameLocation": "485:6:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3168,
+                  "src": "459:32:8",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SwapAmountParams_$3158_calldata_ptr",
+                    "typeString": "struct IiZiSwap.SwapAmountParams"
+                  },
+                  "typeName": {
+                    "id": 3160,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 3159,
+                      "name": "SwapAmountParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 3158,
+                      "src": "459:16:8"
+                    },
+                    "referencedDeclaration": 3158,
+                    "src": "459:16:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapAmountParams_$3158_storage_ptr",
+                      "typeString": "struct IiZiSwap.SwapAmountParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "458:34:8"
+            },
+            "returnParameters": {
+              "id": 3167,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3164,
+                  "mutability": "mutable",
+                  "name": "cost",
+                  "nameLocation": "551:4:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3168,
+                  "src": "543:12:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3163,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "543:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3166,
+                  "mutability": "mutable",
+                  "name": "acquire",
+                  "nameLocation": "565:7:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3168,
+                  "src": "557:15:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3165,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "557:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "542:31:8"
+            },
+            "scope": 3227,
+            "src": "439:135:8",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 3169,
+              "nodeType": "StructuredDocumentation",
+              "src": "580:78:8",
+              "text": "@notice Swap given amount of target token, usually used in multi-hop case."
+            },
+            "functionSelector": "115ff67e",
+            "id": 3179,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapDesire",
+            "nameLocation": "672:10:8",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3173,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3172,
+                  "mutability": "mutable",
+                  "name": "params",
+                  "nameLocation": "709:6:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3179,
+                  "src": "683:32:8",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SwapDesireParams_$3147_calldata_ptr",
+                    "typeString": "struct IiZiSwap.SwapDesireParams"
+                  },
+                  "typeName": {
+                    "id": 3171,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 3170,
+                      "name": "SwapDesireParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 3147,
+                      "src": "683:16:8"
+                    },
+                    "referencedDeclaration": 3147,
+                    "src": "683:16:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapDesireParams_$3147_storage_ptr",
+                      "typeString": "struct IiZiSwap.SwapDesireParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "682:34:8"
+            },
+            "returnParameters": {
+              "id": 3178,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3175,
+                  "mutability": "mutable",
+                  "name": "cost",
+                  "nameLocation": "775:4:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3179,
+                  "src": "767:12:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3174,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "767:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3177,
+                  "mutability": "mutable",
+                  "name": "acquire",
+                  "nameLocation": "789:7:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3179,
+                  "src": "781:15:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3176,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "781:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "766:31:8"
+            },
+            "scope": 3227,
+            "src": "663:135:8",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "canonicalName": "IiZiSwap.SwapParams",
+            "id": 3198,
+            "members": [
+              {
+                "constant": false,
+                "id": 3181,
+                "mutability": "mutable",
+                "name": "tokenX",
+                "nameLocation": "958:6:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "950:14:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 3180,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "950:7:8",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3183,
+                "mutability": "mutable",
+                "name": "tokenY",
+                "nameLocation": "1013:6:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "1005:14:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 3182,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1005:7:8",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3185,
+                "mutability": "mutable",
+                "name": "fee",
+                "nameLocation": "1071:3:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "1064:10:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint24",
+                  "typeString": "uint24"
+                },
+                "typeName": {
+                  "id": 3184,
+                  "name": "uint24",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1064:6:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint24",
+                    "typeString": "uint24"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3187,
+                "mutability": "mutable",
+                "name": "boundaryPt",
+                "nameLocation": "1365:10:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "1359:16:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_int24",
+                  "typeString": "int24"
+                },
+                "typeName": {
+                  "id": 3186,
+                  "name": "int24",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1359:5:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int24",
+                    "typeString": "int24"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3189,
+                "mutability": "mutable",
+                "name": "recipient",
+                "nameLocation": "1436:9:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "1428:17:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 3188,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1428:7:8",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3191,
+                "mutability": "mutable",
+                "name": "amount",
+                "nameLocation": "1613:6:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "1605:14:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint128",
+                  "typeString": "uint128"
+                },
+                "typeName": {
+                  "id": 3190,
+                  "name": "uint128",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1605:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint128",
+                    "typeString": "uint128"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3193,
+                "mutability": "mutable",
+                "name": "maxPayed",
+                "nameLocation": "1707:8:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "1699:16:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 3192,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1699:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3195,
+                "mutability": "mutable",
+                "name": "minAcquired",
+                "nameLocation": "1810:11:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "1802:19:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 3194,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1802:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3197,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "1839:8:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 3198,
+                "src": "1831:16:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 3196,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1831:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SwapParams",
+            "nameLocation": "898:10:8",
+            "nodeType": "StructDefinition",
+            "scope": 3227,
+            "src": "891:963:8",
+            "visibility": "public"
+          },
+          {
+            "documentation": {
+              "id": 3199,
+              "nodeType": "StructuredDocumentation",
+              "src": "1860:179:8",
+              "text": "@notice Swap tokenY for tokenX, given max amount of tokenY user willing to pay\n @param swapParams params(for example: max amount in above line), see SwapParams for more"
+            },
+            "functionSelector": "247ec02c",
+            "id": 3205,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapY2X",
+            "nameLocation": "2053:7:8",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3203,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3202,
+                  "mutability": "mutable",
+                  "name": "swapParams",
+                  "nameLocation": "2081:10:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3205,
+                  "src": "2061:30:8",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SwapParams_$3198_calldata_ptr",
+                    "typeString": "struct IiZiSwap.SwapParams"
+                  },
+                  "typeName": {
+                    "id": 3201,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 3200,
+                      "name": "SwapParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 3198,
+                      "src": "2061:10:8"
+                    },
+                    "referencedDeclaration": 3198,
+                    "src": "2061:10:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapParams_$3198_storage_ptr",
+                      "typeString": "struct IiZiSwap.SwapParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2060:32:8"
+            },
+            "returnParameters": {
+              "id": 3204,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2109:0:8"
+            },
+            "scope": 3227,
+            "src": "2044:66:8",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 3206,
+              "nodeType": "StructuredDocumentation",
+              "src": "2116:175:8",
+              "text": "@notice Swap tokenY for tokenX, given user's desired amount of tokenX.\n @param swapParams params(for example: desired amount in above line), see SwapParams for more"
+            },
+            "functionSelector": "826377f6",
+            "id": 3212,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapY2XDesireX",
+            "nameLocation": "2305:14:8",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3210,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3209,
+                  "mutability": "mutable",
+                  "name": "swapParams",
+                  "nameLocation": "2340:10:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3212,
+                  "src": "2320:30:8",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SwapParams_$3198_calldata_ptr",
+                    "typeString": "struct IiZiSwap.SwapParams"
+                  },
+                  "typeName": {
+                    "id": 3208,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 3207,
+                      "name": "SwapParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 3198,
+                      "src": "2320:10:8"
+                    },
+                    "referencedDeclaration": 3198,
+                    "src": "2320:10:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapParams_$3198_storage_ptr",
+                      "typeString": "struct IiZiSwap.SwapParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2319:32:8"
+            },
+            "returnParameters": {
+              "id": 3211,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2368:0:8"
+            },
+            "scope": 3227,
+            "src": "2296:73:8",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 3213,
+              "nodeType": "StructuredDocumentation",
+              "src": "2375:180:8",
+              "text": "@notice Swap tokenX for tokenY, given max amount of tokenX user willing to pay.\n @param swapParams params(for example: max amount in above line), see SwapParams for more"
+            },
+            "functionSelector": "46edd9c8",
+            "id": 3219,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapX2Y",
+            "nameLocation": "2569:7:8",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3217,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3216,
+                  "mutability": "mutable",
+                  "name": "swapParams",
+                  "nameLocation": "2597:10:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3219,
+                  "src": "2577:30:8",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SwapParams_$3198_calldata_ptr",
+                    "typeString": "struct IiZiSwap.SwapParams"
+                  },
+                  "typeName": {
+                    "id": 3215,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 3214,
+                      "name": "SwapParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 3198,
+                      "src": "2577:10:8"
+                    },
+                    "referencedDeclaration": 3198,
+                    "src": "2577:10:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapParams_$3198_storage_ptr",
+                      "typeString": "struct IiZiSwap.SwapParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2576:32:8"
+            },
+            "returnParameters": {
+              "id": 3218,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2625:0:8"
+            },
+            "scope": 3227,
+            "src": "2560:66:8",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 3220,
+              "nodeType": "StructuredDocumentation",
+              "src": "2632:173:8",
+              "text": "@notice Swap tokenX for tokenY, given amount of tokenY user desires.\n @param swapParams params(for example: desired amount in above line), see SwapParams for more"
+            },
+            "functionSelector": "f3da61a9",
+            "id": 3226,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapX2YDesireY",
+            "nameLocation": "2819:14:8",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3224,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3223,
+                  "mutability": "mutable",
+                  "name": "swapParams",
+                  "nameLocation": "2854:10:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3226,
+                  "src": "2834:30:8",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SwapParams_$3198_calldata_ptr",
+                    "typeString": "struct IiZiSwap.SwapParams"
+                  },
+                  "typeName": {
+                    "id": 3222,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 3221,
+                      "name": "SwapParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 3198,
+                      "src": "2834:10:8"
+                    },
+                    "referencedDeclaration": 3198,
+                    "src": "2834:10:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapParams_$3198_storage_ptr",
+                      "typeString": "struct IiZiSwap.SwapParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2833:32:8"
+            },
+            "returnParameters": {
+              "id": 3225,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2882:0:8"
+            },
+            "scope": 3227,
+            "src": "2810:73:8",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 3228,
+        "src": "62:2823:8",
+        "usedErrors": []
+      }
+    ],
+    "src": "37:2849:8"
+  },
+  "bytecode": "",
+  "bytecodeSha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "compiler": {
+    "evm_version": "istanbul",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "version": "0.8.13+commit.abaa5c0e"
+  },
+  "contractName": "IiZiSwap",
+  "coverageMap": {
+    "branches": {},
+    "statements": {}
+  },
+  "dependencies": [],
+  "deployedBytecode": "",
+  "deployedSourceMap": "",
+  "language": "Solidity",
+  "natspec": {
+    "kind": "dev",
+    "methods": {
+      "swapDesire((bytes,address,uint128,uint256,uint256))": {
+        "notice": "Swap given amount of target token, usually used in multi-hop case."
+      },
+      "swapX2Y((address,address,uint24,int24,address,uint128,uint256,uint256,uint256))": {
+        "notice": "Swap tokenX for tokenY, given max amount of tokenX user willing to pay.",
+        "params": {
+          "swapParams": "params(for example: max amount in above line), see SwapParams for more"
+        }
+      },
+      "swapX2YDesireY((address,address,uint24,int24,address,uint128,uint256,uint256,uint256))": {
+        "notice": "Swap tokenX for tokenY, given amount of tokenY user desires.",
+        "params": {
+          "swapParams": "params(for example: desired amount in above line), see SwapParams for more"
+        }
+      },
+      "swapY2X((address,address,uint24,int24,address,uint128,uint256,uint256,uint256))": {
+        "notice": "Swap tokenY for tokenX, given max amount of tokenY user willing to pay",
+        "params": {
+          "swapParams": "params(for example: max amount in above line), see SwapParams for more"
+        }
+      },
+      "swapY2XDesireX((address,address,uint24,int24,address,uint128,uint256,uint256,uint256))": {
+        "notice": "Swap tokenY for tokenX, given user's desired amount of tokenX.",
+        "params": {
+          "swapParams": "params(for example: desired amount in above line), see SwapParams for more"
+        }
+      }
+    },
+    "version": 1
+  },
+  "offset": [
+    62,
+    2885
+  ],
+  "opcodes": "",
+  "pcMap": {},
+  "sha1": "fc8757bd910f09c0f67b258bbb38eacd3795af4e",
+  "source": "// SPDX-License-Identifier: BUSL-1.1\npragma solidity ^0.8.4;\n\ninterface IiZiSwap {\n    struct SwapDesireParams {\n        bytes path;\n        address recipient;\n        uint128 desire;\n        uint256 maxPayed;\n        uint256 deadline;\n    }\n\n    struct SwapAmountParams {\n        bytes path;\n        address recipient;\n        // uint256 deadline;\n        uint128 amount;\n        uint256 minAcquired;\n        uint256 deadline;\n    }\n\n    function swapAmount(SwapAmountParams calldata params)\n        external\n        payable\n        returns (uint256 cost, uint256 acquire);\n\n    /// @notice Swap given amount of target token, usually used in multi-hop case.\n    function swapDesire(SwapDesireParams calldata params)\n        external\n        payable\n        returns (uint256 cost, uint256 acquire);\n\n    /// parameters when calling Swap.swap..., grouped together to avoid stake too deep\n    struct SwapParams {\n        // tokenX of swap pool\n        address tokenX;\n        // tokenY of swap pool\n        address tokenY;\n        // fee amount of swap pool\n        uint24 fee;\n        // highPt for y2x, lowPt for x2y\n        // here y2X is calling swapY2X or swapY2XDesireX\n        // in swapY2XDesireX, if boundaryPt is 800001, means user wants to get enough X\n        // in swapX2YDesireY, if boundaryPt is -800001, means user wants to get enough Y\n        int24 boundaryPt;\n        // who will receive acquired token\n        address recipient;\n        // desired amount for desired mode, paid amount for non-desired mode\n        // here, desire mode is calling swapX2YDesireY or swapY2XDesireX\n        uint128 amount;\n        // max amount of payed token from trader, used in desire mode\n        uint256 maxPayed;\n        // min amount of received token trader wanted, used in undesire mode\n        uint256 minAcquired;\n        uint256 deadline;\n    }\n\n    /// @notice Swap tokenY for tokenX, given max amount of tokenY user willing to pay\n    /// @param swapParams params(for example: max amount in above line), see SwapParams for more\n    function swapY2X(SwapParams calldata swapParams) external payable;\n\n    /// @notice Swap tokenY for tokenX, given user's desired amount of tokenX.\n    /// @param swapParams params(for example: desired amount in above line), see SwapParams for more\n    function swapY2XDesireX(SwapParams calldata swapParams) external payable;\n\n    /// @notice Swap tokenX for tokenY, given max amount of tokenX user willing to pay.\n    /// @param swapParams params(for example: max amount in above line), see SwapParams for more\n    function swapX2Y(SwapParams calldata swapParams) external payable;\n\n    /// @notice Swap tokenX for tokenY, given amount of tokenY user desires.\n    /// @param swapParams params(for example: desired amount in above line), see SwapParams for more\n    function swapX2YDesireY(SwapParams calldata swapParams) external payable;\n}\n",
+  "sourceMap": "",
+  "sourcePath": "contracts/Interfaces/Iziswap/IiZiSwap.sol",
+  "type": "interface"
+}

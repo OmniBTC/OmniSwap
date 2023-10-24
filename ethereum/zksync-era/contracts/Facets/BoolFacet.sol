@@ -15,10 +15,10 @@ import {Swapper} from "../Helpers/Swapper.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 import {InvalidConfig} from "../Errors/GenericErrors.sol";
 
-import {IBoolSwapConsumer} from "../Interfaces/IBoolSwapConsumer.sol";
-import {IBoolSwapPool} from "../Interfaces/IBoolSwapPool.sol";
-import {IBoolSwapFactory} from "../Interfaces/IBoolSwapFactory.sol";
-import {IBoolSwapRouter} from "../Interfaces/IBoolSwapRouter.sol";
+import {IBoolSwapConsumer} from "../Interfaces/Bool/IBoolSwapConsumer.sol";
+import {IBoolSwapPool} from "../Interfaces/Bool/IBoolSwapPool.sol";
+import {IBoolSwapFactory} from "../Interfaces/Bool/IBoolSwapFactory.sol";
+import {IBoolSwapRouter} from "../Interfaces/Bool/IBoolSwapRouter.sol";
 import {BoolSwapPathConverter} from "../Helpers/BoolSwapPathConverter.sol";
 import {IWETH} from "../Interfaces/IWETH.sol";
 

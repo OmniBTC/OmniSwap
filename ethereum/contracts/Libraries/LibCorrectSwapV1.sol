@@ -2,20 +2,23 @@
 
 pragma solidity 0.8.13;
 
-import {IUniswapV2Router01} from "../Interfaces/IUniswapV2Router01.sol";
-import {IUniswapV2Router01AVAX} from "../Interfaces/IUniswapV2Router01AVAX.sol";
-import {ISwapRouter} from "../Interfaces/ISwapRouter.sol";
-import {ISyncSwapRouter} from "../Interfaces/ISyncSwapRouter.sol";
-import {IMuteRouter} from "../Interfaces/IMuteRouter.sol";
-import {IQuickSwapRouter} from "../Interfaces/IQuickSwapRouter.sol";
-import {IAerodrome} from "../Interfaces/IAerodrome.sol";
-import {ISwapRouter02} from "../Interfaces/ISwapRouter02.sol";
-import {IVault} from "../Interfaces/IVault.sol";
-import {ICurveFi} from "../Interfaces/ICurveFi.sol";
-import {IWombatRouter} from "../Interfaces/IWombatRouter.sol";
-import {ILBRouter} from "../Interfaces/ILBRouter.sol";
-import {IGMXV1Router} from "../Interfaces/IGMXV1Router.sol";
-import {IPearlRouter} from "../Interfaces/IPearlRouter.sol";
+import {IUniswapV2Router01} from "../Interfaces/UniswapV2/IUniswapV2Router01.sol";
+import {IUniswapV2Router01AVAX} from "../Interfaces/UniswapV2/IUniswapV2Router01AVAX.sol";
+import {ISwapRouter} from "../Interfaces/UniswapV3/ISwapRouter.sol";
+import {ISyncSwapRouter} from "../Interfaces/Syncswap/ISyncSwapRouter.sol";
+import {IMuteRouter} from "../Interfaces/Mute/IMuteRouter.sol";
+import {IQuickSwapRouter} from "../Interfaces/Quickswap/IQuickSwapRouter.sol";
+import {IAerodrome} from "../Interfaces/Velodrome/IAerodrome.sol";
+import {ISwapRouter02} from "../Interfaces/UniswapV3/ISwapRouter02.sol";
+import {IVault} from "../Interfaces/Balancer/IVault.sol";
+import {ICurveFi} from "../Interfaces/Curve/ICurveFi.sol";
+import {IWombatRouter} from "../Interfaces/Wormbat/IWombatRouter.sol";
+import {ILBRouter} from "../Interfaces/TraderJoe/ILBRouter.sol";
+import {IGMXV1Router} from "../Interfaces/GMX/IGMXV1Router.sol";
+import {IPearlRouter} from "../Interfaces/Pearl/IPearlRouter.sol";
+import {IiZiSwap} from "../Interfaces/Iziswap/IiZiSwap.sol";
+import {ICamelotRouter} from "../Interfaces/Camelot/ICamelotRouter.sol";
+import {IMetaAggregationRouterV2} from "../Interfaces/Kyberswap/IMetaAggregationRouterV2.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
@@ -90,6 +93,30 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC30 =
         IPearlRouter.swapExactETHForTokens.selector;
 
+    // iZiSwap
+    bytes4 private constant _FUNC31 = IiZiSwap.swapAmount.selector;
+
+    // Camelot
+    bytes4 private constant _FUNC32 =
+        ICamelotRouter
+            .swapExactTokensForTokensSupportingFeeOnTransferTokens
+            .selector;
+    bytes4 private constant _FUNC33 =
+        ICamelotRouter
+            .swapExactETHForTokensSupportingFeeOnTransferTokens
+            .selector;
+    bytes4 private constant _FUNC34 =
+        ICamelotRouter
+            .swapExactTokensForETHSupportingFeeOnTransferTokens
+            .selector;
+
+    // Kyberswap
+    bytes4 private constant _FUNC35 =
+        IMetaAggregationRouterV2.swapGeneric.selector;
+    bytes4 private constant _FUNC36 = IMetaAggregationRouterV2.swap.selector;
+    bytes4 private constant _FUNC37 =
+        IMetaAggregationRouterV2.swapSimpleMode.selector;
+
     //---------------------------------------------------------------------------
     // External Method
 
@@ -154,6 +181,18 @@ contract LibCorrectSwapV1 {
             return tryPearlFiSwap(_data, _amount);
         } else if (sig == _FUNC30) {
             return _data;
+        } else if (sig == _FUNC31) {
+            return tryiZiSwap(_data, _amount);
+        } else if (sig == _FUNC32) {
+            return tryCamelot(_data, _amount);
+        } else if (sig == _FUNC33) {
+            return _data;
+        } else if (sig == _FUNC34) {
+            return tryCamelot(_data, _amount);
+        } else if (sig == _FUNC35 || sig == _FUNC36) {
+            return tryKyberswap(_data, _amount);
+        } else if (sig == _FUNC37) {
+            return tryKyberswapSimple(_data, _amount);
         }
 
         // fuzzy matching
@@ -552,6 +591,97 @@ contract LibCorrectSwapV1 {
                     _routes,
                     _to,
                     _deadline
+                )
+            );
+        } else if (sig == _FUNC31) {
+            IiZiSwap.SwapAmountParams memory params = abi.decode(
+                _data[4:],
+                (IiZiSwap.SwapAmountParams)
+            );
+            uint256 _amountOutMin = params.minAcquired;
+            params.minAcquired = _amountOutMin + _deltaMinAmount;
+            return (_amountOutMin, abi.encodeWithSelector(sig, params));
+        } else if (sig == _FUNC33) {
+            (
+                uint256 _amountOutMin,
+                address[] memory _path,
+                address _to,
+                address _referrer,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, address[], address, address, uint256)
+                );
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _referrer,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC32 || sig == _FUNC34) {
+            (
+                uint256 _amount,
+                uint256 _amountOutMin,
+                address[] memory _path,
+                address _to,
+                address _referrer,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, uint256, address[], address, address, uint256)
+                );
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    _amount,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _referrer,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC35 || sig == _FUNC36) {
+            IMetaAggregationRouterV2.SwapExecutionParams memory params = abi
+                .decode(
+                    _data[4:],
+                    (IMetaAggregationRouterV2.SwapExecutionParams)
+                );
+            uint256 _amountOutMin = params.desc.minReturnAmount;
+            params.desc.minReturnAmount = _amountOutMin + _deltaMinAmount;
+            return (_amountOutMin, abi.encodeWithSelector(sig, params));
+        } else if (sig == _FUNC37) {
+            (
+                address caller,
+                IMetaAggregationRouterV2.SwapDescriptionV2 memory desc,
+                bytes memory executorData,
+                bytes memory clientData
+            ) = abi.decode(
+                    _data[4:],
+                    (
+                        address,
+                        IMetaAggregationRouterV2.SwapDescriptionV2,
+                        bytes,
+                        bytes
+                    )
+                );
+
+            uint256 _amountOutMin = desc.minReturnAmount;
+            desc.minReturnAmount = _amountOutMin + _deltaMinAmount;
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    caller,
+                    desc,
+                    executorData,
+                    clientData
                 )
             );
         }
@@ -1045,6 +1175,142 @@ contract LibCorrectSwapV1 {
                 _routes,
                 _to,
                 _deadline
+            );
+    }
+
+    function tryiZiSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.iZiSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("trader iziswap fail!");
+        }
+    }
+
+    function iZiSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        IiZiSwap.SwapAmountParams memory params = abi.decode(
+            _data[4:],
+            (IiZiSwap.SwapAmountParams)
+        );
+        require(_amount <= type(uint128).max, "Value too large for uint128");
+        params.amount = uint128(_amount);
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryCamelot(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.camelot(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("camelot fail!");
+        }
+    }
+
+    function camelot(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            address[] memory _path,
+            address _to,
+            address _referrer,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, address[], address, address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _referrer,
+                _deadline
+            );
+    }
+
+    function tryKyberswap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.kyberswap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("kyberswap fail!");
+        }
+    }
+
+    function kyberswap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        IMetaAggregationRouterV2.SwapExecutionParams memory params = abi.decode(
+            _data[4:],
+            (IMetaAggregationRouterV2.SwapExecutionParams)
+        );
+        params.desc.amount = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryKyberswapSimple(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.kyberswapSimple(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("kyberswap simple fail!");
+        }
+    }
+
+    function kyberswapSimple(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            address caller,
+            IMetaAggregationRouterV2.SwapDescriptionV2 memory desc,
+            bytes memory executorData,
+            bytes memory clientData
+        ) = abi.decode(
+                _data[4:],
+                (
+                    address,
+                    IMetaAggregationRouterV2.SwapDescriptionV2,
+                    bytes,
+                    bytes
+                )
+            );
+        desc.amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                caller,
+                desc,
+                executorData,
+                clientData
             );
     }
 }
