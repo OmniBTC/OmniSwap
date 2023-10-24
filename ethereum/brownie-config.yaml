@@ -1999,8 +1999,8 @@ networks:
         decimal: 18
       usdc:
         # bridge usdc: 0x7F5c764cBc14f9669B88837ca1490cCa17c31607
-        # circle usdc:
-        address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+        # circle usdc: 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85
+        address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
         decimal: 6
     swap:
       - ICurveFi:
@@ -2176,5 +2176,7 @@ networks:
 
 wallets:
   from_key: ${PRIVATE_KEY}
-  from_deploy_key: ${DEPLOY_PRIVATE_KEY}
+  deploy_key: ${DEPLOY_KEY}
+  # In order to deploy a unified contract address
+  create_key: ${CREATE_KEY}
   from_mnemonic: ${MNEMONIC}

@@ -31,9 +31,11 @@ struct UserOperation {
 }
 
 library UserOperationLib {
-    function getSender(
-        UserOperation calldata userOp
-    ) internal pure returns (address) {
+    function getSender(UserOperation calldata userOp)
+        internal
+        pure
+        returns (address)
+    {
         address data;
         //read sender from userOp, which is first userOp member (saves 800 gas...)
         assembly {
@@ -42,9 +44,11 @@ library UserOperationLib {
         return address(uint160(data));
     }
 
-    function pack(
-        UserOperation calldata userOp
-    ) internal pure returns (bytes memory ret) {
+    function pack(UserOperation calldata userOp)
+        internal
+        pure
+        returns (bytes memory ret)
+    {
         address sender = getSender(userOp);
         uint256 nonce = userOp.nonce;
         bytes32 hashInitCode = calldataKeccak(userOp.initCode);
@@ -71,9 +75,11 @@ library UserOperationLib {
             );
     }
 
-    function calldataKeccak(
-        bytes calldata data
-    ) internal pure returns (bytes32 ret) {
+    function calldataKeccak(bytes calldata data)
+        internal
+        pure
+        returns (bytes32 ret)
+    {
         assembly {
             let mem := mload(0x40)
             let len := data.length
@@ -82,9 +88,11 @@ library UserOperationLib {
         }
     }
 
-    function hash(
-        UserOperation calldata userOp
-    ) internal pure returns (bytes32) {
+    function hash(UserOperation calldata userOp)
+        internal
+        pure
+        returns (bytes32)
+    {
         return keccak256(pack(userOp));
     }
 

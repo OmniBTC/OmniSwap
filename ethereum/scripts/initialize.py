@@ -10,7 +10,7 @@ from brownie import (
     Contract,
     network,
     interface,
-    LibSoFeeStargateV1,
+    LibSoFeeStargateV2,
     MockToken,
     LibCorrectSwapV1,
     WormholeFacet,
@@ -26,6 +26,7 @@ from brownie import (
     CCTPFacet,
     LibSoFeeBoolV2,
     LibSoFeeGenericV2,
+    OwnershipFacet,
     config
 )
 from brownie.network import priority_fee, max_fee
@@ -411,7 +412,7 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
     proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
     )
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
@@ -600,18 +601,35 @@ def redeploy_generic_swap():
 def redeploy_stargate():
     account = get_account()
 
-    # remove_facet(StargateFacet)
+    # print("deploy LibSoFeeStargateV2.sol...")
+    # so_fee = 1e-3
+    # transfer_for_gas = 40000
+    # basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    # basic_fee = 0
+    # LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
+    #                           basic_fee, basic_beneficiary,
+    #                           {"from": account})
+    #
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    # print("addFee...")
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
+    # )
 
+    try:
+        print("Remove cut...")
+        remove_facet(StargateFacet)
+    except Exception as e:
+        print(f"Remove err:{e}")
+
+    print("Deploy stargate...")
     StargateFacet.deploy({"from": account})
+    print("Add cut...")
     add_cut([StargateFacet])
+    print("Initialize stargate...")
     initialize_stargate(account, SoDiamond[-1])
-
-    proxy_dex = Contract.from_abi(
-        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    )
-    proxy_dex.addFee(
-        get_stargate_router(), "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449", {"from": account}
-    )
 
 
 def redeploy_bool():
@@ -766,8 +784,6 @@ def add_dex(swap_info):
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     swap_type = list(swap_info.keys())[0]
-    if swap_type != "IMetaAggregationRouterV2":
-        return
     print(f"Add router for:{swap_info[swap_type]['name']}")
     proxy_dex.addDex(
         swap_info[swap_type]["router"], {"from": get_account()}
@@ -861,16 +877,34 @@ def initialize_eth():
 
 def reset_so_fee():
     account = get_account()
-    so_fee = int(1e-3 * 1e18)
-    LibSoFeeStargateV1[-1].setFee(so_fee, {"from": account})
-    print("Cur soFee is", LibSoFeeStargateV1[-1].soFee() / 1e18)
+    so_fee = 0
+    LibSoFeeStargateV2[-1].setFee(so_fee, {"from": account})
+    print("Cur soFee is", LibSoFeeStargateV2[-1].soFee() / 1e18)
+
+
+def reset_basic_fee():
+    account = get_account()
+    so_fee = int(0.0002 * 1e18)
+    if network.show_active() == "bsc-main":
+        so_fee *= 8
+    elif network.show_active() == "avax-main":
+        so_fee *= 183
+    elif network.show_active() == "polygon-main":
+        so_fee *= 3000
+
+    LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
+    proxy = Contract.from_abi(
+        "StargateFacet", SoDiamond[-1].address, StargateFacet.abi
+    )
+    print("Cur basicFee is", proxy.getStargateBasicFee() / 1e18, proxy.getStargateBasicBeneficiary())
+    reset_so_fee()
 
 
 def reset_so_gas():
     account = get_account()
     gas = 30000
-    LibSoFeeStargateV1[-1].setTransferForGas(gas, {"from": account})
-    print("Cur gas is", LibSoFeeStargateV1[-1].getTransferForGas())
+    LibSoFeeStargateV2[-1].setTransferForGas(gas, {"from": account})
+    print("Cur gas is", LibSoFeeStargateV2[-1].getTransferForGas())
 
 
 def redeploy_correct_swap():
@@ -880,6 +914,24 @@ def redeploy_correct_swap():
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {"from": account})
+
+
+def transferOwnership():
+    deploy_account = get_account("deploy_key")
+    proxy = Contract.from_abi(
+        "OwnershipFacet", SoDiamond[-1].address, OwnershipFacet.abi
+    )
+    account = get_account()
+    owner = account.address
+    proxy.transferOwnership(owner, {"from": deploy_account})
+    deploy_account.transfer(owner, int(deploy_account.balance() / 2))
+    proxy.confirmOwnershipTransfer({"from": account})
+    print(proxy.owner())
+
+
+def transferOwnershipForFee(owner):
+    account = get_account()
+    LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
 
 
 def fix_libswap():

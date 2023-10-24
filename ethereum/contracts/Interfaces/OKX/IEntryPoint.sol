@@ -114,9 +114,10 @@ interface IEntryPoint is IStakeManager {
      * generate a request Id - unique identifier for this request.
      * the request ID is a hash over the content of the userOp (except the signature), the entrypoint and the chainid.
      */
-    function getUserOpHash(
-        UserOperation calldata userOp
-    ) external view returns (bytes32);
+    function getUserOpHash(UserOperation calldata userOp)
+        external
+        view
+        returns (bytes32);
 
     /**
      * Simulate a call to account.validateUserOp and paymaster.validatePaymasterUserOp.

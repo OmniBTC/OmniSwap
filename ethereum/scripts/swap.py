@@ -488,7 +488,10 @@ class SwapData(View):
         """
         if swapFuncName not in vars(SwapFunc):
             raise ValueError("Not support")
-        swap_info = get_swap_info()[swapType]
+        swap_info = None
+        for v in get_swap_info():
+            if swapType in v:
+                swap_info = v[swapType]
         swap_contract = Contract.from_abi(
             swapType, swap_info["router"], getattr(p.interface, swapType).abi
         )
@@ -585,7 +588,10 @@ class SwapData(View):
         Returns:
             callData: Calldata after setting min amount
         """
-        swap_info = get_swap_info()[swapType]
+        swap_info = None
+        for v in get_swap_info():
+            if swapType in v:
+                swap_info = v[swapType]
         swap_contract = Contract.from_abi(
             swapType, swap_info["router"], getattr(p.interface, swapType).abi
         )
@@ -658,7 +664,10 @@ class SwapData(View):
             amountOut: final output amount
         """
         account = get_account()
-        swap_info = get_swap_info()[swapType]
+        swap_info = None
+        for v in get_swap_info():
+            if swapType in v:
+                swap_info = v[swapType]
         if swapType == "ISwapRouter":
             swap_contract = Contract.from_abi(
                 "IQuoter", swap_info["quoter"], getattr(p.interface, "IQuoter").abi
@@ -699,7 +708,10 @@ class SwapData(View):
             amountIn: input amount
         """
         account = get_account()
-        swap_info = get_swap_info()[swapType]
+        swap_info = None
+        for v in get_swap_info():
+            if swapType in v:
+                swap_info = v[swapType]
         if swapType == "ISwapRouter":
             swap_contract = Contract.from_abi(
                 "IQuoter", swap_info["quoter"], getattr(p.interface, "IQuoter").abi
@@ -1114,7 +1126,7 @@ def single_swap(
     )
 
 
-def main(src_net="base-main", dst_net="optimism-main", bridge="stargate"):
+def main(src_net="bsc-main", dst_net="optimism-main", bridge="stargate"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1130,18 +1142,18 @@ def main(src_net="base-main", dst_net="optimism-main", bridge="stargate"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                1e-1 * src_session.put_task(get_token_decimal, args=("usdc",))
+                1e-4 * src_session.put_task(get_token_decimal, args=("eth",))
             ),
-            sourceTokenName="usdc",  # stargate
-            destinationTokenName="eth",  # stargate
+            sourceTokenName="eth",  # stargate
+            destinationTokenName="usdc",  # stargate
             sourceSwapType=SwapType.IUniswapV2Router02,
-            sourceSwapFunc=SwapFunc.swapExactTokensForETH,
-            sourceSwapPath=("usdc", "weth"),
-            sourceStargateToken="weth",
-            destinationStargateToken="weth",
+            sourceSwapFunc=SwapFunc.swapExactETHForTokens,
+            sourceSwapPath=("weth", "usdt"),
+            sourceStargateToken="usdt",
+            destinationStargateToken="usdc",
             destinationSwapType=None,
             destinationSwapFunc=None,
-            destinationSwapPath=("weth", "weth"),
+            destinationSwapPath=("usdc", "usdc"),
             slippage=0.001,
         )
 

@@ -16,7 +16,7 @@ import "../Helpers/ReentrancyGuard.sol";
 import "../Errors/GenericErrors.sol";
 import "../Helpers/Swapper.sol";
 import "../Interfaces/Stargate/IStargateEthVault.sol";
-import "../Interfaces/ILibSoFee.sol";
+import "../Interfaces/ILibSoFeeV2.sol";
 import "../Libraries/LibCross.sol";
 import "../Libraries/LibBytes.sol";
 
@@ -403,7 +403,29 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         if (soFee == address(0x0)) {
             return 0;
         } else {
-            return ILibSoFee(soFee).getFees(amount);
+            return ILibSoFeeV2(soFee).getFees(amount);
+        }
+    }
+
+    /// @dev Get basic beneficiary
+    function getStargateBasicBeneficiary() public view returns (address) {
+        Storage storage s = getStorage();
+        address soFee = appStorage.gatewaySoFeeSelectors[s.stargate];
+        if (soFee == address(0x0)) {
+            return address(0x0);
+        } else {
+            return ILibSoFeeV2(soFee).getBasicBeneficiary();
+        }
+    }
+
+    /// @dev Get basic fee
+    function getStargateBasicFee() public view returns (uint256) {
+        Storage storage s = getStorage();
+        address soFee = appStorage.gatewaySoFeeSelectors[s.stargate];
+        if (soFee == address(0x0)) {
+            return 0;
+        } else {
+            return ILibSoFeeV2(soFee).getBasicFee();
         }
     }
 
@@ -418,7 +440,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         if (soFee == address(0x0)) {
             return amount;
         } else {
-            return ILibSoFee(soFee).getRestoredAmount(amount);
+            return ILibSoFeeV2(soFee).getRestoredAmount(amount);
         }
     }
 
@@ -429,7 +451,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
         if (soFee == address(0x0)) {
             return 30000;
         } else {
-            return ILibSoFee(soFee).getTransferForGas();
+            return ILibSoFeeV2(soFee).getTransferForGas();
         }
     }
 
@@ -589,7 +611,7 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
 
         // Give Stargate approval to bridge tokens
         if (cache.bridgeToken != address(0x0)) {
-            LibAsset.maxApproveERC20(
+            LibAsset.safeApproveERC20(
                 IERC20(
                     _getStargateTokenByPoolId(stargateData.srcStargatePoolId)
                 ),
@@ -617,16 +639,26 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     }
 
     /// @dev Calculate the fee for paying the stargate bridge
-    function _getStargateValue(SoData memory soData)
-        private
-        view
-        returns (uint256)
-    {
+    function _getStargateValue(SoData memory soData) private returns (uint256) {
+        uint256 soBasicFee = getStargateBasicFee();
+        address soBasicBeneficiary = getStargateBasicBeneficiary();
+        if (soBasicBeneficiary == address(0x0)) {
+            soBasicFee = 0;
+        }
+        if (soBasicFee > 0) {
+            LibAsset.transferAsset(
+                address(0x0),
+                payable(soBasicBeneficiary),
+                soBasicFee
+            );
+        }
+
+        require(msg.value >= soBasicFee, "NotEnoughFee");
         if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-            require(msg.value > soData.amount, "NotEnough");
-            return msg.value.sub(soData.amount);
+            require(msg.value > soData.amount + soBasicFee, "NotEnoughAmt");
+            return msg.value.sub(soData.amount).sub(soBasicFee);
         } else {
-            return msg.value;
+            return msg.value.sub(soBasicFee);
         }
     }
 
