@@ -920,6 +920,99 @@
     {
         "inputs": [
             {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "transactionId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.SoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData[]",
+                "name": "swapData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "executeAndCheckSwapsV2",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -1027,6 +1120,32 @@
             }
         ],
         "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getStargateBasicBeneficiary",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getStargateBasicFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -1205,6 +1324,56 @@
             }
         ],
         "name": "initStargate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData",
+                "name": "_swapData",
+                "type": "tuple"
+            }
+        ],
+        "name": "libSwap",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -2021,6 +2190,194 @@
                 "type": "uint256"
             }
         ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "transactionId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.SoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData[]",
+                "name": "swapData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "executeAndCheckSwapsV2",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getGenericBasicBeneficiary",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getGenericBasicFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGenericSoFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData",
+                "name": "_swapData",
+                "type": "tuple"
+            }
+        ],
+        "name": "libSwap",
+        "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -3104,6 +3461,99 @@
     {
         "inputs": [
             {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "transactionId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.SoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData[]",
+                "name": "swapData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "executeAndCheckSwapsV2",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "transferToken",
                 "type": "address"
@@ -3171,6 +3621,56 @@
             }
         ],
         "name": "initWormhole",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData",
+                "name": "_swapData",
+                "type": "tuple"
+            }
+        ],
+        "name": "libSwap",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -4823,6 +5323,99 @@
     {
         "inputs": [
             {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "transactionId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.SoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData[]",
+                "name": "swapData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "executeAndCheckSwapsV2",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "bytes",
                 "name": "_sender",
                 "type": "bytes"
@@ -5150,6 +5743,56 @@
             }
         ],
         "name": "initCeler",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData",
+                "name": "_swapData",
+                "type": "tuple"
+            }
+        ],
+        "name": "libSwap",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -5894,6 +6537,99 @@
     {
         "inputs": [
             {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "transactionId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.SoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData[]",
+                "name": "swapData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "executeAndCheckSwapsV2",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "bridgeToken",
                 "type": "address"
@@ -5971,6 +6707,56 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData",
+                "name": "_swapData",
+                "type": "tuple"
+            }
+        ],
+        "name": "libSwap",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -6750,6 +7536,99 @@
     {
         "inputs": [
             {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "transactionId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address payable",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "sourceChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint16",
+                        "name": "destinationChainId",
+                        "type": "uint16"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct ISo.SoData",
+                "name": "soData",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData[]",
+                "name": "swapData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "executeAndCheckSwapsV2",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "uint32",
                 "name": "boolChainId",
                 "type": "uint32"
@@ -6857,6 +7736,56 @@
             }
         ],
         "name": "initBoolSwap",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "transactionId",
+                "type": "bytes32"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "callTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "approveTo",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sendingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "receivingAssetId",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "fromAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "callData",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct LibSwap.SwapData",
+                "name": "_swapData",
+                "type": "tuple"
+            }
+        ],
+        "name": "libSwap",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
