@@ -136,7 +136,7 @@ def set_celer_bnb_price_on_avax(ratio):
     )
 
     if old_ratio < ratio or ratio * 1.03 < old_ratio:
-        LibSoFeeCelerV1[-1].setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
+        LibSoFeeCelerV1[-1].setPriceRatio(dst_celer_id, ratio, {"from": get_account("deploy_key")})
 
 
 def set_so_price_for_test():
@@ -330,7 +330,7 @@ def set_so_price():
     prices = get_prices()
 
     decimal = 1e27
-    multiply = 1
+    multiply = 1.2
     if network.show_active() == "avax-main":
         # bnb
         dst_wormhole_id = 4

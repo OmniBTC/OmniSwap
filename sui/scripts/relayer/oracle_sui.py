@@ -203,4 +203,4 @@ def set_so_price():
 
 
 if __name__ == "__main__":
-    set_so_gas()
+    set_so_price()
