@@ -877,9 +877,27 @@ def initialize_eth():
 
 def reset_so_fee():
     account = get_account()
-    so_fee = int(1e-3 * 1e18)
+    so_fee = 0
     LibSoFeeStargateV2[-1].setFee(so_fee, {"from": account})
     print("Cur soFee is", LibSoFeeStargateV2[-1].soFee() / 1e18)
+
+
+def reset_basic_fee():
+    account = get_account()
+    so_fee = int(0.0002 * 1e18)
+    if network.show_active() == "bsc-main":
+        so_fee *= 8
+    elif network.show_active() == "avax-main":
+        so_fee *= 183
+    elif network.show_active() == "polygon-main":
+        so_fee *= 3000
+
+    LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
+    proxy = Contract.from_abi(
+        "StargateFacet", SoDiamond[-1].address, StargateFacet.abi
+    )
+    print("Cur basicFee is", proxy.getStargateBasicFee() / 1e18, proxy.getStargateBasicBeneficiary())
+    reset_so_fee()
 
 
 def reset_so_gas():
