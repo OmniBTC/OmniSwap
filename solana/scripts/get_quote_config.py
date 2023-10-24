@@ -1,18 +1,23 @@
 import json
+import os
 import subprocess
 from pathlib import Path
 
 from solders.pubkey import Pubkey
+from config import get_config
 
 
-def get_test_usdc_quote_config(token_mint_in: str, ui_amount_in: str):
+def get_test_usdc_quote_config(token_mint_in: str, ui_amount_in: str, network="devnet"):
+    config = get_config(network)
+
     js_file_name = "get_test_usdc_quote_config.js"
-    js_file_path = (
-        Path(__file__).parent.parent.joinpath("dex_test").joinpath(js_file_name)
-    )
+    js_file_path = Path(__file__).parent.joinpath("test_dex").joinpath(js_file_name)
+
+    new_env = {"ANCHOR_PROVIDER_URL": config["rpc_url"]}
 
     result = subprocess.run(
         ["node", str(js_file_path), token_mint_in, ui_amount_in],
+        env={**os.environ, **new_env},
         capture_output=True,
         text=True,
         check=True,
@@ -47,3 +52,7 @@ def get_test_usdc_quote_config(token_mint_in: str, ui_amount_in: str):
         }
     except json.JSONDecodeError as e:
         print("parse quote config fail", e)
+
+
+if __name__ == "__main__":
+    get_test_usdc_quote_config("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS", "1")

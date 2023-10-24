@@ -11,7 +11,6 @@ from omniswap.instructions import (
     set_price_ratio,
     set_redeem_proxy,
 )
-from omniswap.program_id import PROGRAM_ID
 from omniswap.accounts import SoFeeConfig, PriceManager
 from helper import (
     derivePriceManagerKey,
@@ -22,40 +21,51 @@ from helper import (
     getTokenBridgeDerivedAccounts,
     deriveForeignEndPointKey,
 )
-from config import get_client, get_payer, token_bridge_devnet, wormhole_devnet
+from config import get_client, get_payer, get_config
 
 
-async def omniswap_initialize():
-    client = get_client()
+async def omniswap_initialize(network="devnet"):
+    client = get_client(network)
     await client.is_connected()
 
     payer = get_payer()
 
-    fee_config_key = deriveSoFeeConfigKey(PROGRAM_ID)
-    send_config_key = deriveSenderConfigKey(PROGRAM_ID)
-    redeemer_config_key = deriveRedeemerConfigKey(PROGRAM_ID)
+    config = get_config(network)
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+    wormhole_program_id = config["program"]["Wormhole"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
+
+    beneficiary = Pubkey.from_string(config["beneficiary"])
+    redeemer_proxy = Pubkey.from_string(config["redeemer_proxy"])
+
+    actual_reserve = config["wormhole"]["actual_reserve"]
+    estimate_reserve = config["wormhole"]["estimate_reserve"]
+    so_fee_by_ray = config["so_fee_by_ray"]
+
+    fee_config_key = deriveSoFeeConfigKey(omniswap_program_id)
+    send_config_key = deriveSenderConfigKey(omniswap_program_id)
+    redeemer_config_key = deriveRedeemerConfigKey(omniswap_program_id)
 
     token_bridge_accounts = getTokenBridgeDerivedAccounts(
-        token_bridge_devnet, wormhole_devnet
+        token_bridge_program_id, wormhole_program_id
     )
 
     ix = initialize(
         args={
-            "beneficiary": Pubkey.from_string(
-                "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
-            ),
-            "redeemer_proxy": payer.pubkey(),
-            "actual_reserve": 110000000,
-            "estimate_reserve": 120000000,
-            "so_fee_by_ray": 0,
+            "beneficiary": beneficiary,
+            "redeemer_proxy": redeemer_proxy,
+            "actual_reserve": actual_reserve,
+            "estimate_reserve": estimate_reserve,
+            "so_fee_by_ray": so_fee_by_ray,
         },
         accounts={
             "owner": payer.pubkey(),
             "fee_config": fee_config_key,
             "sender_config": send_config_key,
             "redeemer_config": redeemer_config_key,
-            "wormhole_program": Pubkey.from_string(wormhole_devnet),
-            "token_bridge_program": Pubkey.from_string(token_bridge_devnet),
+            "wormhole_program": Pubkey.from_string(wormhole_program_id),
+            "token_bridge_program": Pubkey.from_string(token_bridge_program_id),
             "token_bridge_config": token_bridge_accounts["token_bridge_config"],
             "token_bridge_authority_signer": token_bridge_accounts[
                 "token_bridge_authority_signer"
@@ -87,27 +97,24 @@ async def omniswap_initialize():
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds
 
-    await client.close()
 
-    await client.close()
-
-
-async def omniswap_set_so_fee():
-    client = get_client()
+async def omniswap_set_so_fee(new_so_fee_by_ray: int, network="devnet"):
+    client = get_client(network)
     await client.is_connected()
 
     payer = get_payer()
 
-    fee_config_key = deriveSoFeeConfigKey(PROGRAM_ID)
+    config = get_config(network)
+    omniswap_program_id = config["program"]["SoDiamond"]
 
-    o = await SoFeeConfig.fetch(conn=client, address=fee_config_key)
-    print(o)
+    fee_config_key = deriveSoFeeConfigKey(omniswap_program_id)
 
-    so_fee_by_ray = 100000000
+    old = await SoFeeConfig.fetch(conn=client, address=fee_config_key)
+    print(f"old={old}")
 
     ix = set_so_fee(
         args={
-            "so_fee_by_ray": so_fee_by_ray,
+            "so_fee_by_ray": new_so_fee_by_ray,
         },
         accounts={"payer": payer.pubkey(), "config": fee_config_key},
     )
@@ -126,27 +133,28 @@ async def omniswap_set_so_fee():
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds
 
-    await client.close()
 
-    await client.close()
-
-
-async def omniswap_set_wormhole_reserve():
-    client = get_client()
+async def omniswap_set_wormhole_reserve(
+    new_actual_reserve_by_ray: int, new_estimate_reserve_by_ray: int, network="devnet"
+):
+    client = get_client(network)
     await client.is_connected()
 
     payer = get_payer()
 
-    fee_config_key = deriveSoFeeConfigKey(PROGRAM_ID)
+    config = get_config(network)
+    omniswap_program_id = config["program"]["SoDiamond"]
 
-    o = await SoFeeConfig.fetch(conn=client, address=fee_config_key)
-    print(o)
+    fee_config_key = deriveSoFeeConfigKey(omniswap_program_id)
 
-    actual_reserve = 110000000
-    estimate_reserve = 120000000
+    old = await SoFeeConfig.fetch(conn=client, address=fee_config_key)
+    print(f"old={old}")
 
     ix = set_wormhole_reserve(
-        args={"actual_reserve": actual_reserve, "estimate_reserve": estimate_reserve},
+        args={
+            "actual_reserve": new_actual_reserve_by_ray,
+            "estimate_reserve": new_estimate_reserve_by_ray,
+        },
         accounts={"payer": payer.pubkey(), "config": fee_config_key},
     )
 
@@ -164,47 +172,60 @@ async def omniswap_set_wormhole_reserve():
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds
 
-    await client.close()
 
-    await client.close()
-
-
-async def omniswap_register_foreign_contract():
-    client = get_client()
+async def omniswap_register_foreign_contract(dst_chain: str, network="devnet"):
+    client = get_client(network)
     await client.is_connected()
 
     payer = get_payer()
 
-    send_config_key = deriveSenderConfigKey(PROGRAM_ID)
+    config = get_config(network)
 
-    chain_id_bsc = 4
-    token_bridge_emitter_bsc = bytes.fromhex(
-        "0000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09"
+    omniswap_program_id = config["program"]["SoDiamond"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
+
+    dst_chain_config = config["wormhole"]["dst_chain"][dst_chain]
+
+    dst_wormhole_chainid = dst_chain_config["chainid"]
+    dst_token_bridge_emitter = bytes.fromhex(
+        dst_chain_config["token_bridge_emitter"].replace("0x", "")
     )
-    omniswap_emitter_bsc = bytes.fromhex(
-        "00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
+    dst_omniswap_emitter = bytes.fromhex(
+        dst_chain_config["omniswap_emitter"].replace("0x", "")
+    )
+    dst_base_gas = dst_chain_config["base_gas"]
+    dst_gas_per_bytes = dst_chain_config["gas_per_bytes"]
+    price_manager_owner = dst_chain_config["price_manager"]
+
+    normalized_dst_base_gas_le = list(int(dst_base_gas).to_bytes(32, "little"))
+    normalized_dst_gas_per_bytes_le = list(
+        int(dst_gas_per_bytes).to_bytes(32, "little")
     )
 
+    # bsc / sol = 0.1
     ray = 1e8
-    normalized_dst_base_gas_le = list(int(700000).to_bytes(32, "little"))
-    normalized_dst_gas_per_bytes_le = list(int(68).to_bytes(32, "little"))
-    price_manager_owner = payer.pubkey()
     init_price_ratio = int(ray / 10)
 
-    foreign_contract_key = deriveForeignContractKey(PROGRAM_ID, chain_id_bsc)
-    foreign_endpoint_key = deriveForeignEndPointKey(
-        token_bridge_devnet, chain_id_bsc, Pubkey.from_bytes(token_bridge_emitter_bsc)
+    send_config_key = deriveSenderConfigKey(omniswap_program_id)
+    foreign_contract_key = deriveForeignContractKey(
+        omniswap_program_id, dst_wormhole_chainid
     )
 
-    price_manager_key = derivePriceManagerKey(PROGRAM_ID, chain_id_bsc)
+    foreign_endpoint_key = deriveForeignEndPointKey(
+        token_bridge_program_id,
+        dst_wormhole_chainid,
+        Pubkey.from_bytes(dst_token_bridge_emitter),
+    )
+
+    price_manager_key = derivePriceManagerKey(omniswap_program_id, dst_wormhole_chainid)
 
     ix = register_foreign_contract(
         args={
-            "chain": chain_id_bsc,
-            "address": list(omniswap_emitter_bsc),
+            "chain": dst_wormhole_chainid,
+            "address": list(dst_omniswap_emitter),
             "normalized_dst_base_gas_le": normalized_dst_base_gas_le,
             "normalized_dst_gas_per_bytes_le": normalized_dst_gas_per_bytes_le,
-            "price_manager_owner": price_manager_owner,
+            "price_manager_owner": Pubkey.from_string(price_manager_owner),
             "init_price_ratio": init_price_ratio,
         },
         accounts={
@@ -213,7 +234,7 @@ async def omniswap_register_foreign_contract():
             "foreign_contract": foreign_contract_key,
             "price_manager": price_manager_key,
             "token_bridge_foreign_endpoint": foreign_endpoint_key,
-            "token_bridge_program": Pubkey.from_string(token_bridge_devnet),
+            "token_bridge_program": Pubkey.from_string(token_bridge_program_id),
         },
     )
 
@@ -231,29 +252,31 @@ async def omniswap_register_foreign_contract():
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds
 
-    await client.close()
 
-
-async def omniswap_set_price_ratio():
-    client = get_client()
+async def omniswap_set_price_ratio(
+    dst_chain: str, new_price_ratio_by_ray: int, network="devnet"
+):
+    client = get_client(network)
     await client.is_connected()
 
     payer = get_payer()
 
-    chain_id_bsc = 4
+    config = get_config(network)
 
-    ray = 1e8
-    new_price_ratio = int(ray / 10)
+    omniswap_program_id = config["program"]["SoDiamond"]
 
-    price_manager_key = derivePriceManagerKey(PROGRAM_ID, chain_id_bsc)
+    dst_chain_config = config["wormhole"]["dst_chain"][dst_chain]
+    dst_wormhole_chainid = dst_chain_config["chainid"]
 
-    o = await PriceManager.fetch(conn=client, address=price_manager_key)
-    print(o)
+    price_manager_key = derivePriceManagerKey(omniswap_program_id, dst_wormhole_chainid)
+
+    old = await PriceManager.fetch(conn=client, address=price_manager_key)
+    print(f"old={old}")
 
     ix = set_price_ratio(
         args={
-            "chain": chain_id_bsc,
-            "new_price_ratio": new_price_ratio,
+            "chain": dst_wormhole_chainid,
+            "new_price_ratio": new_price_ratio_by_ray,
         },
         accounts={
             "owner": payer.pubkey(),
@@ -275,20 +298,21 @@ async def omniswap_set_price_ratio():
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds
 
-    await client.close()
 
-
-async def omniswap_set_redeem_proxy():
-    client = get_client()
+async def omniswap_set_redeem_proxy(new_proxy: str, network="devnet"):
+    client = get_client(network)
     await client.is_connected()
 
     payer = get_payer()
 
-    new_proxy = payer.pubkey()
-    redeemer_config_key = deriveRedeemerConfigKey(PROGRAM_ID)
+    config = get_config(network)
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+
+    redeemer_config_key = deriveRedeemerConfigKey(omniswap_program_id)
 
     ix = set_redeem_proxy(
-        args={"new_proxy": new_proxy},
+        args={"new_proxy": Pubkey.from_string(new_proxy)},
         accounts={
             "owner": payer.pubkey(),
             "config": redeemer_config_key,
@@ -308,22 +332,3 @@ async def omniswap_set_redeem_proxy():
         else:
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds
-
-    await client.close()
-
-
-async def initialize_all():
-    print("initialize...")
-    await omniswap_initialize()
-
-    print("set_so_fee...")
-    await omniswap_set_so_fee()
-
-    print("register_foreign_contract...")
-    await omniswap_register_foreign_contract()
-
-    print("set_price_ratio...")
-    await omniswap_set_price_ratio()
-
-
-asyncio.run(omniswap_set_redeem_proxy())

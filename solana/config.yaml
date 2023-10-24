@@ -1,0 +1,95 @@
+
+devnet:
+  #rpc_url: "https://api.devnet.solana.com"
+  rpc_url: 'https://solana-devnet.g.alchemy.com/v2/VaTALh1zwDTmrzIkcN_zPJG4QCym--nR'
+  program:
+    SoDiamond: "FpdkugsrDzCn57xeFPo6fwRmsnH7FUdJiDK717p3dico"
+    Wormhole: "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5"
+    TokenBridge: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe"
+    Whirlpools: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+  wormhole:
+    chainid: 1
+    # 1.1
+    actual_reserve: 110000000
+    # 1.2
+    estimate_reserve: 120000000
+    dst_chain:
+      bsc-test:
+        chainid: 4
+        base_gas: 700000
+        per_byte_gas: 68
+        price_manager: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
+        token_bridge_emitter: "0x0000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09"
+        omniswap_emitter: "0x00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
+  token:
+    TEST:
+      mint: "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"
+      decimals: 9
+    USDC:
+      mint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+      decimals: 6
+
+  pools:
+    Whirlpool-TEST-USDC: "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV"
+
+  lookup_table:
+    table0:
+      key: "ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8"
+      addresses: [
+        # token_bridge_config
+        "8PFZNjn19BBYVHNp4H31bEW7eAmu78Yf2RKV8EeA461K",
+        # token_bridge_authority_signer
+        "3VFdJkFuzrcwCwdxhKRETGxrDtUVAipNmYcLvRBDcQeH",
+        # token_bridge_custody_signer
+        "H9pUTqZoRyFdaedRezhykA1aTMq7vbqRHYVhpHZK2QbC",
+        # token_bridge_mint_authority
+        "rRsXLHe7sBHdyKU3KY3wbcgWvoT1Ntqudf6e9PKusgb",
+        # wormhole_bridge
+        "6bi4JGDoRwUs9TYBuvoA7dUVyikTJDrJsJU1ew6KVLiu",
+        # token_bridge_emitter
+        "4yttKWzRoNYS2HekxDfcZYmfQqnVWpKiJ8eydYRuFRgs",
+        # wormhole_fee_collector
+        "7s3a1ycs16d6SNDumaRtjcoyMaTDZPavzgsmS3uUZYWX",
+        # token_bridge_sequence
+        "9QzqZZvhxoHzXbNY9y2hyAUfJUzDwyDb7fbDs9RXwH3",
+        # Rent
+        "SysvarRent111111111111111111111111111111111",
+        # Clock
+        "SysvarC1ock11111111111111111111111111111111",
+        # ComputeBudget
+        "ComputeBudget111111111111111111111111111111",
+        # System
+        "11111111111111111111111111111111",
+        # whirlpool_program
+        "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
+        # test_usdc_pool
+        "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV",
+        # test token
+        "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS",
+        # usdc token
+        "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+        # test_usdc_pool vault_a
+        "3dycP3pym3q6DgUpZRviaavaScwrrCuC6QyLhiLfSXge",
+        # test_usdc_pool vault_b
+        "969UqMJSqvgxmNuAWZx91PAnLJU825qJRAAcEVQMWASg",
+        # omniswap sender config
+        "GR7xDWrbWcEYsnz1e5WDfy3iXvPw5tmWjeV8MY1sVHCp",
+        # omniswap fee config
+        "EcZK7hAyxzjeCL1zM9FKWeWcdziF4pFHiUCJ5r2886TP",
+        # omniswap bsc(4) price manage
+        "EofptCXfgVxRk1vxBLNP1Zk6SSPBiPdkYWVPgTLzbzGR",
+        # omniswap bsc(4) foreign_contract
+        "FV2SB6pUGWABHxmnoVUxxdTVctzY7puAQon38sJ8oNm",
+      ]
+
+
+  # fee_collector
+  beneficiary: "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
+  redeemer_proxy: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
+  # ray = 100_000_000
+  so_fee_by_ray: 0
+
+
+
+
+solana-wallet:

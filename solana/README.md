@@ -14,7 +14,7 @@ anchorpy client-gen target/idl/omniswap.json scripts/omniswap --program-id Fpdku
 
 ## compile get_test_usdc_quote_config.ts
 ```bash
-tsc dex_test/get_test_usdc_quote_config.ts --esModuleInterop  --skipLibCheck
+tsc scripts/test_dex/get_test_usdc_quote_config.ts --esModuleInterop  --skipLibCheck
 ```
 
 ## extand address-lookup-table

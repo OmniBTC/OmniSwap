@@ -13,21 +13,13 @@ from omniswap.instructions import (
     so_swap_native_with_whirlpool,
     so_swap_wrapped_with_whirlpool,
 )
-from omniswap.program_id import PROGRAM_ID
 from helper import (
     getSendWrappedTransferAccounts,
     deriveTokenTransferMessageKey,
     getSendNativeTransferAccounts,
     decode_address_look_up_table,
-    deriveWhirlpoolOracleKey,
 )
-from config import (
-    get_client,
-    get_payer,
-    wormhole_devnet,
-    token_bridge_devnet,
-    lookup_table_devnet,
-)
+from config import get_client, get_payer, get_config
 
 from cross import WormholeData, SoData, generate_random_bytes32, SwapData
 from custom_simulate import custom_simulate
@@ -35,10 +27,16 @@ from get_quote_config import get_test_usdc_quote_config
 
 
 async def omniswap_send_wrapped_tokens_without_swap():
-    client = get_client()
+    client = get_client("devnet")
     await client.is_connected()
 
     payer = get_payer()
+
+    config = get_config("devnet")
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+    wormhole_program_id = config["program"]["Wormhole"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
 
     # bsc-testnet
     recipient_chain = 4
@@ -57,14 +55,12 @@ async def omniswap_send_wrapped_tokens_without_swap():
     )
 
     # collect relayer gas fee
-    beneficiary_account = Pubkey.from_string(
-        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
-    )
+    beneficiary_account = Pubkey.from_string(config["beneficiary"])
 
     send_wrapped_accounts = getSendWrappedTransferAccounts(
-        token_bridge_devnet,
-        wormhole_devnet,
-        PROGRAM_ID,
+        token_bridge_program_id,
+        wormhole_program_id,
+        omniswap_program_id,
         recipient_chain,
         token_on_bsc,
     )
@@ -76,7 +72,7 @@ async def omniswap_send_wrapped_tokens_without_swap():
     print(f"current_seq={current_seq}")
 
     next_seq = current_seq + 1
-    wormhole_message = deriveTokenTransferMessageKey(PROGRAM_ID, next_seq)
+    wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
 
     ix = so_swap_wrapped_without_swap(
         args={
@@ -134,14 +130,19 @@ async def omniswap_send_wrapped_tokens_without_swap():
     tx_sig = await client.send_transaction(tx, payer)
     print(tx_sig)
 
-    await client.close()
-
 
 async def omniswap_send_native_tokens_without_swap():
-    client = get_client()
+    client = get_client("devnet")
     await client.is_connected()
 
     payer = get_payer()
+
+    config = get_config("devnet")
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+    wormhole_program_id = config["program"]["Wormhole"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
+    lookup_table_key = Pubkey.from_string(config["lookup_table"]["table0"]["key"])
 
     # bsc-testnet
     recipient_chain = 4
@@ -158,14 +159,12 @@ async def omniswap_send_native_tokens_without_swap():
         "00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
     )
     # collect relayer gas fee
-    beneficiary_account = Pubkey.from_string(
-        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
-    )
+    beneficiary_account = Pubkey.from_string(config["beneficiary"])
 
     send_native_accounts = getSendNativeTransferAccounts(
-        token_bridge_devnet,
-        wormhole_devnet,
-        PROGRAM_ID,
+        token_bridge_program_id,
+        wormhole_program_id,
+        omniswap_program_id,
         recipient_chain,
         usdc_mint,
     )
@@ -177,7 +176,7 @@ async def omniswap_send_native_tokens_without_swap():
     print(f"current_seq={current_seq}")
 
     next_seq = current_seq + 1
-    wormhole_message = deriveTokenTransferMessageKey(PROGRAM_ID, next_seq)
+    wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
 
     # ExceededMaxInstructions
     # devnet_limit=200_000, real=212433
@@ -235,11 +234,11 @@ async def omniswap_send_native_tokens_without_swap():
 
     blockhash = await client.get_latest_blockhash()
 
-    lookup_table_data = await client.get_account_info(lookup_table_devnet)
+    lookup_table_data = await client.get_account_info(lookup_table_key)
     lookup_table_addresses = decode_address_look_up_table(lookup_table_data.value.data)
 
     lookup_table = AddressLookupTableAccount(
-        key=lookup_table_devnet, addresses=lookup_table_addresses
+        key=lookup_table_key, addresses=lookup_table_addresses
     )
 
     message0 = MessageV0.try_compile(
@@ -258,17 +257,22 @@ async def omniswap_send_native_tokens_without_swap():
     resp = await custom_simulate(client, txn, addresses=[usdc_account])
     print(resp.value.to_json())
 
-    await client.close()
-
 
 async def omniswap_send_native_tokens_with_whirlpool():
-    client = get_client()
+    client = get_client("devnet")
     await client.is_connected()
 
     # 1. swap(TEST => USDC) on solana
     # 2. bridge(USDC) to bsc
 
     payer = get_payer()
+
+    config = get_config("devnet")
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+    wormhole_program_id = config["program"]["Wormhole"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
+    lookup_table_key = Pubkey.from_string(config["lookup_table"]["table0"]["key"])
 
     # bsc-testnet
     recipient_chain = 4
@@ -296,14 +300,12 @@ async def omniswap_send_native_tokens_with_whirlpool():
         "00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
     )
     # collect relayer gas fee
-    beneficiary_account = Pubkey.from_string(
-        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
-    )
+    beneficiary_account = Pubkey.from_string(config["beneficiary"])
 
     send_native_accounts = getSendNativeTransferAccounts(
-        token_bridge_devnet,
-        wormhole_devnet,
-        PROGRAM_ID,
+        token_bridge_program_id,
+        wormhole_program_id,
+        omniswap_program_id,
         recipient_chain,
         usdc_mint,
     )
@@ -315,10 +317,10 @@ async def omniswap_send_native_tokens_with_whirlpool():
     print(f"current_seq={current_seq}")
 
     next_seq = current_seq + 1
-    wormhole_message = deriveTokenTransferMessageKey(PROGRAM_ID, next_seq)
+    wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
 
     # ExceededMaxInstructions
-    # devnet_limit=200_000, real=212433
+    # devnet_limit=200_000, real=303924
     ix0 = set_compute_unit_limit(1_200_000)
 
     ix1 = so_swap_native_with_whirlpool(
@@ -398,11 +400,11 @@ async def omniswap_send_native_tokens_with_whirlpool():
 
     blockhash = await client.get_latest_blockhash()
 
-    lookup_table_data = await client.get_account_info(lookup_table_devnet)
+    lookup_table_data = await client.get_account_info(lookup_table_key)
     lookup_table_addresses = decode_address_look_up_table(lookup_table_data.value.data)
 
     lookup_table = AddressLookupTableAccount(
-        key=lookup_table_devnet, addresses=lookup_table_addresses
+        key=lookup_table_key, addresses=lookup_table_addresses
     )
 
     message0 = MessageV0.try_compile(
@@ -439,4 +441,4 @@ async def omniswap_send_wrapped_tokens_with_whirlpool():
     print(quote_config)
 
 
-asyncio.run(omniswap_send_wrapped_tokens_with_whirlpool())
+asyncio.run(omniswap_send_native_tokens_with_whirlpool())

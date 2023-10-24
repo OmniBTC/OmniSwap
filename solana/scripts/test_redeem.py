@@ -7,30 +7,37 @@ from omniswap.instructions import (
     complete_so_swap_native_without_swap,
     complete_so_swap_wrapped_without_swap,
 )
-from omniswap.program_id import PROGRAM_ID
 from helper import (
     getRedeemWrappedTransferAccounts,
     getRedeemNativeTransferAccounts,
 )
-from config import get_client, get_payer, wormhole_devnet, token_bridge_devnet
+from config import get_client, get_payer, get_config
 from parse import ParsedVaa, ParsedTransfer
 
 
 async def omniswap_redeem_wrapped_transfer_with_payload(vaa: str):
-    client = get_client()
+    client = get_client("devnet")
     await client.is_connected()
 
     payer = get_payer()
 
+    config = get_config("devnet")
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+    wormhole_program_id = config["program"]["Wormhole"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
+
     parsed_vaa = ParsedVaa.parse(vaa)
 
     # collect token so fee
-    beneficiary_account = Pubkey.from_string(
-        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
-    )
+    beneficiary_account = Pubkey.from_string(config["beneficiary"])
 
     redeem_wrapped_accounts = getRedeemWrappedTransferAccounts(
-        token_bridge_devnet, wormhole_devnet, PROGRAM_ID, beneficiary_account, vaa
+        token_bridge_program_id,
+        wormhole_program_id,
+        omniswap_program_id,
+        beneficiary_account,
+        vaa,
     )
 
     ix = complete_so_swap_wrapped_without_swap(
@@ -78,27 +85,30 @@ async def omniswap_redeem_wrapped_transfer_with_payload(vaa: str):
     tx_sig = await client.send_transaction(tx, payer)
     print(tx_sig)
 
-    await client.close()
-
 
 async def omniswap_redeem_native_transfer_with_payload(vaa: str):
-    client = get_client()
+    client = get_client("devnet")
     await client.is_connected()
 
     payer = get_payer()
+
+    config = get_config("devnet")
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+    wormhole_program_id = config["program"]["Wormhole"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
 
     parsed_vaa = ParsedVaa.parse(vaa)
     parsed_transfer = ParsedTransfer.parse(parsed_vaa.payload)
     usdc_mint = Pubkey.from_bytes(parsed_transfer.token_address)
 
     # collect token so fee
-    beneficiary_account = Pubkey.from_string(
-        "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
-    )
+    beneficiary_account = Pubkey.from_string(config["beneficiary"])
+
     redeem_native_accounts = getRedeemNativeTransferAccounts(
-        token_bridge_devnet,
-        wormhole_devnet,
-        PROGRAM_ID,
+        token_bridge_program_id,
+        wormhole_program_id,
+        omniswap_program_id,
         beneficiary_account,
         vaa,
         usdc_mint,
@@ -145,8 +155,6 @@ async def omniswap_redeem_native_transfer_with_payload(vaa: str):
 
     tx_sig = await client.send_transaction(tx, payer)
     print(tx_sig)
-
-    await client.close()
 
 
 # Precondition: vaa has been posted
