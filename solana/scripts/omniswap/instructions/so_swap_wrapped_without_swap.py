@@ -10,16 +10,16 @@ from ..program_id import PROGRAM_ID
 
 
 class SoSwapWrappedWithoutSwapArgs(typing.TypedDict):
-    amount: int
-    wormhole_data: bytes
     so_data: bytes
+    swap_data_src: bytes
+    wormhole_data: bytes
     swap_data_dst: bytes
 
 
 layout = borsh.CStruct(
-    "amount" / borsh.U64,
-    "wormhole_data" / borsh.Bytes,
     "so_data" / borsh.Bytes,
+    "swap_data_src" / borsh.Bytes,
+    "wormhole_data" / borsh.Bytes,
     "swap_data_dst" / borsh.Bytes,
 )
 
@@ -123,9 +123,9 @@ def so_swap_wrapped_without_swap(
     identifier = b"\x99\xff\x90\t6N\x97S"
     encoded_args = layout.build(
         {
-            "amount": args["amount"],
-            "wormhole_data": args["wormhole_data"],
             "so_data": args["so_data"],
+            "swap_data_src": args["swap_data_src"],
+            "wormhole_data": args["wormhole_data"],
             "swap_data_dst": args["swap_data_dst"],
         }
     )

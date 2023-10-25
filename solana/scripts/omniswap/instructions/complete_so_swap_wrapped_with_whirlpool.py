@@ -34,7 +34,7 @@ class CompleteSoSwapWrappedWithWhirlpoolAccounts(typing.TypedDict):
     whirlpool_oracle: Pubkey
     token_bridge_wrapped_mint: Pubkey
     recipient_token_account: Pubkey
-    recipient_bridge_token_token: Pubkey
+    recipient_bridge_token_account: Pubkey
     tmp_token_account: Pubkey
     wormhole_program: Pubkey
     token_bridge_program: Pubkey
@@ -113,7 +113,7 @@ def complete_so_swap_wrapped_with_whirlpool(
             is_writable=True,
         ),
         AccountMeta(
-            pubkey=accounts["recipient_bridge_token_token"],
+            pubkey=accounts["recipient_bridge_token_account"],
             is_signer=False,
             is_writable=True,
         ),
