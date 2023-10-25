@@ -35,11 +35,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 exports.__esModule = true;
 var wormhole_sdk_1 = require("@certusone/wormhole-sdk");
 var web3_js_1 = require("@solana/web3.js");
-var path_1 = require("path");
-var fs_1 = require("fs");
+var path_1 = __importDefault(require("path"));
+var fs_1 = __importDefault(require("fs"));
 // export ANCHOR_PROVIDER_URL=""
 var ANCHOR_PROVIDER_URL = process.env.ANCHOR_PROVIDER_URL;
 var ANCHOR_WALLET = process.env.ANCHOR_WALLET;
@@ -48,7 +51,7 @@ var rawKey = JSON.parse(fs_1["default"].readFileSync(defaultPath, 'utf-8'));
 var keypair = web3_js_1.Keypair.fromSecretKey(Uint8Array.from(rawKey));
 function main(wormhole_program, signed_vaa) {
     return __awaiter(this, void 0, void 0, function () {
-        var local_keypair, rawKey_1, tx;
+        var local_keypair, rawKey_1, resp;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -67,10 +70,12 @@ function main(wormhole_program, signed_vaa) {
                             });
                         }); }, wormhole_program, local_keypair.publicKey.toString(), Buffer.from(signed_vaa, "hex"))];
                 case 1:
-                    tx = _a.sent();
+                    resp = _a.sent();
+                    console.log("LegacyVerifySignatures: ", resp[0].signature);
+                    console.log("LegacyPostVaa:", resp[1].signature);
                     return [2 /*return*/];
             }
         });
     });
 }
-main("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5", "01000000000100b0ebb8232182198b50246f7ba2d2bbcfe2ccb029757bc5261ccc35e4190590d209d9d58ee6a0594e117743baead5bbcfa4bb82f8b13fb3ced1585d12ba4c57b000653795ba0000000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000013ac0f0300000000000000000000000000000000000000000000000000000000000f42403b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea70001dc3779efc394bf8f4ddc09c41bad9f8aae8345431d4b17a20b99c9ac209c2a80000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc010102deac20493294b88e30b66848a5977de2a6a10001e8031bdd3682a07005e6674b7d69cc2038e121709ad96bd37a2f87022932336e9a290f62aef3d41dae00b1547c6f1938203b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea7");
+main(process.argv[2], process.argv[3]);

@@ -17,6 +17,11 @@ anchorpy client-gen target/idl/omniswap.json scripts/omniswap --program-id Fpdku
 tsc scripts/test_dex/get_test_usdc_quote_config.ts --esModuleInterop  --skipLibCheck
 ```
 
+## compile postvaa.ts
+```bash
+tsc scripts/test_dex/postvaa.ts --esModuleInterop  --skipLibCheck
+```
+
 ## extand address-lookup-table
 (test_usdc_pool)
 ```bash
