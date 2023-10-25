@@ -2,7 +2,7 @@ use anchor_lang::{prelude::*, solana_program::account_info::AccountInfo};
 use anchor_spl::token::TokenAccount;
 
 use crate::{
-	cross::{NormalizedSoData, NormalizedSwapData},
+	cross::NormalizedSwapData,
 	dex::swap_whirlpool_cpi::{
 		get_default_price_limit, orca_whirlpool_swap_cpi, parse_whirlpool_call_data,
 		OrcaWhirlpoolSwap,
@@ -31,11 +31,9 @@ pub trait SoSwapWithWhirlpool<'info> {
 pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 	ctx: &S,
 	parsed_swap_data: &NormalizedSwapData,
-	parsed_so_data: &NormalizedSoData,
 ) -> Result<bool> {
 	// sending_asset -> receiving_asset
 	assert!(parsed_swap_data.from_amount < u64::MAX.into(), "swap.amount >= u64.max");
-	assert_eq!(parsed_swap_data.from_amount, parsed_so_data.amount, "swap.amount != so.amount");
 	assert_eq!(
 		Pubkey::try_from(parsed_swap_data.call_to.clone()).unwrap(),
 		S::whirlpool(ctx).key.clone(),

@@ -311,7 +311,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	let mut swap_data = so_msg.normalized_swap_data.first().unwrap().clone();
 	swap_data.reset_from_amount(U256::from(bridge_amount));
 
-	if let Ok(a_to_b) = swap_by_whirlpool(&ctx, &swap_data, &so_msg.normalized_so_data) {
+	if let Ok(a_to_b) = swap_by_whirlpool(&ctx, &swap_data) {
 		// 3. swap ok, send receiving token: proxy_a_or_b => recipient
 		let (other_proxy_recipient_account, amount) = if a_to_b {
 			let token_value_b_before = ctx.accounts.whirlpool_token_owner_account_b.amount;

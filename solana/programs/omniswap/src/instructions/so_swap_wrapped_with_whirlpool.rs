@@ -310,7 +310,7 @@ pub fn handler(
 
 	assert_eq!(parsed_swap_data_src.len(), 1, "must be one swap");
 	let swap_data = parsed_swap_data_src.first().unwrap();
-	let a_to_b = swap_by_whirlpool(&ctx, swap_data, &parsed_so_data)?;
+	let a_to_b = swap_by_whirlpool(&ctx, swap_data)?;
 
 	let amount = if a_to_b {
 		let token_value_b_before = ctx.accounts.whirlpool_token_owner_account_b.amount;
