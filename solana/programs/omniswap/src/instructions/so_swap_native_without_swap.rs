@@ -17,8 +17,6 @@ use crate::{
 
 #[derive(Accounts)]
 #[instruction(
-	amount: u64,
-	wormhole_data: Vec<u8>,
 	so_data: Vec<u8>,
 )]
 pub struct SoSwapNativeWithoutSwap<'info> {
@@ -199,11 +197,20 @@ pub struct SoSwapNativeWithoutSwap<'info> {
 
 pub fn handler(
 	ctx: Context<SoSwapNativeWithoutSwap>,
-	amount: u64,
-	wormhole_data: Vec<u8>,
 	so_data: Vec<u8>,
+	swap_data_src: Vec<u8>,
+	wormhole_data: Vec<u8>,
 	swap_data_dst: Vec<u8>,
 ) -> Result<()> {
+	let parsed_wormhole_data =
+		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
+	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
+	let parsed_swap_data_src = NormalizedSwapData::decode_normalized_swap_data(&swap_data_src)?;
+	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
+
+	assert!(parsed_swap_data_src.is_empty(), "must be empty");
+	let amount = parsed_so_data.amount.as_u64();
+
 	// Token Bridge program truncates amounts to 8 decimals, so there will
 	// be a residual amount if decimals of SPL is >8. We need to take into
 	// account how much will actually be bridged.
@@ -212,11 +219,6 @@ pub fn handler(
 	if truncated_amount != amount {
 		msg!("SendNativeTokensWithPayload :: truncating amount {} to {}", amount, truncated_amount);
 	}
-
-	let parsed_wormhole_data =
-		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
-	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
-	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
 
 	let recipient_chain = check_parameters(&ctx, &parsed_wormhole_data)?;
 

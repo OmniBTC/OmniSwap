@@ -173,13 +173,10 @@ pub fn handler(
 	// is redeemed again. But we choose to short-circuit the failure as the
 	// first evaluation of this instruction.
 	require!(ctx.accounts.token_bridge_claim.data_is_empty(), SoSwapError::AlreadyRedeemed);
+	require!(ctx.accounts.payer.key() == ctx.accounts.config.proxy, SoSwapError::InvalidProxy);
 
-	if ctx.accounts.payer.key() == ctx.accounts.config.proxy {
-		if skip_verify_soswap_message {
-			return complete_transfer(&ctx, false)
-		} else {
-			return complete_transfer(&ctx, true)
-		}
+	if skip_verify_soswap_message {
+		return complete_transfer(&ctx, false)
 	}
 
 	// The intended recipient must agree with the recipient.
@@ -233,36 +230,11 @@ fn complete_transfer(
 	let so_fee =
 		(((amount as u128) * (ctx.accounts.fee_config.so_fee) as u128) / (RAY as u128)) as u64;
 
+	let mut tx_id = "".to_string();
+	let mut status = 2u32;
 	if require_so_fee {
-		let tx_sender = ctx.accounts.payer.key;
-		let so_receiver = Pubkey::try_from(
-			ctx.accounts.vaa.data().message().normalized_so_data.receiver.as_slice(),
-		)
-		.map_err(|_| SoSwapError::DeserializeSoSwapMessageFail)?;
-		let token = Pubkey::try_from(
-			ctx.accounts
-				.vaa
-				.data()
-				.message()
-				.normalized_so_data
-				.receiving_asset_id
-				.as_slice(),
-		)
-		.map_err(|_| SoSwapError::DeserializeSoSwapMessageFail)?;
 		let transaction_id =
 			bytes_to_hex(&ctx.accounts.vaa.data().message().normalized_so_data.transaction_id);
-
-		msg!(
-			"[OriginEvnet]: tx_sender={}, so_receiver={}, token={}, amount={}",
-			tx_sender,
-			so_receiver,
-			token,
-			amount
-		);
-
-		if ctx.accounts.payer.key() == ctx.accounts.config.proxy {
-			msg!("[Proxy] proxy={}", ctx.accounts.recipient_token_account.owner);
-		}
 
 		let actual_fee = if so_fee <= amount {
 			// Transfer tokens so_fee from tmp_token_account to beneficiary.
@@ -284,19 +256,21 @@ fn complete_transfer(
 			0
 		};
 
+		msg!("[DstAmount] so_fee={}, bridge_amount={}", actual_fee, amount);
+
 		amount -= actual_fee;
 
-		msg!(
-			"[SoTransferCompleted] transaction_id={}, actual_receiving_amount={}",
-			transaction_id,
-			amount
-		);
-
-		msg!("[DstAmount] so_fee={}", actual_fee);
-	} else {
-		let receiver = ctx.accounts.recipient_token_account.owner;
-		msg!("[Proxy] recipient={}, actual_receiving_amount={}", receiver, amount)
+		tx_id = transaction_id;
+		status = 0;
 	}
+
+	msg!(
+		"SoTransferCompleted: status={}, receive_amount={}, receive_token={}, transaction_id={}",
+		status,
+		amount,
+		ctx.accounts.recipient_token_account.mint.to_string(),
+		tx_id,
+	);
 
 	// Transfer the other tokens from tmp_token_account to recipient.
 	anchor_spl::token::transfer(

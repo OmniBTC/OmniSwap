@@ -18,8 +18,6 @@ use crate::{
 
 #[derive(Accounts)]
 #[instruction(
-	wormhole_data: Vec<u8>,
-	swap_data_src: Vec<u8>,
 	so_data: Vec<u8>,
 )]
 pub struct SoSwapNativeWithWhirlpool<'info> {
@@ -292,9 +290,9 @@ impl<'info> SoSwapWithWhirlpool<'info>
 
 pub fn handler(
 	ctx: Context<SoSwapNativeWithWhirlpool>,
-	wormhole_data: Vec<u8>,
-	swap_data_src: Vec<u8>,
 	so_data: Vec<u8>,
+	swap_data_src: Vec<u8>,
+	wormhole_data: Vec<u8>,
 	swap_data_dst: Vec<u8>,
 ) -> Result<()> {
 	let parsed_wormhole_data =
@@ -303,7 +301,9 @@ pub fn handler(
 	let parsed_swap_data_src = NormalizedSwapData::decode_normalized_swap_data(&swap_data_src)?;
 	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
 
-	let a_to_b = swap_by_whirlpool(&ctx, &parsed_swap_data_src, &parsed_so_data)?;
+	assert_eq!(parsed_swap_data_src.len(), 1, "must be one swap");
+	let swap_data = parsed_swap_data_src.first().unwrap();
+	let a_to_b = swap_by_whirlpool(&ctx, swap_data, &parsed_so_data)?;
 
 	let amount = if a_to_b {
 		let token_value_b_before = ctx.accounts.whirlpool_token_owner_account_b.amount;

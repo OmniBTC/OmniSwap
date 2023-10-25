@@ -3,6 +3,7 @@ use anchor_spl::{
 	associated_token::AssociatedToken,
 	token::{Mint, Token, TokenAccount},
 };
+use spl_math::uint::U256;
 use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use super::swap_whirlpool::{check_a_to_b, swap_by_whirlpool, SoSwapWithWhirlpool};
@@ -302,13 +303,15 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	);
 
 	// 1. redeem bridge token: tmp_account => proxy_a_or_b
-	let bridge_amount = complete_redeem(&ctx)?;
+	let (bridge_amount, tx_id) = complete_redeem(&ctx)?;
 
 	// 2. swap bridge token to receiving token: proxy_a <=> proxy_b
 	let so_msg = ctx.accounts.vaa.data().data();
-	if let Ok(a_to_b) =
-		swap_by_whirlpool(&ctx, &so_msg.normalized_swap_data, &so_msg.normalized_so_data)
-	{
+	assert_eq!(so_msg.normalized_swap_data.len(), 1, "must be one swap");
+	let mut swap_data = so_msg.normalized_swap_data.first().unwrap().clone();
+	swap_data.reset_from_amount(U256::from(bridge_amount));
+
+	if let Ok(a_to_b) = swap_by_whirlpool(&ctx, &swap_data, &so_msg.normalized_so_data) {
 		// 3. swap ok, send receiving token: proxy_a_or_b => recipient
 		let (other_proxy_recipient_account, amount) = if a_to_b {
 			let token_value_b_before = ctx.accounts.whirlpool_token_owner_account_b.amount;
@@ -342,7 +345,13 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 			amount,
 		)?;
 
-		msg!("[FinalSwapOk]: final_amount={}", amount);
+		msg!(
+			"SoTransferCompleted: status={}, receive_amount={}, receive_token={}, transaction_id={}",
+			0,
+			amount,
+			ctx.accounts.recipient_token_account.mint.to_string(),
+			tx_id,
+		);
 
 		return Ok(())
 	}
@@ -354,7 +363,13 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 		ctx.accounts.whirlpool_token_owner_account_b.to_account_info()
 	};
 
-	msg!("[FinalSwapFail]: final_amount={}", bridge_amount);
+	msg!(
+		"SoTransferCompleted: status={}, receive_amount={}, receive_token={}, transaction_id={}",
+		1,
+		bridge_amount,
+		ctx.accounts.recipient_bridge_token_account.mint.to_string(),
+		tx_id,
+	);
 
 	anchor_spl::token::transfer(
 		CpiContext::new(
@@ -369,7 +384,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	)
 }
 
-fn complete_redeem(ctx: &Context<CompleteSoSwapNativeWithWhirlpool>) -> Result<u64> {
+fn complete_redeem(ctx: &Context<CompleteSoSwapNativeWithWhirlpool>) -> Result<(u64, String)> {
 	// These seeds are used to:
 	// 1.  Redeem Token Bridge program's complete_transfer_native_with_payload.
 	// 2.  Transfer tokens to recipient.
@@ -406,30 +421,8 @@ fn complete_redeem(ctx: &Context<CompleteSoSwapNativeWithWhirlpool>) -> Result<u
 	let so_fee =
 		(((amount as u128) * (ctx.accounts.fee_config.so_fee) as u128) / (RAY as u128)) as u64;
 
-	let tx_sender = ctx.accounts.payer.key;
-	let so_receiver =
-		Pubkey::try_from(ctx.accounts.vaa.data().message().normalized_so_data.receiver.as_slice())
-			.map_err(|_| SoSwapError::DeserializeSoSwapMessageFail)?;
-	let token = Pubkey::try_from(
-		ctx.accounts
-			.vaa
-			.data()
-			.message()
-			.normalized_so_data
-			.receiving_asset_id
-			.as_slice(),
-	)
-	.map_err(|_| SoSwapError::DeserializeSoSwapMessageFail)?;
 	let transaction_id =
 		bytes_to_hex(&ctx.accounts.vaa.data().message().normalized_so_data.transaction_id);
-
-	msg!(
-		"[OriginEvnet]: tx_sender={}, so_receiver={}, token={}, amount={}",
-		tx_sender,
-		so_receiver,
-		token,
-		amount
-	);
 
 	let actual_fee = if so_fee <= amount {
 		// Transfer tokens so_fee from tmp_token_account to beneficiary.
@@ -451,15 +444,9 @@ fn complete_redeem(ctx: &Context<CompleteSoSwapNativeWithWhirlpool>) -> Result<u
 		0
 	};
 
+	msg!("[DstAmount] so_fee={}, bridge_amount={}", actual_fee, amount);
+
 	amount -= actual_fee;
-
-	msg!(
-		"[SoTransferCompleted] transaction_id={}, actual_receiving_amount={}",
-		transaction_id,
-		amount
-	);
-
-	msg!("[DstAmount] so_fee={}", actual_fee);
 
 	// Transfer the other tokens from tmp_token_account to proxy recipient.
 	let proxy_recipient_account = if check_a_to_b(ctx)? {
@@ -492,5 +479,5 @@ fn complete_redeem(ctx: &Context<CompleteSoSwapNativeWithWhirlpool>) -> Result<u
 		&[&config_seeds[..]],
 	))?;
 
-	Ok(amount)
+	Ok((amount, transaction_id))
 }

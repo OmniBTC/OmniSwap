@@ -226,6 +226,10 @@ impl NormalizedSwapData {
 
 		Ok(swap_data)
 	}
+
+	pub fn reset_from_amount(&mut self, from_amount: U256) {
+		self.from_amount = from_amount
+	}
 }
 
 impl NormalizedWormholeData {

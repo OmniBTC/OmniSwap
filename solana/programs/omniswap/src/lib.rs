@@ -110,16 +110,16 @@ pub mod omniswap {
 
 	pub fn so_swap_native_without_swap(
 		ctx: Context<SoSwapNativeWithoutSwap>,
-		amount: u64,
-		wormhole_data: Vec<u8>,
 		so_data: Vec<u8>,
+		swap_data_src: Vec<u8>,
+		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
 	) -> Result<()> {
 		instructions::so_swap_native_without_swap::handler(
 			ctx,
-			amount,
-			wormhole_data,
 			so_data,
+			swap_data_src,
+			wormhole_data,
 			swap_data_dst,
 		)
 	}
@@ -138,16 +138,16 @@ pub mod omniswap {
 
 	pub fn so_swap_wrapped_without_swap(
 		ctx: Context<SoSwapWrappedWithoutSwap>,
-		amount: u64,
-		wormhole_data: Vec<u8>,
 		so_data: Vec<u8>,
+		swap_data_src: Vec<u8>,
+		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
 	) -> Result<()> {
 		instructions::so_swap_wrapped_without_swap::handler(
 			ctx,
-			amount,
-			wormhole_data,
 			so_data,
+			swap_data_src,
+			wormhole_data,
 			swap_data_dst,
 		)
 	}
@@ -182,32 +182,32 @@ pub mod omniswap {
 
 	pub fn so_swap_native_with_whirlpool(
 		ctx: Context<SoSwapNativeWithWhirlpool>,
-		wormhole_data: Vec<u8>,
-		swap_data_src: Vec<u8>,
 		so_data: Vec<u8>,
+		swap_data_src: Vec<u8>,
+		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
 	) -> Result<()> {
 		instructions::so_swap_native_with_whirlpool::handler(
 			ctx,
-			wormhole_data,
-			swap_data_src,
 			so_data,
+			swap_data_src,
+			wormhole_data,
 			swap_data_dst,
 		)
 	}
 
 	pub fn so_swap_wrapped_with_whirlpool(
 		ctx: Context<SoSwapWrappedWithWhirlpool>,
-		wormhole_data: Vec<u8>,
-		swap_data_src: Vec<u8>,
 		so_data: Vec<u8>,
+		swap_data_src: Vec<u8>,
+		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
 	) -> Result<()> {
 		instructions::so_swap_wrapped_with_whirlpool::handler(
 			ctx,
-			wormhole_data,
-			swap_data_src,
 			so_data,
+			swap_data_src,
+			wormhole_data,
 			swap_data_dst,
 		)
 	}

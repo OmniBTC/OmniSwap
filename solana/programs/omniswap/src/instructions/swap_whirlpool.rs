@@ -30,22 +30,19 @@ pub trait SoSwapWithWhirlpool<'info> {
 
 pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 	ctx: &S,
-	parsed_swap_data: &Vec<NormalizedSwapData>,
+	parsed_swap_data: &NormalizedSwapData,
 	parsed_so_data: &NormalizedSoData,
 ) -> Result<bool> {
-	assert_eq!(parsed_swap_data.len(), 1, "Only support one swap");
-	let swap_data = parsed_swap_data.first().unwrap();
-
 	// sending_asset -> receiving_asset
-	assert!(swap_data.from_amount < u64::MAX.into(), "swap.amount >= u64.max");
-	assert_eq!(swap_data.from_amount, parsed_so_data.amount, "swap.amount != so.amount");
+	assert!(parsed_swap_data.from_amount < u64::MAX.into(), "swap.amount >= u64.max");
+	assert_eq!(parsed_swap_data.from_amount, parsed_so_data.amount, "swap.amount != so.amount");
 	assert_eq!(
-		Pubkey::try_from(swap_data.call_to.clone()).unwrap(),
+		Pubkey::try_from(parsed_swap_data.call_to.clone()).unwrap(),
 		S::whirlpool(ctx).key.clone(),
 		"swap.call != whirlpool_pda"
 	);
 
-	let min_amount_out = parse_whirlpool_call_data(&swap_data.call_data)?;
+	let min_amount_out = parse_whirlpool_call_data(&parsed_swap_data.call_data)?;
 
 	let a_to_b = check_a_to_b::<S>(ctx)?;
 
@@ -66,7 +63,7 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 				oracle: S::oracle(ctx),
 			},
 		),
-		swap_data.from_amount.as_u64(),
+		parsed_swap_data.from_amount.as_u64(),
 		min_amount_out,
 		get_default_price_limit(a_to_b),
 		true,
