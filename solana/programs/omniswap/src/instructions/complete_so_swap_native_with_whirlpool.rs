@@ -339,7 +339,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 				anchor_spl::token::Transfer {
 					from: other_proxy_recipient_account,
 					to: ctx.accounts.recipient_token_account.to_account_info(),
-					authority: ctx.accounts.config.to_account_info(),
+					authority: ctx.accounts.payer.to_account_info(),
 				},
 			),
 			amount,
@@ -377,7 +377,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 			anchor_spl::token::Transfer {
 				from: proxy_recipient_account,
 				to: ctx.accounts.recipient_bridge_token_account.to_account_info(),
-				authority: ctx.accounts.config.to_account_info(),
+				authority: ctx.accounts.payer.to_account_info(),
 			},
 		),
 		bridge_amount,
