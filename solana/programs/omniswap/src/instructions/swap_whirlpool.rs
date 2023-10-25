@@ -40,13 +40,9 @@ pub fn swap_by_whirlpool<'info, S: SoSwapWithWhirlpool<'info>>(
 	assert!(swap_data.from_amount < u64::MAX.into(), "swap.amount >= u64.max");
 	assert_eq!(swap_data.from_amount, parsed_so_data.amount, "swap.amount != so.amount");
 	assert_eq!(
-		swap_data.sending_asset_id, parsed_so_data.sending_asset_id,
-		"swap.sending != so_sending"
-	);
-	assert_eq!(
 		Pubkey::try_from(swap_data.call_to.clone()).unwrap(),
-		S::whirlpool_program(ctx).key.clone(),
-		"swap.call != whirlpool_program"
+		S::whirlpool(ctx).key.clone(),
+		"swap.call != whirlpool_pda"
 	);
 
 	let min_amount_out = parse_whirlpool_call_data(&swap_data.call_data)?;

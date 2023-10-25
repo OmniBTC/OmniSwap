@@ -123,11 +123,11 @@ pub struct CompleteSoSwapNativeWithWhirlpool<'info> {
 
 	#[account(
 		mut,
-		constraint = recipient_token_account.mint == mint.key(),
+		constraint = recipient_bridge_token_account.mint == mint.key(),
 	)]
 	/// Recipient associated token account.
 	/// If swap failed, transfer the bridge token to this account
-	pub recipient_bridge_token_token: Box<Account<'info, TokenAccount>>,
+	pub recipient_bridge_token_account: Box<Account<'info, TokenAccount>>,
 
 	#[account(
 		init,
@@ -297,7 +297,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 		SoSwapError::InvalidRecipient
 	);
 	require!(
-		ctx.accounts.recipient_bridge_token_token.owner.to_bytes() == soswap_message.recipient(),
+		ctx.accounts.recipient_bridge_token_account.owner.to_bytes() == soswap_message.recipient(),
 		SoSwapError::InvalidRecipient
 	);
 
@@ -361,7 +361,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 			ctx.accounts.token_program.to_account_info(),
 			anchor_spl::token::Transfer {
 				from: proxy_recipient_account,
-				to: ctx.accounts.recipient_bridge_token_token.to_account_info(),
+				to: ctx.accounts.recipient_bridge_token_account.to_account_info(),
 				authority: ctx.accounts.config.to_account_info(),
 			},
 		),
