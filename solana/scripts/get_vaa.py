@@ -44,8 +44,8 @@ def get_bsc_signed_vaa(sequence: str):
 
 if __name__ == "__main__":
     # print(get_sui_signed_vaa("126"))
-    vaa = get_solana_signed_vaa("25578")
-    # vaa = get_bsc_signed_vaa("5010")
+    # vaa = get_solana_signed_vaa("25578")
+    vaa = get_bsc_signed_vaa("5036")
 
     p1, p2, p3 = parseTransferWithPayloadVaa(vaa)
     print(p1, p2, p3)

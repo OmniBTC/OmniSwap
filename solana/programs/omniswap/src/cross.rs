@@ -43,7 +43,7 @@ pub struct NormalizedWormholeData {
 	pub dst_wormhole_chain_id: u16,
 	// gas price of the target chain
 	pub dst_max_gas_price_in_wei_for_relayer: U256,
-	// payment required for aptos coin
+	// payment required for SOL
 	pub wormhole_fee: U256,
 	// destination chain sodiamond address
 	pub dst_so_diamond: Vec<u8>,

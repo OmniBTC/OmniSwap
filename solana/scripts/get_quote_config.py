@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 from solders.pubkey import Pubkey
-from config import get_config, get_payer
+from config import get_config
 
 
 def get_test_usdc_quote_config(token_mint_in: str, ui_amount_in: str, network="devnet"):
