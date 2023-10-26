@@ -901,6 +901,20 @@ networks:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
           token_list: ""
+    bridges:
+      bool:
+        chainid: 8453
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
   mainnet:
     omnibtc_chainid: 2
     chainid: 1
@@ -2173,6 +2187,36 @@ networks:
             - 1101 # zkevm-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
+  linea-main:
+    bridges:
+      bool:
+        chainid: 59144
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+  scroll-main:
+    bridges:
+      bool:
+        chainid: 534352
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 
 wallets:
   from_key: ${PRIVATE_KEY}

@@ -637,7 +637,7 @@ def redeploy_bool():
 
     # 1. deploy bool's lib so fee
 
-    so_fee = 1e-3
+    so_fee = 0
     ray = 1e27
     basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
     basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
