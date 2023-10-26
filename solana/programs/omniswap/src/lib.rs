@@ -193,13 +193,12 @@ pub mod omniswap {
 		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
 	) -> Result<()> {
-
 		instructions::post_request::handler(
 			ctx,
 			so_data,
 			swap_data_src,
 			wormhole_data,
-			swap_data_dst
+			swap_data_dst,
 		)
 	}
 }

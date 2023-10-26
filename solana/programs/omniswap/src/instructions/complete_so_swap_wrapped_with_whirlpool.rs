@@ -360,7 +360,7 @@ pub fn handler(
 		)?;
 
 		msg!(
-			"SoTransferCompleted: status={}, receive_amount={}, receive_token={}, transaction_id={}",
+			"SoTransferCompleted: status={}, amount={}, r_token={}, txid={}",
 			0,
 			amount,
 			ctx.accounts.recipient_token_account.mint.to_string(),

@@ -364,7 +364,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	};
 
 	msg!(
-		"SoTransferCompleted: status={}, receive_amount={}, receive_token={}, transaction_id={}",
+		"SoTransferCompleted: status={}, amount={}, r_token={}, txid={}",
 		1,
 		bridge_amount,
 		ctx.accounts.recipient_bridge_token_account.mint.to_string(),

@@ -34,7 +34,7 @@ pub struct PostRequest<'info> {
             &config.nonce.to_le_bytes()[..]
         ],
         bump,
-        space = 8 + 32 + 32 + so_data.len() + swap_data_src.len() + wormhole_data.len() + swap_data_dst.len(),
+        space = CrossRequest::MINIMUM_SIZE + so_data.len() + swap_data_src.len() + wormhole_data.len() + swap_data_dst.len(),
     )]
 	pub request: Box<Account<'info, CrossRequest>>,
 
