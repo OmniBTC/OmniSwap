@@ -103,6 +103,19 @@ def deriveTokenTransferMessageKey(
     return program_address
 
 
+def deriveCrossRequestKey(omniswap_program_id: Union[str, Pubkey], sequence: int):
+    if isinstance(omniswap_program_id, str):
+        program_id = Pubkey.from_string(omniswap_program_id)
+    else:
+        program_id = omniswap_program_id
+
+    seed = [b"request"]
+    seed.append(sequence.to_bytes(length=8, byteorder="little", signed=False))
+
+    program_address, _nonce = Pubkey.find_program_address(seed, program_id)
+    return program_address
+
+
 def deriveForeignEndPointKey(
     token_bridge_program_id: str, chain: int, foreign_contract: Pubkey
 ):

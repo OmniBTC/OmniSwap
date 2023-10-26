@@ -181,7 +181,7 @@ def cross_swap_via_wormhole():
     swap_data_dst = []
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x"+b58decode("FpdkugsrDzCn57xeFPo6fwRmsnH7FUdJiDK717p3dico").hex()
+    dst_diamond_address = "0x"+b58decode("5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7").hex()
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
     proxy_diamond = Contract.from_abi(
@@ -217,7 +217,7 @@ def complete_swap_via_wormhole():
         "WormholeFacet", so_diamond, WormholeFacet.abi
     )
 
-    vaa = bytes.fromhex("01000000000100937ad760f2e38c058cd4c13acfdc3b519a39e75b686a4efe9cb18d11d79722424b3e37bfa93ceac88c8b7e0ce32f9dd7071dcfd446f38a52ad620eb244ce2422016538f4000000000000013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca9800000000000063f7200300000000000000000000000000000000000000000000000000000000000f42403b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea7000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc0004dc3779efc394bf8f4ddc09c41bad9f8aae8345431d4b17a20b99c9ac209c2a80030186a0030aed9820c611d92de51219e2c9885175c077492c270368e368c90b1a23880467d218507714caf084133cbdbe27490d3afb0da220a40c32e3071451a3cc54ea30da607974c5d07b8502599801ac08")
+    vaa = bytes.fromhex("010000000001003df1c77c8587f21f343a7009a60359e7bfe03fe3efc2e50429fb8b6e943d010c7195493ccd72e8dc9fbc2deb11d5118d0dc044d376d5745f498e30ebec2efd7301653a54860000000000013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca9800000000000063fb200300000000000000000000000000000000000000000000000000000000000f42403b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea7000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc00043eb54bfb6f363a4b14879f4189fecd37bf35acfc86572f9879f620736ecf3228030186a0030aed9820871d3d794cc6db91bbca5754b3809e021a6b2ec2b8a1b41b7ba9b9b739a8ab5714caf084133cbdbe27490d3afb0da220a40c32e3071451a3cc54ea30da607974c5d07b8502599801ac08")
 
     proxy_diamond.completeSoSwap(vaa, {"from": get_account()})
 
@@ -274,7 +274,7 @@ def cross_swap_via_wormhole_whirlpool():
 
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x"+b58decode("FpdkugsrDzCn57xeFPo6fwRmsnH7FUdJiDK717p3dico").hex()
+    dst_diamond_address = "0x"+b58decode("5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7").hex()
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
     proxy_diamond = Contract.from_abi(
@@ -302,6 +302,6 @@ def cross_swap_via_wormhole_whirlpool():
     )
 
 def main():
-    # complete_swap_via_wormhole()
+    complete_swap_via_wormhole()
     # cross_swap_via_wormhole()
-    cross_swap_via_wormhole_whirlpool()
+    # cross_swap_via_wormhole_whirlpool()

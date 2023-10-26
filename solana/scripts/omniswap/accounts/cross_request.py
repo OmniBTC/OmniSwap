@@ -9,30 +9,37 @@ from anchorpy.error import AccountInvalidDiscriminator
 from anchorpy.utils.rpc import get_multiple_accounts
 from anchorpy.borsh_extension import BorshPubkey
 from ..program_id import PROGRAM_ID
-from .. import types
 
 
-class SenderConfigJSON(typing.TypedDict):
+class CrossRequestJSON(typing.TypedDict):
     owner: str
-    bump: int
-    token_bridge: types.outbound_token_bridge_addresses.OutboundTokenBridgeAddressesJSON
+    payer: str
     nonce: int
+    so_data: list[int]
+    swap_data_src: list[int]
+    wormhole_data: list[int]
+    swap_data_dst: list[int]
 
 
 @dataclass
-class SenderConfig:
-    discriminator: typing.ClassVar = b"\x00\xf1\xdcM\xa7\x80O\x98"
+class CrossRequest:
+    discriminator: typing.ClassVar = b"\xa7VdD\xb78<\x1d"
     layout: typing.ClassVar = borsh.CStruct(
         "owner" / BorshPubkey,
-        "bump" / borsh.U8,
-        "token_bridge"
-        / types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.layout,
+        "payer" / BorshPubkey,
         "nonce" / borsh.U64,
+        "so_data" / borsh.Bytes,
+        "swap_data_src" / borsh.Bytes,
+        "wormhole_data" / borsh.Bytes,
+        "swap_data_dst" / borsh.Bytes,
     )
     owner: Pubkey
-    bump: int
-    token_bridge: types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses
+    payer: Pubkey
     nonce: int
+    so_data: bytes
+    swap_data_src: bytes
+    wormhole_data: bytes
+    swap_data_dst: bytes
 
     @classmethod
     async def fetch(
@@ -41,7 +48,7 @@ class SenderConfig:
         address: Pubkey,
         commitment: typing.Optional[Commitment] = None,
         program_id: Pubkey = PROGRAM_ID,
-    ) -> typing.Optional["SenderConfig"]:
+    ) -> typing.Optional["CrossRequest"]:
         resp = await conn.get_account_info(address, commitment=commitment)
         info = resp.value
         if info is None:
@@ -58,9 +65,9 @@ class SenderConfig:
         addresses: list[Pubkey],
         commitment: typing.Optional[Commitment] = None,
         program_id: Pubkey = PROGRAM_ID,
-    ) -> typing.List[typing.Optional["SenderConfig"]]:
+    ) -> typing.List[typing.Optional["CrossRequest"]]:
         infos = await get_multiple_accounts(conn, addresses, commitment=commitment)
-        res: typing.List[typing.Optional["SenderConfig"]] = []
+        res: typing.List[typing.Optional["CrossRequest"]] = []
         for info in infos:
             if info is None:
                 res.append(None)
@@ -71,36 +78,41 @@ class SenderConfig:
         return res
 
     @classmethod
-    def decode(cls, data: bytes) -> "SenderConfig":
+    def decode(cls, data: bytes) -> "CrossRequest":
         if data[:ACCOUNT_DISCRIMINATOR_SIZE] != cls.discriminator:
             raise AccountInvalidDiscriminator(
                 "The discriminator for this account is invalid"
             )
-        dec = SenderConfig.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
+        dec = CrossRequest.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
         return cls(
             owner=dec.owner,
-            bump=dec.bump,
-            token_bridge=types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.from_decoded(
-                dec.token_bridge
-            ),
+            payer=dec.payer,
             nonce=dec.nonce,
+            so_data=dec.so_data,
+            swap_data_src=dec.swap_data_src,
+            wormhole_data=dec.wormhole_data,
+            swap_data_dst=dec.swap_data_dst,
         )
 
-    def to_json(self) -> SenderConfigJSON:
+    def to_json(self) -> CrossRequestJSON:
         return {
             "owner": str(self.owner),
-            "bump": self.bump,
-            "token_bridge": self.token_bridge.to_json(),
+            "payer": str(self.payer),
             "nonce": self.nonce,
+            "so_data": list(self.so_data),
+            "swap_data_src": list(self.swap_data_src),
+            "wormhole_data": list(self.wormhole_data),
+            "swap_data_dst": list(self.swap_data_dst),
         }
 
     @classmethod
-    def from_json(cls, obj: SenderConfigJSON) -> "SenderConfig":
+    def from_json(cls, obj: CrossRequestJSON) -> "CrossRequest":
         return cls(
             owner=Pubkey.from_string(obj["owner"]),
-            bump=obj["bump"],
-            token_bridge=types.outbound_token_bridge_addresses.OutboundTokenBridgeAddresses.from_json(
-                obj["token_bridge"]
-            ),
+            payer=Pubkey.from_string(obj["payer"]),
             nonce=obj["nonce"],
+            so_data=bytes(obj["so_data"]),
+            swap_data_src=bytes(obj["swap_data_src"]),
+            wormhole_data=bytes(obj["wormhole_data"]),
+            swap_data_dst=bytes(obj["swap_data_dst"]),
         )

@@ -5,27 +5,12 @@ from solders.system_program import ID as SYS_PROGRAM_ID
 from solders.sysvar import RENT, CLOCK
 from spl.token.constants import TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID
 from solders.instruction import Instruction, AccountMeta
-import borsh_construct as borsh
 from ..program_id import PROGRAM_ID
-
-
-class SoSwapWrappedWithWhirlpoolArgs(typing.TypedDict):
-    so_data: bytes
-    swap_data_src: bytes
-    wormhole_data: bytes
-    swap_data_dst: bytes
-
-
-layout = borsh.CStruct(
-    "so_data" / borsh.Bytes,
-    "swap_data_src" / borsh.Bytes,
-    "wormhole_data" / borsh.Bytes,
-    "swap_data_dst" / borsh.Bytes,
-)
 
 
 class SoSwapWrappedWithWhirlpoolAccounts(typing.TypedDict):
     payer: Pubkey
+    request: Pubkey
     config: Pubkey
     fee_config: Pubkey
     price_manager: Pubkey
@@ -56,13 +41,13 @@ class SoSwapWrappedWithWhirlpoolAccounts(typing.TypedDict):
 
 
 def so_swap_wrapped_with_whirlpool(
-    args: SoSwapWrappedWithWhirlpoolArgs,
     accounts: SoSwapWrappedWithWhirlpoolAccounts,
     program_id: Pubkey = PROGRAM_ID,
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> Instruction:
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["payer"], is_signer=True, is_writable=True),
+        AccountMeta(pubkey=accounts["request"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["config"], is_signer=False, is_writable=False),
         AccountMeta(pubkey=accounts["fee_config"], is_signer=False, is_writable=False),
         AccountMeta(
@@ -165,13 +150,6 @@ def so_swap_wrapped_with_whirlpool(
     if remaining_accounts is not None:
         keys += remaining_accounts
     identifier = b"\xba\xfb\x99\x7fA\xdc1\xa4"
-    encoded_args = layout.build(
-        {
-            "so_data": args["so_data"],
-            "swap_data_src": args["swap_data_src"],
-            "wormhole_data": args["wormhole_data"],
-            "swap_data_dst": args["swap_data_dst"],
-        }
-    )
+    encoded_args = b""
     data = identifier + encoded_args
     return Instruction(program_id, data, keys)

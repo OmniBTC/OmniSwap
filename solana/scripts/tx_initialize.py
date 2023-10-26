@@ -194,7 +194,7 @@ async def omniswap_register_foreign_contract(dst_chain: str, network="devnet"):
         dst_chain_config["omniswap_emitter"].replace("0x", "")
     )
     dst_base_gas = dst_chain_config["base_gas"]
-    dst_gas_per_bytes = dst_chain_config["gas_per_bytes"]
+    dst_gas_per_bytes = dst_chain_config["per_byte_gas"]
     price_manager_owner = dst_chain_config["price_manager"]
 
     normalized_dst_base_gas_le = list(int(dst_base_gas).to_bytes(32, "little"))

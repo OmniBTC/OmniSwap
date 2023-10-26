@@ -13,7 +13,6 @@ from .register_foreign_contract import (
 from .set_price_ratio import set_price_ratio, SetPriceRatioArgs, SetPriceRatioAccounts
 from .so_swap_native_without_swap import (
     so_swap_native_without_swap,
-    SoSwapNativeWithoutSwapArgs,
     SoSwapNativeWithoutSwapAccounts,
 )
 from .complete_so_swap_native_without_swap import (
@@ -23,7 +22,6 @@ from .complete_so_swap_native_without_swap import (
 )
 from .so_swap_wrapped_without_swap import (
     so_swap_wrapped_without_swap,
-    SoSwapWrappedWithoutSwapArgs,
     SoSwapWrappedWithoutSwapAccounts,
 )
 from .complete_so_swap_wrapped_without_swap import (
@@ -38,12 +36,10 @@ from .estimate_relayer_fee import (
 )
 from .so_swap_native_with_whirlpool import (
     so_swap_native_with_whirlpool,
-    SoSwapNativeWithWhirlpoolArgs,
     SoSwapNativeWithWhirlpoolAccounts,
 )
 from .so_swap_wrapped_with_whirlpool import (
     so_swap_wrapped_with_whirlpool,
-    SoSwapWrappedWithWhirlpoolArgs,
     SoSwapWrappedWithWhirlpoolAccounts,
 )
 from .complete_so_swap_native_with_whirlpool import (
@@ -60,4 +56,9 @@ from .set_redeem_proxy import (
     set_redeem_proxy,
     SetRedeemProxyArgs,
     SetRedeemProxyAccounts,
+)
+from .so_swap_post_cross_request import (
+    so_swap_post_cross_request,
+    SoSwapPostCrossRequestArgs,
+    SoSwapPostCrossRequestAccounts,
 )

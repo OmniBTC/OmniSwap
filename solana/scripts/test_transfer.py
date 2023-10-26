@@ -24,6 +24,7 @@ from config import get_client, get_payer, get_config
 from cross import WormholeData, SoData, generate_random_bytes32, SwapData
 from custom_simulate import custom_simulate
 from get_quote_config import get_test_usdc_quote_config
+from post_request import post_cross_requset
 
 
 async def omniswap_send_wrapped_token():
@@ -74,30 +75,31 @@ async def omniswap_send_wrapped_token():
     next_seq = current_seq + 1
     wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
 
+    so_data = SoData(
+        transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
+        receiver=recipient_address,
+        sourceChainId=1,
+        sendingAssetId=token_on_solana,
+        destinationChainId=4,
+        receivingAssetId=token_on_bsc,
+        amount=amount,
+    ).encode_normalized()
+
+    wormhole_data = WormholeData(
+        dstWormholeChainId=4,
+        dstMaxGasPriceInWeiForRelayer=100000,
+        wormholeFee=0,
+        dstSoDiamond=dst_so_diamond_padding,
+    ).encode_normalized()
+
+    request_key = await post_cross_requset(
+        so_data=so_data, wormhole_data=wormhole_data, simulate=True
+    )
+
     ix = so_swap_wrapped_without_swap(
-        args={
-            "so_data": SoData(
-                transactionId=bytes.fromhex(
-                    generate_random_bytes32().replace("0x", "")
-                ),
-                receiver=recipient_address,
-                sourceChainId=1,
-                sendingAssetId=token_on_solana,
-                destinationChainId=4,
-                receivingAssetId=token_on_bsc,
-                amount=amount,
-            ).encode_normalized(),
-            "swap_data_src": bytes(),
-            "wormhole_data": WormholeData(
-                dstWormholeChainId=4,
-                dstMaxGasPriceInWeiForRelayer=100000,
-                wormholeFee=0,
-                dstSoDiamond=dst_so_diamond_padding,
-            ).encode_normalized(),
-            "swap_data_dst": bytes(),
-        },
         accounts={
             "payer": payer.pubkey(),
+            "request": request_key,
             "config": send_wrapped_accounts["send_config"],
             "fee_config": send_wrapped_accounts["fee_config"],
             "price_manager": send_wrapped_accounts["price_manager"],
@@ -178,34 +180,37 @@ async def omniswap_send_native_token():
     next_seq = current_seq + 1
     wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
 
+    so_data = SoData(
+        transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
+        receiver=recipient_address,
+        sourceChainId=1,
+        sendingAssetId=usdc_token_on_solana,
+        destinationChainId=4,
+        receivingAssetId=usdc_token_on_bsc,
+        amount=amount,
+    ).encode_normalized()
+
+    wormhole_data = WormholeData(
+        dstWormholeChainId=4,
+        dstMaxGasPriceInWeiForRelayer=100000,
+        wormholeFee=716184,
+        dstSoDiamond=dst_so_diamond_padding,
+    ).encode_normalized()
+
+    request_key = await post_cross_requset(
+        so_data=so_data,
+        wormhole_data=wormhole_data,
+        # simulate=True
+    )
+
     # ExceededMaxInstructions
-    # devnet_limit=200_000, real=212433
+    # devnet_limit=200_000, real=248782
     ix0 = set_compute_unit_limit(300_000)
 
     ix1 = so_swap_native_without_swap(
-        args={
-            "so_data": SoData(
-                transactionId=bytes.fromhex(
-                    generate_random_bytes32().replace("0x", "")
-                ),
-                receiver=recipient_address,
-                sourceChainId=1,
-                sendingAssetId=usdc_token_on_solana,
-                destinationChainId=4,
-                receivingAssetId=usdc_token_on_bsc,
-                amount=amount,
-            ).encode_normalized(),
-            "swap_data_src": bytes(),
-            "wormhole_data": WormholeData(
-                dstWormholeChainId=4,
-                dstMaxGasPriceInWeiForRelayer=100000,
-                wormholeFee=716184,
-                dstSoDiamond=dst_so_diamond_padding,
-            ).encode_normalized(),
-            "swap_data_dst": bytes(),
-        },
         accounts={
             "payer": payer.pubkey(),
+            "request": request_key,
             "config": send_native_accounts["send_config"],
             "fee_config": send_native_accounts["fee_config"],
             "price_manager": send_native_accounts["price_manager"],
@@ -319,50 +324,54 @@ async def omniswap_send_native_token_with_whirlpool():
     next_seq = current_seq + 1
     wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
 
+    so_data = SoData(
+        transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
+        receiver=recipient_address,
+        sourceChainId=1,
+        sendingAssetId=sendingAssetId,
+        destinationChainId=4,
+        receivingAssetId=usdc_token_on_bsc,
+        amount=quote_config["amount_in"],
+    ).encode_normalized()
+
+    swap_data_src = SwapData.encode_normalized(
+        [
+            SwapData(
+                callTo=bytes(quote_config["whirlpool"]),
+                approveTo=bytes(quote_config["whirlpool"]),
+                sendingAssetId=sendingAssetId,
+                receivingAssetId=bytes(Pubkey.from_string(USDC)),
+                fromAmount=quote_config["amount_in"],
+                callData=bytes(f"Whirlpool,{quote_config['min_amount_out']}", "ascii"),
+                swapType="Whirlpool",
+                swapFuncName="swap",
+                swapPath=["TEST", "USDC"],
+            )
+        ]
+    )
+
+    wormhole_data = WormholeData(
+        dstWormholeChainId=4,
+        dstMaxGasPriceInWeiForRelayer=100000,
+        wormholeFee=716184,
+        dstSoDiamond=dst_so_diamond_padding,
+    ).encode_normalized()
+
+    request_key = await post_cross_requset(
+        so_data=so_data,
+        swap_data_src=swap_data_src,
+        wormhole_data=wormhole_data,
+        simulate=True,
+    )
+
     # ExceededMaxInstructions
     # devnet_limit=200_000, real=303924
     ix0 = set_compute_unit_limit(1_200_000)
 
     ix1 = so_swap_native_with_whirlpool(
-        args={
-            "wormhole_data": WormholeData(
-                dstWormholeChainId=4,
-                dstMaxGasPriceInWeiForRelayer=100000,
-                wormholeFee=716184,
-                dstSoDiamond=dst_so_diamond_padding,
-            ).encode_normalized(),
-            "swap_data_src": SwapData.encode_normalized(
-                [
-                    SwapData(
-                        callTo=bytes(quote_config["whirlpool"]),
-                        approveTo=bytes(quote_config["whirlpool"]),
-                        sendingAssetId=sendingAssetId,
-                        receivingAssetId=bytes(Pubkey.from_string(USDC)),
-                        fromAmount=quote_config["amount_in"],
-                        callData=bytes(
-                            f"Whirlpool,{quote_config['min_amount_out']}", "ascii"
-                        ),
-                        swapType="Whirlpool",
-                        swapFuncName="swap",
-                        swapPath=["TEST", "USDC"],
-                    )
-                ]
-            ),
-            "so_data": SoData(
-                transactionId=bytes.fromhex(
-                    generate_random_bytes32().replace("0x", "")
-                ),
-                receiver=recipient_address,
-                sourceChainId=1,
-                sendingAssetId=sendingAssetId,
-                destinationChainId=4,
-                receivingAssetId=usdc_token_on_bsc,
-                amount=quote_config["amount_in"],
-            ).encode_normalized(),
-            "swap_data_dst": bytes(),
-        },
         accounts={
             "payer": payer.pubkey(),
+            "request": request_key,
             "config": send_native_accounts["send_config"],
             "fee_config": send_native_accounts["fee_config"],
             "price_manager": send_native_accounts["price_manager"],
