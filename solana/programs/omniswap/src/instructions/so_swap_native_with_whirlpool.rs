@@ -10,6 +10,7 @@ use super::swap_whirlpool::{swap_by_whirlpool, SoSwapWithWhirlpool};
 use crate::{
 	constants::{RAY, SEED_PREFIX_BRIDGED, SEED_PREFIX_TMP},
 	cross::{NormalizedSoData, NormalizedSwapData, NormalizedWormholeData},
+	cross_request::CrossRequest,
 	error::SoSwapError,
 	message::SoSwapMessage,
 	state::{ForeignContract, PriceManager, SenderConfig, SoFeeConfig},
@@ -17,14 +18,19 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(
-	so_data: Vec<u8>,
-)]
 pub struct SoSwapNativeWithWhirlpool<'info> {
 	/// Payer will pay Wormhole fee to transfer tokens and create temporary
 	/// token account.
 	#[account(mut)]
 	pub payer: Signer<'info>,
+
+	#[account(
+		mut,
+		has_one = payer @ SoSwapError::OwnerOnly,
+		constraint = request.owner == config.key(),
+		close = payer
+	)]
+	pub request: Box<Account<'info, CrossRequest>>,
 
 	// 1. soswap configs
 	#[account(
@@ -45,7 +51,7 @@ pub struct SoSwapNativeWithWhirlpool<'info> {
 	#[account(
 		seeds = [
 			ForeignContract::SEED_PREFIX,
-			&NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..],
+			&request.dst_chain_id()?.to_le_bytes()[..],
 			PriceManager::SEED_PREFIX
 		],
 		bump
@@ -63,7 +69,7 @@ pub struct SoSwapNativeWithWhirlpool<'info> {
 	#[account(
 		seeds = [
 			ForeignContract::SEED_PREFIX,
-			&NormalizedSoData::decode_normalized_so_data(&so_data)?.destination_chain_id.to_le_bytes()[..]
+			&request.dst_chain_id()?.to_le_bytes()[..],
 		],
 		bump,
 	)]
@@ -288,18 +294,16 @@ impl<'info> SoSwapWithWhirlpool<'info>
 	}
 }
 
-pub fn handler(
-	ctx: Context<SoSwapNativeWithWhirlpool>,
-	so_data: Vec<u8>,
-	swap_data_src: Vec<u8>,
-	wormhole_data: Vec<u8>,
-	swap_data_dst: Vec<u8>,
-) -> Result<()> {
-	let parsed_wormhole_data =
-		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
-	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
-	let parsed_swap_data_src = NormalizedSwapData::decode_normalized_swap_data(&swap_data_src)?;
-	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
+pub fn handler(ctx: Context<SoSwapNativeWithWhirlpool>) -> Result<()> {
+	let parsed_wormhole_data = NormalizedWormholeData::decode_normalized_wormhole_data(
+		&ctx.accounts.request.wormhole_data,
+	)?;
+	let parsed_so_data =
+		NormalizedSoData::decode_normalized_so_data(&ctx.accounts.request.so_data)?;
+	let parsed_swap_data_src =
+		NormalizedSwapData::decode_normalized_swap_data(&ctx.accounts.request.swap_data_src)?;
+	let parsed_swap_data_dst =
+		NormalizedSwapData::decode_normalized_swap_data(&ctx.accounts.request.swap_data_dst)?;
 
 	assert_eq!(parsed_swap_data_src.len(), 1, "must be one swap");
 	let swap_data = parsed_swap_data_src.first().unwrap();
@@ -341,17 +345,20 @@ pub fn handler(
 
 	charge_relayer_fee(&ctx, fee)?;
 
-	msg!("[SoTransferStarted]: transaction_id={}", bytes_to_hex(&parsed_so_data.transaction_id));
-
-	let sequence = ctx.accounts.token_bridge_sequence.sequence;
 	msg!(
-		"[TransferFromWormholeEvent]: src_wormhole_chain_id={}, dst_wormhole_chain_id={}, sequence={}",
-		&parsed_so_data.source_chain_id,
+		"[SoTransferStarted]: txid={}, sender={}, amount={}, s_token={}, dst_chain={}, receiver={}, r_token={}",
+		bytes_to_hex(&parsed_so_data.transaction_id),
+		ctx.accounts.payer.key(),
+		parsed_so_data.amount,
+		Pubkey::try_from(parsed_so_data.sending_asset_id.as_slice()).unwrap(),
 		&parsed_so_data.destination_chain_id,
-		sequence
+		bytes_to_hex(&parsed_so_data.receiver),
+		bytes_to_hex(&parsed_so_data.receiving_asset_id)
 	);
 
-	msg!("[SrcAmount] relayer_fee={}, cross_amount={}", fee, truncated_amount);
+	msg!("[SrcAmount] relayer_fee={}, bridge_amount={}", fee, truncated_amount);
+
+	msg!("[wormhole]: sequence={}", ctx.accounts.token_bridge_sequence.sequence);
 
 	publish_transfer(
 		&ctx,

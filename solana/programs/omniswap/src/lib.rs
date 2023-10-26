@@ -19,7 +19,7 @@ pub mod serde;
 pub mod state;
 pub mod utils;
 
-declare_id!("FpdkugsrDzCn57xeFPo6fwRmsnH7FUdJiDK717p3dico");
+declare_id!("5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7");
 
 use instructions::*;
 
@@ -108,20 +108,9 @@ pub mod omniswap {
 		instructions::set_price_ratio::handler(ctx, chain, new_price_ratio)
 	}
 
-	pub fn so_swap_native_without_swap(
-		ctx: Context<SoSwapNativeWithoutSwap>,
-		so_data: Vec<u8>,
-		swap_data_src: Vec<u8>,
-		wormhole_data: Vec<u8>,
-		swap_data_dst: Vec<u8>,
-	) -> Result<()> {
-		instructions::so_swap_native_without_swap::handler(
-			ctx,
-			so_data,
-			swap_data_src,
-			wormhole_data,
-			swap_data_dst,
-		)
+	/// Precondition: request has been posted
+	pub fn so_swap_native_without_swap(ctx: Context<SoSwapNativeWithoutSwap>) -> Result<()> {
+		instructions::so_swap_native_without_swap::handler(ctx)
 	}
 
 	pub fn complete_so_swap_native_without_swap(
@@ -136,20 +125,9 @@ pub mod omniswap {
 		)
 	}
 
-	pub fn so_swap_wrapped_without_swap(
-		ctx: Context<SoSwapWrappedWithoutSwap>,
-		so_data: Vec<u8>,
-		swap_data_src: Vec<u8>,
-		wormhole_data: Vec<u8>,
-		swap_data_dst: Vec<u8>,
-	) -> Result<()> {
-		instructions::so_swap_wrapped_without_swap::handler(
-			ctx,
-			so_data,
-			swap_data_src,
-			wormhole_data,
-			swap_data_dst,
-		)
+	/// Precondition: request has been posted
+	pub fn so_swap_wrapped_without_swap(ctx: Context<SoSwapWrappedWithoutSwap>) -> Result<()> {
+		instructions::so_swap_wrapped_without_swap::handler(ctx)
 	}
 
 	pub fn complete_so_swap_wrapped_without_swap(
@@ -180,36 +158,14 @@ pub mod omniswap {
 		)
 	}
 
-	pub fn so_swap_native_with_whirlpool(
-		ctx: Context<SoSwapNativeWithWhirlpool>,
-		so_data: Vec<u8>,
-		swap_data_src: Vec<u8>,
-		wormhole_data: Vec<u8>,
-		swap_data_dst: Vec<u8>,
-	) -> Result<()> {
-		instructions::so_swap_native_with_whirlpool::handler(
-			ctx,
-			so_data,
-			swap_data_src,
-			wormhole_data,
-			swap_data_dst,
-		)
+	/// Precondition: request has been posted
+	pub fn so_swap_native_with_whirlpool(ctx: Context<SoSwapNativeWithWhirlpool>) -> Result<()> {
+		instructions::so_swap_native_with_whirlpool::handler(ctx)
 	}
 
-	pub fn so_swap_wrapped_with_whirlpool(
-		ctx: Context<SoSwapWrappedWithWhirlpool>,
-		so_data: Vec<u8>,
-		swap_data_src: Vec<u8>,
-		wormhole_data: Vec<u8>,
-		swap_data_dst: Vec<u8>,
-	) -> Result<()> {
-		instructions::so_swap_wrapped_with_whirlpool::handler(
-			ctx,
-			so_data,
-			swap_data_src,
-			wormhole_data,
-			swap_data_dst,
-		)
+	/// Precondition: request has been posted
+	pub fn so_swap_wrapped_with_whirlpool(ctx: Context<SoSwapWrappedWithWhirlpool>) -> Result<()> {
+		instructions::so_swap_wrapped_with_whirlpool::handler(ctx)
 	}
 
 	pub fn complete_so_swap_native_with_whirlpool(
@@ -228,5 +184,22 @@ pub mod omniswap {
 
 	pub fn set_redeem_proxy(ctx: Context<SetRedeemProxy>, new_proxy: Pubkey) -> Result<()> {
 		instructions::set_redeem_proxy::handler(ctx, new_proxy)
+	}
+
+	pub fn so_swap_post_cross_request(
+		ctx: Context<PostRequest>,
+		so_data: Vec<u8>,
+		swap_data_src: Vec<u8>,
+		wormhole_data: Vec<u8>,
+		swap_data_dst: Vec<u8>,
+	) -> Result<()> {
+
+		instructions::post_request::handler(
+			ctx,
+			so_data,
+			swap_data_src,
+			wormhole_data,
+			swap_data_dst
+		)
 	}
 }

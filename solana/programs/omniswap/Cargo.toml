@@ -1,6 +1,6 @@
 [package]
 name = "omniswap"
-version = "0.1.0"
+version = "0.2.0"
 description = "www.omnibtc.finance"
 edition = "2021"
 

@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.devnet]
-omniswap = "FpdkugsrDzCn57xeFPo6fwRmsnH7FUdJiDK717p3dico"
+omniswap = "5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7"
 
 [registry]
 url = "https://api.apr.dev"

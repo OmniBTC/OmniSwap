@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "name": "omniswap",
   "instructions": [
     {
@@ -412,6 +412,9 @@
     },
     {
       "name": "soSwapNativeWithoutSwap",
+      "docs": [
+        "Precondition: request has been posted"
+      ],
       "accounts": [
         {
           "name": "payer",
@@ -421,6 +424,11 @@
             "Payer will pay Wormhole fee to transfer tokens and create temporary",
             "token account."
           ]
+        },
+        {
+          "name": "request",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "config",
@@ -612,24 +620,7 @@
           ]
         }
       ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        },
-        {
-          "name": "wormholeData",
-          "type": "bytes"
-        },
-        {
-          "name": "soData",
-          "type": "bytes"
-        },
-        {
-          "name": "swapDataDst",
-          "type": "bytes"
-        }
-      ]
+      "args": []
     },
     {
       "name": "completeSoSwapNativeWithoutSwap",
@@ -821,6 +812,9 @@
     },
     {
       "name": "soSwapWrappedWithoutSwap",
+      "docs": [
+        "Precondition: request has been posted"
+      ],
       "accounts": [
         {
           "name": "payer",
@@ -830,6 +824,11 @@
             "Payer will pay Wormhole fee to transfer tokens and create temporary",
             "token account."
           ]
+        },
+        {
+          "name": "request",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "config",
@@ -1015,24 +1014,7 @@
           ]
         }
       ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        },
-        {
-          "name": "wormholeData",
-          "type": "bytes"
-        },
-        {
-          "name": "soData",
-          "type": "bytes"
-        },
-        {
-          "name": "swapDataDst",
-          "type": "bytes"
-        }
-      ]
+      "args": []
     },
     {
       "name": "completeSoSwapWrappedWithoutSwap",
@@ -1287,6 +1269,9 @@
     },
     {
       "name": "soSwapNativeWithWhirlpool",
+      "docs": [
+        "Precondition: request has been posted"
+      ],
       "accounts": [
         {
           "name": "payer",
@@ -1296,6 +1281,11 @@
             "Payer will pay Wormhole fee to transfer tokens and create temporary",
             "token account."
           ]
+        },
+        {
+          "name": "request",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "config",
@@ -1537,27 +1527,13 @@
           ]
         }
       ],
-      "args": [
-        {
-          "name": "wormholeData",
-          "type": "bytes"
-        },
-        {
-          "name": "swapDataSrc",
-          "type": "bytes"
-        },
-        {
-          "name": "soData",
-          "type": "bytes"
-        },
-        {
-          "name": "swapDataDst",
-          "type": "bytes"
-        }
-      ]
+      "args": []
     },
     {
       "name": "soSwapWrappedWithWhirlpool",
+      "docs": [
+        "Precondition: request has been posted"
+      ],
       "accounts": [
         {
           "name": "payer",
@@ -1567,6 +1543,11 @@
             "Payer will pay Wormhole fee to transfer tokens and create temporary",
             "token account."
           ]
+        },
+        {
+          "name": "request",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "config",
@@ -1806,24 +1787,7 @@
           ]
         }
       ],
-      "args": [
-        {
-          "name": "wormholeData",
-          "type": "bytes"
-        },
-        {
-          "name": "swapDataSrc",
-          "type": "bytes"
-        },
-        {
-          "name": "soData",
-          "type": "bytes"
-        },
-        {
-          "name": "swapDataDst",
-          "type": "bytes"
-        }
-      ]
+      "args": []
     },
     {
       "name": "completeSoSwapNativeWithWhirlpool",
@@ -1948,7 +1912,7 @@
           ]
         },
         {
-          "name": "recipientBridgeTokenToken",
+          "name": "recipientBridgeTokenAccount",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -2201,7 +2165,7 @@
           ]
         },
         {
-          "name": "recipientBridgeTokenToken",
+          "name": "recipientBridgeTokenAccount",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -2334,9 +2298,133 @@
           }
         }
       ]
+    },
+    {
+      "name": "setRedeemProxy",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Sender Config account."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "newProxy",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "soSwapPostCrossRequest",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The requester"
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Sender Config account"
+          ]
+        },
+        {
+          "name": "request",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "soData",
+          "type": "bytes"
+        },
+        {
+          "name": "swapDataSrc",
+          "type": "bytes"
+        },
+        {
+          "name": "wormholeData",
+          "type": "bytes"
+        },
+        {
+          "name": "swapDataDst",
+          "type": "bytes"
+        }
+      ]
     }
   ],
   "accounts": [
+    {
+      "name": "CrossRequest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "docs": [
+              "The SenderConfig address."
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "payer",
+            "docs": [
+              "The requester."
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "nonce",
+            "docs": [
+              "The SenderConfig nonce."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "soData",
+            "docs": [
+              "The cross data."
+            ],
+            "type": "bytes"
+          },
+          {
+            "name": "swapDataSrc",
+            "type": "bytes"
+          },
+          {
+            "name": "wormholeData",
+            "type": "bytes"
+          },
+          {
+            "name": "swapDataDst",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
     {
       "name": "SoFeeConfig",
       "docs": [
@@ -2536,6 +2624,13 @@
             "type": {
               "defined": "OutboundTokenBridgeAddresses"
             }
+          },
+          {
+            "name": "nonce",
+            "docs": [
+              "Used for cross request."
+            ],
+            "type": "u64"
           }
         ]
       }
