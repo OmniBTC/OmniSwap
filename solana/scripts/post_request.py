@@ -72,10 +72,6 @@ async def post_cross_requset(
         tx_simulate = await client.simulate_transaction(tx)
         assert tx_simulate is not None, "tx_simulate is none"
 
-        return_data = tx_simulate.value.return_data.data
-        total_fee = int.from_bytes(return_data[-8:], "little")
-        print(f"total_fee={total_fee}")
-
         return request_key
 
     tx_sig = await client.send_transaction(tx, payer)
@@ -84,10 +80,6 @@ async def post_cross_requset(
     while True:
         resp = await client.get_transaction(tx_sig.value)
         if resp.value is not None:
-            return_data = resp.value.return_data.data
-            total_fee = int.from_bytes(return_data[-8:], "little")
-            print(f"total_fee={total_fee}")
-
             return request_key
         else:
             print("Transaction not confirmed yet. Waiting...")
