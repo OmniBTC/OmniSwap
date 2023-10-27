@@ -360,7 +360,7 @@ pub fn handler(
 		)?;
 
 		msg!(
-			"SoTransferCompleted: status={}, amount={}, r_token={}, txid={}",
+			"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
 			0,
 			amount,
 			ctx.accounts.recipient_token_account.mint.to_string(),
@@ -378,7 +378,7 @@ pub fn handler(
 	};
 
 	msg!(
-		"SoTransferCompleted: status={}, receive_amount={}, receive_token={}, transaction_id={}",
+		"[SoTransferCompleted]: status={}, receive_amount={}, receive_token={}, transaction_id={}",
 		1,
 		bridge_amount,
 		ctx.accounts.recipient_bridge_token_account.mint.to_string(),

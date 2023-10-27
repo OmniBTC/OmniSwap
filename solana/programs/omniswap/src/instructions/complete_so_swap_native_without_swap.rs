@@ -265,7 +265,7 @@ fn complete_transfer(
 	}
 
 	msg!(
-		"SoTransferCompleted: status={}, amount={}, r_token={}, txid={}",
+		"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
 		status,
 		amount,
 		ctx.accounts.recipient_token_account.mint.to_string(),

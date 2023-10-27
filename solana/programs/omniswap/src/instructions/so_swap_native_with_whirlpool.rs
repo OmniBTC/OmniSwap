@@ -358,7 +358,7 @@ pub fn handler(ctx: Context<SoSwapNativeWithWhirlpool>) -> Result<()> {
 
 	msg!("[SrcAmount] relayer_fee={}, bridge_amount={}", fee, truncated_amount);
 
-	msg!("[wormhole]: sequence={}", ctx.accounts.token_bridge_sequence.sequence);
+	msg!("[Wormhole]: dst_chain={}, sequence={}", recipient_chain, sequence);
 
 	publish_transfer(
 		&ctx,
