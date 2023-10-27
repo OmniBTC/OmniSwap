@@ -2,6 +2,7 @@
 dotenv: .env
 
 devnet:
+  omnibtc_chainid: 30006
   rpc_url: "https://api.devnet.solana.com"
   program:
     SoDiamond: "5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7"
@@ -16,6 +17,7 @@ devnet:
     estimate_reserve: 120000000
     dst_chain:
       bsc-test:
+        omnibtc_chainid: 30003
         chainid: 4
         base_gas: 700000
         per_byte_gas: 68

@@ -146,8 +146,10 @@ async def omniswap_send_native_token():
     token_bridge_program_id = config["program"]["TokenBridge"]
     lookup_table_key = Pubkey.from_string(config["lookup_table"]["key"])
 
-    # bsc-testnet
-    recipient_chain = 4
+    omnibtc_chainid_src = config["omnibtc_chainid"]
+    omnibtc_chainid_dst = config["wormhole"]["dst_chain"]["bsc-test"]["omnibtc_chainid"]
+    wormhole_dst_chain = config["wormhole"]["dst_chain"]["bsc-test"]["chainid"]
+
     usdc_mint = Pubkey.from_string("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU")
     usdc_token_on_solana = bytes(usdc_mint)
     # usdc account
@@ -167,7 +169,7 @@ async def omniswap_send_native_token():
         token_bridge_program_id,
         wormhole_program_id,
         omniswap_program_id,
-        recipient_chain,
+        wormhole_dst_chain,
         usdc_mint,
     )
 
@@ -183,21 +185,22 @@ async def omniswap_send_native_token():
     so_data = SoData(
         transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
         receiver=recipient_address,
-        sourceChainId=1,
+        sourceChainId=omnibtc_chainid_src,
         sendingAssetId=usdc_token_on_solana,
-        destinationChainId=4,
+        destinationChainId=omnibtc_chainid_dst,
         receivingAssetId=usdc_token_on_bsc,
         amount=amount,
     ).encode_normalized()
 
     wormhole_data = WormholeData(
-        dstWormholeChainId=4,
+        dstWormholeChainId=wormhole_dst_chain,
         dstMaxGasPriceInWeiForRelayer=100000,
         wormholeFee=716184,
         dstSoDiamond=dst_so_diamond_padding,
     ).encode_normalized()
 
     request_key = await post_cross_requset(
+        wormhole_dst_chain,
         so_data=so_data,
         wormhole_data=wormhole_data,
         # simulate=True
@@ -279,8 +282,9 @@ async def omniswap_send_native_token_with_whirlpool():
     token_bridge_program_id = config["program"]["TokenBridge"]
     lookup_table_key = Pubkey.from_string(config["lookup_table"]["key"])
 
-    # bsc-testnet
-    recipient_chain = 4
+    omnibtc_chainid_src = config["omnibtc_chainid"]
+    omnibtc_chainid_dst = config["dst_chain"]["bsc-test"]["omnibtc_chainid"]
+    wormhole_dst_chain = config["dst_chain"]["bsc-test"]["chainid"]
 
     # TEST is tokenA
     TEST = "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"
@@ -311,7 +315,7 @@ async def omniswap_send_native_token_with_whirlpool():
         token_bridge_program_id,
         wormhole_program_id,
         omniswap_program_id,
-        recipient_chain,
+        wormhole_dst_chain,
         usdc_mint,
     )
 
@@ -327,9 +331,9 @@ async def omniswap_send_native_token_with_whirlpool():
     so_data = SoData(
         transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
         receiver=recipient_address,
-        sourceChainId=1,
+        sourceChainId=omnibtc_chainid_src,
         sendingAssetId=sendingAssetId,
-        destinationChainId=4,
+        destinationChainId=omnibtc_chainid_dst,
         receivingAssetId=usdc_token_on_bsc,
         amount=quote_config["amount_in"],
     ).encode_normalized()
@@ -351,17 +355,18 @@ async def omniswap_send_native_token_with_whirlpool():
     )
 
     wormhole_data = WormholeData(
-        dstWormholeChainId=4,
+        dstWormholeChainId=wormhole_dst_chain,
         dstMaxGasPriceInWeiForRelayer=100000,
         wormholeFee=716184,
         dstSoDiamond=dst_so_diamond_padding,
     ).encode_normalized()
 
     request_key = await post_cross_requset(
+        wormhole_dst_chain,
         so_data=so_data,
         swap_data_src=swap_data_src,
         wormhole_data=wormhole_data,
-        simulate=True,
+        # simulate=True,
     )
 
     # ExceededMaxInstructions

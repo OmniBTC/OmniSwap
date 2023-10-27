@@ -62,3 +62,7 @@ from .so_swap_post_cross_request import (
     SoSwapPostCrossRequestArgs,
     SoSwapPostCrossRequestAccounts,
 )
+from .so_swap_close_pending_request import (
+    so_swap_close_pending_request,
+    SoSwapClosePendingRequestAccounts,
+)

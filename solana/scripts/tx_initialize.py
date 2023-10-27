@@ -22,6 +22,7 @@ from helper import (
     deriveForeignEndPointKey,
 )
 from config import get_client, get_payer, get_config, get_price_manager
+from omniswap.instructions import so_swap_close_pending_request
 
 
 async def omniswap_initialize(network="devnet"):
@@ -332,3 +333,35 @@ async def omniswap_set_redeem_proxy(new_proxy: str, network="devnet"):
         else:
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds
+
+
+async def close_pending_request(request_key: Pubkey, network="devnet"):
+    client = get_client(network)
+    await client.is_connected()
+
+    payer = get_payer()
+
+    config = get_config(network)
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+
+    redeemer_config_key = deriveRedeemerConfigKey(omniswap_program_id)
+
+    ix = so_swap_close_pending_request(
+        accounts={
+            "payer": payer.pubkey(),
+            "recipient": payer.pubkey(),
+            "config": redeemer_config_key,
+            "request": request_key,
+        },
+    )
+
+    recent_hash = await client.get_latest_blockhash()
+    tx = Transaction(
+        recent_blockhash=recent_hash.value.blockhash, fee_payer=payer.pubkey()
+    ).add(ix)
+
+    tx.sign(payer)
+
+    tx_resp = await client.send_transaction(tx, payer)
+    print(tx_resp.value)

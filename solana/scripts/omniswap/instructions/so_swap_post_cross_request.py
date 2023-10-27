@@ -26,6 +26,10 @@ class SoSwapPostCrossRequestAccounts(typing.TypedDict):
     payer: Pubkey
     config: Pubkey
     request: Pubkey
+    fee_config: Pubkey
+    foreign_contract: Pubkey
+    price_manager: Pubkey
+    wormhole_bridge: Pubkey
 
 
 def so_swap_post_cross_request(
@@ -38,6 +42,16 @@ def so_swap_post_cross_request(
         AccountMeta(pubkey=accounts["payer"], is_signer=True, is_writable=True),
         AccountMeta(pubkey=accounts["config"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["request"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["fee_config"], is_signer=False, is_writable=False),
+        AccountMeta(
+            pubkey=accounts["foreign_contract"], is_signer=False, is_writable=False
+        ),
+        AccountMeta(
+            pubkey=accounts["price_manager"], is_signer=False, is_writable=False
+        ),
+        AccountMeta(
+            pubkey=accounts["wormhole_bridge"], is_signer=False, is_writable=False
+        ),
         AccountMeta(pubkey=SYS_PROGRAM_ID, is_signer=False, is_writable=False),
     ]
     if remaining_accounts is not None:

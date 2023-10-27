@@ -37,7 +37,6 @@ async def omniswap_estimate_relayer_fee(
 
     ix = estimate_relayer_fee(
         args={
-            "chain_id": dst_wormhole_chain_id,
             "so_data": so_data,
             "wormhole_data": wormhole_data,
             "swap_data_dst": swap_data_dst,

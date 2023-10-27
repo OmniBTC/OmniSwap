@@ -10,6 +10,7 @@ from tx_initialize import (
     omniswap_set_price_ratio,
     omniswap_set_wormhole_reserve,
     omniswap_set_redeem_proxy,
+    close_pending_request,
 )
 from cross import SoData, WormholeData, generate_random_bytes32
 
@@ -20,11 +21,11 @@ async def call_omniswap_estimate_relayer_fee():
     so_data = SoData(
         transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
         receiver=bytes.fromhex("cAF084133CBdBE27490d3afB0Da220a40C32E307"),
-        sourceChainId=1,
+        sourceChainId=30006,
         sendingAssetId=bytes(
             Pubkey.from_string("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU")
         ),
-        destinationChainId=4,
+        destinationChainId=30003,
         receivingAssetId=bytes.fromhex("51a3cc54eA30Da607974C5D07B8502599801AC08"),
         amount=1000000,
     )
@@ -49,6 +50,12 @@ async def call_omniswap_estimate_relayer_fee():
     )
 
 
+async def call_close_pending_request():
+    await close_pending_request(
+        Pubkey.from_string("4MbzsGaVkL9v6JXyhgX6Eipd6GQQRSWmDZQPNcHPtGsb")
+    )
+
+
 async def call_initialize_all():
     print("initialize...")
     await omniswap_initialize()
@@ -63,4 +70,4 @@ async def call_initialize_all():
     await omniswap_set_price_ratio("bsc-test", 10_000_000)
 
 
-asyncio.run(call_initialize_all())
+asyncio.run(call_close_pending_request())

@@ -7,14 +7,12 @@ from ..program_id import PROGRAM_ID
 
 
 class EstimateRelayerFeeArgs(typing.TypedDict):
-    chain_id: int
     so_data: bytes
     wormhole_data: bytes
     swap_data_dst: bytes
 
 
 layout = borsh.CStruct(
-    "chain_id" / borsh.U16,
     "so_data" / borsh.Bytes,
     "wormhole_data" / borsh.Bytes,
     "swap_data_dst" / borsh.Bytes,
@@ -51,7 +49,6 @@ def estimate_relayer_fee(
     identifier = b"!\xe9(\x129\xfa:\x85"
     encoded_args = layout.build(
         {
-            "chain_id": args["chain_id"],
             "so_data": args["so_data"],
             "wormhole_data": args["wormhole_data"],
             "swap_data_dst": args["swap_data_dst"],
