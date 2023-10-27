@@ -1,4 +1,5 @@
 #![allow(ambiguous_glob_reexports)]
+pub mod close_pending_request;
 pub mod complete_so_swap_native_with_whirlpool;
 pub mod complete_so_swap_native_without_swap;
 pub mod complete_so_swap_wrapped_with_whirlpool;
@@ -18,6 +19,7 @@ pub mod so_swap_wrapped_with_whirlpool;
 pub mod so_swap_wrapped_without_swap;
 mod swap_whirlpool;
 
+pub use close_pending_request::*;
 pub use complete_so_swap_native_with_whirlpool::*;
 pub use complete_so_swap_native_without_swap::*;
 pub use complete_so_swap_wrapped_with_whirlpool::*;

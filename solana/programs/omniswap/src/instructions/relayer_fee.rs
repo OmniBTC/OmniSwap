@@ -102,3 +102,72 @@ pub fn check_relayer_fee<'info, S: CheckRelayerFee<'info>>(
 
 	Ok((flag, src_fee, consume_value, dst_max_gas))
 }
+
+pub trait EstRelayerFee<'info> {
+	fn fee_config(&self) -> &Account<'info, SoFeeConfig>;
+	fn price_manager(&self) -> &Account<'info, PriceManager>;
+	fn foreign_contract(&self) -> &Account<'info, ForeignContract>;
+	fn wormhole_bridge(&self) -> &Account<'info, BridgeData>;
+
+	fn estimate_fee(
+		&self,
+		parsed_so_data: &NormalizedSoData,
+		parsed_wormhole_data: &NormalizedWormholeData,
+		parsed_swap_data_dst: &Vec<NormalizedSwapData>,
+	) -> Result<(u64, u64, u128)> {
+		let recipient_chain = parsed_wormhole_data.dst_wormhole_chain_id;
+
+		let estimate_reserve = U256::from(self.fee_config().estimate_reserve);
+
+		let ratio = self.price_manager().current_price_ratio;
+
+		let dst_max_gas = self.foreign_contract().estimate_complete_soswap_gas(
+			&NormalizedSoData::encode_normalized_so_data(parsed_so_data),
+			parsed_wormhole_data,
+			&NormalizedSwapData::encode_normalized_swap_data(parsed_swap_data_dst),
+		);
+
+		let dst_fee = parsed_wormhole_data
+			.dst_max_gas_price_in_wei_for_relayer
+			.checked_mul(dst_max_gas)
+			.unwrap();
+
+		let one = U256::from(RAY);
+		let mut src_fee = dst_fee
+			.checked_mul(U256::from(ratio))
+			.unwrap()
+			.checked_div(one)
+			.unwrap()
+			.checked_mul(estimate_reserve)
+			.unwrap()
+			.checked_div(one)
+			.unwrap();
+
+		// Solana decimals = 9
+		if recipient_chain == 22 {
+			// Aptos chain, decimals=8
+			// decimal * 10
+			src_fee = src_fee.checked_mul(10u64.into()).unwrap();
+		} else {
+			// Evm chain, decimals=18
+			// decimal / 1e9
+			src_fee = src_fee.checked_div(1_000_000_000u64.into()).unwrap();
+		};
+
+		let consume_value = self.wormhole_bridge().config.fee;
+
+		let src_fee = src_fee.as_u64();
+
+		require!(dst_max_gas < U256::from(u128::MAX), SoSwapError::UnexpectValue);
+
+		msg!(
+			"[EstimateRelayerFee]: relayer_fee={}, wormhole_fee={}, dst_max_gas={}, dst_chain={}",
+			src_fee,
+			consume_value,
+			dst_max_gas,
+			recipient_chain
+		);
+
+		Ok((src_fee, consume_value, dst_max_gas.as_u128()))
+	}
+}

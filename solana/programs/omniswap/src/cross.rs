@@ -233,6 +233,11 @@ impl NormalizedSwapData {
 }
 
 impl NormalizedWormholeData {
+	pub fn parse_chain_id(data: &[u8]) -> Result<u16, SoSwapError> {
+		let wormdole_data = Self::decode_normalized_wormhole_data(data)?;
+		Ok(wormdole_data.dst_wormhole_chain_id)
+	}
+
 	pub fn encode_normalized_wormhole_data(wormhole_data: &NormalizedWormholeData) -> Vec<u8> {
 		let mut data = Vec::<u8>::new();
 

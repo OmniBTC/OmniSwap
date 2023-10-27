@@ -1,9 +1,13 @@
 use anchor_lang::prelude::*;
+use spl_math::uint::U256;
+use wormhole_anchor_sdk::wormhole;
 
 use crate::{
 	cross::{NormalizedSoData, NormalizedSwapData, NormalizedWormholeData},
 	cross_request::CrossRequest,
+	instructions::relayer_fee::EstRelayerFee,
 	state::SenderConfig,
+	ForeignContract, PriceManager, SoFeeConfig,
 };
 
 #[derive(Accounts)]
@@ -38,8 +42,58 @@ pub struct PostRequest<'info> {
     )]
 	pub request: Box<Account<'info, CrossRequest>>,
 
+	#[account(
+		seeds = [SoFeeConfig::SEED_PREFIX],
+		bump,
+	)]
+	/// SoFee Config account. Read-only.
+	pub fee_config: Box<Account<'info, SoFeeConfig>>,
+
+	#[account(
+		seeds = [
+			ForeignContract::SEED_PREFIX,
+			&NormalizedWormholeData::parse_chain_id(wormhole_data.as_slice())?.to_le_bytes()[..]
+		],
+		bump,
+	)]
+	/// Foreign contract account. Read-only.
+	pub foreign_contract: Box<Account<'info, ForeignContract>>,
+
+	#[account(
+		seeds = [
+			ForeignContract::SEED_PREFIX,
+			&NormalizedWormholeData::parse_chain_id(wormhole_data.as_slice())?.to_le_bytes()[..],
+			PriceManager::SEED_PREFIX
+		],
+		bump
+	)]
+	/// Price Manager account. Read-only.
+	pub price_manager: Box<Account<'info, PriceManager>>,
+
+	/// Wormhole bridge data.
+	/// Query bridge.config.fee
+	pub wormhole_bridge: Box<Account<'info, wormhole::BridgeData>>,
+
 	/// System program.
 	pub system_program: Program<'info, System>,
+}
+
+impl<'info> EstRelayerFee<'info> for Context<'_, '_, '_, '_, PostRequest<'info>> {
+	fn fee_config(&self) -> &Account<'info, SoFeeConfig> {
+		self.accounts.fee_config.as_ref()
+	}
+
+	fn price_manager(&self) -> &Account<'info, PriceManager> {
+		self.accounts.price_manager.as_ref()
+	}
+
+	fn foreign_contract(&self) -> &Account<'info, ForeignContract> {
+		self.accounts.foreign_contract.as_ref()
+	}
+
+	fn wormhole_bridge(&self) -> &Account<'info, wormhole::BridgeData> {
+		self.accounts.wormhole_bridge.as_ref()
+	}
 }
 
 pub fn handler(
@@ -49,11 +103,21 @@ pub fn handler(
 	wormhole_data: Vec<u8>,
 	swap_data_dst: Vec<u8>,
 ) -> Result<()> {
-	let _parsed_wormhole_data =
+	let mut parsed_wormhole_data =
 		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
-	let _parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
+	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
 	let _parsed_swap_data_src = NormalizedSwapData::decode_normalized_swap_data(&swap_data_src)?;
-	let _parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
+	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
+
+	let (relayer_fee, wormhole_fee, _) = EstRelayerFee::estimate_fee(
+		&ctx,
+		&parsed_so_data,
+		&parsed_wormhole_data,
+		&parsed_swap_data_dst,
+	)?;
+
+	// Update total fee
+	parsed_wormhole_data.wormhole_fee = U256::from(relayer_fee.checked_add(wormhole_fee).unwrap());
 
 	let request = &mut ctx.accounts.request;
 

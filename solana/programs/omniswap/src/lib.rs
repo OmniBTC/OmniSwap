@@ -144,18 +144,11 @@ pub mod omniswap {
 
 	pub fn estimate_relayer_fee(
 		ctx: Context<EstimateRelayerFee>,
-		chain_id: u16,
 		so_data: Vec<u8>,
 		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
 	) -> Result<(u64, u64, u128)> {
-		instructions::estimate_relayer_fee::handler(
-			ctx,
-			chain_id,
-			so_data,
-			wormhole_data,
-			swap_data_dst,
-		)
+		instructions::estimate_relayer_fee::handler(ctx, so_data, wormhole_data, swap_data_dst)
 	}
 
 	/// Precondition: request has been posted
@@ -200,5 +193,11 @@ pub mod omniswap {
 			wormhole_data,
 			swap_data_dst,
 		)
+	}
+
+	/// Close the pending cross request.
+	/// The remaining lamports will be refunded to the requester
+	pub fn so_swap_close_pending_request(ctx: Context<CloseRequest>) -> Result<()> {
+		instructions::close_pending_request::handler(ctx)
 	}
 }
