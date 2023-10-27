@@ -1,4 +1,4 @@
-use crate::cross::NormalizedSoData;
+use crate::cross::NormalizedWormholeData;
 use anchor_lang::prelude::*;
 
 #[account]
@@ -29,9 +29,9 @@ impl CrossRequest {
 
 	pub const SEED_PREFIX: &'static [u8; 7] = b"request";
 	pub fn dst_chain_id(&self) -> Result<u16> {
-		let so_data = NormalizedSoData::decode_normalized_so_data(&self.so_data)?;
+		let wormhole_data = NormalizedWormholeData::decode_normalized_wormhole_data(&self.so_data)?;
 
-		Ok(so_data.destination_chain_id)
+		Ok(wormhole_data.dst_wormhole_chain_id)
 	}
 }
 

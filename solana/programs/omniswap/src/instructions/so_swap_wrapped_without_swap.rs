@@ -1,4 +1,4 @@
-use anchor_lang::{prelude::*, system_program::Transfer};
+use anchor_lang::prelude::*;
 use anchor_spl::{
 	associated_token::AssociatedToken,
 	token::{Token, TokenAccount},
@@ -7,10 +7,11 @@ use spl_math::uint::U256;
 use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use crate::{
-	constants::{RAY, SEED_PREFIX_BRIDGED, SEED_PREFIX_TMP},
+	constants::{SEED_PREFIX_BRIDGED, SEED_PREFIX_TMP},
 	cross::{NormalizedSoData, NormalizedSwapData, NormalizedWormholeData},
 	cross_request::CrossRequest,
 	error::SoSwapError,
+	instructions::relayer_fee::{check_relayer_fee, CheckRelayerFee},
 	message::SoSwapMessage,
 	state::{ForeignContract, PriceManager, SenderConfig, SoFeeConfig},
 	utils::bytes_to_hex,
@@ -206,6 +207,36 @@ pub struct SoSwapWrappedWithoutSwap<'info> {
 	pub rent: Sysvar<'info, Rent>,
 }
 
+impl<'info> CheckRelayerFee<'info> for Context<'_, '_, '_, '_, SoSwapWrappedWithoutSwap<'info>> {
+	fn fee_config(&self) -> &Account<'info, SoFeeConfig> {
+		self.accounts.fee_config.as_ref()
+	}
+
+	fn price_manager(&self) -> &Account<'info, PriceManager> {
+		self.accounts.price_manager.as_ref()
+	}
+
+	fn foreign_contract(&self) -> &Account<'info, ForeignContract> {
+		self.accounts.foreign_contract.as_ref()
+	}
+
+	fn wormhole_bridge(&self) -> &Account<'info, wormhole::BridgeData> {
+		self.accounts.wormhole_bridge.as_ref()
+	}
+
+	fn system_program(&self) -> AccountInfo<'info> {
+		self.accounts.system_program.to_account_info()
+	}
+
+	fn fee_collector(&self) -> AccountInfo<'info> {
+		self.accounts.beneficiary_account.to_account_info()
+	}
+
+	fn payer(&self) -> AccountInfo<'info> {
+		self.accounts.payer.to_account_info()
+	}
+}
+
 pub fn handler(ctx: Context<SoSwapWrappedWithoutSwap>) -> Result<()> {
 	let parsed_wormhole_data = NormalizedWormholeData::decode_normalized_wormhole_data(
 		&ctx.accounts.request.wormhole_data,
@@ -221,18 +252,13 @@ pub fn handler(ctx: Context<SoSwapWrappedWithoutSwap>) -> Result<()> {
 	let amount = parsed_so_data.amount.as_u64();
 	require!(amount > 0, SoSwapError::ZeroBridgeAmount);
 
-	let recipient_chain = check_parameters(&ctx, &parsed_wormhole_data)?;
+	let recipient_chain = CheckRelayerFee::check_wormhole_data(&ctx, &parsed_wormhole_data)?;
 
-	let (flag, fee, _consume_value, dst_max_gas) = check_relayer_fee(
-		&ctx,
-		&parsed_wormhole_data,
-		&parsed_so_data,
-		&parsed_swap_data_dst,
-		recipient_chain,
-	)?;
+	let (flag, fee, _consume_value, dst_max_gas) =
+		check_relayer_fee(&ctx, &parsed_wormhole_data, &parsed_so_data, &parsed_swap_data_dst)?;
 	require!(flag, SoSwapError::CheckFeeFail);
 
-	charge_relayer_fee(&ctx, fee)?;
+	CheckRelayerFee::charge_relayer_fee(&ctx, fee)?;
 
 	msg!(
 		"[SoTransferStarted]: txid={}, sender={}, amount={}, s_token={}, dst_chain={}, receiver={}, r_token={}",
@@ -245,7 +271,7 @@ pub fn handler(ctx: Context<SoSwapWrappedWithoutSwap>) -> Result<()> {
 		bytes_to_hex(&parsed_so_data.receiving_asset_id)
 	);
 
-	msg!("[SrcAmount] relayer_fee={}, bridge_amount={}", fee, amount);
+	msg!("[SrcAmount]: relayer_fee={}, bridge_amount={}", fee, amount);
 
 	msg!(
 		"[Wormhole]: dst_chain={}, sequence={}",
@@ -367,95 +393,4 @@ fn publish_transfer(
 		},
 		&[&config_seeds[..]],
 	))
-}
-
-fn check_parameters(
-	ctx: &Context<SoSwapWrappedWithoutSwap>,
-	parsed_wormhole_data: &NormalizedWormholeData,
-) -> Result<u16> {
-	let recipient_chain = parsed_wormhole_data.dst_wormhole_chain_id;
-
-	require!(
-		recipient_chain > 0 &&
-			recipient_chain != wormhole::CHAIN_ID_SOLANA &&
-			!parsed_wormhole_data.dst_so_diamond.iter().all(|&x| x == 0) &&
-			parsed_wormhole_data.dst_so_diamond ==
-				ctx.accounts.foreign_contract.address.to_vec(),
-		SoSwapError::InvalidRecipient,
-	);
-
-	Ok(recipient_chain)
-}
-
-fn check_relayer_fee(
-	ctx: &Context<SoSwapWrappedWithoutSwap>,
-	parsed_wormhole_data: &NormalizedWormholeData,
-	parsed_so_data: &NormalizedSoData,
-	parsed_swap_data_dst: &Vec<NormalizedSwapData>,
-	recipient_chain: u16,
-) -> Result<(bool, u64, u64, U256)> {
-	let estimate_reserve = U256::from(ctx.accounts.fee_config.estimate_reserve);
-
-	let ratio = ctx.accounts.price_manager.current_price_ratio;
-
-	let dst_max_gas = ctx.accounts.foreign_contract.estimate_complete_soswap_gas(
-		&NormalizedSoData::encode_normalized_so_data(parsed_so_data),
-		parsed_wormhole_data,
-		&NormalizedSwapData::encode_normalized_swap_data(parsed_swap_data_dst),
-	);
-
-	let dst_fee = parsed_wormhole_data
-		.dst_max_gas_price_in_wei_for_relayer
-		.checked_mul(dst_max_gas)
-		.unwrap();
-
-	let one = U256::from(RAY);
-	let mut src_fee = dst_fee
-		.checked_mul(U256::from(ratio))
-		.unwrap()
-		.checked_div(one)
-		.unwrap()
-		.checked_mul(estimate_reserve)
-		.unwrap()
-		.checked_div(one)
-		.unwrap();
-
-	// Solana decimals = 9
-	if recipient_chain == 22 {
-		// Aptos chain, decimals=8
-		// decimal * 10
-		src_fee = src_fee.checked_mul(10u64.into()).unwrap();
-	} else {
-		// Evm chain, decimals=18
-		// decimal / 1e9
-		src_fee = src_fee.checked_div(1_000_000_000u64.into()).unwrap();
-	};
-
-	let mut consume_value = ctx.accounts.wormhole_bridge.config.fee;
-
-	let src_fee = src_fee.as_u64();
-	consume_value += src_fee;
-
-	let mut flag = false;
-
-	let wormhole_fee = parsed_wormhole_data.wormhole_fee.as_u64();
-	if consume_value <= wormhole_fee {
-		flag = true;
-	};
-
-	Ok((flag, src_fee, consume_value, dst_max_gas))
-}
-
-fn charge_relayer_fee(ctx: &Context<SoSwapWrappedWithoutSwap>, relayer_fee: u64) -> Result<()> {
-	// Pay fee
-	anchor_lang::system_program::transfer(
-		CpiContext::new(
-			ctx.accounts.system_program.to_account_info(),
-			Transfer {
-				from: ctx.accounts.payer.to_account_info(),
-				to: ctx.accounts.beneficiary_account.to_account_info(),
-			},
-		),
-		relayer_fee,
-	)
 }

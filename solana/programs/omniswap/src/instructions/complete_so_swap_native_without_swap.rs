@@ -256,7 +256,7 @@ fn complete_transfer(
 			0
 		};
 
-		msg!("[DstAmount] so_fee={}, bridge_amount={}", actual_fee, amount);
+		msg!("[DstAmount]: so_fee={}, bridge_amount={}", actual_fee, amount);
 
 		amount -= actual_fee;
 

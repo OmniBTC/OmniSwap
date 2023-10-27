@@ -7,6 +7,7 @@ pub mod estimate_relayer_fee;
 pub mod initialize;
 pub mod post_request;
 pub mod register_foreign_contract;
+mod relayer_fee;
 pub mod set_price_ratio;
 pub mod set_redeem_proxy;
 pub mod set_so_fee;
