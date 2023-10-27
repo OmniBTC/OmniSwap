@@ -120,6 +120,9 @@ pub fn handler(
 
 	// Update total fee
 	parsed_wormhole_data.wormhole_fee = U256::from(total_fee);
+	let fix_wormhole_data = NormalizedWormholeData::encode_normalized_wormhole_data(
+		&parsed_wormhole_data,
+	);
 
 	let request = &mut ctx.accounts.request;
 
@@ -128,7 +131,7 @@ pub fn handler(
 	request.nonce = ctx.accounts.config.nonce;
 	request.so_data = so_data;
 	request.swap_data_src = swap_data_src;
-	request.wormhole_data = wormhole_data;
+	request.wormhole_data = fix_wormhole_data;
 	request.swap_data_dst = swap_data_dst;
 
 	// increase config nonce
