@@ -52,8 +52,16 @@ async def call_omniswap_estimate_relayer_fee():
 
 async def call_close_pending_request():
     await close_pending_request(
-        Pubkey.from_string("4MbzsGaVkL9v6JXyhgX6Eipd6GQQRSWmDZQPNcHPtGsb")
+        Pubkey.from_string("2rfc8g5zXw2ganAxVuayhdDjMUatnPrrR2qLJmtBDcwj")
     )
+
+
+async def call_set_so_fee():
+    # 0.3 %
+    so_fee_by_ray = 300_000
+    ray = 100_000_000
+    print(f"set_so_fee...{so_fee_by_ray / ray}")
+    await omniswap_set_so_fee(so_fee_by_ray)
 
 
 async def call_initialize_all():

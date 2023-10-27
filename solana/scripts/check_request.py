@@ -5,7 +5,7 @@ from config import get_client, get_config
 
 
 async def omniswap_estimate_relayer_fee(
-        network="devnet",
+    network="devnet",
 ):
     client = get_client(network)
     await client.is_connected()

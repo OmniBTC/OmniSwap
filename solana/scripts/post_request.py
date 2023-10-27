@@ -1,5 +1,6 @@
 import asyncio
 
+from solana.rpc.commitment import Processed
 from solana.transaction import Transaction
 from omniswap.instructions import so_swap_post_cross_request
 from helper import (
@@ -66,13 +67,20 @@ async def post_cross_requset(
         },
     )
 
-    tx = Transaction(fee_payer=payer.pubkey()).add(ix)
+    latest = await client.get_latest_blockhash()
+    tx = Transaction(
+        fee_payer=payer.pubkey(), recent_blockhash=latest.value.blockhash
+    ).add(ix)
 
     if simulate:
-        tx_simulate = await client.simulate_transaction(tx)
-        assert tx_simulate is not None, "tx_simulate is none"
+        tx_simulate = await client.simulate_transaction(tx, commitment=Processed)
+        assert tx_simulate.value is not None, "tx_simulate is none"
 
-        return request_key
+        return_data = tx_simulate.value.return_data.data
+        total_fee = int.from_bytes(return_data, "little")
+        print(f"total_fee={total_fee}")
+
+        return request_key, total_fee
 
     tx_sig = await client.send_transaction(tx, payer)
     print(tx_sig)
@@ -80,7 +88,11 @@ async def post_cross_requset(
     while True:
         resp = await client.get_transaction(tx_sig.value)
         if resp.value is not None:
-            return request_key
+            return_data = resp.value.transaction.meta.return_data.data
+            total_fee = int.from_bytes(return_data, "little")
+            print(f"total_fee={total_fee}")
+
+            return request_key, total_fee
         else:
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds

@@ -192,14 +192,19 @@ async def omniswap_send_native_token():
         amount=amount,
     ).encode_normalized()
 
+    # This value will be automatically corrected
+    # on the chain when post_request is called
+    defult_wormhole_fee = 0
+    # 10 Gwei
+    dst_gas_price = 10_000_000_000
     wormhole_data = WormholeData(
         dstWormholeChainId=wormhole_dst_chain,
-        dstMaxGasPriceInWeiForRelayer=100000,
-        wormholeFee=716184,
+        dstMaxGasPriceInWeiForRelayer=dst_gas_price,
+        wormholeFee=defult_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
     ).encode_normalized()
 
-    request_key = await post_cross_requset(
+    request_key, _total_fee = await post_cross_requset(
         wormhole_dst_chain,
         so_data=so_data,
         wormhole_data=wormhole_data,
@@ -283,8 +288,8 @@ async def omniswap_send_native_token_with_whirlpool():
     lookup_table_key = Pubkey.from_string(config["lookup_table"]["key"])
 
     omnibtc_chainid_src = config["omnibtc_chainid"]
-    omnibtc_chainid_dst = config["dst_chain"]["bsc-test"]["omnibtc_chainid"]
-    wormhole_dst_chain = config["dst_chain"]["bsc-test"]["chainid"]
+    omnibtc_chainid_dst = config["wormhole"]["dst_chain"]["bsc-test"]["omnibtc_chainid"]
+    wormhole_dst_chain = config["wormhole"]["dst_chain"]["bsc-test"]["chainid"]
 
     # TEST is tokenA
     TEST = "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"
@@ -354,14 +359,19 @@ async def omniswap_send_native_token_with_whirlpool():
         ]
     )
 
+    # This value will be automatically corrected
+    # on the chain when post_request is called
+    defult_wormhole_fee = 0
+    # 10 Gwei
+    dst_gas_price = 10_000_000_000
     wormhole_data = WormholeData(
         dstWormholeChainId=wormhole_dst_chain,
-        dstMaxGasPriceInWeiForRelayer=100000,
-        wormholeFee=716184,
+        dstMaxGasPriceInWeiForRelayer=dst_gas_price,
+        wormholeFee=defult_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
     ).encode_normalized()
 
-    request_key = await post_cross_requset(
+    request_key, _total_fee = await post_cross_requset(
         wormhole_dst_chain,
         so_data=so_data,
         swap_data_src=swap_data_src,
@@ -455,4 +465,4 @@ async def omniswap_send_wrapped_token_with_whirlpool():
     print(quote_config)
 
 
-asyncio.run(omniswap_send_native_token())
+asyncio.run(omniswap_send_native_token_with_whirlpool())
