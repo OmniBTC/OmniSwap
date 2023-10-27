@@ -185,7 +185,7 @@ pub mod omniswap {
 		swap_data_src: Vec<u8>,
 		wormhole_data: Vec<u8>,
 		swap_data_dst: Vec<u8>,
-	) -> Result<()> {
+	) -> Result<u64> {
 		instructions::post_request::handler(
 			ctx,
 			so_data,

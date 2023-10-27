@@ -102,7 +102,7 @@ pub fn handler(
 	swap_data_src: Vec<u8>,
 	wormhole_data: Vec<u8>,
 	swap_data_dst: Vec<u8>,
-) -> Result<()> {
+) -> Result<u64> {
 	let mut parsed_wormhole_data =
 		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
 	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
@@ -116,8 +116,10 @@ pub fn handler(
 		&parsed_swap_data_dst,
 	)?;
 
+	let total_fee = relayer_fee.checked_add(wormhole_fee).unwrap();
+
 	// Update total fee
-	parsed_wormhole_data.wormhole_fee = U256::from(relayer_fee.checked_add(wormhole_fee).unwrap());
+	parsed_wormhole_data.wormhole_fee = U256::from(total_fee);
 
 	let request = &mut ctx.accounts.request;
 
@@ -132,5 +134,5 @@ pub fn handler(
 	// increase config nonce
 	ctx.accounts.config.nonce += 1;
 
-	Ok(())
+	Ok(total_fee)
 }
