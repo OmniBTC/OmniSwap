@@ -358,7 +358,11 @@ pub fn handler(ctx: Context<SoSwapWrappedWithWhirlpool>) -> Result<()> {
 
 	msg!("[SrcAmount] relayer_fee={}, bridge_amount={}", fee, amount);
 
-	msg!("[Wormhole]: dst_chain={}, sequence={}", recipient_chain, sequence);
+	msg!(
+		"[Wormhole]: dst_chain={}, sequence={}",
+		recipient_chain,
+		ctx.accounts.token_bridge_sequence.sequence
+	);
 
 	publish_transfer(
 		&ctx,
