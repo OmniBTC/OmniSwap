@@ -144,7 +144,7 @@ async def omniswap_send_native_token():
     omniswap_program_id = config["program"]["SoDiamond"]
     wormhole_program_id = config["program"]["Wormhole"]
     token_bridge_program_id = config["program"]["TokenBridge"]
-    lookup_table_key = Pubkey.from_string(config["lookup_table"]["table0"]["key"])
+    lookup_table_key = Pubkey.from_string(config["lookup_table"]["key"])
 
     # bsc-testnet
     recipient_chain = 4
@@ -277,7 +277,7 @@ async def omniswap_send_native_token_with_whirlpool():
     omniswap_program_id = config["program"]["SoDiamond"]
     wormhole_program_id = config["program"]["Wormhole"]
     token_bridge_program_id = config["program"]["TokenBridge"]
-    lookup_table_key = Pubkey.from_string(config["lookup_table"]["table0"]["key"])
+    lookup_table_key = Pubkey.from_string(config["lookup_table"]["key"])
 
     # bsc-testnet
     recipient_chain = 4
