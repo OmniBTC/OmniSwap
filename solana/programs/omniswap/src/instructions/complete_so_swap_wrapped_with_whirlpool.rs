@@ -353,7 +353,7 @@ pub fn handler(
 				anchor_spl::token::Transfer {
 					from: other_proxy_recipient_account,
 					to: ctx.accounts.recipient_token_account.to_account_info(),
-					authority: ctx.accounts.config.to_account_info(),
+					authority: ctx.accounts.payer.to_account_info(),
 				},
 			),
 			amount,
