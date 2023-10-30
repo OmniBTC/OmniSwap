@@ -164,6 +164,10 @@ export function deriveRedeemerConfigKey(programId: PublicKeyInitData) {
     return deriveAddress([Buffer.from("redeemer")], programId);
 }
 
+export function deriveSoFeeConfigKey(programId: PublicKeyInitData) {
+    return deriveAddress([Buffer.from("so_fee")], programId);
+}
+
 export function deriveForeignContractKey(
     programId: PublicKeyInitData,
     chain: ChainId
@@ -213,7 +217,8 @@ export async function createCompleteSoSwapNativeWithoutSwap(
     payer: Keypair,
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
-    wormholeMessage: Buffer
+    wormholeMessage: Buffer,
+    beneficiary: PublicKeyInitData
 ): Promise<TransactionInstruction> {
     const payAddress = payer.publicKey.toString();
     const program = createHelloTokenProgramInterface(connection, programId);
@@ -233,22 +238,19 @@ export async function createCompleteSoSwapNativeWithoutSwap(
 
     const recipient = new PublicKey(parsed.soReceiver);
     const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient)).address;
+    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, new PublicKey(beneficiary))).address;
+
 
     return program.methods
-        .completeSoSwapNativeWithoutSwap([...parsed.hash])
+        .completeSoSwapNativeWithoutSwap([...parsed.hash], false)
         .accounts({
             payer: tokenBridgeAccounts.payer,
-            payerTokenAccount: (await getOrCreateAssociatedTokenAccount(
-                connection,
-                payer,
-                mint,
-                new PublicKey(payAddress)
-            )).address,
             config: deriveRedeemerConfigKey(programId),
+            feeConfig: deriveSoFeeConfigKey(programId),
+            beneficiaryTokenAccount,
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             mint,
             recipientTokenAccount,
-            recipient,
             tmpTokenAccount,
             wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
@@ -261,7 +263,7 @@ export async function createCompleteSoSwapNativeWithoutSwap(
             systemProgram: tokenBridgeAccounts.systemProgram,
             tokenProgram: tokenBridgeAccounts.tokenProgram,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-            rent: tokenBridgeAccounts.rent
+            rent: tokenBridgeAccounts.rent,
         })
         .instruction();
 }
@@ -312,7 +314,8 @@ export async function createCompleteSoSwapWrappedWithoutSwap(
     payer: Keypair,
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
-    wormholeMessage: Buffer
+    wormholeMessage: Buffer,
+    beneficiary: PublicKeyInitData
 ): Promise<TransactionInstruction> {
     const payAddress = payer.publicKey.toString();
     const program = createHelloTokenProgramInterface(connection, programId);
@@ -335,27 +338,19 @@ export async function createCompleteSoSwapWrappedWithoutSwap(
     );
 
     const recipient = new PublicKey(parsed.soReceiver);
+    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, recipient)).address;
+    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, new PublicKey(beneficiary))).address;
 
     return program.methods
-        .completeSoSwapWrappedWithoutSwap([...parsed.hash])
+        .completeSoSwapWrappedWithoutSwap([...parsed.hash], false)
         .accounts({
             payer: tokenBridgeAccounts.payer,
-            payerTokenAccount: (await getOrCreateAssociatedTokenAccount(
-                connection,
-                payer,
-                wrappedMint,
-                new PublicKey(payer)
-            )).address,
             config: deriveRedeemerConfigKey(programId),
+            feeConfig: deriveSoFeeConfigKey(programId),
+            beneficiaryTokenAccount,
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             tokenBridgeWrappedMint: tokenBridgeAccounts.tokenBridgeWrappedMint,
-            recipientTokenAccount: (await getOrCreateAssociatedTokenAccount(
-                connection,
-                payer,
-                wrappedMint,
-                recipient
-            )).address,
-            recipient,
+            recipientTokenAccount,
             tmpTokenAccount,
             wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
@@ -366,8 +361,9 @@ export async function createCompleteSoSwapWrappedWithoutSwap(
             tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
             tokenBridgeMintAuthority: tokenBridgeAccounts.tokenBridgeMintAuthority,
             systemProgram: tokenBridgeAccounts.systemProgram,
+            tokenProgram: tokenBridgeAccounts.tokenProgram,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-            rent: tokenBridgeAccounts.rent
+            rent: tokenBridgeAccounts.rent,
         })
         .instruction();
 }
