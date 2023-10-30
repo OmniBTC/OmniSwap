@@ -207,7 +207,7 @@ export function createHelloTokenProgramInterface(
     );
 }
 
-export async function createRedeemNativeTransferWithPayloadInstruction(
+export async function createCompleteSoSwapNativeWithoutSwap(
     connection: Connection,
     programId: PublicKeyInitData,
     payer: Keypair,
@@ -235,7 +235,7 @@ export async function createRedeemNativeTransferWithPayloadInstruction(
     const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient)).address;
 
     return program.methods
-        .redeemNativeTransferWithPayload([...parsed.hash])
+        .completeSoSwapNativeWithoutSwap([...parsed.hash])
         .accounts({
             payer: tokenBridgeAccounts.payer,
             payerTokenAccount: (await getOrCreateAssociatedTokenAccount(
@@ -306,7 +306,7 @@ export function getCompleteTransferNativeWithPayloadCpiAccounts(
     };
 }
 
-export async function createRedeemWrappedTransferWithPayloadInstruction(
+export async function createCompleteSoSwapWrappedWithoutSwap(
     connection: Connection,
     programId: PublicKeyInitData,
     payer: Keypair,
@@ -337,7 +337,7 @@ export async function createRedeemWrappedTransferWithPayloadInstruction(
     const recipient = new PublicKey(parsed.soReceiver);
 
     return program.methods
-        .redeemWrappedTransferWithPayload([...parsed.hash])
+        .completeSoSwapWrappedWithoutSwap([...parsed.hash])
         .accounts({
             payer: tokenBridgeAccounts.payer,
             payerTokenAccount: (await getOrCreateAssociatedTokenAccount(
