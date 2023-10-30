@@ -198,6 +198,18 @@ class ParsedTransfer:
 
         return recipient
 
+    def bridge_token(self):
+        if self.parsed_transfer_payload.without_swap():
+            return self.parsed_transfer_payload.so_data.receiving_asset()
+        else:
+            return self.parsed_transfer_payload.swap_data_list[0].sending_asset()
+
+    def dst_token(self):
+        if self.parsed_transfer_payload.without_swap():
+            return self.parsed_transfer_payload.so_data.receiving_asset()
+        else:
+            return self.parsed_transfer_payload.swap_data_list[-1].receiving_asset()
+
 
 class ParsedTransferPayload:
     # CrossData
@@ -216,6 +228,9 @@ class ParsedTransferPayload:
         self.dst_max_gas = dst_max_gas
         self.so_data = so_data
         self.swap_data_list = swap_data_list
+
+    def without_swap(self):
+        return len(self.swap_data_list) == 0
 
     def __str__(self):
         return json.dumps(self.format_json(), indent=2)

@@ -93,7 +93,7 @@ async def omniswap_send_wrapped_token():
     ).encode_normalized()
 
     request_key = await post_cross_requset(
-        so_data=so_data, wormhole_data=wormhole_data, simulate=True
+        4, so_data=so_data, wormhole_data=wormhole_data, simulate=True
     )
 
     ix = so_swap_wrapped_without_swap(
@@ -453,8 +453,6 @@ async def omniswap_send_native_token_with_whirlpool():
 
     tx_sig = await client.send_transaction(txn)
     print(tx_sig)
-
-    await client.close()
 
 
 async def omniswap_send_wrapped_token_with_whirlpool():

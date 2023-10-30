@@ -25,7 +25,8 @@ console.log("wallet", local_wallet.publicKey.toBase58());
 const ORCA_WHIRLPOOLS_CONFIG = new PublicKey("FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR");
 const SOL = {mint: new PublicKey("So11111111111111111111111111111111111111112"), decimals: 9, symbol: "SOL"};
 const USDC = {mint: new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"), decimals: 6, symbol: "USDC"};
-const MYCOIN = {mint: new PublicKey("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"), decimals: 9, symbol: "MYCOIN"}
+const TEST = {mint: new PublicKey("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"), decimals: 9, symbol: "TEST"}
+const BSC = {mint: new PublicKey("xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"), decimals: 8, symbol: "BSC"}
 const FEE_TIER_U128 = new PublicKey("G319n1BPjeXjAfheDxYe8KWZM7FQhQCJerWRK2nZYtiJ");
 
 async function main() {
@@ -39,8 +40,8 @@ async function main() {
 
     const whirlpoolsConfigPubkey = ORCA_WHIRLPOOLS_CONFIG;
     const feeTierPubkey = FEE_TIER_U128;
-    const tokenMint0Pubkey = MYCOIN.mint;
-    const tokenMint1Pubkey = USDC.mint;
+    const tokenMint0Pubkey = BSC.mint;
+    const tokenMint1Pubkey = TEST.mint;
 
     const [tokenMintAAddress, tokenMintBAddress] = PoolUtil.orderMints(
         tokenMint0Pubkey,

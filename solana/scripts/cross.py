@@ -222,6 +222,9 @@ class SoData:
     def recipient(self):
         return self.receiver
 
+    def receiving_asset(self):
+        return self.receivingAssetId
+
 
 class SwapData:
     def __init__(
@@ -354,6 +357,12 @@ class SwapData:
     @classmethod
     def padding(cls, callTo, sendingAssetId, receivingAssetId, callData):
         return SwapData(callTo, callTo, sendingAssetId, receivingAssetId, 0, callData)
+
+    def sending_asset(self):
+        return self.sendingAssetId
+
+    def receiving_asset(self):
+        return self.receivingAssetId
 
 
 class WormholeData:

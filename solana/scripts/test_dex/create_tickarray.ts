@@ -27,7 +27,8 @@ console.log("wallet", local_wallet.publicKey.toBase58());
 const ORCA_WHIRLPOOLS_CONFIG = new PublicKey("FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR");
 const SOL = {mint: new PublicKey("So11111111111111111111111111111111111111112"), decimals: 9, symbol: "SOL"};
 const USDC = {mint: new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"), decimals: 6, symbol: "USDC"};
-const MYCOIN = {mint: new PublicKey("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"), decimals: 9, symbol: "MYCOIN"}
+const BSC = {mint: new PublicKey("xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"), decimals: 8, symbol: "BSC"}
+const TEST = {mint: new PublicKey("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"), decimals: 9, symbol: "TEST"}
 const tickSpacing = 128;
 
 async function main() {
@@ -39,17 +40,17 @@ async function main() {
 
     console.log("create TickArray...");
 
-    const sol_usdc_pool_pda = PDAUtil.getWhirlpool(
+    const bsc_test_pool_pda = PDAUtil.getWhirlpool(
         ctx.program.programId,
         ORCA_WHIRLPOOLS_CONFIG,
-        MYCOIN.mint,
-        USDC.mint,
+        BSC.mint,
+        TEST.mint,
         tickSpacing
     ).publicKey;
 
-    console.log("sol_usdc_pool_pda", sol_usdc_pool_pda.toBase58());
+    console.log("bsc_test_pool_pda", bsc_test_pool_pda.toBase58());
 
-    const whirlpool = await ctx.fetcher.getPool(sol_usdc_pool_pda);
+    const whirlpool = await ctx.fetcher.getPool(bsc_test_pool_pda);
     const mintA = await ctx.fetcher.getMintInfo(whirlpool.tokenMintA);
     const mintB = await ctx.fetcher.getMintInfo(whirlpool.tokenMintB);
 
@@ -65,7 +66,7 @@ async function main() {
     const neighboringTickArrayInfos: TickArrayInfo[] = [];
     for (let offset = -6; offset <= +6; offset++) {
         const startTickIndex = TickUtil.getStartTickIndex(whirlpool.tickCurrentIndex, tickSpacing, offset);
-        const pda = PDAUtil.getTickArray(ctx.program.programId, sol_usdc_pool_pda, startTickIndex);
+        const pda = PDAUtil.getTickArray(ctx.program.programId, bsc_test_pool_pda, startTickIndex);
         const endTickIndex = startTickIndex + tickSpacing * TICK_ARRAY_SIZE;
         const startPrice = PriceMath.tickIndexToPrice(startTickIndex, mintA.decimals, mintB.decimals);
         const endPrice = PriceMath.tickIndexToPrice(endTickIndex, mintA.decimals, mintB.decimals);
@@ -102,7 +103,7 @@ async function main() {
         ctx.program,
         {
             funder: ctx.wallet.publicKey,
-            whirlpool: sol_usdc_pool_pda,
+            whirlpool: bsc_test_pool_pda,
             startTick: which.startTickIndex,
             tickArrayPda: which.pda,
         }));

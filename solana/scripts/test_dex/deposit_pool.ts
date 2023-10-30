@@ -105,15 +105,16 @@ async function main() {
     const ORCA_WHIRLPOOLS_CONFIG = new PublicKey("FcrweFY1G9HJAHG5inkGB6pKg1HZ6x9UC2WioAfWrGkR");
     const SOL = {mint: new PublicKey("So11111111111111111111111111111111111111112"), decimals: 9, symbol: "SOL"};
     const USDC = {mint: new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"), decimals: 6, symbol: "USDC"};
-    const MYCOIN = {mint: new PublicKey("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"), decimals: 9, symbol: "MYCOIN"}
+    const BSC = {mint: new PublicKey("xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"), decimals: 8, symbol: "BSC"}
+    const TEST = {mint: new PublicKey("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"), decimals: 9, symbol: "TEST"}
     const tickSpacing = 128;
 
     // get pool
     const pool_pda = PDAUtil.getWhirlpool(
         ctx.program.programId,
         ORCA_WHIRLPOOLS_CONFIG,
-        MYCOIN.mint,
-        USDC.mint,
+        BSC.mint,
+        TEST.mint,
         tickSpacing
     ).publicKey;
 
@@ -124,13 +125,13 @@ async function main() {
     // deposit usdc
     const quote = get_increase_liquidity_quote(
         whirlpool,
-        new Decimal(0.001349),
-        new Decimal(0.004160), // price range
-        MYCOIN,
-        new Decimal(5000 /* MYCOIN */),  // est input token
+        new Decimal(2.93),
+        new Decimal(9.05), // price range
+        BSC,
+        new Decimal(100 /* BSC */),  // est input token
         new Decimal(0.1),        // slippage
-        MYCOIN,  // tokenA
-        USDC, // tokenB
+        BSC,  // tokenA
+        TEST, // tokenB
     );
 
 

@@ -17,7 +17,7 @@ from scripts.helpful_scripts import (
 from solders.pubkey import Pubkey
 
 sys.path.append(Path(__file__).parent.parent.parent.joinpath("solana/scripts").as_posix())
-from get_quote_config import get_test_usdc_quote_config
+from get_quote_config import get_test_usdc_quote_config,get_bsc_test_quote_config
 
 class SolanaSwapType(Enum):
     Whirlpool = "Whirlpool"
@@ -235,7 +235,7 @@ def complete_swap_via_wormhole():
         "WormholeFacet", so_diamond, WormholeFacet.abi
     )
 
-    vaa = bytes.fromhex("01000000000100caaf8fa69fef2916ffa1918e3f7b9ac4bc92e7c1b9df884247555366fbc4a16e4eda74dc50d148d8f47dd1a9c91099e8602a7b588f3eff21a394cfaa6fb14f3800653b81be0000000000013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98000000000000640020030000000000000000000000000000000000000000000000000000000000005c003b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea7000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc00043eb54bfb6f363a4b14879f4189fecd37bf35acfc86572f9879f620736ecf32280502540be400030aed9820b9256abc47736012820e592437204547dd027c67e03c431348ebcb52edc7741914caf084133cbdbe27490d3afb0da220a40c32e3071451a3cc54ea30da607974c5d07b8502599801ac08")
+    vaa = bytes.fromhex("01000000000100910058acd243e2e09644ec0c5a59ca4b869f383ba0ee8ec3cfb484d7fdfa8f992b0f175a137540617fa1deb28b1fe9b7d8c8489a43540af10197029ba7feaca000653f524a0000000000013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca9800000000000064032003000000000000000000000000000000000000000000000000000000000065758d3b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea7000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc00043eb54bfb6f363a4b14879f4189fecd37bf35acfc86572f9879f620736ecf32280502540be400030aed98204143ce549a2be22aa8aaa29e9149bb8e70a8b434d77deda97e5e4e0ec648826d14caf084133cbdbe27490d3afb0da220a40c32e3071451a3cc54ea30da607974c5d07b8502599801ac08")
 
     proxy_diamond.completeSoSwap(vaa, {"from": get_account()})
 
@@ -325,11 +325,11 @@ def cross_swap_native_via_wormhole():
     so_diamond = "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
     one_bsc = 1_000_000_000_000_000_000 # decimals=18
 
-    bsc_token_approve(one_bsc, so_diamond)
+    bsc_token_approve(one_bsc*100, so_diamond)
 
     so_data = SoData.create_bsc(
         receiver="0x"+b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
-        amount=one_bsc
+        amount=one_bsc*100
     )
     print("SoData\n", so_data)
     so_data = so_data.format_to_contract()
@@ -373,9 +373,9 @@ def cross_swap_native_via_wormhole_whirlpool():
     # 1 BSC
     ui_amount = "1"
 
-    usdc_token_approve(one_bsc, so_diamond)
+    bsc_token_approve(one_bsc, so_diamond)
 
-    so_data = SoData.create_usdc(
+    so_data = SoData.create_bsc(
         receiver="0x"+b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
         amount=one_bsc
     )
@@ -385,13 +385,13 @@ def cross_swap_native_via_wormhole_whirlpool():
     swap_data_src = []
 
     # Swap USDC to TEST on solana
-    # TEST is tokenA
+    # Wrapped BSC is tokenA, decimal=8
+    BSC = "xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"
+    # TEST is tokenB
     TEST = "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"
-    # USDC is tokenB
-    USDC = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
-    sendingAssetId = bytes(Pubkey.from_string(USDC))
+    sendingAssetId = bytes(Pubkey.from_string(BSC))
     receivingAssetId = bytes(Pubkey.from_string(TEST))
-    quote_config = get_quote_test_usdc_pool(USDC, ui_amount)
+    quote_config = get_bsc_test_quote_config(BSC, ui_amount)
 
     swap_data_dst = [
         SwapData(
@@ -442,4 +442,4 @@ def main():
     # complete_swap_via_wormhole()
     # cross_swap_wrapped_via_wormhole()
     # cross_swap_wrapped_via_wormhole_whirlpool()
-    cross_swap_native_via_wormhole()
+    cross_swap_native_via_wormhole_whirlpool()
