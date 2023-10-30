@@ -11,7 +11,7 @@ import axios from "axios";
 import {
     createCompleteSoSwapNativeWithoutSwap,
     createCompleteSoSwapWrappedWithoutSwap,
-    parseVaaToWormholePayload,
+    parseVaaToOmniswapPayload,
     PersistentDictionary,
     queryRelayEventByGetLogs
 } from "./helper";
@@ -328,7 +328,7 @@ async function processVaa(
     extrinsicHash,
 ): Promise<boolean> {
     try {
-        const payload = parseVaaToWormholePayload(vaa);
+        const payload = parseVaaToOmniswapPayload(vaa);
         // if (payload.dstMaxGasPrice !== 1000000000000) {
         //     logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstMaxGasPrice ${payload.dstMaxGasPrice}!=1000000000000`)
         //     return false;
