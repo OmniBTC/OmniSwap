@@ -9,8 +9,8 @@ import {
 import fs from "fs";
 import axios from "axios";
 import {
-    createRedeemNativeTransferWithPayloadInstruction,
-    createRedeemWrappedTransferWithPayloadInstruction,
+    createCompleteSoSwapNativeWithoutSwap,
+    createCompleteSoSwapWrappedWithoutSwap,
     parseVaaToWormholePayload,
     PersistentDictionary,
     queryRelayEventByGetLogs
@@ -359,7 +359,7 @@ async function processVaa(
     }
 
     try {
-        const ix = await createRedeemNativeTransferWithPayloadInstruction(
+        const ix = await createCompleteSoSwapNativeWithoutSwap(
             connection,
             OMNISWAP_PID,
             payer,
@@ -376,7 +376,7 @@ async function processVaa(
     }
 
     try {
-        const ix = await createRedeemWrappedTransferWithPayloadInstruction(
+        const ix = await createCompleteSoSwapWrappedWithoutSwap(
             connection,
             OMNISWAP_PID,
             payer,
