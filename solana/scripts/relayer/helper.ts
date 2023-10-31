@@ -712,6 +712,9 @@ export async function createCompleteSoSwapWrappedWithWhirlpool(
     const quoteConfig = await getQuoteConfig(connection, payer, parsed);
 
     const recipient = new PublicKey(parsed.soReceiver);
+
+    const bridgeToken = new PublicKey(parsed.swapDataList[0].swapSendingAssetId);
+    const recipientBridgeTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, recipient)).address;
     const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, recipient)).address;
     const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, new PublicKey(beneficiary))).address;
 
@@ -736,6 +739,7 @@ export async function createCompleteSoSwapWrappedWithWhirlpool(
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             tokenBridgeWrappedMint: tokenBridgeAccounts.tokenBridgeWrappedMint,
             recipientTokenAccount,
+            recipientBridgeTokenAccount,
             tmpTokenAccount,
             wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),

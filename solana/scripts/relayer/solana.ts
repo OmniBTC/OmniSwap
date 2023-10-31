@@ -9,8 +9,9 @@ import {
 import fs from "fs";
 import axios from "axios";
 import {
-    createCompleteSoSwapNativeWithoutSwap,
-    createCompleteSoSwapWrappedWithoutSwap,
+    createCompleteSoSwapNativeWithoutSwap, createCompleteSoSwapNativeWithWhirlpool,
+    createCompleteSoSwapWrappedWithoutSwap, createCompleteSoSwapWrappedWithWhirlpool,
+    ParsedOmniswapPayload,
     parseVaaToOmniswapPayload,
     PersistentDictionary,
     queryRelayEventByGetLogs
@@ -50,6 +51,7 @@ let NET_TO_RPC;
 let NET_TO_CONTRACT;
 let NET_TO_DEFAULT_FROM_BLOCK;
 let SODIAMOND;
+let BENEFICIARY;
 
 // @ts-ignore
 if (NET !== "solana-mainnet") {
@@ -96,6 +98,7 @@ if (NET !== "solana-mainnet") {
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     OMNISWAP_PID = new PublicKey("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
     SOLANA_URL = "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/";
+    BENEFICIARY = "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS";
 } else {
     WORMHOLE_URL = [
         "https://wormhole-v2-mainnet-api.certus.one",
@@ -144,6 +147,7 @@ if (NET !== "solana-mainnet") {
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     OMNISWAP_PID = new PublicKey("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
     SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
+    BENEFICIARY = "";
 }
 WORMHOLE_CHAIN_ID_TO_NET = Object.keys(NET_TO_WORMHOLE_CHAIN_ID).reduce((returnValue, key) => {
     const value = NET_TO_WORMHOLE_CHAIN_ID[key];
@@ -327,8 +331,9 @@ async function processVaa(
     sequence,
     extrinsicHash,
 ): Promise<boolean> {
+    let payload: ParsedOmniswapPayload;
     try {
-        const payload = parseVaaToOmniswapPayload(vaa);
+        payload = parseVaaToOmniswapPayload(vaa);
         // if (payload.dstMaxGasPrice !== 1000000000000) {
         //     logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstMaxGasPrice ${payload.dstMaxGasPrice}!=1000000000000`)
         //     return false;
@@ -358,39 +363,120 @@ async function processVaa(
         logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
     }
 
-    try {
-        const ix = await createCompleteSoSwapNativeWithoutSwap(
-            connection,
-            OMNISWAP_PID,
-            payer,
-            TOKEN_BRIDGE_PID,
-            CORE_BRIDGE_PID,
-            vaa
-        );
-        const dstTx = await sendAndConfirmIx(connection, payer, ix);
-        logWithTimestamp(`RedeemNative for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
-        recordGas(extrinsicHash, dstTx);
-        return true;
-    } catch (error) {
-        logWithTimestamp(`RedeemNative for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+    if (payload.swapDataList.length === 0) {
+        try {
+            const ix = await createCompleteSoSwapNativeWithoutSwap(
+                connection,
+                OMNISWAP_PID,
+                payer,
+                TOKEN_BRIDGE_PID,
+                CORE_BRIDGE_PID,
+                vaa,
+                BENEFICIARY,
+                false
+            );
+            const dstTx = await sendAndConfirmIx(connection, payer, ix);
+            logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
+            recordGas(extrinsicHash, dstTx);
+            return true;
+        } catch (error) {
+            logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+        }
+
+        try {
+            const ix = await createCompleteSoSwapWrappedWithoutSwap(
+                connection,
+                OMNISWAP_PID,
+                payer,
+                TOKEN_BRIDGE_PID,
+                CORE_BRIDGE_PID,
+                vaa,
+                BENEFICIARY,
+                false
+            );
+            const dstTx = await sendAndConfirmIx(connection, payer, ix);
+            logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
+            recordGas(extrinsicHash, dstTx);
+            return true;
+        } catch (error) {
+            logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+        }
+    } else if (payload.swapDataList.length === 1) {
+        try {
+            const ix = await createCompleteSoSwapNativeWithWhirlpool(
+                connection,
+                OMNISWAP_PID,
+                payer,
+                TOKEN_BRIDGE_PID,
+                CORE_BRIDGE_PID,
+                vaa,
+                BENEFICIARY,
+            );
+            const dstTx = await sendAndConfirmIx(connection, payer, ix);
+            logWithTimestamp(`RedeemNativeWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
+            recordGas(extrinsicHash, dstTx);
+            return true;
+        } catch (error) {
+            logWithTimestamp(`RedeemNativeWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+        }
+
+        try {
+            const ix = await createCompleteSoSwapWrappedWithWhirlpool(
+                connection,
+                OMNISWAP_PID,
+                payer,
+                TOKEN_BRIDGE_PID,
+                CORE_BRIDGE_PID,
+                vaa,
+                BENEFICIARY,
+            );
+            const dstTx = await sendAndConfirmIx(connection, payer, ix);
+            logWithTimestamp(`RedeemWrappedWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
+            recordGas(extrinsicHash, dstTx);
+            return true;
+        } catch (error) {
+            logWithTimestamp(`RedeemWrappedWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+        }
+
+        try {
+            const ix = await createCompleteSoSwapNativeWithoutSwap(
+                connection,
+                OMNISWAP_PID,
+                payer,
+                TOKEN_BRIDGE_PID,
+                CORE_BRIDGE_PID,
+                vaa,
+                BENEFICIARY,
+                false
+            );
+            const dstTx = await sendAndConfirmIx(connection, payer, ix);
+            logWithTimestamp(`RedeemNative compensate for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
+            recordGas(extrinsicHash, dstTx);
+            return true;
+        } catch (error) {
+            logWithTimestamp(`RedeemNative compensate for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+        }
+
+        try {
+            const ix = await createCompleteSoSwapWrappedWithoutSwap(
+                connection,
+                OMNISWAP_PID,
+                payer,
+                TOKEN_BRIDGE_PID,
+                CORE_BRIDGE_PID,
+                vaa,
+                BENEFICIARY,
+                false
+            );
+            const dstTx = await sendAndConfirmIx(connection, payer, ix);
+            logWithTimestamp(`RedeemWrapped compensate for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
+            recordGas(extrinsicHash, dstTx);
+            return true;
+        } catch (error) {
+            logWithTimestamp(`RedeemWrapped compensate for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+        }
     }
 
-    try {
-        const ix = await createCompleteSoSwapWrappedWithoutSwap(
-            connection,
-            OMNISWAP_PID,
-            payer,
-            TOKEN_BRIDGE_PID,
-            CORE_BRIDGE_PID,
-            vaa
-        );
-        const dstTx = await sendAndConfirmIx(connection, payer, ix);
-        logWithTimestamp(`RedeemWrapped for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
-        recordGas(extrinsicHash, dstTx);
-        return true;
-    } catch (error) {
-        logWithTimestamp(`RedeemWrapped for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-    }
 
     return false;
 }
