@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, system_program::Transfer};
 use anchor_spl::{
 	associated_token::AssociatedToken,
 	token::{Mint, Token, TokenAccount},
@@ -407,13 +407,12 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 		))?;
 
 		// 3. transfer: proxy(sol) -> recipient(sol)
-		anchor_spl::token::transfer(
+		anchor_lang::system_program::transfer(
 			CpiContext::new(
-				ctx.accounts.token_program.to_account_info(),
-				anchor_spl::token::Transfer {
+				ctx.accounts.system_program.to_account_info(),
+				Transfer {
 					from: ctx.accounts.payer.to_account_info(),
 					to: recipient.to_account_info(),
-					authority: ctx.accounts.payer.to_account_info(),
 				},
 			),
 			final_amount,
