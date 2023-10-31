@@ -109,9 +109,9 @@ export interface WormholeData {
 }
 
 export interface SwapData {
-    swapCallTo: Buffer;
-    swapSendingAssetId: Buffer;
-    swapReceivingAssetId: Buffer;
+    swapCallTo: string;
+    swapSendingAssetId: string;
+    swapReceivingAssetId: string;
     swapCallData: Buffer;
 }
 
@@ -175,17 +175,17 @@ export function parseVaaToOmniswapPayload(vaa: Buffer): ParsedOmniswapPayload {
     while (index < payloadLen) {
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
-        let swapCallTo = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        let swapCallTo = bs58.encode(tokenTransfer.tokenTransferPayload.subarray(index, index + len));
         index += len;
 
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
-        let swapSendingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        let swapSendingAssetId = bs58.encode(tokenTransfer.tokenTransferPayload.subarray(index, index + len));
         index += len;
 
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
-        let swapReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        let swapReceivingAssetId = bs58.encode(tokenTransfer.tokenTransferPayload.subarray(index, index + len));
         index += len;
 
         len = tokenTransfer.tokenTransferPayload.readUIntBE(index, 2);
@@ -538,12 +538,12 @@ export async function getQuoteConfig(
     assert.strictEqual(parsed.swapDataList.length, 1, "swapDataList !== 1");
 
     // get pool
-    const pool = parsed.swapDataList[0].swapCallTo.toString("ascii");
+    const pool = parsed.swapDataList[0].swapCallTo;
 
     const whirlpool = await client.getPool(pool);
 
     // acceptable slippage is 1.0% (10/1000)
-    const default_slippage = Percentage.fromFraction(100, 1000);
+    const default_slippage = Percentage.fromFraction(500, 1000);
 
     const input_token_mint = new PublicKey(parsed.swapDataList[0].swapSendingAssetId)
     const shift_decimals = await getTokenDecimal(connection, input_token_mint);
@@ -553,7 +553,7 @@ export async function getQuoteConfig(
         amount_in = amount_in * Math.pow(10, shift_decimals - 8);
     }
 
-    const shift_amount_in = DecimalUtil.toBN(new Decimal(amount_in), shift_decimals)
+    const shift_amount_in = DecimalUtil.toBN(new Decimal(amount_in))
 
     const quote = await swapQuoteByInputToken(
         whirlpool,
