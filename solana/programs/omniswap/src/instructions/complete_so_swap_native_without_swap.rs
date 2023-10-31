@@ -309,13 +309,14 @@ fn complete_transfer(
 
 		// 1. transfer: tmp_token_account(wsol) => unwrap_sol_account(wsol)
 		anchor_spl::token::transfer(
-			CpiContext::new(
+			CpiContext::new_with_signer(
 				ctx.accounts.token_program.to_account_info(),
 				anchor_spl::token::Transfer {
 					from: ctx.accounts.tmp_token_account.to_account_info(),
 					to: unwrap_sol_account.to_account_info(),
 					authority: ctx.accounts.config.to_account_info(),
 				},
+				&[&config_seeds[..]],
 			),
 			amount,
 		)?;
