@@ -1771,4 +1771,5 @@ networks:
         token_list: "https://docs.spooky.fi/Resources/ftm-token-addresses"
 wallets:
   from_key: ${PRIVATE_KEY}
+  deploy_key: ${DEPLOY_KEY}
   from_mnemonic: ${MNEMONIC}

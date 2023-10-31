@@ -706,9 +706,37 @@ def initialize_eth():
 
 def reset_so_fee():
     account = get_account()
-    so_fee = int(1e-3 * 1e18)
-    LibSoFeeStargateV1[-1].setFee(so_fee, {"from": account})
-    print("Cur soFee is", LibSoFeeStargateV1[-1].soFee() / 1e18)
+    so_fee = 0
+    try:
+        LibSoFeeConnextV1[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeConnextV1 is", LibSoFeeConnextV1[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeConnextV1 error")
+
+
+def transferOwnership():
+    deploy_account = get_account("deploy_key")
+    proxy = Contract.from_abi(
+        "OwnershipFacet", SoDiamond[-1].address, OwnershipFacet.abi
+    )
+    account = get_account()
+    owner = account.address
+    proxy.transferOwnership(owner, {"from": deploy_account})
+    deploy_account.transfer(owner, int(deploy_account.balance() / 2))
+    proxy.confirmOwnershipTransfer({"from": account})
+    print(proxy.owner())
+
+
+def transferOwnershipForFee():
+    account = get_account("deploy_key")
+    owner_account = get_account()
+    owner = owner_account.address
+    print(f'owner: {owner}')
+    try:
+        LibSoFeeConnextV1[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeConnextV1 success")
+    except:
+        print(f"LibSoFeeConnextV1 error")
 
 
 def reset_so_gas():
