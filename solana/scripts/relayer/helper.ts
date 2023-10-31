@@ -126,6 +126,8 @@ export interface ParsedOmniswapPayload extends ParsedTokenTransferVaa, WormholeD
 export function parseVaaToOmniswapPayload(vaa: Buffer): ParsedOmniswapPayload {
     const tokenTransfer = parseTokenTransferVaa(vaa);
 
+    const payloadLen = tokenTransfer.tokenTransferPayload.length;
+
     let index = 0;
 
     let len = tokenTransfer.tokenTransferPayload.readUint8(index);
@@ -163,14 +165,14 @@ export function parseVaaToOmniswapPayload(vaa: Buffer): ParsedOmniswapPayload {
     let soReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
     index += len;
 
-    if (index < vaa.length) {
+    if (index < payloadLen) {
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
         index += len;
     }
 
     let swapDataList = [];
-    while (index < vaa.length) {
+    while (index < payloadLen) {
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
         let swapCallTo = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
