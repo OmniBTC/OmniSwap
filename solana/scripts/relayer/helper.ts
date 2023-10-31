@@ -188,8 +188,8 @@ export function parseVaaToOmniswapPayload(vaa: Buffer): ParsedOmniswapPayload {
         let swapReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
         index += len;
 
-        len = tokenTransfer.tokenTransferPayload.readUint8(index);
-        index += 1;
+        len = tokenTransfer.tokenTransferPayload.readUIntBE(index, 2);
+        index += 2;
         let swapCallData = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
         index += len;
         swapDataList.push(
