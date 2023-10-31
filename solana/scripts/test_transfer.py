@@ -13,6 +13,7 @@ from omniswap.instructions import (
     so_swap_wrapped_without_swap,
     so_swap_native_with_whirlpool,
     so_swap_wrapped_with_whirlpool,
+    wrap_sol,
 )
 from helper import (
     getSendWrappedTransferAccounts,
@@ -656,4 +657,150 @@ async def omniswap_send_wrapped_token_with_whirlpool():
     print(tx_sig.value)
 
 
-asyncio.run(omniswap_send_native_token())
+async def omniswap_send_native_token_sol():
+    client = get_client("devnet")
+    await client.is_connected()
+
+    payer = get_payer()
+
+    config = get_config("devnet")
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+    wormhole_program_id = config["program"]["Wormhole"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
+    lookup_table_key = Pubkey.from_string(config["lookup_table"]["key"])
+
+    omnibtc_chainid_src = config["omnibtc_chainid"]
+    omnibtc_chainid_dst = config["wormhole"]["dst_chain"]["bsc-test"]["omnibtc_chainid"]
+    wormhole_dst_chain = config["wormhole"]["dst_chain"]["bsc-test"]["chainid"]
+
+    wsol_mint = Pubkey.from_string("So11111111111111111111111111111111111111112")
+    wsol_on_solana = bytes(wsol_mint)
+    # wsol account
+    wsol_account = Pubkey.from_string("6keZXUa7n3hoHkboSnzpGETANuwY43zWZC3FGrCPN1Gh")
+    # send 1 wsol
+    bridge_amount = 1_000_000_000
+    # recipient
+    recipient_address = bytes.fromhex("cAF084133CBdBE27490d3afB0Da220a40C32E307")
+    wsol_token_on_bsc = bytes.fromhex("30f19eBba919954FDc020B8A20aEF13ab5e02Af0")
+    dst_so_diamond_padding = bytes.fromhex(
+        "00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
+    )
+    # collect relayer gas fee
+    beneficiary_account = Pubkey.from_string(config["beneficiary"])
+
+    send_native_accounts = getSendNativeTransferAccounts(
+        token_bridge_program_id,
+        wormhole_program_id,
+        omniswap_program_id,
+        wormhole_dst_chain,
+        wsol_mint,
+    )
+
+    current_seq_bytes = await client.get_account_info(
+        send_native_accounts["token_bridge_sequence"]
+    )
+    current_seq = int.from_bytes(current_seq_bytes.value.data, byteorder="little")
+    print(f"current_seq={current_seq}")
+
+    next_seq = current_seq + 1
+    wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
+
+    so_data = SoData(
+        transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
+        receiver=recipient_address,
+        sourceChainId=omnibtc_chainid_src,
+        sendingAssetId=wsol_on_solana,
+        destinationChainId=omnibtc_chainid_dst,
+        receivingAssetId=wsol_token_on_bsc,
+        amount=bridge_amount,
+    ).encode_normalized()
+
+    # This value will be automatically corrected
+    # on the chain when post_request is called
+    defult_wormhole_fee = 0
+    # 10 Gwei
+    dst_gas_price = 10_000_000_000
+    wormhole_data = WormholeData(
+        dstWormholeChainId=wormhole_dst_chain,
+        dstMaxGasPriceInWeiForRelayer=dst_gas_price,
+        wormholeFee=defult_wormhole_fee,
+        dstSoDiamond=dst_so_diamond_padding,
+    ).encode_normalized()
+
+    request_key, _total_fee = await post_cross_requset(
+        wormhole_dst_chain,
+        so_data=so_data,
+        wormhole_data=wormhole_data,
+        # simulate=True
+    )
+
+    # ExceededMaxInstructions
+    # devnet_limit=200_000, real=248782
+    ix0 = set_compute_unit_limit(300_000)
+
+    ix1 = wrap_sol(
+        args={"amount_to_be_wrapped": bridge_amount},
+        accounts={
+            "payer": payer.pubkey(),
+            "wrap_sol_account": wsol_account,
+            "wsol_mint": Pubkey.from_string(
+                "So11111111111111111111111111111111111111112"
+            ),
+        },
+    )
+
+    ix2 = so_swap_native_without_swap(
+        accounts={
+            "payer": payer.pubkey(),
+            "request": request_key,
+            "config": send_native_accounts["send_config"],
+            "fee_config": send_native_accounts["fee_config"],
+            "price_manager": send_native_accounts["price_manager"],
+            "beneficiary_account": beneficiary_account,
+            "foreign_contract": send_native_accounts["foreign_contract"],
+            "mint": wsol_mint,
+            "from_token_account": wsol_account,
+            "tmp_token_account": send_native_accounts["tmp_token_account"],
+            "wormhole_program": send_native_accounts["wormhole_program"],
+            "token_bridge_program": send_native_accounts["token_bridge_program"],
+            "token_bridge_config": send_native_accounts["token_bridge_config"],
+            "token_bridge_custody": send_native_accounts["token_bridge_custody"],
+            "token_bridge_authority_signer": send_native_accounts[
+                "token_bridge_authority_signer"
+            ],
+            "token_bridge_custody_signer": send_native_accounts[
+                "token_bridge_custody_signer"
+            ],
+            "wormhole_bridge": send_native_accounts["wormhole_bridge"],
+            "wormhole_message": wormhole_message,
+            "token_bridge_emitter": send_native_accounts["token_bridge_emitter"],
+            "token_bridge_sequence": send_native_accounts["token_bridge_sequence"],
+            "wormhole_fee_collector": send_native_accounts["wormhole_fee_collector"],
+        },
+    )
+
+    blockhash = await client.get_latest_blockhash()
+
+    lookup_table_data = await client.get_account_info(lookup_table_key)
+    lookup_table_addresses = decode_address_look_up_table(lookup_table_data.value.data)
+
+    lookup_table = AddressLookupTableAccount(
+        key=lookup_table_key, addresses=lookup_table_addresses
+    )
+
+    message0 = MessageV0.try_compile(
+        payer=payer.pubkey(),
+        instructions=[ix0, ix1, ix2],
+        address_lookup_table_accounts=[lookup_table],
+        recent_blockhash=blockhash.value.blockhash,
+    )
+    print(message0.address_table_lookups)
+
+    txn = VersionedTransaction(message0, [payer])
+
+    tx_sig = await client.send_transaction(txn)
+    print(tx_sig.value)
+
+
+asyncio.run(omniswap_send_native_token_sol())

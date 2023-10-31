@@ -69,20 +69,21 @@ async def call_set_so_fee():
 
 
 async def call_initialize_all():
-    print(
-        bytes(Pubkey.from_string("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU")).hex()
-    )
-    # print("initialize...")
-    # await omniswap_initialize()
-    #
-    # print("set_so_fee...")
-    # await omniswap_set_so_fee(0)
-    #
-    # print("register_foreign_contract...")
-    # await omniswap_register_foreign_contract("bsc-test")
-    #
-    # print("set_price_ratio...")
-    # await omniswap_set_price_ratio("bsc-test", 10_000_000)
+    print("initialize...")
+    await omniswap_initialize()
+
+    print("set_so_fee...")
+    # 0.1 %
+    so_fee_by_ray = 100_000
+    ray = 100_000_000
+    print(f"set_so_fee...{so_fee_by_ray / ray}")
+    await omniswap_set_so_fee(so_fee_by_ray)
+
+    print("register_foreign_contract...")
+    await omniswap_register_foreign_contract("bsc-test")
+
+    print("set_price_ratio...")
+    await omniswap_set_price_ratio("bsc-test", 10_000_000)
 
 
-asyncio.run(call_omniswap_set_redeem_proxy())
+asyncio.run(call_set_so_fee())

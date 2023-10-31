@@ -1,4 +1,7 @@
 import asyncio
+
+from solders.pubkey import Pubkey
+
 from omniswap.accounts.cross_request import CrossRequest
 from helper import deriveCrossRequestKey
 from config import get_client, get_config
@@ -15,8 +18,11 @@ async def omniswap_estimate_relayer_fee(
     omniswap_program_id = config["program"]["SoDiamond"]
 
     start = 0
+    requester = Pubkey.from_string("")
     while True:
-        req_key = deriveCrossRequestKey(omniswap_program_id, sequence=start)
+        req_key = deriveCrossRequestKey(
+            omniswap_program_id, sequence=start, requester=requester
+        )
 
         req = await CrossRequest.fetch(client, req_key)
         if req is None:

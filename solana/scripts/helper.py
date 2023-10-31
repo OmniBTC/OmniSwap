@@ -103,7 +103,9 @@ def deriveTokenTransferMessageKey(
     return program_address
 
 
-def deriveCrossRequestKey(omniswap_program_id: Union[str, Pubkey], sequence: int):
+def deriveCrossRequestKey(
+    omniswap_program_id: Union[str, Pubkey], sequence: int, requester: Pubkey
+):
     if isinstance(omniswap_program_id, str):
         program_id = Pubkey.from_string(omniswap_program_id)
     else:
@@ -111,6 +113,7 @@ def deriveCrossRequestKey(omniswap_program_id: Union[str, Pubkey], sequence: int
 
     seed = [b"request"]
     seed.append(sequence.to_bytes(length=8, byteorder="little", signed=False))
+    seed.append(bytes(requester))
 
     program_address, _nonce = Pubkey.find_program_address(seed, program_id)
     return program_address
@@ -298,6 +301,18 @@ def deriveTmpTokenAccountKey(
 
     seed = [b"tmp"]
     seed.append(bytes(wrapped_mint))
+
+    program_address, _nonce = Pubkey.find_program_address(seed, program_id)
+    return program_address
+
+
+def deriveUnwrapSolAccountKey(omniswap_program_id: Union[str, Pubkey]):
+    if isinstance(omniswap_program_id, str):
+        program_id = Pubkey.from_string(omniswap_program_id)
+    else:
+        program_id = omniswap_program_id
+
+    seed = [b"unwrap"]
 
     program_address, _nonce = Pubkey.find_program_address(seed, program_id)
     return program_address

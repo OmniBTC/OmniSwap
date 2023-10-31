@@ -37,7 +37,9 @@ async def post_cross_requset(
     request_seq = int.from_bytes(sender_config.value.data[-8:], byteorder="little")
     print(f"request_seq={request_seq}")
 
-    request_key = deriveCrossRequestKey(omniswap_program_id, request_seq)
+    request_key = deriveCrossRequestKey(
+        omniswap_program_id, request_seq, payer.pubkey()
+    )
     print(f"request_key={request_key}")
 
     fee_config_key = deriveSoFeeConfigKey(omniswap_program_id)

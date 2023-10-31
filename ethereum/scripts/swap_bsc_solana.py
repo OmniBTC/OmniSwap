@@ -34,6 +34,11 @@ def bsc_token_approve(amount: int, aprrove_address: str):
 
     token.approve(aprrove_address, amount, {"from": get_account()})
 
+def wsol_token_approve(amount: int, aprrove_address: str):
+    token = Contract.from_abi("", "0x30f19eBba919954FDc020B8A20aEF13ab5e02Af0", interface.IERC20.abi)
+
+    token.approve(aprrove_address, amount, {"from": get_account()})
+
 def attest_token_bsc():
     change_network("bsc-test")
     token_bridge = Contract.from_abi("", "0x9dcF9D205C9De35334D646BeE44b2D2859712A09", interface.IWormholeBridge.abi)
@@ -125,6 +130,23 @@ class SoData(View):
             sendingAssetId="0x51a3cc54eA30Da607974C5D07B8502599801AC08", # usdc-sol(by wormhole)
             destinationChainId=1,
             receivingAssetId="0x"+b58decode("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU").hex(), # usdc (on solana)
+            amount=amount,
+        )
+
+    @classmethod
+    def create_wsol(
+            cls,
+            receiver: str,
+            amount: int,
+    ):
+
+        return SoData(
+            transactionId=cls.generate_random_bytes32(),
+            receiver=receiver,
+            sourceChainId=4,
+            sendingAssetId="0x30f19eBba919954FDc020B8A20aEF13ab5e02Af0", # wsol
+            destinationChainId=1,
+            receivingAssetId="0x"+bytes([0]*32).hex(), # unwrap to sol on solana
             amount=amount,
         )
 
@@ -226,6 +248,50 @@ def cross_swap_wrapped_via_wormhole():
         {"from": get_account(), "value": int(msg_value)},
     )
 
+def cross_swap_wsol_via_wormhole():
+    change_network("bsc-test")
+    so_diamond = "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
+    wsol_amount = 10_000_000 # decimals=9
+
+    wsol_token_approve(wsol_amount, so_diamond)
+
+    so_data = SoData.create_wsol(
+        receiver="0x"+b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
+        amount=wsol_amount
+    )
+    print("SoData\n", so_data)
+    so_data = so_data.format_to_contract()
+
+    swap_data_src = []
+    swap_data_dst = []
+    input_eth_amount = 0
+    dstMaxGasPriceInWeiForRelayer = 1
+    dst_diamond_address = "0x"+b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
+
+    proxy_diamond = Contract.from_abi(
+        "WormholeFacet", so_diamond, WormholeFacet.abi
+    )
+
+    relayer_fee = proxy_diamond.estimateRelayerFee(
+        so_data, wormhole_data, swap_data_dst
+    )
+    wormhole_fee = proxy_diamond.getWormholeMessageFee()
+    msg_value = wormhole_fee + relayer_fee + input_eth_amount
+    wormhole_data[2] = msg_value
+    print(
+        f"wormhole cross fee: {wormhole_fee / 1e18} ether\n"
+        f"relayer fee: {relayer_fee / 1e18} ether\n"
+        f"input eth: {input_eth_amount / 1e18} ether\n"
+        f"msg value: {msg_value / 1e18} ether"
+    )
+    proxy_diamond.soSwapViaWormhole(
+        so_data,
+        swap_data_src,
+        wormhole_data,
+        swap_data_src,
+        {"from": get_account(), "value": int(msg_value)},
+    )
 
 def complete_swap_via_wormhole():
     change_network("bsc-test")
@@ -235,7 +301,7 @@ def complete_swap_via_wormhole():
         "WormholeFacet", so_diamond, WormholeFacet.abi
     )
 
-    vaa = bytes.fromhex("01000000000100dccfc5aef5b229a387d5464842e1b045b89d56558befc2a8ae1573838d88e59037f26305353912efb530d074a1ddb2427256d73d73074214b5bd100fe3f4dac300653f93b30000000000013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca980000000000006407200300000000000000000000000000000000000000000000000000000000056dc50b0000000000000000000000008ce306d8a34c99b23d3054072ba7fc013684e8a1000400000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc00043eb54bfb6f363a4b14879f4189fecd37bf35acfc86572f9879f620736ecf3228030186a0030aed98200cc750774ceb719d5663d6a5ee82a5575d89b2a7d197d21401a58c6adb1d077014caf084133cbdbe27490d3afb0da220a40c32e307148ce306d8a34c99b23d3054072ba7fc013684e8a1")
+    vaa = bytes.fromhex("0100000000010049548bf702d9b661921d6613274691aa4cd0f1c054e1099b1143fadbe1fda7ef6e710dfc0db6dd6f51557552ad2441ece14f50850b858027dccb390c4c8ba965016540e7ae0000000000013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98000000000000640d20030000000000000000000000000000000000000000000000000000000005f5e100069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc00043636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa8430502540be400030aed982072c0abcb79d3d9e5ed83c122870d42013dc91d475b2a29a1d100e196c84818a014caf084133cbdbe27490d3afb0da220a40c32e3071430f19ebba919954fdc020b8a20aef13ab5e02af0")
 
     proxy_diamond.completeSoSwap(vaa, {"from": get_account()})
 
@@ -441,5 +507,6 @@ def cross_swap_native_via_wormhole_whirlpool():
 def main():
     # complete_swap_via_wormhole()
     # cross_swap_wrapped_via_wormhole()
-    cross_swap_wrapped_via_wormhole_whirlpool()
+    # cross_swap_wrapped_via_wormhole_whirlpool()
     # cross_swap_native_via_wormhole_whirlpool()
+    cross_swap_wsol_via_wormhole()

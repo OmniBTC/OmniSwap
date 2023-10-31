@@ -36,6 +36,10 @@ devnet:
       mint: "xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"
       erc20: "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1"
       decimals: 8
+    WSOL:
+      mint: "So11111111111111111111111111111111111111112"
+      erc20: "0x30f19eBba919954FDc020B8A20aEF13ab5e02Af0"
+      decimals: 9
 
   pools:
     Whirlpool-TEST-USDC: "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV"
