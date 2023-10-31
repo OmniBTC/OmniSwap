@@ -140,106 +140,70 @@ contract LibCorrectSwapV1 {
     bytes4 private constant _FUNC47 =
     IOneInchUnoswapV3Router.uniswapV3SwapToWithPermit.selector;
 
+    mapping(bytes4 => bytes4) private _correctSwapFunc;
+
+    constructor() {
+        _correctSwapFunc[_FUNC3] = this.basicCorrectSwap.selector;
+        _correctSwapFunc[_FUNC4] = this.basicCorrectSwap.selector;
+        _correctSwapFunc[_FUNC5] = this.basicCorrectSwap.selector;
+        _correctSwapFunc[_FUNC6] = this.exactInput.selector;
+        _correctSwapFunc[_FUNC7] = this.syncSwap.selector;
+        _correctSwapFunc[_FUNC9] = this.muteSwap.selector;
+        _correctSwapFunc[_FUNC10] = this.muteSwap.selector;
+        _correctSwapFunc[_FUNC11] = this.quickExactInput.selector;
+        _correctSwapFunc[_FUNC13] = this.aerodrome.selector;
+        _correctSwapFunc[_FUNC14] = this.aerodrome.selector;
+        _correctSwapFunc[_FUNC15] = this.exactInputV2.selector;
+        _correctSwapFunc[_FUNC16] = this.balancerV2SingleSwap.selector;
+        _correctSwapFunc[_FUNC17] = this.curveExchange.selector;
+        _correctSwapFunc[_FUNC18] = this.curveExchangeUnderlying.selector;
+        _correctSwapFunc[_FUNC19] = this.wombatSwap.selector;
+        _correctSwapFunc[_FUNC20] = this.wombatSwap.selector;
+        _correctSwapFunc[_FUNC22] = this.traderJoeSwap.selector;
+        _correctSwapFunc[_FUNC23] = this.traderJoeSwap.selector;
+        _correctSwapFunc[_FUNC25] = this.GMXV1Swap.selector;
+        _correctSwapFunc[_FUNC26] = this.GMXV1Swap.selector;
+        _correctSwapFunc[_FUNC28] = this.pearlFiSwap.selector;
+        _correctSwapFunc[_FUNC29] = this.pearlFiSwap.selector;
+        _correctSwapFunc[_FUNC31] = this.iZiSwap.selector;
+        _correctSwapFunc[_FUNC32] = this.camelot.selector;
+        _correctSwapFunc[_FUNC34] = this.camelot.selector;
+        _correctSwapFunc[_FUNC35] = this.kyberswap.selector;
+        _correctSwapFunc[_FUNC36] = this.kyberswap.selector;
+        _correctSwapFunc[_FUNC37] = this.kyberswapSimple.selector;
+        _correctSwapFunc[_FUNC38] = this.oneInchGenericSwap.selector;
+        _correctSwapFunc[_FUNC39] = this.oneInchClipperSwap.selector;
+        _correctSwapFunc[_FUNC40] = this.oneInchClipperSwapTo.selector;
+        _correctSwapFunc[_FUNC41] = this.oneInchClipperSwapToWithPermit.selector;
+        _correctSwapFunc[_FUNC42] = this.oneInchUnoswapSwap.selector;
+        _correctSwapFunc[_FUNC43] = this.oneInchUnoswapSwapTo.selector;
+        _correctSwapFunc[_FUNC44] = this
+            .oneInchUnoswapSwapToWithPermit
+            .selector;
+        _correctSwapFunc[_FUNC45] = this.oneInchUniswapV3Swap.selector;
+        _correctSwapFunc[_FUNC46] = this.oneInchUniswapV3SwapTo.selector;
+        _correctSwapFunc[_FUNC47] = this.oneInchUniswapV3SwapToWithPermit.selector;
+    }
+
     //---------------------------------------------------------------------------
     // External Method
 
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
     external
-    view
     returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[: 4]);
-        if (sig == _FUNC1) {
+        if (_correctSwapFunc[sig] == bytes4(0)) {
             return _data;
-        } else if (sig == _FUNC2) {
-            return _data;
-        } else if (sig == _FUNC3) {
-            return tryBasicCorrectSwap(_data, _amount);
-        } else if (sig == _FUNC4) {
-            return tryBasicCorrectSwap(_data, _amount);
-        } else if (sig == _FUNC5) {
-            return tryBasicCorrectSwap(_data, _amount);
-        } else if (sig == _FUNC6) {
-            return tryExactInput(_data, _amount);
-        } else if (sig == _FUNC7) {
-            return trySyncSwap(_data, _amount);
-        } else if (sig == _FUNC8) {
-            return _data;
-        } else if (sig == _FUNC9) {
-            return tryMuteSwap(_data, _amount);
-        } else if (sig == _FUNC10) {
-            return tryMuteSwap(_data, _amount);
-        } else if (sig == _FUNC11) {
-            return tryQuickExactInput(_data, _amount);
-        } else if (sig == _FUNC12) {
-            return _data;
-        } else if (sig == _FUNC13) {
-            return tryAerodrome(_data, _amount);
-        } else if (sig == _FUNC14) {
-            return tryAerodrome(_data, _amount);
-        } else if (sig == _FUNC15) {
-            return tryExactInputV2(_data, _amount);
-        } else if (sig == _FUNC16) {
-            return tryBalancerV2SingleSwap(_data, _amount);
-        } else if (sig == _FUNC17) {
-            return tryCurveExchange(_data, _amount);
-        } else if (sig == _FUNC18) {
-            return tryCurveExchangeUnderlying(_data, _amount);
-        } else if (sig == _FUNC19) {
-            return tryWombatSwap(_data, _amount);
-        } else if (sig == _FUNC20) {
-            return tryWombatSwap(_data, _amount);
-        } else if (sig == _FUNC21) {
-            return _data;
-        } else if (sig == _FUNC22 || sig == _FUNC23) {
-            return tryTraderJoeSwap(_data, _amount);
-        } else if (sig == _FUNC24) {
-            return _data;
-        } else if (sig == _FUNC25 || sig == _FUNC26) {
-            return tryGMXV1Swap(_data, _amount);
-        } else if (sig == _FUNC27) {
-            return _data;
-        } else if (sig == _FUNC28 || sig == _FUNC29) {
-            return tryPearlFiSwap(_data, _amount);
-        } else if (sig == _FUNC30) {
-            return _data;
-        } else if (sig == _FUNC31) {
-            return tryiZiSwap(_data, _amount);
-        } else if (sig == _FUNC32) {
-            return tryCamelot(_data, _amount);
-        } else if (sig == _FUNC33) {
-            return _data;
-        } else if (sig == _FUNC34) {
-            return tryCamelot(_data, _amount);
-        } else if (sig == _FUNC35 || sig == _FUNC36) {
-            return tryKyberswap(_data, _amount);
-        } else if (sig == _FUNC37) {
-            return tryKyberswapSimple(_data, _amount);
-        } else if (sig == _FUNC38) {
-            return tryOneInchGenericSwap(_data, _amount);
-        } else if (sig == _FUNC39) {
-            return tryOneInchClipperSwap(_data, _amount);
-        } else if (sig == _FUNC40) {
-            return tryOneInchClipperSwapTo(_data, _amount);
-        } else if (sig == _FUNC41) {
-            return tryOneInchClipperSwapToWithPermit(_data, _amount);
-        } else if (sig == _FUNC42) {
-            return tryOneInchUnoswapSwap(_data, _amount);
-        } else if (sig == _FUNC43) {
-            return tryOneInchUnoswapSwapTo(_data, _amount);
-        } else if (sig == _FUNC44) {
-            return tryOneInchUnoswapSwapToWithPermit(_data, _amount);
-        } else if (sig == _FUNC45) {
-            return tryOneInchUniswapV3Swap(_data, _amount);
-        } else if (sig == _FUNC46) {
-            return tryOneInchUniswapV3SwapTo(_data, _amount);
-        } else if (sig == _FUNC47) {
-            return tryOneInchUniswapV3SwapToWithPermit(_data, _amount);
+        } else {
+            (bool success, bytes memory _result) = address(this).call(abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount));
+            if (success) {
+                return _result;
+            } else {
+                revert();
+            }
         }
-
-        // fuzzy matching
-        return tryBasicCorrectSwap(_data, _amount);
     }
 
     // @dev Fix min amount
@@ -885,13 +849,7 @@ contract LibCorrectSwapV1 {
             minReturn = _amountOutMin + _deltaMinAmount;
             return (
                 _amountOutMin,
-                abi.encodeWithSelector(
-                sig,
-                srcToken,
-                amount,
-                minReturn,
-                pools
-            )
+                abi.encodeWithSelector(sig, srcToken, amount, minReturn, pools)
             );
         } else if (_FUNC43 == sig) {
             (
@@ -950,12 +908,7 @@ contract LibCorrectSwapV1 {
             minReturn = _amountOutMin + _deltaMinAmount;
             return (
                 _amountOutMin,
-                abi.encodeWithSelector(
-                sig,
-                amount,
-                minReturn,
-                pools
-            )
+                abi.encodeWithSelector(sig, amount, minReturn, pools)
             );
         } else if (_FUNC46 == sig) {
             (
@@ -968,13 +921,7 @@ contract LibCorrectSwapV1 {
             minReturn = _amountOutMin + _deltaMinAmount;
             return (
                 _amountOutMin,
-                abi.encodeWithSelector(
-                sig,
-                recipient,
-                amount,
-                minReturn,
-                pools
-            )
+                abi.encodeWithSelector(sig, recipient, amount, minReturn, pools)
             );
         } else if (_FUNC47 == sig) {
             (
@@ -1007,20 +954,6 @@ contract LibCorrectSwapV1 {
         revert("fix amount fail!");
     }
 
-    function tryBasicCorrectSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.basicCorrectSwap(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("basicCorrectSwap fail!");
-        }
-    }
-
     function basicCorrectSwap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1048,18 +981,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryExactInput(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.exactInput(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("exactInput fail!");
-        }
-    }
-
     function exactInput(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1072,18 +993,6 @@ contract LibCorrectSwapV1 {
         params.amountIn = _amount;
 
         return abi.encodeWithSelector(bytes4(_data[: 4]), params);
-    }
-
-    function trySyncSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.syncSwap(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("syncSwap fail!");
-        }
     }
 
     function syncSwap(bytes calldata _data, uint256 _amount)
@@ -1122,18 +1031,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryMuteSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.muteSwap(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("muteSwap fail!");
-        }
-    }
-
     function muteSwap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1163,20 +1060,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryQuickExactInput(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.quickExactInput(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("quickExactInput fail!");
-        }
-    }
-
     function quickExactInput(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1189,18 +1072,6 @@ contract LibCorrectSwapV1 {
         params.amountIn = _amount;
 
         return abi.encodeWithSelector(bytes4(_data[: 4]), params);
-    }
-
-    function tryAerodrome(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.aerodrome(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("aerodrome fail!");
-        }
     }
 
     function aerodrome(bytes calldata _data, uint256 _amount)
@@ -1230,18 +1101,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryExactInputV2(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.exactInputV2(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("exactInputV2 fail!");
-        }
-    }
-
     function exactInputV2(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1256,21 +1115,7 @@ contract LibCorrectSwapV1 {
         return abi.encodeWithSelector(bytes4(_data[: 4]), params);
     }
 
-    function tryBalancerV2SingleSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.balcnerV2SingleSwap(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("balcnerV2SingleSwap fail!");
-        }
-    }
-
-    function balcnerV2SingleSwap(bytes calldata _data, uint256 _amount)
+    function balancerV2SingleSwap(bytes calldata _data, uint256 _amount)
     external
     pure
     returns (bytes memory)
@@ -1295,18 +1140,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryCurveExchange(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.curveExchange(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("curveV2Exchange fail!");
-        }
-    }
-
     function curveExchange(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1320,20 +1153,6 @@ contract LibCorrectSwapV1 {
         return abi.encodeWithSelector(bytes4(_data[: 4]), i, j, dx, min_dy);
     }
 
-    function tryCurveExchangeUnderlying(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.curveExchangeUnderlying(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("curveV2ExchangeUnderlying fail!");
-        }
-    }
-
     function curveExchangeUnderlying(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1345,18 +1164,6 @@ contract LibCorrectSwapV1 {
         );
         dx = _amount;
         return abi.encodeWithSelector(bytes4(_data[: 4]), i, j, dx, min_dy);
-    }
-
-    function tryWombatSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.wombatSwap(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("wombat swap fail!");
-        }
     }
 
     function wombatSwap(bytes calldata _data, uint256 _amount)
@@ -1388,18 +1195,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryTraderJoeSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.traderJoeSwap(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("trader joe swap fail!");
-        }
-    }
-
     function traderJoeSwap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1427,18 +1222,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryGMXV1Swap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.GMXV1Swap(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("GMX v1 swap fail!");
-        }
-    }
-
     function GMXV1Swap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1455,18 +1238,6 @@ contract LibCorrectSwapV1 {
             _minOut,
             _receiver
         );
-    }
-
-    function tryPearlFiSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.pearlFiSwap(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("trader joe swap fail!");
-        }
     }
 
     function pearlFiSwap(bytes calldata _data, uint256 _amount)
@@ -1496,18 +1267,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryiZiSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.iZiSwap(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("trader iziswap fail!");
-        }
-    }
-
     function iZiSwap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1520,18 +1279,6 @@ contract LibCorrectSwapV1 {
         require(_amount <= type(uint128).max, "Value too large for uint128");
         params.amount = uint128(_amount);
         return abi.encodeWithSelector(bytes4(_data[: 4]), params);
-    }
-
-    function tryCamelot(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.camelot(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("camelot fail!");
-        }
     }
 
     function camelot(bytes calldata _data, uint256 _amount)
@@ -1563,18 +1310,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryKyberswap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.kyberswap(_data, _amount) returns (bytes memory _result) {
-            return _result;
-        } catch {
-            revert("kyberswap fail!");
-        }
-    }
-
     function kyberswap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1586,20 +1321,6 @@ contract LibCorrectSwapV1 {
         );
         params.desc.amount = _amount;
         return abi.encodeWithSelector(bytes4(_data[: 4]), params);
-    }
-
-    function tryKyberswapSimple(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.kyberswapSimple(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("kyberswap simple fail!");
-        }
     }
 
     function kyberswapSimple(bytes calldata _data, uint256 _amount)
@@ -1632,20 +1353,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryOneInchGenericSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.oneInchGenericSwap(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchGenericSwap fail!");
-        }
-    }
-
     function oneInchGenericSwap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1669,20 +1376,6 @@ contract LibCorrectSwapV1 {
             permit,
             data
         );
-    }
-
-    function tryOneInchClipperSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.oneInchClipperSwap(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchClipperSwap fail!");
-        }
     }
 
     function oneInchClipperSwap(bytes calldata _data, uint256 _amount)
@@ -1725,20 +1418,6 @@ contract LibCorrectSwapV1 {
             r,
             vs
         );
-    }
-
-    function tryOneInchClipperSwapTo(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.oneInchClipperSwapTo(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchClipperSwapTo fail!");
-        }
     }
 
     function oneInchClipperSwapTo(bytes calldata _data, uint256 _amount)
@@ -1784,19 +1463,6 @@ contract LibCorrectSwapV1 {
             r,
             vs
         );
-    }
-
-    function tryOneInchClipperSwapToWithPermit(
-        bytes calldata _data,
-        uint256 _amount
-    ) public view returns (bytes memory) {
-        try this.oneInchClipperSwapToWithPermit(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchClipperSwapToWithPermit fail!");
-        }
     }
 
     function oneInchClipperSwapToWithPermit(
@@ -1846,20 +1512,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryOneInchUnoswapSwap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.oneInchUnoswapSwap(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchUnoswapSwap fail!");
-        }
-    }
-
     function oneInchUnoswapSwap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1880,20 +1532,6 @@ contract LibCorrectSwapV1 {
             minReturn,
             pools
         );
-    }
-
-    function tryOneInchUnoswapSwapTo(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.oneInchUnoswapSwapTo(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchUnoswapSwapTo fail!");
-        }
     }
 
     function oneInchUnoswapSwapTo(bytes calldata _data, uint256 _amount)
@@ -1921,19 +1559,6 @@ contract LibCorrectSwapV1 {
             minReturn,
             pools
         );
-    }
-
-    function tryOneInchUnoswapSwapToWithPermit(
-        bytes calldata _data,
-        uint256 _amount
-    ) public view returns (bytes memory) {
-        try this.oneInchUnoswapSwapToWithPermit(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchUnoswapSwapToWithPermit fail!");
-        }
     }
 
     function oneInchUnoswapSwapToWithPermit(
@@ -1964,20 +1589,6 @@ contract LibCorrectSwapV1 {
         );
     }
 
-    function tryOneInchUniswapV3Swap(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.oneInchUniswapV3Swap(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchUniswapV3Swap fail!");
-        }
-    }
-
     function oneInchUniswapV3Swap(bytes calldata _data, uint256 _amount)
     external
     pure
@@ -1988,20 +1599,6 @@ contract LibCorrectSwapV1 {
         amount = _amount;
         return
             abi.encodeWithSelector(bytes4(_data[: 4]), amount, minReturn, pools);
-    }
-
-    function tryOneInchUniswapV3SwapTo(bytes calldata _data, uint256 _amount)
-    public
-    view
-    returns (bytes memory)
-    {
-        try this.oneInchUniswapV3SwapTo(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchUniswapV3SwapTo fail!");
-        }
     }
 
     function oneInchUniswapV3SwapTo(bytes calldata _data, uint256 _amount)
@@ -2024,19 +1621,6 @@ contract LibCorrectSwapV1 {
             minReturn,
             pools
         );
-    }
-
-    function tryOneInchUniswapV3SwapToWithPermit(
-        bytes calldata _data,
-        uint256 _amount
-    ) public view returns (bytes memory) {
-        try this.oneInchUniswapV3SwapToWithPermit(_data, _amount) returns (
-            bytes memory _result
-        ) {
-            return _result;
-        } catch {
-            revert("oneInchUniswapV3SwapToWithPermit fail!");
-        }
     }
 
     function oneInchUniswapV3SwapToWithPermit(
