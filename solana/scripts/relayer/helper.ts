@@ -570,12 +570,16 @@ export async function getQuoteConfig(
         return connection.getMinimumBalanceForRentExemption(AccountLayout.span)
     }
 
+    await getOrCreateAssociatedTokenAccount(connection, payer, whirlpool_data.tokenMintA, payer.publicKey)
+
     const token_owner_account_a = await resolveOrCreateATA(
         connection,
         payer.publicKey,
         whirlpool_data.tokenMintA,
         rent_ta,
     );
+
+    await getOrCreateAssociatedTokenAccount(connection, payer, whirlpool_data.tokenMintB, payer.publicKey)
 
     const token_owner_account_b = await resolveOrCreateATA(
         connection,
