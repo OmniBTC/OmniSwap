@@ -6,10 +6,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @title Interface for making arbitrary calls during swap
 interface IAggregationExecutor {
     /// @notice propagates information about original msg.sender and executes arbitrary data
-    function execute(address msgSender) external payable;  // 0x4b64e492
+    function execute(address msgSender) external payable; // 0x4b64e492
 }
 
-interface OneInchGenericRouter {
+interface IOneInchGenericRouter {
     struct SwapDescription {
         IERC20 srcToken;
         IERC20 dstToken;
@@ -33,11 +33,5 @@ interface OneInchGenericRouter {
         SwapDescription calldata desc,
         bytes calldata permit,
         bytes calldata data
-    )
-    external
-    payable
-    returns (
-        uint256 returnAmount,
-        uint256 spentAmount
-    );
+    ) external payable returns (uint256 returnAmount, uint256 spentAmount);
 }

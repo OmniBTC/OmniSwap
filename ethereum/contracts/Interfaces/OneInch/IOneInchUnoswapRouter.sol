@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-interface OneInchUnoswapRouter {
+interface IOneInchUnoswapRouter {
     /// @notice Same as `unoswapTo` but calls permit first,
     /// allowing to approve token spending and make a swap in one transaction.
     /// @param recipient Address that will receive swapped funds

@@ -11,14 +11,39 @@ interface IClipperExchangeInterface {
         bytes32 s;
     }
 
-    function sellEthForToken(address outputToken, uint256 inputAmount, uint256 outputAmount, uint256 goodUntil, address destinationAddress, Signature calldata theSignature, bytes calldata auxiliaryData) external payable;
+    function sellEthForToken(
+        address outputToken,
+        uint256 inputAmount,
+        uint256 outputAmount,
+        uint256 goodUntil,
+        address destinationAddress,
+        Signature calldata theSignature,
+        bytes calldata auxiliaryData
+    ) external payable;
 
-    function sellTokenForEth(address inputToken, uint256 inputAmount, uint256 outputAmount, uint256 goodUntil, address destinationAddress, Signature calldata theSignature, bytes calldata auxiliaryData) external;
+    function sellTokenForEth(
+        address inputToken,
+        uint256 inputAmount,
+        uint256 outputAmount,
+        uint256 goodUntil,
+        address destinationAddress,
+        Signature calldata theSignature,
+        bytes calldata auxiliaryData
+    ) external;
 
-    function swap(address inputToken, address outputToken, uint256 inputAmount, uint256 outputAmount, uint256 goodUntil, address destinationAddress, Signature calldata theSignature, bytes calldata auxiliaryData) external;
+    function swap(
+        address inputToken,
+        address outputToken,
+        uint256 inputAmount,
+        uint256 outputAmount,
+        uint256 goodUntil,
+        address destinationAddress,
+        Signature calldata theSignature,
+        bytes calldata auxiliaryData
+    ) external;
 }
 
-interface OneInchClipperRouter {
+interface IOneInchClipperRouter {
     /// @notice Same as `clipperSwapTo` but calls permit first,
     /// allowing to approve token spending and make a swap in one transaction.
     /// @dev See tests for examples
