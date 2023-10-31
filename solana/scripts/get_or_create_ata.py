@@ -4,7 +4,7 @@ from pathlib import Path
 
 from solders.pubkey import Pubkey
 
-from config import get_config
+from solana_config import get_config
 
 
 def get_or_create_associated_token_account(

@@ -109,9 +109,9 @@ export interface WormholeData {
 }
 
 export interface SwapData {
-    swapCallTo: Buffer;
-    swapSendingAssetId: Buffer;
-    swapReceivingAssetId: Buffer;
+    swapCallTo: string;
+    swapSendingAssetId: string;
+    swapReceivingAssetId: string;
     swapCallData: Buffer;
 }
 
@@ -125,6 +125,8 @@ export interface ParsedOmniswapPayload extends ParsedTokenTransferVaa, WormholeD
 
 export function parseVaaToOmniswapPayload(vaa: Buffer): ParsedOmniswapPayload {
     const tokenTransfer = parseTokenTransferVaa(vaa);
+
+    const payloadLen = tokenTransfer.tokenTransferPayload.length;
 
     let index = 0;
 
@@ -163,31 +165,31 @@ export function parseVaaToOmniswapPayload(vaa: Buffer): ParsedOmniswapPayload {
     let soReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
     index += len;
 
-    if (index < vaa.length) {
+    if (index < payloadLen) {
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
         index += len;
     }
 
     let swapDataList = [];
-    while (index < vaa.length) {
+    while (index < payloadLen) {
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
-        let swapCallTo = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        let swapCallTo = bs58.encode(tokenTransfer.tokenTransferPayload.subarray(index, index + len));
         index += len;
 
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
-        let swapSendingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        let swapSendingAssetId = bs58.encode(tokenTransfer.tokenTransferPayload.subarray(index, index + len));
         index += len;
 
         len = tokenTransfer.tokenTransferPayload.readUint8(index);
         index += 1;
-        let swapReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        let swapReceivingAssetId = bs58.encode(tokenTransfer.tokenTransferPayload.subarray(index, index + len));
         index += len;
 
-        len = tokenTransfer.tokenTransferPayload.readUint8(index);
-        index += 1;
+        len = tokenTransfer.tokenTransferPayload.readUIntBE(index, 2);
+        index += 2;
         let swapCallData = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
         index += len;
         swapDataList.push(
@@ -500,11 +502,30 @@ async function getTokenDecimal(
 }
 
 
+export interface QuoteConfig {
+    whirlpoolProgram: string;
+    whirlpool: string;
+    tokenMintA: PublicKey;
+    tokenMintB: PublicKey;
+    tokenOwnerAccountA: PublicKey;
+    tokenOwnerAccountB: PublicKey;
+    tokenVaultA: PublicKey;
+    tokenVaultB: PublicKey;
+    tickArray0: string;
+    tickArray1: string;
+    tickArray2: string;
+    oracle: string;
+    isAToB: boolean;
+    amountIn: Decimal;
+    estimatedAmountOut: Decimal;
+    minAmountOut: Decimal;
+}
+
 export async function getQuoteConfig(
     connection: Connection,
     payer: Keypair,
     parsed: ParsedOmniswapPayload
-): Promise<{ [key: string]: any }> {
+): Promise<QuoteConfig> {
     const ctx = WhirlpoolContext.from(
         connection,
         new Wallet(payer),
@@ -517,12 +538,12 @@ export async function getQuoteConfig(
     assert.strictEqual(parsed.swapDataList.length, 1, "swapDataList !== 1");
 
     // get pool
-    const pool = parsed.swapDataList[0].swapCallTo.toString("ascii");
+    const pool = parsed.swapDataList[0].swapCallTo;
 
     const whirlpool = await client.getPool(pool);
 
     // acceptable slippage is 1.0% (10/1000)
-    const default_slippage = Percentage.fromFraction(100, 1000);
+    const default_slippage = Percentage.fromFraction(500, 1000);
 
     const input_token_mint = new PublicKey(parsed.swapDataList[0].swapSendingAssetId)
     const shift_decimals = await getTokenDecimal(connection, input_token_mint);
@@ -532,7 +553,7 @@ export async function getQuoteConfig(
         amount_in = amount_in * Math.pow(10, shift_decimals - 8);
     }
 
-    const shift_amount_in = DecimalUtil.toBN(new Decimal(amount_in), shift_decimals)
+    const shift_amount_in = DecimalUtil.toBN(new Decimal(amount_in))
 
     const quote = await swapQuoteByInputToken(
         whirlpool,
@@ -543,10 +564,13 @@ export async function getQuoteConfig(
         acountFetcher,
     );
 
-    const quote_config = {}
     const whirlpool_data = whirlpool.getData();
 
-    const rent_ta = async () => { return connection.getMinimumBalanceForRentExemption(AccountLayout.span) }
+    const rent_ta = async () => {
+        return connection.getMinimumBalanceForRentExemption(AccountLayout.span)
+    }
+
+    await getOrCreateAssociatedTokenAccount(connection, payer, whirlpool_data.tokenMintA, payer.publicKey)
 
     const token_owner_account_a = await resolveOrCreateATA(
         connection,
@@ -554,6 +578,8 @@ export async function getQuoteConfig(
         whirlpool_data.tokenMintA,
         rent_ta,
     );
+
+    await getOrCreateAssociatedTokenAccount(connection, payer, whirlpool_data.tokenMintB, payer.publicKey)
 
     const token_owner_account_b = await resolveOrCreateATA(
         connection,
@@ -567,24 +593,24 @@ export async function getQuoteConfig(
         whirlpool.getAddress()
     );
 
-    quote_config["whirlpool_program"] = ORCA_WHIRLPOOL_PROGRAM_ID.toString()
-    quote_config["whirlpool"] = pool
-    quote_config["token_mint_a"] = whirlpool_data.tokenMintA
-    quote_config["token_mint_b"] = whirlpool_data.tokenMintB
-    quote_config["token_owner_account_a"] = token_owner_account_a.address
-    quote_config["token_owner_account_b"] = token_owner_account_b.address
-    quote_config["token_vault_a"] = whirlpool_data.tokenVaultA
-    quote_config["token_vault_b"] = whirlpool_data.tokenVaultB
-    quote_config["tick_array_0"] = quote.tickArray0.toString()
-    quote_config["tick_array_1"] = quote.tickArray1.toString()
-    quote_config["tick_array_2"] = quote.tickArray2.toString()
-    quote_config["oracle"] = oracle_pda.publicKey.toString()
-    quote_config["is_a_to_b"] = quote.aToB
-    quote_config["amount_in"] = DecimalUtil.fromBN(quote.estimatedAmountIn)
-    quote_config["estimated_amount_out"] = DecimalUtil.fromBN(quote.estimatedAmountOut)
-    quote_config["min_amount_out"] = DecimalUtil.fromBN(quote.otherAmountThreshold)
-
-    return quote_config;
+    return {
+        whirlpoolProgram: ORCA_WHIRLPOOL_PROGRAM_ID.toString(),
+        whirlpool: pool,
+        tokenMintA: whirlpool_data.tokenMintA,
+        tokenMintB: whirlpool_data.tokenMintB,
+        tokenOwnerAccountA: token_owner_account_a.address,
+        tokenOwnerAccountB: token_owner_account_b.address,
+        tokenVaultA: whirlpool_data.tokenVaultA,
+        tokenVaultB: whirlpool_data.tokenVaultB,
+        tickArray0: quote.tickArray0.toString(),
+        tickArray1: quote.tickArray1.toString(),
+        tickArray2: quote.tickArray2.toString(),
+        oracle: oracle_pda.publicKey.toString(),
+        isAToB: quote.aToB,
+        amountIn: DecimalUtil.fromBN(quote.estimatedAmountIn),
+        estimatedAmountOut: DecimalUtil.fromBN(quote.estimatedAmountOut),
+        minAmountOut: DecimalUtil.fromBN(quote.otherAmountThreshold),
+    };
 }
 
 export async function createCompleteSoSwapNativeWithWhirlpool(
@@ -614,7 +640,7 @@ export async function createCompleteSoSwapNativeWithWhirlpool(
 
     const recipient = new PublicKey(parsed.soReceiver);
 
-    const quote_config = await getQuoteConfig(connection, payer, parsed);
+    const quoteConfig = await getQuoteConfig(connection, payer, parsed);
 
     const bridgeToken = new PublicKey(parsed.swapDataList[0].swapSendingAssetId);
     const recipientBridgeTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, recipient)).address;
@@ -629,16 +655,16 @@ export async function createCompleteSoSwapNativeWithWhirlpool(
             config: deriveRedeemerConfigKey(programId),
             feeConfig: deriveSoFeeConfigKey(programId),
             beneficiaryTokenAccount,
-            whirlpoolProgram: quote_config["whirlpool_program"],
-            whirlpoolAccount: quote_config["whirlpool"],
-            whirlpoolTokenOwnerAccountA: quote_config["token_owner_account_a"],
-            whirlpoolTokenVaultA: quote_config["token_vault_a"],
-            whirlpoolTokenOwnerAccountB: quote_config["token_owner_account_b"],
-            whirlpoolTokenVaultB: quote_config["token_vault_b"],
-            whirlpoolTickArray0: quote_config["tick_array_0"],
-            whirlpoolTickArray1: quote_config["tick_array_1"],
-            whirlpoolTickArray2: quote_config["tick_array_2"],
-            whirlpoolOracle: quote_config["oracle"],
+            whirlpoolProgram: quoteConfig.whirlpoolProgram,
+            whirlpoolAccount: quoteConfig.whirlpool,
+            whirlpoolTokenOwnerAccountA: quoteConfig.tokenOwnerAccountA,
+            whirlpoolTokenVaultA: quoteConfig.tokenVaultA,
+            whirlpoolTokenOwnerAccountB: quoteConfig.tokenOwnerAccountB,
+            whirlpoolTokenVaultB: quoteConfig.tokenVaultB,
+            whirlpoolTickArray0: quoteConfig.tickArray0,
+            whirlpoolTickArray1: quoteConfig.tickArray1,
+            whirlpoolTickArray2: quoteConfig.tickArray2,
+            whirlpoolOracle: quoteConfig.oracle,
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             mint,
             recipientTokenAccount,
@@ -689,20 +715,37 @@ export async function createCompleteSoSwapWrappedWithWhirlpool(
         tmpTokenAccount
     );
 
+    const quoteConfig = await getQuoteConfig(connection, payer, parsed);
+
     const recipient = new PublicKey(parsed.soReceiver);
+
+    const bridgeToken = new PublicKey(parsed.swapDataList[0].swapSendingAssetId);
+    const recipientBridgeTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, recipient)).address;
     const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, recipient)).address;
     const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, new PublicKey(beneficiary))).address;
 
+
     return program.methods
-        .completeSoSwapWrappedWithWhirlpool([...parsed.hash], false)
+        .completeSoSwapWrappedWithWhirlpool([...parsed.hash])
         .accounts({
             payer: tokenBridgeAccounts.payer,
             config: deriveRedeemerConfigKey(programId),
             feeConfig: deriveSoFeeConfigKey(programId),
             beneficiaryTokenAccount,
+            whirlpoolProgram: quoteConfig.whirlpoolProgram,
+            whirlpoolAccount: quoteConfig.whirlpool,
+            whirlpoolTokenOwnerAccountA: quoteConfig.tokenOwnerAccountA,
+            whirlpoolTokenVaultA: quoteConfig.tokenVaultA,
+            whirlpoolTokenOwnerAccountB: quoteConfig.tokenOwnerAccountB,
+            whirlpoolTokenVaultB: quoteConfig.tokenVaultB,
+            whirlpoolTickArray0: quoteConfig.tickArray0,
+            whirlpoolTickArray1: quoteConfig.tickArray1,
+            whirlpoolTickArray2: quoteConfig.tickArray2,
+            whirlpoolOracle: quoteConfig.oracle,
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
             tokenBridgeWrappedMint: tokenBridgeAccounts.tokenBridgeWrappedMint,
             recipientTokenAccount,
+            recipientBridgeTokenAccount,
             tmpTokenAccount,
             wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),

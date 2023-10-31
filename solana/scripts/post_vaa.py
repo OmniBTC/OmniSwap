@@ -2,7 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from config import get_config
+from solana_config import get_config
 
 
 def post_vaa(vaa: str, network="devnet"):

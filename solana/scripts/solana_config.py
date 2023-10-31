@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from functools import cache
+from functools import lru_cache
 
 import yaml
 
@@ -12,14 +12,14 @@ from solana.rpc.async_api import AsyncClient
 load_dotenv()
 
 
-@cache
+@lru_cache()
 def get_config(network: str = "devnet"):
     with Path(__file__).parent.parent.joinpath("config.yaml").open() as fp:
         config = yaml.safe_load(fp)
         return config[network]
 
 
-@cache
+@lru_cache()
 def get_payer():
     bytes_string = os.environ.get("TEST_OWNER")
     assert bytes_string is not None, "empty solana wallet envs"
@@ -33,7 +33,7 @@ def get_payer():
     return owner
 
 
-@cache
+@lru_cache()
 def get_proxy():
     bytes_string = os.environ.get("TEST_REDEEM_PROXY")
     assert bytes_string is not None, "empty solana wallet envs"
@@ -47,7 +47,7 @@ def get_proxy():
     return proxy
 
 
-@cache
+@lru_cache()
 def get_price_manager():
     bytes_string = os.environ.get("TEST_PRICE_MANAGER")
     assert bytes_string is not None, "empty solana wallet envs"
