@@ -2,9 +2,10 @@ import {
     Connection,
     Keypair,
     PublicKey,
-    sendAndConfirmTransaction,
-    Transaction,
-    TransactionInstruction
+    TransactionMessage,
+    TransactionInstruction,
+    VersionedTransaction,
+    ComputeBudgetProgram
 } from "@solana/web3.js";
 import fs from "fs";
 import axios from "axios";
@@ -52,6 +53,7 @@ let NET_TO_CONTRACT;
 let NET_TO_DEFAULT_FROM_BLOCK;
 let SODIAMOND;
 let BENEFICIARY;
+let LOOKUP_TABLE_KEY;
 
 // @ts-ignore
 if (NET !== "solana-mainnet") {
@@ -75,7 +77,7 @@ if (NET !== "solana-mainnet") {
     NET_TO_CONTRACT = {
         "bsc-test": "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
     }
-    SODIAMOND = "0x7ef1dcda48c0b739dfd4da982c187838573cc044d8ded9fe382b84ceb6fa6b53"
+    SODIAMOND = "0x3eb54bfb6f363a4b14879f4189fecd37bf35acfc86572f9879f620736ecf3228"
     NET_TO_DEFAULT_FROM_BLOCK = {
         "bsc-test": 34075043
     }
@@ -96,9 +98,10 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
-    OMNISWAP_PID = new PublicKey("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
+    OMNISWAP_PID = new PublicKey("5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7");
     SOLANA_URL = "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/";
     BENEFICIARY = "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS";
+    LOOKUP_TABLE_KEY = new PublicKey("ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8")
 } else {
     WORMHOLE_URL = [
         "https://wormhole-v2-mainnet-api.certus.one",
@@ -145,9 +148,10 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
-    OMNISWAP_PID = new PublicKey("9YYGvVLZJ9XmKM2A1RNv1Dx3oUnHWgtXWt8V3HU5MtXU");
+    OMNISWAP_PID = new PublicKey("");
     SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
     BENEFICIARY = "";
+    LOOKUP_TABLE_KEY = new PublicKey("")
 }
 WORMHOLE_CHAIN_ID_TO_NET = Object.keys(NET_TO_WORMHOLE_CHAIN_ID).reduce((returnValue, key) => {
     const value = NET_TO_WORMHOLE_CHAIN_ID[key];
@@ -316,10 +320,24 @@ function logWithTimestamp(message: string): void {
 const sendAndConfirmIx = async (
     connection: Connection,
     payer: Keypair,
-    ix: TransactionInstruction | Promise<TransactionInstruction>
+    ix: TransactionInstruction
 ) => {
-    const tx = new Transaction().add(await ix);
-    return await sendAndConfirmTransaction(connection, tx, [payer]);
+
+    const blockhash = (await connection.getLatestBlockhash()).blockhash
+
+    const lookup_table = (await connection.getAddressLookupTable(LOOKUP_TABLE_KEY)).value
+
+    const ix0 = ComputeBudgetProgram.setComputeUnitLimit({units: 300_000});
+    const message0 = new TransactionMessage(
+        {
+            payerKey: payer.publicKey,
+            instructions: [ix0, ix],
+            recentBlockhash: blockhash,
+        }
+    ).compileToV0Message( [lookup_table]);
+    const tx = new VersionedTransaction(message0)
+    tx.sign([payer]);
+    return await connection.sendTransaction(tx);
 }
 
 async function processVaa(
