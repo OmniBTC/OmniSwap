@@ -1,7 +1,12 @@
 import {Omniswap} from "./types/omniswap";
 import IDL from "./idl/omniswap.json";
-import {Program, Provider} from "@coral-xyz/anchor";
-import {ASSOCIATED_TOKEN_PROGRAM_ID, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID} from "@solana/spl-token"
+import {Program, Provider, Wallet} from "@coral-xyz/anchor";
+import {
+    AccountLayout,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+    getOrCreateAssociatedTokenAccount,
+    TOKEN_PROGRAM_ID
+} from "@solana/spl-token"
 import {
     Connection,
     Keypair,
@@ -32,6 +37,18 @@ import * as bs58 from "bs58";
 import {ethers} from 'ethers';
 import fs from "fs";
 import path from 'path';
+import Decimal from "decimal.js";
+import {
+    buildDefaultAccountFetcher,
+    buildWhirlpoolClient,
+    ORCA_WHIRLPOOL_PROGRAM_ID,
+    PDAUtil,
+    swapQuoteByInputToken,
+    WhirlpoolContext
+} from "@orca-so/whirlpools-sdk";
+import {DecimalUtil, Percentage, resolveOrCreateATA} from "@orca-so/common-sdk";
+import * as assert from "assert";
+
 
 export class PersistentDictionary {
     private data: Record<string, any>;
@@ -40,7 +57,7 @@ export class PersistentDictionary {
     constructor(filename: string) {
         const directory = path.dirname(filename);
         if (!fs.existsSync(directory)) {
-            fs.mkdirSync(directory, { recursive: true });
+            fs.mkdirSync(directory, {recursive: true});
         }
         this.filename = filename;
         this.loadDataFromFile();
@@ -91,11 +108,22 @@ export interface WormholeData {
     soReceivingAssetId: Buffer
 }
 
-export interface ParsedOmniswapPayload extends ParsedTokenTransferVaa, WormholeData {
+export interface SwapData {
+    swapCallTo: Buffer;
+    swapSendingAssetId: Buffer;
+    swapReceivingAssetId: Buffer;
+    swapCallData: Buffer;
+}
+
+export interface SwapDataList {
+    swapDataList: SwapData[]
+}
+
+export interface ParsedOmniswapPayload extends ParsedTokenTransferVaa, WormholeData, SwapDataList {
 }
 
 
-export function parseVaaToWormholePayload(vaa: Buffer): ParsedOmniswapPayload {
+export function parseVaaToOmniswapPayload(vaa: Buffer): ParsedOmniswapPayload {
     const tokenTransfer = parseTokenTransferVaa(vaa);
 
     let index = 0;
@@ -133,7 +161,44 @@ export function parseVaaToWormholePayload(vaa: Buffer): ParsedOmniswapPayload {
     len = tokenTransfer.tokenTransferPayload.readUint8(index);
     index += 1;
     let soReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
-    // index += len;
+    index += len;
+
+    if (index < vaa.length) {
+        len = tokenTransfer.tokenTransferPayload.readUint8(index);
+        index += 1;
+        index += len;
+    }
+
+    let swapDataList = [];
+    while (index < vaa.length) {
+        len = tokenTransfer.tokenTransferPayload.readUint8(index);
+        index += 1;
+        let swapCallTo = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        index += len;
+
+        len = tokenTransfer.tokenTransferPayload.readUint8(index);
+        index += 1;
+        let swapSendingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        index += len;
+
+        len = tokenTransfer.tokenTransferPayload.readUint8(index);
+        index += 1;
+        let swapReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        index += len;
+
+        len = tokenTransfer.tokenTransferPayload.readUint8(index);
+        index += 1;
+        let swapCallData = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+        index += len;
+        swapDataList.push(
+            {
+                swapCallTo,
+                swapSendingAssetId,
+                swapReceivingAssetId,
+                swapCallData
+            }
+        )
+    }
 
     return {
         dstMaxGasPrice: dstMaxGasPrice,
@@ -141,7 +206,9 @@ export function parseVaaToWormholePayload(vaa: Buffer): ParsedOmniswapPayload {
         soTransactionId,
         soReceiver,
         soReceivingAssetId,
+        swapDataList,
         ...tokenTransfer,
+
     }
 }
 
@@ -211,63 +278,6 @@ export function createHelloTokenProgramInterface(
     );
 }
 
-export async function createCompleteSoSwapNativeWithoutSwap(
-    connection: Connection,
-    programId: PublicKeyInitData,
-    payer: Keypair,
-    tokenBridgeProgramId: PublicKeyInitData,
-    wormholeProgramId: PublicKeyInitData,
-    wormholeMessage: Buffer,
-    beneficiary: PublicKeyInitData
-): Promise<TransactionInstruction> {
-    const payAddress = payer.publicKey.toString();
-    const program = createHelloTokenProgramInterface(connection, programId);
-
-    const parsed = parseVaaToWormholePayload(wormholeMessage);
-
-    const mint = new PublicKey(parsed.tokenAddress);
-
-    const tmpTokenAccount = deriveTmpTokenAccountKey(programId, mint);
-    const tokenBridgeAccounts = getCompleteTransferNativeWithPayloadCpiAccounts(
-        tokenBridgeProgramId,
-        wormholeProgramId,
-        payAddress,
-        parsed,
-        tmpTokenAccount
-    );
-
-    const recipient = new PublicKey(parsed.soReceiver);
-    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient)).address;
-    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, new PublicKey(beneficiary))).address;
-
-
-    return program.methods
-        .completeSoSwapNativeWithoutSwap([...parsed.hash], false)
-        .accounts({
-            payer: tokenBridgeAccounts.payer,
-            config: deriveRedeemerConfigKey(programId),
-            feeConfig: deriveSoFeeConfigKey(programId),
-            beneficiaryTokenAccount,
-            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
-            mint,
-            recipientTokenAccount,
-            tmpTokenAccount,
-            wormholeProgram: tokenBridgeAccounts.wormholeProgram,
-            tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
-            tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
-            vaa: tokenBridgeAccounts.vaa,
-            tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
-            tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
-            tokenBridgeCustody: tokenBridgeAccounts.tokenBridgeCustody,
-            tokenBridgeCustodySigner: tokenBridgeAccounts.tokenBridgeCustodySigner,
-            systemProgram: tokenBridgeAccounts.systemProgram,
-            tokenProgram: tokenBridgeAccounts.tokenProgram,
-            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-            rent: tokenBridgeAccounts.rent,
-        })
-        .instruction();
-}
-
 // Temporary
 export function getCompleteTransferNativeWithPayloadCpiAccounts(
     tokenBridgeProgramId: PublicKeyInitData,
@@ -306,66 +316,6 @@ export function getCompleteTransferNativeWithPayloadCpiAccounts(
         tokenProgram: TOKEN_PROGRAM_ID,
         wormholeProgram: new PublicKey(wormholeProgramId),
     };
-}
-
-export async function createCompleteSoSwapWrappedWithoutSwap(
-    connection: Connection,
-    programId: PublicKeyInitData,
-    payer: Keypair,
-    tokenBridgeProgramId: PublicKeyInitData,
-    wormholeProgramId: PublicKeyInitData,
-    wormholeMessage: Buffer,
-    beneficiary: PublicKeyInitData
-): Promise<TransactionInstruction> {
-    const payAddress = payer.publicKey.toString();
-    const program = createHelloTokenProgramInterface(connection, programId);
-
-    const parsed = parseVaaToWormholePayload(wormholeMessage);
-
-    const wrappedMint = deriveWrappedMintKey(
-        tokenBridgeProgramId,
-        parsed.tokenChain,
-        parsed.tokenAddress
-    );
-
-    const tmpTokenAccount = deriveTmpTokenAccountKey(programId, wrappedMint);
-    const tokenBridgeAccounts = getCompleteTransferWrappedWithPayloadCpiAccounts(
-        tokenBridgeProgramId,
-        wormholeProgramId,
-        payAddress,
-        parsed,
-        tmpTokenAccount
-    );
-
-    const recipient = new PublicKey(parsed.soReceiver);
-    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, recipient)).address;
-    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, new PublicKey(beneficiary))).address;
-
-    return program.methods
-        .completeSoSwapWrappedWithoutSwap([...parsed.hash], false)
-        .accounts({
-            payer: tokenBridgeAccounts.payer,
-            config: deriveRedeemerConfigKey(programId),
-            feeConfig: deriveSoFeeConfigKey(programId),
-            beneficiaryTokenAccount,
-            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
-            tokenBridgeWrappedMint: tokenBridgeAccounts.tokenBridgeWrappedMint,
-            recipientTokenAccount,
-            tmpTokenAccount,
-            wormholeProgram: tokenBridgeAccounts.wormholeProgram,
-            tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
-            tokenBridgeWrappedMeta: tokenBridgeAccounts.tokenBridgeWrappedMeta,
-            tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
-            vaa: tokenBridgeAccounts.vaa,
-            tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
-            tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
-            tokenBridgeMintAuthority: tokenBridgeAccounts.tokenBridgeMintAuthority,
-            systemProgram: tokenBridgeAccounts.systemProgram,
-            tokenProgram: tokenBridgeAccounts.tokenProgram,
-            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-            rent: tokenBridgeAccounts.rent,
-        })
-        .instruction();
 }
 
 // Temporary
@@ -409,4 +359,363 @@ export function getCompleteTransferWrappedWithPayloadCpiAccounts(
         tokenProgram: TOKEN_PROGRAM_ID,
         wormholeProgram: new PublicKey(wormholeProgramId),
     };
+}
+
+export async function createCompleteSoSwapNativeWithoutSwap(
+    connection: Connection,
+    programId: PublicKeyInitData,
+    payer: Keypair,
+    tokenBridgeProgramId: PublicKeyInitData,
+    wormholeProgramId: PublicKeyInitData,
+    wormholeMessage: Buffer,
+    beneficiary: PublicKeyInitData,
+    skipVerify: boolean
+): Promise<TransactionInstruction> {
+    const payAddress = payer.publicKey.toString();
+    const program = createHelloTokenProgramInterface(connection, programId);
+
+    const parsed = parseVaaToOmniswapPayload(wormholeMessage);
+
+    const mint = new PublicKey(parsed.tokenAddress);
+
+    const tmpTokenAccount = deriveTmpTokenAccountKey(programId, mint);
+    const tokenBridgeAccounts = getCompleteTransferNativeWithPayloadCpiAccounts(
+        tokenBridgeProgramId,
+        wormholeProgramId,
+        payAddress,
+        parsed,
+        tmpTokenAccount
+    );
+
+    const recipient = new PublicKey(parsed.soReceiver);
+    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient)).address;
+    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, new PublicKey(beneficiary))).address;
+
+
+    return program.methods
+        .completeSoSwapNativeWithoutSwap([...parsed.hash], skipVerify)
+        .accounts({
+            payer: tokenBridgeAccounts.payer,
+            config: deriveRedeemerConfigKey(programId),
+            feeConfig: deriveSoFeeConfigKey(programId),
+            beneficiaryTokenAccount,
+            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
+            mint,
+            recipientTokenAccount,
+            tmpTokenAccount,
+            wormholeProgram: tokenBridgeAccounts.wormholeProgram,
+            tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
+            tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
+            vaa: tokenBridgeAccounts.vaa,
+            tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
+            tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
+            tokenBridgeCustody: tokenBridgeAccounts.tokenBridgeCustody,
+            tokenBridgeCustodySigner: tokenBridgeAccounts.tokenBridgeCustodySigner,
+            systemProgram: tokenBridgeAccounts.systemProgram,
+            tokenProgram: tokenBridgeAccounts.tokenProgram,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            rent: tokenBridgeAccounts.rent,
+        })
+        .instruction();
+}
+
+export async function createCompleteSoSwapWrappedWithoutSwap(
+    connection: Connection,
+    programId: PublicKeyInitData,
+    payer: Keypair,
+    tokenBridgeProgramId: PublicKeyInitData,
+    wormholeProgramId: PublicKeyInitData,
+    wormholeMessage: Buffer,
+    beneficiary: PublicKeyInitData,
+    skipVerify: boolean
+): Promise<TransactionInstruction> {
+    const payAddress = payer.publicKey.toString();
+    const program = createHelloTokenProgramInterface(connection, programId);
+
+    const parsed = parseVaaToOmniswapPayload(wormholeMessage);
+
+    const wrappedMint = deriveWrappedMintKey(
+        tokenBridgeProgramId,
+        parsed.tokenChain,
+        parsed.tokenAddress
+    );
+
+    const tmpTokenAccount = deriveTmpTokenAccountKey(programId, wrappedMint);
+    const tokenBridgeAccounts = getCompleteTransferWrappedWithPayloadCpiAccounts(
+        tokenBridgeProgramId,
+        wormholeProgramId,
+        payAddress,
+        parsed,
+        tmpTokenAccount
+    );
+
+    const recipient = new PublicKey(parsed.soReceiver);
+    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, recipient)).address;
+    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, new PublicKey(beneficiary))).address;
+
+    return program.methods
+        .completeSoSwapWrappedWithoutSwap([...parsed.hash], skipVerify)
+        .accounts({
+            payer: tokenBridgeAccounts.payer,
+            config: deriveRedeemerConfigKey(programId),
+            feeConfig: deriveSoFeeConfigKey(programId),
+            beneficiaryTokenAccount,
+            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
+            tokenBridgeWrappedMint: tokenBridgeAccounts.tokenBridgeWrappedMint,
+            recipientTokenAccount,
+            tmpTokenAccount,
+            wormholeProgram: tokenBridgeAccounts.wormholeProgram,
+            tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
+            tokenBridgeWrappedMeta: tokenBridgeAccounts.tokenBridgeWrappedMeta,
+            tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
+            vaa: tokenBridgeAccounts.vaa,
+            tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
+            tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
+            tokenBridgeMintAuthority: tokenBridgeAccounts.tokenBridgeMintAuthority,
+            systemProgram: tokenBridgeAccounts.systemProgram,
+            tokenProgram: tokenBridgeAccounts.tokenProgram,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            rent: tokenBridgeAccounts.rent,
+        })
+        .instruction();
+}
+
+
+const CACHE_DECIMAL = {};
+
+async function getTokenDecimal(
+    connection: Connection,
+    tokenAddress: PublicKeyInitData,
+) {
+    const tokenAddressStr = tokenAddress.toString();
+    if (tokenAddressStr in CACHE_DECIMAL) {
+        return CACHE_DECIMAL[tokenAddressStr];
+    } else {
+        const tokenInfo = await connection.getTokenSupply(new PublicKey(tokenAddress));
+        const decimal = tokenInfo.value.decimals;
+        CACHE_DECIMAL[tokenAddressStr] = decimal;
+        return decimal;
+    }
+
+}
+
+
+export async function getQuoteConfig(
+    connection: Connection,
+    payer: Keypair,
+    parsed: ParsedOmniswapPayload
+): Promise<{ [key: string]: any }> {
+    const ctx = WhirlpoolContext.from(
+        connection,
+        new Wallet(payer),
+        ORCA_WHIRLPOOL_PROGRAM_ID
+    );
+    const client = buildWhirlpoolClient(ctx);
+    const acountFetcher = buildDefaultAccountFetcher(connection);
+
+
+    assert.strictEqual(parsed.swapDataList.length, 1, "swapDataList !== 1");
+
+    // get pool
+    const pool = parsed.swapDataList[0].swapCallTo.toString("ascii");
+
+    const whirlpool = await client.getPool(pool);
+
+    // acceptable slippage is 1.0% (10/1000)
+    const default_slippage = Percentage.fromFraction(100, 1000);
+
+    const input_token_mint = new PublicKey(parsed.swapDataList[0].swapSendingAssetId)
+    const shift_decimals = await getTokenDecimal(connection, input_token_mint);
+
+    let amount_in = Number(parsed.amount);
+    if (shift_decimals > 8) {
+        amount_in = amount_in * Math.pow(10, shift_decimals - 8);
+    }
+
+    const shift_amount_in = DecimalUtil.toBN(new Decimal(amount_in), shift_decimals)
+
+    const quote = await swapQuoteByInputToken(
+        whirlpool,
+        input_token_mint,
+        shift_amount_in,
+        default_slippage,
+        ctx.program.programId,
+        acountFetcher,
+    );
+
+    const quote_config = {}
+    const whirlpool_data = whirlpool.getData();
+
+    const rent_ta = async () => { return connection.getMinimumBalanceForRentExemption(AccountLayout.span) }
+
+    const token_owner_account_a = await resolveOrCreateATA(
+        connection,
+        payer.publicKey,
+        whirlpool_data.tokenMintA,
+        rent_ta,
+    );
+
+    const token_owner_account_b = await resolveOrCreateATA(
+        connection,
+        payer.publicKey,
+        whirlpool_data.tokenMintB,
+        rent_ta,
+    );
+
+    const oracle_pda = await PDAUtil.getOracle(
+        ctx.program.programId,
+        whirlpool.getAddress()
+    );
+
+    quote_config["whirlpool_program"] = ORCA_WHIRLPOOL_PROGRAM_ID.toString()
+    quote_config["whirlpool"] = pool
+    quote_config["token_mint_a"] = whirlpool_data.tokenMintA
+    quote_config["token_mint_b"] = whirlpool_data.tokenMintB
+    quote_config["token_owner_account_a"] = token_owner_account_a.address
+    quote_config["token_owner_account_b"] = token_owner_account_b.address
+    quote_config["token_vault_a"] = whirlpool_data.tokenVaultA
+    quote_config["token_vault_b"] = whirlpool_data.tokenVaultB
+    quote_config["tick_array_0"] = quote.tickArray0.toString()
+    quote_config["tick_array_1"] = quote.tickArray1.toString()
+    quote_config["tick_array_2"] = quote.tickArray2.toString()
+    quote_config["oracle"] = oracle_pda.publicKey.toString()
+    quote_config["is_a_to_b"] = quote.aToB
+    quote_config["amount_in"] = DecimalUtil.fromBN(quote.estimatedAmountIn)
+    quote_config["estimated_amount_out"] = DecimalUtil.fromBN(quote.estimatedAmountOut)
+    quote_config["min_amount_out"] = DecimalUtil.fromBN(quote.otherAmountThreshold)
+
+    return quote_config;
+}
+
+export async function createCompleteSoSwapNativeWithWhirlpool(
+    connection: Connection,
+    programId: PublicKeyInitData,
+    payer: Keypair,
+    tokenBridgeProgramId: PublicKeyInitData,
+    wormholeProgramId: PublicKeyInitData,
+    wormholeMessage: Buffer,
+    beneficiary: PublicKeyInitData
+): Promise<TransactionInstruction> {
+    const payAddress = payer.publicKey.toString();
+    const program = createHelloTokenProgramInterface(connection, programId);
+
+    const parsed = parseVaaToOmniswapPayload(wormholeMessage);
+
+    const mint = new PublicKey(parsed.tokenAddress);
+
+    const tmpTokenAccount = deriveTmpTokenAccountKey(programId, mint);
+    const tokenBridgeAccounts = getCompleteTransferNativeWithPayloadCpiAccounts(
+        tokenBridgeProgramId,
+        wormholeProgramId,
+        payAddress,
+        parsed,
+        tmpTokenAccount
+    );
+
+    const recipient = new PublicKey(parsed.soReceiver);
+
+    const quote_config = await getQuoteConfig(connection, payer, parsed);
+
+    const bridgeToken = new PublicKey(parsed.swapDataList[0].swapSendingAssetId);
+    const recipientBridgeTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, recipient)).address;
+    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient)).address;
+    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, new PublicKey(beneficiary))).address;
+
+
+    return program.methods
+        .completeSoSwapNativeWithWhirlpool([...parsed.hash])
+        .accounts({
+            payer: tokenBridgeAccounts.payer,
+            config: deriveRedeemerConfigKey(programId),
+            feeConfig: deriveSoFeeConfigKey(programId),
+            beneficiaryTokenAccount,
+            whirlpoolProgram: quote_config["whirlpool_program"],
+            whirlpoolAccount: quote_config["whirlpool"],
+            whirlpoolTokenOwnerAccountA: quote_config["token_owner_account_a"],
+            whirlpoolTokenVaultA: quote_config["token_vault_a"],
+            whirlpoolTokenOwnerAccountB: quote_config["token_owner_account_b"],
+            whirlpoolTokenVaultB: quote_config["token_vault_b"],
+            whirlpoolTickArray0: quote_config["tick_array_0"],
+            whirlpoolTickArray1: quote_config["tick_array_1"],
+            whirlpoolTickArray2: quote_config["tick_array_2"],
+            whirlpoolOracle: quote_config["oracle"],
+            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
+            mint,
+            recipientTokenAccount,
+            recipientBridgeTokenAccount,
+            tmpTokenAccount,
+            wormholeProgram: tokenBridgeAccounts.wormholeProgram,
+            tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
+            tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
+            vaa: tokenBridgeAccounts.vaa,
+            tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
+            tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
+            tokenBridgeCustody: tokenBridgeAccounts.tokenBridgeCustody,
+            tokenBridgeCustodySigner: tokenBridgeAccounts.tokenBridgeCustodySigner,
+            systemProgram: tokenBridgeAccounts.systemProgram,
+            tokenProgram: tokenBridgeAccounts.tokenProgram,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            rent: tokenBridgeAccounts.rent,
+        })
+        .instruction();
+}
+
+export async function createCompleteSoSwapWrappedWithWhirlpool(
+    connection: Connection,
+    programId: PublicKeyInitData,
+    payer: Keypair,
+    tokenBridgeProgramId: PublicKeyInitData,
+    wormholeProgramId: PublicKeyInitData,
+    wormholeMessage: Buffer,
+    beneficiary: PublicKeyInitData
+): Promise<TransactionInstruction> {
+    const payAddress = payer.publicKey.toString();
+    const program = createHelloTokenProgramInterface(connection, programId);
+
+    const parsed = parseVaaToOmniswapPayload(wormholeMessage);
+
+    const wrappedMint = deriveWrappedMintKey(
+        tokenBridgeProgramId,
+        parsed.tokenChain,
+        parsed.tokenAddress
+    );
+
+    const tmpTokenAccount = deriveTmpTokenAccountKey(programId, wrappedMint);
+    const tokenBridgeAccounts = getCompleteTransferWrappedWithPayloadCpiAccounts(
+        tokenBridgeProgramId,
+        wormholeProgramId,
+        payAddress,
+        parsed,
+        tmpTokenAccount
+    );
+
+    const recipient = new PublicKey(parsed.soReceiver);
+    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, recipient)).address;
+    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, new PublicKey(beneficiary))).address;
+
+    return program.methods
+        .completeSoSwapWrappedWithWhirlpool([...parsed.hash], false)
+        .accounts({
+            payer: tokenBridgeAccounts.payer,
+            config: deriveRedeemerConfigKey(programId),
+            feeConfig: deriveSoFeeConfigKey(programId),
+            beneficiaryTokenAccount,
+            foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
+            tokenBridgeWrappedMint: tokenBridgeAccounts.tokenBridgeWrappedMint,
+            recipientTokenAccount,
+            tmpTokenAccount,
+            wormholeProgram: tokenBridgeAccounts.wormholeProgram,
+            tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
+            tokenBridgeWrappedMeta: tokenBridgeAccounts.tokenBridgeWrappedMeta,
+            tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
+            vaa: tokenBridgeAccounts.vaa,
+            tokenBridgeClaim: tokenBridgeAccounts.tokenBridgeClaim,
+            tokenBridgeForeignEndpoint: tokenBridgeAccounts.tokenBridgeForeignEndpoint,
+            tokenBridgeMintAuthority: tokenBridgeAccounts.tokenBridgeMintAuthority,
+            systemProgram: tokenBridgeAccounts.systemProgram,
+            tokenProgram: tokenBridgeAccounts.tokenProgram,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            rent: tokenBridgeAccounts.rent,
+        })
+        .instruction();
 }
