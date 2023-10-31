@@ -1,7 +1,7 @@
 import asyncio
 
 from solders.signature import Signature
-from config import get_client
+from solana_config import get_client
 
 
 async def get_tx():

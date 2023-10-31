@@ -18,7 +18,7 @@ from helper import (
     getRedeemNativeTransferAccounts,
     decode_address_look_up_table,
 )
-from config import get_client, get_config, get_proxy
+from solana_config import get_client, get_config, get_proxy
 from parse import ParsedVaa, ParsedTransfer
 from get_quote_config import get_test_usdc_quote_config, get_bsc_test_quote_config
 from get_or_create_ata import get_or_create_associated_token_account

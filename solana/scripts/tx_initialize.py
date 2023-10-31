@@ -21,7 +21,7 @@ from helper import (
     getTokenBridgeDerivedAccounts,
     deriveForeignEndPointKey,
 )
-from config import get_client, get_payer, get_config, get_price_manager
+from solana_config import get_client, get_payer, get_config, get_price_manager
 from omniswap.instructions import so_swap_close_pending_request
 
 

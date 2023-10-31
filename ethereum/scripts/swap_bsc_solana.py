@@ -440,6 +440,6 @@ def cross_swap_native_via_wormhole_whirlpool():
 
 def main():
     # complete_swap_via_wormhole()
-    # cross_swap_wrapped_via_wormhole()
+    cross_swap_wrapped_via_wormhole()
     # cross_swap_wrapped_via_wormhole_whirlpool()
-    cross_swap_native_via_wormhole_whirlpool()
+    # cross_swap_native_via_wormhole_whirlpool()

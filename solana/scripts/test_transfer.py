@@ -19,7 +19,7 @@ from helper import (
     getSendNativeTransferAccounts,
     decode_address_look_up_table,
 )
-from config import get_client, get_payer, get_config
+from solana_config import get_client, get_payer, get_config
 
 from cross import WormholeData, SoData, generate_random_bytes32, SwapData
 from custom_simulate import custom_simulate

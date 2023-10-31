@@ -1,7 +1,7 @@
 import asyncio
 from omniswap.accounts.cross_request import CrossRequest
 from helper import deriveCrossRequestKey
-from config import get_client, get_config
+from solana_config import get_client, get_config
 
 
 async def omniswap_estimate_relayer_fee(

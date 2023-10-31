@@ -11,7 +11,7 @@ from helper import (
     derivePriceManagerKey,
     deriveWormholeBridgeDataKey,
 )
-from config import get_client, get_payer, get_config
+from solana_config import get_client, get_payer, get_config
 
 
 async def post_cross_requset(
