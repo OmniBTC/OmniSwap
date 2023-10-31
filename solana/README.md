@@ -9,7 +9,7 @@ anchor deploy
 
 ## generate python sdk
 ```bash
-anchorpy client-gen target/idl/omniswap.json scripts/omniswap --program-id 5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7
+anchorpy client-gen target/idl/omniswap.json scripts/omniswap --program-id 4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY
 ```
 
 ## compile get_test_usdc_quote_config.ts

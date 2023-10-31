@@ -66,3 +66,4 @@ from .so_swap_close_pending_request import (
     so_swap_close_pending_request,
     SoSwapClosePendingRequestAccounts,
 )
+from .wrap_sol import wrap_sol, WrapSolArgs, WrapSolAccounts

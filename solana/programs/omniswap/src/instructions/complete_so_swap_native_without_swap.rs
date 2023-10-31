@@ -6,11 +6,12 @@ use anchor_spl::{
 use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use crate::{
-	constants::{RAY, SEED_PREFIX_TMP},
+	constants::{RAY, SEED_PREFIX_TMP, SEED_UNWRAP},
 	error::SoSwapError,
 	message::PostedSoSwapMessage,
 	state::{ForeignContract, RedeemerConfig, SoFeeConfig},
 	utils::bytes_to_hex,
+	UnwrapSOLKey, WrapSOLKey,
 };
 
 #[derive(Accounts)]
@@ -56,6 +57,28 @@ pub struct CompleteSoSwapNativeWithoutSwap<'info> {
 	/// account must agree with the target address for the Token Bridge's token
 	/// transfer. Read-only.
 	pub foreign_contract: Box<Account<'info, ForeignContract>>,
+
+	#[account(
+		init,
+		payer = payer,
+		seeds = [SEED_UNWRAP],
+		bump,
+		token::mint = wsol_mint,
+		token::authority = payer
+	)]
+	pub unwrap_sol_account: Option<Box<Account<'info, TokenAccount>>>,
+
+	#[account(
+		constraint = wsol_mint.key() == WrapSOLKey
+	)]
+	pub wsol_mint: Option<Account<'info, Mint>>,
+
+	#[account(
+		mut,
+		address = recipient_token_account.owner @ SoSwapError::InvalidRecipient
+	)]
+	/// CHECK: the recipient account
+	pub recipient: Option<UncheckedAccount<'info>>,
 
 	#[account(
 		address = vaa.data().mint()
@@ -232,9 +255,21 @@ fn complete_transfer(
 
 	let mut tx_id = "".to_string();
 	let mut status = 2u32;
+	let mut need_unwrap_sol = false;
 	if require_so_fee {
-		let transaction_id =
-			bytes_to_hex(&ctx.accounts.vaa.data().message().normalized_so_data.transaction_id);
+		let so_msg = ctx.accounts.vaa.data().message();
+		let transaction_id = bytes_to_hex(&so_msg.normalized_so_data.transaction_id);
+
+		let so_receiving_asset =
+			Pubkey::try_from(so_msg.normalized_so_data.receiving_asset_id.as_slice()).unwrap();
+		need_unwrap_sol = so_receiving_asset == UnwrapSOLKey;
+		if need_unwrap_sol {
+			let recipient = &ctx.accounts.recipient.clone().unwrap();
+			require!(
+				recipient.key().to_bytes() == so_msg.recipient(),
+				SoSwapError::InvalidRecipient
+			);
+		}
 
 		let actual_fee = if so_fee <= amount {
 			// Transfer tokens so_fee from tmp_token_account to beneficiary.
@@ -264,27 +299,84 @@ fn complete_transfer(
 		status = 0;
 	}
 
+	let receive_token = if need_unwrap_sol &&
+		ctx.accounts.tmp_token_account.mint == WrapSOLKey &&
+		ctx.accounts.unwrap_sol_account.is_some() &&
+		ctx.accounts.recipient.is_some()
+	{
+		let unwrap_sol_account = &ctx.accounts.unwrap_sol_account.clone().unwrap();
+		let recipient = &ctx.accounts.recipient.clone().unwrap();
+
+		// 1. transfer: tmp_token_account(wsol) => unwrap_sol_account(wsol)
+		anchor_spl::token::transfer(
+			CpiContext::new(
+				ctx.accounts.token_program.to_account_info(),
+				anchor_spl::token::Transfer {
+					from: ctx.accounts.tmp_token_account.to_account_info(),
+					to: unwrap_sol_account.to_account_info(),
+					authority: ctx.accounts.config.to_account_info(),
+				},
+			),
+			amount,
+		)?;
+
+		// 2. close unwrap_sol_account: unwrap_sol_account(wsol) -> proxy(sol)
+		anchor_spl::token::close_account(CpiContext::new(
+			ctx.accounts.token_program.to_account_info(),
+			anchor_spl::token::CloseAccount {
+				account: unwrap_sol_account.to_account_info(),
+				destination: ctx.accounts.payer.to_account_info(),
+				authority: ctx.accounts.payer.to_account_info(),
+			},
+		))?;
+
+		// 3. transfer: proxy(sol) -> recipient(sol)
+		anchor_spl::token::transfer(
+			CpiContext::new(
+				ctx.accounts.token_program.to_account_info(),
+				anchor_spl::token::Transfer {
+					from: ctx.accounts.payer.to_account_info(),
+					to: recipient.to_account_info(),
+					authority: ctx.accounts.payer.to_account_info(),
+				},
+			),
+			amount,
+		)?;
+
+		msg!(
+			"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
+			status,
+			amount,
+			UnwrapSOLKey.to_string(),
+			tx_id,
+		);
+
+		UnwrapSOLKey.to_string()
+	} else {
+		// Transfer the other tokens from tmp_token_account to recipient.
+		anchor_spl::token::transfer(
+			CpiContext::new_with_signer(
+				ctx.accounts.token_program.to_account_info(),
+				anchor_spl::token::Transfer {
+					from: ctx.accounts.tmp_token_account.to_account_info(),
+					to: ctx.accounts.recipient_token_account.to_account_info(),
+					authority: ctx.accounts.config.to_account_info(),
+				},
+				&[&config_seeds[..]],
+			),
+			amount,
+		)?;
+
+		ctx.accounts.recipient_token_account.mint.to_string()
+	};
+
 	msg!(
 		"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
 		status,
 		amount,
-		ctx.accounts.recipient_token_account.mint.to_string(),
+		receive_token,
 		tx_id,
 	);
-
-	// Transfer the other tokens from tmp_token_account to recipient.
-	anchor_spl::token::transfer(
-		CpiContext::new_with_signer(
-			ctx.accounts.token_program.to_account_info(),
-			anchor_spl::token::Transfer {
-				from: ctx.accounts.tmp_token_account.to_account_info(),
-				to: ctx.accounts.recipient_token_account.to_account_info(),
-				authority: ctx.accounts.config.to_account_info(),
-			},
-			&[&config_seeds[..]],
-		),
-		amount,
-	)?;
 
 	// Finish instruction by closing tmp_token_account.
 	anchor_spl::token::close_account(CpiContext::new_with_signer(

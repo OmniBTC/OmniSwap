@@ -1,5 +1,6 @@
 import asyncio
 
+import spl.token.instructions
 from solana.transaction import Transaction
 from solders.compute_budget import set_compute_unit_limit
 from solders.message import MessageV0
@@ -655,4 +656,4 @@ async def omniswap_send_wrapped_token_with_whirlpool():
     print(tx_sig.value)
 
 
-asyncio.run(omniswap_send_wrapped_token_with_whirlpool())
+asyncio.run(omniswap_send_native_token())

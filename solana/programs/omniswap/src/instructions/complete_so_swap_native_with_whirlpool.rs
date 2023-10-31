@@ -8,11 +8,12 @@ use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use super::swap_whirlpool::{check_a_to_b, swap_by_whirlpool, SoSwapWithWhirlpool};
 use crate::{
-	constants::{RAY, SEED_PREFIX_TMP},
+	constants::{RAY, SEED_PREFIX_TMP, SEED_UNWRAP},
 	error::SoSwapError,
 	message::PostedSoSwapMessage,
 	state::{ForeignContract, RedeemerConfig, SoFeeConfig},
 	utils::bytes_to_hex,
+	UnwrapSOLKey, WrapSOLKey,
 };
 
 #[derive(Accounts)]
@@ -107,6 +108,28 @@ pub struct CompleteSoSwapNativeWithWhirlpool<'info> {
 	)]
 	/// Oracle is currently unused and will be enabled on subsequent updates
 	pub whirlpool_oracle: AccountInfo<'info>,
+
+	#[account(
+		init,
+		payer = payer,
+		seeds = [SEED_UNWRAP],
+		bump,
+		token::mint = wsol_mint,
+		token::authority = payer
+	)]
+	pub unwrap_sol_account: Option<Box<Account<'info, TokenAccount>>>,
+
+	#[account(
+		constraint = wsol_mint.key() == WrapSOLKey
+	)]
+	pub wsol_mint: Option<Account<'info, Mint>>,
+
+	#[account(
+		mut,
+		address = recipient_token_account.owner @ SoSwapError::InvalidRecipient
+	)]
+	/// CHECK: the recipient account
+	pub recipient: Option<UncheckedAccount<'info>>,
 
 	// 3. wormhole configs
 	#[account(
@@ -291,14 +314,14 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	require!(ctx.accounts.payer.key() == ctx.accounts.config.proxy, SoSwapError::InvalidProxy);
 
 	// The intended recipient must agree with the recipient.
-	let soswap_message = ctx.accounts.vaa.message().data();
-	require!(*soswap_message != Default::default(), SoSwapError::DeserializeSoSwapMessageFail);
+	let so_msg = ctx.accounts.vaa.message().data();
+	require!(*so_msg != Default::default(), SoSwapError::DeserializeSoSwapMessageFail);
 	require!(
-		ctx.accounts.recipient_token_account.owner.to_bytes() == soswap_message.recipient(),
+		ctx.accounts.recipient_token_account.owner.to_bytes() == so_msg.recipient(),
 		SoSwapError::InvalidRecipient
 	);
 	require!(
-		ctx.accounts.recipient_bridge_token_account.owner.to_bytes() == soswap_message.recipient(),
+		ctx.accounts.recipient_bridge_token_account.owner.to_bytes() == so_msg.recipient(),
 		SoSwapError::InvalidRecipient
 	);
 
@@ -306,12 +329,17 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	let (bridge_amount, tx_id) = complete_redeem(&ctx)?;
 
 	// 2. swap bridge token to receiving token: proxy_a <=> proxy_b
-	let so_msg = ctx.accounts.vaa.data().data();
 	assert_eq!(so_msg.normalized_swap_data.len(), 1, "must be one swap");
 	let mut swap_data = so_msg.normalized_swap_data.first().unwrap().clone();
 	swap_data.reset_from_amount(U256::from(bridge_amount));
 
-	if let Ok(a_to_b) = swap_by_whirlpool(&ctx, &swap_data) {
+	let so_receiving_asset =
+		Pubkey::try_from(so_msg.normalized_so_data.receiving_asset_id.as_slice()).unwrap();
+	let need_unwrap_sol = so_receiving_asset == UnwrapSOLKey;
+
+	let (from_token_account, to_token_account, status, final_amount) = if let Ok(a_to_b) =
+		swap_by_whirlpool(&ctx, &swap_data)
+	{
 		// 3. swap ok, send receiving token: proxy_a_or_b => recipient
 		let (other_proxy_recipient_account, amount) = if a_to_b {
 			let token_value_b_before = ctx.accounts.whirlpool_token_owner_account_b.amount;
@@ -319,7 +347,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 			let token_value_b_after = ctx.accounts.whirlpool_token_owner_account_b.amount;
 
 			let amount = token_value_b_after.checked_sub(token_value_b_before).unwrap();
-			let account = ctx.accounts.whirlpool_token_owner_account_b.to_account_info();
+			let account = ctx.accounts.whirlpool_token_owner_account_b.as_ref();
 
 			(account, amount)
 		} else {
@@ -328,46 +356,85 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 			let token_value_a_after = ctx.accounts.whirlpool_token_owner_account_a.amount;
 
 			let amount = token_value_a_after.checked_sub(token_value_a_before).unwrap();
-			let account = ctx.accounts.whirlpool_token_owner_account_a.to_account_info();
+			let account = ctx.accounts.whirlpool_token_owner_account_a.as_ref();
 
 			(account, amount)
 		};
 
+		(other_proxy_recipient_account, &ctx.accounts.recipient_token_account, 0, amount)
+	} else {
+		// 4. swap fail, send bridge token: proxy_a_or_b => recipient
+		let proxy_recipient_account = if check_a_to_b(&ctx)? {
+			ctx.accounts.whirlpool_token_owner_account_a.as_ref()
+		} else {
+			ctx.accounts.whirlpool_token_owner_account_b.as_ref()
+		};
+
+		(proxy_recipient_account, &ctx.accounts.recipient_bridge_token_account, 1, bridge_amount)
+	};
+
+	if need_unwrap_sol &&
+		from_token_account.mint == WrapSOLKey &&
+		ctx.accounts.unwrap_sol_account.is_some() &&
+		ctx.accounts.recipient.is_some()
+	{
+		let unwrap_sol_account = &ctx.accounts.unwrap_sol_account.clone().unwrap();
+		let recipient = &ctx.accounts.recipient.clone().unwrap();
+
+		require!(recipient.key().to_bytes() == so_msg.recipient(), SoSwapError::InvalidRecipient);
+
+		// 1. transfer: from_token_account(wsol) => unwrap_sol_account(wsol)
 		anchor_spl::token::transfer(
 			CpiContext::new(
 				ctx.accounts.token_program.to_account_info(),
 				anchor_spl::token::Transfer {
-					from: other_proxy_recipient_account,
-					to: ctx.accounts.recipient_token_account.to_account_info(),
+					from: from_token_account.to_account_info(),
+					to: unwrap_sol_account.to_account_info(),
 					authority: ctx.accounts.payer.to_account_info(),
 				},
 			),
-			amount,
+			final_amount,
+		)?;
+
+		// 2. close unwrap_sol_account: unwrap_sol_account(wsol) -> proxy(sol)
+		anchor_spl::token::close_account(CpiContext::new(
+			ctx.accounts.token_program.to_account_info(),
+			anchor_spl::token::CloseAccount {
+				account: unwrap_sol_account.to_account_info(),
+				destination: ctx.accounts.payer.to_account_info(),
+				authority: ctx.accounts.payer.to_account_info(),
+			},
+		))?;
+
+		// 3. transfer: proxy(sol) -> recipient(sol)
+		anchor_spl::token::transfer(
+			CpiContext::new(
+				ctx.accounts.token_program.to_account_info(),
+				anchor_spl::token::Transfer {
+					from: ctx.accounts.payer.to_account_info(),
+					to: recipient.to_account_info(),
+					authority: ctx.accounts.payer.to_account_info(),
+				},
+			),
+			final_amount,
 		)?;
 
 		msg!(
-			"SoTransferCompleted: status={}, receive_amount={}, receive_token={}, transaction_id={}",
+			"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
 			0,
-			amount,
-			ctx.accounts.recipient_token_account.mint.to_string(),
+			final_amount,
+			UnwrapSOLKey.to_string(),
 			tx_id,
 		);
 
 		return Ok(())
-	}
-
-	// 4. swap fail, send bridge token: proxy_a_or_b => recipient
-	let proxy_recipient_account = if check_a_to_b(&ctx)? {
-		ctx.accounts.whirlpool_token_owner_account_a.to_account_info()
-	} else {
-		ctx.accounts.whirlpool_token_owner_account_b.to_account_info()
 	};
 
 	msg!(
 		"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
-		1,
-		bridge_amount,
-		ctx.accounts.recipient_bridge_token_account.mint.to_string(),
+		status,
+		final_amount,
+		to_token_account.mint.to_string(),
 		tx_id,
 	);
 
@@ -375,12 +442,12 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 		CpiContext::new(
 			ctx.accounts.token_program.to_account_info(),
 			anchor_spl::token::Transfer {
-				from: proxy_recipient_account,
-				to: ctx.accounts.recipient_bridge_token_account.to_account_info(),
+				from: from_token_account.to_account_info(),
+				to: to_token_account.to_account_info(),
 				authority: ctx.accounts.payer.to_account_info(),
 			},
 		),
-		bridge_amount,
+		final_amount,
 	)
 }
 

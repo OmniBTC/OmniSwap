@@ -29,9 +29,8 @@ impl CrossRequest {
 
 	pub const SEED_PREFIX: &'static [u8; 7] = b"request";
 	pub fn dst_chain_id(&self) -> Result<u16> {
-		let wormhole_data = NormalizedWormholeData::decode_normalized_wormhole_data(
-			&self.wormhole_data
-		)?;
+		let wormhole_data =
+			NormalizedWormholeData::decode_normalized_wormhole_data(&self.wormhole_data)?;
 
 		Ok(wormhole_data.dst_wormhole_chain_id)
 	}

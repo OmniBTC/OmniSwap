@@ -56,6 +56,10 @@ async def call_close_pending_request():
     )
 
 
+async def call_omniswap_set_redeem_proxy():
+    await omniswap_set_redeem_proxy("EiVAUrFzyQNU66S13yQrKnNqaNcJ6nbnWaLKeAXwbA6N")
+
+
 async def call_set_so_fee():
     # 0.3 %
     so_fee_by_ray = 300_000
@@ -81,4 +85,4 @@ async def call_initialize_all():
     # await omniswap_set_price_ratio("bsc-test", 10_000_000)
 
 
-asyncio.run(call_initialize_all())
+asyncio.run(call_omniswap_set_redeem_proxy())

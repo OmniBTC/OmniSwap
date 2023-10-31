@@ -5,7 +5,7 @@ devnet:
   omnibtc_chainid: 30006
   rpc_url: "https://api.devnet.solana.com"
   program:
-    SoDiamond: "5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7"
+    SoDiamond: "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
     Wormhole: "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5"
     TokenBridge: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe"
     Whirlpools: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
@@ -30,9 +30,11 @@ devnet:
       decimals: 9
     USDC:
       mint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+      erc20: "0x51a3cc54eA30Da607974C5D07B8502599801AC08"
       decimals: 6
     WrappedBSC:
       mint: "xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"
+      erc20: "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1"
       decimals: 8
 
   pools:
@@ -92,7 +94,8 @@ devnet:
   beneficiary: "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
   redeemer_proxy: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
   # ray = 100_000_000
-  so_fee_by_ray: 0
+  # 0.3 %
+  so_fee_by_ray: 300_000
 
 
 mainnet:

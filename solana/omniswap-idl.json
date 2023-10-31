@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "name": "omniswap",
   "instructions": [
     {
@@ -667,6 +667,24 @@
           ]
         },
         {
+          "name": "unwrapSolAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
           "name": "mint",
           "isMut": false,
           "isSigner": false,
@@ -1246,10 +1264,6 @@
         }
       ],
       "args": [
-        {
-          "name": "chainId",
-          "type": "u16"
-        },
         {
           "name": "soData",
           "type": "bytes"
@@ -1893,6 +1907,24 @@
           ]
         },
         {
+          "name": "unwrapSolAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
           "name": "mint",
           "isMut": false,
           "isSigner": false,
@@ -2348,6 +2380,39 @@
           "isSigner": false
         },
         {
+          "name": "feeConfig",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SoFee Config account. Read-only."
+          ]
+        },
+        {
+          "name": "foreignContract",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Foreign contract account. Read-only."
+          ]
+        },
+        {
+          "name": "priceManager",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Price Manager account. Read-only."
+          ]
+        },
+        {
+          "name": "wormholeBridge",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Wormhole bridge data.",
+            "Query bridge.config.fee"
+          ]
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false,
@@ -2372,6 +2437,93 @@
         {
           "name": "swapDataDst",
           "type": "bytes"
+        }
+      ],
+      "returns": "u64"
+    },
+    {
+      "name": "soSwapClosePendingRequest",
+      "docs": [
+        "Close the pending cross request.",
+        "The remaining lamports will be refunded to the requester"
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The requester or proxy"
+          ]
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Redeemer Config account."
+          ]
+        },
+        {
+          "name": "request",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "wrapSol",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wrapSolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token program."
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeWrapped",
+          "type": "u64"
         }
       ]
     }
@@ -2866,8 +3018,5 @@
       "name": "InvalidProxy",
       "msg": "InvalidProxy"
     }
-  ],
-  "metadata": {
-    "address": "5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7"
-  }
+  ]
 }

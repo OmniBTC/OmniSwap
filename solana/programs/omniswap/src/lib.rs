@@ -19,7 +19,19 @@ pub mod serde;
 pub mod state;
 pub mod utils;
 
-declare_id!("5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7");
+declare_id!("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
+
+pub use wrap_sol::ID as WrapSOLKey;
+mod wrap_sol {
+	use super::*;
+	declare_id!("So11111111111111111111111111111111111111112");
+}
+
+pub use unwrap_sol::ID as UnwrapSOLKey;
+mod unwrap_sol {
+	use super::*;
+	declare_id!("11111111111111111111111111111111");
+}
 
 use instructions::*;
 
@@ -199,5 +211,9 @@ pub mod omniswap {
 	/// The remaining lamports will be refunded to the requester
 	pub fn so_swap_close_pending_request(ctx: Context<CloseRequest>) -> Result<()> {
 		instructions::close_pending_request::handler(ctx)
+	}
+
+	pub fn wrap_sol(ctx: Context<WrapSOL>, amount_to_be_wrapped: u64) -> Result<()> {
+		instructions::wrap_sol::handler(ctx, amount_to_be_wrapped)
 	}
 }

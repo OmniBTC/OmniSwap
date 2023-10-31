@@ -24,7 +24,10 @@ pub struct PostRequest<'info> {
 
 	#[account(
         mut,
-        seeds = [SenderConfig::SEED_PREFIX],
+        seeds = [
+			SenderConfig::SEED_PREFIX,
+			payer.key().as_ref()
+		],
         bump,
     )]
 	/// Sender Config account
@@ -120,9 +123,8 @@ pub fn handler(
 
 	// Update total fee
 	parsed_wormhole_data.wormhole_fee = U256::from(total_fee);
-	let fix_wormhole_data = NormalizedWormholeData::encode_normalized_wormhole_data(
-		&parsed_wormhole_data,
-	);
+	let fix_wormhole_data =
+		NormalizedWormholeData::encode_normalized_wormhole_data(&parsed_wormhole_data);
 
 	let request = &mut ctx.accounts.request;
 

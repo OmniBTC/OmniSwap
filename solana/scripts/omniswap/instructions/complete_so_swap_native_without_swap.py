@@ -25,6 +25,9 @@ class CompleteSoSwapNativeWithoutSwapAccounts(typing.TypedDict):
     fee_config: Pubkey
     beneficiary_token_account: Pubkey
     foreign_contract: Pubkey
+    unwrap_sol_account: typing.Optional[Pubkey]
+    wsol_mint: typing.Optional[Pubkey]
+    recipient: typing.Optional[Pubkey]
     mint: Pubkey
     recipient_token_account: Pubkey
     tmp_token_account: Pubkey
@@ -56,6 +59,17 @@ def complete_so_swap_native_without_swap(
         AccountMeta(
             pubkey=accounts["foreign_contract"], is_signer=False, is_writable=False
         ),
+        AccountMeta(
+            pubkey=accounts["unwrap_sol_account"], is_signer=False, is_writable=True
+        )
+        if accounts["unwrap_sol_account"]
+        else AccountMeta(pubkey=program_id, is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["wsol_mint"], is_signer=False, is_writable=False)
+        if accounts["wsol_mint"]
+        else AccountMeta(pubkey=program_id, is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["recipient"], is_signer=False, is_writable=True)
+        if accounts["recipient"]
+        else AccountMeta(pubkey=program_id, is_signer=False, is_writable=False),
         AccountMeta(pubkey=accounts["mint"], is_signer=False, is_writable=False),
         AccountMeta(
             pubkey=accounts["recipient_token_account"],
