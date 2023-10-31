@@ -447,7 +447,20 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 			},
 		),
 		final_amount,
-	)
+	)?;
+
+	if let Some(unwrap_sol_account) = &ctx.accounts.unwrap_sol_account {
+		anchor_spl::token::close_account(CpiContext::new(
+			ctx.accounts.token_program.to_account_info(),
+			anchor_spl::token::CloseAccount {
+				account: unwrap_sol_account.to_account_info(),
+				destination: ctx.accounts.payer.to_account_info(),
+				authority: ctx.accounts.payer.to_account_info(),
+			},
+		))?;
+	}
+
+	Ok(())
 }
 
 fn complete_redeem(ctx: &Context<CompleteSoSwapNativeWithWhirlpool>) -> Result<(u64, String)> {

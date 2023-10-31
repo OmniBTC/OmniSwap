@@ -299,9 +299,10 @@ fn complete_transfer(
 		status = 0;
 	}
 
+	let mut need_close_unwrap_sol_account = ctx.accounts.unwrap_sol_account.is_some();
 	let receive_token = if need_unwrap_sol &&
+		need_close_unwrap_sol_account &&
 		ctx.accounts.tmp_token_account.mint == WrapSOLKey &&
-		ctx.accounts.unwrap_sol_account.is_some() &&
 		ctx.accounts.recipient.is_some()
 	{
 		let unwrap_sol_account = &ctx.accounts.unwrap_sol_account.clone().unwrap();
@@ -330,6 +331,7 @@ fn complete_transfer(
 				authority: ctx.accounts.payer.to_account_info(),
 			},
 		))?;
+		need_close_unwrap_sol_account = false;
 
 		// 3. transfer: proxy(sol) -> recipient(sol)
 		anchor_lang::system_program::transfer(
@@ -387,5 +389,20 @@ fn complete_transfer(
 			authority: ctx.accounts.config.to_account_info(),
 		},
 		&[&config_seeds[..]],
-	))
+	))?;
+
+	if need_close_unwrap_sol_account {
+		if let Some(unwrap_sol_account) = &ctx.accounts.unwrap_sol_account {
+			anchor_spl::token::close_account(CpiContext::new(
+				ctx.accounts.token_program.to_account_info(),
+				anchor_spl::token::CloseAccount {
+					account: unwrap_sol_account.to_account_info(),
+					destination: ctx.accounts.payer.to_account_info(),
+					authority: ctx.accounts.payer.to_account_info(),
+				},
+			))?;
+		}
+	};
+
+	Ok(())
 }
