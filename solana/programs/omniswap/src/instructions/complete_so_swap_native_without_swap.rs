@@ -345,14 +345,6 @@ fn complete_transfer(
 			amount,
 		)?;
 
-		msg!(
-			"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
-			status,
-			amount,
-			UnwrapSOLKey.to_string(),
-			tx_id,
-		);
-
 		UnwrapSOLKey.to_string()
 	} else {
 		// Transfer the other tokens from tmp_token_account to recipient.
