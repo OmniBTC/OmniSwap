@@ -25,8 +25,7 @@ pub struct PostRequest<'info> {
 	#[account(
         mut,
         seeds = [
-			SenderConfig::SEED_PREFIX,
-			payer.key().as_ref()
+			SenderConfig::SEED_PREFIX
 		],
         bump,
     )]
@@ -38,7 +37,8 @@ pub struct PostRequest<'info> {
         payer = payer,
         seeds = [
             CrossRequest::SEED_PREFIX,
-            &config.nonce.to_le_bytes()[..]
+            &config.nonce.to_le_bytes()[..],
+			payer.key().as_ref()
         ],
         bump,
         space = CrossRequest::MINIMUM_SIZE + so_data.len() + swap_data_src.len() + wormhole_data.len() + swap_data_dst.len(),
