@@ -505,7 +505,8 @@ async function processV2(
     dstSoDiamond,
 ) {
     const connection = new Connection(
-        SOLANA_URL
+        SOLANA_URL,
+        "confirmed"
     );
     let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.RELAYER_KEY)));
     const hasProcess = new Map<string, number>();
