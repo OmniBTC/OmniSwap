@@ -4,7 +4,7 @@ import secrets
 import time
 from pathlib import Path
 
-from brownie import Claim, MockToken, accounts, web3, network
+from brownie import Claim, MockToken, accounts, web3, network, Contract
 from brownie.network.account import Account
 
 from scripts.helpful_scripts import get_account, write_json, read_json
@@ -128,3 +128,15 @@ def deploy_arb():
     merkle_root = f"0x{secrets.token_bytes(32).hex()}"
     Claim.deploy(start, token_address, merkle_root, {"from": account})
     Claim[-1].pause({"from": account})
+
+
+def pause():
+    account = get_account("deploy_key")
+    c = Contract.from_abi("Claim", "0xE56a4CcfEaDb140333b91f561C6B0cF308450ac5", Claim.abi)
+    # c.pause({"from": account})
+    
+    token_address = "0x4200000000000000000000000000000000000042"
+    token = Contract.from_abi("Token", token_address, MockToken.abi)
+    balance = token.balanceOf(c.address)
+
+    c.reFund(token_address, balance, {"from": account})
