@@ -44,3 +44,19 @@ solana address-lookup-table extend  ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8
 "EofptCXfgVxRk1vxBLNP1Zk6SSPBiPdkYWVPgTLzbzGR",\
 "FV2SB6pUGWABHxmnoVUxxdTVctzY7puAQon38sJ8oNm"
 ```
+
+## install ts-node ubuntu(arm64)
+```bash
+# Install node/npm
+wget https://nodejs.org/dist/v18.16.0/node-v18.16.0-linux-arm64.tar.xz
+tar -xvf node-v18.16.0-linux-arm64.tar.xz
+mv node-v18.16.0-linux-arm64 /usr/local/
+rm -rf /usr/bin/node
+rm -rf /usr/bin/npm
+ln -s /usr/local/node-v18.16.0-linux-arm64/bin/node /usr/bin/node
+ln -s /usr/local/node-v18.16.0-linux-arm64/bin/npm /usr/bin/npm
+
+# Install ts-node
+npm install -g ts-node
+ln -s /usr/local/node-v18.16.0-linux-arm64/bin/ts-node /usr/bin/ts-node
+```
