@@ -642,11 +642,18 @@ export async function createCompleteSoSwapNativeWithWhirlpool(
 
     const quoteConfig = await getQuoteConfig(connection, payer, parsed);
 
-    const bridgeToken = new PublicKey(parsed.swapDataList[0].swapSendingAssetId);
+    let bridgeToken: PublicKey;
+    let dstToken: PublicKey;
+    if (parsed.swapDataList.length == 0) {
+        dstToken = new PublicKey(parsed.soReceiver);
+        bridgeToken = new PublicKey(parsed.soReceiver);
+    } else {
+        dstToken = new PublicKey(parsed.swapDataList[parsed.swapDataList.length - 1].swapReceivingAssetId);
+        bridgeToken = new PublicKey(parsed.swapDataList[0].swapSendingAssetId);
+    }
     const recipientBridgeTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, recipient)).address;
-    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient)).address;
-    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, new PublicKey(beneficiary))).address;
-
+    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, dstToken, recipient)).address;
+    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, new PublicKey(beneficiary))).address;
 
     return program.methods
         .completeSoSwapNativeWithWhirlpool([...parsed.hash])
@@ -719,10 +726,18 @@ export async function createCompleteSoSwapWrappedWithWhirlpool(
 
     const recipient = new PublicKey(parsed.soReceiver);
 
-    const bridgeToken = new PublicKey(parsed.swapDataList[0].swapSendingAssetId);
+    let bridgeToken: PublicKey;
+    let dstToken: PublicKey;
+    if (parsed.swapDataList.length == 0) {
+        dstToken = new PublicKey(parsed.soReceiver);
+        bridgeToken = new PublicKey(parsed.soReceiver);
+    } else {
+        dstToken = new PublicKey(parsed.swapDataList[parsed.swapDataList.length - 1].swapReceivingAssetId);
+        bridgeToken = new PublicKey(parsed.swapDataList[0].swapSendingAssetId);
+    }
     const recipientBridgeTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, recipient)).address;
-    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, recipient)).address;
-    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, new PublicKey(beneficiary))).address;
+    const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, dstToken, recipient)).address;
+    const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, new PublicKey(beneficiary))).address;
 
 
     return program.methods

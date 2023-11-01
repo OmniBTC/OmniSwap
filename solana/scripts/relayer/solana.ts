@@ -327,7 +327,7 @@ const sendAndConfirmIx = async (
 
     const lookup_table = (await connection.getAddressLookupTable(LOOKUP_TABLE_KEY)).value
 
-    const ix0 = ComputeBudgetProgram.setComputeUnitLimit({units: 300_000});
+    const ix0 = ComputeBudgetProgram.setComputeUnitLimit({units: 1200_000});
     const message0 = new TransactionMessage(
         {
             payerKey: payer.publicKey,
