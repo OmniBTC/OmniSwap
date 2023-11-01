@@ -99,10 +99,10 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+    SOLANA_URL = "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/";
     OMNISWAP_PID = new PublicKey("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
     // OMNISWAP_PID base58decode
     SODIAMOND = "0x3636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843"
-    SOLANA_URL = "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/";
     BENEFICIARY = "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS";
     LOOKUP_TABLE_KEY = new PublicKey("ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8")
 } else {
@@ -125,9 +125,17 @@ if (NET !== "solana-mainnet") {
         "solana-mainnet": 1
     }
     NET_TO_RPC = {
-        "bsc-main": ["https://bsc-dataseed1.ninicoin.io"]
+        "bsc-main": ["https://bsc-dataseed1.ninicoin.io"],
+        "polygon-main": ["https://polygon-mainnet.g.alchemy.com/v2/woLOizgiyajLQII9XoReQhCgdgW2G2oL"],
+        "avax-main": ["https://api.snowtrace.io/api"],
+        "mainnet": ["https://eth.llamarpc.com"],
     }
-    NET_TO_DEFAULT_FROM_BLOCK = {}
+    NET_TO_DEFAULT_FROM_BLOCK = {
+        "bsc-main": 33108007,
+        "polygon-main": 49407175,
+        "avax-main": 37191237,
+        "mainnet": 18476135,
+    }
     NET_TO_CONTRACT = {
         "bsc-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "polygon-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
@@ -150,10 +158,10 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+    SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
     OMNISWAP_PID = new PublicKey("");
     // OMNISWAP_PID base58decode
     SODIAMOND = ""
-    SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
     BENEFICIARY = "";
     LOOKUP_TABLE_KEY = new PublicKey("")
 }
@@ -513,8 +521,11 @@ async function processV2(
         }
         let pendingData;
         try {
-            pendingData = await getPendingDataFromEvm("bsc-test");
-            // const pendingData = await getPendingData(dstWormholeChainId);
+            if (NET === "solana-testnet"){
+                pendingData = await getPendingDataFromEvm("bsc-test");
+            }else{
+                pendingData = await getPendingData(dstWormholeChainId);
+            }
             logWithTimestamp(`Get signed vaa length: ${pendingData.length}`)
         } catch (error) {
             logWithTimestamp(`Get pending data error: ${error}`)

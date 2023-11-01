@@ -60,3 +60,8 @@ ln -s /usr/local/node-v18.16.0-linux-arm64/bin/npm /usr/bin/npm
 npm install -g ts-node
 ln -s /usr/local/node-v18.16.0-linux-arm64/bin/ts-node /usr/bin/ts-node
 ```
+
+## startup relayer
+```bash
+nohup ts-node scripts/relayer/solana.ts ./.env ./solana.csv > relayer_solana.log 2>&1 &
+```
