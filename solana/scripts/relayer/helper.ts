@@ -264,6 +264,15 @@ export function deriveTmpTokenAccountKey(
     );
 }
 
+export function deriveUnwrapSolAccountKey(
+    programId: PublicKeyInitData
+) {
+    return deriveAddress(
+        [Buffer.from("unwrap")],
+        programId
+    );
+}
+
 export function createHelloTokenProgramInterface(
     connection: Connection,
     programId: PublicKeyInitData,
@@ -285,7 +294,7 @@ export function getCompleteTransferNativeWithPayloadCpiAccounts(
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
     payer: PublicKeyInitData,
-    vaa: ParsedOmniswapPayload,
+    vaa: ParsedOmniswapPayload | ParsedTokenTransferVaa,
     toTokenAccount: PublicKeyInitData
 ): CompleteTransferNativeWithPayloadCpiAccounts {
     const parsed = vaa;
@@ -325,7 +334,7 @@ export function getCompleteTransferWrappedWithPayloadCpiAccounts(
     tokenBridgeProgramId: PublicKeyInitData,
     wormholeProgramId: PublicKeyInitData,
     payer: PublicKeyInitData,
-    vaa: ParsedOmniswapPayload,
+    vaa: ParsedOmniswapPayload | ParsedTokenTransferVaa,
     toTokenAccount: PublicKeyInitData
 ): CompleteTransferWrappedWithPayloadCpiAccounts {
     const parsed = vaa;
@@ -376,9 +385,28 @@ export async function createCompleteSoSwapNativeWithoutSwap(
     const payAddress = payer.publicKey.toString();
     const program = createHelloTokenProgramInterface(connection, programId);
 
-    const parsed = parseVaaToOmniswapPayload(wormholeMessage);
-
-    const mint = new PublicKey(parsed.tokenAddress);
+    let parsed: ParsedOmniswapPayload | ParsedTokenTransferVaa;
+    let recipient: PublicKey;
+    let mint: PublicKey;
+    let unwrapSolAccount: PublicKey = null;
+    let wsolMint: PublicKey = null;
+    let recipientAccount: PublicKey = null;
+    if (!skipVerify) {
+        parsed = parseVaaToOmniswapPayload(wormholeMessage);
+        mint = new PublicKey(parsed.tokenAddress);
+        if ("soReceiver" in parsed) {
+            recipient = new PublicKey(parsed.soReceiver);
+            if (parsed.soReceiver === "11111111111111111111111111111111") {
+                unwrapSolAccount = deriveUnwrapSolAccountKey(programId);
+                wsolMint = mint;
+                recipientAccount = recipient;
+            }
+        }
+    } else {
+        parsed = parseTokenTransferVaa(wormholeMessage);
+        mint = new PublicKey(parsed.tokenAddress);
+        recipient = payer.publicKey;
+    }
 
     const tmpTokenAccount = deriveTmpTokenAccountKey(programId, mint);
     const tokenBridgeAccounts = getCompleteTransferNativeWithPayloadCpiAccounts(
@@ -389,10 +417,8 @@ export async function createCompleteSoSwapNativeWithoutSwap(
         tmpTokenAccount
     );
 
-    const recipient = new PublicKey(parsed.soReceiver);
     const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, recipient)).address;
     const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, mint, new PublicKey(beneficiary))).address;
-
 
     return program.methods
         .completeSoSwapNativeWithoutSwap([...parsed.hash], skipVerify)
@@ -405,6 +431,9 @@ export async function createCompleteSoSwapNativeWithoutSwap(
             mint,
             recipientTokenAccount,
             tmpTokenAccount,
+            unwrapSolAccount,
+            wsolMint,
+            recipient: recipientAccount,
             wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
             tokenBridgeConfig: tokenBridgeAccounts.tokenBridgeConfig,
@@ -434,7 +463,17 @@ export async function createCompleteSoSwapWrappedWithoutSwap(
     const payAddress = payer.publicKey.toString();
     const program = createHelloTokenProgramInterface(connection, programId);
 
-    const parsed = parseVaaToOmniswapPayload(wormholeMessage);
+    let parsed: ParsedOmniswapPayload | ParsedTokenTransferVaa;
+    let recipient: PublicKey;
+    if (!skipVerify) {
+        parsed = parseVaaToOmniswapPayload(wormholeMessage);
+        if ("soReceiver" in parsed) {
+            recipient = new PublicKey(parsed.soReceiver);
+        }
+    } else {
+        parsed = parseTokenTransferVaa(wormholeMessage);
+        recipient = payer.publicKey;
+    }
 
     const wrappedMint = deriveWrappedMintKey(
         tokenBridgeProgramId,
@@ -451,7 +490,6 @@ export async function createCompleteSoSwapWrappedWithoutSwap(
         tmpTokenAccount
     );
 
-    const recipient = new PublicKey(parsed.soReceiver);
     const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, recipient)).address;
     const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, wrappedMint, new PublicKey(beneficiary))).address;
 
@@ -655,6 +693,19 @@ export async function createCompleteSoSwapNativeWithWhirlpool(
     const recipientTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, dstToken, recipient)).address;
     const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, new PublicKey(beneficiary))).address;
 
+    let unwrapSolAccount: PublicKey;
+    let wsolMint: PublicKey;
+    let recipientAccount: PublicKey;
+    if (parsed.soReceiver === "11111111111111111111111111111111") {
+        unwrapSolAccount = deriveUnwrapSolAccountKey(programId);
+        wsolMint = mint;
+        recipientAccount = recipient;
+    } else {
+        unwrapSolAccount = null;
+        wsolMint = null;
+        recipientAccount = null;
+    }
+
     return program.methods
         .completeSoSwapNativeWithWhirlpool([...parsed.hash])
         .accounts({
@@ -673,6 +724,9 @@ export async function createCompleteSoSwapNativeWithWhirlpool(
             whirlpoolTickArray2: quoteConfig.tickArray2,
             whirlpoolOracle: quoteConfig.oracle,
             foreignContract: deriveForeignContractKey(programId, parsed.emitterChain as ChainId),
+            unwrapSolAccount,
+            wsolMint,
+            recipient: recipientAccount,
             mint,
             recipientTokenAccount,
             recipientBridgeTokenAccount,
