@@ -1,17 +1,19 @@
 import {
+    ComputeBudgetProgram,
     Connection,
     Keypair,
     PublicKey,
-    TransactionMessage,
     TransactionInstruction,
-    VersionedTransaction,
-    ComputeBudgetProgram
+    TransactionMessage,
+    VersionedTransaction
 } from "@solana/web3.js";
 import fs from "fs";
 import axios from "axios";
 import {
-    createCompleteSoSwapNativeWithoutSwap, createCompleteSoSwapNativeWithWhirlpool,
-    createCompleteSoSwapWrappedWithoutSwap, createCompleteSoSwapWrappedWithWhirlpool,
+    createCompleteSoSwapNativeWithoutSwap,
+    createCompleteSoSwapNativeWithWhirlpool,
+    createCompleteSoSwapWrappedWithoutSwap,
+    createCompleteSoSwapWrappedWithWhirlpool,
     ParsedOmniswapPayload,
     parseVaaToOmniswapPayload,
     PersistentDictionary,
@@ -336,7 +338,7 @@ const sendAndConfirmIx = async (
             instructions: [ix0, ix],
             recentBlockhash: blockhash,
         }
-    ).compileToV0Message( [lookup_table]);
+    ).compileToV0Message([lookup_table]);
     const tx = new VersionedTransaction(message0)
     tx.sign([payer]);
     return await connection.sendTransaction(tx);
@@ -350,6 +352,7 @@ async function processVaa(
     emitterChainId,
     sequence,
     extrinsicHash,
+    skipVerify: boolean
 ): Promise<boolean> {
     let payload: ParsedOmniswapPayload;
     try {
@@ -383,7 +386,7 @@ async function processVaa(
         logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
     }
 
-    if (payload.swapDataList.length === 0) {
+    if (skipVerify || payload.swapDataList.length === 0) {
         try {
             const ix = await createCompleteSoSwapNativeWithoutSwap(
                 connection,
@@ -393,7 +396,7 @@ async function processVaa(
                 CORE_BRIDGE_PID,
                 vaa,
                 BENEFICIARY,
-                false
+                skipVerify
             );
             const dstTx = await sendAndConfirmIx(connection, payer, ix);
             logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
@@ -412,7 +415,7 @@ async function processVaa(
                 CORE_BRIDGE_PID,
                 vaa,
                 BENEFICIARY,
-                false
+                skipVerify
             );
             const dstTx = await sendAndConfirmIx(connection, payer, ix);
             logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
@@ -456,44 +459,6 @@ async function processVaa(
             return true;
         } catch (error) {
             logWithTimestamp(`RedeemWrappedWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-        }
-
-        try {
-            const ix = await createCompleteSoSwapNativeWithoutSwap(
-                connection,
-                OMNISWAP_PID,
-                payer,
-                TOKEN_BRIDGE_PID,
-                CORE_BRIDGE_PID,
-                vaa,
-                BENEFICIARY,
-                false
-            );
-            const dstTx = await sendAndConfirmIx(connection, payer, ix);
-            logWithTimestamp(`RedeemNative compensate for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
-            recordGas(extrinsicHash, dstTx);
-            return true;
-        } catch (error) {
-            logWithTimestamp(`RedeemNative compensate for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-        }
-
-        try {
-            const ix = await createCompleteSoSwapWrappedWithoutSwap(
-                connection,
-                OMNISWAP_PID,
-                payer,
-                TOKEN_BRIDGE_PID,
-                CORE_BRIDGE_PID,
-                vaa,
-                BENEFICIARY,
-                false
-            );
-            const dstTx = await sendAndConfirmIx(connection, payer, ix);
-            logWithTimestamp(`RedeemWrapped compensate for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
-            recordGas(extrinsicHash, dstTx);
-            return true;
-        } catch (error) {
-            logWithTimestamp(`RedeemWrapped compensate for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
         }
     }
 
@@ -576,7 +541,8 @@ async function processV2(
             } else {
                 hasProcess.set(hasKey, currentTimeStamp);
             }
-            await processVaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"]);
+            const skipVerify = false;
+            await processVaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"], skipVerify);
         }
     }
 }
