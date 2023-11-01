@@ -122,7 +122,7 @@ pub struct CompleteSoSwapNativeWithWhirlpool<'info> {
 	#[account(
 		constraint = wsol_mint.key() == WrapSOLKey
 	)]
-	pub wsol_mint: Option<Account<'info, Mint>>,
+	pub wsol_mint: Option<Box<Account<'info, Mint>>>,
 
 	#[account(
 		mut,
@@ -311,17 +311,17 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	// is redeemed again. But we choose to short-circuit the failure as the
 	// first evaluation of this instruction.
 	require!(ctx.accounts.token_bridge_claim.data_is_empty(), SoSwapError::AlreadyRedeemed);
-	require!(ctx.accounts.payer.key() == ctx.accounts.config.proxy, SoSwapError::InvalidProxy);
+	require!(ctx.accounts.payer.key().as_ref() == ctx.accounts.config.proxy.as_ref(), SoSwapError::InvalidProxy);
 
 	// The intended recipient must agree with the recipient.
 	let so_msg = ctx.accounts.vaa.message().data();
 	require!(*so_msg != Default::default(), SoSwapError::DeserializeSoSwapMessageFail);
 	require!(
-		ctx.accounts.recipient_token_account.owner.to_bytes() == so_msg.recipient(),
+		ctx.accounts.recipient_token_account.owner.as_ref() == so_msg.normalized_so_data.receiver,
 		SoSwapError::InvalidRecipient
 	);
 	require!(
-		ctx.accounts.recipient_bridge_token_account.owner.to_bytes() == so_msg.recipient(),
+		ctx.accounts.recipient_bridge_token_account.owner.as_ref() == so_msg.normalized_so_data.receiver,
 		SoSwapError::InvalidRecipient
 	);
 
@@ -333,9 +333,7 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	let mut swap_data = so_msg.normalized_swap_data.first().unwrap().clone();
 	swap_data.reset_from_amount(U256::from(bridge_amount));
 
-	let so_receiving_asset =
-		Pubkey::try_from(so_msg.normalized_so_data.receiving_asset_id.as_slice()).unwrap();
-	let need_unwrap_sol = so_receiving_asset == UnwrapSOLKey;
+	let need_unwrap_sol = so_msg.normalized_so_data.receiving_asset_id == UnwrapSOLKey.as_ref();
 
 	let (from_token_account, to_token_account, status, final_amount) = if let Ok(a_to_b) =
 		swap_by_whirlpool(&ctx, &swap_data)
@@ -374,14 +372,14 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	};
 
 	if need_unwrap_sol &&
-		from_token_account.mint == WrapSOLKey &&
+		from_token_account.mint.as_ref() == WrapSOLKey.as_ref() &&
 		ctx.accounts.unwrap_sol_account.is_some() &&
 		ctx.accounts.recipient.is_some()
 	{
 		let unwrap_sol_account = &ctx.accounts.unwrap_sol_account.clone().unwrap();
 		let recipient = &ctx.accounts.recipient.clone().unwrap();
 
-		require!(recipient.key().to_bytes() == so_msg.recipient(), SoSwapError::InvalidRecipient);
+		require!(recipient.key().as_ref() == so_msg.normalized_so_data.receiver, SoSwapError::InvalidRecipient);
 
 		// 1. transfer: from_token_account(wsol) => unwrap_sol_account(wsol)
 		anchor_spl::token::transfer(
