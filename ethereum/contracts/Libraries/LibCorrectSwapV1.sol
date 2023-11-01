@@ -19,10 +19,7 @@ import {IPearlRouter} from "../Interfaces/Pearl/IPearlRouter.sol";
 import {IiZiSwap} from "../Interfaces/Iziswap/IiZiSwap.sol";
 import {ICamelotRouter} from "../Interfaces/Camelot/ICamelotRouter.sol";
 import {IMetaAggregationRouterV2} from "../Interfaces/Kyberswap/IMetaAggregationRouterV2.sol";
-import {IOneInchGenericRouter} from "../Interfaces/OneInch/IOneInchGenericRouter.sol";
-import {IOneInchClipperRouter} from "../Interfaces/OneInch/IOneInchClipperRouter.sol";
-import {IOneInchUnoswapRouter} from "../Interfaces/OneInch/IOneInchUnoswapRouter.sol";
-import {IOneInchUnoswapV3Router} from "../Interfaces/OneInch/IOneInchUnoswapV3Router.sol";
+import {IOneInchGenericRouter, IOneInchClipperRouter, IOneInchUnoswapRouter, IOneInchUnoswapV3Router} from "../Interfaces/OneInch/IAggregationRouterV5.sol";
 
 contract LibCorrectSwapV1 {
     // UniswapV2
