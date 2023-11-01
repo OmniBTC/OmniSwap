@@ -119,6 +119,7 @@ class SoData(View):
     @classmethod
     def create_usdc(
             cls,
+            receiving_token: str,
             receiver: str,
             amount: int,
     ):
@@ -129,13 +130,14 @@ class SoData(View):
             sourceChainId=4,
             sendingAssetId="0x51a3cc54eA30Da607974C5D07B8502599801AC08", # usdc-sol(by wormhole)
             destinationChainId=1,
-            receivingAssetId="0x"+b58decode("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU").hex(), # usdc (on solana)
+            receivingAssetId=receiving_token,
             amount=amount,
         )
 
     @classmethod
     def create_wsol(
             cls,
+            receiving_token: str,
             receiver: str,
             amount: int,
     ):
@@ -146,13 +148,14 @@ class SoData(View):
             sourceChainId=4,
             sendingAssetId="0x30f19eBba919954FDc020B8A20aEF13ab5e02Af0", # wsol
             destinationChainId=1,
-            receivingAssetId="0x"+bytes([0]*32).hex(), # unwrap to sol on solana
+            receivingAssetId=receiving_token,
             amount=amount,
         )
 
     @classmethod
     def create_bsc(
             cls,
+            receiving_token: str,
             receiver: str,
             amount: int,
     ):
@@ -163,7 +166,7 @@ class SoData(View):
             sourceChainId=4,
             sendingAssetId="0x8CE306D8A34C99b23d3054072ba7fc013684e8a1", # bsc token(test)
             destinationChainId=1,
-            receivingAssetId="0x"+b58decode("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU").hex(), # usdc (on solana)
+            receivingAssetId=receiving_token,
             amount=amount,
         )
 
@@ -211,6 +214,7 @@ def cross_swap_wrapped_via_wormhole():
     usdc_token_approve(one_usdc, so_diamond)
 
     so_data = SoData.create_usdc(
+        receiving_token="0x"+b58decode("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU").hex(),
         receiver="0x"+b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
         amount=one_usdc
     )
@@ -256,6 +260,7 @@ def cross_swap_wsol_via_wormhole():
     wsol_token_approve(wsol_amount, so_diamond)
 
     so_data = SoData.create_wsol(
+        receiving_token="0x"+bytes([0]*32).hex(),
         receiver="0x"+b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
         amount=wsol_amount
     )
@@ -316,6 +321,7 @@ def cross_swap_wrapped_via_wormhole_whirlpool():
     usdc_token_approve(one_usdc, so_diamond)
 
     so_data = SoData.create_usdc(
+        receiving_token="0x"+b58decode("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS").hex(),
         receiver="0x"+b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
         amount=one_usdc
     )
@@ -387,6 +393,7 @@ def cross_swap_native_via_wormhole():
     bsc_token_approve(one_bsc*100, so_diamond)
 
     so_data = SoData.create_bsc(
+        receiving_token="0x"+b58decode("xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz").hex(),
         receiver="0x"+b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
         amount=one_bsc*100
     )
@@ -435,6 +442,7 @@ def cross_swap_native_via_wormhole_whirlpool():
     bsc_token_approve(one_bsc, so_diamond)
 
     so_data = SoData.create_bsc(
+        receiving_token="0x"+b58decode("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS").hex(),
         receiver="0x"+b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
         amount=one_bsc
     )
@@ -503,5 +511,5 @@ def main():
     # complete_swap_via_wormhole()
     # cross_swap_wrapped_via_wormhole()
     # cross_swap_wrapped_via_wormhole_whirlpool()
-    cross_swap_native_via_wormhole_whirlpool()
-    # cross_swap_wsol_via_wormhole()
+    # cross_swap_native_via_wormhole_whirlpool()
+    cross_swap_wsol_via_wormhole()

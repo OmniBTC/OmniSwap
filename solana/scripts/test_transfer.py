@@ -106,7 +106,7 @@ async def omniswap_send_wrapped_token():
     src_from_token_decimals = resp.value.data.parsed["info"]["decimals"]
     # SrcChain From Amount: 1 token
     src_from_ui_amount = "1"
-    src_from_amount = int(src_from_ui_amount) * src_from_token_decimals
+    src_from_amount = int(src_from_ui_amount) * 10**src_from_token_decimals
     # SrcChain Swap: From -> Bridge
     # SrcChain Bridge Token(wrapped)
     src_bridge_wrapped_token = src_from_token
@@ -249,7 +249,7 @@ async def omniswap_send_native_token():
     src_from_token_decimals = resp.value.data.parsed["info"]["decimals"]
     # SrcChain From Amount:  1 token
     src_from_ui_amount = "1"
-    src_from_amount = int(src_from_ui_amount) * src_from_token_decimals
+    src_from_amount = int(src_from_ui_amount) * 10**src_from_token_decimals
     # SrcChain Swap: From -> Bridge
     # SrcChain Bridge Token(native)
     src_bridge_native_token = src_from_token
@@ -412,8 +412,8 @@ async def omniswap_send_native_token_with_whirlpool():
     resp = await client.get_account_info_json_parsed(src_from_token)
     src_from_token_decimals = resp.value.data.parsed["info"]["decimals"]
     # SrcChain From Amount: 1 token
-    src_from_ui_amount = "1"
-    src_from_amount = int(src_from_ui_amount) * src_from_token_decimals
+    src_from_ui_amount = "100"
+    src_from_amount = int(src_from_ui_amount) * 10**src_from_token_decimals
 
     # SrcChain Swap(Whirlpool): From -> Bridge
     TEST_USDC_POOL = "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV"
@@ -451,7 +451,7 @@ async def omniswap_send_native_token_with_whirlpool():
     next_seq = current_seq + 1
     wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
 
-    assert quote_config["amount_in"] == src_from_amount
+    assert int(quote_config["amount_in"]) == src_from_amount, src_from_amount
 
     so_data = SoData(
         transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
@@ -618,7 +618,7 @@ async def omniswap_send_wrapped_token_with_whirlpool():
     src_from_token_decimals = resp.value.data.parsed["info"]["decimals"]
     # SrcChain From Amount: 1 token
     src_from_ui_amount = "1"
-    src_from_amount = int(src_from_ui_amount) * src_from_token_decimals
+    src_from_amount = int(src_from_ui_amount) * 10**src_from_token_decimals
     # SrcChain Swap(Whirlpool): From -> Bridge
     BSC_TEST_POOL = "AxoxjuJnpvTeqmwwjJLnuMuYLGNP1kg3orMjSuj3KBmc"
     quote_config = get_whirlpool_quote_config(BSC_TEST_POOL, TEST, src_from_ui_amount)
@@ -805,7 +805,7 @@ async def omniswap_send_native_token_sol():
     src_from_token_decimals = resp.value.data.parsed["info"]["decimals"]
     # SrcChain From Amount:  1 token
     src_from_ui_amount = "1"
-    src_from_amount = int(src_from_ui_amount) * src_from_token_decimals
+    src_from_amount = int(src_from_ui_amount) * 10**src_from_token_decimals
     # SrcChain Swap: From -> Bridge
     # SrcChain Bridge Token(native)
     src_bridge_native_token = src_from_token
@@ -933,4 +933,4 @@ async def omniswap_send_native_token_sol():
     print(tx_sig.value)
 
 
-asyncio.run(omniswap_send_native_token_sol())
+asyncio.run(omniswap_send_native_token_with_whirlpool())

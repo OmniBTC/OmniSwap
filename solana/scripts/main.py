@@ -52,7 +52,7 @@ async def call_omniswap_estimate_relayer_fee():
 
 async def call_close_pending_request():
     await close_pending_request(
-        Pubkey.from_string("2rfc8g5zXw2ganAxVuayhdDjMUatnPrrR2qLJmtBDcwj")
+        Pubkey.from_string("H1uArb8V8ayVWFDij4TjjcmbMMx7CzQeEGPXJcMCwggc")
     )
 
 
@@ -86,4 +86,4 @@ async def call_initialize_all():
     await omniswap_set_price_ratio("bsc-test", 10_000_000)
 
 
-asyncio.run(call_omniswap_set_redeem_proxy())
+asyncio.run(call_close_pending_request())

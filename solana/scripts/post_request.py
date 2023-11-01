@@ -2,6 +2,8 @@ import asyncio
 
 from solana.rpc.commitment import Processed
 from solana.transaction import Transaction
+from solders.pubkey import Pubkey
+
 from omniswap.instructions import so_swap_post_cross_request
 from helper import (
     deriveCrossRequestKey,
@@ -98,3 +100,13 @@ async def post_cross_requset(
         else:
             print("Transaction not confirmed yet. Waiting...")
             await asyncio.sleep(5)  # 5 seconds
+
+
+if __name__ == "__main__":
+    q = deriveCrossRequestKey(
+        "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY",
+        5,
+        Pubkey.from_string("G9uUceCFmCbiP6ZcyBw5Q33ZZPuv3BF8a7ejJWnVE1vZ"),
+    )
+
+    print(q)

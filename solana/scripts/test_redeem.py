@@ -383,6 +383,7 @@ async def omniswap_redeem_native_token(vaa: str):
         not skip_verify_soswap_message
         and str(dst_token) == "11111111111111111111111111111111"
     ):
+        assert bridge_token == dst_token
         dst_token = Pubkey.from_string("So11111111111111111111111111111111111111112")
         unwrap_sol_account = deriveUnwrapSolAccountKey(omniswap_program_id)
         wsol_mint = Pubkey.from_string("So11111111111111111111111111111111111111112")
@@ -393,11 +394,8 @@ async def omniswap_redeem_native_token(vaa: str):
         recipient = None
 
     print(f"dst_token={dst_token}")
-    print(f"bridge_token={bridge_token}")
     print(f"unwrap_sol_account={unwrap_sol_account}")
     print(f"recipient={recipient}")
-
-    assert bridge_token == dst_token
 
     # collect token so fee
     beneficiary_account = Pubkey.from_string(config["beneficiary"])
@@ -665,11 +663,13 @@ async def omniswap_redeem_native_token_skip_verify(vaa: str):
                 "beneficiary_token_account"
             ],
             "foreign_contract": redeem_native_accounts["foreign_contract"],
+            "unwrap_sol_account": None,
+            "wsol_mint": None,
+            "recipient": None,
             "mint": usdc_mint,
             "recipient_token_account": redeem_native_accounts[
                 "recipient_token_account"
             ],
-            "recipient": redeem_native_accounts["recipient"],
             "tmp_token_account": redeem_native_accounts["tmp_token_account"],
             "wormhole_program": redeem_native_accounts["wormhole_program"],
             "token_bridge_program": redeem_native_accounts["token_bridge_program"],
@@ -699,5 +699,5 @@ async def omniswap_redeem_native_token_skip_verify(vaa: str):
 
 
 # Precondition: vaa has been posted
-vaa_hex = "0100000000010019c9469347188ba1dd54550b822d9fdf72c5f5c342fcc09511fb6e4bc00a37392ccee23355eda90b3d5c6ee03929061f958c8fbd9a4670b98e57fabf30fc0fb50065411f340000000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000013e80f0300000000000000000000000000000000000000000000000000000000000f4240069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f0000000000100013636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc010102deac20e2deb5206cd68c25b4edc31a2ba648a6ca5e14e76ce496bba217de48c246cde12038e121709ad96bd37a2f87022932336e9a290f62aef3d41dae00b1547c6f1938200000000000000000000000000000000000000000000000000000000000000000"
+vaa_hex = "010000000001004918f622eced612fe4860b0d70c0819885cdf09876f99a96ec3399ee86de54de17f392b6f152844bf14e882188440cd106f35fd3281b68465aeea76a49458e7d0065423a250000000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000013f40f0300000000000000000000000000000000000000000000000000000000000f4240069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f0000000000100013636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc010102deac20460aba39a328abd68282657e9c0540cc9ce5a0e2ebe29e9e28bc6c33c9bc28042038e121709ad96bd37a2f87022932336e9a290f62aef3d41dae00b1547c6f1938200000000000000000000000000000000000000000000000000000000000000000"
 asyncio.run(omniswap_redeem_native_token(vaa_hex))
