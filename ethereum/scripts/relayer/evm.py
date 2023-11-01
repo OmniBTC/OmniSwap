@@ -424,16 +424,18 @@ class Session(Process):
         except:
             logger.error(f"Connect {self.dstNet} fail")
             return
-        t1 = threading.Thread(
-            target=process_v1, args=(self.dstWormholeChainId, self.dstSoDiamond)
-        )
-        t1.start()
+        t1 = None
+        if NET == "testnet":
+            t1 = threading.Thread(
+                target=process_v1, args=(self.dstWormholeChainId, self.dstSoDiamond)
+            )
+            t1.start()
         t2 = threading.Thread(
             target=process_v2, args=(self.dstWormholeChainId, self.dstSoDiamond)
         )
         t2.start()
         while True:
-            if not t1.is_alive():
+            if t1 is not None and not t1.is_alive():
                 if not network.is_connected():
                     change_network(self.dstNet)
                 t1.start()
