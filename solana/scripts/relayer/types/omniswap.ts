@@ -1,5 +1,5 @@
 export type Omniswap = {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "name": "omniswap",
   "instructions": [
     {
@@ -665,6 +665,24 @@ export type Omniswap = {
             "account must agree with the target address for the Token Bridge's token",
             "transfer. Read-only."
           ]
+        },
+        {
+          "name": "unwrapSolAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
         },
         {
           "name": "mint",
@@ -1889,6 +1907,24 @@ export type Omniswap = {
           ]
         },
         {
+          "name": "unwrapSolAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
           "name": "mint",
           "isMut": false,
           "isSigner": false,
@@ -2448,6 +2484,48 @@ export type Omniswap = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "wrapSol",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wrapSolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token program."
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeWrapped",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -2944,7 +3022,7 @@ export type Omniswap = {
 };
 
 export const IDL: Omniswap = {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "name": "omniswap",
   "instructions": [
     {
@@ -3610,6 +3688,24 @@ export const IDL: Omniswap = {
             "account must agree with the target address for the Token Bridge's token",
             "transfer. Read-only."
           ]
+        },
+        {
+          "name": "unwrapSolAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
         },
         {
           "name": "mint",
@@ -4834,6 +4930,24 @@ export const IDL: Omniswap = {
           ]
         },
         {
+          "name": "unwrapSolAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
           "name": "mint",
           "isMut": false,
           "isSigner": false,
@@ -5393,6 +5507,48 @@ export const IDL: Omniswap = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "wrapSol",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wrapSolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token program."
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeWrapped",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [

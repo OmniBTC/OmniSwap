@@ -77,7 +77,6 @@ if (NET !== "solana-mainnet") {
     NET_TO_CONTRACT = {
         "bsc-test": "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
     }
-    SODIAMOND = "0x3eb54bfb6f363a4b14879f4189fecd37bf35acfc86572f9879f620736ecf3228"
     NET_TO_DEFAULT_FROM_BLOCK = {
         "bsc-test": 34075043
     }
@@ -98,7 +97,9 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
-    OMNISWAP_PID = new PublicKey("5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7");
+    OMNISWAP_PID = new PublicKey("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
+    // OMNISWAP_PID base58decode
+    SODIAMOND = "0x3636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843"
     SOLANA_URL = "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/";
     BENEFICIARY = "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS";
     LOOKUP_TABLE_KEY = new PublicKey("ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8")
@@ -131,7 +132,6 @@ if (NET !== "solana-mainnet") {
         "avax-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "mainnet": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
     }
-    SODIAMOND = ""
     NET_TO_EMITTER = {
         "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
         "bsc-main": "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
@@ -149,6 +149,8 @@ if (NET !== "solana-mainnet") {
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     OMNISWAP_PID = new PublicKey("");
+    // OMNISWAP_PID base58decode
+    SODIAMOND = ""
     SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
     BENEFICIARY = "";
     LOOKUP_TABLE_KEY = new PublicKey("")
