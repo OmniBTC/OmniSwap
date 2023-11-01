@@ -21,7 +21,7 @@ from helper import (
 )
 from solana_config import get_client, get_config, get_proxy
 from parse import ParsedVaa, ParsedTransfer
-from get_quote_config import get_test_usdc_quote_config, get_bsc_test_quote_config
+from get_quote_config import get_whirlpool_quote_config
 from get_or_create_ata import get_or_create_associated_token_account
 
 
@@ -148,12 +148,19 @@ async def omniswap_redeem_wrapped_token_with_whirlpool(vaa: str):
 
     parsed_vaa = ParsedVaa.parse(vaa)
     parsed_transfer = ParsedTransfer.parse(parsed_vaa.payload)
-    bridge_token = Pubkey.from_bytes(parsed_transfer.bridge_token())
-    dst_token = Pubkey.from_bytes(parsed_transfer.dst_token())
+    bridge_token_mint = Pubkey.from_bytes(parsed_transfer.bridge_token())
+    dst_token_mint = Pubkey.from_bytes(parsed_transfer.dst_token())
+    whirlpool_key = Pubkey.from_bytes(parsed_transfer.first_swap_pool())
 
-    # wrapped-bsc decimals=8
-    # todo: get decimals
-    bridge_token_amount = denormalize_amount(parsed_transfer.amount, 8)
+    print(f"bridge_token_mint={bridge_token_mint}")
+    print(f"dst_token_mint={dst_token_mint}")
+    print(f"whirlpool={whirlpool_key}")
+
+    resp = await client.get_account_info_json_parsed(bridge_token_mint)
+    bridge_token_decimals = resp.value.data.parsed["info"]["decimals"]
+    bridge_token_amount = denormalize_amount(
+        parsed_transfer.amount, bridge_token_decimals
+    )
 
     # collect token so fee
     beneficiary_account = Pubkey.from_string(config["beneficiary"])
@@ -167,32 +174,34 @@ async def omniswap_redeem_wrapped_token_with_whirlpool(vaa: str):
     )
 
     beneficiary_bridge_token_account = get_or_create_associated_token_account(
-        str(bridge_token), config["beneficiary"]
+        str(bridge_token_mint), config["beneficiary"]
     )
     print(f"beneficiary_bridge_token_account={beneficiary_bridge_token_account}")
 
     recipient_bridge_token_account = get_or_create_associated_token_account(
-        str(bridge_token),
+        str(bridge_token_mint),
         str(redeem_wrapped_accounts["recipient"]),
     )
     print(f"recipient_bridge_token_account={recipient_bridge_token_account}")
 
     recipient_dst_token_account = get_or_create_associated_token_account(
-        str(dst_token),
+        str(dst_token_mint),
         str(redeem_wrapped_accounts["recipient"]),
     )
     print(f"recipient_dst_token_account={recipient_dst_token_account}")
 
-    ui_amount = to_ui_amount(bridge_token_amount, 8)
-    quote_config = get_bsc_test_quote_config(str(bridge_token), ui_amount)
+    bridge_token_ui_amount = to_ui_amount(bridge_token_amount, bridge_token_decimals)
+    quote_config = get_whirlpool_quote_config(
+        str(whirlpool_key), str(bridge_token_mint), bridge_token_ui_amount
+    )
 
-    print("BSC amount_in: ", quote_config["amount_in"])
-    print("TEST estimated_amount_out: ", quote_config["estimated_amount_out"])
-    print("TEST min_amount_out: ", quote_config["min_amount_out"])
+    print("BridgeToken amount_in: ", quote_config["amount_in"])
+    print("DstToken estimated_amount_out: ", quote_config["estimated_amount_out"])
+    print("DstToken min_amount_out: ", quote_config["min_amount_out"])
 
     # ExceededMaxInstructions
     # devnet_limit=200_000, real=200933
-    ix0 = set_compute_unit_limit(300_000)
+    ix0 = set_compute_unit_limit(1200000)
 
     ix1 = complete_so_swap_wrapped_with_whirlpool(
         args={"vaa_hash": parsed_vaa.hash},
@@ -367,15 +376,14 @@ async def omniswap_redeem_native_token(vaa: str):
 
     parsed_vaa = ParsedVaa.parse(vaa)
     parsed_transfer = ParsedTransfer.parse(parsed_vaa.payload)
-    bridge_token_mint = Pubkey.from_bytes(parsed_transfer.dst_token())
+    bridge_token = Pubkey.from_bytes(parsed_transfer.bridge_token())
+    dst_token = Pubkey.from_bytes(parsed_transfer.dst_token())
     skip_verify_soswap_message = False
     if (
         not skip_verify_soswap_message
-        and str(bridge_token_mint) == "11111111111111111111111111111111"
+        and str(dst_token) == "11111111111111111111111111111111"
     ):
-        bridge_token_mint = Pubkey.from_string(
-            "So11111111111111111111111111111111111111112"
-        )
+        dst_token = Pubkey.from_string("So11111111111111111111111111111111111111112")
         unwrap_sol_account = deriveUnwrapSolAccountKey(omniswap_program_id)
         wsol_mint = Pubkey.from_string("So11111111111111111111111111111111111111112")
         recipient = Pubkey.from_bytes(parsed_transfer.recipient())
@@ -384,9 +392,12 @@ async def omniswap_redeem_native_token(vaa: str):
         wsol_mint = None
         recipient = None
 
-    print(f"bridge_token_mint={bridge_token_mint}")
+    print(f"dst_token={dst_token}")
+    print(f"bridge_token={bridge_token}")
     print(f"unwrap_sol_account={unwrap_sol_account}")
     print(f"recipient={recipient}")
+
+    assert bridge_token == dst_token
 
     # collect token so fee
     beneficiary_account = Pubkey.from_string(config["beneficiary"])
@@ -397,16 +408,16 @@ async def omniswap_redeem_native_token(vaa: str):
         omniswap_program_id,
         beneficiary_account,
         vaa,
-        bridge_token_mint,
+        dst_token,
     )
 
     beneficiary_token_account = get_or_create_associated_token_account(
-        str(bridge_token_mint), config["beneficiary"]
+        str(dst_token), config["beneficiary"]
     )
     print(f"beneficiary_token_account={beneficiary_token_account}")
 
     recipient_token_account = get_or_create_associated_token_account(
-        str(bridge_token_mint),
+        str(dst_token),
         str(redeem_native_accounts["recipient"]),
     )
     print(f"recipient_token_account={recipient_token_account}")
@@ -429,7 +440,7 @@ async def omniswap_redeem_native_token(vaa: str):
             "unwrap_sol_account": unwrap_sol_account,
             "wsol_mint": wsol_mint,
             "recipient": recipient,
-            "mint": bridge_token_mint,
+            "mint": dst_token,
             "recipient_token_account": recipient_token_account,
             "tmp_token_account": redeem_native_accounts["tmp_token_account"],
             "wormhole_program": redeem_native_accounts["wormhole_program"],
@@ -485,13 +496,34 @@ async def omniswap_redeem_native_token_with_whirlpool(vaa: str):
 
     parsed_vaa = ParsedVaa.parse(vaa)
     parsed_transfer = ParsedTransfer.parse(parsed_vaa.payload)
-    usdc_mint = Pubkey.from_bytes(parsed_transfer.token_address)
-    test_mint_hex = parsed_transfer.parsed_transfer_payload.format_json()[
-        "swap_data_list"
-    ][0]["receivingAssetId"]
-    test_mint = Pubkey.from_bytes(bytes.fromhex(test_mint_hex.replace("0x", "")))
-    # usdc decimals=6
-    usdc_amount = denormalize_amount(parsed_transfer.amount, 6)
+    bridge_token_mint = Pubkey.from_bytes(parsed_transfer.bridge_token())
+    dst_token_mint = Pubkey.from_bytes(parsed_transfer.dst_token())
+    whirlpool_key = Pubkey.from_bytes(parsed_transfer.first_swap_pool())
+    if str(dst_token_mint) == "11111111111111111111111111111111":
+        dst_token_mint = Pubkey.from_string(
+            "So11111111111111111111111111111111111111112"
+        )
+        unwrap_sol_account = deriveUnwrapSolAccountKey(omniswap_program_id)
+        wsol_mint = Pubkey.from_string("So11111111111111111111111111111111111111112")
+        recipient = Pubkey.from_bytes(parsed_transfer.recipient())
+    else:
+        unwrap_sol_account = None
+        wsol_mint = None
+        recipient = None
+
+    print(f"bridge_token_mint={bridge_token_mint}")
+    print(f"dst_token_mint={dst_token_mint}")
+    print(f"whirlpool={whirlpool_key}")
+    print(f"unwrap_sol_account={unwrap_sol_account}")
+    print(f"recipient={recipient}")
+
+    resp = await client.get_account_info_json_parsed(bridge_token_mint)
+    bridge_token_decimals = resp.value.data.parsed["info"]["decimals"]
+
+    bridge_token_amount = denormalize_amount(
+        parsed_transfer.amount, bridge_token_decimals
+    )
+    bridge_token_ui_amount = to_ui_amount(bridge_token_amount, bridge_token_decimals)
 
     # collect token so fee
     beneficiary_account = Pubkey.from_string(config["beneficiary"])
@@ -502,22 +534,23 @@ async def omniswap_redeem_native_token_with_whirlpool(vaa: str):
         omniswap_program_id,
         beneficiary_account,
         vaa,
-        usdc_mint,
+        bridge_token_mint,
     )
 
     recipient_bridge_token_account = get_associated_token_address(
-        redeem_native_accounts["recipient"], usdc_mint
+        redeem_native_accounts["recipient"], bridge_token_mint
     )
     recipient_dst_token_account = get_associated_token_address(
-        redeem_native_accounts["recipient"], test_mint
+        redeem_native_accounts["recipient"], dst_token_mint
     )
 
-    ui_amount = to_ui_amount(usdc_amount, 6)
-    quote_config = get_test_usdc_quote_config(str(usdc_mint), ui_amount)
+    quote_config = get_whirlpool_quote_config(
+        str(whirlpool_key), str(bridge_token_mint), bridge_token_ui_amount
+    )
 
-    print("USDC amount_in: ", quote_config["amount_in"])
-    print("TEST estimated_amount_out: ", quote_config["estimated_amount_out"])
-    print("TEST min_amount_out: ", quote_config["min_amount_out"])
+    print("BridgeToken amount_in: ", quote_config["amount_in"])
+    print("DstToken estimated_amount_out: ", quote_config["estimated_amount_out"])
+    print("DstToken min_amount_out: ", quote_config["min_amount_out"])
 
     # This four token account must be initialized
     # whirlpool_token_owner_account_a
@@ -549,7 +582,10 @@ async def omniswap_redeem_native_token_with_whirlpool(vaa: str):
             "whirlpool_tick_array1": quote_config["tick_array_1"],
             "whirlpool_tick_array2": quote_config["tick_array_2"],
             "whirlpool_oracle": quote_config["oracle"],
-            "mint": usdc_mint,
+            "unwrap_sol_account": unwrap_sol_account,
+            "wsol_mint": wsol_mint,
+            "recipient": recipient,
+            "mint": bridge_token_mint,
             "recipient_token_account": recipient_dst_token_account,
             "recipient_bridge_token_account": recipient_bridge_token_account,
             "tmp_token_account": redeem_native_accounts["tmp_token_account"],

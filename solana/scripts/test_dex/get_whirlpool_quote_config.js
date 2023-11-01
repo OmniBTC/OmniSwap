@@ -58,9 +58,9 @@ var default_wallet = new anchor_1.Wallet(keypair);
 var rent_ta = function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
     return [2 /*return*/, connection.getMinimumBalanceForRentExemption(spl_token_1.AccountLayout.span)];
 }); }); };
-function main(token_mint_in, amount_in) {
+function main(whirlpool_address, token_mint_in, amount_in) {
     return __awaiter(this, void 0, void 0, function () {
-        var local_wallet, rawKey_1, keypair_1, ctx, client, acountFetcher, test_usdc_pool_pda, TEST, USDC, whirlpool, default_slippage, input_token_mint, shift_decimals, shift_amount_in, quote, quote_config, whirlpool_data, token_owner_account_a, token_owner_account_b, oracle_pda;
+        var local_wallet, rawKey_1, keypair_1, ctx, client, acountFetcher, whirlpool, token_a, token_b, default_slippage, input_token_mint, shift_decimals, shift_amount_in, quote, quote_config, whirlpool_data, token_owner_account_a, token_owner_account_b, oracle_pda;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -75,15 +75,14 @@ function main(token_mint_in, amount_in) {
                     ctx = whirlpools_sdk_1.WhirlpoolContext.from(connection, local_wallet, whirlpools_sdk_1.ORCA_WHIRLPOOL_PROGRAM_ID);
                     client = (0, whirlpools_sdk_1.buildWhirlpoolClient)(ctx);
                     acountFetcher = (0, whirlpools_sdk_1.buildDefaultAccountFetcher)(connection);
-                    test_usdc_pool_pda = "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV";
-                    TEST = { mint: new web3_js_1.PublicKey("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"), decimals: 9, symbol: "TEST" };
-                    USDC = { mint: new web3_js_1.PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"), decimals: 6, symbol: "USDC" };
-                    return [4 /*yield*/, client.getPool(test_usdc_pool_pda)];
+                    return [4 /*yield*/, client.getPool(whirlpool_address)];
                 case 1:
                     whirlpool = _a.sent();
+                    token_a = whirlpool.getTokenAInfo();
+                    token_b = whirlpool.getTokenBInfo();
                     default_slippage = common_sdk_1.Percentage.fromFraction(10, 1000);
                     input_token_mint = new web3_js_1.PublicKey(token_mint_in);
-                    shift_decimals = input_token_mint.equals(TEST.mint) ? TEST.decimals : USDC.decimals;
+                    shift_decimals = input_token_mint.equals(token_a.mint) ? token_a.decimals : token_b.decimals;
                     shift_amount_in = common_sdk_1.DecimalUtil.toBN(new decimal_js_1["default"](amount_in), shift_decimals);
                     return [4 /*yield*/, (0, whirlpools_sdk_1.swapQuoteByInputToken)(whirlpool, input_token_mint, shift_amount_in, default_slippage, ctx.program.programId, acountFetcher)];
                 case 2:
@@ -100,7 +99,7 @@ function main(token_mint_in, amount_in) {
                 case 5:
                     oracle_pda = _a.sent();
                     quote_config["whirlpool_program"] = whirlpools_sdk_1.ORCA_WHIRLPOOL_PROGRAM_ID.toString();
-                    quote_config["whirlpool"] = test_usdc_pool_pda;
+                    quote_config["whirlpool"] = whirlpool_address;
                     quote_config["token_mint_a"] = whirlpool_data.tokenMintA;
                     quote_config["token_mint_b"] = whirlpool_data.tokenMintB;
                     quote_config["token_owner_account_a"] = token_owner_account_a.address;
@@ -121,11 +120,11 @@ function main(token_mint_in, amount_in) {
         });
     });
 }
-main(process.argv[2], process.argv[3]);
+main(process.argv[2], process.argv[3], process.argv[4]);
 /*
 SAMPLE OUTPUT
 
-$ ts-node dex_test/get_test_usdc_quote_config.ts 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU 10
+$ ts-node scripts/test_dex/get_whirlpool_quote_config.ts b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV 281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS 100
 {
   "whirlpool_program": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
   "whirlpool": "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV",
@@ -136,13 +135,13 @@ $ ts-node dex_test/get_test_usdc_quote_config.ts 4zMMC9srt5Ri5X14GAgXhaHii3GnPAE
   "token_vault_a": "3dycP3pym3q6DgUpZRviaavaScwrrCuC6QyLhiLfSXge",
   "token_vault_b": "969UqMJSqvgxmNuAWZx91PAnLJU825qJRAAcEVQMWASg",
   "tick_array_0": "CXmxVvENVutfAmmHUSVNatgcidiu26uSXuCK8ufvqfxp",
-  "tick_array_1": "A3hkPb9EgHCTY6QiduwCLojmY9HzMBZW5LXANqSUYmgk",
-  "tick_array_2": "A3hkPb9EgHCTY6QiduwCLojmY9HzMBZW5LXANqSUYmgk",
+  "tick_array_1": "CXmxVvENVutfAmmHUSVNatgcidiu26uSXuCK8ufvqfxp",
+  "tick_array_2": "CXmxVvENVutfAmmHUSVNatgcidiu26uSXuCK8ufvqfxp",
   "oracle": "44xQG1Fgv5k3Us1s5Mcg6MQiQV2oSeocBRwo7hZvKdRo",
-  "is_a_to_b": false,
-  "amount_in": "10000000",
-  "estimated_amount_out": "3708721560268",
-  "min_amount_out": "3672001544819"
+  "is_a_to_b": true,
+  "amount_in": "100000000000",
+  "estimated_amount_out": "210498",
+  "min_amount_out": "208413"
 }
 
 */ 

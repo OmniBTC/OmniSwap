@@ -205,10 +205,13 @@ class ParsedTransfer:
             return self.parsed_transfer_payload.swap_data_list[0].sending_asset()
 
     def dst_token(self):
-        if self.parsed_transfer_payload.without_swap():
-            return self.parsed_transfer_payload.so_data.receiving_asset()
+        return self.parsed_transfer_payload.so_data.receiving_asset()
+
+    def first_swap_pool(self):
+        if len(self.parsed_transfer_payload.swap_data_list) > 0:
+            return self.parsed_transfer_payload.swap_data_list[0].pool_address()
         else:
-            return self.parsed_transfer_payload.swap_data_list[-1].receiving_asset()
+            return None
 
 
 class ParsedTransferPayload:

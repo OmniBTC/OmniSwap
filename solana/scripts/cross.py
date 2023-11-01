@@ -29,14 +29,14 @@ def decode_hex_to_ascii(data: str):
     return str(bytearray.fromhex(data).decode(encoding="ascii"))
 
 
-def padding_to_bytes(data: str, padding="right", length=32):
+def padding_hex_to_bytes(data: str, padding="right", length=32):
     if data[:2] == "0x":
         data = data[2:]
     padding_length = length * 2 - len(data)
     if padding == "right":
-        return "0x" + data + "0" * padding_length
+        return bytes.fromhex(data + "0" * padding_length)
     else:
-        return "0x" + "0" * padding_length + data
+        return bytes.fromhex("0" * padding_length + data)
 
 
 def int_to_big_endian(value: int) -> bytes:
@@ -364,6 +364,9 @@ class SwapData:
     def receiving_asset(self):
         return self.receivingAssetId
 
+    def pool_address(self):
+        return self.callTo
+
 
 class WormholeData:
     def __init__(
@@ -519,4 +522,10 @@ if __name__ == "__main__":
     test_so_data()
     test_swap_data()
 
-    print(padding_to_bytes("84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"))
+    print(
+        list(
+            padding_hex_to_bytes(
+                "84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc", padding="left"
+            )
+        )
+    )

@@ -27,6 +27,7 @@ const default_wallet = new Wallet(keypair);
 const rent_ta = async () => { return connection.getMinimumBalanceForRentExemption(AccountLayout.span) }
 
 async function main(
+    whirlpool_address: string,
     token_mint_in: string,
     amount_in: string
 ) {
@@ -47,21 +48,16 @@ async function main(
     const client = buildWhirlpoolClient(ctx);
     const acountFetcher = buildDefaultAccountFetcher(connection);
 
-    // get pool
-    const bsc_test_pool_pda = "AxoxjuJnpvTeqmwwjJLnuMuYLGNP1kg3orMjSuj3KBmc";
-    // Token A
-    const BSC = {mint: new PublicKey("xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"), decimals: 8, symbol: "BSC"}
-    // Token B
-    const TEST = {mint: new PublicKey("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"), decimals: 9, symbol: "TEST"}
-
-    const whirlpool = await client.getPool(bsc_test_pool_pda);
+    const whirlpool = await client.getPool(whirlpool_address);
+    const token_a = whirlpool.getTokenAInfo();
+    const token_b = whirlpool.getTokenBInfo();
 
     // acceptable slippage is 1.0% (10/1000)
     const default_slippage = Percentage.fromFraction(10, 1000);
     const input_token_mint = new PublicKey(token_mint_in);
 
     // get swap quote
-    const shift_decimals = input_token_mint.equals(BSC.mint) ? BSC.decimals : TEST.decimals;
+    const shift_decimals = input_token_mint.equals(token_a.mint) ? token_a.decimals : token_b.decimals;
     const shift_amount_in = DecimalUtil.toBN(new Decimal(amount_in), shift_decimals)
 
     const quote = await swapQuoteByInputToken(
@@ -79,17 +75,17 @@ async function main(
     // let estimatedAmountOut ;
     //
     // if (quote.aToB) {
-    //     estimatedAmountIn = DecimalUtil.fromBN(quote.estimatedAmountIn, TEST.decimals).toString()
-    //     estimatedAmountOut = DecimalUtil.fromBN(quote.estimatedAmountOut, USDC.decimals).toString()
+    //     estimatedAmountIn = DecimalUtil.fromBN(quote.estimatedAmountIn, token_a.decimals).toString()
+    //     estimatedAmountOut = DecimalUtil.fromBN(quote.estimatedAmountOut, token_b.decimals).toString()
     //
-    //     console.log("estimatedAmountIn",  estimatedAmountIn, "TEST");
-    //     console.log("estimatedAmountOut", estimatedAmountOut, "USDC");
+    //     console.log("estimatedAmountIn",  estimatedAmountIn, "TokenA");
+    //     console.log("estimatedAmountOut", estimatedAmountOut, "TokenB");
     // } else {
-    //     estimatedAmountIn = DecimalUtil.fromBN(quote.estimatedAmountIn, USDC.decimals).toString()
-    //     estimatedAmountOut = DecimalUtil.fromBN(quote.estimatedAmountOut, TEST.decimals).toString()
+    //     estimatedAmountIn = DecimalUtil.fromBN(quote.estimatedAmountIn, token_b.decimals).toString()
+    //     estimatedAmountOut = DecimalUtil.fromBN(quote.estimatedAmountOut, token_a.decimals).toString()
     //
-    //     console.log("estimatedAmountIn", estimatedAmountIn, "USDC");
-    //     console.log("estimatedAmountOut", estimatedAmountOut, "TEST");
+    //     console.log("estimatedAmountIn", estimatedAmountIn, "TokenB");
+    //     console.log("estimatedAmountOut", estimatedAmountOut, "TokenA");
     // }
 
     const quote_config = {}
@@ -115,7 +111,7 @@ async function main(
     );
 
     quote_config["whirlpool_program"] = ORCA_WHIRLPOOL_PROGRAM_ID.toString()
-    quote_config["whirlpool"] = bsc_test_pool_pda
+    quote_config["whirlpool"] = whirlpool_address
     quote_config["token_mint_a"] = whirlpool_data.tokenMintA
     quote_config["token_mint_b"] = whirlpool_data.tokenMintB
     quote_config["token_owner_account_a"] = token_owner_account_a.address
@@ -134,12 +130,12 @@ async function main(
     console.log(JSON.stringify(quote_config, null, 2))
 }
 
-main(process.argv[2], process.argv[3]);
+main(process.argv[2], process.argv[3], process.argv[4]);
 
 /*
 SAMPLE OUTPUT
 
-$ ts-node dex_test/get_test_usdc_quote_config.ts 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU 10
+$ ts-node scripts/test_dex/get_whirlpool_quote_config.ts b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV 281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS 100
 {
   "whirlpool_program": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
   "whirlpool": "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV",
@@ -150,13 +146,13 @@ $ ts-node dex_test/get_test_usdc_quote_config.ts 4zMMC9srt5Ri5X14GAgXhaHii3GnPAE
   "token_vault_a": "3dycP3pym3q6DgUpZRviaavaScwrrCuC6QyLhiLfSXge",
   "token_vault_b": "969UqMJSqvgxmNuAWZx91PAnLJU825qJRAAcEVQMWASg",
   "tick_array_0": "CXmxVvENVutfAmmHUSVNatgcidiu26uSXuCK8ufvqfxp",
-  "tick_array_1": "A3hkPb9EgHCTY6QiduwCLojmY9HzMBZW5LXANqSUYmgk",
-  "tick_array_2": "A3hkPb9EgHCTY6QiduwCLojmY9HzMBZW5LXANqSUYmgk",
+  "tick_array_1": "CXmxVvENVutfAmmHUSVNatgcidiu26uSXuCK8ufvqfxp",
+  "tick_array_2": "CXmxVvENVutfAmmHUSVNatgcidiu26uSXuCK8ufvqfxp",
   "oracle": "44xQG1Fgv5k3Us1s5Mcg6MQiQV2oSeocBRwo7hZvKdRo",
-  "is_a_to_b": false,
-  "amount_in": "10000000",
-  "estimated_amount_out": "3708721560268",
-  "min_amount_out": "3672001544819"
+  "is_a_to_b": true,
+  "amount_in": "100000000000",
+  "estimated_amount_out": "210498",
+  "min_amount_out": "208413"
 }
 
 */

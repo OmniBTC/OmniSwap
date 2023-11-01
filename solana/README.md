@@ -12,9 +12,9 @@ anchor deploy
 anchorpy client-gen target/idl/omniswap.json scripts/omniswap --program-id 4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY
 ```
 
-## compile get_test_usdc_quote_config.ts
+## compile get_whirlpool_quote_config.ts
 ```bash
-tsc scripts/test_dex/get_test_usdc_quote_config.ts --esModuleInterop  --skipLibCheck
+tsc scripts/test_dex/get_whirlpool_quote_config.ts --esModuleInterop  --skipLibCheck
 ```
 
 ## compile postvaa.ts

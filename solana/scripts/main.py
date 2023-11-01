@@ -86,4 +86,4 @@ async def call_initialize_all():
     await omniswap_set_price_ratio("bsc-test", 10_000_000)
 
 
-asyncio.run(call_set_so_fee())
+asyncio.run(call_omniswap_set_redeem_proxy())

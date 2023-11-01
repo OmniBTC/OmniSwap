@@ -43,6 +43,7 @@ devnet:
 
   pools:
     Whirlpool-TEST-USDC: "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV"
+    Whirlpool-BSC-TEST: "AxoxjuJnpvTeqmwwjJLnuMuYLGNP1kg3orMjSuj3KBmc"
 
   lookup_table:
       key: "ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8"

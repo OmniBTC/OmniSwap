@@ -17,7 +17,7 @@ from scripts.helpful_scripts import (
 from solders.pubkey import Pubkey
 
 sys.path.append(Path(__file__).parent.parent.parent.joinpath("solana/scripts").as_posix())
-from get_quote_config import get_test_usdc_quote_config,get_bsc_test_quote_config
+from get_quote_config import get_whirlpool_quote_config
 
 class SolanaSwapType(Enum):
     Whirlpool = "Whirlpool"
@@ -305,15 +305,6 @@ def complete_swap_via_wormhole():
 
     proxy_diamond.completeSoSwap(vaa, {"from": get_account()})
 
-def get_quote_test_usdc_pool(token_mint_in: str, ui_amount_in: str):
-    quote_config = get_test_usdc_quote_config(token_mint_in, ui_amount_in)
-
-    print("USDC amount_in: ", quote_config["amount_in"])
-    print("TEST estimated_amount_out: ", quote_config["estimated_amount_out"])
-    print("TEST min_amount_out: ", quote_config["min_amount_out"])
-
-    return quote_config
-
 
 def cross_swap_wrapped_via_wormhole_whirlpool():
     change_network("bsc-test")
@@ -338,9 +329,11 @@ def cross_swap_wrapped_via_wormhole_whirlpool():
     TEST = "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"
     # USDC is tokenB
     USDC = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+    TEST_USDC_POOL = "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV"
+
     sendingAssetId = bytes(Pubkey.from_string(USDC))
     receivingAssetId = bytes(Pubkey.from_string(TEST))
-    quote_config = get_quote_test_usdc_pool(USDC, ui_amount)
+    quote_config = get_whirlpool_quote_config(TEST_USDC_POOL, USDC, ui_amount)
 
     swap_data_dst = [
         SwapData(
@@ -455,9 +448,11 @@ def cross_swap_native_via_wormhole_whirlpool():
     BSC = "xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"
     # TEST is tokenB
     TEST = "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"
+    BSC_TEST_POOL = "AxoxjuJnpvTeqmwwjJLnuMuYLGNP1kg3orMjSuj3KBmc"
+
     sendingAssetId = bytes(Pubkey.from_string(BSC))
     receivingAssetId = bytes(Pubkey.from_string(TEST))
-    quote_config = get_bsc_test_quote_config(BSC, ui_amount)
+    quote_config = get_whirlpool_quote_config(BSC_TEST_POOL, BSC, ui_amount)
 
     swap_data_dst = [
         SwapData(
@@ -508,5 +503,5 @@ def main():
     # complete_swap_via_wormhole()
     # cross_swap_wrapped_via_wormhole()
     # cross_swap_wrapped_via_wormhole_whirlpool()
-    # cross_swap_native_via_wormhole_whirlpool()
-    cross_swap_wsol_via_wormhole()
+    cross_swap_native_via_wormhole_whirlpool()
+    # cross_swap_wsol_via_wormhole()
