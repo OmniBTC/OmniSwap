@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPLv3
 pragma solidity 0.8.13;
 
-import "../Interfaces/ICelerMessageReceiver.sol";
+import "../Interfaces/Celer/ICelerMessageReceiver.sol";
 
 abstract contract CelerMessageReceiver is ICelerMessageReceiver {
     /**

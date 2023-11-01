@@ -71,6 +71,14 @@ networks:
         name: MuteIO
         router: "0x8B791913eB07C32779a16750e3868aA8495F5964"
         token_list: ""
+      ISwapRouter:
+        name: MaverickProtocol
+        router: "0x39E098A153Ad69834a9Dac32f0FCa92066aD03f4"
+        token_list: ""
+      IiZiSwapPool:
+        name: iZiSwap
+        router: "0x943ac2310D9BC703d6AB5e5e76876e212100f894"
+        token_list: ""
 wallets:
   from_key: ${PRIVATE_KEY}
   from_mnemonic: ${MNEMONIC}

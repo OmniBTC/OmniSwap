@@ -322,8 +322,14 @@ def process_v2(
         return
     else:
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
+    last_pending_time = 0
+    pending_interval = 30
     while True:
         try:
+            if time.time() < last_pending_time + pending_interval:
+                continue
+            else:
+                last_pending_time = time.time()
             pending_data = get_pending_data(url=pending_url, dstWormholeChainId=dstWormholeChainId)
             local_logger.info(f"Get signed vaa length: {len(pending_data)}")
         except Exception as e:
@@ -418,16 +424,18 @@ class Session(Process):
         except:
             logger.error(f"Connect {self.dstNet} fail")
             return
-        t1 = threading.Thread(
-            target=process_v1, args=(self.dstWormholeChainId, self.dstSoDiamond)
-        )
-        t1.start()
+        t1 = None
+        if NET == "testnet":
+            t1 = threading.Thread(
+                target=process_v1, args=(self.dstWormholeChainId, self.dstSoDiamond)
+            )
+            t1.start()
         t2 = threading.Thread(
             target=process_v2, args=(self.dstWormholeChainId, self.dstSoDiamond)
         )
         t2.start()
         while True:
-            if not t1.is_alive():
+            if t1 is not None and not t1.is_alive():
                 if not network.is_connected():
                     change_network(self.dstNet)
                 t1.start()

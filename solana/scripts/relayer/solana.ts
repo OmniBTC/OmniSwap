@@ -1,17 +1,19 @@
 import {
+    ComputeBudgetProgram,
     Connection,
     Keypair,
     PublicKey,
-    TransactionMessage,
     TransactionInstruction,
-    VersionedTransaction,
-    ComputeBudgetProgram
+    TransactionMessage,
+    VersionedTransaction
 } from "@solana/web3.js";
 import fs from "fs";
 import axios from "axios";
 import {
-    createCompleteSoSwapNativeWithoutSwap, createCompleteSoSwapNativeWithWhirlpool,
-    createCompleteSoSwapWrappedWithoutSwap, createCompleteSoSwapWrappedWithWhirlpool,
+    createCompleteSoSwapNativeWithoutSwap,
+    createCompleteSoSwapNativeWithWhirlpool,
+    createCompleteSoSwapWrappedWithoutSwap,
+    createCompleteSoSwapWrappedWithWhirlpool,
     ParsedOmniswapPayload,
     parseVaaToOmniswapPayload,
     PersistentDictionary,
@@ -33,8 +35,8 @@ if (dotenv.config({path: ENV_FILE}).error) {
     throw new Error(".env format error")
 }
 
-if (process.env.SOLANA_KEY == null) {
-    throw new Error(".env SOLANA_KEY not found")
+if (process.env.RELAYER_KEY == null) {
+    throw new Error(".env RELAYER_KEY not found")
 }
 
 const NET = "solana-testnet";
@@ -77,7 +79,6 @@ if (NET !== "solana-mainnet") {
     NET_TO_CONTRACT = {
         "bsc-test": "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
     }
-    SODIAMOND = "0x3eb54bfb6f363a4b14879f4189fecd37bf35acfc86572f9879f620736ecf3228"
     NET_TO_DEFAULT_FROM_BLOCK = {
         "bsc-test": 34075043
     }
@@ -98,8 +99,10 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
-    OMNISWAP_PID = new PublicKey("5DncnqicaHDZTMfkcfzKaYP5XzD5D9jg3PGNTT5J1Qg7");
     SOLANA_URL = "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/";
+    OMNISWAP_PID = new PublicKey("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
+    // OMNISWAP_PID base58decode
+    SODIAMOND = "0x3636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843"
     BENEFICIARY = "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS";
     LOOKUP_TABLE_KEY = new PublicKey("ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8")
 } else {
@@ -122,16 +125,23 @@ if (NET !== "solana-mainnet") {
         "solana-mainnet": 1
     }
     NET_TO_RPC = {
-        "bsc-main": ["https://bsc-dataseed1.ninicoin.io"]
+        "bsc-main": ["https://bsc-dataseed1.ninicoin.io"],
+        "polygon-main": ["https://polygon-mainnet.g.alchemy.com/v2/woLOizgiyajLQII9XoReQhCgdgW2G2oL"],
+        "avax-main": ["https://api.snowtrace.io/api"],
+        "mainnet": ["https://eth.llamarpc.com"],
     }
-    NET_TO_DEFAULT_FROM_BLOCK = {}
+    NET_TO_DEFAULT_FROM_BLOCK = {
+        "bsc-main": 33108007,
+        "polygon-main": 49407175,
+        "avax-main": 37191237,
+        "mainnet": 18476135,
+    }
     NET_TO_CONTRACT = {
         "bsc-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "polygon-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "avax-main": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "mainnet": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
     }
-    SODIAMOND = ""
     NET_TO_EMITTER = {
         "mainnet": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
         "bsc-main": "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
@@ -148,8 +158,10 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
-    OMNISWAP_PID = new PublicKey("");
     SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
+    OMNISWAP_PID = new PublicKey("");
+    // OMNISWAP_PID base58decode
+    SODIAMOND = ""
     BENEFICIARY = "";
     LOOKUP_TABLE_KEY = new PublicKey("")
 }
@@ -327,14 +339,14 @@ const sendAndConfirmIx = async (
 
     const lookup_table = (await connection.getAddressLookupTable(LOOKUP_TABLE_KEY)).value
 
-    const ix0 = ComputeBudgetProgram.setComputeUnitLimit({units: 300_000});
+    const ix0 = ComputeBudgetProgram.setComputeUnitLimit({units: 1200_000});
     const message0 = new TransactionMessage(
         {
             payerKey: payer.publicKey,
             instructions: [ix0, ix],
             recentBlockhash: blockhash,
         }
-    ).compileToV0Message( [lookup_table]);
+    ).compileToV0Message([lookup_table]);
     const tx = new VersionedTransaction(message0)
     tx.sign([payer]);
     return await connection.sendTransaction(tx);
@@ -348,6 +360,7 @@ async function processVaa(
     emitterChainId,
     sequence,
     extrinsicHash,
+    skipVerify: boolean
 ): Promise<boolean> {
     let payload: ParsedOmniswapPayload;
     try {
@@ -381,7 +394,7 @@ async function processVaa(
         logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
     }
 
-    if (payload.swapDataList.length === 0) {
+    if (skipVerify || payload.swapDataList.length === 0) {
         try {
             const ix = await createCompleteSoSwapNativeWithoutSwap(
                 connection,
@@ -391,7 +404,7 @@ async function processVaa(
                 CORE_BRIDGE_PID,
                 vaa,
                 BENEFICIARY,
-                false
+                skipVerify
             );
             const dstTx = await sendAndConfirmIx(connection, payer, ix);
             logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
@@ -410,7 +423,7 @@ async function processVaa(
                 CORE_BRIDGE_PID,
                 vaa,
                 BENEFICIARY,
-                false
+                skipVerify
             );
             const dstTx = await sendAndConfirmIx(connection, payer, ix);
             logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
@@ -455,44 +468,6 @@ async function processVaa(
         } catch (error) {
             logWithTimestamp(`RedeemWrappedWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
         }
-
-        try {
-            const ix = await createCompleteSoSwapNativeWithoutSwap(
-                connection,
-                OMNISWAP_PID,
-                payer,
-                TOKEN_BRIDGE_PID,
-                CORE_BRIDGE_PID,
-                vaa,
-                BENEFICIARY,
-                false
-            );
-            const dstTx = await sendAndConfirmIx(connection, payer, ix);
-            logWithTimestamp(`RedeemNative compensate for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
-            recordGas(extrinsicHash, dstTx);
-            return true;
-        } catch (error) {
-            logWithTimestamp(`RedeemNative compensate for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-        }
-
-        try {
-            const ix = await createCompleteSoSwapWrappedWithoutSwap(
-                connection,
-                OMNISWAP_PID,
-                payer,
-                TOKEN_BRIDGE_PID,
-                CORE_BRIDGE_PID,
-                vaa,
-                BENEFICIARY,
-                false
-            );
-            const dstTx = await sendAndConfirmIx(connection, payer, ix);
-            logWithTimestamp(`RedeemWrapped compensate for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
-            recordGas(extrinsicHash, dstTx);
-            return true;
-        } catch (error) {
-            logWithTimestamp(`RedeemWrapped compensate for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-        }
     }
 
 
@@ -531,9 +506,9 @@ async function processV2(
 ) {
     const connection = new Connection(
         SOLANA_URL,
-        "processed"
+        "confirmed"
     );
-    let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.SOLANA_KEY)));
+    let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.RELAYER_KEY)));
     const hasProcess = new Map<string, number>();
     const pendingInterval = 10;
     let lastPendingTime = 0;
@@ -546,8 +521,11 @@ async function processV2(
         }
         let pendingData;
         try {
-            pendingData = await getPendingDataFromEvm("bsc-test");
-            // const pendingData = await getPendingData(dstWormholeChainId);
+            if (NET === "solana-testnet"){
+                pendingData = await getPendingDataFromEvm("bsc-test");
+            }else{
+                pendingData = await getPendingData(dstWormholeChainId);
+            }
             logWithTimestamp(`Get signed vaa length: ${pendingData.length}`)
         } catch (error) {
             logWithTimestamp(`Get pending data error: ${error}`)
@@ -574,7 +552,8 @@ async function processV2(
             } else {
                 hasProcess.set(hasKey, currentTimeStamp);
             }
-            await processVaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"]);
+            const skipVerify = false;
+            await processVaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"], skipVerify);
         }
     }
 }

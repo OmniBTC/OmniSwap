@@ -1,0 +1,1450 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "factory",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "createPool",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "pool",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "address",
+                  "name": "callback",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callbackData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct ISyncSwapRouter.SwapStep[]",
+              "name": "steps",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenIn",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountIn",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISyncSwapRouter.SwapPath[]",
+          "name": "paths",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOutMin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "pool",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "address",
+                  "name": "callback",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callbackData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct ISyncSwapRouter.SwapStep[]",
+              "name": "steps",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenIn",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountIn",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISyncSwapRouter.SwapPath[]",
+          "name": "paths",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOutMin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approveAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "v",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "r",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "s",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct ISyncSwapRouter.SplitPermitParams",
+          "name": "permit",
+          "type": "tuple"
+        }
+      ],
+      "name": "swapWithPermit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vault",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "wETH",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "allSourcePaths": {
+    "15": "contracts/Interfaces/ISyncSwapRouter.sol"
+  },
+  "ast": {
+    "absolutePath": "contracts/Interfaces/ISyncSwapRouter.sol",
+    "exportedSymbols": {
+      "ISyncSwapRouter": [
+        5982
+      ]
+    },
+    "id": 5983,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 5889,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.6",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:15"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "ISyncSwapRouter",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "id": 5982,
+        "linearizedBaseContracts": [
+          5982
+        ],
+        "name": "ISyncSwapRouter",
+        "nameLocation": "36:15:15",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "ISyncSwapRouter.TokenInput",
+            "id": 5894,
+            "members": [
+              {
+                "constant": false,
+                "id": 5891,
+                "mutability": "mutable",
+                "name": "token",
+                "nameLocation": "160:5:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5894,
+                "src": "152:13:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 5890,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "152:7:15",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5893,
+                "mutability": "mutable",
+                "name": "amount",
+                "nameLocation": "183:6:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5894,
+                "src": "175:14:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 5892,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "175:7:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "TokenInput",
+            "nameLocation": "131:10:15",
+            "nodeType": "StructDefinition",
+            "scope": 5982,
+            "src": "124:72:15",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "ISyncSwapRouter.SwapStep",
+            "id": 5903,
+            "members": [
+              {
+                "constant": false,
+                "id": 5896,
+                "mutability": "mutable",
+                "name": "pool",
+                "nameLocation": "236:4:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5903,
+                "src": "228:12:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 5895,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "228:7:15",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5898,
+                "mutability": "mutable",
+                "name": "data",
+                "nameLocation": "281:4:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5903,
+                "src": "275:10:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 5897,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "275:5:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5900,
+                "mutability": "mutable",
+                "name": "callback",
+                "nameLocation": "346:8:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5903,
+                "src": "338:16:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 5899,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "338:7:15",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5902,
+                "mutability": "mutable",
+                "name": "callbackData",
+                "nameLocation": "370:12:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5903,
+                "src": "364:18:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 5901,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "364:5:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SwapStep",
+            "nameLocation": "209:8:15",
+            "nodeType": "StructDefinition",
+            "scope": 5982,
+            "src": "202:187:15",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "ISyncSwapRouter.SwapPath",
+            "id": 5912,
+            "members": [
+              {
+                "constant": false,
+                "id": 5907,
+                "mutability": "mutable",
+                "name": "steps",
+                "nameLocation": "432:5:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5912,
+                "src": "421:16:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_struct$_SwapStep_$5903_storage_$dyn_storage_ptr",
+                  "typeString": "struct ISyncSwapRouter.SwapStep[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 5905,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 5904,
+                      "name": "SwapStep",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 5903,
+                      "src": "421:8:15"
+                    },
+                    "referencedDeclaration": 5903,
+                    "src": "421:8:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapStep_$5903_storage_ptr",
+                      "typeString": "struct ISyncSwapRouter.SwapStep"
+                    }
+                  },
+                  "id": 5906,
+                  "nodeType": "ArrayTypeName",
+                  "src": "421:10:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_SwapStep_$5903_storage_$dyn_storage_ptr",
+                    "typeString": "struct ISyncSwapRouter.SwapStep[]"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5909,
+                "mutability": "mutable",
+                "name": "tokenIn",
+                "nameLocation": "477:7:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5912,
+                "src": "469:15:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 5908,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "469:7:15",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5911,
+                "mutability": "mutable",
+                "name": "amountIn",
+                "nameLocation": "534:8:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5912,
+                "src": "526:16:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 5910,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "526:7:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SwapPath",
+            "nameLocation": "402:8:15",
+            "nodeType": "StructDefinition",
+            "scope": 5982,
+            "src": "395:193:15",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "ISyncSwapRouter.SplitPermitParams",
+            "id": 5925,
+            "members": [
+              {
+                "constant": false,
+                "id": 5914,
+                "mutability": "mutable",
+                "name": "token",
+                "nameLocation": "637:5:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5925,
+                "src": "629:13:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 5913,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "629:7:15",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5916,
+                "mutability": "mutable",
+                "name": "approveAmount",
+                "nameLocation": "660:13:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5925,
+                "src": "652:21:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 5915,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "652:7:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5918,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "691:8:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5925,
+                "src": "683:16:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 5917,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "683:7:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5920,
+                "mutability": "mutable",
+                "name": "v",
+                "nameLocation": "715:1:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5925,
+                "src": "709:7:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 5919,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "709:5:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5922,
+                "mutability": "mutable",
+                "name": "r",
+                "nameLocation": "734:1:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5925,
+                "src": "726:9:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                },
+                "typeName": {
+                  "id": 5921,
+                  "name": "bytes32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "726:7:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5924,
+                "mutability": "mutable",
+                "name": "s",
+                "nameLocation": "753:1:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5925,
+                "src": "745:9:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                },
+                "typeName": {
+                  "id": 5923,
+                  "name": "bytes32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "745:7:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SplitPermitParams",
+            "nameLocation": "601:17:15",
+            "nodeType": "StructDefinition",
+            "scope": 5982,
+            "src": "594:167:15",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "ISyncSwapRouter.ArrayPermitParams",
+            "id": 5932,
+            "members": [
+              {
+                "constant": false,
+                "id": 5927,
+                "mutability": "mutable",
+                "name": "approveAmount",
+                "nameLocation": "810:13:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5932,
+                "src": "802:21:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 5926,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "802:7:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5929,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "841:8:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5932,
+                "src": "833:16:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 5928,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "833:7:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5931,
+                "mutability": "mutable",
+                "name": "signature",
+                "nameLocation": "865:9:15",
+                "nodeType": "VariableDeclaration",
+                "scope": 5932,
+                "src": "859:15:15",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 5930,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "859:5:15",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "ArrayPermitParams",
+            "nameLocation": "774:17:15",
+            "nodeType": "StructDefinition",
+            "scope": 5982,
+            "src": "767:114:15",
+            "visibility": "public"
+          },
+          {
+            "functionSelector": "fbfa77cf",
+            "id": 5937,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "vault",
+            "nameLocation": "930:5:15",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 5933,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "935:2:15"
+            },
+            "returnParameters": {
+              "id": 5936,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5935,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5937,
+                  "src": "961:7:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5934,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "961:7:15",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "960:9:15"
+            },
+            "scope": 5982,
+            "src": "921:49:15",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "f2428621",
+            "id": 5942,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "wETH",
+            "nameLocation": "1018:4:15",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 5938,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1022:2:15"
+            },
+            "returnParameters": {
+              "id": 5941,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5940,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5942,
+                  "src": "1048:7:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5939,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1048:7:15",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1047:9:15"
+            },
+            "scope": 5982,
+            "src": "1009:48:15",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "2cc4081e",
+            "id": 5955,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swap",
+            "nameLocation": "1096:4:15",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 5951,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5946,
+                  "mutability": "mutable",
+                  "name": "paths",
+                  "nameLocation": "1128:5:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5955,
+                  "src": "1110:23:15",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_SwapPath_$5912_memory_ptr_$dyn_memory_ptr",
+                    "typeString": "struct ISyncSwapRouter.SwapPath[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 5944,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 5943,
+                        "name": "SwapPath",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 5912,
+                        "src": "1110:8:15"
+                      },
+                      "referencedDeclaration": 5912,
+                      "src": "1110:8:15",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_SwapPath_$5912_storage_ptr",
+                        "typeString": "struct ISyncSwapRouter.SwapPath"
+                      }
+                    },
+                    "id": 5945,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1110:10:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_SwapPath_$5912_storage_$dyn_storage_ptr",
+                      "typeString": "struct ISyncSwapRouter.SwapPath[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5948,
+                  "mutability": "mutable",
+                  "name": "amountOutMin",
+                  "nameLocation": "1151:12:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5955,
+                  "src": "1143:20:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 5947,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1143:7:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5950,
+                  "mutability": "mutable",
+                  "name": "deadline",
+                  "nameLocation": "1181:8:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5955,
+                  "src": "1173:16:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 5949,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1173:7:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1100:95:15"
+            },
+            "returnParameters": {
+              "id": 5954,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5953,
+                  "mutability": "mutable",
+                  "name": "amountOut",
+                  "nameLocation": "1230:9:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5955,
+                  "src": "1222:17:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 5952,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1222:7:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1221:19:15"
+            },
+            "scope": 5982,
+            "src": "1087:154:15",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "e84d494b",
+            "id": 5971,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapWithPermit",
+            "nameLocation": "1256:14:15",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 5967,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5959,
+                  "mutability": "mutable",
+                  "name": "paths",
+                  "nameLocation": "1298:5:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5971,
+                  "src": "1280:23:15",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_SwapPath_$5912_memory_ptr_$dyn_memory_ptr",
+                    "typeString": "struct ISyncSwapRouter.SwapPath[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 5957,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 5956,
+                        "name": "SwapPath",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 5912,
+                        "src": "1280:8:15"
+                      },
+                      "referencedDeclaration": 5912,
+                      "src": "1280:8:15",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_SwapPath_$5912_storage_ptr",
+                        "typeString": "struct ISyncSwapRouter.SwapPath"
+                      }
+                    },
+                    "id": 5958,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1280:10:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_SwapPath_$5912_storage_$dyn_storage_ptr",
+                      "typeString": "struct ISyncSwapRouter.SwapPath[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5961,
+                  "mutability": "mutable",
+                  "name": "amountOutMin",
+                  "nameLocation": "1321:12:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5971,
+                  "src": "1313:20:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 5960,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1313:7:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5963,
+                  "mutability": "mutable",
+                  "name": "deadline",
+                  "nameLocation": "1351:8:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5971,
+                  "src": "1343:16:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 5962,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1343:7:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5966,
+                  "mutability": "mutable",
+                  "name": "permit",
+                  "nameLocation": "1396:6:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5971,
+                  "src": "1369:33:15",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SplitPermitParams_$5925_calldata_ptr",
+                    "typeString": "struct ISyncSwapRouter.SplitPermitParams"
+                  },
+                  "typeName": {
+                    "id": 5965,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 5964,
+                      "name": "SplitPermitParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 5925,
+                      "src": "1369:17:15"
+                    },
+                    "referencedDeclaration": 5925,
+                    "src": "1369:17:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SplitPermitParams_$5925_storage_ptr",
+                      "typeString": "struct ISyncSwapRouter.SplitPermitParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1270:138:15"
+            },
+            "returnParameters": {
+              "id": 5970,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5969,
+                  "mutability": "mutable",
+                  "name": "amountOut",
+                  "nameLocation": "1443:9:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5971,
+                  "src": "1435:17:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 5968,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1435:7:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1434:19:15"
+            },
+            "scope": 5982,
+            "src": "1247:207:15",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 5972,
+              "nodeType": "StructuredDocumentation",
+              "src": "1460:68:15",
+              "text": "@notice Wrapper function to allow pool deployment to be batched."
+            },
+            "functionSelector": "9dd41df2",
+            "id": 5981,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "createPool",
+            "nameLocation": "1542:10:15",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 5977,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5974,
+                  "mutability": "mutable",
+                  "name": "factory",
+                  "nameLocation": "1561:7:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5981,
+                  "src": "1553:15:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5973,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1553:7:15",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5976,
+                  "mutability": "mutable",
+                  "name": "data",
+                  "nameLocation": "1585:4:15",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5981,
+                  "src": "1570:19:15",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 5975,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1570:5:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1552:38:15"
+            },
+            "returnParameters": {
+              "id": 5980,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5979,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5981,
+                  "src": "1641:7:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5978,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1641:7:15",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1640:9:15"
+            },
+            "scope": 5982,
+            "src": "1533:117:15",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 5983,
+        "src": "26:1626:15",
+        "usedErrors": []
+      }
+    ],
+    "src": "0:1653:15"
+  },
+  "bytecode": "",
+  "bytecodeSha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "compiler": {
+    "evm_version": "istanbul",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "version": "0.8.13+commit.abaa5c0e"
+  },
+  "contractName": "ISyncSwapRouter",
+  "coverageMap": {
+    "branches": {},
+    "statements": {}
+  },
+  "dependencies": [],
+  "deployedBytecode": "",
+  "deployedSourceMap": "",
+  "language": "Solidity",
+  "natspec": {
+    "kind": "dev",
+    "methods": {
+      "createPool(address,bytes)": {
+        "notice": "Wrapper function to allow pool deployment to be batched."
+      }
+    },
+    "version": 1
+  },
+  "offset": [
+    26,
+    1652
+  ],
+  "opcodes": "",
+  "pcMap": {},
+  "sha1": "84485168a8e82c16f300f0f5467f465d4b43b9f7",
+  "source": "pragma solidity >=0.6.2;\n\ninterface ISyncSwapRouter {\n    // The Router contract has Multicall and SelfPermit enabled.\n\n    struct TokenInput {\n        address token;\n        uint256 amount;\n    }\n\n    struct SwapStep {\n        address pool; // The pool of the step.\n        bytes data; // The data to execute swap with the pool.\n        address callback;\n        bytes callbackData;\n    }\n\n    struct SwapPath {\n        SwapStep[] steps; // Steps of the path.\n        address tokenIn; // The input token of the path.\n        uint256 amountIn; // The input token amount of the path.\n    }\n\n    struct SplitPermitParams {\n        address token;\n        uint256 approveAmount;\n        uint256 deadline;\n        uint8 v;\n        bytes32 r;\n        bytes32 s;\n    }\n\n    struct ArrayPermitParams {\n        uint256 approveAmount;\n        uint256 deadline;\n        bytes signature;\n    }\n\n    // Returns the vault address.\n    function vault() external view returns (address);\n\n    // Returns the wETH address.\n    function wETH() external view returns (address);\n\n    // Performs a swap.\n    function swap(\n        SwapPath[] memory paths,\n        uint256 amountOutMin,\n        uint256 deadline\n    ) external payable returns (uint256 amountOut);\n\n    function swapWithPermit(\n        SwapPath[] memory paths,\n        uint256 amountOutMin,\n        uint256 deadline,\n        SplitPermitParams calldata permit\n    ) external payable returns (uint256 amountOut);\n\n    /// @notice Wrapper function to allow pool deployment to be batched.\n    function createPool(address factory, bytes calldata data)\n        external\n        payable\n        returns (address);\n}\n",
+  "sourceMap": "",
+  "sourcePath": "contracts/Interfaces/ISyncSwapRouter.sol",
+  "type": "interface"
+}
