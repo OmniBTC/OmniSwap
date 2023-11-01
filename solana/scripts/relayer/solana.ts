@@ -35,8 +35,8 @@ if (dotenv.config({path: ENV_FILE}).error) {
     throw new Error(".env format error")
 }
 
-if (process.env.SOLANA_KEY == null) {
-    throw new Error(".env SOLANA_KEY not found")
+if (process.env.RELAYER_KEY == null) {
+    throw new Error(".env RELAYER_KEY not found")
 }
 
 const NET = "solana-testnet";
@@ -508,7 +508,7 @@ async function processV2(
         SOLANA_URL,
         "processed"
     );
-    let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.SOLANA_KEY)));
+    let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.RELAYER_KEY)));
     const hasProcess = new Map<string, number>();
     const pendingInterval = 10;
     let lastPendingTime = 0;
