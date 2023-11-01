@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import {ILibPriceV2} from "../Interfaces/ILibPriceV2.sol";
-import {IAggregatorV3Interface} from "../Interfaces/IAggregatorV3Interface.sol";
+import {IAggregatorV3Interface} from "../Interfaces/Chainlink/IAggregatorV3Interface.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 
 // Celer
@@ -38,8 +38,7 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
 
     uint256 public constant RAY = 1e27;
 
-    // 0.1 %
-    uint256 public soFee = 1e24;
+    uint256 public soFee;
 
     // Destination celer chain id => Oracle config
     mapping(uint64 => PriceConfig) public priceConfig;
@@ -54,6 +53,10 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
     );
     event UpdatePriceInterval(uint64 chainId, uint256 interval);
     event UpdatePriceRatio(address sender, uint256 currentRatio);
+
+    constructor(uint256 _soFee) {
+        soFee = _soFee;
+    }
 
     function setFee(uint256 _soFee) external onlyOwner {
         soFee = _soFee;
@@ -169,7 +172,7 @@ contract LibSoFeeCelerV1 is ILibSoFee, ILibPriceV2, Ownable, ReentrancyGuard {
         return s;
     }
 
-    function getTransferForGas() external pure override returns (uint256) {
+    function getTransferForGas() external view override returns (uint256) {
         return 0;
     }
 

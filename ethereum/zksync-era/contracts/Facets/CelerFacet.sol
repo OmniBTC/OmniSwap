@@ -3,14 +3,13 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../Errors/GenericErrors.sol";
-import "../Libraries/LibAsset.sol";
 import "../Libraries/LibDiamond.sol";
 import "../Libraries/LibBytes.sol";
 import "../Libraries/LibCross.sol";
 import "../Libraries/LibCelerMessageSender.sol";
 import "../Interfaces/ISo.sol";
-import "../Interfaces/ICelerMessageBus.sol";
-import "../Interfaces/ICelerBridge.sol";
+import "../Interfaces/Celer/ICelerMessageBus.sol";
+import "../Interfaces/Celer/ICelerBridge.sol";
 import "../Interfaces/ILibSoFee.sol";
 import "../Interfaces/ILibPriceV2.sol";
 import "../Helpers/Swapper.sol";
@@ -39,7 +38,6 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         uint64 srcCelerChainId; // The Celer chain id of the source/current chain
         uint256 actualReserve; // [RAY]
         uint256 estimateReserve; // [RAY]
-        uint256 transferGas;
         mapping(uint64 => uint256) dstBaseGas; // For estimate destination chain execute gas
         mapping(address => bool) allowedList; // Permission to allow calls to executeMessageWithTransfer
     }
@@ -132,7 +130,6 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         s.estimateReserve = (RAY).mul(12).div(10); // 120%
         s.allowedList[messageBus] = true;
         s.allowedList[msg.sender] = true;
-        s.transferGas = 30000;
 
         emit CelerInitialized(messageBus, chainId);
     }
@@ -191,15 +188,6 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         for (uint64 i; i < dstChainIds.length; i++) {
             s.dstBaseGas[dstChainIds[i]] = dstBaseGas;
         }
-    }
-
-    /// @dev Set the reversed gas to transfer asset while remoteSoSwap fail
-    /// @param transferGas the reversed gas
-    function setTransferGas(uint256 transferGas) external {
-        LibDiamond.enforceIsContractOwner();
-        Storage storage s = getStorage();
-
-        s.transferGas = transferGas;
     }
 
     /// External Methods ///
@@ -350,27 +338,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
             swapDataDstNo
         );
 
-        if (gasleft() < getTransferGas()) {
-            return ExecutionStatus.Fail;
-        }
-
-        uint256 swapGas = gasleft().sub(getTransferGas());
-
-        try
-            this.remoteSoSwap{gas: swapGas}(token, amount, soData, swapDataDst)
-        {} catch Error(string memory revertReason) {
-            LibAsset.transferAsset(token, soData.receiver, amount);
-
-            emit SoTransferFailed(
-                soData.transactionId,
-                revertReason,
-                bytes("")
-            );
-        } catch (bytes memory returnData) {
-            LibAsset.transferAsset(token, soData.receiver, amount);
-
-            emit SoTransferFailed(soData.transactionId, "", returnData);
-        }
+        remoteSoSwap(token, amount, soData, swapDataDst);
 
         return ExecutionStatus.Success;
     }
@@ -402,83 +370,6 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         emit RefundCelerToken(token, sender, amount, soData.transactionId);
 
         return ExecutionStatus.Success;
-    }
-
-    /// @dev swap on destination chain
-    function remoteSoSwap(
-        address token,
-        uint256 amount,
-        ISo.SoData memory soData,
-        LibSwap.SwapData[] memory swapDataDst
-    ) external {
-        require(msg.sender == address(this), "NotDiamond");
-        uint256 soFee = getCelerSoFee(amount);
-        if (soFee < amount) {
-            amount = amount.sub(soFee);
-        }
-
-        if (swapDataDst.length == 0) {
-            require(token == soData.receivingAssetId, "TokenErr");
-
-            if (soFee > 0) {
-                transferUnwrappedAsset(
-                    token,
-                    soData.receivingAssetId,
-                    soFee,
-                    LibDiamond.contractOwner()
-                );
-            }
-            transferUnwrappedAsset(
-                token,
-                soData.receivingAssetId,
-                amount,
-                soData.receiver
-            );
-            emit SoTransferCompleted(soData.transactionId, amount);
-        } else {
-            require(token == swapDataDst[0].sendingAssetId, "TokenErr");
-
-            if (soFee > 0) {
-                transferUnwrappedAsset(
-                    token,
-                    swapDataDst[0].sendingAssetId,
-                    soFee,
-                    LibDiamond.contractOwner()
-                );
-            }
-            transferUnwrappedAsset(
-                token,
-                swapDataDst[0].sendingAssetId,
-                amount,
-                address(this)
-            );
-
-            swapDataDst[0].fromAmount = amount;
-
-            address correctSwap = appStorage.correctSwapRouterSelectors;
-
-            if (correctSwap != address(0)) {
-                swapDataDst[0].callData = ICorrectSwap(correctSwap).correctSwap(
-                    swapDataDst[0].callData,
-                    swapDataDst[0].fromAmount
-                );
-            }
-
-            uint256 amountFinal = this.executeAndCheckSwaps(
-                soData,
-                swapDataDst
-            );
-
-            // may swap to weth
-            transferUnwrappedAsset(
-                swapDataDst[swapDataDst.length - 1].receivingAssetId,
-                soData.receivingAssetId,
-                amountFinal,
-                soData.receiver
-            );
-
-            emit SoTransferCompleted(soData.transactionId, amountFinal);
-        }
     }
 
     /// Public Methods ///
@@ -791,12 +682,6 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         return s.dstBaseGas[dstChainId];
     }
 
-    /// @dev Get transfer gas
-    function getTransferGas() public view returns (uint256) {
-        Storage storage s = getStorage();
-        return s.transferGas;
-    }
-
     /// @dev Get the receiver of the executor fee
     function getExecutorFeeTo() public view returns (address) {
         Storage storage s = getStorage();
@@ -804,6 +689,98 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     }
 
     /// Private Methods ///
+
+    /// @dev swap on destination chain
+    function remoteSoSwap(
+        address token,
+        uint256 amount,
+        ISo.SoData memory soData,
+        LibSwap.SwapData[] memory swapDataDst
+    ) private {
+        uint256 soFee = getCelerSoFee(amount);
+        if (soFee < amount) {
+            amount = amount.sub(soFee);
+        }
+
+        if (swapDataDst.length == 0) {
+            require(token == soData.receivingAssetId, "TokenErr");
+
+            if (soFee > 0) {
+                transferUnwrappedAsset(
+                    token,
+                    soData.receivingAssetId,
+                    soFee,
+                    LibDiamond.contractOwner()
+                );
+            }
+            transferUnwrappedAsset(
+                token,
+                soData.receivingAssetId,
+                amount,
+                soData.receiver
+            );
+            emit SoTransferCompleted(soData.transactionId, amount);
+        } else {
+            require(token == swapDataDst[0].sendingAssetId, "TokenErr");
+
+            if (soFee > 0) {
+                transferUnwrappedAsset(
+                    token,
+                    swapDataDst[0].sendingAssetId,
+                    soFee,
+                    LibDiamond.contractOwner()
+                );
+            }
+            transferUnwrappedAsset(
+                token,
+                swapDataDst[0].sendingAssetId,
+                amount,
+                address(this)
+            );
+
+            swapDataDst[0].fromAmount = amount;
+
+            address correctSwap = appStorage.correctSwapRouterSelectors;
+
+            if (correctSwap != address(0)) {
+                swapDataDst[0].callData = ICorrectSwap(correctSwap).correctSwap(
+                    swapDataDst[0].callData,
+                    swapDataDst[0].fromAmount
+                );
+            }
+
+            try this.executeAndCheckSwaps(soData, swapDataDst) returns (
+                uint256 amountFinal
+            ) {
+                // may swap to weth
+                transferUnwrappedAsset(
+                    swapDataDst[swapDataDst.length - 1].receivingAssetId,
+                    soData.receivingAssetId,
+                    amountFinal,
+                    soData.receiver
+                );
+                emit SoTransferCompleted(soData.transactionId, amountFinal);
+            } catch Error(string memory revertReason) {
+                LibAsset.transferAsset(
+                    swapDataDst[0].sendingAssetId,
+                    soData.receiver,
+                    amount
+                );
+                emit SoTransferFailed(
+                    soData.transactionId,
+                    revertReason,
+                    bytes("")
+                );
+            } catch (bytes memory returnData) {
+                LibAsset.transferAsset(
+                    swapDataDst[0].sendingAssetId,
+                    soData.receiver,
+                    amount
+                );
+                emit SoTransferFailed(soData.transactionId, "", returnData);
+            }
+        }
+    }
 
     /// @dev Checks for celer pool-based bridge
     function checkBridge(

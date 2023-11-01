@@ -79,6 +79,7 @@ contract Swapper is ISo {
     function libSwap(bytes32 transactionId, LibSwap.SwapData memory _swapData)
         external
     {
+        require(msg.sender == address(this), "NotDiamond");
         LibSwap.swap(transactionId, _swapData);
     }
 
@@ -208,14 +209,13 @@ contract Swapper is ISo {
                         deltaMinAmount
                     );
             }
-            if (cache.swapBalance != cache.currentSwapData.fromAmount) {
-                cache.currentSwapData.fromAmount = cache.swapBalance;
-                cache.currentSwapData.callData = ICorrectSwap(correctSwap)
-                    .correctSwap(
-                        cache.currentSwapData.callData,
-                        cache.currentSwapData.fromAmount
-                    );
-            }
+
+            cache.currentSwapData.fromAmount = cache.swapBalance;
+            cache.currentSwapData.callData = ICorrectSwap(correctSwap)
+                .correctSwap(
+                    cache.currentSwapData.callData,
+                    cache.currentSwapData.fromAmount
+                );
 
             cache.receivedToken = cache.currentSwapData.receivingAssetId;
             cache.swapBalance = LibAsset.getOwnBalance(cache.receivedToken);

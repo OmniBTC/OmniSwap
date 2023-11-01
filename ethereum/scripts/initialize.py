@@ -10,7 +10,7 @@ from brownie import (
     Contract,
     network,
     interface,
-    LibSoFeeStargateV1,
+    LibSoFeeStargateV2,
     MockToken,
     LibCorrectSwapV1,
     WormholeFacet,
@@ -26,6 +26,7 @@ from brownie import (
     CCTPFacet,
     LibSoFeeBoolV2,
     LibSoFeeGenericV2,
+    OwnershipFacet,
     config
 )
 from brownie.network import priority_fee, max_fee
@@ -283,9 +284,9 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
 
     dstBaseGasInfo = {
-        1880000: ["optimism-main"],
-        3000000: ["arbitrum-main"],
-        1050000: ["avax-main"],
+        2951600: ["optimism-main"],
+        4500000: ["arbitrum-main"],
+        1575000: ["avax-main"],
         551250: ["mainnet"]
     }
     for dstBaseGas, nets in dstBaseGasInfo.items():
@@ -415,7 +416,7 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
     # proxy_dex.addFee(
-    #     get_stargate_router(), LibSoFeeStargateV1[-1].address, {"from": account}
+    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
     # )
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
@@ -565,6 +566,16 @@ def remove_facet(facet):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
+def reset_generic_fee():
+    account = get_account()
+    so_fee = 3 * 1e-4
+    ray = 1e27
+    LibSoFeeGenericV2[-1].setFee(
+        int(so_fee * ray),
+        {"from": account}
+    )
+
+
 def redeploy_generic_swap():
     account = get_account()
 
@@ -594,10 +605,34 @@ def redeploy_generic_swap():
 def redeploy_stargate():
     account = get_account()
 
-    # remove_facet(StargateFacet)
+    # print("deploy LibSoFeeStargateV2.sol...")
+    # so_fee = 1e-3
+    # transfer_for_gas = 40000
+    # basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    # basic_fee = 0
+    # LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
+    #                           basic_fee, basic_beneficiary,
+    #                           {"from": account})
+    #
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    # )
+    # print("addFee...")
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
+    # )
 
+    try:
+        print("Remove cut...")
+        remove_facet(StargateFacet)
+    except Exception as e:
+        print(f"Remove err:{e}")
+
+    print("Deploy stargate...")
     StargateFacet.deploy({"from": account})
+    print("Add cut...")
     add_cut([StargateFacet])
+    print("Initialize stargate...")
     initialize_stargate(account, SoDiamond[-1])
 
 
@@ -606,7 +641,7 @@ def redeploy_bool():
 
     # 1. deploy bool's lib so fee
 
-    so_fee = 1e-3
+    so_fee = 0
     ray = 1e27
     basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
     basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
@@ -748,12 +783,12 @@ def add_cut(contracts: list = None):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
-def add_dex(swap_type):
-    swap_info = get_swap_info()
+def add_dex(swap_info):
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
-    print(f"Add router for:{swap_type}")
+    swap_type = list(swap_info.keys())[0]
+    print(f"Add router for:{swap_info[swap_type]['name']}")
     proxy_dex.addDex(
         swap_info[swap_type]["router"], {"from": get_account()}
     )
@@ -769,9 +804,9 @@ def add_dex(swap_type):
 
 
 def add_dexs():
-    swap_info = get_swap_info()
-    for swap_type in swap_info:
-        add_dex(swap_type)
+    swap_infos = get_swap_info()
+    for swap_info in swap_infos:
+        add_dex(swap_info)
 
 
 def reinitialize_dex(old_dex):
@@ -846,16 +881,55 @@ def initialize_eth():
 
 def reset_so_fee():
     account = get_account()
-    so_fee = int(1e-3 * 1e18)
-    LibSoFeeStargateV1[-1].setFee(so_fee, {"from": account})
-    print("Cur soFee is", LibSoFeeStargateV1[-1].soFee() / 1e18)
+    so_fee = 0
+    try:
+        LibSoFeeStargateV2[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeStargateV2 is", LibSoFeeStargateV2[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeStargateV2 error")
+    try:
+        LibSoFeeBoolV2[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeBoolV2 is", LibSoFeeBoolV2[-1].soFee() / 1e27)
+    except:
+        import traceback
+        traceback.print_exc()
+        print(f"LibSoFeeBoolV2 error")
+    try:
+        LibSoFeeCCTPV1[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeCCTPV1 is", LibSoFeeCCTPV1[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeCCTPV1 error")
+
+    try:
+        LibSoFeeWormholeV1[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeWormholeV1 is", LibSoFeeWormholeV1[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeWormholeV1 error")
+
+
+def reset_basic_fee():
+    account = get_account()
+    so_fee = int(0.0002 * 1e18)
+    if network.show_active() == "bsc-main":
+        so_fee *= 8
+    elif network.show_active() == "avax-main":
+        so_fee *= 183
+    elif network.show_active() == "polygon-main":
+        so_fee *= 3000
+
+    LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
+    proxy = Contract.from_abi(
+        "StargateFacet", SoDiamond[-1].address, StargateFacet.abi
+    )
+    print("Cur basicFee is", proxy.getStargateBasicFee() / 1e18, proxy.getStargateBasicBeneficiary())
+    reset_so_fee()
 
 
 def reset_so_gas():
     account = get_account()
     gas = 30000
-    LibSoFeeStargateV1[-1].setTransferForGas(gas, {"from": account})
-    print("Cur gas is", LibSoFeeStargateV1[-1].getTransferForGas())
+    LibSoFeeStargateV2[-1].setTransferForGas(gas, {"from": account})
+    print("Cur gas is", LibSoFeeStargateV2[-1].getTransferForGas())
 
 
 def redeploy_correct_swap():
@@ -865,3 +939,58 @@ def redeploy_correct_swap():
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {"from": account})
+
+
+def transferOwnership():
+    deploy_account = get_account("deploy_key")
+    proxy = Contract.from_abi(
+        "OwnershipFacet", SoDiamond[-1].address, OwnershipFacet.abi
+    )
+    account = get_account()
+    owner = account.address
+    proxy.transferOwnership(owner, {"from": deploy_account})
+    deploy_account.transfer(owner, int(deploy_account.balance() / 2))
+    proxy.confirmOwnershipTransfer({"from": account})
+    print(proxy.owner())
+
+
+def transferOwnershipForFee():
+    account = get_account("deploy_key")
+    owner_account = get_account()
+    owner = owner_account.address
+    print(f'owner: {owner}')
+    try:
+        LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeStargateV2 success")
+    except:
+        print(f"LibSoFeeStargateV2 error")
+
+    try:
+        LibSoFeeBoolV2[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeBoolV2 success")
+    except:
+        print(f"LibSoFeeBoolV2 error")
+    try:
+        LibSoFeeCCTPV1[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeCCTPV1 success")
+    except:
+        print(f"LibSoFeeCCTPV1 error")
+
+    try:
+        LibSoFeeWormholeV1[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeWormholeV1 success")
+    except:
+        print(f"LibSoFeeWormholeV1 error")
+
+
+def fix_libswap():
+    account = get_account()
+    register_data = [[zero_address(), 2, ["0xdedaee82"]]]
+    proxy_cut = Contract.from_abi(
+        "DiamondCutFacet", SoDiamond[-1].address, DiamondCutFacet.abi
+    )
+    try:
+        proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
+    except Exception as e:
+        print(e)
+    add_cut([GenericSwapFacet])

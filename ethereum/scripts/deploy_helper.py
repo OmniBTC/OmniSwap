@@ -10,7 +10,7 @@ from scripts.helpful_scripts import get_account
 
 def main():
     acc = get_account()
-    deploy_acc = accounts.add(config["wallets"]["from_deploy_key"])
+    deploy_acc = accounts.add(config["wallets"]["create_key"])
     acc.transfer(deploy_acc.address, int(0.03 * 1e18))
 
     ContractDeployerFactory.deploy({"from": deploy_acc})
