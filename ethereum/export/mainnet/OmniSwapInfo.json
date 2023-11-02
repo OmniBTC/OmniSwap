@@ -348,100 +348,40 @@
     "StargateChainId": 106,
     "StargatePool": [
       {
-        "ChainPath": [
-          [
-            110,
-            1
-          ],
-          [
-            110,
-            2
-          ],
-          [
-            102,
-            2
-          ],
-          [
-            102,
-            5
-          ],
-          [
-            101,
-            1
-          ],
-          [
-            101,
-            2
-          ],
-          [
-            111,
-            1
-          ],
-          [
-            109,
-            1
-          ],
-          [
-            109,
-            2
-          ],
-          [
-            184,
-            1
-          ]
-        ],
         "Decimal": 6,
         "PoolId": 1,
         "TokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
         "TokenName": "USDC"
       },
       {
-        "ChainPath": [
-          [
-            110,
-            1
-          ],
-          [
-            110,
-            2
-          ],
-          [
-            102,
-            2
-          ],
-          [
-            102,
-            5
-          ],
-          [
-            101,
-            1
-          ],
-          [
-            101,
-            2
-          ],
-          [
-            111,
-            1
-          ],
-          [
-            109,
-            1
-          ],
-          [
-            109,
-            2
-          ],
-          [
-            184,
-            1
-          ]
-        ],
         "Decimal": 6,
         "PoolId": 2,
         "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
         "TokenName": "USDt"
+      },
+      {
+        "Decimal": 18,
+        "PoolId": 7,
+        "TokenAddress": "0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64",
+        "TokenName": "FRAX"
+      },
+      {
+        "Decimal": 18,
+        "PoolId": 16,
+        "TokenAddress": "0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b",
+        "TokenName": "MAI"
+      },
+      {
+        "Decimal": 6,
+        "PoolId": 19,
+        "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+        "TokenName": "USDt"
+      },
+      {
+        "Decimal": 18,
+        "PoolId": 20,
+        "TokenAddress": "0xaBC9547B534519fF73921b1FBA6E672b5f58D083",
+        "TokenName": "WOO.e"
       }
     ],
     "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
