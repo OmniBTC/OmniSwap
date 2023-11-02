@@ -398,7 +398,7 @@ export async function createCompleteSoSwapNativeWithoutSwap(
             recipient = new PublicKey(parsed.soReceiver);
             if (parsed.soReceiver === "11111111111111111111111111111111") {
                 unwrapSolAccount = deriveUnwrapSolAccountKey(programId);
-                wsolMint = mint;
+                wsolMint = new PublicKey("So11111111111111111111111111111111111111112");
                 recipientAccount = recipient;
             }
         }
@@ -698,7 +698,7 @@ export async function createCompleteSoSwapNativeWithWhirlpool(
     let recipientAccount: PublicKey;
     if (parsed.soReceiver === "11111111111111111111111111111111") {
         unwrapSolAccount = deriveUnwrapSolAccountKey(programId);
-        wsolMint = mint;
+        wsolMint = new PublicKey("So11111111111111111111111111111111111111112");
         recipientAccount = recipient;
     } else {
         unwrapSolAccount = null;
@@ -794,6 +794,19 @@ export async function createCompleteSoSwapWrappedWithWhirlpool(
     const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, new PublicKey(beneficiary))).address;
 
 
+    let unwrapSolAccount: PublicKey;
+    let wsolMint: PublicKey;
+    let recipientAccount: PublicKey;
+    if (parsed.soReceiver === "11111111111111111111111111111111") {
+        unwrapSolAccount = deriveUnwrapSolAccountKey(programId);
+        wsolMint = new PublicKey("So11111111111111111111111111111111111111112");
+        recipientAccount = recipient;
+    } else {
+        unwrapSolAccount = null;
+        wsolMint = null;
+        recipientAccount = null;
+    }
+
     return program.methods
         .completeSoSwapWrappedWithWhirlpool([...parsed.hash])
         .accounts({
@@ -816,6 +829,9 @@ export async function createCompleteSoSwapWrappedWithWhirlpool(
             recipientTokenAccount,
             recipientBridgeTokenAccount,
             tmpTokenAccount,
+            unwrapSolAccount,
+            wsolMint,
+            recipient: recipientAccount,
             wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
             tokenBridgeWrappedMeta: tokenBridgeAccounts.tokenBridgeWrappedMeta,
