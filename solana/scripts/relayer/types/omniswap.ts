@@ -2178,6 +2178,24 @@ export type Omniswap = {
           ]
         },
         {
+          "name": "unwrapSolAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
           "name": "tokenBridgeWrappedMint",
           "isMut": true,
           "isSigner": false,
@@ -5199,6 +5217,24 @@ export const IDL: Omniswap = {
           "docs": [
             "Oracle is currently unused and will be enabled on subsequent updates"
           ]
+        },
+        {
+          "name": "unwrapSolAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "wsolMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
         },
         {
           "name": "tokenBridgeWrappedMint",
