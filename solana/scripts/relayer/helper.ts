@@ -105,7 +105,7 @@ export interface WormholeData {
     dstMaxGas: number,
     soTransactionId: Buffer,
     soReceiver: string,
-    soReceivingAssetId: Buffer
+    soReceivingAssetId: string
 }
 
 export interface SwapData {
@@ -162,7 +162,7 @@ export function parseVaaToOmniswapPayload(vaa: Buffer): ParsedOmniswapPayload {
 
     len = tokenTransfer.tokenTransferPayload.readUint8(index);
     index += 1;
-    let soReceivingAssetId = tokenTransfer.tokenTransferPayload.subarray(index, index + len);
+    let soReceivingAssetId = bs58.encode(tokenTransfer.tokenTransferPayload.subarray(index, index + len));
     index += len;
 
     if (index < payloadLen) {
@@ -396,9 +396,9 @@ export async function createCompleteSoSwapNativeWithoutSwap(
         mint = new PublicKey(parsed.tokenAddress);
         if ("soReceiver" in parsed) {
             recipient = new PublicKey(parsed.soReceiver);
-            if (parsed.soReceiver === "11111111111111111111111111111111") {
+            if (parsed.soReceivingAssetId === "11111111111111111111111111111111") {
                 unwrapSolAccount = deriveUnwrapSolAccountKey(programId);
-                wsolMint = mint;
+                wsolMint = new PublicKey("So11111111111111111111111111111111111111112");
                 recipientAccount = recipient;
             }
         }
@@ -604,27 +604,9 @@ export async function getQuoteConfig(
 
     const whirlpool_data = whirlpool.getData();
 
-    const rent_ta = async () => {
-        return connection.getMinimumBalanceForRentExemption(AccountLayout.span)
-    }
+    const token_owner_account_a = await getOrCreateAssociatedTokenAccount(connection, payer, whirlpool_data.tokenMintA, payer.publicKey)
 
-    await getOrCreateAssociatedTokenAccount(connection, payer, whirlpool_data.tokenMintA, payer.publicKey)
-
-    const token_owner_account_a = await resolveOrCreateATA(
-        connection,
-        payer.publicKey,
-        whirlpool_data.tokenMintA,
-        rent_ta,
-    );
-
-    await getOrCreateAssociatedTokenAccount(connection, payer, whirlpool_data.tokenMintB, payer.publicKey)
-
-    const token_owner_account_b = await resolveOrCreateATA(
-        connection,
-        payer.publicKey,
-        whirlpool_data.tokenMintB,
-        rent_ta,
-    );
+    const token_owner_account_b = await getOrCreateAssociatedTokenAccount(connection, payer, whirlpool_data.tokenMintB, payer.publicKey)
 
     const oracle_pda = await PDAUtil.getOracle(
         ctx.program.programId,
@@ -696,9 +678,9 @@ export async function createCompleteSoSwapNativeWithWhirlpool(
     let unwrapSolAccount: PublicKey;
     let wsolMint: PublicKey;
     let recipientAccount: PublicKey;
-    if (parsed.soReceiver === "11111111111111111111111111111111") {
+    if (parsed.soReceivingAssetId === "11111111111111111111111111111111") {
         unwrapSolAccount = deriveUnwrapSolAccountKey(programId);
-        wsolMint = mint;
+        wsolMint = new PublicKey("So11111111111111111111111111111111111111112");
         recipientAccount = recipient;
     } else {
         unwrapSolAccount = null;
@@ -794,6 +776,19 @@ export async function createCompleteSoSwapWrappedWithWhirlpool(
     const beneficiaryTokenAccount = (await getOrCreateAssociatedTokenAccount(connection, payer, bridgeToken, new PublicKey(beneficiary))).address;
 
 
+    let unwrapSolAccount: PublicKey;
+    let wsolMint: PublicKey;
+    let recipientAccount: PublicKey;
+    if (parsed.soReceivingAssetId === "11111111111111111111111111111111") {
+        unwrapSolAccount = deriveUnwrapSolAccountKey(programId);
+        wsolMint = new PublicKey("So11111111111111111111111111111111111111112");
+        recipientAccount = recipient;
+    } else {
+        unwrapSolAccount = null;
+        wsolMint = null;
+        recipientAccount = null;
+    }
+
     return program.methods
         .completeSoSwapWrappedWithWhirlpool([...parsed.hash])
         .accounts({
@@ -816,6 +811,9 @@ export async function createCompleteSoSwapWrappedWithWhirlpool(
             recipientTokenAccount,
             recipientBridgeTokenAccount,
             tmpTokenAccount,
+            unwrapSolAccount,
+            wsolMint,
+            recipient: recipientAccount,
             wormholeProgram: tokenBridgeAccounts.wormholeProgram,
             tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
             tokenBridgeWrappedMeta: tokenBridgeAccounts.tokenBridgeWrappedMeta,
