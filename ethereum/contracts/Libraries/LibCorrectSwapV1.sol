@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.13;
 
-import {ICorrectSwap} from "../Interfaces/ICorrectSwap.sol";
 import {IUniswapV2Router01} from "../Interfaces/UniswapV2/IUniswapV2Router01.sol";
 import {IUniswapV2Router01AVAX} from "../Interfaces/UniswapV2/IUniswapV2Router01AVAX.sol";
 import {ISwapRouter} from "../Interfaces/UniswapV3/ISwapRouter.sol";
@@ -20,9 +19,8 @@ import {IPearlRouter} from "../Interfaces/Pearl/IPearlRouter.sol";
 import {IiZiSwap} from "../Interfaces/Iziswap/IiZiSwap.sol";
 import {ICamelotRouter} from "../Interfaces/Camelot/ICamelotRouter.sol";
 import {IMetaAggregationRouterV2} from "../Interfaces/Kyberswap/IMetaAggregationRouterV2.sol";
-import {IOneInchGenericRouter, IOneInchClipperRouter, IOneInchUnoswapRouter, IOneInchUnoswapV3Router} from "../Interfaces/OneInch/IAggregationRouterV5.sol";
 
-contract LibCorrectSwapV1 is ICorrectSwap {
+contract LibCorrectSwapV1 {
     // UniswapV2
     bytes4 private constant _FUNC1 =
         IUniswapV2Router01.swapExactETHForTokens.selector;
@@ -119,238 +117,86 @@ contract LibCorrectSwapV1 is ICorrectSwap {
     bytes4 private constant _FUNC37 =
         IMetaAggregationRouterV2.swapSimpleMode.selector;
 
-    // 1inch
-    bytes4 private constant _FUNC38 = IOneInchGenericRouter.swap.selector;
-    bytes4 private constant _FUNC39 =
-        IOneInchClipperRouter.clipperSwap.selector;
-    bytes4 private constant _FUNC40 =
-        IOneInchClipperRouter.clipperSwapTo.selector;
-    bytes4 private constant _FUNC41 =
-        IOneInchClipperRouter.clipperSwapToWithPermit.selector;
-    bytes4 private constant _FUNC42 = IOneInchUnoswapRouter.unoswap.selector;
-    bytes4 private constant _FUNC43 = IOneInchUnoswapRouter.unoswapTo.selector;
-    bytes4 private constant _FUNC44 =
-        IOneInchUnoswapRouter.unoswapToWithPermit.selector;
-    bytes4 private constant _FUNC45 =
-        IOneInchUnoswapV3Router.uniswapV3Swap.selector;
-    bytes4 private constant _FUNC46 =
-        IOneInchUnoswapV3Router.uniswapV3SwapTo.selector;
-    bytes4 private constant _FUNC47 =
-        IOneInchUnoswapV3Router.uniswapV3SwapToWithPermit.selector;
-
-    address public owner;
-    mapping(bytes4 => ICorrectSwap) private _correctSwap;
-
-    constructor() {
-        // set owner
-        owner = msg.sender;
-
-        // deploy correct swap contract
-        ICorrectSwap correctUniswapV2 = new CorrectUniswapV2();
-        ICorrectSwap correctUniswapV3 = new CorrectUniswapV3();
-        ICorrectSwap correctSyncswap = new CorrectSyncswap();
-        ICorrectSwap correctMuteswap = new CorrectMuteswap();
-        ICorrectSwap correctQuickswapV3 = new CorrectQuickswapV3();
-        ICorrectSwap correctAerodrome = new CorrectAerodrome();
-        ICorrectSwap correctBalancerV2 = new CorrectBalancerV2();
-        ICorrectSwap correctCurve = new CorrectCurve();
-        ICorrectSwap correctWombat = new CorrectWombat();
-        ICorrectSwap correctTraderJoe = new CorrectTraderJoe();
-        ICorrectSwap correctGMXV1 = new CorrectGMXV1();
-        ICorrectSwap correctPearlFi = new CorrectPearlFi();
-        ICorrectSwap correctiZiSwap = new CorrectIZiSwap();
-        ICorrectSwap correctCamelot = new CorrectCamelot();
-        ICorrectSwap correctKyberswap = new CorrectKyberswap();
-        ICorrectSwap correctOneInch = new CorrectOneInch();
-
-        // init sig => correctSwap contract
-
-        // UniswapV2
-        _correctSwap[_FUNC1] = correctUniswapV2;
-        _correctSwap[_FUNC2] = correctUniswapV2;
-        _correctSwap[_FUNC3] = correctUniswapV2;
-        _correctSwap[_FUNC4] = correctUniswapV2;
-        _correctSwap[_FUNC5] = correctUniswapV2;
-
-        // UniswapV3
-        _correctSwap[_FUNC6] = correctUniswapV3;
-        _correctSwap[_FUNC15] = correctUniswapV3;
-
-        // Syncswap
-        _correctSwap[_FUNC7] = correctSyncswap;
-
-        // Muteswap
-        _correctSwap[_FUNC8] = correctMuteswap;
-        _correctSwap[_FUNC9] = correctMuteswap;
-        _correctSwap[_FUNC10] = correctMuteswap;
-
-        // QuickswapV3
-        _correctSwap[_FUNC11] = correctQuickswapV3;
-
-        // Aerodrome
-        _correctSwap[_FUNC12] = correctAerodrome;
-        _correctSwap[_FUNC13] = correctAerodrome;
-        _correctSwap[_FUNC14] = correctAerodrome;
-
-        // BalancerV2
-        _correctSwap[_FUNC16] = correctBalancerV2;
-
-        // Curve
-        _correctSwap[_FUNC17] = correctCurve;
-        _correctSwap[_FUNC18] = correctCurve;
-
-        // Wombat
-        _correctSwap[_FUNC19] = correctWombat;
-        _correctSwap[_FUNC20] = correctWombat;
-        _correctSwap[_FUNC21] = correctWombat;
-
-        // Trader Joe
-        _correctSwap[_FUNC22] = correctTraderJoe;
-        _correctSwap[_FUNC23] = correctTraderJoe;
-        _correctSwap[_FUNC24] = correctTraderJoe;
-
-        // GMX V1
-        _correctSwap[_FUNC25] = correctGMXV1;
-        _correctSwap[_FUNC26] = correctGMXV1;
-        _correctSwap[_FUNC27] = correctGMXV1;
-
-        // PearlFi
-        _correctSwap[_FUNC28] = correctPearlFi;
-        _correctSwap[_FUNC29] = correctPearlFi;
-        _correctSwap[_FUNC30] = correctPearlFi;
-
-        // iZiSwap
-        _correctSwap[_FUNC31] = correctiZiSwap;
-
-        // Camelot
-        _correctSwap[_FUNC32] = correctCamelot;
-        _correctSwap[_FUNC33] = correctCamelot;
-        _correctSwap[_FUNC34] = correctCamelot;
-
-        // Kyberswap
-        _correctSwap[_FUNC35] = correctKyberswap;
-        _correctSwap[_FUNC36] = correctKyberswap;
-        _correctSwap[_FUNC37] = correctKyberswap;
-
-        // 1inch
-        _correctSwap[_FUNC38] = correctOneInch;
-        _correctSwap[_FUNC39] = correctOneInch;
-        _correctSwap[_FUNC40] = correctOneInch;
-        _correctSwap[_FUNC41] = correctOneInch;
-        _correctSwap[_FUNC42] = correctOneInch;
-        _correctSwap[_FUNC43] = correctOneInch;
-        _correctSwap[_FUNC44] = correctOneInch;
-        _correctSwap[_FUNC45] = correctOneInch;
-        _correctSwap[_FUNC46] = correctOneInch;
-        _correctSwap[_FUNC47] = correctOneInch;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not Owner!");
-        _;
-    }
-
     //---------------------------------------------------------------------------
     // External Method
 
-    // @dev Set correct swap
-    function setCorrectSwap(bytes4 _sig, ICorrectSwap _correctSwapAddr)
-        external
-        onlyOwner
-    {
-        _correctSwap[_sig] = _correctSwapAddr;
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwap[sig] == ICorrectSwap(address(0))) {
-            revert("not support");
-        } else {
-            try
-                ICorrectSwap(_correctSwap[sig]).correctSwap(_data, _amount)
-            returns (bytes memory _result) {
-                return _result;
-            } catch Error(string memory _err) {
-                revert(_err);
-            } catch {
-                revert("correctSwap fail");
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
         external
         view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwap[sig] == ICorrectSwap(address(0))) {
-            revert("not support");
-        } else {
-            try
-                ICorrectSwap(_correctSwap[sig]).fixMinAmount(
-                    _data,
-                    _deltaMinAmount
-                )
-            returns (uint256 _amountOutMin, bytes memory _result) {
-                return (_amountOutMin, _result);
-            } catch Error(string memory _err) {
-                revert(_err);
-            } catch {
-                revert("fixMinAmount fail");
-            }
-        }
-    }
-}
-
-contract CorrectUniswapV2 is ICorrectSwap {
-    // UniswapV2
-    bytes4 private constant _FUNC1 =
-        IUniswapV2Router01.swapExactETHForTokens.selector;
-    bytes4 private constant _FUNC2 =
-        IUniswapV2Router01AVAX.swapExactAVAXForTokens.selector;
-    bytes4 private constant _FUNC3 =
-        IUniswapV2Router01.swapExactTokensForETH.selector;
-    bytes4 private constant _FUNC4 =
-        IUniswapV2Router01AVAX.swapExactTokensForAVAX.selector;
-    bytes4 private constant _FUNC5 =
-        IUniswapV2Router01.swapExactTokensForTokens.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC3] = this.basicCorrectSwap.selector;
-        _swapErrors[_FUNC3] = "basicCorrectSwap fail";
-        _correctSwapFunc[_FUNC4] = this.basicCorrectSwap.selector;
-        _swapErrors[_FUNC4] = "basicCorrectSwap fail";
-        _correctSwapFunc[_FUNC5] = this.basicCorrectSwap.selector;
-        _swapErrors[_FUNC5] = "basicCorrectSwap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+        if (sig == _FUNC1) {
             return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+        } else if (sig == _FUNC2) {
+            return _data;
+        } else if (sig == _FUNC3) {
+            return tryBasicCorrectSwap(_data, _amount);
+        } else if (sig == _FUNC4) {
+            return tryBasicCorrectSwap(_data, _amount);
+        } else if (sig == _FUNC5) {
+            return tryBasicCorrectSwap(_data, _amount);
+        } else if (sig == _FUNC6) {
+            return tryExactInput(_data, _amount);
+        } else if (sig == _FUNC7) {
+            return trySyncSwap(_data, _amount);
+        } else if (sig == _FUNC8) {
+            return _data;
+        } else if (sig == _FUNC9) {
+            return tryMuteSwap(_data, _amount);
+        } else if (sig == _FUNC10) {
+            return tryMuteSwap(_data, _amount);
+        } else if (sig == _FUNC11) {
+            return tryQuickExactInput(_data, _amount);
+        } else if (sig == _FUNC12) {
+            return _data;
+        } else if (sig == _FUNC13) {
+            return tryAerodrome(_data, _amount);
+        } else if (sig == _FUNC14) {
+            return tryAerodrome(_data, _amount);
+        } else if (sig == _FUNC15) {
+            return tryExactInputV2(_data, _amount);
+        } else if (sig == _FUNC16) {
+            return tryBalancerV2SingleSwap(_data, _amount);
+        } else if (sig == _FUNC17) {
+            return tryCurveExchange(_data, _amount);
+        } else if (sig == _FUNC18) {
+            return tryCurveExchangeUnderlying(_data, _amount);
+        } else if (sig == _FUNC19) {
+            return tryWombatSwap(_data, _amount);
+        } else if (sig == _FUNC20) {
+            return tryWombatSwap(_data, _amount);
+        } else if (sig == _FUNC21) {
+            return _data;
+        } else if (sig == _FUNC22 || sig == _FUNC23) {
+            return tryTraderJoeSwap(_data, _amount);
+        } else if (sig == _FUNC24) {
+            return _data;
+        } else if (sig == _FUNC25 || sig == _FUNC26) {
+            return tryGMXV1Swap(_data, _amount);
+        } else if (sig == _FUNC27) {
+            return _data;
+        } else if (sig == _FUNC28 || sig == _FUNC29) {
+            return tryPearlFiSwap(_data, _amount);
+        } else if (sig == _FUNC30) {
+            return _data;
+        } else if (sig == _FUNC31) {
+            return tryiZiSwap(_data, _amount);
+        } else if (sig == _FUNC32) {
+            return tryCamelot(_data, _amount);
+        } else if (sig == _FUNC33) {
+            return _data;
+        } else if (sig == _FUNC34) {
+            return tryCamelot(_data, _amount);
+        } else if (sig == _FUNC35 || sig == _FUNC36) {
+            return tryKyberswap(_data, _amount);
+        } else if (sig == _FUNC37) {
+            return tryKyberswapSimple(_data, _amount);
         }
+
+        // fuzzy matching
+        return tryBasicCorrectSwap(_data, _amount);
     }
 
     // @dev Fix min amount
@@ -399,82 +245,7 @@ contract CorrectUniswapV2 is ICorrectSwap {
                     _deadline
                 )
             );
-        }
-
-        revert("fix uniswap v2 amount fail!");
-    }
-
-    function basicCorrectSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            ,
-            uint256 _amountOutMin,
-            address[] memory _path,
-            address _to,
-            uint256 _deadline
-        ) = abi.decode(
-                _data[4:],
-                (uint256, uint256, address[], address, uint256)
-            );
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _amount,
-                _amountOutMin,
-                _path,
-                _to,
-                _deadline
-            );
-    }
-}
-
-contract CorrectUniswapV3 is ICorrectSwap {
-    // UniswapV3
-    bytes4 private constant _FUNC6 = ISwapRouter.exactInput.selector;
-    bytes4 private constant _FUNC15 = ISwapRouter02.exactInput.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC6] = this.exactInput.selector;
-        _swapErrors[_FUNC6] = "exactInput fail";
-        _correctSwapFunc[_FUNC15] = this.exactInputV2.selector;
-        _swapErrors[_FUNC15] = "exactInputV2 fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC6) {
+        } else if (sig == _FUNC6) {
             ISwapRouter.ExactInputParams memory params = abi.decode(
                 _data[4:],
                 (ISwapRouter.ExactInputParams)
@@ -482,88 +253,7 @@ contract CorrectUniswapV3 is ICorrectSwap {
             uint256 _amountOutMin = params.amountOutMinimum;
             params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
             return (_amountOutMin, abi.encodeWithSelector(sig, params));
-        } else if (sig == _FUNC15) {
-            ISwapRouter02.ExactInputParams memory params = abi.decode(
-                _data[4:],
-                (ISwapRouter02.ExactInputParams)
-            );
-            uint256 _amountOutMin = params.amountOutMinimum;
-            params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
-            return (_amountOutMin, abi.encodeWithSelector(sig, params));
-        }
-
-        revert("fix uniswap v3 amount fail!");
-    }
-
-    function exactInput(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        ISwapRouter.ExactInputParams memory params = abi.decode(
-            _data[4:],
-            (ISwapRouter.ExactInputParams)
-        );
-        params.amountIn = _amount;
-
-        return abi.encodeWithSelector(bytes4(_data[:4]), params);
-    }
-
-    function exactInputV2(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        ISwapRouter02.ExactInputParams memory params = abi.decode(
-            _data[4:],
-            (ISwapRouter02.ExactInputParams)
-        );
-        params.amountIn = _amount;
-
-        return abi.encodeWithSelector(bytes4(_data[:4]), params);
-    }
-}
-
-contract CorrectSyncswap is ICorrectSwap {
-    // zksync,Syncswap
-    bytes4 private constant _FUNC7 = ISyncSwapRouter.swap.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC7] = this.syncSwap.selector;
-        _swapErrors[_FUNC7] = "syncSwap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            revert("correctSyncswap error");
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC7) {
+        } else if (sig == _FUNC7) {
             (
                 ISyncSwapRouter.SwapPath[] memory _paths,
                 uint256 _amountOutMin,
@@ -581,93 +271,7 @@ contract CorrectSyncswap is ICorrectSwap {
                     _deadline
                 )
             );
-        }
-
-        revert("fix syncswap amount fail!");
-    }
-
-    function syncSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            ISyncSwapRouter.SwapPath[] memory _paths,
-            uint256 _amountOutMin,
-            uint256 _deadline
-        ) = abi.decode(
-                _data[4:],
-                (ISyncSwapRouter.SwapPath[], uint256, uint256)
-            );
-
-        uint256 fromAmountSum;
-        for (uint256 i = 0; i < _paths.length; i++) {
-            fromAmountSum = fromAmountSum + _paths[i].amountIn;
-        }
-
-        if (fromAmountSum > 0) {
-            for (uint256 i = 0; i < _paths.length; i++) {
-                _paths[i].amountIn =
-                    (_amount * _paths[i].amountIn) /
-                    fromAmountSum;
-            }
-        }
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _paths,
-                _amountOutMin,
-                _deadline
-            );
-    }
-}
-
-contract CorrectMuteswap is ICorrectSwap {
-    // zksync,Muteswap
-    bytes4 private constant _FUNC8 = IMuteRouter.swapExactETHForTokens.selector;
-    bytes4 private constant _FUNC9 = IMuteRouter.swapExactTokensForETH.selector;
-    bytes4 private constant _FUNC10 =
-        IMuteRouter.swapExactTokensForTokens.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC9] = this.muteSwap.selector;
-        _swapErrors[_FUNC9] = "muteSwap fail";
-        _correctSwapFunc[_FUNC10] = this.muteSwap.selector;
-        _swapErrors[_FUNC10] = "muteSwap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC8) {
+        } else if (sig == _FUNC8) {
             (
                 uint256 _amountOutMin,
                 address[] memory _path,
@@ -713,81 +317,7 @@ contract CorrectMuteswap is ICorrectSwap {
                     _stable
                 )
             );
-        }
-
-        revert("fix muteswap amount fail!");
-    }
-
-    function muteSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            ,
-            uint256 _amountOutMin,
-            address[] memory _path,
-            address _to,
-            uint256 _deadline,
-            bool[] memory _stable
-        ) = abi.decode(
-                _data[4:],
-                (uint256, uint256, address[], address, uint256, bool[])
-            );
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _amount,
-                _amountOutMin,
-                _path,
-                _to,
-                _deadline,
-                _stable
-            );
-    }
-}
-
-contract CorrectQuickswapV3 is ICorrectSwap {
-    // QuickswapV3
-    bytes4 private constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC11] = this.quickExactInput.selector;
-        _swapErrors[_FUNC11] = "quickExactInput fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            revert("correctQuickswapV3 error");
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC11) {
+        } else if (sig == _FUNC11) {
             IQuickSwapRouter.ExactInputParams memory params = abi.decode(
                 _data[4:],
                 (IQuickSwapRouter.ExactInputParams)
@@ -795,71 +325,7 @@ contract CorrectQuickswapV3 is ICorrectSwap {
             uint256 _amountOutMin = params.amountOutMinimum;
             params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
             return (_amountOutMin, abi.encodeWithSelector(sig, params));
-        }
-
-        revert("fix quickswapv3 amount fail!");
-    }
-
-    function quickExactInput(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        IQuickSwapRouter.ExactInputParams memory params = abi.decode(
-            _data[4:],
-            (IQuickSwapRouter.ExactInputParams)
-        );
-        params.amountIn = _amount;
-
-        return abi.encodeWithSelector(bytes4(_data[:4]), params);
-    }
-}
-
-contract CorrectAerodrome is ICorrectSwap {
-    // base, Aerodrome
-    bytes4 private constant _FUNC12 = IAerodrome.swapExactETHForTokens.selector;
-    bytes4 private constant _FUNC13 = IAerodrome.swapExactTokensForETH.selector;
-    bytes4 private constant _FUNC14 =
-        IAerodrome.swapExactTokensForTokens.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC13] = this.aerodrome.selector;
-        _swapErrors[_FUNC13] = "aerodrome fail";
-        _correctSwapFunc[_FUNC14] = this.aerodrome.selector;
-        _swapErrors[_FUNC14] = "aerodrome fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC12) {
+        } else if (sig == _FUNC12) {
             (
                 uint256 _amountOutMin,
                 IAerodrome.Route[] memory _path,
@@ -901,79 +367,15 @@ contract CorrectAerodrome is ICorrectSwap {
                     _deadline
                 )
             );
-        }
-
-        revert("fix Aerodrome amount fail!");
-    }
-
-    function aerodrome(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            ,
-            uint256 _amountOutMin,
-            IAerodrome.Route[] memory _path,
-            address _to,
-            uint256 _deadline
-        ) = abi.decode(
+        } else if (sig == _FUNC15) {
+            ISwapRouter02.ExactInputParams memory params = abi.decode(
                 _data[4:],
-                (uint256, uint256, IAerodrome.Route[], address, uint256)
+                (ISwapRouter02.ExactInputParams)
             );
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _amount,
-                _amountOutMin,
-                _path,
-                _to,
-                _deadline
-            );
-    }
-}
-
-contract CorrectBalancerV2 is ICorrectSwap {
-    // BalancerV2
-    bytes4 private constant _FUNC16 = IVault.swap.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC16] = this.balancerV2SingleSwap.selector;
-        _swapErrors[_FUNC16] = "balancerV2SingleSwap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC16) {
+            uint256 _amountOutMin = params.amountOutMinimum;
+            params.amountOutMinimum = _amountOutMin + _deltaMinAmount;
+            return (_amountOutMin, abi.encodeWithSelector(sig, params));
+        } else if (sig == _FUNC16) {
             (
                 IVault.SingleSwap memory singleSwap,
                 IVault.FundManagement memory funds,
@@ -996,80 +398,7 @@ contract CorrectBalancerV2 is ICorrectSwap {
                     deadline
                 )
             );
-        }
-
-        revert("fix Aerodrome amount fail!");
-    }
-
-    function balancerV2SingleSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            IVault.SingleSwap memory singleSwap,
-            IVault.FundManagement memory funds,
-            uint256 limit,
-            uint256 deadline
-        ) = abi.decode(
-                _data[4:],
-                (IVault.SingleSwap, IVault.FundManagement, uint256, uint256)
-            );
-        singleSwap.amount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                singleSwap,
-                funds,
-                limit,
-                deadline
-            );
-    }
-}
-
-contract CorrectCurve is ICorrectSwap {
-    // Curve
-    bytes4 private constant _FUNC17 = ICurveFi.exchange.selector;
-    bytes4 private constant _FUNC18 = ICurveFi.exchange_underlying.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC17] = this.curveExchange.selector;
-        _swapErrors[_FUNC17] = "curveExchange fail";
-        _correctSwapFunc[_FUNC18] = this.curveExchangeUnderlying.selector;
-        _swapErrors[_FUNC18] = "curveExchangeUnderlying fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC17) {
+        } else if (sig == _FUNC17) {
             (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
                 _data[4:],
                 (int128, int128, uint256, uint256)
@@ -1099,85 +428,7 @@ contract CorrectCurve is ICorrectSwap {
                     min_dy + _deltaMinAmount
                 )
             );
-        }
-
-        revert("fix Curve amount fail!");
-    }
-
-    function curveExchange(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
-            _data[4:],
-            (int128, int128, uint256, uint256)
-        );
-        dx = _amount;
-        return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
-    }
-
-    function curveExchangeUnderlying(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
-            _data[4:],
-            (int128, int128, uint256, uint256)
-        );
-        dx = _amount;
-        return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
-    }
-}
-
-contract CorrectWombat is ICorrectSwap {
-    // bsc, Wombat
-    bytes4 private constant _FUNC19 =
-        IWombatRouter.swapExactTokensForTokens.selector;
-    bytes4 private constant _FUNC20 =
-        IWombatRouter.swapExactTokensForNative.selector;
-    bytes4 private constant _FUNC21 =
-        IWombatRouter.swapExactNativeForTokens.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC19] = this.wombatSwap.selector;
-        _swapErrors[_FUNC19] = "wombatSwap fail";
-        _correctSwapFunc[_FUNC20] = this.wombatSwap.selector;
-        _swapErrors[_FUNC20] = "wombatSwap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC19 || sig == _FUNC20) {
+        } else if (sig == _FUNC19 || sig == _FUNC20) {
             (
                 address[] memory _tokenPath,
                 address[] memory _poolPath,
@@ -1223,88 +474,7 @@ contract CorrectWombat is ICorrectSwap {
                     _deadline
                 )
             );
-        }
-
-        revert("fix wombat amount fail!");
-    }
-
-    function wombatSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            address[] memory _tokenPath,
-            address[] memory _poolPath,
-            ,
-            uint256 _minimumToAmount,
-            address _to,
-            uint256 _deadline
-        ) = abi.decode(
-                _data[4:],
-                (address[], address[], uint256, uint256, address, uint256)
-            );
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _tokenPath,
-                _poolPath,
-                _amount,
-                _minimumToAmount,
-                _to,
-                _deadline
-            );
-    }
-}
-
-contract CorrectTraderJoe is ICorrectSwap {
-    // Trader Joe
-    bytes4 private constant _FUNC22 =
-        ILBRouter.swapExactTokensForTokens.selector;
-    bytes4 private constant _FUNC23 =
-        ILBRouter.swapExactTokensForNATIVE.selector;
-    bytes4 private constant _FUNC24 =
-        ILBRouter.swapExactNATIVEForTokens.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC22] = this.traderJoeSwap.selector;
-        _swapErrors[_FUNC22] = "traderJoeSwap fail";
-        _correctSwapFunc[_FUNC23] = this.traderJoeSwap.selector;
-        _swapErrors[_FUNC23] = "traderJoeSwap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC22 || sig == _FUNC23) {
+        } else if (sig == _FUNC22 || sig == _FUNC23) {
             (
                 uint256 _amount,
                 uint256 _amountOutMin,
@@ -1348,83 +518,7 @@ contract CorrectTraderJoe is ICorrectSwap {
                     _deadline
                 )
             );
-        }
-
-        revert("fix TradeJoe amount fail!");
-    }
-
-    function traderJoeSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            ,
-            uint256 _amountOutMin,
-            ILBRouter.Path memory _path,
-            address _to,
-            uint256 _deadline
-        ) = abi.decode(
-                _data[4:],
-                (uint256, uint256, ILBRouter.Path, address, uint256)
-            );
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _amount,
-                _amountOutMin,
-                _path,
-                _to,
-                _deadline
-            );
-    }
-}
-
-contract CorrectGMXV1 is ICorrectSwap {
-    // GMX V1
-    bytes4 private constant _FUNC25 = IGMXV1Router.swap.selector;
-    bytes4 private constant _FUNC26 = IGMXV1Router.swapTokensToETH.selector;
-    bytes4 private constant _FUNC27 = IGMXV1Router.swapETHToTokens.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC25] = this.GMXV1Swap.selector;
-        _swapErrors[_FUNC25] = "GMXV1Swap fail";
-        _correctSwapFunc[_FUNC26] = this.GMXV1Swap.selector;
-        _swapErrors[_FUNC26] = "GMXV1Swap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC25 || sig == _FUNC26) {
+        } else if (sig == _FUNC25 || sig == _FUNC26) {
             (
                 address[] memory _path,
                 uint256 _amount,
@@ -1455,77 +549,7 @@ contract CorrectGMXV1 is ICorrectSwap {
                     _receiver
                 )
             );
-        }
-
-        revert("fix GMXV1 amount fail!");
-    }
-
-    function GMXV1Swap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (address[] memory _path, , uint256 _minOut, address _receiver) = abi
-            .decode(_data[4:], (address[], uint256, uint256, address));
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _path,
-                _amount,
-                _minOut,
-                _receiver
-            );
-    }
-}
-
-contract CorrectPearlFi is ICorrectSwap {
-    // PearlFi
-    bytes4 private constant _FUNC28 =
-        IPearlRouter.swapExactTokensForTokens.selector;
-    bytes4 private constant _FUNC29 =
-        IPearlRouter.swapExactTokensForETH.selector;
-    bytes4 private constant _FUNC30 =
-        IPearlRouter.swapExactETHForTokens.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC28] = this.pearlFiSwap.selector;
-        _swapErrors[_FUNC28] = "pearlFiSwap fail";
-        _correctSwapFunc[_FUNC29] = this.pearlFiSwap.selector;
-        _swapErrors[_FUNC29] = "pearlFiSwap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC28 || sig == _FUNC29) {
+        } else if (sig == _FUNC28 || sig == _FUNC29) {
             (
                 uint256 _amount,
                 uint256 _amountOutMin,
@@ -1569,79 +593,7 @@ contract CorrectPearlFi is ICorrectSwap {
                     _deadline
                 )
             );
-        }
-
-        revert("fix PearlFi amount fail!");
-    }
-
-    function pearlFiSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            ,
-            uint256 _amountOutMin,
-            IPearlRouter.route[] memory _routes,
-            address _to,
-            uint256 _deadline
-        ) = abi.decode(
-                _data[4:],
-                (uint256, uint256, IPearlRouter.route[], address, uint256)
-            );
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _amount,
-                _amountOutMin,
-                _routes,
-                _to,
-                _deadline
-            );
-    }
-}
-
-contract CorrectIZiSwap is ICorrectSwap {
-    // iZiSwap
-    bytes4 private constant _FUNC31 = IiZiSwap.swapAmount.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC31] = this.iZiSwap.selector;
-        _swapErrors[_FUNC31] = "iZiSwap fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC31) {
+        } else if (sig == _FUNC31) {
             IiZiSwap.SwapAmountParams memory params = abi.decode(
                 _data[4:],
                 (IiZiSwap.SwapAmountParams)
@@ -1649,79 +601,7 @@ contract CorrectIZiSwap is ICorrectSwap {
             uint256 _amountOutMin = params.minAcquired;
             params.minAcquired = _amountOutMin + _deltaMinAmount;
             return (_amountOutMin, abi.encodeWithSelector(sig, params));
-        }
-
-        revert("fix iZiSwap amount fail!");
-    }
-
-    function iZiSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        IiZiSwap.SwapAmountParams memory params = abi.decode(
-            _data[4:],
-            (IiZiSwap.SwapAmountParams)
-        );
-        require(_amount <= type(uint128).max, "Value too large for uint128");
-        params.amount = uint128(_amount);
-        return abi.encodeWithSelector(bytes4(_data[:4]), params);
-    }
-}
-
-contract CorrectCamelot is ICorrectSwap {
-    // Camelot
-    bytes4 private constant _FUNC32 =
-        ICamelotRouter
-            .swapExactTokensForTokensSupportingFeeOnTransferTokens
-            .selector;
-    bytes4 private constant _FUNC33 =
-        ICamelotRouter
-            .swapExactETHForTokensSupportingFeeOnTransferTokens
-            .selector;
-    bytes4 private constant _FUNC34 =
-        ICamelotRouter
-            .swapExactTokensForETHSupportingFeeOnTransferTokens
-            .selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC32] = this.camelot.selector;
-        _swapErrors[_FUNC32] = "camelot fail";
-        _correctSwapFunc[_FUNC34] = this.camelot.selector;
-        _swapErrors[_FUNC34] = "camelot fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC33) {
+        } else if (sig == _FUNC33) {
             (
                 uint256 _amountOutMin,
                 address[] memory _path,
@@ -1767,89 +647,7 @@ contract CorrectCamelot is ICorrectSwap {
                     _deadline
                 )
             );
-        }
-
-        revert("fix Camelot amount fail!");
-    }
-
-    function camelot(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            ,
-            uint256 _amountOutMin,
-            address[] memory _path,
-            address _to,
-            address _referrer,
-            uint256 _deadline
-        ) = abi.decode(
-                _data[4:],
-                (uint256, uint256, address[], address, address, uint256)
-            );
-
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                _amount,
-                _amountOutMin,
-                _path,
-                _to,
-                _referrer,
-                _deadline
-            );
-    }
-}
-
-contract CorrectKyberswap is ICorrectSwap {
-    // Camelot
-    bytes4 private constant _FUNC35 =
-        IMetaAggregationRouterV2.swapGeneric.selector;
-    bytes4 private constant _FUNC36 = IMetaAggregationRouterV2.swap.selector;
-    bytes4 private constant _FUNC37 =
-        IMetaAggregationRouterV2.swapSimpleMode.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC35] = this.kyberswap.selector;
-        _swapErrors[_FUNC35] = "kyberswap fail";
-        _correctSwapFunc[_FUNC36] = this.kyberswap.selector;
-        _swapErrors[_FUNC36] = "kyberswap fail";
-        _correctSwapFunc[_FUNC37] = this.kyberswapSimple.selector;
-        _swapErrors[_FUNC37] = "kyberswapSimple fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC35 || sig == _FUNC36) {
+        } else if (sig == _FUNC35 || sig == _FUNC36) {
             IMetaAggregationRouterV2.SwapExecutionParams memory params = abi
                 .decode(
                     _data[4:],
@@ -1888,7 +686,575 @@ contract CorrectKyberswap is ICorrectSwap {
             );
         }
 
-        revert("fix KyberSwap amount fail!");
+        revert("fix amount fail!");
+    }
+
+    function tryBasicCorrectSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.basicCorrectSwap(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("basicCorrectSwap fail!");
+        }
+    }
+
+    function basicCorrectSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            address[] memory _path,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, address[], address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryExactInput(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.exactInput(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("exactInput fail!");
+        }
+    }
+
+    function exactInput(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        ISwapRouter.ExactInputParams memory params = abi.decode(
+            _data[4:],
+            (ISwapRouter.ExactInputParams)
+        );
+        params.amountIn = _amount;
+
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function trySyncSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.syncSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("syncSwap fail!");
+        }
+    }
+
+    function syncSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ISyncSwapRouter.SwapPath[] memory _paths,
+            uint256 _amountOutMin,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (ISyncSwapRouter.SwapPath[], uint256, uint256)
+            );
+
+        uint256 fromAmountSum;
+        for (uint256 i = 0; i < _paths.length; i++) {
+            fromAmountSum = fromAmountSum + _paths[i].amountIn;
+        }
+
+        if (fromAmountSum > 0) {
+            for (uint256 i = 0; i < _paths.length; i++) {
+                _paths[i].amountIn =
+                    (_amount * _paths[i].amountIn) /
+                    fromAmountSum;
+            }
+        }
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _paths,
+                _amountOutMin,
+                _deadline
+            );
+    }
+
+    function tryMuteSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.muteSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("muteSwap fail!");
+        }
+    }
+
+    function muteSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            address[] memory _path,
+            address _to,
+            uint256 _deadline,
+            bool[] memory _stable
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, address[], address, uint256, bool[])
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _deadline,
+                _stable
+            );
+    }
+
+    function tryQuickExactInput(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.quickExactInput(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("quickExactInput fail!");
+        }
+    }
+
+    function quickExactInput(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        IQuickSwapRouter.ExactInputParams memory params = abi.decode(
+            _data[4:],
+            (IQuickSwapRouter.ExactInputParams)
+        );
+        params.amountIn = _amount;
+
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryAerodrome(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.aerodrome(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("aerodrome fail!");
+        }
+    }
+
+    function aerodrome(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            IAerodrome.Route[] memory _path,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, IAerodrome.Route[], address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryExactInputV2(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.exactInputV2(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("exactInputV2 fail!");
+        }
+    }
+
+    function exactInputV2(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        ISwapRouter02.ExactInputParams memory params = abi.decode(
+            _data[4:],
+            (ISwapRouter02.ExactInputParams)
+        );
+        params.amountIn = _amount;
+
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryBalancerV2SingleSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.balcnerV2SingleSwap(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("balcnerV2SingleSwap fail!");
+        }
+    }
+
+    function balcnerV2SingleSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            IVault.SingleSwap memory singleSwap,
+            IVault.FundManagement memory funds,
+            uint256 limit,
+            uint256 deadline
+        ) = abi.decode(
+                _data[4:],
+                (IVault.SingleSwap, IVault.FundManagement, uint256, uint256)
+            );
+        singleSwap.amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                singleSwap,
+                funds,
+                limit,
+                deadline
+            );
+    }
+
+    function tryCurveExchange(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.curveExchange(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("curveV2Exchange fail!");
+        }
+    }
+
+    function curveExchange(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+            _data[4:],
+            (int128, int128, uint256, uint256)
+        );
+        dx = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
+    }
+
+    function tryCurveExchangeUnderlying(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.curveExchangeUnderlying(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("curveV2ExchangeUnderlying fail!");
+        }
+    }
+
+    function curveExchangeUnderlying(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
+            _data[4:],
+            (int128, int128, uint256, uint256)
+        );
+        dx = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
+    }
+
+    function tryWombatSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.wombatSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("wombat swap fail!");
+        }
+    }
+
+    function wombatSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            address[] memory _tokenPath,
+            address[] memory _poolPath,
+            ,
+            uint256 _minimumToAmount,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (address[], address[], uint256, uint256, address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _tokenPath,
+                _poolPath,
+                _amount,
+                _minimumToAmount,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryTraderJoeSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.traderJoeSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("trader joe swap fail!");
+        }
+    }
+
+    function traderJoeSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            ILBRouter.Path memory _path,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, ILBRouter.Path, address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryGMXV1Swap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.GMXV1Swap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("GMX v1 swap fail!");
+        }
+    }
+
+    function GMXV1Swap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (address[] memory _path, , uint256 _minOut, address _receiver) = abi
+            .decode(_data[4:], (address[], uint256, uint256, address));
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _path,
+                _amount,
+                _minOut,
+                _receiver
+            );
+    }
+
+    function tryPearlFiSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.pearlFiSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("trader joe swap fail!");
+        }
+    }
+
+    function pearlFiSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            IPearlRouter.route[] memory _routes,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, IPearlRouter.route[], address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _routes,
+                _to,
+                _deadline
+            );
+    }
+
+    function tryiZiSwap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.iZiSwap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("trader iziswap fail!");
+        }
+    }
+
+    function iZiSwap(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        IiZiSwap.SwapAmountParams memory params = abi.decode(
+            _data[4:],
+            (IiZiSwap.SwapAmountParams)
+        );
+        require(_amount <= type(uint128).max, "Value too large for uint128");
+        params.amount = uint128(_amount);
+        return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryCamelot(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.camelot(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("camelot fail!");
+        }
+    }
+
+    function camelot(bytes calldata _data, uint256 _amount)
+        external
+        pure
+        returns (bytes memory)
+    {
+        (
+            ,
+            uint256 _amountOutMin,
+            address[] memory _path,
+            address _to,
+            address _referrer,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, address[], address, address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _referrer,
+                _deadline
+            );
+    }
+
+    function tryKyberswap(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.kyberswap(_data, _amount) returns (bytes memory _result) {
+            return _result;
+        } catch {
+            revert("kyberswap fail!");
+        }
     }
 
     function kyberswap(bytes calldata _data, uint256 _amount)
@@ -1902,6 +1268,20 @@ contract CorrectKyberswap is ICorrectSwap {
         );
         params.desc.amount = _amount;
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+
+    function tryKyberswapSimple(bytes calldata _data, uint256 _amount)
+        public
+        view
+        returns (bytes memory)
+    {
+        try this.kyberswapSimple(_data, _amount) returns (
+            bytes memory _result
+        ) {
+            return _result;
+        } catch {
+            revert("kyberswap simple fail!");
+        }
     }
 
     function kyberswapSimple(bytes calldata _data, uint256 _amount)
@@ -1931,647 +1311,6 @@ contract CorrectKyberswap is ICorrectSwap {
                 desc,
                 executorData,
                 clientData
-            );
-    }
-}
-
-contract CorrectOneInch is ICorrectSwap {
-    // 1inch
-    bytes4 private constant _FUNC38 = IOneInchGenericRouter.swap.selector;
-    bytes4 private constant _FUNC39 =
-        IOneInchClipperRouter.clipperSwap.selector;
-    bytes4 private constant _FUNC40 =
-        IOneInchClipperRouter.clipperSwapTo.selector;
-    bytes4 private constant _FUNC41 =
-        IOneInchClipperRouter.clipperSwapToWithPermit.selector;
-    bytes4 private constant _FUNC42 = IOneInchUnoswapRouter.unoswap.selector;
-    bytes4 private constant _FUNC43 = IOneInchUnoswapRouter.unoswapTo.selector;
-    bytes4 private constant _FUNC44 =
-        IOneInchUnoswapRouter.unoswapToWithPermit.selector;
-    bytes4 private constant _FUNC45 =
-        IOneInchUnoswapV3Router.uniswapV3Swap.selector;
-    bytes4 private constant _FUNC46 =
-        IOneInchUnoswapV3Router.uniswapV3SwapTo.selector;
-    bytes4 private constant _FUNC47 =
-        IOneInchUnoswapV3Router.uniswapV3SwapToWithPermit.selector;
-
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC38] = this.oneInchGenericSwap.selector;
-        _swapErrors[_FUNC38] = "oneInchGenericSwap fail";
-        _correctSwapFunc[_FUNC39] = this.oneInchClipperSwap.selector;
-        _swapErrors[_FUNC39] = "oneInchClipperSwap fail";
-        _correctSwapFunc[_FUNC40] = this.oneInchClipperSwapTo.selector;
-        _swapErrors[_FUNC40] = "oneInchClipperSwapTo fail";
-        _correctSwapFunc[_FUNC41] = this
-            .oneInchClipperSwapToWithPermit
-            .selector;
-        _swapErrors[_FUNC41] = "oneInchClipperSwapToWithPermit fail";
-        _correctSwapFunc[_FUNC42] = this.oneInchUnoswapSwap.selector;
-        _swapErrors[_FUNC42] = "oneInchUnoswapSwap fail";
-        _correctSwapFunc[_FUNC43] = this.oneInchUnoswapSwapTo.selector;
-        _swapErrors[_FUNC43] = "oneInchUnoswapSwapTo fail";
-        _correctSwapFunc[_FUNC44] = this
-            .oneInchUnoswapSwapToWithPermit
-            .selector;
-        _swapErrors[_FUNC44] = "oneInchUnoswapSwapToWithPermit fail";
-        _correctSwapFunc[_FUNC45] = this.oneInchUniswapV3Swap.selector;
-        _swapErrors[_FUNC45] = "oneInchUniswapV3Swap fail";
-        _correctSwapFunc[_FUNC46] = this.oneInchUniswapV3SwapTo.selector;
-        _swapErrors[_FUNC46] = "oneInchUniswapV3SwapTo fail";
-        _correctSwapFunc[_FUNC47] = this
-            .oneInchUniswapV3SwapToWithPermit
-            .selector;
-        _swapErrors[_FUNC47] = "oneInchUniswapV3SwapToWithPermit fail";
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
-        } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        pure
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC38) {
-            (
-                address executor,
-                IOneInchGenericRouter.SwapDescription memory desc,
-                bytes memory permit,
-                bytes memory data
-            ) = abi.decode(
-                    _data[4:],
-                    (
-                        address,
-                        IOneInchGenericRouter.SwapDescription,
-                        bytes,
-                        bytes
-                    )
-                );
-            uint256 _amountOutMin = desc.minReturnAmount;
-            desc.minReturnAmount = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(sig, executor, desc, permit, data)
-            );
-        } else if (sig == _FUNC39) {
-            (
-                address clipperExchange,
-                address srcToken,
-                address dstToken,
-                uint256 inputAmount,
-                uint256 outputAmount,
-                uint256 goodUntil,
-                bytes32 r,
-                bytes32 vs
-            ) = abi.decode(
-                    _data[4:],
-                    (
-                        address,
-                        address,
-                        address,
-                        uint256,
-                        uint256,
-                        uint256,
-                        bytes32,
-                        bytes32
-                    )
-                );
-            uint256 _amountOutMin = outputAmount;
-            outputAmount = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(
-                    sig,
-                    clipperExchange,
-                    srcToken,
-                    dstToken,
-                    inputAmount,
-                    outputAmount,
-                    goodUntil,
-                    r,
-                    vs
-                )
-            );
-        } else if (sig == _FUNC40) {
-            (
-                address clipperExchange,
-                address payable recipient,
-                address srcToken,
-                address dstToken,
-                uint256 inputAmount,
-                uint256 outputAmount,
-                uint256 goodUntil,
-                bytes32 r,
-                bytes32 vs
-            ) = abi.decode(
-                    _data[4:],
-                    (
-                        address,
-                        address,
-                        address,
-                        address,
-                        uint256,
-                        uint256,
-                        uint256,
-                        bytes32,
-                        bytes32
-                    )
-                );
-            uint256 _amountOutMin = outputAmount;
-            outputAmount = _amountOutMin + _deltaMinAmount;
-            return (
-                outputAmount,
-                abi.encodeWithSelector(
-                    sig,
-                    clipperExchange,
-                    recipient,
-                    srcToken,
-                    dstToken,
-                    inputAmount,
-                    outputAmount,
-                    goodUntil,
-                    r,
-                    vs
-                )
-            );
-        } else if (sig == _FUNC41) {
-            (
-                address clipperExchange,
-                address payable recipient,
-                address srcToken,
-                address dstToken,
-                uint256 inputAmount,
-                uint256 outputAmount,
-                uint256 goodUntil,
-                bytes32 r,
-                bytes32 vs,
-                bytes memory permit
-            ) = abi.decode(
-                    _data[4:],
-                    (
-                        address,
-                        address,
-                        address,
-                        address,
-                        uint256,
-                        uint256,
-                        uint256,
-                        bytes32,
-                        bytes32,
-                        bytes
-                    )
-                );
-            uint256 _amountOutMin = outputAmount;
-            outputAmount = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(
-                    sig,
-                    clipperExchange,
-                    recipient,
-                    srcToken,
-                    dstToken,
-                    inputAmount,
-                    outputAmount,
-                    goodUntil,
-                    r,
-                    vs,
-                    permit
-                )
-            );
-        } else if (_FUNC42 == sig) {
-            (
-                address srcToken,
-                uint256 amount,
-                uint256 minReturn,
-                uint256[] memory pools
-            ) = abi.decode(_data[4:], (address, uint256, uint256, uint256[]));
-            uint256 _amountOutMin = minReturn;
-            minReturn = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(sig, srcToken, amount, minReturn, pools)
-            );
-        } else if (_FUNC43 == sig) {
-            (
-                address payable recipient,
-                address srcToken,
-                uint256 amount,
-                uint256 minReturn,
-                uint256[] memory pools
-            ) = abi.decode(
-                    _data[4:],
-                    (address, address, uint256, uint256, uint256[])
-                );
-            uint256 _amountOutMin = minReturn;
-            minReturn = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(
-                    sig,
-                    recipient,
-                    srcToken,
-                    amount,
-                    minReturn,
-                    pools
-                )
-            );
-        } else if (_FUNC44 == sig) {
-            (
-                address payable recipient,
-                address srcToken,
-                uint256 amount,
-                uint256 minReturn,
-                uint256[] memory pools,
-                bytes memory permit
-            ) = abi.decode(
-                    _data[4:],
-                    (address, address, uint256, uint256, uint256[], bytes)
-                );
-            uint256 _amountOutMin = minReturn;
-            minReturn = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(
-                    sig,
-                    recipient,
-                    srcToken,
-                    amount,
-                    minReturn,
-                    pools,
-                    permit
-                )
-            );
-        } else if (_FUNC45 == sig) {
-            (uint256 amount, uint256 minReturn, uint256[] memory pools) = abi
-                .decode(_data[4:], (uint256, uint256, uint256[]));
-            uint256 _amountOutMin = minReturn;
-            minReturn = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(sig, amount, minReturn, pools)
-            );
-        } else if (_FUNC46 == sig) {
-            (
-                address payable recipient,
-                uint256 amount,
-                uint256 minReturn,
-                uint256[] memory pools
-            ) = abi.decode(_data[4:], (address, uint256, uint256, uint256[]));
-            uint256 _amountOutMin = minReturn;
-            minReturn = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(sig, recipient, amount, minReturn, pools)
-            );
-        } else if (_FUNC47 == sig) {
-            (
-                address payable recipient,
-                address srcToken,
-                uint256 amount,
-                uint256 minReturn,
-                uint256[] memory pools,
-                bytes memory permit
-            ) = abi.decode(
-                    _data[4:],
-                    (address, address, uint256, uint256, uint256[], bytes)
-                );
-            uint256 _amountOutMin = minReturn;
-            minReturn = _amountOutMin + _deltaMinAmount;
-            return (
-                _amountOutMin,
-                abi.encodeWithSelector(
-                    sig,
-                    recipient,
-                    srcToken,
-                    amount,
-                    minReturn,
-                    pools,
-                    permit
-                )
-            );
-        }
-
-        revert("fix 1inch amount fail!");
-    }
-
-    function oneInchGenericSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            address executor,
-            IOneInchGenericRouter.SwapDescription memory desc,
-            bytes memory permit,
-            bytes memory data
-        ) = abi.decode(
-                _data[4:],
-                (address, IOneInchGenericRouter.SwapDescription, bytes, bytes)
-            );
-        desc.amount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                executor,
-                desc,
-                permit,
-                data
-            );
-    }
-
-    function oneInchClipperSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            address clipperExchange,
-            address srcToken,
-            address dstToken,
-            uint256 inputAmount,
-            uint256 outputAmount,
-            uint256 goodUntil,
-            bytes32 r,
-            bytes32 vs
-        ) = abi.decode(
-                _data[4:],
-                (
-                    address,
-                    address,
-                    address,
-                    uint256,
-                    uint256,
-                    uint256,
-                    bytes32,
-                    bytes32
-                )
-            );
-        inputAmount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                clipperExchange,
-                srcToken,
-                dstToken,
-                inputAmount,
-                outputAmount,
-                goodUntil,
-                r,
-                vs
-            );
-    }
-
-    function oneInchClipperSwapTo(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            address clipperExchange,
-            address payable recipient,
-            address srcToken,
-            address dstToken,
-            uint256 inputAmount,
-            uint256 outputAmount,
-            uint256 goodUntil,
-            bytes32 r,
-            bytes32 vs
-        ) = abi.decode(
-                _data[4:],
-                (
-                    address,
-                    address,
-                    address,
-                    address,
-                    uint256,
-                    uint256,
-                    uint256,
-                    bytes32,
-                    bytes32
-                )
-            );
-        inputAmount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                clipperExchange,
-                recipient,
-                srcToken,
-                dstToken,
-                inputAmount,
-                outputAmount,
-                goodUntil,
-                r,
-                vs
-            );
-    }
-
-    function oneInchClipperSwapToWithPermit(
-        bytes calldata _data,
-        uint256 _amount
-    ) external pure returns (bytes memory) {
-        (
-            address clipperExchange,
-            address payable recipient,
-            address srcToken,
-            address dstToken,
-            uint256 inputAmount,
-            uint256 outputAmount,
-            uint256 goodUntil,
-            bytes32 r,
-            bytes32 vs,
-            bytes memory permit
-        ) = abi.decode(
-                _data[4:],
-                (
-                    address,
-                    address,
-                    address,
-                    address,
-                    uint256,
-                    uint256,
-                    uint256,
-                    bytes32,
-                    bytes32,
-                    bytes
-                )
-            );
-        inputAmount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                clipperExchange,
-                recipient,
-                srcToken,
-                dstToken,
-                inputAmount,
-                outputAmount,
-                goodUntil,
-                r,
-                vs,
-                permit
-            );
-    }
-
-    function oneInchUnoswapSwap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            address srcToken,
-            uint256 amount,
-            uint256 minReturn,
-            uint256[] memory pools
-        ) = abi.decode(_data[4:], (address, uint256, uint256, uint256[]));
-        amount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                srcToken,
-                amount,
-                minReturn,
-                pools
-            );
-    }
-
-    function oneInchUnoswapSwapTo(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            address payable recipient,
-            address srcToken,
-            uint256 amount,
-            uint256 minReturn,
-            uint256[] memory pools
-        ) = abi.decode(
-                _data[4:],
-                (address, address, uint256, uint256, uint256[])
-            );
-        amount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                recipient,
-                srcToken,
-                amount,
-                minReturn,
-                pools
-            );
-    }
-
-    function oneInchUnoswapSwapToWithPermit(
-        bytes calldata _data,
-        uint256 _amount
-    ) external pure returns (bytes memory) {
-        (
-            address payable recipient,
-            address srcToken,
-            uint256 amount,
-            uint256 minReturn,
-            uint256[] memory pools,
-            bytes memory permit
-        ) = abi.decode(
-                _data[4:],
-                (address, address, uint256, uint256, uint256[], bytes)
-            );
-        amount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                recipient,
-                srcToken,
-                amount,
-                minReturn,
-                pools,
-                permit
-            );
-    }
-
-    function oneInchUniswapV3Swap(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (uint256 amount, uint256 minReturn, uint256[] memory pools) = abi
-            .decode(_data[4:], (uint256, uint256, uint256[]));
-        amount = _amount;
-        return
-            abi.encodeWithSelector(bytes4(_data[:4]), amount, minReturn, pools);
-    }
-
-    function oneInchUniswapV3SwapTo(bytes calldata _data, uint256 _amount)
-        external
-        pure
-        returns (bytes memory)
-    {
-        (
-            address payable recipient,
-            uint256 amount,
-            uint256 minReturn,
-            uint256[] memory pools
-        ) = abi.decode(_data[4:], (address, uint256, uint256, uint256[]));
-        amount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                recipient,
-                amount,
-                minReturn,
-                pools
-            );
-    }
-
-    function oneInchUniswapV3SwapToWithPermit(
-        bytes calldata _data,
-        uint256 _amount
-    ) external pure returns (bytes memory) {
-        (
-            address payable recipient,
-            address srcToken,
-            uint256 amount,
-            uint256 minReturn,
-            uint256[] memory pools,
-            bytes memory permit
-        ) = abi.decode(
-                _data[4:],
-                (address, address, uint256, uint256, uint256[], bytes)
-            );
-        amount = _amount;
-        return
-            abi.encodeWithSelector(
-                bytes4(_data[:4]),
-                recipient,
-                srcToken,
-                amount,
-                minReturn,
-                pools,
-                permit
             );
     }
 }
