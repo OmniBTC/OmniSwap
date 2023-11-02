@@ -76,9 +76,7 @@ async def omniswap_send_wrapped_token():
     )
     # DstChain Bridge Token(native): 32-bytes-left-padding-zero
     ERC20_BSC = "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1"
-    dst_bridge_token_padding = bytes.fromhex(
-        padding_hex_to_bytes(ERC20_BSC, padding="left")
-    )
+    dst_bridge_token_padding = padding_hex_to_bytes(ERC20_BSC, padding="left")
     # DstChain Bridge Amount
     # DstChain Swap: Bridge -> Final
     # DstChain Final Token
@@ -933,4 +931,7 @@ async def omniswap_send_native_token_sol():
     print(tx_sig.value)
 
 
-asyncio.run(omniswap_send_native_token_with_whirlpool())
+asyncio.run(omniswap_send_native_token())
+# asyncio.run(omniswap_send_wrapped_token())
+# asyncio.run(omniswap_send_native_token_with_whirlpool())
+# asyncio.run(omniswap_send_wrapped_token_with_whirlpool())

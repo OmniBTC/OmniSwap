@@ -52,7 +52,7 @@ async def call_omniswap_estimate_relayer_fee():
 
 async def call_close_pending_request():
     await close_pending_request(
-        Pubkey.from_string("H1uArb8V8ayVWFDij4TjjcmbMMx7CzQeEGPXJcMCwggc")
+        Pubkey.from_string("EXYRz7j7habG4GfgXz4evBLjbQF3mKkPBQA5nYMqr9nT")
     )
 
 
