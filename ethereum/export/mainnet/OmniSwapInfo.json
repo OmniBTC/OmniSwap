@@ -262,6 +262,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             102,
             2
           ],
@@ -288,10 +292,6 @@
           [
             109,
             2
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 6,
@@ -310,6 +310,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             102,
             2
           ],
@@ -336,10 +340,6 @@
           [
             109,
             2
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 6,
@@ -350,15 +350,15 @@
       {
         "ChainPath": [
           [
+            184,
+            13
+          ],
+          [
             101,
             13
           ],
           [
             111,
-            13
-          ],
-          [
-            184,
             13
           ]
         ],
@@ -366,6 +366,98 @@
         "PoolId": 13,
         "TokenAddress": "0x82CbeCF39bEe528B5476FE6d1550af59a9dB6Fc0",
         "TokenName": "SGETH"
+      },
+      {
+        "ChainPath": [
+          [
+            106,
+            7
+          ],
+          [
+            101,
+            7
+          ],
+          [
+            111,
+            7
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 7,
+        "TokenAddress": "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F",
+        "TokenName": "FRAX"
+      },
+      {
+        "ChainPath": [
+          [
+            106,
+            16
+          ],
+          [
+            102,
+            16
+          ],
+          [
+            101,
+            16
+          ],
+          [
+            111,
+            16
+          ],
+          [
+            109,
+            16
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 16,
+        "TokenAddress": "0x3F56e0c36d275367b8C502090EDF38289b3dEa0d",
+        "TokenName": "MAI"
+      },
+      {
+        "ChainPath": [
+          [
+            101,
+            15
+          ],
+          [
+            111,
+            15
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 15,
+        "TokenAddress": "0x93b346b6BC2548dA6A1E7d98E9a421B42541425b",
+        "TokenName": "LUSD"
+      },
+      {
+        "ChainPath": [
+          [
+            106,
+            20
+          ],
+          [
+            102,
+            20
+          ],
+          [
+            101,
+            20
+          ],
+          [
+            111,
+            20
+          ],
+          [
+            109,
+            20
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 20,
+        "TokenAddress": "0xcAFcD85D8ca7Ad1e1C6F82F651fA15E33AEfD07b",
+        "TokenName": "WOO"
       }
     ],
     "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
@@ -415,100 +507,6 @@
     ],
     "WETH": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
   },
-  "base-main": {
-    "ChainId": 8453,
-    "OmniBtcChainId": 8453,
-    "SoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
-    "StargateChainId": 184,
-    "StargatePool": [
-      {
-        "ChainPath": [
-          [
-            110,
-            13
-          ],
-          [
-            101,
-            13
-          ],
-          [
-            111,
-            13
-          ]
-        ],
-        "Decimal": 18,
-        "PoolId": 13,
-        "TokenAddress": "0x224D8Fd7aB6AD4c6eb4611Ce56EF35Dec2277F03",
-        "TokenName": "SGETH"
-      },
-      {
-        "Decimal": 6,
-        "PoolId": 1,
-        "ChainPath": [
-          [
-            110,
-            1
-          ],
-          [
-            110,
-            2
-          ],
-          [
-            106,
-            1
-          ],
-          [
-            106,
-            2
-          ],
-          [
-            102,
-            2
-          ],
-          [
-            101,
-            1
-          ],
-          [
-            101,
-            2
-          ],
-          [
-            111,
-            1
-          ],
-          [
-            109,
-            1
-          ],
-          [
-            109,
-            2
-          ]
-        ],
-        "TokenAddress": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
-        "TokenName": "USDbC"
-      }
-    ],
-    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
-    "UniswapRouter": [
-      {
-        "Name": "SushiswapV3",
-        "QuoterAddressForUniswapV3": "",
-        "RouterAddress": "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f",
-        "TokenList": "",
-        "Type": "ISwapRouter"
-      },
-      {
-        "Name": "BaseswapV2",
-        "QuoterAddressForUniswapV3": "",
-        "RouterAddress": "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86",
-        "TokenList": "",
-        "Type": "IUniswapV2Router02"
-      }
-    ],
-    "WETH": "0x4200000000000000000000000000000000000006"
-  },
   "avax-main": {
     "ChainId": 43114,
     "OmniBtcChainId": 4,
@@ -524,6 +522,10 @@
           [
             110,
             2
+          ],
+          [
+            184,
+            1
           ],
           [
             102,
@@ -552,10 +554,6 @@
           [
             109,
             2
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 6,
@@ -574,6 +572,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             102,
             2
           ],
@@ -600,16 +602,95 @@
           [
             109,
             2
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 6,
         "PoolId": 2,
         "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
         "TokenName": "USDt"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            7
+          ],
+          [
+            101,
+            7
+          ],
+          [
+            111,
+            7
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 7,
+        "TokenAddress": "0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64",
+        "TokenName": "FRAX"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            16
+          ],
+          [
+            102,
+            16
+          ],
+          [
+            101,
+            16
+          ],
+          [
+            111,
+            16
+          ],
+          [
+            109,
+            16
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 16,
+        "TokenAddress": "0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b",
+        "TokenName": "MAI"
+      },
+      {
+        "ChainPath": [],
+        "Decimal": 6,
+        "PoolId": 19,
+        "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+        "TokenName": "USDt"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            20
+          ],
+          [
+            102,
+            20
+          ],
+          [
+            101,
+            20
+          ],
+          [
+            111,
+            20
+          ],
+          [
+            109,
+            20
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 20,
+        "TokenAddress": "0xaBC9547B534519fF73921b1FBA6E672b5f58D083",
+        "TokenName": "WOO.e"
       }
     ],
     "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
@@ -998,6 +1079,100 @@
       }
     ]
   },
+  "base-main": {
+    "ChainId": 8453,
+    "OmniBtcChainId": 8453,
+    "SoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
+    "StargateChainId": 184,
+    "StargatePool": [
+      {
+        "ChainPath": [
+          [
+            110,
+            13
+          ],
+          [
+            101,
+            13
+          ],
+          [
+            111,
+            13
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 13,
+        "TokenAddress": "0x224D8Fd7aB6AD4c6eb4611Ce56EF35Dec2277F03",
+        "TokenName": "SGETH"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            1
+          ],
+          [
+            110,
+            2
+          ],
+          [
+            106,
+            1
+          ],
+          [
+            106,
+            2
+          ],
+          [
+            102,
+            2
+          ],
+          [
+            101,
+            1
+          ],
+          [
+            101,
+            2
+          ],
+          [
+            111,
+            1
+          ],
+          [
+            109,
+            1
+          ],
+          [
+            109,
+            2
+          ]
+        ],
+        "Decimal": 6,
+        "PoolId": 1,
+        "TokenAddress": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "TokenName": "USDbC"
+      }
+    ],
+    "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
+    "UniswapRouter": [
+      {
+        "Name": "SushiswapV3",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f",
+        "TokenList": "",
+        "Type": "ISwapRouter"
+      },
+      {
+        "Name": "BaseswapV2",
+        "QuoterAddressForUniswapV3": "",
+        "RouterAddress": "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86",
+        "TokenList": "",
+        "Type": "IUniswapV2Router02"
+      }
+    ],
+    "WETH": "0x4200000000000000000000000000000000000006"
+  },
   "bsc-main": {
     "ChainId": 56,
     "OmniBtcChainId": 3,
@@ -1023,6 +1198,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             101,
             1
           ],
@@ -1041,10 +1220,6 @@
           [
             109,
             2
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 18,
@@ -1107,6 +1282,81 @@
         "PoolId": 11,
         "TokenAddress": "0xd17479997F34dd9156Deef8F95A52D81D265be9c",
         "TokenName": "USDD"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            16
+          ],
+          [
+            106,
+            16
+          ],
+          [
+            101,
+            16
+          ],
+          [
+            111,
+            16
+          ],
+          [
+            109,
+            16
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 16,
+        "TokenAddress": "0x3F56e0c36d275367b8C502090EDF38289b3dEa0d",
+        "TokenName": "MAI"
+      },
+      {
+        "ChainPath": [
+          [
+            101,
+            17
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 17,
+        "TokenAddress": "0xe552Fb52a4F19e44ef5A967632DBc320B0820639",
+        "TokenName": "Metis"
+      },
+      {
+        "ChainPath": [],
+        "Decimal": 18,
+        "PoolId": 19,
+        "TokenAddress": "0x55d398326f99059fF775485246999027B3197955",
+        "TokenName": "USDT"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            20
+          ],
+          [
+            106,
+            20
+          ],
+          [
+            101,
+            20
+          ],
+          [
+            111,
+            20
+          ],
+          [
+            109,
+            20
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 20,
+        "TokenAddress": "0x4691937a7508860F876c9c0a2a617E7d9E945D4B",
+        "TokenName": "WOO"
       }
     ],
     "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
@@ -1519,6 +1769,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             102,
             2
           ],
@@ -1537,10 +1791,6 @@
           [
             109,
             2
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 6,
@@ -1567,6 +1817,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             102,
             2
           ],
@@ -1585,10 +1839,6 @@
           [
             109,
             2
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 6,
@@ -1615,11 +1865,11 @@
             13
           ],
           [
-            111,
+            184,
             13
           ],
           [
-            184,
+            111,
             13
           ]
         ],
@@ -1627,6 +1877,145 @@
         "PoolId": 13,
         "TokenAddress": "0x72E2F4830b9E45d52F80aC08CB2bEC0FeF72eD9c",
         "TokenName": "SGETH"
+      },
+      {
+        "ChainPath": [
+          [
+            111,
+            3
+          ],
+          [
+            109,
+            3
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 3,
+        "TokenAddress": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "TokenName": "DAI"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            7
+          ],
+          [
+            106,
+            7
+          ],
+          [
+            111,
+            7
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 7,
+        "TokenAddress": "0x853d955aCEf822Db058eb8505911ED77F175b99e",
+        "TokenName": "FRAX"
+      },
+      {
+        "ChainPath": [
+          [
+            111,
+            14
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 14,
+        "TokenAddress": "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+        "TokenName": "sUSD"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            15
+          ],
+          [
+            111,
+            15
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 15,
+        "TokenAddress": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
+        "TokenName": "LUSD"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            16
+          ],
+          [
+            106,
+            16
+          ],
+          [
+            102,
+            16
+          ],
+          [
+            111,
+            16
+          ],
+          [
+            109,
+            16
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 16,
+        "TokenAddress": "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6",
+        "TokenName": "MAI"
+      },
+      {
+        "ChainPath": [
+          [
+            102,
+            17
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 17,
+        "TokenAddress": "0x9E32b13ce7f2E80A01932B42553652E053D6ed8e",
+        "TokenName": "Metis"
+      },
+      {
+        "ChainPath": [],
+        "Decimal": 6,
+        "PoolId": 19,
+        "TokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "TokenName": "USDT"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            20
+          ],
+          [
+            106,
+            20
+          ],
+          [
+            102,
+            20
+          ],
+          [
+            111,
+            20
+          ],
+          [
+            109,
+            20
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 20,
+        "TokenAddress": "0x4691937a7508860F876c9c0a2a617E7d9E945D4B",
+        "TokenName": "WOO"
       }
     ],
     "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
@@ -2040,6 +2429,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             102,
             2
           ],
@@ -2062,10 +2455,6 @@
           [
             109,
             2
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 6,
@@ -2080,11 +2469,11 @@
             13
           ],
           [
-            101,
+            184,
             13
           ],
           [
-            184,
+            101,
             13
           ]
         ],
@@ -2092,6 +2481,126 @@
         "PoolId": 13,
         "TokenAddress": "0xb69c8CBCD90A39D8D3d3ccf0a3E968511C3856A0",
         "TokenName": "SGETH"
+      },
+      {
+        "ChainPath": [
+          [
+            101,
+            3
+          ],
+          [
+            109,
+            3
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 3,
+        "TokenAddress": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        "TokenName": "DAI"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            7
+          ],
+          [
+            106,
+            7
+          ],
+          [
+            101,
+            7
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 7,
+        "TokenAddress": "0x2E3D870790dC77A83DD1d18184Acc7439A53f475",
+        "TokenName": "FRAX"
+      },
+      {
+        "ChainPath": [
+          [
+            101,
+            14
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 14,
+        "TokenAddress": "0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9",
+        "TokenName": "sUSD"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            15
+          ],
+          [
+            101,
+            15
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 15,
+        "TokenAddress": "0xc40F949F8a4e094D1b49a23ea9241D289B7b2819",
+        "TokenName": "LUSD"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            16
+          ],
+          [
+            106,
+            16
+          ],
+          [
+            102,
+            16
+          ],
+          [
+            101,
+            16
+          ],
+          [
+            109,
+            16
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 16,
+        "TokenAddress": "0xdFA46478F9e5EA86d57387849598dbFB2e964b02",
+        "TokenName": "MAI"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            20
+          ],
+          [
+            106,
+            20
+          ],
+          [
+            102,
+            20
+          ],
+          [
+            101,
+            20
+          ],
+          [
+            109,
+            20
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 20,
+        "TokenAddress": "0x871f2F2ff935FD1eD867842FF2a7bfD051A5E527",
+        "TokenName": "WOO"
       }
     ],
     "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
@@ -2152,6 +2661,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             102,
             2
           ],
@@ -2169,10 +2682,6 @@
           ],
           [
             111,
-            1
-          ],
-          [
-            184,
             1
           ]
         ],
@@ -2200,6 +2709,10 @@
             2
           ],
           [
+            184,
+            1
+          ],
+          [
             102,
             2
           ],
@@ -2218,16 +2731,84 @@
           [
             111,
             1
-          ],
-          [
-            184,
-            1
           ]
         ],
         "Decimal": 6,
         "PoolId": 2,
         "TokenAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
         "TokenName": "USDT"
+      },
+      {
+        "ChainPath": [
+          [
+            101,
+            3
+          ],
+          [
+            111,
+            3
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 3,
+        "TokenAddress": "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+        "TokenName": "DAI"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            16
+          ],
+          [
+            106,
+            16
+          ],
+          [
+            102,
+            16
+          ],
+          [
+            101,
+            16
+          ],
+          [
+            111,
+            16
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 16,
+        "TokenAddress": "0xa3Fa99A148fA48D14Ed51d610c367C61876997F1",
+        "TokenName": "miMATIC"
+      },
+      {
+        "ChainPath": [
+          [
+            110,
+            20
+          ],
+          [
+            106,
+            20
+          ],
+          [
+            102,
+            20
+          ],
+          [
+            101,
+            20
+          ],
+          [
+            111,
+            20
+          ]
+        ],
+        "Decimal": 18,
+        "PoolId": 20,
+        "TokenAddress": "0x1B815d120B3eF02039Ee11dC2d33DE7aA4a8C603",
+        "TokenName": "WOO"
       }
     ],
     "StargateRouter": "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9",
@@ -2743,6 +3324,30 @@
       }
     ]
   },
+  "zkevm-main": {
+    "ChainId": 1011,
+    "OmniBtcChainId": 1011,
+    "SoDiamond": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
+    "UniswapRouter": [
+      {
+        "Factory": "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57",
+        "Name": "QuickSwapV3",
+        "QuoterAddressForUniswapV3": "0x55BeE1bD3Eb9986f6d2d963278de09eE92a3eF1D",
+        "RouterAddress": "0xF6Ad3CcF71Abb3E12beCf6b3D2a74C963859ADCd",
+        "TokenList": "",
+        "Type": "IQuickSwapRouter"
+      },
+      {
+        "Factory": "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865",
+        "Name": "PancakeSwapV3",
+        "QuoterAddressForUniswapV3": "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
+        "RouterAddress": "0x1b81D678ffb9C0263b24A97847620C99d213eB14",
+        "TokenList": "",
+        "Type": "ISwapRouter"
+      }
+    ],
+    "WETH": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
+  },
   "zksync2-main": {
     "ChainId": 324,
     "OmniBtcChainId": 324,
@@ -2764,29 +3369,5 @@
       }
     ],
     "WETH": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
-  },
-  "zkevm-main": {
-    "ChainId": 1011,
-    "OmniBtcChainId": 1011,
-    "SoDiamond": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
-    "UniswapRouter": [
-      {
-        "Name": "QuickSwapV3",
-        "QuoterAddressForUniswapV3": "0x55BeE1bD3Eb9986f6d2d963278de09eE92a3eF1D",
-        "RouterAddress": "0xF6Ad3CcF71Abb3E12beCf6b3D2a74C963859ADCd",
-        "TokenList": "",
-        "Type": "IQuickSwapRouter",
-        "Factory": "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57"
-      },
-      {
-        "Name": "PancakeSwapV3",
-        "QuoterAddressForUniswapV3": "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
-        "RouterAddress": "0x1b81D678ffb9C0263b24A97847620C99d213eB14",
-        "TokenList": "",
-        "Type": "ISwapRouter",
-        "Factory": "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865"
-      }
-    ],
-    "WETH": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
   }
 }
