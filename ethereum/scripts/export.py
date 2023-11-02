@@ -2,7 +2,9 @@
 # @Author  : WeiDai
 # @FileName: export.py
 import contextlib
+import functools
 import json
+import multiprocessing
 import os
 import traceback
 from pprint import pprint
@@ -33,6 +35,8 @@ from brownie import (
     LibSoFeeMultiChainV1,
     BoolFacet
 )
+from sui_brownie.parallelism import ProcessExecutor
+
 from scripts.helpful_scripts import (
     change_network,
     get_wormhole_bridge,
@@ -59,12 +63,14 @@ stragate_file = os.path.join(root_path, "export/StargateInfo.json")
 deployed_file = os.path.join(root_path, "export/ContractDeployed.json")
 
 mainnet_swap_file = os.path.join(root_path, "export/mainnet/OmniSwapInfo.json")
+lock = multiprocessing.Lock()
 
 
 def write_file(file: str, data):
     print("save to:", file)
-    with open(file, "w") as f:
-        json.dump(data, f, indent=4, sort_keys=True)
+    with lock:
+        with open(file, "w") as f:
+            json.dump(data, f, indent=4, sort_keys=True)
 
 
 def fit_mainnet_stargate_chain_path():
@@ -175,11 +181,14 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
             src_pool_info["ChainPath"].append(
                 (omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"])
             )
+    write_file(mainnet_swap_file, omni_swap_infos)
 
 
 def get_stargate_chain_path():
     omni_swap_infos = read_json(mainnet_swap_file)
     nets = list(omni_swap_infos.keys())
+    pt = ProcessExecutor(executor=len(nets))
+    funcs = []
     for net1 in nets:
         for net2 in nets:
             if "StargateChainId" not in omni_swap_infos[net1]:
@@ -192,11 +201,9 @@ def get_stargate_chain_path():
                     "main" not in net1 and "main" in net2
             ):
                 continue
-            try:
-                get_stargate_pair_chain_path(omni_swap_infos, net1, net2)
-            except Exception as err:
-                print(f"{net1}--{net2} err:{err}")
-    write_file(mainnet_swap_file, omni_swap_infos)
+            funcs.append(functools.partial(get_stargate_pair_chain_path, omni_swap_infos, net1, net2))
+    pt.run(funcs)
+    # write_file(mainnet_swap_file, omni_swap_infos)
 
 
 def get_wormhole_chain_path(net, wormhole_chain_path):
