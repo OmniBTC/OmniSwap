@@ -5,6 +5,7 @@ import contextlib
 import json
 import os
 import traceback
+from pprint import pprint
 
 from brownie import (
     DiamondCutFacet,
@@ -83,6 +84,7 @@ def fit_mainnet_stargate_chain_path():
 
 
 def get_stragate_pool_infos():
+    omni_swap_infos = read_json(mainnet_swap_file)
     stargate_router_address = get_stargate_router()
     if stargate_router_address == "":
         return [], []
@@ -90,7 +92,7 @@ def get_stragate_pool_infos():
     stargate_router = Contract.from_abi(
         "IStargate", stargate_router_address, interface.IStargate.abi
     )
-    bridge_address = stargate_router.bridge()
+    bridge_address = stargate_router.stargateBridge()
     bridge = Contract.from_abi(
         "IStargateBridge", bridge_address, interface.IStargateBridge.abi
     )
@@ -131,7 +133,9 @@ def get_stragate_pool_infos():
             }
         )
     all_stragate_info["pools"] = pool_info
-    print(all_stragate_info)
+    pprint(all_stragate_info)
+    omni_swap_infos[network.show_active()]["StargatePool"] = pool_info
+    write_file(mainnet_swap_file, omni_swap_infos)
     return pool_info, all_stragate_info
 
 
@@ -174,7 +178,7 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
 
 
 def get_stargate_chain_path():
-    omni_swap_infos = read_json(omni_swap_file)
+    omni_swap_infos = read_json(mainnet_swap_file)
     nets = list(omni_swap_infos.keys())
     for net1 in nets:
         for net2 in nets:
@@ -188,8 +192,11 @@ def get_stargate_chain_path():
                     "main" not in net1 and "main" in net2
             ):
                 continue
-            get_stargate_pair_chain_path(omni_swap_infos, net1, net2)
-    write_file(omni_swap_file, omni_swap_infos)
+            try:
+                get_stargate_pair_chain_path(omni_swap_infos, net1, net2)
+            except Exception as err:
+                print(f"{net1}--{net2} err:{err}")
+    write_file(mainnet_swap_file, omni_swap_infos)
 
 
 def get_wormhole_chain_path(net, wormhole_chain_path):
@@ -766,3 +773,7 @@ def select_networks(args):
     print(export_networks)
 
     return export_networks
+
+
+if __name__ == "__main__":
+    pass
