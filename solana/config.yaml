@@ -105,8 +105,39 @@ devnet:
   so_fee_by_ray: 300_000
 
 
+#TODO: complete
 mainnet:
-#  todo
+  omnibtc_chainid: 30003
+  rpc_url: "https://api.mainnet-beta.solana.com"
+  program:
+    SoDiamond: ""
+    Wormhole: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth"
+    TokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb"
+    Whirlpools: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+  wormhole:
+    chainid: 1
+    # 1.1
+    actual_reserve: 110000000
+    # 1.2
+    estimate_reserve: 120000000
+    dst_chain:
+      bsc-main:
+        omnibtc_chainid: 3
+        chainid: 4
+        base_gas: 700000
+        per_byte_gas: 68
+        price_manager: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
+        token_bridge_emitter: "0x0000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09"
+        omniswap_emitter: "0x00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
+
+      eth-main:
+        omnibtc_chainid: 2
+        chainid: 2
+        base_gas: 700000
+        per_byte_gas: 68
+        price_manager: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
+        token_bridge_emitter: "0x0000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09"
+        omniswap_emitter: "0x00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
 
 solana-wallet:
   Owner: ${TEST_OWNER}
