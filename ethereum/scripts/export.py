@@ -150,7 +150,7 @@ def get_stragate_pool_infos():
 
 
 def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
-    from brownie import project
+    from brownie import project, Contract
     p = project.load(project_path=Path(__file__).parent.parent, raise_if_loaded=False)
     p.load_config()
     print(f"Get stargate pair chain path net1:{net1}, net2:{net2}")
