@@ -2168,7 +2168,7 @@ networks:
           token_list: ""
       - IAggregationRouterV5:
           name: OneInch
-          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          router: "0x6e2B76966cbD9cF4cC2Fa0D76d24d5241E0ABC2F"
           token_list: ""
   zkevm-main:
     chainid: 1101
