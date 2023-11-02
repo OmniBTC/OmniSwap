@@ -72,9 +72,8 @@ lock = multiprocessing.Lock()
 
 def write_file(file: str, data):
     print("save to:", file)
-    with lock:
-        with open(file, "w") as f:
-            json.dump(data, f, indent=4, sort_keys=True)
+    with open(file, "w") as f:
+        json.dump(data, f, indent=4, sort_keys=True)
 
 
 def fit_mainnet_stargate_chain_path():
@@ -153,7 +152,6 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
     from brownie import project, Contract
     p = project.load(project_path=Path(__file__).parent.parent, raise_if_loaded=False)
     p.load_config()
-    print(f"Get stargate pair chain path net1:{net1}, net2:{net2}")
     if "aptos" in net1 or "aptos" in net2:
         return
     change_network(net1)
@@ -172,6 +170,9 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
         pool = Contract.from_abi(
             "IStargatePool", pool_address, p.interface.IStargatePool.abi
         )
+        if "ChainPath" not in src_pool_info:
+            src_pool_info["ChainPath"] = []
+        src_pool_info["ChainPath"] = [tuple(d) for d in src_pool_info["ChainPath"]]
         for dst_pool_info in omni_swap_infos[net2]["StargatePool"]:
             flag = False
             try:
@@ -183,12 +184,33 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
                 pass
             if not flag:
                 continue
-            if "ChainPath" not in src_pool_info:
-                src_pool_info["ChainPath"] = []
-            src_pool_info["ChainPath"].append(
-                (omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"])
-            )
-    write_file(mainnet_swap_file, omni_swap_infos)
+            tp = (omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"])
+            if tp not in src_pool_info["ChainPath"]:
+                src_pool_info["ChainPath"].append(
+                    tp
+                )
+    with lock:
+        data = read_json(mainnet_swap_file)
+        data[net1]["StargatePool"] = omni_swap_infos[net1]["StargatePool"]
+        write_file(mainnet_swap_file, omni_swap_infos)
+
+
+def get_stargate_net_chain_path(omni_swap_infos, net1, nets):
+    for net2 in nets:
+        if "StargateChainId" not in omni_swap_infos[net1]:
+            continue
+        if "StargateChainId" not in omni_swap_infos[net2]:
+            continue
+        if net1 == net2:
+            continue
+        print(f"Get stargate pair chain path net1:{net1}, net2:{net2}")
+        try:
+            get_stargate_pair_chain_path(omni_swap_infos, net1, net2)
+        except:
+            import traceback
+            err = traceback.format_exc()
+            print(f"{net1} -- {net2} err:{err}")
+
 
 # step1: brownie run --network avax-main scripts/export.py get_stragate_pool_infos
 # step2: brownie run --network arbitrum-main scripts/export.py get_stargate_chain_path
@@ -198,18 +220,7 @@ def get_stargate_chain_path():
     pt = ProcessExecutor(executor=len(nets))
     funcs = []
     for net1 in nets:
-        for net2 in nets:
-            if "StargateChainId" not in omni_swap_infos[net1]:
-                continue
-            if "StargateChainId" not in omni_swap_infos[net2]:
-                continue
-            if net1 == net2:
-                continue
-            if ("main" in net1 and "main" not in net2) or (
-                    "main" not in net1 and "main" in net2
-            ):
-                continue
-            funcs.append(functools.partial(get_stargate_pair_chain_path, omni_swap_infos, net1, net2))
+        funcs.append(functools.partial(get_stargate_net_chain_path, omni_swap_infos, net1, nets))
     pt.run(funcs)
     # write_file(mainnet_swap_file, omni_swap_infos)
 
