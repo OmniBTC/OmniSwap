@@ -7,34 +7,38 @@ import json
 import multiprocessing
 import os
 import traceback
+from pathlib import Path
 from pprint import pprint
 
-from brownie import (
-    DiamondCutFacet,
-    SoDiamond,
-    DiamondLoupeFacet,
-    DexManagerFacet,
-    StargateFacet,
-    WithdrawFacet,
-    OwnershipFacet,
-    GenericSwapFacet,
-    interface,
-    Contract,
-    ERC20,
-    LibSwap,
-    config,
-    LibSoFeeStargateV1,
-    LibCorrectSwapV1,
-    WormholeFacet,
-    LibSoFeeWormholeV1,
-    SerdeFacet,
-    network,
-    CelerFacet,
-    LibSoFeeCelerV1,
-    MultiChainFacet,
-    LibSoFeeMultiChainV1,
-    BoolFacet
-)
+try:
+    from brownie import (
+        DiamondCutFacet,
+        SoDiamond,
+        DiamondLoupeFacet,
+        DexManagerFacet,
+        StargateFacet,
+        WithdrawFacet,
+        OwnershipFacet,
+        GenericSwapFacet,
+        interface,
+        Contract,
+        ERC20,
+        LibSwap,
+        config,
+        LibSoFeeStargateV1,
+        LibCorrectSwapV1,
+        WormholeFacet,
+        LibSoFeeWormholeV1,
+        SerdeFacet,
+        network,
+        CelerFacet,
+        LibSoFeeCelerV1,
+        MultiChainFacet,
+        LibSoFeeMultiChainV1,
+        BoolFacet, project
+    )
+except:
+    pass
 from sui_brownie.parallelism import ProcessExecutor
 
 from scripts.helpful_scripts import (
@@ -146,6 +150,9 @@ def get_stragate_pool_infos():
 
 
 def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
+    from brownie import project
+    p = project.load(project_path=Path(__file__).parent.parent, raise_if_loaded=False)
+    p.load_config()
     print(f"Get stargate pair chain path net1:{net1}, net2:{net2}")
     if "aptos" in net1 or "aptos" in net2:
         return
@@ -154,16 +161,16 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
     if stargate_router_address == "":
         return
     stargate_router = Contract.from_abi(
-        "IStargate", stargate_router_address, interface.IStargate.abi
+        "IStargate", stargate_router_address, p.interface.IStargate.abi
     )
     factory_address = stargate_router.factory()
     factory = Contract.from_abi(
-        "IStargateFactory", factory_address, interface.IStargateFactory.abi
+        "IStargateFactory", factory_address, p.interface.IStargateFactory.abi
     )
     for src_pool_info in omni_swap_infos[net1]["StargatePool"]:
         pool_address = factory.getPool(src_pool_info["PoolId"])
         pool = Contract.from_abi(
-            "IStargatePool", pool_address, interface.IStargatePool.abi
+            "IStargatePool", pool_address, p.interface.IStargatePool.abi
         )
         for dst_pool_info in omni_swap_infos[net2]["StargatePool"]:
             flag = False
@@ -183,7 +190,8 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
             )
     write_file(mainnet_swap_file, omni_swap_infos)
 
-
+# step1: brownie run --network avax-main scripts/export.py get_stragate_pool_infos
+# step2: brownie run --network arbitrum-main scripts/export.py get_stargate_chain_path
 def get_stargate_chain_path():
     omni_swap_infos = read_json(mainnet_swap_file)
     nets = list(omni_swap_infos.keys())
