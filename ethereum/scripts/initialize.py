@@ -1,3 +1,5 @@
+import os
+
 from brownie import (
     DiamondCutFacet,
     SoDiamond,
@@ -63,7 +65,7 @@ from scripts.helpful_scripts import (
     get_multichain_id,
     get_multichain_info,
     get_cctp_token_messenger,
-    get_cctp_message_transmitter
+    get_cctp_message_transmitter, read_json
 )
 
 if "arbitrum" in network.show_active():
@@ -977,6 +979,15 @@ def transferOwnershipForFee():
         print(f"LibSoFeeWormholeV1 success")
     except:
         print(f"LibSoFeeWormholeV1 error")
+
+
+def init_token_for_stargate():
+    root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    mainnet_swap_file = os.path.join(root_path, "export/mainnet/OmniSwapInfo.json")
+    token_name = ["USDC", "USDT", "ETH", "BUSD", "USDD", "MAI", "DAI", "FRAX", "WOO", "LUSD"]
+    net = network.show_active()
+    data = read_json(mainnet_swap_file)
+    # todo
 
 
 def fix_libswap():

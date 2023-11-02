@@ -192,7 +192,7 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
     with lock:
         data = read_json(mainnet_swap_file)
         data[net1]["StargatePool"] = omni_swap_infos[net1]["StargatePool"]
-        write_file(mainnet_swap_file, omni_swap_infos)
+        write_file(mainnet_swap_file, data)
 
 
 def get_stargate_net_chain_path(omni_swap_infos, net1, nets):

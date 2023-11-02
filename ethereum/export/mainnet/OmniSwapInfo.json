@@ -1305,72 +1305,267 @@
     "StargateChainId": 101,
     "StargatePool": [
       {
+        "ChainPath": [
+          [
+            110,
+            1
+          ],
+          [
+            110,
+            2
+          ],
+          [
+            106,
+            1
+          ],
+          [
+            106,
+            2
+          ],
+          [
+            184,
+            1
+          ],
+          [
+            102,
+            2
+          ],
+          [
+            102,
+            5
+          ],
+          [
+            111,
+            1
+          ],
+          [
+            109,
+            1
+          ],
+          [
+            109,
+            2
+          ]
+        ],
         "Decimal": 6,
         "PoolId": 1,
         "TokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "TokenName": "USDC"
       },
       {
+        "ChainPath": [
+          [
+            110,
+            1
+          ],
+          [
+            110,
+            2
+          ],
+          [
+            106,
+            1
+          ],
+          [
+            106,
+            2
+          ],
+          [
+            184,
+            1
+          ],
+          [
+            102,
+            2
+          ],
+          [
+            102,
+            5
+          ],
+          [
+            111,
+            1
+          ],
+          [
+            109,
+            1
+          ],
+          [
+            109,
+            2
+          ]
+        ],
         "Decimal": 6,
         "PoolId": 2,
         "TokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         "TokenName": "USDT"
       },
       {
+        "ChainPath": [
+          [
+            102,
+            11
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 11,
         "TokenAddress": "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6",
         "TokenName": "USDD"
       },
       {
+        "ChainPath": [
+          [
+            110,
+            13
+          ],
+          [
+            184,
+            13
+          ],
+          [
+            111,
+            13
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 13,
         "TokenAddress": "0x72E2F4830b9E45d52F80aC08CB2bEC0FeF72eD9c",
         "TokenName": "SGETH"
       },
       {
+        "ChainPath": [
+          [
+            111,
+            3
+          ],
+          [
+            109,
+            3
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 3,
         "TokenAddress": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
         "TokenName": "DAI"
       },
       {
+        "ChainPath": [
+          [
+            110,
+            7
+          ],
+          [
+            106,
+            7
+          ],
+          [
+            111,
+            7
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 7,
         "TokenAddress": "0x853d955aCEf822Db058eb8505911ED77F175b99e",
         "TokenName": "FRAX"
       },
       {
+        "ChainPath": [
+          [
+            111,
+            14
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 14,
         "TokenAddress": "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
         "TokenName": "sUSD"
       },
       {
+        "ChainPath": [
+          [
+            110,
+            15
+          ],
+          [
+            111,
+            15
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 15,
         "TokenAddress": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
         "TokenName": "LUSD"
       },
       {
+        "ChainPath": [
+          [
+            110,
+            16
+          ],
+          [
+            106,
+            16
+          ],
+          [
+            102,
+            16
+          ],
+          [
+            111,
+            16
+          ],
+          [
+            109,
+            16
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 16,
         "TokenAddress": "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6",
         "TokenName": "MAI"
       },
       {
+        "ChainPath": [
+          [
+            102,
+            17
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 17,
         "TokenAddress": "0x9E32b13ce7f2E80A01932B42553652E053D6ed8e",
         "TokenName": "Metis"
       },
       {
+        "ChainPath": [],
         "Decimal": 6,
         "PoolId": 19,
         "TokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         "TokenName": "USDT"
       },
       {
+        "ChainPath": [
+          [
+            110,
+            20
+          ],
+          [
+            106,
+            20
+          ],
+          [
+            102,
+            20
+          ],
+          [
+            111,
+            20
+          ],
+          [
+            109,
+            20
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 20,
         "TokenAddress": "0x4691937a7508860F876c9c0a2a617E7d9E945D4B",
