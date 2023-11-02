@@ -8,8 +8,6 @@ pub struct CrossRequest {
 	pub owner: Pubkey,
 	/// The requester.
 	pub payer: Pubkey,
-	/// The SenderConfig nonce.
-	pub nonce: u64,
 	/// The cross data.
 	pub so_data: Vec<u8>,
 	pub swap_data_src: Vec<u8>,

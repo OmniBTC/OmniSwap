@@ -36,16 +36,13 @@ pub struct SenderConfig {
 	pub bump: u8,
 	/// Token Bridge program's relevant addresses.
 	pub token_bridge: OutboundTokenBridgeAddresses,
-	/// Used for cross request.
-	pub nonce: u64,
 }
 
 impl SenderConfig {
 	pub const MAXIMUM_SIZE: usize = 8 // discriminator
         + 32 // owner
         + 1 // bump
-        + OutboundTokenBridgeAddresses::LEN
-		+ 8; // nonce
+        + OutboundTokenBridgeAddresses::LEN;
 	/// AKA `b"sender"`.
 	pub const SEED_PREFIX: &'static [u8; 6] = token_bridge::SEED_PREFIX_SENDER;
 }
@@ -62,8 +59,7 @@ pub mod test {
 			SenderConfig::MAXIMUM_SIZE,
 			size_of::<u64>() +
 				size_of::<Pubkey>() +
-				size_of::<u8>() + size_of::<OutboundTokenBridgeAddresses>() +
-				size_of::<u64>()
+				size_of::<u8>() + size_of::<OutboundTokenBridgeAddresses>()
 		);
 
 		Ok(())

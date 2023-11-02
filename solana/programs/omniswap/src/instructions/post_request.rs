@@ -25,20 +25,19 @@ pub struct PostRequest<'info> {
 	#[account(
         mut,
         seeds = [
-			SenderConfig::SEED_PREFIX
-		],
+            SenderConfig::SEED_PREFIX
+        ],
         bump,
     )]
 	/// Sender Config account
 	pub config: Box<Account<'info, SenderConfig>>,
 
 	#[account(
-        init,
+        init_if_needed,
         payer = payer,
         seeds = [
             CrossRequest::SEED_PREFIX,
-            &config.nonce.to_le_bytes()[..],
-			payer.key().as_ref()
+            payer.key().as_ref()
         ],
         bump,
         space = CrossRequest::MINIMUM_SIZE + so_data.len() + swap_data_src.len() + wormhole_data.len() + swap_data_dst.len(),
@@ -46,30 +45,30 @@ pub struct PostRequest<'info> {
 	pub request: Box<Account<'info, CrossRequest>>,
 
 	#[account(
-		seeds = [SoFeeConfig::SEED_PREFIX],
-		bump,
-	)]
+        seeds = [SoFeeConfig::SEED_PREFIX],
+        bump,
+    )]
 	/// SoFee Config account. Read-only.
 	pub fee_config: Box<Account<'info, SoFeeConfig>>,
 
 	#[account(
-		seeds = [
-			ForeignContract::SEED_PREFIX,
-			&NormalizedWormholeData::parse_chain_id(wormhole_data.as_slice())?.to_le_bytes()[..]
-		],
-		bump,
-	)]
+        seeds = [
+            ForeignContract::SEED_PREFIX,
+            &NormalizedWormholeData::parse_chain_id(wormhole_data.as_slice())?.to_le_bytes()[..]
+        ],
+        bump,
+    )]
 	/// Foreign contract account. Read-only.
 	pub foreign_contract: Box<Account<'info, ForeignContract>>,
 
 	#[account(
-		seeds = [
-			ForeignContract::SEED_PREFIX,
-			&NormalizedWormholeData::parse_chain_id(wormhole_data.as_slice())?.to_le_bytes()[..],
-			PriceManager::SEED_PREFIX
-		],
-		bump
-	)]
+        seeds = [
+            ForeignContract::SEED_PREFIX,
+            &NormalizedWormholeData::parse_chain_id(wormhole_data.as_slice())?.to_le_bytes()[..],
+            PriceManager::SEED_PREFIX
+        ],
+        bump
+    )]
 	/// Price Manager account. Read-only.
 	pub price_manager: Box<Account<'info, PriceManager>>,
 
@@ -130,14 +129,10 @@ pub fn handler(
 
 	request.payer = ctx.accounts.payer.key();
 	request.owner = ctx.accounts.config.key();
-	request.nonce = ctx.accounts.config.nonce;
 	request.so_data = so_data;
 	request.swap_data_src = swap_data_src;
 	request.wormhole_data = fix_wormhole_data;
 	request.swap_data_dst = swap_data_dst;
-
-	// increase config nonce
-	ctx.accounts.config.nonce += 1;
 
 	Ok(total_fee)
 }
