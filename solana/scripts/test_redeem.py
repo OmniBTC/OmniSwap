@@ -151,10 +151,23 @@ async def omniswap_redeem_wrapped_token_with_whirlpool(vaa: str):
     bridge_token_mint = Pubkey.from_bytes(parsed_transfer.bridge_token())
     dst_token_mint = Pubkey.from_bytes(parsed_transfer.dst_token())
     whirlpool_key = Pubkey.from_bytes(parsed_transfer.first_swap_pool())
+    if str(dst_token_mint) == "11111111111111111111111111111111":
+        dst_token_mint = Pubkey.from_string(
+            "So11111111111111111111111111111111111111112"
+        )
+        unwrap_sol_account = deriveUnwrapSolAccountKey(omniswap_program_id)
+        wsol_mint = Pubkey.from_string("So11111111111111111111111111111111111111112")
+        recipient = Pubkey.from_bytes(parsed_transfer.recipient())
+    else:
+        unwrap_sol_account = None
+        wsol_mint = None
+        recipient = None
 
     print(f"bridge_token_mint={bridge_token_mint}")
     print(f"dst_token_mint={dst_token_mint}")
     print(f"whirlpool={whirlpool_key}")
+    print(f"unwrap_sol_account={unwrap_sol_account}")
+    print(f"recipient={recipient}")
 
     resp = await client.get_account_info_json_parsed(bridge_token_mint)
     bridge_token_decimals = resp.value.data.parsed["info"]["decimals"]
@@ -199,6 +212,18 @@ async def omniswap_redeem_wrapped_token_with_whirlpool(vaa: str):
     print("DstToken estimated_amount_out: ", quote_config["estimated_amount_out"])
     print("DstToken min_amount_out: ", quote_config["min_amount_out"])
 
+    # get_whirlpool_quote_config return some rand wsol account
+    # for our contract, we need the specify wsol account to manage proxy swap
+    replaced_proxy_specify_wsol_account = Pubkey.from_string(
+        "6keZXUa7n3hoHkboSnzpGETANuwY43zWZC3FGrCPN1Gh"
+    )
+    if quote_config["token_mint_a"] == wsol_mint:
+        quote_config["token_owner_account_a"] = replaced_proxy_specify_wsol_account
+    elif quote_config["token_mint_b"] == wsol_mint:
+        quote_config["token_owner_account_b"] = replaced_proxy_specify_wsol_account
+    else:
+        print("no replace proxy wsol account")
+
     # ExceededMaxInstructions
     # devnet_limit=200_000, real=200933
     ix0 = set_compute_unit_limit(1200000)
@@ -221,6 +246,9 @@ async def omniswap_redeem_wrapped_token_with_whirlpool(vaa: str):
             "whirlpool_tick_array1": quote_config["tick_array_1"],
             "whirlpool_tick_array2": quote_config["tick_array_2"],
             "whirlpool_oracle": quote_config["oracle"],
+            "unwrap_sol_account": unwrap_sol_account,
+            "wsol_mint": wsol_mint,
+            "recipient": recipient,
             "token_bridge_wrapped_mint": redeem_wrapped_accounts[
                 "token_bridge_wrapped_mint"
             ],
@@ -550,6 +578,18 @@ async def omniswap_redeem_native_token_with_whirlpool(vaa: str):
     print("DstToken estimated_amount_out: ", quote_config["estimated_amount_out"])
     print("DstToken min_amount_out: ", quote_config["min_amount_out"])
 
+    # get_whirlpool_quote_config return some rand wsol account
+    # for our contract, we need the specify wsol account to manage proxy swap
+    replaced_proxy_specify_wsol_account = Pubkey.from_string(
+        "6keZXUa7n3hoHkboSnzpGETANuwY43zWZC3FGrCPN1Gh"
+    )
+    if quote_config["token_mint_a"] == wsol_mint:
+        quote_config["token_owner_account_a"] = replaced_proxy_specify_wsol_account
+    elif quote_config["token_mint_b"] == wsol_mint:
+        quote_config["token_owner_account_b"] = replaced_proxy_specify_wsol_account
+    else:
+        print("no replace proxy wsol account")
+
     # This four token account must be initialized
     # whirlpool_token_owner_account_a
     # whirlpool_token_owner_account_b
@@ -699,5 +739,5 @@ async def omniswap_redeem_native_token_skip_verify(vaa: str):
 
 
 # Precondition: vaa has been posted
-vaa_hex = "010000000001004918f622eced612fe4860b0d70c0819885cdf09876f99a96ec3399ee86de54de17f392b6f152844bf14e882188440cd106f35fd3281b68465aeea76a49458e7d0065423a250000000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000013f40f0300000000000000000000000000000000000000000000000000000000000f4240069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f0000000000100013636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc010102deac20460aba39a328abd68282657e9c0540cc9ce5a0e2ebe29e9e28bc6c33c9bc28042038e121709ad96bd37a2f87022932336e9a290f62aef3d41dae00b1547c6f1938200000000000000000000000000000000000000000000000000000000000000000"
-asyncio.run(omniswap_redeem_native_token(vaa_hex))
+vaa_hex = "010000000001009325759e66abc55a528f22af788b85a87183ba09e4242a65713a97ea41babc17084c9f5f87d9476ecbeccd0cc8a69dae95b59a1e40a25f97d643355c96f681140065432fa10000000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000013fb0f0300000000000000000000000000000000000000000000000000000000000186a03b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea700013636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc010102fe042061b9be0ccc363e71e20e6502a6c3e90739297d780868c10b01dce9b26082081b2038e121709ad96bd37a2f87022932336e9a290f62aef3d41dae00b1547c6f193820000000000000000000000000000000000000000000000000000000000000000001012028dd308f27ddd70a066fdf47bb26e28987a41b4fa5d25c0196fcfef028a8b102203b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea720069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000001000f576869726c706f6f6c2c3932333431"
+asyncio.run(omniswap_redeem_native_token_with_whirlpool(vaa_hex))

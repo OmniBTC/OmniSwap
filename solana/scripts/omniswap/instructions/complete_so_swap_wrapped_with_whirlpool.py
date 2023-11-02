@@ -32,6 +32,9 @@ class CompleteSoSwapWrappedWithWhirlpoolAccounts(typing.TypedDict):
     whirlpool_tick_array1: Pubkey
     whirlpool_tick_array2: Pubkey
     whirlpool_oracle: Pubkey
+    unwrap_sol_account: typing.Optional[Pubkey]
+    wsol_mint: typing.Optional[Pubkey]
+    recipient: typing.Optional[Pubkey]
     token_bridge_wrapped_mint: Pubkey
     recipient_token_account: Pubkey
     recipient_bridge_token_account: Pubkey
@@ -102,6 +105,17 @@ def complete_so_swap_wrapped_with_whirlpool(
         AccountMeta(
             pubkey=accounts["whirlpool_oracle"], is_signer=False, is_writable=False
         ),
+        AccountMeta(
+            pubkey=accounts["unwrap_sol_account"], is_signer=False, is_writable=True
+        )
+        if accounts["unwrap_sol_account"]
+        else AccountMeta(pubkey=program_id, is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["wsol_mint"], is_signer=False, is_writable=False)
+        if accounts["wsol_mint"]
+        else AccountMeta(pubkey=program_id, is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["recipient"], is_signer=False, is_writable=True)
+        if accounts["recipient"]
+        else AccountMeta(pubkey=program_id, is_signer=False, is_writable=False),
         AccountMeta(
             pubkey=accounts["token_bridge_wrapped_mint"],
             is_signer=False,

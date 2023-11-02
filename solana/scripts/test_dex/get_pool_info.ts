@@ -9,6 +9,7 @@ const tickSpacing = 128;
 const sol_usdc_pool_pda = "3kWvtnrDnxesGYFy86mNs14S1oUQmB2X175SrT94bvzd";
 const test_usdc_pool_pda = "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV";
 const bsc_test_pool_pda = "AxoxjuJnpvTeqmwwjJLnuMuYLGNP1kg3orMjSuj3KBmc"
+const sol_bsc_pool_pda = "6TLSV3E9aTNzJtY4DejLdhGb4wkTfM65gA3cwMESFrpY"
 
 function get_sol_usdc_pool() {
     const SOL_USDC_128_PDA = PDAUtil.getWhirlpool(
@@ -30,7 +31,7 @@ async function main() {
 
     const acountFetcher = buildDefaultAccountFetcher(connection);
     const pool = await acountFetcher.getPool(
-        bsc_test_pool_pda
+        sol_usdc_pool_pda
     );
     console.log("sol_usdc_pool", pool);
 }

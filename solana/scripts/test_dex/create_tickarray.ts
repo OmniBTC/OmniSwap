@@ -40,17 +40,17 @@ async function main() {
 
     console.log("create TickArray...");
 
-    const bsc_test_pool_pda = PDAUtil.getWhirlpool(
+    const pool_pda = PDAUtil.getWhirlpool(
         ctx.program.programId,
         ORCA_WHIRLPOOLS_CONFIG,
-        BSC.mint,
-        TEST.mint,
+        SOL.mint,
+        USDC.mint,
         tickSpacing
     ).publicKey;
 
-    console.log("bsc_test_pool_pda", bsc_test_pool_pda.toBase58());
+    console.log("pool_pda", pool_pda.toBase58());
 
-    const whirlpool = await ctx.fetcher.getPool(bsc_test_pool_pda);
+    const whirlpool = await ctx.fetcher.getPool(pool_pda);
     const mintA = await ctx.fetcher.getMintInfo(whirlpool.tokenMintA);
     const mintB = await ctx.fetcher.getMintInfo(whirlpool.tokenMintB);
 
@@ -66,7 +66,7 @@ async function main() {
     const neighboringTickArrayInfos: TickArrayInfo[] = [];
     for (let offset = -6; offset <= +6; offset++) {
         const startTickIndex = TickUtil.getStartTickIndex(whirlpool.tickCurrentIndex, tickSpacing, offset);
-        const pda = PDAUtil.getTickArray(ctx.program.programId, bsc_test_pool_pda, startTickIndex);
+        const pda = PDAUtil.getTickArray(ctx.program.programId, pool_pda, startTickIndex);
         const endTickIndex = startTickIndex + tickSpacing * TICK_ARRAY_SIZE;
         const startPrice = PriceMath.tickIndexToPrice(startTickIndex, mintA.decimals, mintB.decimals);
         const endPrice = PriceMath.tickIndexToPrice(endTickIndex, mintA.decimals, mintB.decimals);
@@ -103,7 +103,7 @@ async function main() {
         ctx.program,
         {
             funder: ctx.wallet.publicKey,
-            whirlpool: bsc_test_pool_pda,
+            whirlpool: pool_pda,
             startTick: which.startTickIndex,
             tickArrayPda: which.pda,
         }));

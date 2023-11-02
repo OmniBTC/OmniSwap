@@ -1,3 +1,4 @@
+import spl.token.instructions
 from solders.pubkey import Pubkey
 from typing import Union
 from spl.token.instructions import get_associated_token_address

@@ -113,8 +113,8 @@ async function main() {
     const pool_pda = PDAUtil.getWhirlpool(
         ctx.program.programId,
         ORCA_WHIRLPOOLS_CONFIG,
-        BSC.mint,
-        TEST.mint,
+        SOL.mint,
+        USDC.mint,
         tickSpacing
     ).publicKey;
 
@@ -125,13 +125,13 @@ async function main() {
     // deposit usdc
     const quote = get_increase_liquidity_quote(
         whirlpool,
-        new Decimal(2.93),
-        new Decimal(9.05), // price range
-        BSC,
-        new Decimal(100 /* BSC */),  // est input token
-        new Decimal(0.1),        // slippage
-        BSC,  // tokenA
-        TEST, // tokenB
+        new Decimal(100),
+        new Decimal(10000), // price range
+        SOL, // input token
+        new Decimal(0.001 ),  // est input token
+        new Decimal(10),        // slippage
+        SOL,  // tokenA
+        USDC, // tokenB
     );
 
 

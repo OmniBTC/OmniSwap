@@ -41,7 +41,7 @@ async function main() {
     const whirlpoolsConfigPubkey = ORCA_WHIRLPOOLS_CONFIG;
     const feeTierPubkey = FEE_TIER_U128;
     const tokenMint0Pubkey = BSC.mint;
-    const tokenMint1Pubkey = TEST.mint;
+    const tokenMint1Pubkey = SOL.mint;
 
     const [tokenMintAAddress, tokenMintBAddress] = PoolUtil.orderMints(
         tokenMint0Pubkey,
