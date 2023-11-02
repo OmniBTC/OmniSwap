@@ -254,6 +254,12 @@
             "DstWormholeChainId": 2,
             "SrcTokenAddress": "0xc7160b1c2415d19a88add188ec726e62aab0045f0aed798106a2ef2994a9101e::coin::T",
             "SrcWormholeChainId": 22
+          },
+          {
+            "DstTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "DstWormholeChainId": 1,
+            "SrcTokenAddress": "0xc7160b1c2415d19a88add188ec726e62aab0045f0aed798106a2ef2994a9101e::coin::T",
+            "SrcWormholeChainId": 22
           }
         ],
         "Decimal": 6,
@@ -882,6 +888,12 @@
             "DstWormholeChainId": 22,
             "SrcTokenAddress": "0x543672E9CBEC728CBBa9C3Ccd99ed80aC3607FA8",
             "SrcWormholeChainId": 6
+          },
+          {
+            "DstTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "DstWormholeChainId": 1,
+            "SrcTokenAddress": "0x543672E9CBEC728CBBa9C3Ccd99ed80aC3607FA8",
+            "SrcWormholeChainId": 6
           }
         ],
         "Decimal": 6,
@@ -1490,6 +1502,12 @@
             "DstWormholeChainId": 22,
             "SrcTokenAddress": "0x672147dD47674757C457eB155BAA382cc10705Dd",
             "SrcWormholeChainId": 4
+          },
+          {
+            "DstTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "DstWormholeChainId": 1,
+            "SrcTokenAddress": "0x672147dD47674757C457eB155BAA382cc10705Dd",
+            "SrcWormholeChainId": 4
           }
         ],
         "Decimal": 6,
@@ -2029,6 +2047,12 @@
             "DstWormholeChainId": 22,
             "SrcTokenAddress": "0x566957eF80F9fd5526CD2BEF8BE67035C0b81130",
             "SrcWormholeChainId": 2
+          },
+          {
+            "DstTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "DstWormholeChainId": 1,
+            "SrcTokenAddress": "0x566957eF80F9fd5526CD2BEF8BE67035C0b81130",
+            "SrcWormholeChainId": 2
           }
         ],
         "Decimal": 6,
@@ -2359,6 +2383,12 @@
           {
             "DstTokenAddress": "0xc7160b1c2415d19a88add188ec726e62aab0045f0aed798106a2ef2994a9101e::coin::T",
             "DstWormholeChainId": 22,
+            "SrcTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+            "SrcWormholeChainId": 5
+          },
+          {
+            "DstTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "DstWormholeChainId": 1,
             "SrcTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
             "SrcWormholeChainId": 5
           }
@@ -2868,6 +2898,43 @@
         "Decimal": 8,
         "NativeToken": false,
         "TokenName": "WETH"
+      },
+      {
+        "ChainPath": [
+          {
+            "DstTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+            "DstWormholeChainId": 5,
+            "SrcTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "SrcWormholeChainId": 1
+          },
+          {
+            "DstTokenAddress": "0x543672E9CBEC728CBBa9C3Ccd99ed80aC3607FA8",
+            "DstWormholeChainId": 6,
+            "SrcTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "SrcWormholeChainId": 1
+          },
+          {
+            "DstTokenAddress": "0x672147dD47674757C457eB155BAA382cc10705Dd",
+            "DstWormholeChainId": 4,
+            "SrcTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "SrcWormholeChainId": 1
+          },
+          {
+            "DstTokenAddress": "0x566957eF80F9fd5526CD2BEF8BE67035C0b81130",
+            "DstWormholeChainId": 2,
+            "SrcTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "SrcWormholeChainId": 1
+          },
+          {
+            "DstTokenAddress": "0xc7160b1c2415d19a88add188ec726e62aab0045f0aed798106a2ef2994a9101e::coin::T",
+            "DstWormholeChainId": 22,
+            "SrcTokenAddress": "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+            "SrcWormholeChainId": 1
+          }
+        ],
+        "Decimal": 6,
+        "NativeToken": false,
+        "TokenName": "USDCpolygon"
       }
     ]
   },
