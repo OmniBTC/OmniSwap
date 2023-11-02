@@ -255,6 +255,31 @@ def cross_swap_wrapped_via_wormhole():
     )
 
 
+def fix_config(quote_config):
+    return {
+        "whirlpool_program": Pubkey.from_string(quote_config["whirlpool_program"]),
+        "whirlpool": Pubkey.from_string(quote_config["whirlpool"]),
+        "token_mint_a": Pubkey.from_string(quote_config["token_mint_a"]),
+        "token_mint_b": Pubkey.from_string(quote_config["token_mint_b"]),
+        "token_owner_account_a": Pubkey.from_string(
+            quote_config["token_owner_account_a"]
+        ),
+        "token_owner_account_b": Pubkey.from_string(
+            quote_config["token_owner_account_b"]
+        ),
+        "token_vault_a": Pubkey.from_string(quote_config["token_vault_a"]),
+        "token_vault_b": Pubkey.from_string(quote_config["token_vault_b"]),
+        "tick_array_0": Pubkey.from_string(quote_config["tick_array_0"]),
+        "tick_array_1": Pubkey.from_string(quote_config["tick_array_1"]),
+        "tick_array_2": Pubkey.from_string(quote_config["tick_array_2"]),
+        "oracle": Pubkey.from_string(quote_config["oracle"]),
+        "is_a_to_b": quote_config["is_a_to_b"],
+        "amount_in": int(quote_config["amount_in"]),
+        "estimated_amount_out": int(quote_config["estimated_amount_out"]),
+        "min_amount_out": int(quote_config["min_amount_out"]),
+    }
+
+
 def complete_swap_via_wormhole():
     change_network("bsc-test")
     so_diamond = "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
@@ -594,4 +619,4 @@ def main():
     # cross_swap_wrapped_usdc_test_whirlpool()
     # cross_swap_wrapped_usdc_wsol_whirlpool()
     # cross_swap_native_bsc()
-    # cross_swap_native_bsc_wsol_whirlpool()
+    cross_swap_native_bsc_wsol_whirlpool()

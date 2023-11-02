@@ -521,9 +521,9 @@ async function processV2(
         }
         let pendingData;
         try {
-            if (NET === "solana-testnet"){
+            if (NET === "solana-testnet") {
                 pendingData = await getPendingDataFromEvm("bsc-test");
-            }else{
+            } else {
                 pendingData = await getPendingData(dstWormholeChainId);
             }
             logWithTimestamp(`Get signed vaa length: ${pendingData.length}`)
@@ -560,8 +560,15 @@ async function processV2(
 
 
 async function main() {
-    logWithTimestamp(`Start solana relayer ${NET} ....`)
-    await processV2(SOLANA_EMITTER_CHAIN, SODIAMOND);
+    while (true) {
+        try {
+            logWithTimestamp(`Start solana relayer ${NET} ....`)
+            await processV2(SOLANA_EMITTER_CHAIN, SODIAMOND);
+        } catch (error) {
+            logWithTimestamp(`Restart solana relayer`);
+        }
+    }
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
