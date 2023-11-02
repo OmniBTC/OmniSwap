@@ -410,7 +410,7 @@ async def omniswap_send_native_token_with_whirlpool():
     resp = await client.get_account_info_json_parsed(src_from_token)
     src_from_token_decimals = resp.value.data.parsed["info"]["decimals"]
     # SrcChain From Amount: 1 token
-    src_from_ui_amount = "100"
+    src_from_ui_amount = "10"
     src_from_amount = int(src_from_ui_amount) * 10**src_from_token_decimals
 
     # SrcChain Swap(Whirlpool): From -> Bridge
@@ -595,9 +595,8 @@ async def omniswap_send_wrapped_token_with_whirlpool():
     )
     # DstChain Bridge Token(native):
     ERC20_BSC = "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1"
-    dst_bridge_token_padding = bytes.fromhex(
-        padding_hex_to_bytes(ERC20_BSC, padding="left")
-    )
+    dst_bridge_token_padding = padding_hex_to_bytes(ERC20_BSC, padding="left")
+
     # DstChain Bridge Amount
     # DstChain Swap: Bridge -> Final
     # DstChain Final Token
@@ -931,7 +930,7 @@ async def omniswap_send_native_token_sol():
     print(tx_sig.value)
 
 
-asyncio.run(omniswap_send_native_token())
+# asyncio.run(omniswap_send_native_token())
 # asyncio.run(omniswap_send_wrapped_token())
 # asyncio.run(omniswap_send_native_token_with_whirlpool())
-# asyncio.run(omniswap_send_wrapped_token_with_whirlpool())
+asyncio.run(omniswap_send_wrapped_token_with_whirlpool())
