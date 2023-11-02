@@ -1,8 +1,7 @@
-use super::{
+use crate::{
 	cross::{NormalizedSoData, NormalizedSwapData},
-	serde,
+	serde, SoSwapError,
 };
-use crate::SoSwapError;
 use anchor_lang::{AnchorDeserialize, AnchorSerialize};
 use spl_math::uint::U256;
 use std::io;
@@ -17,13 +16,6 @@ pub struct SoSwapMessage {
 }
 
 impl SoSwapMessage {
-	pub fn recipient(&self) -> [u8; 32] {
-		let mut encoded_recipient = [0u8; 32];
-		encoded_recipient.copy_from_slice(&self.normalized_so_data.receiver);
-
-		encoded_recipient
-	}
-
 	pub fn decode_message(data: Vec<u8>) -> Result<Self, SoSwapError> {
 		// CrossData
 		// 1. dst_max_gas_price INTER_DELIMITER

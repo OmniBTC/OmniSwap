@@ -1,18 +1,19 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, system_program::Transfer};
 use anchor_spl::{
 	associated_token::AssociatedToken,
-	token::{Token, TokenAccount},
+	token::{Mint, Token, TokenAccount},
 };
 use spl_math::uint::U256;
 use wormhole_anchor_sdk::{token_bridge, wormhole};
 
 use super::swap_whirlpool::{check_a_to_b, swap_by_whirlpool, SoSwapWithWhirlpool};
 use crate::{
-	constants::{RAY, SEED_PREFIX_TMP},
+	constants::{RAY, SEED_PREFIX_TMP, SEED_UNWRAP},
 	error::SoSwapError,
 	message::PostedSoSwapMessage,
 	state::{ForeignContract, RedeemerConfig, SoFeeConfig},
 	utils::bytes_to_hex,
+	UnwrapSOLKey, WrapSOLKey,
 };
 
 #[derive(Accounts)]
@@ -108,6 +109,27 @@ pub struct CompleteSoSwapWrappedWithWhirlpool<'info> {
 	/// Oracle is currently unused and will be enabled on subsequent updates
 	pub whirlpool_oracle: AccountInfo<'info>,
 
+	#[account(
+		init,
+		payer = payer,
+		seeds = [SEED_UNWRAP],
+		bump,
+		token::mint = wsol_mint,
+		token::authority = payer
+	)]
+	pub unwrap_sol_account: Option<Box<Account<'info, TokenAccount>>>,
+
+	#[account(
+		constraint = wsol_mint.key() == WrapSOLKey
+	)]
+	pub wsol_mint: Option<Box<Account<'info, Mint>>>,
+
+	#[account(
+		mut,
+		address = recipient_token_account.owner @ SoSwapError::InvalidRecipient
+	)]
+	/// CHECK: the recipient account
+	pub recipient: Option<UncheckedAccount<'info>>,
 	// 3. wormhole configs
 	#[account(
 		mut,
@@ -174,13 +196,13 @@ pub struct CompleteSoSwapWrappedWithWhirlpool<'info> {
 	///   * Wormhole Chain ID
 	///   * Token's native contract address
 	///   * Token's native decimals
-	pub token_bridge_wrapped_meta: Account<'info, token_bridge::WrappedMeta>,
+	pub token_bridge_wrapped_meta: Box<Account<'info, token_bridge::WrappedMeta>>,
 
 	#[account(
 		address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
 	)]
 	/// Token Bridge config. Read-only.
-	pub token_bridge_config: Account<'info, token_bridge::Config>,
+	pub token_bridge_config: Box<Account<'info, token_bridge::Config>>,
 
 	#[account(
 		seeds = [
@@ -209,7 +231,7 @@ pub struct CompleteSoSwapWrappedWithWhirlpool<'info> {
 	/// Token Bridge foreign endpoint. This account should really be one
 	/// endpoint per chain, but the PDA allows for multiple endpoints for each
 	/// chain! We store the proper endpoint for the emitter chain.
-	pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
+	pub token_bridge_foreign_endpoint: Box<Account<'info, token_bridge::EndpointRegistration>>,
 
 	#[account(
 		address = config.token_bridge.mint_authority @ SoSwapError::InvalidTokenBridgeMintAuthority
@@ -308,11 +330,12 @@ pub fn handler(
 	let so_msg = ctx.accounts.vaa.message().data();
 	require!(*so_msg != Default::default(), SoSwapError::DeserializeSoSwapMessageFail);
 	require!(
-		ctx.accounts.recipient_token_account.owner.to_bytes() == so_msg.recipient(),
+		ctx.accounts.recipient_token_account.owner.as_ref() == so_msg.normalized_so_data.receiver,
 		SoSwapError::InvalidRecipient
 	);
 	require!(
-		ctx.accounts.recipient_bridge_token_account.owner.to_bytes() == so_msg.recipient(),
+		ctx.accounts.recipient_bridge_token_account.owner.as_ref() ==
+			so_msg.normalized_so_data.receiver,
 		SoSwapError::InvalidRecipient
 	);
 
@@ -323,6 +346,8 @@ pub fn handler(
 	assert_eq!(so_msg.normalized_swap_data.len(), 1, "must be one swap");
 	let mut swap_data = so_msg.normalized_swap_data.first().unwrap().clone();
 	swap_data.reset_from_amount(U256::from(bridge_amount));
+
+	let need_unwrap_sol = so_msg.normalized_so_data.receiving_asset_id == UnwrapSOLKey.as_ref();
 
 	let (from_token_account, to_token_account, status, final_amount) = if let Ok(a_to_b) =
 		swap_by_whirlpool(&ctx, &swap_data)
@@ -365,8 +390,67 @@ pub fn handler(
 		)
 	};
 
+	if need_unwrap_sol &&
+		from_token_account.mint.as_ref() == WrapSOLKey.as_ref() &&
+		ctx.accounts.unwrap_sol_account.is_some() &&
+		ctx.accounts.recipient.is_some()
+	{
+		let unwrap_sol_account = &ctx.accounts.unwrap_sol_account.clone().unwrap();
+		let recipient = &ctx.accounts.recipient.clone().unwrap();
+
+		require!(
+			recipient.key().as_ref() == so_msg.normalized_so_data.receiver,
+			SoSwapError::InvalidRecipient
+		);
+
+		// 1. transfer: from_token_account(wsol) => unwrap_sol_account(wsol)
+		anchor_spl::token::transfer(
+			CpiContext::new(
+				ctx.accounts.token_program.to_account_info(),
+				anchor_spl::token::Transfer {
+					from: from_token_account.to_account_info(),
+					to: unwrap_sol_account.to_account_info(),
+					authority: ctx.accounts.payer.to_account_info(),
+				},
+			),
+			final_amount,
+		)?;
+
+		// 2. close unwrap_sol_account: unwrap_sol_account(wsol) -> proxy(sol)
+		anchor_spl::token::close_account(CpiContext::new(
+			ctx.accounts.token_program.to_account_info(),
+			anchor_spl::token::CloseAccount {
+				account: unwrap_sol_account.to_account_info(),
+				destination: ctx.accounts.payer.to_account_info(),
+				authority: ctx.accounts.payer.to_account_info(),
+			},
+		))?;
+
+		// 3. transfer: proxy(sol) -> recipient(sol)
+		anchor_lang::system_program::transfer(
+			CpiContext::new(
+				ctx.accounts.system_program.to_account_info(),
+				Transfer {
+					from: ctx.accounts.payer.to_account_info(),
+					to: recipient.to_account_info(),
+				},
+			),
+			final_amount,
+		)?;
+
+		msg!(
+			"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
+			0,
+			final_amount,
+			UnwrapSOLKey.to_string(),
+			tx_id,
+		);
+
+		return Ok(())
+	};
+
 	msg!(
-		"[SoTransferCompleted]: status={}, receive_amount={}, receive_token={}, transaction_id={}",
+		"[SoTransferCompleted]: status={}, amount={}, r_token={}, txid={}",
 		status,
 		final_amount,
 		to_token_account.mint.to_string(),
@@ -383,7 +467,20 @@ pub fn handler(
 			},
 		),
 		final_amount,
-	)
+	)?;
+
+	if let Some(unwrap_sol_account) = &ctx.accounts.unwrap_sol_account {
+		anchor_spl::token::close_account(CpiContext::new(
+			ctx.accounts.token_program.to_account_info(),
+			anchor_spl::token::CloseAccount {
+				account: unwrap_sol_account.to_account_info(),
+				destination: ctx.accounts.payer.to_account_info(),
+				authority: ctx.accounts.payer.to_account_info(),
+			},
+		))?;
+	}
+
+	Ok(())
 }
 
 fn complete_redeem(ctx: &Context<CompleteSoSwapWrappedWithWhirlpool>) -> Result<(u64, String)> {

@@ -195,7 +195,8 @@ pub fn handler(
 	let soswap_message = ctx.accounts.vaa.message().data();
 	require!(*soswap_message != Default::default(), SoSwapError::DeserializeSoSwapMessageFail);
 	require!(
-		ctx.accounts.recipient_token_account.owner.to_bytes() == soswap_message.recipient(),
+		ctx.accounts.recipient_token_account.owner.as_ref() ==
+			soswap_message.normalized_so_data.receiver,
 		SoSwapError::InvalidRecipient
 	);
 

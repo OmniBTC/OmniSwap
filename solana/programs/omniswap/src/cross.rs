@@ -1,7 +1,5 @@
-use crate::SoSwapError;
+use crate::{serde, SoSwapError};
 use spl_math::uint::U256;
-
-use super::serde;
 
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub struct NormalizedSoData {

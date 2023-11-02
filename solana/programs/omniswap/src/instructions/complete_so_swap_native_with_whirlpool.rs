@@ -138,7 +138,7 @@ pub struct CompleteSoSwapNativeWithWhirlpool<'info> {
 	/// Mint info. This is the SPL token that will be bridged over from the
 	/// foreign contract. This must match the token address specified in the
 	/// signed Wormhole message. Read-only.
-	pub mint: Account<'info, Mint>,
+	pub mint: Box<Account<'info, Mint>>,
 
 	#[account(mut)]
 	/// Recipient associated token account.
@@ -181,7 +181,7 @@ pub struct CompleteSoSwapNativeWithWhirlpool<'info> {
 		address = config.token_bridge.config @ SoSwapError::InvalidTokenBridgeConfig
 	)]
 	/// Token Bridge config. Read-only.
-	pub token_bridge_config: Account<'info, token_bridge::Config>,
+	pub token_bridge_config: Box<Account<'info, token_bridge::Config>>,
 
 	#[account(
 		seeds = [
@@ -210,7 +210,7 @@ pub struct CompleteSoSwapNativeWithWhirlpool<'info> {
 	/// Token Bridge foreign endpoint. This account should really be one
 	/// endpoint per chain, but the PDA allows for multiple endpoints for each
 	/// chain! We store the proper endpoint for the emitter chain.
-	pub token_bridge_foreign_endpoint: Account<'info, token_bridge::EndpointRegistration>,
+	pub token_bridge_foreign_endpoint: Box<Account<'info, token_bridge::EndpointRegistration>>,
 
 	#[account(
 		mut,
@@ -220,7 +220,7 @@ pub struct CompleteSoSwapNativeWithWhirlpool<'info> {
 	)]
 	/// CHECK: Token Bridge custody. This is the Token Bridge program's token
 	/// account that holds this mint's balance.
-	pub token_bridge_custody: Account<'info, TokenAccount>,
+	pub token_bridge_custody: Box<Account<'info, TokenAccount>>,
 
 	#[account(
 		address = config.token_bridge.custody_signer @ SoSwapError::InvalidTokenBridgeCustodySigner
@@ -311,7 +311,10 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	// is redeemed again. But we choose to short-circuit the failure as the
 	// first evaluation of this instruction.
 	require!(ctx.accounts.token_bridge_claim.data_is_empty(), SoSwapError::AlreadyRedeemed);
-	require!(ctx.accounts.payer.key().as_ref() == ctx.accounts.config.proxy.as_ref(), SoSwapError::InvalidProxy);
+	require!(
+		ctx.accounts.payer.key().as_ref() == ctx.accounts.config.proxy.as_ref(),
+		SoSwapError::InvalidProxy
+	);
 
 	// The intended recipient must agree with the recipient.
 	let so_msg = ctx.accounts.vaa.message().data();
@@ -321,7 +324,8 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 		SoSwapError::InvalidRecipient
 	);
 	require!(
-		ctx.accounts.recipient_bridge_token_account.owner.as_ref() == so_msg.normalized_so_data.receiver,
+		ctx.accounts.recipient_bridge_token_account.owner.as_ref() ==
+			so_msg.normalized_so_data.receiver,
 		SoSwapError::InvalidRecipient
 	);
 
@@ -372,14 +376,17 @@ pub fn handler(ctx: Context<CompleteSoSwapNativeWithWhirlpool>, _vaa_hash: [u8; 
 	};
 
 	if need_unwrap_sol &&
-		from_token_account.mint.as_ref() == WrapSOLKey.as_ref() &&
+		from_token_account.mint == WrapSOLKey &&
 		ctx.accounts.unwrap_sol_account.is_some() &&
 		ctx.accounts.recipient.is_some()
 	{
 		let unwrap_sol_account = &ctx.accounts.unwrap_sol_account.clone().unwrap();
 		let recipient = &ctx.accounts.recipient.clone().unwrap();
 
-		require!(recipient.key().as_ref() == so_msg.normalized_so_data.receiver, SoSwapError::InvalidRecipient);
+		require!(
+			recipient.key().as_ref() == so_msg.normalized_so_data.receiver,
+			SoSwapError::InvalidRecipient
+		);
 
 		// 1. transfer: from_token_account(wsol) => unwrap_sol_account(wsol)
 		anchor_spl::token::transfer(
