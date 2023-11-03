@@ -23,6 +23,86 @@ import {IMetaAggregationRouterV2} from "../Interfaces/Kyberswap/IMetaAggregation
 import {IOneInchGenericRouter, IOneInchClipperRouter, IOneInchUnoswapRouter, IOneInchUnoswapV3Router} from "../Interfaces/OneInch/IAggregationRouterV5.sol";
 
 contract LibCorrectSwapV2 is ICorrectSwap {
+    address public owner;
+    address public factory;
+    mapping(bytes4 => ICorrectSwap) private _correctSwap;
+
+    constructor() {
+        // set owner
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner || msg.sender == factory, "Not Owner!");
+        _;
+    }
+
+    //---------------------------------------------------------------------------
+    // External Method
+
+    // @dev set deploy factory
+    function setFactory(address _factory) external onlyOwner {
+        factory = _factory;
+    }
+
+    // @dev Set correct swap
+    function setCorrectSwap(
+        bytes4[] calldata _sigs,
+        ICorrectSwap _correctSwapAddr
+    ) external onlyOwner {
+        for (uint256 i = 0; i < _sigs.length; i++) {
+            _correctSwap[_sigs[i]] = _correctSwapAddr;
+        }
+    }
+
+    // @dev Correct input of destination chain swapData
+    function correctSwap(bytes calldata _data, uint256 _amount)
+        external
+        returns (bytes memory)
+    {
+        bytes4 sig = bytes4(_data[:4]);
+        if (_correctSwap[sig] == ICorrectSwap(address(0))) {
+            revert("not support");
+        } else {
+            try
+                ICorrectSwap(_correctSwap[sig]).correctSwap(_data, _amount)
+            returns (bytes memory _result) {
+                return _result;
+            } catch Error(string memory _err) {
+                revert(_err);
+            } catch {
+                revert("correctSwap fail");
+            }
+        }
+    }
+
+    // @dev Fix min amount
+    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
+        external
+        view
+        returns (uint256, bytes memory)
+    {
+        bytes4 sig = bytes4(_data[:4]);
+        if (_correctSwap[sig] == ICorrectSwap(address(0))) {
+            revert("not support");
+        } else {
+            try
+                ICorrectSwap(_correctSwap[sig]).fixMinAmount(
+                    _data,
+                    _deltaMinAmount
+                )
+            returns (uint256 _amountOutMin, bytes memory _result) {
+                return (_amountOutMin, _result);
+            } catch Error(string memory _err) {
+                revert(_err);
+            } catch {
+                revert("fixMinAmount fail");
+            }
+        }
+    }
+}
+
+contract LibCorrectSwapV2Factory {
     // UniswapV2
     bytes4 private constant _FUNC1 =
         IUniswapV2Router01.swapExactETHForTokens.selector;
@@ -138,173 +218,169 @@ contract LibCorrectSwapV2 is ICorrectSwap {
     bytes4 private constant _FUNC47 =
         IOneInchUnoswapV3Router.uniswapV3SwapToWithPermit.selector;
 
-    address public owner;
-    mapping(bytes4 => ICorrectSwap) private _correctSwap;
+    LibCorrectSwapV2 public libCorrectSwapV2;
 
-    constructor() {
-        // set owner
-        owner = msg.sender;
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+    }
 
-        // deploy correct swap contract
-        ICorrectSwap correctUniswapV2 = new CorrectUniswapV2();
-        ICorrectSwap correctUniswapV3 = new CorrectUniswapV3();
-        ICorrectSwap correctSyncswap = new CorrectSyncswap();
-        ICorrectSwap correctMuteswap = new CorrectMuteswap();
-        ICorrectSwap correctQuickswapV3 = new CorrectQuickswapV3();
-        ICorrectSwap correctAerodrome = new CorrectAerodrome();
-        ICorrectSwap correctBalancerV2 = new CorrectBalancerV2();
-        ICorrectSwap correctCurve = new CorrectCurve();
-        ICorrectSwap correctWombat = new CorrectWombat();
-        ICorrectSwap correctTraderJoe = new CorrectTraderJoe();
-        ICorrectSwap correctGMXV1 = new CorrectGMXV1();
-        ICorrectSwap correctPearlFi = new CorrectPearlFi();
-        ICorrectSwap correctiZiSwap = new CorrectIZiSwap();
-        ICorrectSwap correctCamelot = new CorrectCamelot();
-        ICorrectSwap correctKyberswap = new CorrectKyberswap();
-        ICorrectSwap correctOneInch = new CorrectOneInch();
-
-        // init sig => correctSwap contract
-
+    function deploy_correct_uniswapv2() external {
         // UniswapV2
-        _correctSwap[_FUNC1] = correctUniswapV2;
-        _correctSwap[_FUNC2] = correctUniswapV2;
-        _correctSwap[_FUNC3] = correctUniswapV2;
-        _correctSwap[_FUNC4] = correctUniswapV2;
-        _correctSwap[_FUNC5] = correctUniswapV2;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC1;
+        sigs[1] = _FUNC2;
+        sigs[2] = _FUNC3;
+        sigs[3] = _FUNC4;
+        sigs[4] = _FUNC5;
+        ICorrectSwap correctUniswapV2 = new CorrectUniswapV2();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV2);
+    }
 
+    function deploy_correct_uniswapv3() external {
         // UniswapV3
-        _correctSwap[_FUNC6] = correctUniswapV3;
-        _correctSwap[_FUNC15] = correctUniswapV3;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC6;
+        sigs[0] = _FUNC15;
+        ICorrectSwap correctUniswapV3 = new CorrectUniswapV3();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV3);
+    }
 
+    function deploy_correct_syncswap() external {
         // Syncswap
-        _correctSwap[_FUNC7] = correctSyncswap;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC7;
+        ICorrectSwap correctSyncswap = new CorrectSyncswap();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctSyncswap);
+    }
 
+    function deploy_correct_muteswap() external {
         // Muteswap
-        _correctSwap[_FUNC8] = correctMuteswap;
-        _correctSwap[_FUNC9] = correctMuteswap;
-        _correctSwap[_FUNC10] = correctMuteswap;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC8;
+        sigs[1] = _FUNC9;
+        sigs[2] = _FUNC10;
+        ICorrectSwap correctMuteswap = new CorrectMuteswap();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctMuteswap);
+    }
 
+    function deploy_correct_quickswapv3() external {
         // QuickswapV3
-        _correctSwap[_FUNC11] = correctQuickswapV3;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC11;
+        ICorrectSwap correctQuickswapV3 = new CorrectQuickswapV3();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctQuickswapV3);
+    }
 
+    function deploy_correct_aerodrome() external {
         // Aerodrome
-        _correctSwap[_FUNC12] = correctAerodrome;
-        _correctSwap[_FUNC13] = correctAerodrome;
-        _correctSwap[_FUNC14] = correctAerodrome;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC12;
+        sigs[1] = _FUNC13;
+        sigs[2] = _FUNC14;
+        ICorrectSwap correctAerodrome = new CorrectAerodrome();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctAerodrome);
+    }
 
+    function deploy_correct_balancerv2() external {
         // BalancerV2
-        _correctSwap[_FUNC16] = correctBalancerV2;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC16;
+        ICorrectSwap correctBalancerV2 = new CorrectBalancerV2();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctBalancerV2);
+    }
 
+    function deploy_correct_curve() external {
         // Curve
-        _correctSwap[_FUNC17] = correctCurve;
-        _correctSwap[_FUNC18] = correctCurve;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC17;
+        sigs[1] = _FUNC18;
+        ICorrectSwap correctCurve = new CorrectCurve();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctCurve);
+    }
 
+    function deploy_correct_wombat() external {
         // Wombat
-        _correctSwap[_FUNC19] = correctWombat;
-        _correctSwap[_FUNC20] = correctWombat;
-        _correctSwap[_FUNC21] = correctWombat;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC19;
+        sigs[1] = _FUNC20;
+        sigs[2] = _FUNC21;
+        ICorrectSwap correctWombat = new CorrectWombat();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctWombat);
+    }
 
+    function deploy_correct_traderjoe() external {
         // Trader Joe
-        _correctSwap[_FUNC22] = correctTraderJoe;
-        _correctSwap[_FUNC23] = correctTraderJoe;
-        _correctSwap[_FUNC24] = correctTraderJoe;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC22;
+        sigs[1] = _FUNC23;
+        sigs[2] = _FUNC24;
+        ICorrectSwap correctTraderJoe = new CorrectTraderJoe();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctTraderJoe);
+    }
 
+    function deploy_correct_gmxv1() external {
         // GMX V1
-        _correctSwap[_FUNC25] = correctGMXV1;
-        _correctSwap[_FUNC26] = correctGMXV1;
-        _correctSwap[_FUNC27] = correctGMXV1;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC25;
+        sigs[1] = _FUNC26;
+        sigs[2] = _FUNC27;
+        ICorrectSwap correctGMXV1 = new CorrectGMXV1();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctGMXV1);
+    }
 
+    function deploy_correct_pearlfi() external {
         // PearlFi
-        _correctSwap[_FUNC28] = correctPearlFi;
-        _correctSwap[_FUNC29] = correctPearlFi;
-        _correctSwap[_FUNC30] = correctPearlFi;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC28;
+        sigs[1] = _FUNC29;
+        sigs[2] = _FUNC30;
+        ICorrectSwap correctPearlFi = new CorrectPearlFi();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctPearlFi);
+    }
 
+    function deploy_correct_iziswap() external {
         // iZiSwap
-        _correctSwap[_FUNC31] = correctiZiSwap;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC31;
+        ICorrectSwap correctiZiSwap = new CorrectIZiSwap();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctiZiSwap);
+    }
 
+    function deploy_correct_camelot() external {
         // Camelot
-        _correctSwap[_FUNC32] = correctCamelot;
-        _correctSwap[_FUNC33] = correctCamelot;
-        _correctSwap[_FUNC34] = correctCamelot;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC32;
+        sigs[1] = _FUNC33;
+        sigs[2] = _FUNC34;
+        ICorrectSwap correctCamelot = new CorrectCamelot();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctCamelot);
+    }
 
+    function deploy_correct_kyberswap() external {
         // Kyberswap
-        _correctSwap[_FUNC35] = correctKyberswap;
-        _correctSwap[_FUNC36] = correctKyberswap;
-        _correctSwap[_FUNC37] = correctKyberswap;
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC35;
+        sigs[1] = _FUNC36;
+        sigs[2] = _FUNC37;
+        ICorrectSwap correctKyberswap = new CorrectKyberswap();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctKyberswap);
+    }
 
+    function deploy_correct_oneinch() external {
         // 1inch
-        _correctSwap[_FUNC38] = correctOneInch;
-        _correctSwap[_FUNC39] = correctOneInch;
-        _correctSwap[_FUNC40] = correctOneInch;
-        _correctSwap[_FUNC41] = correctOneInch;
-        _correctSwap[_FUNC42] = correctOneInch;
-        _correctSwap[_FUNC43] = correctOneInch;
-        _correctSwap[_FUNC44] = correctOneInch;
-        _correctSwap[_FUNC45] = correctOneInch;
-        _correctSwap[_FUNC46] = correctOneInch;
-        _correctSwap[_FUNC47] = correctOneInch;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not Owner!");
-        _;
-    }
-
-    //---------------------------------------------------------------------------
-    // External Method
-
-    // @dev Set correct swap
-    function setCorrectSwap(bytes4 _sig, ICorrectSwap _correctSwapAddr)
-        external
-        onlyOwner
-    {
-        _correctSwap[_sig] = _correctSwapAddr;
-    }
-
-    // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwap[sig] == ICorrectSwap(address(0))) {
-            revert("not support");
-        } else {
-            try
-                ICorrectSwap(_correctSwap[sig]).correctSwap(_data, _amount)
-            returns (bytes memory _result) {
-                return _result;
-            } catch Error(string memory _err) {
-                revert(_err);
-            } catch {
-                revert("correctSwap fail");
-            }
-        }
-    }
-
-    // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
-        bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwap[sig] == ICorrectSwap(address(0))) {
-            revert("not support");
-        } else {
-            try
-                ICorrectSwap(_correctSwap[sig]).fixMinAmount(
-                    _data,
-                    _deltaMinAmount
-                )
-            returns (uint256 _amountOutMin, bytes memory _result) {
-                return (_amountOutMin, _result);
-            } catch Error(string memory _err) {
-                revert(_err);
-            } catch {
-                revert("fixMinAmount fail");
-            }
-        }
+        bytes4[] memory sigs;
+        sigs[0] = _FUNC38;
+        sigs[1] = _FUNC39;
+        sigs[2] = _FUNC40;
+        sigs[3] = _FUNC41;
+        sigs[4] = _FUNC42;
+        sigs[5] = _FUNC43;
+        sigs[6] = _FUNC44;
+        sigs[7] = _FUNC45;
+        sigs[8] = _FUNC46;
+        sigs[9] = _FUNC47;
+        ICorrectSwap correctOneInch = new CorrectOneInch();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctOneInch);
     }
 }
 
