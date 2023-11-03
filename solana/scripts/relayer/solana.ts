@@ -365,7 +365,7 @@ async function processVaa(
     let payload: ParsedOmniswapPayload;
     try {
         payload = parseVaaToOmniswapPayload(vaa);
-        // if (payload.dstMaxGasPrice !== 1000000000000) {
+        // if (payload.dstMaxGasPrice !== 1) {
         //     logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstMaxGasPrice ${payload.dstMaxGasPrice}!=1000000000000`)
         //     return false;
         // }

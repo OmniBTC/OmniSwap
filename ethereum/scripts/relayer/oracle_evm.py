@@ -59,6 +59,7 @@ def set_so_gas():
         "polygon-main",
         "aptos-mainnet",
         "sui-mainnet",
+        "solana-mainnet"
     ]
 
     gas = {
@@ -72,26 +73,31 @@ def set_so_gas():
         #     "base_gas": 700000,
         #     "per_byte_gas": 68
         # },
-        "polygon-main": {
-            "dst_chainid": 5,
-            "base_gas": 2800000,
+        # "polygon-main": {
+        #     "dst_chainid": 5,
+        #     "base_gas": 2800000,
+        #     "per_byte_gas": 68
+        # },
+        # "avax-main": {
+        #     "dst_chainid": 6,
+        #     "base_gas": 1400000,
+        #     "per_byte_gas": 68
+        # },
+        # "aptos-mainnet": {
+        #     "dst_chainid": 22,
+        #     "base_gas": 40000,
+        #     "per_byte_gas": 10
+        # },
+        # "sui-mainnet": {
+        #     "dst_chainid": 21,
+        #     "base_gas": 840000,
+        #     "per_byte_gas": 68
+        # },
+        "solana-mainnet": {
+            "dst_chainid": 1,
+            "base_gas": 10000000000000000,
             "per_byte_gas": 68
         },
-        "avax-main": {
-            "dst_chainid": 6,
-            "base_gas": 1400000,
-            "per_byte_gas": 68
-        },
-        "aptos-mainnet": {
-            "dst_chainid": 22,
-            "base_gas": 40000,
-            "per_byte_gas": 10
-        },
-        "sui-mainnet": {
-            "dst_chainid": 21,
-            "base_gas": 840000,
-            "per_byte_gas": 68
-        }
     }
     for net in nets:
         if net == network.show_active():
@@ -114,7 +120,7 @@ def set_so_gas():
 
 @functools.lru_cache()
 def get_prices(
-        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT")
+        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
 ):
     api = ccxt.kucoin()
     prices = {}
@@ -132,7 +138,7 @@ def set_celer_bnb_price_on_avax(ratio):
     dst_celer_id = 56
     old_ratio = int(LibSoFeeCelerV1[-1].getPriceRatio(dst_celer_id)[0])
     print(
-        f"[set_celer_bnb_price_on_avax]: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+        f"[set_celer_bnb_price_on_avax]: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
     )
 
     if old_ratio < ratio or ratio * 1.03 < old_ratio:
@@ -337,7 +343,7 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["BNB/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for bnb-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for bnb-main: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -351,7 +357,7 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["APT/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -363,7 +369,19 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["SUI/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
+        )
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(
+                dst_wormhole_id, ratio, {"from": get_account()}
+            )
+
+        # solana
+        dst_wormhole_id = 1
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
+        ratio = int(prices["SOL/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
+        print(
+            f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -376,7 +394,7 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["APT/USDT"] / prices["ETH/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -388,7 +406,19 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["SUI/USDT"] / prices["ETH/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
+        )
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(
+                dst_wormhole_id, ratio, {"from": get_account()}
+            )
+
+        # solana
+        dst_wormhole_id = 1
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
+        ratio = int(prices["SOL/USDT"] / prices["ETH/USDT"] * decimal * multiply)
+        print(
+            f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -401,7 +431,7 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["APT/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -413,7 +443,19 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["SUI/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
+        )
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(
+                dst_wormhole_id, ratio, {"from": get_account()}
+            )
+
+        # solana
+        dst_wormhole_id = 1
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
+        ratio = int(prices["SOL/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
+        print(
+            f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -426,7 +468,7 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["APT/USDT"] / prices["BNB/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
@@ -438,7 +480,19 @@ def set_so_price():
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
         ratio = int(prices["SUI/USDT"] / prices["BNB/USDT"] * decimal * multiply)
         print(
-            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}"
+            f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
+        )
+        if old_ratio < ratio or ratio * 1.03 < old_ratio:
+            LibSoFeeWormholeV1[-1].setPriceRatio(
+                dst_wormhole_id, ratio, {"from": get_account()}
+            )
+
+        # solana
+        dst_wormhole_id = 1
+        old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
+        ratio = int(prices["SOL/USDT"] / prices["BNB/USDT"] * decimal * multiply)
+        print(
+            f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
         if old_ratio < ratio or ratio * 1.03 < old_ratio:
             LibSoFeeWormholeV1[-1].setPriceRatio(
