@@ -113,6 +113,8 @@ interface IStargate {
 
     function bridge() external view returns (address);
 
+    function stargateBridge() external view returns (address);
+
     function stargateEthVaults(uint256 _srcPoolId)
         external
         view
