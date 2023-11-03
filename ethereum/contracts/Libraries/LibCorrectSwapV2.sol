@@ -24,7 +24,6 @@ import {IOneInchGenericRouter, IOneInchClipperRouter, IOneInchUnoswapRouter, IOn
 
 contract LibCorrectSwapV2 is ICorrectSwap {
     address public owner;
-    address public factory;
     mapping(bytes4 => ICorrectSwap) private _correctSwap;
 
     constructor() {
@@ -33,17 +32,12 @@ contract LibCorrectSwapV2 is ICorrectSwap {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner || msg.sender == factory, "Not Owner!");
+        require(tx.origin == owner, "Not Owner!");
         _;
     }
 
     //---------------------------------------------------------------------------
     // External Method
-
-    // @dev set deploy factory
-    function setFactory(address _factory) external onlyOwner {
-        factory = _factory;
-    }
 
     // @dev Set correct swap
     function setCorrectSwap(
@@ -102,285 +96,145 @@ contract LibCorrectSwapV2 is ICorrectSwap {
     }
 }
 
-contract LibCorrectSwapV2Factory {
+library LibSwapFuncSigs {
     // UniswapV2
-    bytes4 private constant _FUNC1 =
+    bytes4 internal constant _FUNC1 =
         IUniswapV2Router01.swapExactETHForTokens.selector;
-    bytes4 private constant _FUNC2 =
+    bytes4 internal constant _FUNC2 =
         IUniswapV2Router01AVAX.swapExactAVAXForTokens.selector;
-    bytes4 private constant _FUNC3 =
+    bytes4 internal constant _FUNC3 =
         IUniswapV2Router01.swapExactTokensForETH.selector;
-    bytes4 private constant _FUNC4 =
+    bytes4 internal constant _FUNC4 =
         IUniswapV2Router01AVAX.swapExactTokensForAVAX.selector;
-    bytes4 private constant _FUNC5 =
+    bytes4 internal constant _FUNC5 =
         IUniswapV2Router01.swapExactTokensForTokens.selector;
 
     // UniswapV3
-    bytes4 private constant _FUNC6 = ISwapRouter.exactInput.selector;
+    bytes4 internal constant _FUNC6 = ISwapRouter.exactInput.selector;
 
     // zksync,Syncswap
-    bytes4 private constant _FUNC7 = ISyncSwapRouter.swap.selector;
+    bytes4 internal constant _FUNC7 = ISyncSwapRouter.swap.selector;
 
     // zksync,Muteswap
-    bytes4 private constant _FUNC8 = IMuteRouter.swapExactETHForTokens.selector;
-    bytes4 private constant _FUNC9 = IMuteRouter.swapExactTokensForETH.selector;
-    bytes4 private constant _FUNC10 =
+    bytes4 internal constant _FUNC8 =
+        IMuteRouter.swapExactETHForTokens.selector;
+    bytes4 internal constant _FUNC9 =
+        IMuteRouter.swapExactTokensForETH.selector;
+    bytes4 internal constant _FUNC10 =
         IMuteRouter.swapExactTokensForTokens.selector;
 
     // QuickswapV3
-    bytes4 private constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
+    bytes4 internal constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
 
     // base,Aerodrome
-    bytes4 private constant _FUNC12 = IAerodrome.swapExactETHForTokens.selector;
-    bytes4 private constant _FUNC13 = IAerodrome.swapExactTokensForETH.selector;
-    bytes4 private constant _FUNC14 =
+    bytes4 internal constant _FUNC12 =
+        IAerodrome.swapExactETHForTokens.selector;
+    bytes4 internal constant _FUNC13 =
+        IAerodrome.swapExactTokensForETH.selector;
+    bytes4 internal constant _FUNC14 =
         IAerodrome.swapExactTokensForTokens.selector;
 
     // UniswapV3
-    bytes4 private constant _FUNC15 = ISwapRouter02.exactInput.selector;
+    bytes4 internal constant _FUNC15 = ISwapRouter02.exactInput.selector;
 
     // BalancerV2
-    bytes4 private constant _FUNC16 = IVault.swap.selector;
+    bytes4 internal constant _FUNC16 = IVault.swap.selector;
 
     // Curve
-    bytes4 private constant _FUNC17 = ICurveFi.exchange.selector;
-    bytes4 private constant _FUNC18 = ICurveFi.exchange_underlying.selector;
+    bytes4 internal constant _FUNC17 = ICurveFi.exchange.selector;
+    bytes4 internal constant _FUNC18 = ICurveFi.exchange_underlying.selector;
 
     // bsc,Wombat
-    bytes4 private constant _FUNC19 =
+    bytes4 internal constant _FUNC19 =
         IWombatRouter.swapExactTokensForTokens.selector;
-    bytes4 private constant _FUNC20 =
+    bytes4 internal constant _FUNC20 =
         IWombatRouter.swapExactTokensForNative.selector;
-    bytes4 private constant _FUNC21 =
+    bytes4 internal constant _FUNC21 =
         IWombatRouter.swapExactNativeForTokens.selector;
 
     // Trader Joe
-    bytes4 private constant _FUNC22 =
+    bytes4 internal constant _FUNC22 =
         ILBRouter.swapExactTokensForTokens.selector;
-    bytes4 private constant _FUNC23 =
+    bytes4 internal constant _FUNC23 =
         ILBRouter.swapExactTokensForNATIVE.selector;
-    bytes4 private constant _FUNC24 =
+    bytes4 internal constant _FUNC24 =
         ILBRouter.swapExactNATIVEForTokens.selector;
 
     // GMX V1
-    bytes4 private constant _FUNC25 = IGMXV1Router.swap.selector;
-    bytes4 private constant _FUNC26 = IGMXV1Router.swapTokensToETH.selector;
-    bytes4 private constant _FUNC27 = IGMXV1Router.swapETHToTokens.selector;
+    bytes4 internal constant _FUNC25 = IGMXV1Router.swap.selector;
+    bytes4 internal constant _FUNC26 = IGMXV1Router.swapTokensToETH.selector;
+    bytes4 internal constant _FUNC27 = IGMXV1Router.swapETHToTokens.selector;
 
     // PearlFi
-    bytes4 private constant _FUNC28 =
+    bytes4 internal constant _FUNC28 =
         IPearlRouter.swapExactTokensForTokens.selector;
-    bytes4 private constant _FUNC29 =
+    bytes4 internal constant _FUNC29 =
         IPearlRouter.swapExactTokensForETH.selector;
-    bytes4 private constant _FUNC30 =
+    bytes4 internal constant _FUNC30 =
         IPearlRouter.swapExactETHForTokens.selector;
 
     // iZiSwap
-    bytes4 private constant _FUNC31 = IiZiSwap.swapAmount.selector;
+    bytes4 internal constant _FUNC31 = IiZiSwap.swapAmount.selector;
 
     // Camelot
-    bytes4 private constant _FUNC32 =
+    bytes4 internal constant _FUNC32 =
         ICamelotRouter
             .swapExactTokensForTokensSupportingFeeOnTransferTokens
             .selector;
-    bytes4 private constant _FUNC33 =
+    bytes4 internal constant _FUNC33 =
         ICamelotRouter
             .swapExactETHForTokensSupportingFeeOnTransferTokens
             .selector;
-    bytes4 private constant _FUNC34 =
+    bytes4 internal constant _FUNC34 =
         ICamelotRouter
             .swapExactTokensForETHSupportingFeeOnTransferTokens
             .selector;
 
     // Kyberswap
-    bytes4 private constant _FUNC35 =
+    bytes4 internal constant _FUNC35 =
         IMetaAggregationRouterV2.swapGeneric.selector;
-    bytes4 private constant _FUNC36 = IMetaAggregationRouterV2.swap.selector;
-    bytes4 private constant _FUNC37 =
+    bytes4 internal constant _FUNC36 = IMetaAggregationRouterV2.swap.selector;
+    bytes4 internal constant _FUNC37 =
         IMetaAggregationRouterV2.swapSimpleMode.selector;
 
     // 1inch
-    bytes4 private constant _FUNC38 = IOneInchGenericRouter.swap.selector;
-    bytes4 private constant _FUNC39 =
+    bytes4 internal constant _FUNC38 = IOneInchGenericRouter.swap.selector;
+    bytes4 internal constant _FUNC39 =
         IOneInchClipperRouter.clipperSwap.selector;
-    bytes4 private constant _FUNC40 =
+    bytes4 internal constant _FUNC40 =
         IOneInchClipperRouter.clipperSwapTo.selector;
-    bytes4 private constant _FUNC41 =
+    bytes4 internal constant _FUNC41 =
         IOneInchClipperRouter.clipperSwapToWithPermit.selector;
-    bytes4 private constant _FUNC42 = IOneInchUnoswapRouter.unoswap.selector;
-    bytes4 private constant _FUNC43 = IOneInchUnoswapRouter.unoswapTo.selector;
-    bytes4 private constant _FUNC44 =
+    bytes4 internal constant _FUNC42 = IOneInchUnoswapRouter.unoswap.selector;
+    bytes4 internal constant _FUNC43 = IOneInchUnoswapRouter.unoswapTo.selector;
+    bytes4 internal constant _FUNC44 =
         IOneInchUnoswapRouter.unoswapToWithPermit.selector;
-    bytes4 private constant _FUNC45 =
+    bytes4 internal constant _FUNC45 =
         IOneInchUnoswapV3Router.uniswapV3Swap.selector;
-    bytes4 private constant _FUNC46 =
+    bytes4 internal constant _FUNC46 =
         IOneInchUnoswapV3Router.uniswapV3SwapTo.selector;
-    bytes4 private constant _FUNC47 =
+    bytes4 internal constant _FUNC47 =
         IOneInchUnoswapV3Router.uniswapV3SwapToWithPermit.selector;
+}
 
+contract CorrectUniswapV2Factory {
     LibCorrectSwapV2 public libCorrectSwapV2;
 
     constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
         libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_uniswapv2();
     }
 
-    function deploy_correct_uniswapv2() external {
+    function deploy_correct_uniswapv2() internal {
         // UniswapV2
         bytes4[] memory sigs;
-        sigs[0] = _FUNC1;
-        sigs[1] = _FUNC2;
-        sigs[2] = _FUNC3;
-        sigs[3] = _FUNC4;
-        sigs[4] = _FUNC5;
+        sigs[0] = LibSwapFuncSigs._FUNC1;
+        sigs[1] = LibSwapFuncSigs._FUNC2;
+        sigs[2] = LibSwapFuncSigs._FUNC3;
+        sigs[3] = LibSwapFuncSigs._FUNC4;
+        sigs[4] = LibSwapFuncSigs._FUNC5;
         ICorrectSwap correctUniswapV2 = new CorrectUniswapV2();
         libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV2);
-    }
-
-    function deploy_correct_uniswapv3() external {
-        // UniswapV3
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC6;
-        sigs[0] = _FUNC15;
-        ICorrectSwap correctUniswapV3 = new CorrectUniswapV3();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV3);
-    }
-
-    function deploy_correct_syncswap() external {
-        // Syncswap
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC7;
-        ICorrectSwap correctSyncswap = new CorrectSyncswap();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctSyncswap);
-    }
-
-    function deploy_correct_muteswap() external {
-        // Muteswap
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC8;
-        sigs[1] = _FUNC9;
-        sigs[2] = _FUNC10;
-        ICorrectSwap correctMuteswap = new CorrectMuteswap();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctMuteswap);
-    }
-
-    function deploy_correct_quickswapv3() external {
-        // QuickswapV3
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC11;
-        ICorrectSwap correctQuickswapV3 = new CorrectQuickswapV3();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctQuickswapV3);
-    }
-
-    function deploy_correct_aerodrome() external {
-        // Aerodrome
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC12;
-        sigs[1] = _FUNC13;
-        sigs[2] = _FUNC14;
-        ICorrectSwap correctAerodrome = new CorrectAerodrome();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctAerodrome);
-    }
-
-    function deploy_correct_balancerv2() external {
-        // BalancerV2
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC16;
-        ICorrectSwap correctBalancerV2 = new CorrectBalancerV2();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctBalancerV2);
-    }
-
-    function deploy_correct_curve() external {
-        // Curve
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC17;
-        sigs[1] = _FUNC18;
-        ICorrectSwap correctCurve = new CorrectCurve();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctCurve);
-    }
-
-    function deploy_correct_wombat() external {
-        // Wombat
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC19;
-        sigs[1] = _FUNC20;
-        sigs[2] = _FUNC21;
-        ICorrectSwap correctWombat = new CorrectWombat();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctWombat);
-    }
-
-    function deploy_correct_traderjoe() external {
-        // Trader Joe
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC22;
-        sigs[1] = _FUNC23;
-        sigs[2] = _FUNC24;
-        ICorrectSwap correctTraderJoe = new CorrectTraderJoe();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctTraderJoe);
-    }
-
-    function deploy_correct_gmxv1() external {
-        // GMX V1
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC25;
-        sigs[1] = _FUNC26;
-        sigs[2] = _FUNC27;
-        ICorrectSwap correctGMXV1 = new CorrectGMXV1();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctGMXV1);
-    }
-
-    function deploy_correct_pearlfi() external {
-        // PearlFi
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC28;
-        sigs[1] = _FUNC29;
-        sigs[2] = _FUNC30;
-        ICorrectSwap correctPearlFi = new CorrectPearlFi();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctPearlFi);
-    }
-
-    function deploy_correct_iziswap() external {
-        // iZiSwap
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC31;
-        ICorrectSwap correctiZiSwap = new CorrectIZiSwap();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctiZiSwap);
-    }
-
-    function deploy_correct_camelot() external {
-        // Camelot
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC32;
-        sigs[1] = _FUNC33;
-        sigs[2] = _FUNC34;
-        ICorrectSwap correctCamelot = new CorrectCamelot();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctCamelot);
-    }
-
-    function deploy_correct_kyberswap() external {
-        // Kyberswap
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC35;
-        sigs[1] = _FUNC36;
-        sigs[2] = _FUNC37;
-        ICorrectSwap correctKyberswap = new CorrectKyberswap();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctKyberswap);
-    }
-
-    function deploy_correct_oneinch() external {
-        // 1inch
-        bytes4[] memory sigs;
-        sigs[0] = _FUNC38;
-        sigs[1] = _FUNC39;
-        sigs[2] = _FUNC40;
-        sigs[3] = _FUNC41;
-        sigs[4] = _FUNC42;
-        sigs[5] = _FUNC43;
-        sigs[6] = _FUNC44;
-        sigs[7] = _FUNC45;
-        sigs[8] = _FUNC46;
-        sigs[9] = _FUNC47;
-        ICorrectSwap correctOneInch = new CorrectOneInch();
-        libCorrectSwapV2.setCorrectSwap(sigs, correctOneInch);
     }
 }
 
@@ -508,6 +362,24 @@ contract CorrectUniswapV2 is ICorrectSwap {
     }
 }
 
+contract CorrectUniswapV3Factory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_uniswapv3();
+    }
+
+    function deploy_correct_uniswapv3() internal {
+        // UniswapV3
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC6;
+        sigs[0] = LibSwapFuncSigs._FUNC15;
+        ICorrectSwap correctUniswapV3 = new CorrectUniswapV3();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV3);
+    }
+}
+
 contract CorrectUniswapV3 is ICorrectSwap {
     // UniswapV3
     bytes4 private constant _FUNC6 = ISwapRouter.exactInput.selector;
@@ -597,6 +469,23 @@ contract CorrectUniswapV3 is ICorrectSwap {
         params.amountIn = _amount;
 
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+}
+
+contract CorrectSyncswapFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_syncswap();
+    }
+
+    function deploy_correct_syncswap() internal {
+        // Syncswap
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC7;
+        ICorrectSwap correctSyncswap = new CorrectSyncswap();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctSyncswap);
     }
 }
 
@@ -696,6 +585,25 @@ contract CorrectSyncswap is ICorrectSwap {
                 _amountOutMin,
                 _deadline
             );
+    }
+}
+
+contract CorrectMuteswapFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_muteswap();
+    }
+
+    function deploy_correct_muteswap() internal {
+        // Muteswap
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC8;
+        sigs[1] = LibSwapFuncSigs._FUNC9;
+        sigs[2] = LibSwapFuncSigs._FUNC10;
+        ICorrectSwap correctMuteswap = new CorrectMuteswap();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctMuteswap);
     }
 }
 
@@ -824,6 +732,23 @@ contract CorrectMuteswap is ICorrectSwap {
     }
 }
 
+contract CorrectQuickswapV3Factory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_quickswapv3();
+    }
+
+    function deploy_correct_quickswapv3() internal {
+        // QuickswapV3
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC11;
+        ICorrectSwap correctQuickswapV3 = new CorrectQuickswapV3();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctQuickswapV3);
+    }
+}
+
 contract CorrectQuickswapV3 is ICorrectSwap {
     // QuickswapV3
     bytes4 private constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
@@ -888,6 +813,25 @@ contract CorrectQuickswapV3 is ICorrectSwap {
         params.amountIn = _amount;
 
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+}
+
+contract CorrectAerodromeFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_aerodrome();
+    }
+
+    function deploy_correct_aerodrome() internal {
+        // Aerodrome
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC12;
+        sigs[1] = LibSwapFuncSigs._FUNC13;
+        sigs[2] = LibSwapFuncSigs._FUNC14;
+        ICorrectSwap correctAerodrome = new CorrectAerodrome();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctAerodrome);
     }
 }
 
@@ -1010,6 +954,23 @@ contract CorrectAerodrome is ICorrectSwap {
     }
 }
 
+contract CorrectBalancerV2Factory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_balancerv2();
+    }
+
+    function deploy_correct_balancerv2() internal {
+        // BalancerV2
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC16;
+        ICorrectSwap correctBalancerV2 = new CorrectBalancerV2();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctBalancerV2);
+    }
+}
+
 contract CorrectBalancerV2 is ICorrectSwap {
     // BalancerV2
     bytes4 private constant _FUNC16 = IVault.swap.selector;
@@ -1100,6 +1061,24 @@ contract CorrectBalancerV2 is ICorrectSwap {
                 limit,
                 deadline
             );
+    }
+}
+
+contract CorrectCurveFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_curve();
+    }
+
+    function deploy_correct_curve() internal {
+        // Curve
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC17;
+        sigs[1] = LibSwapFuncSigs._FUNC18;
+        ICorrectSwap correctCurve = new CorrectCurve();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctCurve);
     }
 }
 
@@ -1204,6 +1183,25 @@ contract CorrectCurve is ICorrectSwap {
         );
         dx = _amount;
         return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
+    }
+}
+
+contract CorrectWombatFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_wombat();
+    }
+
+    function deploy_correct_wombat() internal {
+        // Wombat
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC19;
+        sigs[1] = LibSwapFuncSigs._FUNC20;
+        sigs[2] = LibSwapFuncSigs._FUNC21;
+        ICorrectSwap correctWombat = new CorrectWombat();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctWombat);
     }
 }
 
@@ -1334,6 +1332,25 @@ contract CorrectWombat is ICorrectSwap {
     }
 }
 
+contract CorrectTraderJoeFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_traderjoe();
+    }
+
+    function deploy_correct_traderjoe() internal {
+        // Trader Joe
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC22;
+        sigs[1] = LibSwapFuncSigs._FUNC23;
+        sigs[2] = LibSwapFuncSigs._FUNC24;
+        ICorrectSwap correctTraderJoe = new CorrectTraderJoe();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctTraderJoe);
+    }
+}
+
 contract CorrectTraderJoe is ICorrectSwap {
     // Trader Joe
     bytes4 private constant _FUNC22 =
@@ -1457,6 +1474,25 @@ contract CorrectTraderJoe is ICorrectSwap {
     }
 }
 
+contract CorrectGMXV1Factory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_gmxv1();
+    }
+
+    function deploy_correct_gmxv1() internal {
+        // GMX V1
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC25;
+        sigs[1] = LibSwapFuncSigs._FUNC26;
+        sigs[2] = LibSwapFuncSigs._FUNC27;
+        ICorrectSwap correctGMXV1 = new CorrectGMXV1();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctGMXV1);
+    }
+}
+
 contract CorrectGMXV1 is ICorrectSwap {
     // GMX V1
     bytes4 private constant _FUNC25 = IGMXV1Router.swap.selector;
@@ -1552,6 +1588,25 @@ contract CorrectGMXV1 is ICorrectSwap {
                 _minOut,
                 _receiver
             );
+    }
+}
+
+contract CorrectPearlFiFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_pearlfi();
+    }
+
+    function deploy_correct_pearlfi() internal {
+        // PearlFi
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC28;
+        sigs[1] = LibSwapFuncSigs._FUNC29;
+        sigs[2] = LibSwapFuncSigs._FUNC30;
+        ICorrectSwap correctPearlFi = new CorrectPearlFi();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctPearlFi);
     }
 }
 
@@ -1678,6 +1733,23 @@ contract CorrectPearlFi is ICorrectSwap {
     }
 }
 
+contract CorrectIZiSwapFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_iziswap();
+    }
+
+    function deploy_correct_iziswap() internal {
+        // iZiSwap
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC31;
+        ICorrectSwap correctiZiSwap = new CorrectIZiSwap();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctiZiSwap);
+    }
+}
+
 contract CorrectIZiSwap is ICorrectSwap {
     // iZiSwap
     bytes4 private constant _FUNC31 = IiZiSwap.swapAmount.selector;
@@ -1742,6 +1814,25 @@ contract CorrectIZiSwap is ICorrectSwap {
         require(_amount <= type(uint128).max, "Value too large for uint128");
         params.amount = uint128(_amount);
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
+    }
+}
+
+contract CorrectCamelotFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_camelot();
+    }
+
+    function deploy_correct_camelot() internal {
+        // Camelot
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC32;
+        sigs[1] = LibSwapFuncSigs._FUNC33;
+        sigs[2] = LibSwapFuncSigs._FUNC34;
+        ICorrectSwap correctCamelot = new CorrectCamelot();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctCamelot);
     }
 }
 
@@ -1878,6 +1969,25 @@ contract CorrectCamelot is ICorrectSwap {
     }
 }
 
+contract CorrectKyberswapFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_kyberswap();
+    }
+
+    function deploy_correct_kyberswap() internal {
+        // Kyberswap
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC35;
+        sigs[1] = LibSwapFuncSigs._FUNC36;
+        sigs[2] = LibSwapFuncSigs._FUNC37;
+        ICorrectSwap correctKyberswap = new CorrectKyberswap();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctKyberswap);
+    }
+}
+
 contract CorrectKyberswap is ICorrectSwap {
     // Camelot
     bytes4 private constant _FUNC35 =
@@ -2008,6 +2118,32 @@ contract CorrectKyberswap is ICorrectSwap {
                 executorData,
                 clientData
             );
+    }
+}
+
+contract CorrectOneInchFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_oneinch();
+    }
+
+    function deploy_correct_oneinch() internal {
+        // 1inch
+        bytes4[] memory sigs;
+        sigs[0] = LibSwapFuncSigs._FUNC38;
+        sigs[1] = LibSwapFuncSigs._FUNC39;
+        sigs[2] = LibSwapFuncSigs._FUNC40;
+        sigs[3] = LibSwapFuncSigs._FUNC41;
+        sigs[4] = LibSwapFuncSigs._FUNC42;
+        sigs[5] = LibSwapFuncSigs._FUNC43;
+        sigs[6] = LibSwapFuncSigs._FUNC44;
+        sigs[7] = LibSwapFuncSigs._FUNC45;
+        sigs[8] = LibSwapFuncSigs._FUNC46;
+        sigs[9] = LibSwapFuncSigs._FUNC47;
+        ICorrectSwap correctOneInch = new CorrectOneInch();
+        libCorrectSwapV2.setCorrectSwap(sigs, correctOneInch);
     }
 }
 
