@@ -159,10 +159,10 @@ if (NET !== "solana-mainnet") {
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
-    OMNISWAP_PID = new PublicKey("");
+    OMNISWAP_PID = new PublicKey("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
     // OMNISWAP_PID base58decode
-    SODIAMOND = ""
-    BENEFICIARY = "";
+    SODIAMOND = "0x3636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843"
+    BENEFICIARY = "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3";
     LOOKUP_TABLE_KEY = new PublicKey("")
 }
 WORMHOLE_CHAIN_ID_TO_NET = Object.keys(NET_TO_WORMHOLE_CHAIN_ID).reduce((returnValue, key) => {
