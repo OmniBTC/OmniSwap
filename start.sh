@@ -34,6 +34,8 @@ cd /OmniSwap
 # start solana relayer
 cd /OmniSwap/solana
 
+npm install
+
 nohup ts-node scripts/relayer/solana.ts ./env/.env ./solana.csv > ../relayer_solana.log 2>&1 &
 
 cd /OmniSwap
