@@ -2,7 +2,10 @@ import asyncio
 
 from solana.rpc.commitment import Processed
 from solana.transaction import Transaction
+from solders.address_lookup_table_account import AddressLookupTableAccount
+from solders.message import MessageV0
 from solders.pubkey import Pubkey
+from solders.transaction import VersionedTransaction
 
 from omniswap.instructions import so_swap_post_cross_request
 from helper import (
@@ -12,6 +15,7 @@ from helper import (
     deriveSoFeeConfigKey,
     derivePriceManagerKey,
     deriveWormholeBridgeDataKey,
+    decode_address_look_up_table,
 )
 from solana_config import get_client, get_payer, get_config
 
@@ -65,10 +69,32 @@ async def post_cross_requset(
         },
     )
 
-    latest = await client.get_latest_blockhash()
-    tx = Transaction(
-        fee_payer=payer.pubkey(), recent_blockhash=latest.value.blockhash
-    ).add(ix)
+    blockhash = await client.get_latest_blockhash()
+
+    if network == "devnet":
+        lookup_table_key = Pubkey.from_string(
+            "DAyyNuMjPXQWegTY1X5EEkEJn5Wx4Yf3KGwRVtFzcpaL"
+        )
+        lookup_table_data = await client.get_account_info(lookup_table_key)
+        lookup_table_addresses = decode_address_look_up_table(
+            lookup_table_data.value.data
+        )
+
+        lookup_table = AddressLookupTableAccount(
+            key=lookup_table_key, addresses=lookup_table_addresses
+        )
+
+        message0 = MessageV0.try_compile(
+            payer=payer.pubkey(),
+            instructions=[ix],
+            address_lookup_table_accounts=[lookup_table],
+            recent_blockhash=blockhash.value.blockhash,
+        )
+        tx = VersionedTransaction(message0, [payer])
+    else:
+        tx = Transaction(
+            fee_payer=payer.pubkey(), recent_blockhash=blockhash.value.blockhash
+        ).add(ix)
 
     if simulate:
         tx_simulate = await client.simulate_transaction(tx, commitment=Processed)
@@ -80,11 +106,18 @@ async def post_cross_requset(
 
         return request_key, total_fee
 
-    tx_sig = await client.send_transaction(tx, payer)
+    if network == "devnet":
+        tx_sig = await client.send_transaction(tx)
+    else:
+        tx_sig = await client.send_transaction(tx, payer)
+
     print(tx_sig)
 
     while True:
-        resp = await client.get_transaction(tx_sig.value)
+        v = 1 if network == "devnet" else None
+        resp = await client.get_transaction(
+            tx_sig.value, max_supported_transaction_version=v
+        )
         if resp.value is not None:
             return_data = resp.value.transaction.meta.return_data.data
             total_fee = int.from_bytes(return_data, "little")
