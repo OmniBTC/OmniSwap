@@ -23,7 +23,9 @@ def read_json(file):
 
 
 def export_bool_info():
-    support_networks = ['arbitrum-main', 'optimism-main', 'polygon-main', "bsc-main", "zksync2-main", "avax-main"]
+    support_networks = ['arbitrum-main', 'optimism-main', 'polygon-main', "bsc-main", "zksync2-main", "avax-main",
+                        "base-main"
+                        ]
 
     bool_bridge_token_info = {}
     for network in support_networks:

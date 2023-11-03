@@ -1,3 +1,5 @@
+import os
+
 from brownie import (
     DiamondCutFacet,
     SoDiamond,
@@ -63,7 +65,7 @@ from scripts.helpful_scripts import (
     get_multichain_id,
     get_multichain_info,
     get_cctp_token_messenger,
-    get_cctp_message_transmitter
+    get_cctp_message_transmitter, read_json
 )
 
 if "arbitrum" in network.show_active():
@@ -82,10 +84,10 @@ def main():
         initialize_cut(account, so_diamond)
     except Exception as e:
         print(f"initialize_cut fail:{e}")
-    try:
-        initialize_stargate(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_stargate fail:{e}")
+    # try:
+    #     initialize_stargate(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_stargate fail:{e}")
     # try:
     #     initialize_bool(account, so_diamond)
     # except Exception as e:
@@ -106,14 +108,14 @@ def main():
     #     initialize_multichain(account, so_diamond)
     # except Exception as e:
     #     print(f"initialize_multichain fail:{e}")
-    # try:
-    #     initialize_wormhole(account, so_diamond)
-    # except Exception as e:
-    #     print(f"initialize_wormhole fail: {e}")
-    # try:
-    #     initialize_wormhole_fee(account)
-    # except Exception as e:
-    #     print(f"initialize_wormhole_fee fail: {e}")
+    try:
+        initialize_wormhole(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_wormhole fail: {e}")
+    try:
+        initialize_wormhole_fee(account)
+    except Exception as e:
+        print(f"initialize_wormhole_fee fail: {e}")
     try:
         initialize_dex_manager(account, so_diamond)
     except Exception as e:
@@ -146,6 +148,10 @@ def initialize_wormhole_fee(account):
                 60,
                 {"from": account},
             )
+
+    if network.show_active() == "bsc-test":
+        # sol / bnb
+        LibSoFeeWormholeV1[-1].setPriceRatio(1, 1e26, {'from': account})
 
 
 def initialize_celer_fee(account):
@@ -190,10 +196,10 @@ def initialize_cut(account, so_diamond):
         OwnershipFacet,
         # CelerFacet,
         # MultiChainFacet,
-        StargateFacet,
+        # StargateFacet,
         # BoolFacet,
         # CCTPFacet,
-        # WormholeFacet,
+        WormholeFacet,
         WithdrawFacet,
         GenericSwapFacet,
         SerdeFacet,
@@ -280,9 +286,9 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
 
     dstBaseGasInfo = {
-        1880000: ["optimism-main"],
-        3000000: ["arbitrum-main"],
-        1050000: ["avax-main"],
+        2951600: ["optimism-main"],
+        4500000: ["arbitrum-main"],
+        1575000: ["avax-main"],
         551250: ["mainnet"]
     }
     for dstBaseGas, nets in dstBaseGasInfo.items():
@@ -411,15 +417,15 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchAddDex(dexs, {"from": account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
-    proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
-    )
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
+    # )
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
     # )
-    # proxy_dex.addFee(
-    #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
-    # )
+    proxy_dex.addFee(
+        get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
+    )
     # proxy_dex.addFee(
     #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
     # )
@@ -637,7 +643,7 @@ def redeploy_bool():
 
     # 1. deploy bool's lib so fee
 
-    so_fee = 1e-3
+    so_fee = 0
     ray = 1e27
     basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
     basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
@@ -878,8 +884,29 @@ def initialize_eth():
 def reset_so_fee():
     account = get_account()
     so_fee = 0
-    LibSoFeeStargateV2[-1].setFee(so_fee, {"from": account})
-    print("Cur soFee is", LibSoFeeStargateV2[-1].soFee() / 1e18)
+    try:
+        LibSoFeeStargateV2[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeStargateV2 is", LibSoFeeStargateV2[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeStargateV2 error")
+    try:
+        LibSoFeeBoolV2[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeBoolV2 is", LibSoFeeBoolV2[-1].soFee() / 1e27)
+    except:
+        import traceback
+        traceback.print_exc()
+        print(f"LibSoFeeBoolV2 error")
+    try:
+        LibSoFeeCCTPV1[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeCCTPV1 is", LibSoFeeCCTPV1[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeCCTPV1 error")
+
+    try:
+        LibSoFeeWormholeV1[-1].setFee(so_fee, {"from": account})
+        print("LibSoFeeWormholeV1 is", LibSoFeeWormholeV1[-1].soFee() / 1e27)
+    except:
+        print(f"LibSoFeeWormholeV1 error")
 
 
 def reset_basic_fee():
@@ -929,9 +956,42 @@ def transferOwnership():
     print(proxy.owner())
 
 
-def transferOwnershipForFee(owner):
-    account = get_account()
-    LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
+def transferOwnershipForFee():
+    account = get_account("deploy_key")
+    owner_account = get_account()
+    owner = owner_account.address
+    print(f'owner: {owner}')
+    try:
+        LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeStargateV2 success")
+    except:
+        print(f"LibSoFeeStargateV2 error")
+
+    try:
+        LibSoFeeBoolV2[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeBoolV2 success")
+    except:
+        print(f"LibSoFeeBoolV2 error")
+    try:
+        LibSoFeeCCTPV1[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeCCTPV1 success")
+    except:
+        print(f"LibSoFeeCCTPV1 error")
+
+    try:
+        LibSoFeeWormholeV1[-1].transferOwnership(owner, {"from": account})
+        print(f"LibSoFeeWormholeV1 success")
+    except:
+        print(f"LibSoFeeWormholeV1 error")
+
+
+def init_token_for_stargate():
+    root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    mainnet_swap_file = os.path.join(root_path, "export/mainnet/OmniSwapInfo.json")
+    token_name = ["USDC", "USDT", "ETH", "BUSD", "USDD", "MAI", "DAI", "FRAX", "WOO", "LUSD"]
+    net = network.show_active()
+    data = read_json(mainnet_swap_file)
+    # todo
 
 
 def fix_libswap():

@@ -87,6 +87,12 @@
                 "ChainPath": [
                     {
                         "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                        "ChainId": 8453,
+                        "Decimal": 18,
+                        "PoolId": 1
+                    },
+                    {
+                        "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
                         "ChainId": 10,
                         "Decimal": 18,
                         "PoolId": 8
@@ -187,6 +193,40 @@
                 "PoolAddress": "0x2D958BF57b35fbE5AE865C7956338d02e0B30562",
                 "PoolId": 1,
                 "TokenName": "USDT"
+            }
+        ]
+    },
+    "base-main": {
+        "BoolFactory": "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924",
+        "BoolRouter": "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d",
+        "ChainId": 8453,
+        "SupportTokens": [
+            {
+                "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                "ChainPath": [
+                    {
+                        "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                        "ChainId": 42161,
+                        "Decimal": 18,
+                        "PoolId": 6
+                    },
+                    {
+                        "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                        "ChainId": 10,
+                        "Decimal": 18,
+                        "PoolId": 8
+                    },
+                    {
+                        "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                        "ChainId": 324,
+                        "Decimal": 18,
+                        "PoolId": 1
+                    }
+                ],
+                "Decimal": 18,
+                "PoolAddress": "0x2D958BF57b35fbE5AE865C7956338d02e0B30562",
+                "PoolId": 1,
+                "TokenName": "ETH"
             }
         ]
     },
@@ -366,6 +406,12 @@
                         "ChainId": 42161,
                         "Decimal": 18,
                         "PoolId": 6
+                    },
+                    {
+                        "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                        "ChainId": 8453,
+                        "Decimal": 18,
+                        "PoolId": 1
                     },
                     {
                         "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
@@ -557,6 +603,12 @@
                         "ChainId": 42161,
                         "Decimal": 18,
                         "PoolId": 6
+                    },
+                    {
+                        "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                        "ChainId": 8453,
+                        "Decimal": 18,
+                        "PoolId": 1
                     },
                     {
                         "Address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
