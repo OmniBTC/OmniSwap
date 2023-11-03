@@ -163,7 +163,7 @@ if (NET !== "solana-mainnet") {
     // OMNISWAP_PID base58decode
     SODIAMOND = "0x3636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843"
     BENEFICIARY = "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3";
-    LOOKUP_TABLE_KEY = new PublicKey("")
+    LOOKUP_TABLE_KEY = new PublicKey("8K1NLm2WvUT9inQGsRjF3vrq5wUMtRbPRcWgNpUNNBFC")
 }
 WORMHOLE_CHAIN_ID_TO_NET = Object.keys(NET_TO_WORMHOLE_CHAIN_ID).reduce((returnValue, key) => {
     const value = NET_TO_WORMHOLE_CHAIN_ID[key];
