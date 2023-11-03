@@ -39,7 +39,7 @@ if (process.env.RELAYER_KEY == null) {
     throw new Error(".env RELAYER_KEY not found")
 }
 
-const NET = "solana-testnet";
+const NET = "solana-mainnet";
 let SOLANA_EMITTER_CHAIN: number;
 let CORE_BRIDGE_PID;
 let TOKEN_BRIDGE_PID;

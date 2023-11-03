@@ -23,7 +23,7 @@ def format_emitter_address(addr):
     return addr
 
 
-NET = "testnet"
+NET = "mainnet"
 
 # network name -> wormhole chain id
 if NET == "mainnet":
