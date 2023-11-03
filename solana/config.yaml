@@ -110,7 +110,7 @@ mainnet:
   omnibtc_chainid: 30003
   rpc_url: "https://api.mainnet-beta.solana.com"
   program:
-    SoDiamond: ""
+    SoDiamond: "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
     Wormhole: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth"
     TokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb"
     Whirlpools: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
@@ -126,18 +126,18 @@ mainnet:
         chainid: 4
         base_gas: 700000
         per_byte_gas: 68
-        price_manager: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
-        token_bridge_emitter: "0x0000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09"
-        omniswap_emitter: "0x00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
+        price_manager: "Hoj126haP4RDTjcgPwiygcqsr7Ymy7SfhDKCQ2qMwpEX"
+        token_bridge_emitter: "0x000000000000000000000000B6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
+        omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
 
       eth-main:
         omnibtc_chainid: 2
         chainid: 2
         base_gas: 700000
         per_byte_gas: 68
-        price_manager: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
-        token_bridge_emitter: "0x0000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09"
-        omniswap_emitter: "0x00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
+        price_manager: "E3An2eiDZmNQnS7e8qqSQHDhWaENSJyBYdU155QyxPmj"
+        token_bridge_emitter: "0x0000000000000000000000003ee18B2214AFF97000D974cf647E7C347E8fa585"
+        omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
 
 solana-wallet:
   Owner: ${TEST_OWNER}

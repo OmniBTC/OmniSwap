@@ -70,7 +70,7 @@ async def call_set_so_fee():
 
 async def call_initialize_all():
     print("initialize...")
-    await omniswap_initialize()
+    await omniswap_initialize(network="mainnet")
 
     print("set_so_fee...")
     # 0.1 %
@@ -80,10 +80,12 @@ async def call_initialize_all():
     await omniswap_set_so_fee(so_fee_by_ray)
 
     print("register_foreign_contract...")
-    await omniswap_register_foreign_contract("bsc-test")
+    await omniswap_register_foreign_contract("bsc-main", network="mainnet")
+    await omniswap_register_foreign_contract("eth-main", network="mainnet")
 
-    print("set_price_ratio...")
-    await omniswap_set_price_ratio("bsc-test", 10_000_000)
-
+    # print("set_price_ratio...")
+    #
+    # await omniswap_set_price_ratio("bsc-main", 10_000_000, network="mainnet")
+    # await omniswap_set_price_ratio("eth-main", 10_000_000, network="mainnet")
 
 asyncio.run(call_close_pending_request())
