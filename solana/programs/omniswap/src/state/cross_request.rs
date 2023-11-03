@@ -16,14 +16,16 @@ pub struct CrossRequest {
 }
 
 impl CrossRequest {
+	/// Reserve for retry requests
+	pub const RESERVE_SIZE: usize = 256;
 	pub const MINIMUM_SIZE: usize = 8 // discriminator
 		+ 32 // owner
 		+ 32 // bump
-		+ 8  // nonce
 		+ 24 // empty vec
 		+ 24 // empty vec
 		+ 24 // empty vec
-		+ 24; // empty vec
+		+ 24 // empty vec
+		+ Self::RESERVE_SIZE;
 
 	pub const SEED_PREFIX: &'static [u8; 7] = b"request";
 	pub fn dst_chain_id(&self) -> Result<u16> {
@@ -46,10 +48,11 @@ pub mod test {
 			size_of::<u64>() +
 				size_of::<Pubkey>() +
 				size_of::<Pubkey>() +
-				size_of::<u64>() + size_of::<Vec<u8>>() +
 				size_of::<Vec<u8>>() +
 				size_of::<Vec<u8>>() +
-				size_of::<Vec<u8>>()
+				size_of::<Vec<u8>>() +
+				size_of::<Vec<u8>>() +
+				CrossRequest::RESERVE_SIZE
 		);
 
 		Ok(())
