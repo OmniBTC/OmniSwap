@@ -510,7 +510,7 @@ async function processV2(
     );
     let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.RELAYER_KEY)));
     const hasProcess = new Map<string, number>();
-    const pendingInterval = 10;
+    const pendingInterval = 30;
     let lastPendingTime = 0;
     while (true) {
         const currentTimeStamp: number = Math.floor(Date.now() / 1000);
@@ -521,6 +521,7 @@ async function processV2(
         }
         let pendingData;
         try {
+            // @ts-ignore
             if (NET === "solana-testnet") {
                 pendingData = await getPendingDataFromEvm("bsc-test");
             } else {
