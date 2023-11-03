@@ -24,7 +24,7 @@ import {IOneInchGenericRouter, IOneInchClipperRouter, IOneInchUnoswapRouter, IOn
 
 contract LibCorrectSwapV2 is ICorrectSwap {
     address public owner;
-    mapping(bytes4 => ICorrectSwap) private _correctSwap;
+    mapping(bytes4 => address) private _correctSwap;
 
     constructor() {
         // set owner
@@ -40,10 +40,10 @@ contract LibCorrectSwapV2 is ICorrectSwap {
     // External Method
 
     // @dev Set correct swap
-    function setCorrectSwap(
-        bytes4[] calldata _sigs,
-        ICorrectSwap _correctSwapAddr
-    ) external onlyOwner {
+    function setCorrectSwap(bytes4[] memory _sigs, address _correctSwapAddr)
+        external
+        onlyOwner
+    {
         for (uint256 i = 0; i < _sigs.length; i++) {
             _correctSwap[_sigs[i]] = _correctSwapAddr;
         }
@@ -55,7 +55,7 @@ contract LibCorrectSwapV2 is ICorrectSwap {
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwap[sig] == ICorrectSwap(address(0))) {
+        if (_correctSwap[sig] == address(0)) {
             revert("not support");
         } else {
             try
@@ -77,7 +77,7 @@ contract LibCorrectSwapV2 is ICorrectSwap {
         returns (uint256, bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwap[sig] == ICorrectSwap(address(0))) {
+        if (_correctSwap[sig] == address(0)) {
             revert("not support");
         } else {
             try
@@ -227,13 +227,13 @@ contract CorrectUniswapV2Factory {
 
     function deploy_correct_uniswapv2() internal {
         // UniswapV2
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](5);
         sigs[0] = LibSwapFuncSigs._FUNC1;
         sigs[1] = LibSwapFuncSigs._FUNC2;
         sigs[2] = LibSwapFuncSigs._FUNC3;
         sigs[3] = LibSwapFuncSigs._FUNC4;
         sigs[4] = LibSwapFuncSigs._FUNC5;
-        ICorrectSwap correctUniswapV2 = new CorrectUniswapV2();
+        address correctUniswapV2 = address(new CorrectUniswapV2());
         libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV2);
     }
 }
@@ -372,10 +372,10 @@ contract CorrectUniswapV3Factory {
 
     function deploy_correct_uniswapv3() internal {
         // UniswapV3
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](2);
         sigs[0] = LibSwapFuncSigs._FUNC6;
-        sigs[0] = LibSwapFuncSigs._FUNC15;
-        ICorrectSwap correctUniswapV3 = new CorrectUniswapV3();
+        sigs[1] = LibSwapFuncSigs._FUNC15;
+        address correctUniswapV3 = address(new CorrectUniswapV3());
         libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV3);
     }
 }
@@ -482,9 +482,9 @@ contract CorrectSyncswapFactory {
 
     function deploy_correct_syncswap() internal {
         // Syncswap
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](1);
         sigs[0] = LibSwapFuncSigs._FUNC7;
-        ICorrectSwap correctSyncswap = new CorrectSyncswap();
+        address correctSyncswap = address(new CorrectSyncswap());
         libCorrectSwapV2.setCorrectSwap(sigs, correctSyncswap);
     }
 }
@@ -598,11 +598,11 @@ contract CorrectMuteswapFactory {
 
     function deploy_correct_muteswap() internal {
         // Muteswap
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](3);
         sigs[0] = LibSwapFuncSigs._FUNC8;
         sigs[1] = LibSwapFuncSigs._FUNC9;
         sigs[2] = LibSwapFuncSigs._FUNC10;
-        ICorrectSwap correctMuteswap = new CorrectMuteswap();
+        address correctMuteswap = address(new CorrectMuteswap());
         libCorrectSwapV2.setCorrectSwap(sigs, correctMuteswap);
     }
 }
@@ -742,9 +742,9 @@ contract CorrectQuickswapV3Factory {
 
     function deploy_correct_quickswapv3() internal {
         // QuickswapV3
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](1);
         sigs[0] = LibSwapFuncSigs._FUNC11;
-        ICorrectSwap correctQuickswapV3 = new CorrectQuickswapV3();
+        address correctQuickswapV3 = address(new CorrectQuickswapV3());
         libCorrectSwapV2.setCorrectSwap(sigs, correctQuickswapV3);
     }
 }
@@ -826,11 +826,11 @@ contract CorrectAerodromeFactory {
 
     function deploy_correct_aerodrome() internal {
         // Aerodrome
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](3);
         sigs[0] = LibSwapFuncSigs._FUNC12;
         sigs[1] = LibSwapFuncSigs._FUNC13;
         sigs[2] = LibSwapFuncSigs._FUNC14;
-        ICorrectSwap correctAerodrome = new CorrectAerodrome();
+        address correctAerodrome = address(new CorrectAerodrome());
         libCorrectSwapV2.setCorrectSwap(sigs, correctAerodrome);
     }
 }
@@ -964,9 +964,9 @@ contract CorrectBalancerV2Factory {
 
     function deploy_correct_balancerv2() internal {
         // BalancerV2
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](1);
         sigs[0] = LibSwapFuncSigs._FUNC16;
-        ICorrectSwap correctBalancerV2 = new CorrectBalancerV2();
+        address correctBalancerV2 = address(new CorrectBalancerV2());
         libCorrectSwapV2.setCorrectSwap(sigs, correctBalancerV2);
     }
 }
@@ -1074,10 +1074,10 @@ contract CorrectCurveFactory {
 
     function deploy_correct_curve() internal {
         // Curve
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](2);
         sigs[0] = LibSwapFuncSigs._FUNC17;
         sigs[1] = LibSwapFuncSigs._FUNC18;
-        ICorrectSwap correctCurve = new CorrectCurve();
+        address correctCurve = address(new CorrectCurve());
         libCorrectSwapV2.setCorrectSwap(sigs, correctCurve);
     }
 }
@@ -1196,11 +1196,11 @@ contract CorrectWombatFactory {
 
     function deploy_correct_wombat() internal {
         // Wombat
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](3);
         sigs[0] = LibSwapFuncSigs._FUNC19;
         sigs[1] = LibSwapFuncSigs._FUNC20;
         sigs[2] = LibSwapFuncSigs._FUNC21;
-        ICorrectSwap correctWombat = new CorrectWombat();
+        address correctWombat = address(new CorrectWombat());
         libCorrectSwapV2.setCorrectSwap(sigs, correctWombat);
     }
 }
@@ -1342,11 +1342,11 @@ contract CorrectTraderJoeFactory {
 
     function deploy_correct_traderjoe() internal {
         // Trader Joe
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](3);
         sigs[0] = LibSwapFuncSigs._FUNC22;
         sigs[1] = LibSwapFuncSigs._FUNC23;
         sigs[2] = LibSwapFuncSigs._FUNC24;
-        ICorrectSwap correctTraderJoe = new CorrectTraderJoe();
+        address correctTraderJoe = address(new CorrectTraderJoe());
         libCorrectSwapV2.setCorrectSwap(sigs, correctTraderJoe);
     }
 }
@@ -1484,11 +1484,11 @@ contract CorrectGMXV1Factory {
 
     function deploy_correct_gmxv1() internal {
         // GMX V1
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](3);
         sigs[0] = LibSwapFuncSigs._FUNC25;
         sigs[1] = LibSwapFuncSigs._FUNC26;
         sigs[2] = LibSwapFuncSigs._FUNC27;
-        ICorrectSwap correctGMXV1 = new CorrectGMXV1();
+        address correctGMXV1 = address(new CorrectGMXV1());
         libCorrectSwapV2.setCorrectSwap(sigs, correctGMXV1);
     }
 }
@@ -1601,11 +1601,11 @@ contract CorrectPearlFiFactory {
 
     function deploy_correct_pearlfi() internal {
         // PearlFi
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](3);
         sigs[0] = LibSwapFuncSigs._FUNC28;
         sigs[1] = LibSwapFuncSigs._FUNC29;
         sigs[2] = LibSwapFuncSigs._FUNC30;
-        ICorrectSwap correctPearlFi = new CorrectPearlFi();
+        address correctPearlFi = address(new CorrectPearlFi());
         libCorrectSwapV2.setCorrectSwap(sigs, correctPearlFi);
     }
 }
@@ -1743,9 +1743,9 @@ contract CorrectIZiSwapFactory {
 
     function deploy_correct_iziswap() internal {
         // iZiSwap
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](1);
         sigs[0] = LibSwapFuncSigs._FUNC31;
-        ICorrectSwap correctiZiSwap = new CorrectIZiSwap();
+        address correctiZiSwap = address(new CorrectIZiSwap());
         libCorrectSwapV2.setCorrectSwap(sigs, correctiZiSwap);
     }
 }
@@ -1827,11 +1827,11 @@ contract CorrectCamelotFactory {
 
     function deploy_correct_camelot() internal {
         // Camelot
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](3);
         sigs[0] = LibSwapFuncSigs._FUNC32;
         sigs[1] = LibSwapFuncSigs._FUNC33;
         sigs[2] = LibSwapFuncSigs._FUNC34;
-        ICorrectSwap correctCamelot = new CorrectCamelot();
+        address correctCamelot = address(new CorrectCamelot());
         libCorrectSwapV2.setCorrectSwap(sigs, correctCamelot);
     }
 }
@@ -1979,11 +1979,11 @@ contract CorrectKyberswapFactory {
 
     function deploy_correct_kyberswap() internal {
         // Kyberswap
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](3);
         sigs[0] = LibSwapFuncSigs._FUNC35;
         sigs[1] = LibSwapFuncSigs._FUNC36;
         sigs[2] = LibSwapFuncSigs._FUNC37;
-        ICorrectSwap correctKyberswap = new CorrectKyberswap();
+        address correctKyberswap = address(new CorrectKyberswap());
         libCorrectSwapV2.setCorrectSwap(sigs, correctKyberswap);
     }
 }
@@ -2131,7 +2131,7 @@ contract CorrectOneInchFactory {
 
     function deploy_correct_oneinch() internal {
         // 1inch
-        bytes4[] memory sigs;
+        bytes4[] memory sigs = new bytes4[](10);
         sigs[0] = LibSwapFuncSigs._FUNC38;
         sigs[1] = LibSwapFuncSigs._FUNC39;
         sigs[2] = LibSwapFuncSigs._FUNC40;
@@ -2142,7 +2142,7 @@ contract CorrectOneInchFactory {
         sigs[7] = LibSwapFuncSigs._FUNC45;
         sigs[8] = LibSwapFuncSigs._FUNC46;
         sigs[9] = LibSwapFuncSigs._FUNC47;
-        ICorrectSwap correctOneInch = new CorrectOneInch();
+        address correctOneInch = address(new CorrectOneInch());
         libCorrectSwapV2.setCorrectSwap(sigs, correctOneInch);
     }
 }

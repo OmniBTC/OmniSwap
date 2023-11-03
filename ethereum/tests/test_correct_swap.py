@@ -1,0 +1,37 @@
+import pytest
+from brownie import LibCorrectSwapV2, CorrectUniswapV2Factory, CorrectUniswapV3Factory
+
+from scripts.helpful_scripts import get_account
+
+account = get_account()
+
+
+@pytest.fixture
+def lib_correct_swap_v2():
+    return account.deploy(LibCorrectSwapV2)
+
+
+@pytest.fixture
+def correct_uniswapv2(lib_correct_swap_v2):
+    return account.deploy(CorrectUniswapV2Factory, lib_correct_swap_v2.address)
+
+
+@pytest.fixture
+def correct_uniswapv3(lib_correct_swap_v2):
+    return account.deploy(CorrectUniswapV3Factory, lib_correct_swap_v2.address)
+
+
+def test_correct_uniswapv2(lib_correct_swap_v2, correct_uniswapv2):
+    data = "0x7ff36ab50000000000000000000000000000000000000000002a7767e41ae375e18b435f000000000000000000000000000000000000000000000000000000000000008000000000000000000000000057d1bdc3e3ca920a38b3aca0acb8853f2e76d98700000000000000000000000000000000000000000000000000000000618bed660000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000021e783bcf445b515957a10e992ad3c8e9ff51288"
+
+    correct_amount = 1e18
+    lib_correct_swap_v2.correctSwap(data, correct_amount, {'from': account})
+    lib_correct_swap_v2.fixMinAmount(data, correct_amount, {'from': account})
+
+
+def test_correct_uniswapv3(lib_correct_swap_v2, correct_uniswapv3):
+    data = "0xc04b8d59000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000331577a9af6031c3dc58c80aaf1afa9948ac44420000000000000000000000000000000000000000000000000000000060b4cc220000000000000000000000000000000000000000000000000011c37937e0800000000000000000000000000000000000000000000000000006ef0d2941076c900000000000000000000000000000000000000000000000000000000000000042c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20001f4a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480001f41f9840a85d5af5bf1d1762f925bdaddc4201f984000000000000000000000000000000000000000000000000000000000000"
+
+    correct_amount = 1e18
+    lib_correct_swap_v2.correctSwap(data, correct_amount, {'from': account})
+    lib_correct_swap_v2.fixMinAmount(data, correct_amount, {'from': account})
