@@ -59,6 +59,7 @@ def set_so_gas():
         "polygon-main",
         "aptos-mainnet",
         "sui-mainnet",
+        "solana-mainnet"
     ]
 
     gas = {
@@ -72,26 +73,26 @@ def set_so_gas():
         #     "base_gas": 700000,
         #     "per_byte_gas": 68
         # },
-        "polygon-main": {
-            "dst_chainid": 5,
-            "base_gas": 2800000,
-            "per_byte_gas": 68
-        },
-        "avax-main": {
-            "dst_chainid": 6,
-            "base_gas": 1400000,
-            "per_byte_gas": 68
-        },
-        "aptos-mainnet": {
-            "dst_chainid": 22,
-            "base_gas": 40000,
-            "per_byte_gas": 10
-        },
-        "sui-mainnet": {
-            "dst_chainid": 21,
-            "base_gas": 840000,
-            "per_byte_gas": 68
-        },
+        # "polygon-main": {
+        #     "dst_chainid": 5,
+        #     "base_gas": 2800000,
+        #     "per_byte_gas": 68
+        # },
+        # "avax-main": {
+        #     "dst_chainid": 6,
+        #     "base_gas": 1400000,
+        #     "per_byte_gas": 68
+        # },
+        # "aptos-mainnet": {
+        #     "dst_chainid": 22,
+        #     "base_gas": 40000,
+        #     "per_byte_gas": 10
+        # },
+        # "sui-mainnet": {
+        #     "dst_chainid": 21,
+        #     "base_gas": 840000,
+        #     "per_byte_gas": 68
+        # },
         "solana-mainnet": {
             "dst_chainid": 1,
             "base_gas": 10000000000000000,
@@ -119,7 +120,7 @@ def set_so_gas():
 
 @functools.lru_cache()
 def get_prices(
-        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT")
+        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
 ):
     api = ccxt.kucoin()
     prices = {}
@@ -378,7 +379,7 @@ def set_so_price():
         # solana
         dst_wormhole_id = 1
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["SOLANA/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
+        ratio = int(prices["SOL/USDT"] / prices["AVAX/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
@@ -415,7 +416,7 @@ def set_so_price():
         # solana
         dst_wormhole_id = 1
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["SOLANA/USDT"] / prices["ETH/USDT"] * decimal * multiply)
+        ratio = int(prices["SOL/USDT"] / prices["ETH/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
@@ -452,7 +453,7 @@ def set_so_price():
         # solana
         dst_wormhole_id = 1
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["SOLANA/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
+        ratio = int(prices["SOL/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
@@ -489,7 +490,7 @@ def set_so_price():
         # solana
         dst_wormhole_id = 1
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["SOLANA/USDT"] / prices["BNB/USDT"] * decimal * multiply)
+        ratio = int(prices["SOL/USDT"] / prices["BNB/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )

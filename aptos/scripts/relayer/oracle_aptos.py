@@ -16,7 +16,7 @@ def set_so_gas():
 
     serde = get_serde_facet(package, network.show_active())
 
-    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "sui-mainnet"]
+    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "sui-mainnet", "solana-mainnet"]
 
     gas = {
         # "mainnet": {
@@ -72,7 +72,7 @@ def set_so_gas():
 
 
 @functools.lru_cache()
-def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT")):
+def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")):
     api = ccxt.kucoin()
     prices = {}
 
@@ -154,7 +154,7 @@ def set_so_price():
         price_manage = package.account_resource(
             price_resource, f"{str(package.account.account_address)}::so_fee_wormhole::PriceManager")
         old_ratio = int(price_manage["data"]["price_data"]["current_price_ratio"])
-        ratio = int(prices["SOLANA/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
+        ratio = int(prices["SOL/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} "
               f"percent: {ratio / old_ratio if old_ratio > 0 else 0}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
