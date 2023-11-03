@@ -361,9 +361,15 @@ def reexport_wormhole_chainpath():
 
     support_tokens = {}
     native_tokens = []
-    networks = list(omni_swap_infos.keys())
-    for net in networks:
+    all_networks = list(omni_swap_infos.keys())
+    networks = []
+    for net in all_networks:
+        if "WormholeSupportToken" in omni_swap_infos[net]:
+            networks.append(net)
 
+    print(networks)
+
+    for net in networks:
         tokens = []
         for token in omni_swap_infos[net]["WormholeSupportToken"]:
             if token["NativeToken"]:

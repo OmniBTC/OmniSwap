@@ -223,7 +223,8 @@ networks:
   bsc-test:
     omnibtc_chainid: 30003
     chainid: 97
-    SoDiamond: "0xFeEE07da1B3513BdfD5440562e962dfAac19566F"
+    SoDiamond: "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
+    endpoints: ["https://bsc-testnet.blockpi.network/v1/rpc/public", "https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com"]
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
@@ -250,6 +251,10 @@ networks:
         sui-testnet:
           dst_chainid: 21
           base_gas: 60000
+          per_byte_gas: 68
+        solana-devnet:
+          dst_chainid: 1
+          base_gas: 50000
           per_byte_gas: 68
     oracle:
       bsc:

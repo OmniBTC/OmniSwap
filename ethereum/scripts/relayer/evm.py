@@ -12,12 +12,14 @@ import threading
 
 from brownie.network.transaction import TransactionReceipt
 from retrying import retry
-from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc
+from scripts.helpful_scripts import get_account, change_network, reconnect_random_rpc, PersistentDictionary
 from scripts.relayer.select_evm import (
     get_pending_data,
     get_signed_vaa_by_wormhole,
-    get_chain_id_to_net
+    get_chain_id_to_net,
+    NET
 )
+from scripts.relayer.wormhole_serder import parseTransferWithPayloadVaa
 from scripts.serde import parse_vaa_to_wormhole_payload, get_wormhole_facet
 
 FORMAT = "%(asctime)s - %(funcName)s - %(levelname)s - %(name)s: %(message)s"
@@ -25,40 +27,85 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
-SUPPORTED_EVM = [
-    {
-        "dstWormholeChainId": 2,
-        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "mainnet",
-    },
-    {
-        "dstWormholeChainId": 4,
-        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "bsc-main",
-    },
-    {
-        "dstWormholeChainId": 5,
-        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "polygon-main",
-    },
-    {
-        "dstWormholeChainId": 6,
-        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "avax-main",
-    },
-]
+if NET == "mainnet":
+    SUPPORTED_EVM = [
+        {
+            "dstWormholeChainId": 2,
+            "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+            "dstNet": "mainnet",
+        },
+        {
+            "dstWormholeChainId": 4,
+            "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+            "dstNet": "bsc-main",
+        },
+        {
+            "dstWormholeChainId": 5,
+            "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+            "dstNet": "polygon-main",
+        },
+        {
+            "dstWormholeChainId": 6,
+            "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+            "dstNet": "avax-main",
+        },
+    ]
+else:
+    SUPPORTED_EVM = [
+        {"dstWormholeChainId": 4,
+         "dstSoDiamond": "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc",
+         "dstNet": "bsc-test"
+         }
+    ]
 
 
-# SUPPORTED_EVM = [
-#     {"dstWormholeChainId": 4,
-#      "dstSoDiamond": "0xFeEE07da1B3513BdfD5440562e962dfAac19566F",
-#      "dstNet": "bsc-test"
-#      },
-#     {"dstWormholeChainId": 6,
-#      "dstSoDiamond": "0xBb032459B39547908eDB8E690c030Dc4F31DA673",
-#      "dstNet": "avax-test"
-#      },
-# ]
+def get_pending_data_from_solana(dstWormholeChainId):
+    evm_net = network.show_active()
+    if evm_net is None:
+        evm_net = "bsc-test"
+    local_logger = logger.getChild(f"[{evm_net}]")
+    sequence_dict = PersistentDictionary(f"./cache/solana_{evm_net}_sequence.json")
+    dst_diamond = list(filter(lambda d: d["dstNet"] == evm_net, SUPPORTED_EVM))[0]["dstSoDiamond"]
+    dst_diamond = dst_diamond.replace("0x", "").lower()
+    if NET == "mainnet":
+        solana_net = "solana-mainnet"
+    else:
+        solana_net = "solana-testnet"
+    default_value = 25508
+    sequence = sequence_dict.get(solana_net, default_value)
+    emitter_chain_id = 1
+    while True:
+        sequence += 1
+        while True:
+            vaa = get_signed_vaa_by_wormhole(sequence, emitter_chain_id)
+            if vaa is None:
+                local_logger.info(f"Query sequence {sequence} is None, waiting")
+                time.sleep(10)
+                continue
+            else:
+                local_logger.info(f"Query sequence {sequence} finish")
+            break
+        sequence_dict.set(solana_net, sequence)
+        try:
+            parsed_vaa, parsed_transfer, parsed_transfer_payload = parseTransferWithPayloadVaa(vaa)
+            parsed_vaa = parsed_vaa.format_json()
+            parsed_transfer = parsed_transfer.format_json()
+            _parsed_transfer_payload = parsed_transfer_payload.format_json()
+        except:
+            continue
+        if dst_diamond not in parsed_transfer["redeemer"].lower():
+            continue
+        if parsed_transfer["redeemerChain"] != dstWormholeChainId:
+            continue
+        info = {'chainName': solana_net,
+                'extrinsicHash': parsed_vaa["hash"],
+                'srcWormholeChainId': parsed_vaa["emitterChain"],
+                'dstWormholeChainId': parsed_transfer["redeemerChain"],
+                'sequence': parsed_vaa["sequence"],
+                'blockTimestamp': parsed_vaa["timestamp"]
+                }
+        return info, vaa
+
 
 @retry
 def get_token_price():
@@ -177,6 +224,84 @@ def process_vaa(
     return True
 
 
+def process_v1(
+        dstWormholeChainId: int,
+        dstSoDiamond: str,
+):
+    local_logger = logger.getChild(f"[v1|{network.show_active()}]")
+    local_logger.info("Starting process v1...")
+    local_logger.info(f"SoDiamond:{dstSoDiamond}, acc:{get_account().address}")
+    reconnect_random_rpc()
+    last_update_endpoint = 0
+    endpoint_interval = 30
+    last_price_update = 0
+    interval_price = 3 * 60
+    price_info = {}
+    has_process = {}
+    while True:
+        try:
+            if time.time() >= interval_price + last_price_update:
+                local_logger.info("Get token price")
+                price_info = get_token_price()
+                last_price_update = time.time()
+        except Exception as e:
+            local_logger.error(f'Get token price error: {e}')
+            continue
+        try:
+            d, vaa = get_pending_data_from_solana(dstWormholeChainId)
+        except Exception as e:
+            local_logger.error(
+                f'Get pending data from solana for {network.show_active()} error: {e}'
+            )
+            continue
+        try:
+            if time.time() > last_update_endpoint + endpoint_interval:
+                reconnect_random_rpc()
+                local_logger.info(f"Update rpc")
+                last_update_endpoint = time.time()
+            vaa = get_signed_vaa_by_wormhole(int(d["sequence"]), int(d["srcWormholeChainId"]))
+            if vaa is None:
+                local_logger.info(
+                    f'Waiting vaa for emitterChainId: {d["srcWormholeChainId"]}, sequence:{d["sequence"]}')
+                continue
+        except Exception as e:
+            local_logger.error(
+                f'Get signed vaa for: emitterChainId: {d["srcWormholeChainId"]}, '
+                f'sequence:{d["sequence"]} error: {e}'
+            )
+            continue
+        try:
+            # If gas price not enough, pending 7 day to manual process
+            if (time.time() - d["blockTimestamp"]) >= 7 * 24 * 60 * 60 or NET != "mainnet":
+                limit_gas_price = False
+            else:
+                limit_gas_price = True
+        except:
+            limit_gas_price = True
+        has_key = (int(d["srcWormholeChainId"]), int(d["sequence"]))
+        if (
+                has_key in has_process
+                and (time.time() - has_process[has_key]) <= 10 * 60
+        ):
+            local_logger.warning(
+                f'emitterChainId:{d["srcWormholeChainId"]} sequence:{d["sequence"]} '
+                f"inner 10min has process!"
+            )
+            continue
+        else:
+            has_process[has_key] = time.time()
+        process_vaa(
+            dstSoDiamond=dstSoDiamond,
+            vaa_str=vaa,
+            emitterChainId=d["srcWormholeChainId"],
+            sequence=d["sequence"],
+            extrinsicHash=d["extrinsicHash"],
+            local_logger=local_logger,
+            limit_gas_price=limit_gas_price,
+            price=price_info[d["dstWormholeChainId"]]
+        )
+
+
 def process_v2(
         dstWormholeChainId: int,
         dstSoDiamond: str,
@@ -192,7 +317,9 @@ def process_v2(
     price_info = {}
     has_process = {}
     if "test" in network.show_active() or "test" == "goerli":
-        pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+        _pending_url = "https://crossswap-pre.coming.chat/v1/getUnSendTransferFromWormhole"
+        local_logger.info("Not process v2, end")
+        return
     else:
         pending_url = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     last_pending_time = 0
@@ -297,11 +424,21 @@ class Session(Process):
         except:
             logger.error(f"Connect {self.dstNet} fail")
             return
+        t1 = None
+        if NET == "testnet":
+            t1 = threading.Thread(
+                target=process_v1, args=(self.dstWormholeChainId, self.dstSoDiamond)
+            )
+            t1.start()
         t2 = threading.Thread(
             target=process_v2, args=(self.dstWormholeChainId, self.dstSoDiamond)
         )
         t2.start()
         while True:
+            if t1 is not None and not t1.is_alive():
+                if not network.is_connected():
+                    change_network(self.dstNet)
+                t1.start()
             if not t2.is_alive():
                 if not network.is_connected():
                     change_network(self.dstNet)

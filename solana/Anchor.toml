@@ -1,0 +1,20 @@
+[features]
+seeds = false
+skip-lint = false
+
+[programs.devnet]
+omniswap = "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
+
+[programs.mainnet]
+omniswap = "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Devnet"
+wallet = "/home/chain/.config/solana/id.json"
+
+[toolchain]
+anchor_version = "0.28.0"
+solana_version = "1.16.13"

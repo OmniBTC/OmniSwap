@@ -84,10 +84,10 @@ def main():
         initialize_cut(account, so_diamond)
     except Exception as e:
         print(f"initialize_cut fail:{e}")
-    try:
-        initialize_stargate(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_stargate fail:{e}")
+    # try:
+    #     initialize_stargate(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_stargate fail:{e}")
     # try:
     #     initialize_bool(account, so_diamond)
     # except Exception as e:
@@ -108,14 +108,14 @@ def main():
     #     initialize_multichain(account, so_diamond)
     # except Exception as e:
     #     print(f"initialize_multichain fail:{e}")
-    # try:
-    #     initialize_wormhole(account, so_diamond)
-    # except Exception as e:
-    #     print(f"initialize_wormhole fail: {e}")
-    # try:
-    #     initialize_wormhole_fee(account)
-    # except Exception as e:
-    #     print(f"initialize_wormhole_fee fail: {e}")
+    try:
+        initialize_wormhole(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_wormhole fail: {e}")
+    try:
+        initialize_wormhole_fee(account)
+    except Exception as e:
+        print(f"initialize_wormhole_fee fail: {e}")
     try:
         initialize_dex_manager(account, so_diamond)
     except Exception as e:
@@ -148,6 +148,10 @@ def initialize_wormhole_fee(account):
                 60,
                 {"from": account},
             )
+
+    if network.show_active() == "bsc-test":
+        # sol / bnb
+        LibSoFeeWormholeV1[-1].setPriceRatio(1, 1e26, {'from': account})
 
 
 def initialize_celer_fee(account):
@@ -192,10 +196,10 @@ def initialize_cut(account, so_diamond):
         OwnershipFacet,
         # CelerFacet,
         # MultiChainFacet,
-        StargateFacet,
+        # StargateFacet,
         # BoolFacet,
         # CCTPFacet,
-        # WormholeFacet,
+        WormholeFacet,
         WithdrawFacet,
         GenericSwapFacet,
         SerdeFacet,
@@ -413,15 +417,15 @@ def initialize_dex_manager(account, so_diamond):
     proxy_dex.batchAddDex(dexs, {"from": account})
     proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
     # register fee lib
-    proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
-    )
+    # proxy_dex.addFee(
+    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
+    # )
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
     # )
-    # proxy_dex.addFee(
-    #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
-    # )
+    proxy_dex.addFee(
+        get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
+    )
     # proxy_dex.addFee(
     #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
     # )

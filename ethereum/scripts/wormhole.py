@@ -94,6 +94,10 @@ def get_net_from_wormhole_chainid(chainid):
         return "aptos-mainnet"
     elif chainid == 21:
         return "sui-mainnet"
+    elif chainid == 1:
+        return "solana-mainnet"
+    elif chainid == 30:
+        return "base-main"
 
 
 def get_native_token_name(net):
@@ -114,10 +118,10 @@ def get_native_token_name(net):
 
 
 def so_swap_via_wormhole(
-    so_data: SoData,
-    dst_diamond_address: str = "",
-    dst_chainid: int = 0,
-    p: Project = None,
+        so_data: SoData,
+        dst_diamond_address: str = "",
+        dst_chainid: int = 0,
+        p: Project = None,
 ):
     account = get_account()
 

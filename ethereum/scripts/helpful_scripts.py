@@ -1,5 +1,6 @@
 import functools
 import json
+import os
 import random
 from multiprocessing import Queue, Process, set_start_method
 from pathlib import Path
@@ -200,6 +201,48 @@ class Session(Process):
         else:
             self.task_queue.put((TaskType.Execute, task))
         return self.result_queue.get()
+
+
+class PersistentDictionary:
+    def __init__(self, filename):
+        directory = os.path.dirname(filename)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        self.filename = filename
+        self.data = self.load_data()
+
+    def load_data(self):
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as file:
+                try:
+                    return json.load(file)
+                except json.JSONDecodeError:
+                    return {}
+        else:
+            return {}
+
+    def save_data(self):
+        with open(self.filename, 'w') as file:
+            json.dump(self.data, file)
+
+    def get(self, key, default=None):
+        if key in self.data:
+            return self.data[key]
+        else:
+            self.set(key, default)
+            return default
+
+    def set(self, key, value):
+        self.data[key] = value
+        self.save_data()
+
+    def delete(self, key):
+        if key in self.data:
+            del self.data[key]
+            self.save_data()
+
+    def get_all(self):
+        return self.data
 
 
 def get_chain_id():
