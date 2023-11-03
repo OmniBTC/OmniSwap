@@ -31,7 +31,14 @@ nohup brownie run ./scripts/relayer/sui.py > ../relayer_sui.log 2>&1 &
 
 cd /OmniSwap
 
-touch relayer_evm.log relayer_aptos.log relayer_sui.log cctp_relayer.log stargate_compensate.log
+# start solana relayer
+cd /OmniSwap/solana
+
+nohup ts-node scripts/relayer/solana.ts ./env/.env ./solana.csv > ../relayer_solana.log 2>&1 &
+
+cd /OmniSwap
+
+touch relayer_evm.log relayer_aptos.log relayer_sui.log cctp_relayer.log stargate_compensate.log relayer_solana.log
 
 # print relayer logs
-tail -f relayer_evm.log -f relayer_aptos.log -f relayer_sui.log -f cctp_relayer.log -f stargate_compensate.log
+tail -f relayer_evm.log -f relayer_aptos.log -f relayer_sui.log -f cctp_relayer.log -f stargate_compensate.log -f relayer_solana.log
