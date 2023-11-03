@@ -21,7 +21,7 @@ from helper import (
     getTokenBridgeDerivedAccounts,
     deriveForeignEndPointKey,
 )
-from solana_config import get_client, get_payer, get_config, get_price_manager
+from solana_config import get_client, get_payer, get_config, get_price_manager, get_payer_by_env
 from omniswap.instructions import so_swap_close_pending_request
 
 
@@ -29,7 +29,7 @@ async def omniswap_initialize(network="devnet"):
     client = get_client(network)
     await client.is_connected()
 
-    payer = get_payer()
+    payer = get_payer_by_env()
 
     config = get_config(network)
 
@@ -103,7 +103,7 @@ async def omniswap_set_so_fee(new_so_fee_by_ray: int, network="devnet"):
     client = get_client(network)
     await client.is_connected()
 
-    payer = get_payer()
+    payer = get_payer_by_env()
 
     config = get_config(network)
     omniswap_program_id = config["program"]["SoDiamond"]
@@ -178,7 +178,7 @@ async def omniswap_register_foreign_contract(dst_chain: str, network="devnet"):
     client = get_client(network)
     await client.is_connected()
 
-    payer = get_payer()
+    payer = get_payer_by_env()
 
     config = get_config(network)
 
@@ -260,7 +260,7 @@ async def omniswap_set_price_ratio(
     client = get_client(network)
     await client.is_connected()
 
-    price_manager = get_price_manager()
+    price_manager = get_payer_by_env()
 
     config = get_config(network)
 

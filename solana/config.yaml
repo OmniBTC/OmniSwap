@@ -109,6 +109,9 @@ devnet:
 mainnet:
   omnibtc_chainid: 30003
   rpc_url: "https://api.mainnet-beta.solana.com"
+  beneficiary: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+  redeemer_proxy: "BQKfrMULH23qiSBt1S9CNvybSoshx5h4WNzd9wEw8G5U"
+  so_fee_by_ray: 0
   program:
     SoDiamond: "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
     Wormhole: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth"
@@ -118,15 +121,15 @@ mainnet:
     chainid: 1
     # 1.1
     actual_reserve: 110000000
-    # 1.2
-    estimate_reserve: 120000000
+    # 1.11
+    estimate_reserve: 111000000
     dst_chain:
       bsc-main:
         omnibtc_chainid: 3
         chainid: 4
         base_gas: 700000
         per_byte_gas: 68
-        price_manager: "Hoj126haP4RDTjcgPwiygcqsr7Ymy7SfhDKCQ2qMwpEX"
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
         token_bridge_emitter: "0x000000000000000000000000B6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
         omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
 
@@ -135,9 +138,48 @@ mainnet:
         chainid: 2
         base_gas: 700000
         per_byte_gas: 68
-        price_manager: "E3An2eiDZmNQnS7e8qqSQHDhWaENSJyBYdU155QyxPmj"
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
         token_bridge_emitter: "0x0000000000000000000000003ee18B2214AFF97000D974cf647E7C347E8fa585"
         omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
+
+      polygon-main:
+        omnibtc_chainid: 5
+        chainid: 5
+        base_gas: 2800000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0x0000000000000000000000005a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
+        omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
+
+      avax-main:
+        omnibtc_chainid: 6
+        chainid: 6
+        base_gas: 1400000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0x0000000000000000000000000e082F06FF657D94310cB8cE8B0D9a04541d8052"
+        omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
+
+
+      aptos-mainnet:
+        omnibtc_chainid: 22
+        chainid: 22
+        base_gas: 700000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0x0000000000000000000000000000000000000000000000000000000000000001"
+        omniswap_emitter: "0x0000000000000000000000000000000000000000000000000000000000000002"
+
+
+      sui-mainnet:
+        omnibtc_chainid: 21
+        chainid: 21
+        base_gas: 840000000000000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5"
+        omniswap_emitter: "0x201a8b38e099b17078f6b9d3826e4d784c8c5656a4d484e7c8f6f57e439fdd2f"
+
 
 solana-wallet:
   Owner: ${TEST_OWNER}

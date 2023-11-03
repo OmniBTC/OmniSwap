@@ -1,13 +1,11 @@
 import os
-
-from dotenv import load_dotenv
 from functools import lru_cache
+from pathlib import Path
 
 import yaml
-
-from pathlib import Path
-from solders.keypair import Keypair
+from dotenv import load_dotenv, dotenv_values
 from solana.rpc.async_api import AsyncClient
+from solders.keypair import Keypair
 
 load_dotenv()
 
@@ -17,6 +15,16 @@ def get_config(network: str = "devnet"):
     with Path(__file__).parent.parent.joinpath("config.yaml").open() as fp:
         config = yaml.safe_load(fp)
         return config[network]
+
+@lru_cache()
+def get_payer_by_env(name="OMNISWAP_KEY", env_file=None):
+    if env_file is None:
+        env_file = Path(__file__).parent.parent.joinpath(".env")
+    env = dotenv_values(env_file)
+    private_key = eval(env.get(name))
+    owner = Keypair.from_bytes(bytes(private_key))
+    print(f"owner={owner.pubkey()}")
+    return owner
 
 
 @lru_cache()

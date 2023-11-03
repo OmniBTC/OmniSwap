@@ -1,18 +1,21 @@
 import asyncio
+import functools
+import time
 
+import ccxt
 from solders.pubkey import Pubkey
 
+from cross import SoData, WormholeData, generate_random_bytes32
+from helper import derivePriceManagerKey
+from solana_config import get_config
 from tx_estimate_relayer_fee import omniswap_estimate_relayer_fee
 from tx_initialize import (
     omniswap_initialize,
     omniswap_set_so_fee,
     omniswap_register_foreign_contract,
-    omniswap_set_price_ratio,
-    omniswap_set_wormhole_reserve,
     omniswap_set_redeem_proxy,
-    close_pending_request,
+    close_pending_request, omniswap_set_price_ratio,
 )
-from cross import SoData, WormholeData, generate_random_bytes32
 
 
 async def call_omniswap_estimate_relayer_fee():
@@ -68,24 +71,56 @@ async def call_set_so_fee():
     await omniswap_set_so_fee(so_fee_by_ray)
 
 
+async def register_foreign_contracts(network="mainnet"):
+    config = get_config(network=network)
+    for net in config["wormhole"]["dst_chain"]:
+        print(f"\nregister_foreign_contract for net:{net}")
+        await omniswap_register_foreign_contract(net, network="mainnet")
+        time.sleep(1)
+
+
+@functools.lru_cache()
+def get_prices(
+        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
+):
+    api = ccxt.kucoin({'proxies': {'http': '127.0.0.1:7890', 'https': '127.0.0.1:7890', }})
+    api.load_markets()
+    prices = {}
+
+    for symbol in symbols:
+        result = api.fetch_ticker(symbol=symbol)
+        price = result["close"]
+        print(f"Symbol:{symbol}, price:{price}")
+        prices[symbol] = price
+    return prices
+
+
+async def set_price_ratios(network="mainnet"):
+    config = get_config(network=network)
+    prices = get_prices()
+
+    decimal = 1e8
+    multiply = 1.2
+    dst_pair = {
+        "bsc-main": "BNB/USDT",
+        "eth-main": "ETH/USDT",
+        "polygon-main": "MATIC/USDT",
+        "avax-main": "AVAX/USDT",
+        "aptos-main": "APT/USDT",
+        "sui-main": "SUI/USDT",
+    }
+    for net in config["wormhole"]["dst_chain"]:
+        ratio = int(prices[dst_pair[net]] / prices["SOL/USDT"] * decimal * multiply)
+        print(f"\nset_price_ratio for net:{net} ratio:{ratio}")
+        await omniswap_set_price_ratio(net, ratio, network="mainnet")
+        time.sleep(1)
+
+
 async def call_initialize_all():
     print("initialize...")
     await omniswap_initialize(network="mainnet")
 
-    print("set_so_fee...")
-    # 0.1 %
-    so_fee_by_ray = 100_000
-    ray = 100_000_000
-    print(f"set_so_fee...{so_fee_by_ray / ray}")
-    await omniswap_set_so_fee(so_fee_by_ray)
+    await register_foreign_contracts(network="mainnet")
 
-    print("register_foreign_contract...")
-    await omniswap_register_foreign_contract("bsc-main", network="mainnet")
-    await omniswap_register_foreign_contract("eth-main", network="mainnet")
 
-    # print("set_price_ratio...")
-    #
-    # await omniswap_set_price_ratio("bsc-main", 10_000_000, network="mainnet")
-    # await omniswap_set_price_ratio("eth-main", 10_000_000, network="mainnet")
-
-asyncio.run(call_close_pending_request())
+asyncio.run(set_price_ratios())
