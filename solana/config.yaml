@@ -105,9 +105,8 @@ devnet:
   so_fee_by_ray: 300_000
 
 
-#TODO: complete
 mainnet:
-  omnibtc_chainid: 30003
+  omnibtc_chainid: 1
   rpc_url: "https://api.mainnet-beta.solana.com"
   program:
     SoDiamond: "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
@@ -138,6 +137,37 @@ mainnet:
         price_manager: "E3An2eiDZmNQnS7e8qqSQHDhWaENSJyBYdU155QyxPmj"
         token_bridge_emitter: "0x0000000000000000000000003ee18B2214AFF97000D974cf647E7C347E8fa585"
         omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
+  lookup_table:
+    # https://explorer.solana.com/address/8K1NLm2WvUT9inQGsRjF3vrq5wUMtRbPRcWgNpUNNBFC/entries
+    key: "8K1NLm2WvUT9inQGsRjF3vrq5wUMtRbPRcWgNpUNNBFC"
+    addresses: [
+      # token_bridge_config
+      "DapiQYH3BGonhN8cngWcXQ6SrqSm3cwysoznoHr6Sbsx",
+      # token_bridge_authority_signer
+      "7oPa2PHQdZmjSPqvpZN7MQxnC7Dcf3uL4oLqknGLk2S3",
+      # token_bridge_custody_signer
+      "GugU1tP7doLeTw9hQP51xRJyS8Da1fWxuiy2rVrnMD2m",
+      # token_bridge_mint_authority
+      "BCD75RNBHrJJpW4dXVagL5mPjzRLnVZq4YirJdjEYMV7",
+      # wormhole_bridge
+      "2yVjuQwpsvdsrywzsJJVs9Ueh4zayyo5DYJbBNc3DDpn",
+      # token_bridge_emitter
+      "Gv1KWf8DT1jKv5pKBmGaTmVszqa56Xn8YGx2Pg7i7qAk",
+      # wormhole_fee_collector
+      "9bFNrXNb2WTx8fMHXCheaZqkLZ3YCCaiqTftHxeintHy",
+      # token_bridge_sequence
+      "GF2ghkjwsR9CHkGk1RvuZrApPZGBZynxMm817VNi51Nf",
+      # Rent
+      "SysvarRent111111111111111111111111111111111",
+      # Clock
+      "SysvarC1ock11111111111111111111111111111111",
+      # ComputeBudget
+      "ComputeBudget111111111111111111111111111111",
+      # System
+      "11111111111111111111111111111111",
+      # whirlpool_program
+      "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
+    ]
 
 solana-wallet:
   Owner: ${TEST_OWNER}

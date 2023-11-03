@@ -968,6 +968,7 @@ async def omniswap_send_sol_wsol_usdc():
     src_omnibtc_chain = 30006
     # SrcChain SoDiamond
     # SrcChain From Token
+    SOL = Pubkey.from_string("11111111111111111111111111111111")
     WSOL = "So11111111111111111111111111111111111111112"
     src_from_token = Pubkey.from_string(WSOL)
     resp = await client.get_account_info_json_parsed(src_from_token)
@@ -1030,7 +1031,7 @@ async def omniswap_send_sol_wsol_usdc():
         transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
         receiver=dst_recipient,
         sourceChainId=src_omnibtc_chain,
-        sendingAssetId=bytes(src_from_token),
+        sendingAssetId=bytes(SOL),
         destinationChainId=dst_omnibtc_chain,
         receivingAssetId=dst_final_token,
         amount=src_from_amount,
