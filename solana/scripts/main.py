@@ -137,6 +137,8 @@ async def set_price_ratios(network="mainnet"):
         "sui-main": "SUI/USDT",
     }
     for net in config["wormhole"]["dst_chain"]:
+        if net not in dst_pair:
+            continue
         ratio = int(prices[dst_pair[net]] / prices["SOL/USDT"] * decimal * multiply)
         print(f"\nset_price_ratio for net:{net} ratio:{ratio}")
         await omniswap_set_price_ratio(net, ratio, network="mainnet")
