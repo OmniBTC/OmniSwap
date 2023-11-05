@@ -106,7 +106,7 @@ devnet:
 
 
 mainnet:
-  omnibtc_chainid: 1
+  omnibtc_chainid: 10
   rpc_url: "https://api.mainnet-beta.solana.com"
   beneficiary: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
   redeemer_proxy: "BQKfrMULH23qiSBt1S9CNvybSoshx5h4WNzd9wEw8G5U"
@@ -207,6 +207,30 @@ mainnet:
       "11111111111111111111111111111111",
       # whirlpool_program
       "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
+      # token_program
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      # Wormhole Core Bridge
+      "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",
+      # Wormhole token Bridge
+      "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
+      # omniswap sender config
+      "5BHn4v7pxd44L7eBqJLw39ixLLxP8gs2ds3xXagKCj67",
+      # omniswap redeem config
+      "3nJzsfLtAVUaXyMb2NNMw357pFYGpM54qewNE3DiNaX8",
+      # omniswap so_fee config
+      "A2UVxxSt3AEefNkXANUdrCenvSqeyV6QKzuyxuT2Ai2X",
+      # omniswap eth(2) config
+      "CUCqvvz9TsoeBHwd9Lcv97fu3VM71vcSFTS3TKyuSA79",
+      # omniswap bsc(4) config
+      "HjZJTQPJGVQmbDuYwZgmaGeHhF1X9cAxzfmr5CKkqwpd",
+      # omniswap polygon(5) config
+      "2Huv2NXqzEpmyooRQp8XY3gPq6FwfYpey9ma8TAKSShU",
+      # omniswap avax(6) config
+      "6WyPZoehvC4EUbwwJ4wfK7HkuD1gHDKDbvHW6LCJNy4q",
+      # omniswap aptos(22) config
+      "27uqhhEafgVV3jv2qPavr6uKu1mdbxxxvMXjhLfbBALq",
+      # omniswap sui(21) config
+      "2fCfP7g2QoYu6jaLdaTrWAURUV679SjdTGVf14JXkqpu"
     ]
 
 

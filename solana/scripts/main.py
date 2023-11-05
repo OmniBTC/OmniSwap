@@ -14,8 +14,10 @@ from tx_initialize import (
     omniswap_set_so_fee,
     omniswap_register_foreign_contract,
     omniswap_set_redeem_proxy,
-    close_pending_request, omniswap_set_price_ratio,
+    close_pending_request,
+    omniswap_set_price_ratio,
 )
+from helper import deriveCrossRequestKey
 
 
 async def call_omniswap_estimate_relayer_fee():
@@ -59,6 +61,16 @@ async def call_close_pending_request():
     )
 
 
+async def clear_request():
+    req_key = deriveCrossRequestKey(
+        "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY",
+        Pubkey.from_string("2u7NCWDFym8eTVcVpAGeU2Ls7KAdYzHn1mbKmArL2qzx"),
+    )
+    await omniswap_set_redeem_proxy("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9")
+    await close_pending_request(req_key)
+    await omniswap_set_redeem_proxy("BQKfrMULH23qiSBt1S9CNvybSoshx5h4WNzd9wEw8G5U")
+
+
 async def call_omniswap_set_redeem_proxy():
     await omniswap_set_redeem_proxy("EiVAUrFzyQNU66S13yQrKnNqaNcJ6nbnWaLKeAXwbA6N")
 
@@ -81,9 +93,24 @@ async def register_foreign_contracts(network="mainnet"):
 
 @functools.lru_cache()
 def get_prices(
-        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
+    symbols=(
+        "ETH/USDT",
+        "BNB/USDT",
+        "MATIC/USDT",
+        "AVAX/USDT",
+        "APT/USDT",
+        "SUI/USDT",
+        "SOL/USDT",
+    )
 ):
-    api = ccxt.kucoin({'proxies': {'http': '127.0.0.1:7890', 'https': '127.0.0.1:7890', }})
+    api = ccxt.kucoin(
+        {
+            "proxies": {
+                "http": "127.0.0.1:7890",
+                "https": "127.0.0.1:7890",
+            }
+        }
+    )
     api.load_markets()
     prices = {}
 
@@ -110,6 +137,8 @@ async def set_price_ratios(network="mainnet"):
         "sui-main": "SUI/USDT",
     }
     for net in config["wormhole"]["dst_chain"]:
+        if net not in dst_pair:
+            continue
         ratio = int(prices[dst_pair[net]] / prices["SOL/USDT"] * decimal * multiply)
         print(f"\nset_price_ratio for net:{net} ratio:{ratio}")
         await omniswap_set_price_ratio(net, ratio, network="mainnet")

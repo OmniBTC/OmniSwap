@@ -300,6 +300,9 @@ async def omniswap_send_native_token():
         dstSoDiamond=dst_so_diamond_padding,
     ).encode_normalized()
 
+    data_len = len(so_data) + len(wormhole_data)
+    print(f"data_len={data_len}")
+
     request_key, _total_fee = await post_cross_requset(
         dst_wormhole_chain,
         so_data=so_data,
@@ -469,7 +472,7 @@ async def omniswap_send_native_token_with_whirlpool():
                 sendingAssetId=bytes(src_from_token),
                 receivingAssetId=bytes(src_bridge_native_token),
                 fromAmount=quote_config["amount_in"],
-                callData=bytes(f"Whirlpool,{quote_config['min_amount_out']}", "ascii"),
+                callData=bytes(),
                 swapType="Whirlpool",
                 swapFuncName="swap",
                 swapPath=["TEST", "USDC"],
@@ -489,12 +492,15 @@ async def omniswap_send_native_token_with_whirlpool():
         dstSoDiamond=dst_so_diamond_padding,
     ).encode_normalized()
 
+    data_len = len(so_data) + len(wormhole_data) + len(swap_data_src)
+    print(f"data_len={data_len}")
+
     request_key, _total_fee = await post_cross_requset(
         dst_wormhole_chain,
         so_data=so_data,
         swap_data_src=swap_data_src,
         wormhole_data=wormhole_data,
-        # simulate=True,
+        simulate=True,
     )
 
     # ExceededMaxInstructions
@@ -929,6 +935,7 @@ async def omniswap_send_native_token_sol():
     tx_sig = await client.send_transaction(txn)
     print(tx_sig.value)
 
+
 async def omniswap_send_sol_wsol_usdc():
     client = get_client("devnet")
     await client.is_connected()
@@ -1150,7 +1157,223 @@ async def omniswap_send_sol_wsol_usdc():
     print(tx_sig)
 
 
-# asyncio.run(omniswap_send_native_token())
+async def omniswap_send_sol_wsol_bsc():
+    client = get_client("devnet")
+    await client.is_connected()
+
+    # 1. wrap(SOL -> WSOL)
+    # 1. swap(WSOL => BSC)
+    # 2. bridge(BSC) to bsc
+
+    payer = get_payer()
+
+    config = get_config("devnet")
+
+    omniswap_program_id = config["program"]["SoDiamond"]
+    wormhole_program_id = config["program"]["Wormhole"]
+    token_bridge_program_id = config["program"]["TokenBridge"]
+    lookup_table_key = Pubkey.from_string(config["lookup_table"]["key"])
+
+    # DstChain: bsc-testnet
+    dst_omnibtc_chain = 30003
+    dst_wormhole_chain = 4
+    # DstChain SoDiamond: 32-bytes-left-padding-zero
+    dst_so_diamond_padding = bytes.fromhex(
+        "00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
+    )
+    # DstChain Bridge Token(native):
+    ERC20_BSC = "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1"
+    dst_bridge_token_padding = padding_hex_to_bytes(ERC20_BSC, padding="left")
+
+    # DstChain Bridge Amount
+    # DstChain Swap: Bridge -> Final
+    # DstChain Final Token
+    dst_final_token = bytes.fromhex(ERC20_BSC.replace("0x", ""))
+    # DstChain Final Amount
+    # DstChain Recipient
+    dst_recipient = bytes.fromhex("cAF084133CBdBE27490d3afB0Da220a40C32E307")
+
+    # SrcChain
+    src_omnibtc_chain = 30006
+    # SrcChain SoDiamond
+    # SrcChain From Token
+    SOL = Pubkey.from_string("11111111111111111111111111111111")
+    WSOL = "So11111111111111111111111111111111111111112"
+    src_from_token = Pubkey.from_string(WSOL)
+    resp = await client.get_account_info_json_parsed(src_from_token)
+    src_from_token_decimals = resp.value.data.parsed["info"]["decimals"]
+    # SrcChain From Amount: 1 token
+    src_from_ui_amount = "0.0001"
+    src_from_amount = int(float(src_from_ui_amount) * 10**src_from_token_decimals)
+
+    # SrcChain Swap(Whirlpool): From -> Bridge
+    WSOL_BSC_POOL = "6TLSV3E9aTNzJtY4DejLdhGb4wkTfM65gA3cwMESFrpY"
+    quote_config = get_whirlpool_quote_config(WSOL_BSC_POOL, WSOL, src_from_ui_amount)
+
+    print("FromToken amount_in: ", quote_config["amount_in"])
+    print("BridgeToken estimated_amount_out: ", quote_config["estimated_amount_out"])
+    print("BridgeToken min_amount_out: ", quote_config["min_amount_out"])
+
+    # SrcChain Bridge Token(wrapped)
+    BSC = "xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"
+    src_bridge_wrapped_token = Pubkey.from_string(BSC)
+    assert quote_config["token_mint_b"] == src_bridge_wrapped_token
+    # SrcChain Bridge Amount
+    # SrcChain Sender
+
+    # get_whirlpool_quote_config return some rand wsol account
+    # for our contract, we need the specify wsol account to manage proxy swap
+    replaced_wsol_account = Pubkey.from_string(
+        "6keZXUa7n3hoHkboSnzpGETANuwY43zWZC3FGrCPN1Gh"
+    )
+    if quote_config["token_mint_a"] == src_from_token:
+        quote_config["token_owner_account_a"] = replaced_wsol_account
+    elif quote_config["token_mint_b"] == src_from_token:
+        quote_config["token_owner_account_b"] = replaced_wsol_account
+    else:
+        print("no replace proxy wsol account")
+
+    # collect relayer gas fee
+    beneficiary_account = Pubkey.from_string(config["beneficiary"])
+
+    send_wrapped_accounts = getSendWrappedTransferAccounts(
+        token_bridge_program_id,
+        wormhole_program_id,
+        omniswap_program_id,
+        dst_wormhole_chain,
+        dst_bridge_token_padding,
+    )
+
+    current_seq_bytes = await client.get_account_info(
+        send_wrapped_accounts["token_bridge_sequence"]
+    )
+    current_seq = int.from_bytes(current_seq_bytes.value.data, byteorder="little")
+    print(f"current_seq={current_seq}")
+    next_seq = current_seq + 1
+    wormhole_message = deriveTokenTransferMessageKey(omniswap_program_id, next_seq)
+
+    assert quote_config["amount_in"] == src_from_amount
+
+    so_data = SoData(
+        transactionId=bytes.fromhex(generate_random_bytes32().replace("0x", "")),
+        receiver=dst_recipient,
+        sourceChainId=src_omnibtc_chain,
+        sendingAssetId=bytes(SOL),
+        destinationChainId=dst_omnibtc_chain,
+        receivingAssetId=dst_final_token,
+        amount=src_from_amount,
+    ).encode_normalized()
+
+    swap_data_src = SwapData.encode_normalized(
+        [
+            SwapData(
+                callTo=bytes(quote_config["whirlpool"]),
+                approveTo=bytes(quote_config["whirlpool"]),
+                sendingAssetId=bytes(src_from_token),
+                receivingAssetId=bytes(src_bridge_wrapped_token),
+                fromAmount=quote_config["amount_in"],
+                callData=bytes(f"Whirlpool,{quote_config['min_amount_out']}", "ascii"),
+                swapType="Whirlpool",
+                swapFuncName="swap",
+                swapPath=["WSOL", "BSC"],
+            )
+        ]
+    )
+
+    # This value will be automatically corrected
+    # on the chain when post_request is called
+    default_wormhole_fee = 0
+    wormhole_data = WormholeData(
+        dstWormholeChainId=4,
+        dstMaxGasPriceInWeiForRelayer=100000,
+        wormholeFee=default_wormhole_fee,
+        dstSoDiamond=dst_so_diamond_padding,
+    ).encode_normalized()
+
+    request_key, _total_fee = await post_cross_requset(
+        dst_wormhole_chain,
+        so_data=so_data,
+        swap_data_src=swap_data_src,
+        wormhole_data=wormhole_data,
+    )
+
+    # ExceededMaxInstructions
+    # devnet_limit=200_000, real=248782
+    ix0 = set_compute_unit_limit(1_200_000)
+
+    ix1 = wrap_sol(
+        args={"amount_to_be_wrapped": src_from_amount},
+        accounts={
+            "payer": payer.pubkey(),
+            "wrap_sol_account": replaced_wsol_account,
+            "wsol_mint": Pubkey.from_string(
+                "So11111111111111111111111111111111111111112"
+            ),
+        },
+    )
+
+    ix2 = so_swap_wrapped_with_whirlpool(
+        accounts={
+            "payer": payer.pubkey(),
+            "request": request_key,
+            "config": send_wrapped_accounts["send_config"],
+            "fee_config": send_wrapped_accounts["fee_config"],
+            "price_manager": send_wrapped_accounts["price_manager"],
+            "beneficiary_account": beneficiary_account,
+            "foreign_contract": send_wrapped_accounts["foreign_contract"],
+            "whirlpool_program": quote_config["whirlpool_program"],
+            "whirlpool_account": quote_config["whirlpool"],
+            "whirlpool_token_owner_account_a": quote_config["token_owner_account_a"],
+            "whirlpool_token_vault_a": quote_config["token_vault_a"],
+            "whirlpool_token_owner_account_b": quote_config["token_owner_account_b"],
+            "whirlpool_token_vault_b": quote_config["token_vault_b"],
+            "whirlpool_tick_array0": quote_config["tick_array_0"],
+            "whirlpool_tick_array1": quote_config["tick_array_1"],
+            "whirlpool_tick_array2": quote_config["tick_array_2"],
+            "whirlpool_oracle": quote_config["oracle"],
+            "token_bridge_wrapped_mint": src_bridge_wrapped_token,
+            "tmp_token_account": send_wrapped_accounts["tmp_token_account"],
+            "wormhole_program": send_wrapped_accounts["wormhole_program"],
+            "token_bridge_program": send_wrapped_accounts["token_bridge_program"],
+            "token_bridge_wrapped_meta": send_wrapped_accounts[
+                "token_bridge_wrapped_meta"
+            ],
+            "token_bridge_config": send_wrapped_accounts["token_bridge_config"],
+            "token_bridge_authority_signer": send_wrapped_accounts[
+                "token_bridge_authority_signer"
+            ],
+            "wormhole_bridge": send_wrapped_accounts["wormhole_bridge"],
+            "wormhole_message": wormhole_message,
+            "token_bridge_emitter": send_wrapped_accounts["token_bridge_emitter"],
+            "token_bridge_sequence": send_wrapped_accounts["token_bridge_sequence"],
+            "wormhole_fee_collector": send_wrapped_accounts["wormhole_fee_collector"],
+        },
+    )
+
+    blockhash = await client.get_latest_blockhash()
+
+    lookup_table_data = await client.get_account_info(lookup_table_key)
+    lookup_table_addresses = decode_address_look_up_table(lookup_table_data.value.data)
+
+    lookup_table = AddressLookupTableAccount(
+        key=lookup_table_key, addresses=lookup_table_addresses
+    )
+
+    message0 = MessageV0.try_compile(
+        payer=payer.pubkey(),
+        instructions=[ix0, ix1, ix2],
+        address_lookup_table_accounts=[lookup_table],
+        recent_blockhash=blockhash.value.blockhash,
+    )
+    print(message0.address_table_lookups)
+
+    txn = VersionedTransaction(message0, [payer])
+
+    tx_sig = await client.send_transaction(txn)
+    print(tx_sig.value)
+
+
+asyncio.run(omniswap_send_native_token())
 # asyncio.run(omniswap_send_wrapped_token())
 # asyncio.run(omniswap_send_native_token_with_whirlpool())
-asyncio.run(omniswap_send_sol_wsol_usdc())
+# asyncio.run(omniswap_send_sol_wsol_bsc())

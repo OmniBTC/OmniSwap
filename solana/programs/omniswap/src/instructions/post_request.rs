@@ -40,7 +40,7 @@ pub struct PostRequest<'info> {
             payer.key().as_ref()
         ],
         bump,
-        space = CrossRequest::MINIMUM_SIZE + so_data.len() + swap_data_src.len() + wormhole_data.len() + swap_data_dst.len(),
+        space = CrossRequest::MAXIMUM_SIZE,
     )]
 	pub request: Box<Account<'info, CrossRequest>>,
 
