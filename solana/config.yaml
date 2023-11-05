@@ -224,11 +224,11 @@ mainnet:
       # omniswap bsc(4) config
       "HjZJTQPJGVQmbDuYwZgmaGeHhF1X9cAxzfmr5CKkqwpd",
       # omniswap polygon(5) config
-      "2Huv2NXqzEpmyooRQp8XY3gPq6FwfYpey9ma8TAKSShU"
+      "2Huv2NXqzEpmyooRQp8XY3gPq6FwfYpey9ma8TAKSShU",
       # omniswap avax(6) config
-      "6WyPZoehvC4EUbwwJ4wfK7HkuD1gHDKDbvHW6LCJNy4q"
+      "6WyPZoehvC4EUbwwJ4wfK7HkuD1gHDKDbvHW6LCJNy4q",
       # omniswap aptos(22) config
-      "27uqhhEafgVV3jv2qPavr6uKu1mdbxxxvMXjhLfbBALq"
+      "27uqhhEafgVV3jv2qPavr6uKu1mdbxxxvMXjhLfbBALq",
       # omniswap sui(21) config
       "2fCfP7g2QoYu6jaLdaTrWAURUV679SjdTGVf14JXkqpu"
     ]
