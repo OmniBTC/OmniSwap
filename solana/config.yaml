@@ -106,7 +106,7 @@ devnet:
 
 
 mainnet:
-  omnibtc_chainid: 1
+  omnibtc_chainid: 10
   rpc_url: "https://api.mainnet-beta.solana.com"
   beneficiary: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
   redeemer_proxy: "BQKfrMULH23qiSBt1S9CNvybSoshx5h4WNzd9wEw8G5U"
