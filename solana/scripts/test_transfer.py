@@ -503,8 +503,6 @@ async def omniswap_send_native_token_with_whirlpool():
         simulate=True,
     )
 
-    return
-
     # ExceededMaxInstructions
     # devnet_limit=200_000, real=303924
     ix0 = set_compute_unit_limit(1_200_000)
@@ -1375,7 +1373,7 @@ async def omniswap_send_sol_wsol_bsc():
     print(tx_sig.value)
 
 
-# asyncio.run(omniswap_send_native_token())
+asyncio.run(omniswap_send_native_token())
 # asyncio.run(omniswap_send_wrapped_token())
 # asyncio.run(omniswap_send_native_token_with_whirlpool())
-asyncio.run(omniswap_send_sol_wsol_bsc())
+# asyncio.run(omniswap_send_sol_wsol_bsc())
