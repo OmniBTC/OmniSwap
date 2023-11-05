@@ -5,6 +5,9 @@ anchor build
 cargo test
 
 anchor deploy
+
+anchor deploy --program-name omniswap --provider.cluster $SOLANA_RPC_URL --program-keypair omniswap-keypair-4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY.json 
+
 ```
 
 ## generate python sdk
