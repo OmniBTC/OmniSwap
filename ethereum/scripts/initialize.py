@@ -276,6 +276,7 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         "avax-main": 1,
         "arbitrum-main": 3,
         "optimism-main": 2,
+        "base-main": 6,
         "goerli": 0,
         "avax-test": 1,
         "arbitrum-test": 3
@@ -287,7 +288,7 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
 
     dstBaseGasInfo = {
         2951600: ["optimism-main"],
-        4500000: ["arbitrum-main"],
+        4500000: ["arbitrum-main", "base-main"],
         1575000: ["avax-main"],
         551250: ["mainnet"]
     }
@@ -475,21 +476,21 @@ def redeploy_cctp():
     CCTPFacet.deploy({"from": account})
     add_cut([CCTPFacet])
     initialize_cctp(account, SoDiamond[-1])
-    #
-    # proxy_dex = Contract.from_abi(
-    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    # )
-    #
-    # so_fee = 1e-3
-    # ray = 1e27
-    #
-    # print("deploy LibSoFeeCCTPV1.sol...")
-    # LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
-    #
-    # print("AddFee ...")
-    # proxy_dex.addFee(
-    #     get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
-    # )
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+
+    so_fee = 0
+    ray = 1e27
+
+    print("deploy LibSoFeeCCTPV1.sol...")
+    LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
+
+    print("AddFee ...")
+    proxy_dex.addFee(
+        get_cctp_token_messenger(), LibSoFeeCCTPV1[-1].address, {"from": account}
+    )
 
 
 def redeploy_wormhole():
