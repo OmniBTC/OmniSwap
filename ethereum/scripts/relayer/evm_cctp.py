@@ -48,6 +48,11 @@ SUPPORTED_EVM = [
         "destinationDomain": 3,
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "arbitrum-main",
+    },
+    {
+        "destinationDomain": 6,
+        "dstSoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
+        "dstNet": "base-main",
     }
 ]
 
