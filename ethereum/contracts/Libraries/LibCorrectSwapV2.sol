@@ -21,6 +21,7 @@ import {IiZiSwap} from "../Interfaces/Iziswap/IiZiSwap.sol";
 import {ICamelotRouter} from "../Interfaces/Camelot/ICamelotRouter.sol";
 import {IMetaAggregationRouterV2} from "../Interfaces/Kyberswap/IMetaAggregationRouterV2.sol";
 import {IOneInchGenericRouter, IOneInchClipperRouter, IOneInchUnoswapRouter, IOneInchUnoswapV3Router} from "../Interfaces/OneInch/IAggregationRouterV5.sol";
+import {IOpenOceanExchange, IOpenOceanCaller, IUniswapV2Exchange} from "../Interfaces/OpenOcean/IOpenOceanExchange.sol";
 
 contract LibCorrectSwapV2 is ICorrectSwap {
     address public owner;
@@ -215,6 +216,16 @@ library LibSwapFuncSigs {
         IOneInchUnoswapV3Router.uniswapV3SwapTo.selector;
     bytes4 internal constant _FUNC47 =
         IOneInchUnoswapV3Router.uniswapV3SwapToWithPermit.selector;
+
+    // OpenOcean
+    bytes4 internal constant _FUNC48 = IOpenOceanExchange.swap.selector;
+    bytes4 internal constant _FUNC49 = IUniswapV2Exchange.callUniswap.selector;
+    bytes4 internal constant _FUNC50 =
+        IUniswapV2Exchange.callUniswapTo.selector;
+    bytes4 internal constant _FUNC51 =
+        IUniswapV2Exchange.callUniswapWithPermit.selector;
+    bytes4 internal constant _FUNC52 =
+        IUniswapV2Exchange.callUniswapToWithPermit.selector;
 }
 
 contract CorrectUniswapV2Factory {
@@ -2535,6 +2546,302 @@ contract CorrectOneInch is ICorrectSwap {
                 minReturn,
                 pools,
                 permit
+            );
+    }
+}
+
+contract CorrectOpenOceanFactory {
+    LibCorrectSwapV2 public libCorrectSwapV2;
+
+    constructor(LibCorrectSwapV2 _libCorrectSwapV2) {
+        libCorrectSwapV2 = _libCorrectSwapV2;
+        deploy_correct_oneinch();
+    }
+
+    function deploy_correct_oneinch() internal {
+        // OpenOcean
+        bytes4[] memory sigs = new bytes4[](5);
+        sigs[0] = LibSwapFuncSigs._FUNC48;
+        sigs[1] = LibSwapFuncSigs._FUNC49;
+        sigs[2] = LibSwapFuncSigs._FUNC50;
+        sigs[3] = LibSwapFuncSigs._FUNC51;
+        sigs[4] = LibSwapFuncSigs._FUNC52;
+        address correctOpenOcean = address(new CorrectOpenOcean());
+        libCorrectSwapV2.setCorrectSwap(sigs, correctOpenOcean);
+    }
+}
+
+contract CorrectOpenOcean is ICorrectSwap {
+    // OpenOcean
+    bytes4 internal constant _FUNC48 = IOpenOceanExchange.swap.selector;
+    bytes4 internal constant _FUNC49 = IUniswapV2Exchange.callUniswap.selector;
+    bytes4 internal constant _FUNC50 =
+        IUniswapV2Exchange.callUniswapTo.selector;
+    bytes4 internal constant _FUNC51 =
+        IUniswapV2Exchange.callUniswapWithPermit.selector;
+    bytes4 internal constant _FUNC52 =
+        IUniswapV2Exchange.callUniswapToWithPermit.selector;
+
+    // @dev Correct input of destination chain swapData
+    function correctSwap(bytes calldata _data, uint256 _amount)
+        external
+        returns (bytes memory)
+    {
+        bytes4 sig = bytes4(_data[:4]);
+        if (_FUNC48 == sig) {
+            return openOceanSwap(_data, _amount);
+        } else if (_FUNC49 == sig) {
+            return openOceanCallUniswap(_data, _amount);
+        } else if (_FUNC50 == sig) {
+            return openOceanCallUniswapTo(_data, _amount);
+        } else if (_FUNC51 == sig) {
+            return openOceanCallUniswapWithPermit(_data, _amount);
+        } else if (_FUNC52 == sig) {
+            return openOceanCallUniswapToWithPermit(_data, _amount);
+        } else {
+            revert("correctOpenOcean error");
+        }
+    }
+
+    // @dev Fix min amount
+    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
+        external
+        pure
+        returns (uint256, bytes memory)
+    {
+        bytes4 sig = bytes4(_data[:4]);
+        if (_FUNC48 == sig) {
+            (
+                IOpenOceanCaller caller,
+                IOpenOceanExchange.SwapDescription memory desc,
+                IOpenOceanCaller.CallDescription[] memory calls
+            ) = abi.decode(
+                    _data[4:],
+                    (
+                        IOpenOceanCaller,
+                        IOpenOceanExchange.SwapDescription,
+                        IOpenOceanCaller.CallDescription[]
+                    )
+                );
+            uint256 _amountOutMin = desc.minReturnAmount;
+            desc.minReturnAmount = _amountOutMin + _deltaMinAmount;
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(sig, caller, desc, calls)
+            );
+        } else if (_FUNC49 == sig) {
+            (
+                address srcToken,
+                uint256 amount,
+                uint256 minReturn,
+                uint256[] memory pools
+            ) = abi.decode(_data[4:], (address, uint256, uint256, uint256[]));
+            uint256 _amountOutMin = minReturn;
+            minReturn = _amountOutMin + _deltaMinAmount;
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(sig, srcToken, amount, minReturn, pools)
+            );
+        } else if (_FUNC50 == sig) {
+            (
+                address srcToken,
+                uint256 amount,
+                uint256 minReturn,
+                uint256[] memory pools,
+                address payable recipient
+            ) = abi.decode(
+                    _data[4:],
+                    (address, uint256, uint256, uint256[], address)
+                );
+            uint256 _amountOutMin = minReturn;
+            minReturn = _amountOutMin + _deltaMinAmount;
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    srcToken,
+                    amount,
+                    minReturn,
+                    pools,
+                    recipient
+                )
+            );
+        } else if (_FUNC51 == sig) {
+            (
+                address srcToken,
+                uint256 amount,
+                uint256 minReturn,
+                uint256[] memory pools,
+                bytes memory permit
+            ) = abi.decode(
+                    _data[4:],
+                    (address, uint256, uint256, uint256[], bytes)
+                );
+            uint256 _amountOutMin = minReturn;
+            minReturn = _amountOutMin + _deltaMinAmount;
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    srcToken,
+                    amount,
+                    minReturn,
+                    pools,
+                    permit
+                )
+            );
+        } else if (_FUNC52 == sig) {
+            (
+                address srcToken,
+                uint256 amount,
+                uint256 minReturn,
+                uint256[] memory pools,
+                bytes memory permit,
+                address payable recipient
+            ) = abi.decode(
+                    _data[4:],
+                    (address, uint256, uint256, uint256[], bytes, address)
+                );
+            uint256 _amountOutMin = minReturn;
+            minReturn = _amountOutMin + _deltaMinAmount;
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    srcToken,
+                    amount,
+                    minReturn,
+                    pools,
+                    permit,
+                    recipient
+                )
+            );
+        }
+
+        revert("fix openocean amount fail!");
+    }
+
+    function openOceanSwap(bytes calldata _data, uint256 _amount)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        (
+            IOpenOceanCaller caller,
+            IOpenOceanExchange.SwapDescription memory desc,
+            IOpenOceanCaller.CallDescription[] memory calls
+        ) = abi.decode(
+                _data[4:],
+                (
+                    IOpenOceanCaller,
+                    IOpenOceanExchange.SwapDescription,
+                    IOpenOceanCaller.CallDescription[]
+                )
+            );
+        desc.amount = _amount;
+        return abi.encodeWithSelector(bytes4(_data[:4]), caller, desc, calls);
+    }
+
+    function openOceanCallUniswap(bytes calldata _data, uint256 _amount)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        (
+            address srcToken,
+            uint256 amount,
+            uint256 minReturn,
+            uint256[] memory pools
+        ) = abi.decode(_data[4:], (address, uint256, uint256, uint256[]));
+        amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                srcToken,
+                amount,
+                minReturn,
+                pools
+            );
+    }
+
+    function openOceanCallUniswapTo(bytes calldata _data, uint256 _amount)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        (
+            address srcToken,
+            uint256 amount,
+            uint256 minReturn,
+            uint256[] memory pools,
+            address payable recipient
+        ) = abi.decode(
+                _data[4:],
+                (address, uint256, uint256, uint256[], address)
+            );
+        amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                srcToken,
+                amount,
+                minReturn,
+                pools,
+                recipient
+            );
+    }
+
+    function openOceanCallUniswapWithPermit(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
+        (
+            address srcToken,
+            uint256 amount,
+            uint256 minReturn,
+            uint256[] memory pools,
+            bytes memory permit
+        ) = abi.decode(
+                _data[4:],
+                (address, uint256, uint256, uint256[], bytes)
+            );
+        amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                srcToken,
+                amount,
+                minReturn,
+                pools,
+                permit
+            );
+    }
+
+    function openOceanCallUniswapToWithPermit(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
+        (
+            address srcToken,
+            uint256 amount,
+            uint256 minReturn,
+            uint256[] memory pools,
+            bytes memory permit,
+            address payable recipient
+        ) = abi.decode(
+                _data[4:],
+                (address, uint256, uint256, uint256[], bytes, address)
+            );
+        amount = _amount;
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                srcToken,
+                amount,
+                minReturn,
+                pools,
+                permit,
+                recipient
             );
     }
 }
