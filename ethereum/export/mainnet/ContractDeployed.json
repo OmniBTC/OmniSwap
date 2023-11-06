@@ -147,7 +147,8 @@
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
-    "WormholeFacet": "0x184b4176aebc4598190aa2FFAFFa86c07D2102C7"
+    "WormholeFacet": "0x184b4176aebc4598190aa2FFAFFa86c07D2102C7",
+    "LibCorrectSwapV2": "0x933Ce99df42035f25511aaeecCfE8B03175A6b0e"
   },
   "zksync2-main": {
     "BoolFacet": "0x01765a7309B6C1085d73c1F31424E720cC921457",

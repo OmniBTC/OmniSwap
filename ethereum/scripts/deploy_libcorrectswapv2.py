@@ -17,6 +17,9 @@ from brownie import (
     CorrectKyberswapFactory,
     CorrectOneInchFactory,
     CorrectOpenOceanFactory,
+    Contract,
+    SoDiamond,
+    DexManagerFacet
 )
 
 from scripts.helpful_scripts import get_account
@@ -53,4 +56,9 @@ def deploy_correct_swaps(account):
 
 def main():
     account = get_account()
-    deploy_correct_swaps(account)
+    # deploy_correct_swaps(account)
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    proxy_dex.addCorrectSwap(LibCorrectSwapV2[-1].address, {"from": account})
