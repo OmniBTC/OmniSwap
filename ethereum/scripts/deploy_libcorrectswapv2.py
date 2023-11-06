@@ -15,7 +15,8 @@ from brownie import (
     CorrectIZiSwapFactory,
     CorrectCamelotFactory,
     CorrectKyberswapFactory,
-    CorrectOneInchFactory
+    CorrectOneInchFactory,
+    CorrectOpenOceanFactory,
 )
 
 from scripts.helpful_scripts import get_account
@@ -72,6 +73,9 @@ def deploy_correct_swaps(account):
 
     print("deploy CorrectOneInchFactory...")
     CorrectOneInchFactory.deploy(lib.address, {"from": account})
+
+    print("deploy CorrectOpenOceanFactory...")
+    CorrectOpenOceanFactory.deploy(lib.address, {"from": account})
 
 
 def main():
