@@ -39,14 +39,21 @@ def correct_openocean(lib_correct_swap_v2):
 
 
 def test_correct_uniswapv2(lib_correct_swap_v2, correct_uniswapv2):
+    # swapExactETHForTokens(uint256,address[],address,uint256)
     data = "0x7ff36ab50000000000000000000000000000000000000000002a7767e41ae375e18b435f000000000000000000000000000000000000000000000000000000000000008000000000000000000000000057d1bdc3e3ca920a38b3aca0acb8853f2e76d98700000000000000000000000000000000000000000000000000000000618bed660000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000021e783bcf445b515957a10e992ad3c8e9ff51288"
 
-    correct_amount = 1e18
+    correct_amount = int(1e18)
     uniswap_abi = interface.IUniswapV2Router02.abi
-    input = decode_function(uniswap_abi, data)
-    print(input)
+
+    input_data = decode_function(uniswap_abi, data)
+    min_amount = input_data[0][2]
     lib_correct_swap_v2.correctSwap(data, correct_amount, {'from': account})
-    lib_correct_swap_v2.fixMinAmount(data, correct_amount, {'from': account})
+
+    (fix_min_amount, fixed_data) = lib_correct_swap_v2.fixMinAmount(data, correct_amount, {'from': account})
+    assert fix_min_amount == min_amount
+    input_data = decode_function(uniswap_abi, fixed_data)
+    fixed_min_amount = input_data[0][2]
+    assert fixed_min_amount == correct_amount + min_amount
 
 
 def test_correct_uniswapv3(lib_correct_swap_v2, correct_uniswapv3):
