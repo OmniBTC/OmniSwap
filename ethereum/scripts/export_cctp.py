@@ -24,7 +24,7 @@ def read_json(file):
 
 
 def export_cctp_info():
-    support_networks = ['arbitrum-main', 'avax-main', "optimism-main", "mainnet"]
+    support_networks = ['arbitrum-main', 'avax-main', "optimism-main", "mainnet", "base-main"]
 
     cctp_bridge_token_info = {}
     for network in support_networks:
