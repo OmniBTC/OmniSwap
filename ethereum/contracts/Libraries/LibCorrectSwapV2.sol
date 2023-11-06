@@ -1099,9 +1099,9 @@ contract CorrectWombat is ICorrectSwap {
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_FUNC19 == sig) {
+        if (_FUNC21 == sig) {
             return _data;
-        } else if (_FUNC20 == sig || _FUNC21 == sig) {
+        } else if (_FUNC19 == sig || _FUNC20 == sig) {
             return wombatSwap(_data, _amount);
         } else {
             revert("correctWombat error");
