@@ -251,35 +251,19 @@ contract CorrectUniswapV2 is ICorrectSwap {
     bytes4 private constant _FUNC5 =
         IUniswapV2Router01.swapExactTokensForTokens.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC3] = this.basicCorrectSwap.selector;
-        _swapErrors[_FUNC3] = "basicCorrectSwap fail";
-        _correctSwapFunc[_FUNC4] = this.basicCorrectSwap.selector;
-        _swapErrors[_FUNC4] = "basicCorrectSwap fail";
-        _correctSwapFunc[_FUNC5] = this.basicCorrectSwap.selector;
-        _swapErrors[_FUNC5] = "basicCorrectSwap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+
+        if (sig == _FUNC1 || sig == _FUNC2) {
             return _data;
+        } else if (sig == _FUNC3 || sig == _FUNC4 || _FUNC5 == sig) {
+            return basicCorrectSwap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctUniswapV2 error");
         }
     }
 
@@ -335,7 +319,7 @@ contract CorrectUniswapV2 is ICorrectSwap {
     }
 
     function basicCorrectSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -385,33 +369,18 @@ contract CorrectUniswapV3 is ICorrectSwap {
     bytes4 private constant _FUNC6 = ISwapRouter.exactInput.selector;
     bytes4 private constant _FUNC15 = ISwapRouter02.exactInput.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC6] = this.exactInput.selector;
-        _swapErrors[_FUNC6] = "exactInput fail";
-        _correctSwapFunc[_FUNC15] = this.exactInputV2.selector;
-        _swapErrors[_FUNC15] = "exactInputV2 fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
+        if (_FUNC6 == sig) {
+            return exactInput(_data, _amount);
+        } else if (_FUNC15 == sig) {
+            return exactInputV2(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctUniswapV3 error");
         }
     }
 
@@ -444,7 +413,7 @@ contract CorrectUniswapV3 is ICorrectSwap {
     }
 
     function exactInput(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -458,7 +427,7 @@ contract CorrectUniswapV3 is ICorrectSwap {
     }
 
     function exactInputV2(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -493,31 +462,16 @@ contract CorrectSyncswap is ICorrectSwap {
     // zksync,Syncswap
     bytes4 private constant _FUNC7 = ISyncSwapRouter.swap.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC7] = this.syncSwap.selector;
-        _swapErrors[_FUNC7] = "syncSwap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            revert("correctSyncswap error");
+        if (_FUNC7 == sig) {
+            return syncSwap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctSyncswap error");
         }
     }
 
@@ -552,7 +506,7 @@ contract CorrectSyncswap is ICorrectSwap {
     }
 
     function syncSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -614,33 +568,18 @@ contract CorrectMuteswap is ICorrectSwap {
     bytes4 private constant _FUNC10 =
         IMuteRouter.swapExactTokensForTokens.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC9] = this.muteSwap.selector;
-        _swapErrors[_FUNC9] = "muteSwap fail";
-        _correctSwapFunc[_FUNC10] = this.muteSwap.selector;
-        _swapErrors[_FUNC10] = "muteSwap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+        if (_FUNC8 == sig) {
             return _data;
+        } else if (_FUNC9 == sig || _FUNC10 == sig) {
+            return muteSwap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctMuteswap error");
         }
     }
 
@@ -703,7 +642,7 @@ contract CorrectMuteswap is ICorrectSwap {
     }
 
     function muteSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -753,31 +692,16 @@ contract CorrectQuickswapV3 is ICorrectSwap {
     // QuickswapV3
     bytes4 private constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC11] = this.quickExactInput.selector;
-        _swapErrors[_FUNC11] = "quickExactInput fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            revert("correctQuickswapV3 error");
+        if (_FUNC11 == sig) {
+            return quickExactInput(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctQuickswapV3 error");
         }
     }
 
@@ -802,7 +726,7 @@ contract CorrectQuickswapV3 is ICorrectSwap {
     }
 
     function quickExactInput(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -842,33 +766,18 @@ contract CorrectAerodrome is ICorrectSwap {
     bytes4 private constant _FUNC14 =
         IAerodrome.swapExactTokensForTokens.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC13] = this.aerodrome.selector;
-        _swapErrors[_FUNC13] = "aerodrome fail";
-        _correctSwapFunc[_FUNC14] = this.aerodrome.selector;
-        _swapErrors[_FUNC14] = "aerodrome fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+        if (_FUNC12 == sig) {
             return _data;
+        } else if (_FUNC13 == sig || _FUNC14 == sig) {
+            return aerodrome(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctAerodrome error");
         }
     }
 
@@ -927,7 +836,7 @@ contract CorrectAerodrome is ICorrectSwap {
     }
 
     function aerodrome(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -975,31 +884,16 @@ contract CorrectBalancerV2 is ICorrectSwap {
     // BalancerV2
     bytes4 private constant _FUNC16 = IVault.swap.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC16] = this.balancerV2SingleSwap.selector;
-        _swapErrors[_FUNC16] = "balancerV2SingleSwap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
+        if (_FUNC16 == sig) {
+            return balancerV2SingleSwap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctBalancerV2 error");
         }
     }
 
@@ -1039,7 +933,7 @@ contract CorrectBalancerV2 is ICorrectSwap {
     }
 
     function balancerV2SingleSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1087,33 +981,18 @@ contract CorrectCurve is ICorrectSwap {
     bytes4 private constant _FUNC17 = ICurveFi.exchange.selector;
     bytes4 private constant _FUNC18 = ICurveFi.exchange_underlying.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC17] = this.curveExchange.selector;
-        _swapErrors[_FUNC17] = "curveExchange fail";
-        _correctSwapFunc[_FUNC18] = this.curveExchangeUnderlying.selector;
-        _swapErrors[_FUNC18] = "curveExchangeUnderlying fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
+        if (_FUNC17 == sig) {
+            return curveExchange(_data, _amount);
+        } else if (_FUNC18 == sig) {
+            return curveExchangeUnderlying(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctCurve error");
         }
     }
 
@@ -1160,7 +1039,7 @@ contract CorrectCurve is ICorrectSwap {
     }
 
     function curveExchange(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1173,7 +1052,7 @@ contract CorrectCurve is ICorrectSwap {
     }
 
     function curveExchangeUnderlying(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1214,33 +1093,18 @@ contract CorrectWombat is ICorrectSwap {
     bytes4 private constant _FUNC21 =
         IWombatRouter.swapExactNativeForTokens.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC19] = this.wombatSwap.selector;
-        _swapErrors[_FUNC19] = "wombatSwap fail";
-        _correctSwapFunc[_FUNC20] = this.wombatSwap.selector;
-        _swapErrors[_FUNC20] = "wombatSwap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+        if (_FUNC19 == sig) {
             return _data;
+        } else if (_FUNC20 == sig || _FUNC21 == sig) {
+            return wombatSwap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctWombat error");
         }
     }
 
@@ -1303,7 +1167,7 @@ contract CorrectWombat is ICorrectSwap {
     }
 
     function wombatSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1360,33 +1224,18 @@ contract CorrectTraderJoe is ICorrectSwap {
     bytes4 private constant _FUNC24 =
         ILBRouter.swapExactNATIVEForTokens.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC22] = this.traderJoeSwap.selector;
-        _swapErrors[_FUNC22] = "traderJoeSwap fail";
-        _correctSwapFunc[_FUNC23] = this.traderJoeSwap.selector;
-        _swapErrors[_FUNC23] = "traderJoeSwap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+        if (_FUNC24 == sig) {
             return _data;
+        } else if (_FUNC22 == sig || _FUNC23 == sig) {
+            return traderJoeSwap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctTraderJoe error");
         }
     }
 
@@ -1447,7 +1296,7 @@ contract CorrectTraderJoe is ICorrectSwap {
     }
 
     function traderJoeSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1499,33 +1348,18 @@ contract CorrectGMXV1 is ICorrectSwap {
     bytes4 private constant _FUNC26 = IGMXV1Router.swapTokensToETH.selector;
     bytes4 private constant _FUNC27 = IGMXV1Router.swapETHToTokens.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC25] = this.GMXV1Swap.selector;
-        _swapErrors[_FUNC25] = "GMXV1Swap fail";
-        _correctSwapFunc[_FUNC26] = this.GMXV1Swap.selector;
-        _swapErrors[_FUNC26] = "GMXV1Swap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+        if (_FUNC27 == sig) {
             return _data;
+        } else if (_FUNC25 == sig || _FUNC26 == sig) {
+            return GMXV1Swap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctGMXV1 error");
         }
     }
 
@@ -1573,7 +1407,7 @@ contract CorrectGMXV1 is ICorrectSwap {
     }
 
     function GMXV1Swap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1619,33 +1453,18 @@ contract CorrectPearlFi is ICorrectSwap {
     bytes4 private constant _FUNC30 =
         IPearlRouter.swapExactETHForTokens.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC28] = this.pearlFiSwap.selector;
-        _swapErrors[_FUNC28] = "pearlFiSwap fail";
-        _correctSwapFunc[_FUNC29] = this.pearlFiSwap.selector;
-        _swapErrors[_FUNC29] = "pearlFiSwap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+        if (_FUNC30 == sig) {
             return _data;
+        } else if (_FUNC28 == sig || _FUNC29 == sig) {
+            return pearlFiSwap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctPearlFi error");
         }
     }
 
@@ -1706,7 +1525,7 @@ contract CorrectPearlFi is ICorrectSwap {
     }
 
     function pearlFiSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1754,31 +1573,16 @@ contract CorrectIZiSwap is ICorrectSwap {
     // iZiSwap
     bytes4 private constant _FUNC31 = IiZiSwap.swapAmount.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC31] = this.iZiSwap.selector;
-        _swapErrors[_FUNC31] = "iZiSwap fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
+        if (_FUNC31 == sig) {
+            return iZiSwap(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctiZiSwap error");
         }
     }
 
@@ -1803,7 +1607,7 @@ contract CorrectIZiSwap is ICorrectSwap {
     }
 
     function iZiSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1851,33 +1655,18 @@ contract CorrectCamelot is ICorrectSwap {
             .swapExactTokensForETHSupportingFeeOnTransferTokens
             .selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC32] = this.camelot.selector;
-        _swapErrors[_FUNC32] = "camelot fail";
-        _correctSwapFunc[_FUNC34] = this.camelot.selector;
-        _swapErrors[_FUNC34] = "camelot fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
+        if (_FUNC33 == sig) {
             return _data;
+        } else if (_FUNC32 == sig || _FUNC34 == sig) {
+            return camelot(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctCamelot error");
         }
     }
 
@@ -1940,7 +1729,7 @@ contract CorrectCamelot is ICorrectSwap {
     }
 
     function camelot(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -1996,35 +1785,18 @@ contract CorrectKyberswap is ICorrectSwap {
     bytes4 private constant _FUNC37 =
         IMetaAggregationRouterV2.swapSimpleMode.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC35] = this.kyberswap.selector;
-        _swapErrors[_FUNC35] = "kyberswap fail";
-        _correctSwapFunc[_FUNC36] = this.kyberswap.selector;
-        _swapErrors[_FUNC36] = "kyberswap fail";
-        _correctSwapFunc[_FUNC37] = this.kyberswapSimple.selector;
-        _swapErrors[_FUNC37] = "kyberswapSimple fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
+        if (_FUNC35 == sig || _FUNC36 == sig) {
+            return kyberswap(_data, _amount);
+        } else if (_FUNC37 == sig) {
+            return kyberswapSimple(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctKyberswap error");
         }
     }
 
@@ -2078,7 +1850,7 @@ contract CorrectKyberswap is ICorrectSwap {
     }
 
     function kyberswap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2091,7 +1863,7 @@ contract CorrectKyberswap is ICorrectSwap {
     }
 
     function kyberswapSimple(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2167,55 +1939,34 @@ contract CorrectOneInch is ICorrectSwap {
     bytes4 private constant _FUNC47 =
         IOneInchUnoswapV3Router.uniswapV3SwapToWithPermit.selector;
 
-    mapping(bytes4 => bytes4) private _correctSwapFunc;
-    mapping(bytes4 => string) private _swapErrors;
-
-    constructor() {
-        _correctSwapFunc[_FUNC38] = this.oneInchGenericSwap.selector;
-        _swapErrors[_FUNC38] = "oneInchGenericSwap fail";
-        _correctSwapFunc[_FUNC39] = this.oneInchClipperSwap.selector;
-        _swapErrors[_FUNC39] = "oneInchClipperSwap fail";
-        _correctSwapFunc[_FUNC40] = this.oneInchClipperSwapTo.selector;
-        _swapErrors[_FUNC40] = "oneInchClipperSwapTo fail";
-        _correctSwapFunc[_FUNC41] = this
-            .oneInchClipperSwapToWithPermit
-            .selector;
-        _swapErrors[_FUNC41] = "oneInchClipperSwapToWithPermit fail";
-        _correctSwapFunc[_FUNC42] = this.oneInchUnoswapSwap.selector;
-        _swapErrors[_FUNC42] = "oneInchUnoswapSwap fail";
-        _correctSwapFunc[_FUNC43] = this.oneInchUnoswapSwapTo.selector;
-        _swapErrors[_FUNC43] = "oneInchUnoswapSwapTo fail";
-        _correctSwapFunc[_FUNC44] = this
-            .oneInchUnoswapSwapToWithPermit
-            .selector;
-        _swapErrors[_FUNC44] = "oneInchUnoswapSwapToWithPermit fail";
-        _correctSwapFunc[_FUNC45] = this.oneInchUniswapV3Swap.selector;
-        _swapErrors[_FUNC45] = "oneInchUniswapV3Swap fail";
-        _correctSwapFunc[_FUNC46] = this.oneInchUniswapV3SwapTo.selector;
-        _swapErrors[_FUNC46] = "oneInchUniswapV3SwapTo fail";
-        _correctSwapFunc[_FUNC47] = this
-            .oneInchUniswapV3SwapToWithPermit
-            .selector;
-        _swapErrors[_FUNC47] = "oneInchUniswapV3SwapToWithPermit fail";
-    }
-
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
         external
         returns (bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (_correctSwapFunc[sig] == bytes4(0)) {
-            return _data;
+        if (_FUNC38 == sig) {
+            return oneInchGenericSwap(_data, _amount);
+        } else if (_FUNC39 == sig) {
+            return oneInchClipperSwap(_data, _amount);
+        } else if (_FUNC40 == sig) {
+            return oneInchClipperSwapTo(_data, _amount);
+        } else if (_FUNC41 == sig) {
+            return oneInchClipperSwapToWithPermit(_data, _amount);
+        } else if (_FUNC42 == sig) {
+            return oneInchUnoswapSwap(_data, _amount);
+        } else if (_FUNC43 == sig) {
+            return oneInchUnoswapSwapTo(_data, _amount);
+        } else if (_FUNC44 == sig) {
+            return oneInchUnoswapSwapToWithPermit(_data, _amount);
+        } else if (_FUNC45 == sig) {
+            return oneInchUniswapV3Swap(_data, _amount);
+        } else if (_FUNC46 == sig) {
+            return oneInchUniswapV3SwapTo(_data, _amount);
+        } else if (_FUNC47 == sig) {
+            return oneInchUniswapV3SwapToWithPermit(_data, _amount);
         } else {
-            (bool success, bytes memory _result) = address(this).call(
-                abi.encodeWithSelector(_correctSwapFunc[sig], _data, _amount)
-            );
-            if (success) {
-                return _result;
-            } else {
-                revert(_swapErrors[sig]);
-            }
+            revert("correctOneInch error");
         }
     }
 
@@ -2490,7 +2241,7 @@ contract CorrectOneInch is ICorrectSwap {
     }
 
     function oneInchGenericSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2515,7 +2266,7 @@ contract CorrectOneInch is ICorrectSwap {
     }
 
     function oneInchClipperSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2557,7 +2308,7 @@ contract CorrectOneInch is ICorrectSwap {
     }
 
     function oneInchClipperSwapTo(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2604,7 +2355,7 @@ contract CorrectOneInch is ICorrectSwap {
     function oneInchClipperSwapToWithPermit(
         bytes calldata _data,
         uint256 _amount
-    ) external pure returns (bytes memory) {
+    ) internal pure returns (bytes memory) {
         (
             address clipperExchange,
             address payable recipient,
@@ -2649,7 +2400,7 @@ contract CorrectOneInch is ICorrectSwap {
     }
 
     function oneInchUnoswapSwap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2671,7 +2422,7 @@ contract CorrectOneInch is ICorrectSwap {
     }
 
     function oneInchUnoswapSwapTo(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2700,7 +2451,7 @@ contract CorrectOneInch is ICorrectSwap {
     function oneInchUnoswapSwapToWithPermit(
         bytes calldata _data,
         uint256 _amount
-    ) external pure returns (bytes memory) {
+    ) internal pure returns (bytes memory) {
         (
             address payable recipient,
             address srcToken,
@@ -2726,7 +2477,7 @@ contract CorrectOneInch is ICorrectSwap {
     }
 
     function oneInchUniswapV3Swap(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2738,7 +2489,7 @@ contract CorrectOneInch is ICorrectSwap {
     }
 
     function oneInchUniswapV3SwapTo(bytes calldata _data, uint256 _amount)
-        external
+        internal
         pure
         returns (bytes memory)
     {
@@ -2762,7 +2513,7 @@ contract CorrectOneInch is ICorrectSwap {
     function oneInchUniswapV3SwapToWithPermit(
         bytes calldata _data,
         uint256 _amount
-    ) external pure returns (bytes memory) {
+    ) internal pure returns (bytes memory) {
         (
             address payable recipient,
             address srcToken,

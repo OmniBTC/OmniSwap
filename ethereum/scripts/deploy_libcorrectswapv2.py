@@ -18,51 +18,62 @@ from brownie import (
     CorrectOneInchFactory
 )
 
-from ethereum.scripts.helpful_scripts import get_account
-
-
-def deploy_lib_correct_swap_v2(account):
-    print("deploy LibCorrectSwapV2...")
-    LibCorrectSwapV2.deploy({"from": account})
+from scripts.helpful_scripts import get_account
 
 
 def deploy_correct_swaps(account):
-    account = get_account()
+    print("deploy LibCorrectSwapV2...")
+    lib = LibCorrectSwapV2.deploy({"from": account})
+
     print("deploy CorrectUniswapV2Factory...")
-    CorrectUniswapV2Factory.deploy({"from": account})
+    CorrectUniswapV2Factory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectUniswapV3Factory...")
-    CorrectUniswapV3Factory.deploy({"from": account})
+    CorrectUniswapV3Factory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectSyncswapFactory...")
-    CorrectSyncswapFactory.deploy({"from": account})
+    CorrectSyncswapFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectMuteswapFactory...")
-    CorrectMuteswapFactory.deploy({"from": account})
+    CorrectMuteswapFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectQuickswapV3Factory...")
-    CorrectQuickswapV3Factory.deploy({"from": account})
+    CorrectQuickswapV3Factory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectAerodromeFactory...")
-    CorrectAerodromeFactory.deploy({"from": account})
+    CorrectAerodromeFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectBalancerV2Factory...")
-    CorrectBalancerV2Factory.deploy({"from": account})
+    CorrectBalancerV2Factory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectCurveFactory...")
-    CorrectCurveFactory.deploy({"from": account})
+    CorrectCurveFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectWombatFactory...")
-    CorrectWombatFactory.deploy({"from": account})
+    CorrectWombatFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectTraderJoeFactory...")
-    CorrectTraderJoeFactory.deploy({"from": account})
+    CorrectTraderJoeFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectGMXV1Factory...")
-    CorrectGMXV1Factory.deploy({"from": account})
+    CorrectGMXV1Factory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectPearlFiFactory...")
-    CorrectPearlFiFactory.deploy({"from": account})
+    CorrectPearlFiFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectIZiSwapFactory...")
-    CorrectIZiSwapFactory.deploy({"from": account})
+    CorrectIZiSwapFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectCamelotFactory...")
-    CorrectCamelotFactory.deploy({"from": account})
+    CorrectCamelotFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectKyberswapFactory...")
-    CorrectKyberswapFactory.deploy({"from": account})
+    CorrectKyberswapFactory.deploy(lib.address, {"from": account})
+
     print("deploy CorrectOneInchFactory...")
-    CorrectOneInchFactory.deploy({"from": account})
+    CorrectOneInchFactory.deploy(lib.address, {"from": account})
 
 
 def main():
     account = get_account()
-    deploy_lib_correct_swap_v2(account)
     deploy_correct_swaps(account)
