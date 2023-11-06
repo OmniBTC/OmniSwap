@@ -27,7 +27,7 @@ from scripts.helpful_scripts import get_account
 
 def deploy_correct_swaps(account):
     print("deploy LibCorrectSwapV2...")
-    lib = LibCorrectSwapV2.deploy({"from": account})
+    _lib = LibCorrectSwapV2.deploy({"from": account})
 
     factorys = [
         CorrectUniswapV2Factory,
@@ -51,12 +51,12 @@ def deploy_correct_swaps(account):
 
     for k, factory in enumerate(factorys):
         print(f"deploy {k}/{len(factorys)} {factory._name}.sol...")
-        factory.deploy(lib.address, {"from": account})
+        factory.deploy(LibCorrectSwapV2[-1].address, {"from": account})
 
 
 def main():
     account = get_account()
-    # deploy_correct_swaps(account)
+    deploy_correct_swaps(account)
 
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
