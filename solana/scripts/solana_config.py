@@ -16,6 +16,7 @@ def get_config(network: str = "devnet"):
         config = yaml.safe_load(fp)
         return config[network]
 
+
 @lru_cache()
 def get_payer_by_env(name="OMNISWAP_KEY", env_file=None):
     if env_file is None:

@@ -5,6 +5,9 @@ anchor build
 cargo test
 
 anchor deploy
+
+anchor deploy --program-name omniswap --provider.cluster $SOLANA_RPC_URL --program-keypair omniswap-keypair-4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY.json 
+
 ```
 
 ## generate python sdk
@@ -25,14 +28,20 @@ tsc scripts/test_dex/postvaa.ts --esModuleInterop  --skipLibCheck
 ## extand address-lookup-table
 (test_usdc_pool)
 ```bash
-solana address-lookup-table extend  ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8 \
+solana address-lookup-table extend  8K1NLm2WvUT9inQGsRjF3vrq5wUMtRbPRcWgNpUNNBFC \
     --addresses \
-    "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",\
-"b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV",\
-"281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS",\
-"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",\
-"3dycP3pym3q6DgUpZRviaavaScwrrCuC6QyLhiLfSXge",\
-"969UqMJSqvgxmNuAWZx91PAnLJU825qJRAAcEVQMWASg"
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",\
+"worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",\
+"wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",\
+"5BHn4v7pxd44L7eBqJLw39ixLLxP8gs2ds3xXagKCj67",\
+"3nJzsfLtAVUaXyMb2NNMw357pFYGpM54qewNE3DiNaX8",\
+"A2UVxxSt3AEefNkXANUdrCenvSqeyV6QKzuyxuT2Ai2X",\
+"CUCqvvz9TsoeBHwd9Lcv97fu3VM71vcSFTS3TKyuSA79",\
+"HjZJTQPJGVQmbDuYwZgmaGeHhF1X9cAxzfmr5CKkqwpd",\
+"2Huv2NXqzEpmyooRQp8XY3gPq6FwfYpey9ma8TAKSShU",\
+"6WyPZoehvC4EUbwwJ4wfK7HkuD1gHDKDbvHW6LCJNy4q",\
+"27uqhhEafgVV3jv2qPavr6uKu1mdbxxxvMXjhLfbBALq",\
+"2fCfP7g2QoYu6jaLdaTrWAURUV679SjdTGVf14JXkqpu"
 ```
 (omniswap config)
 

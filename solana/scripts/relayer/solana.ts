@@ -500,6 +500,11 @@ function recordGas(
         });
 }
 
+export interface ProcessInfo {
+    lastTimestamp: number;
+    count: number,
+}
+
 async function processV2(
     dstWormholeChainId,
     dstSoDiamond,
@@ -509,7 +514,7 @@ async function processV2(
         "confirmed"
     );
     let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.RELAYER_KEY)));
-    const hasProcess = new Map<string, number>();
+    const hasProcess = new Map<string, ProcessInfo>();
     const pendingInterval = 30;
     let lastPendingTime = 0;
     while (true) {
@@ -547,12 +552,28 @@ async function processV2(
                 continue
             }
             const hasKey = `${d["sequence"]}@${d["srcWormholeChainId"]}`;
-            if (hasProcess.has(hasKey) && currentTimeStamp <= hasProcess.get(hasKey) + 10 * 60) {
-                logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} inner 10min has process`);
-                continue;
+
+            if (hasProcess.has(hasKey)) {
+                const processInfo = hasProcess.get(hasKey);
+                if (currentTimeStamp <= processInfo.lastTimestamp + 10 * 60) {
+                    logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} inner 10min has process, pending...`);
+                    continue
+                } else if (processInfo.count >= 5) {
+                    logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} has retry 5th, refuse`);
+                    continue
+                } else {
+                    hasProcess.set(hasKey, {
+                        lastTimestamp: currentTimeStamp,
+                        count: processInfo.count + 1
+                    })
+                }
             } else {
-                hasProcess.set(hasKey, currentTimeStamp);
+                hasProcess.set(hasKey, {
+                    lastTimestamp: currentTimeStamp,
+                    count: 0
+                })
             }
+
             const skipVerify = false;
             await processVaa(connection, payer, dstSoDiamond, vaa, d["srcWormholeChainId"], d["sequence"], d["extrinsicHash"], skipVerify);
         }
