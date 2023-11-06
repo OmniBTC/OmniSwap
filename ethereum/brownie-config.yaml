@@ -868,7 +868,9 @@ networks:
         address: "0x4200000000000000000000000000000000000006"
         decimal: 18
       usdc:
-        address: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA"
+        # bridge: 0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA
+        # circle: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+        address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
         decimal: 6
     swap:
       - ISwapRouter:
@@ -2024,7 +2026,7 @@ networks:
       usdc:
         # bridge usdc: 0x7F5c764cBc14f9669B88837ca1490cCa17c31607
         # circle usdc: 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85
-        address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+        address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
         decimal: 6
     swap:
       - ICurveFi:
