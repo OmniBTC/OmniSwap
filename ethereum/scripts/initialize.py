@@ -791,6 +791,8 @@ def add_dex(swap_info):
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     swap_type = list(swap_info.keys())[0]
+    if swap_type not in ["IOpenOceanExchange", "IUniswapV2Exchange"]:
+        return
     print(f"Add router for:{swap_info[swap_type]['name']}")
     proxy_dex.addDex(
         swap_info[swap_type]["router"], {"from": get_account()}

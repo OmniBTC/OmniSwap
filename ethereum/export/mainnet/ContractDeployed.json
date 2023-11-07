@@ -21,7 +21,8 @@
     "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
-    "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
+    "LibCorrectSwapV2": "0x802D063d912D99b0b3e31ABAc2f93943A743B929"
   },
   "avax-main": {
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
@@ -48,7 +49,8 @@
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
-    "WormholeFacet": "0xFc6e7902EcDD5C2Ae7502e2F869f2213B4BF2249"
+    "WormholeFacet": "0xFc6e7902EcDD5C2Ae7502e2F869f2213B4BF2249",
+    "LibCorrectSwapV2": "0xB9496408E1c36AcED889261c4ec616aa2f213B8C"
   },
   "bsc-main": {
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
@@ -73,7 +75,8 @@
     "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
     "StargateFacet": "0x900A514f459aA8301956059C38F8c01A774c95b7",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
-    "WormholeFacet": "0x72335F9a83d6468B7Bdf64e25A511D5A719f3Cf2"
+    "WormholeFacet": "0x72335F9a83d6468B7Bdf64e25A511D5A719f3Cf2",
+    "LibCorrectSwapV2": "0x46aa8f8FF3E04b79f87dCBE9eA9ED5BeA800e756"
   },
   "mainnet": {
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
@@ -122,7 +125,8 @@
     "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
-    "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
+    "LibCorrectSwapV2": "0x802D063d912D99b0b3e31ABAc2f93943A743B929"
   },
   "polygon-main": {
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
@@ -147,7 +151,8 @@
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
-    "WormholeFacet": "0x184b4176aebc4598190aa2FFAFFa86c07D2102C7"
+    "WormholeFacet": "0x184b4176aebc4598190aa2FFAFFa86c07D2102C7",
+    "LibCorrectSwapV2": "0x933Ce99df42035f25511aaeecCfE8B03175A6b0e"
   },
   "zksync2-main": {
     "BoolFacet": "0x01765a7309B6C1085d73c1F31424E720cC921457",
@@ -163,7 +168,8 @@
     "OwnershipFacet": "0x61e0feE9Af073f28F017BB497a7152f00db9b0dC",
     "SerdeFacet": "0x73a25CA98F9268114b6501cf22CA911fdba7cb6B",
     "SoDiamond": "0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577",
-    "WithdrawFacet": "0x7374f5ED3Ce6Cbf9DFD73ceE17d78350aE692a52"
+    "WithdrawFacet": "0x7374f5ED3Ce6Cbf9DFD73ceE17d78350aE692a52",
+    "LibCorrectSwapV2": "0x4B0492bCc5316257153c087735198D5B6e57D42d"
   },
   "zkevm-main": {
     "CelerFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
@@ -177,7 +183,9 @@
     "OwnershipFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
     "SerdeFacet": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
     "SoDiamond": "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449",
-    "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04"
+    "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
+    "LibCorrectSwapV2": "0x908dAaf6CDdB8D617F81C2c786511eE307F6aEA1"
+
   },
   "base-main": {
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
@@ -198,6 +206,7 @@
     "WithdrawFacet": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
-    "LibSoFeeStargateV1": "0xacCA63aA138997602b2771E2aF6B7cfc643aa027"
+    "LibSoFeeStargateV1": "0xacCA63aA138997602b2771E2aF6B7cfc643aa027",
+    "LibCorrectSwapV2": "0xB9496408E1c36AcED889261c4ec616aa2f213B8C"
   }
 }

@@ -908,6 +908,18 @@ networks:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
           token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
     bridges:
       bool:
         chainid: 8453
@@ -1103,12 +1115,24 @@ networks:
           token_list: ""
           quoter: "0xE39B5e3B6D74016b2F6A9673D7d7493B6DF549d5"
       - IUniswapV2Router02:
-         name: SushiSwapV2
-         router: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
-         token_list: ""
+          name: SushiSwapV2
+          router: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+          token_list: ""
       - IMetaAggregationRouterV2:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
           token_list: ""
   bsc-main:
     omnibtc_chainid: 3
@@ -1324,6 +1348,18 @@ networks:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
           token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   avax-main:
     omnibtc_chainid: 4
     chainid: 43114
@@ -1519,6 +1555,18 @@ networks:
       - IMetaAggregationRouterV2:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
           token_list: ""
   polygon-main:
     omnibtc_chainid: 5
@@ -1723,6 +1771,18 @@ networks:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
           token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   arbitrum-main:
     omnibtc_chainid: 6
     chainid: 42161
@@ -1897,6 +1957,18 @@ networks:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
           token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10
@@ -2050,6 +2122,18 @@ networks:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
           token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   ftm-main:
     omnibtc_chainid: 8
     chainid: 250
@@ -2150,6 +2234,18 @@ networks:
           name: KyberSwap
           router: "0x3F95eF3f2eAca871858dbE20A93c01daF6C2e923"
           token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x6e2B76966cbD9cF4cC2Fa0D76d24d5241E0ABC2F"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x36A1aCbbCAfca2468b85011DDD16E7Cb4d673230"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x36A1aCbbCAfca2468b85011DDD16E7Cb4d673230"
+          token_list: ""
   zkevm-main:
     chainid: 1101
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
@@ -2179,6 +2275,14 @@ networks:
       - IMetaAggregationRouterV2:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6dd434082EAB5Cd134B33719ec1FF05fE985B97b"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6dd434082EAB5Cd134B33719ec1FF05fE985B97b"
           token_list: ""
     bridges:
       celer:
