@@ -214,6 +214,13 @@ module omniswap::wormhole_facet {
         receiving_amount: u64,
     }
 
+    struct RelayerEvnetV2 has copy, drop {
+        transaction_id: vector<u8>,
+        status: String,
+        receiving_asset_id: String,
+        receiving_amount: u64,
+    }
+
     struct SwapEvent has copy, drop {
         src_token: String,
         dst_token: String,
@@ -1840,7 +1847,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: tx_id,
                 status: ascii::string(b"All"),
                 receiving_asset_id: type_name::into_string(type_name::get<X>()),
                 receiving_amount
@@ -1901,7 +1909,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: cross::so_transaction_id(so_data),
                 status: ascii::string(b"All"),
                 receiving_asset_id: type_name::into_string(type_name::get<X>()),
                 receiving_amount
@@ -2011,7 +2020,8 @@ module omniswap::wormhole_facet {
             }
         );
 
-        event::emit(RelayerEvnet {
+        event::emit(RelayerEvnetV2 {
+            transaction_id: cross::so_transaction_id(so_data),
             status: ascii::string(b"All"),
             receiving_asset_id,
             receiving_amount
@@ -2115,7 +2125,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: cross::so_transaction_id(so_data),
                 status: ascii::string(b"All"),
                 receiving_asset_id,
                 receiving_amount
@@ -2215,7 +2226,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: cross::so_transaction_id(so_data),
                 status: ascii::string(b"All"),
                 receiving_asset_id,
                 receiving_amount
@@ -2316,7 +2328,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: cross::so_transaction_id(so_data),
                 status: ascii::string(b"All"),
                 receiving_asset_id,
                 receiving_amount
@@ -2420,7 +2433,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: cross::so_transaction_id(so_data),
                 status: ascii::string(b"All"),
                 receiving_asset_id,
                 receiving_amount
@@ -2524,7 +2538,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: cross::so_transaction_id(so_data),
                 status: ascii::string(b"All"),
                 receiving_asset_id,
                 receiving_amount
@@ -2591,7 +2606,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: cross::so_transaction_id(so_data),
                 status: ascii::string(b"Part"),
                 receiving_asset_id: type_name::into_string(type_name::get<X>()),
                 receiving_amount
@@ -2657,7 +2673,8 @@ module omniswap::wormhole_facet {
         );
 
         event::emit(
-            RelayerEvnet {
+            RelayerEvnetV2 {
+                transaction_id: cross::so_transaction_id(so_data),
                 status: ascii::string(b"Part"),
                 receiving_asset_id: type_name::into_string(type_name::get<X>()),
                 receiving_amount
