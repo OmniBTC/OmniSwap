@@ -36,6 +36,7 @@ module omniswap::wormhole_facet {
 
     #[test_only]
     use omniswap::cross::padding_so_data;
+    use std::ascii;
 
     const RAY: u64 = 100000000;
 
@@ -205,6 +206,12 @@ module omniswap::wormhole_facet {
         so_receiver: vector<u8>,
         token: String,
         amount: u64
+    }
+
+    struct RelayerEvnet has copy, drop {
+        status: String,
+        receiving_asset_id: String,
+        receiving_amount: u64,
     }
 
     struct SwapEvent has copy, drop {
@@ -1831,6 +1838,14 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"All"),
+                receiving_asset_id: type_name::into_string(type_name::get<X>()),
+                receiving_amount
+            }
+        );
     }
 
     /// To complete a cross-chain transaction, it needs to be called manually by the
@@ -1884,6 +1899,15 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"All"),
+                receiving_asset_id: type_name::into_string(type_name::get<X>()),
+                receiving_amount
+            }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
@@ -1934,6 +1958,7 @@ module omniswap::wormhole_facet {
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_x);
+        let receiving_asset_id = type_name::into_string(type_name::get<X>());
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
             let (coin_x, remain_coin) = split_deepbook_coin(
@@ -1971,6 +1996,7 @@ module omniswap::wormhole_facet {
 
             deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
             receiving_amount = coin::value(&coin_y);
+            receiving_asset_id = type_name::into_string(type_name::get<Y>());
             transfer::public_transfer(coin_y, receiver);
             process_left_coin(left_coin_x, receiver);
             process_left_coin(remain_coin, receiver);
@@ -1984,6 +2010,14 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(RelayerEvnet {
+            status: ascii::string(b"All"),
+            receiving_asset_id,
+            receiving_amount
+        }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
@@ -2034,6 +2068,7 @@ module omniswap::wormhole_facet {
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_y);
+        let receiving_asset_id = type_name::into_string(type_name::get<Y>());
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
 
@@ -2065,6 +2100,7 @@ module omniswap::wormhole_facet {
 
             deepbook_v2_storage.client_order_id = deepbook_v2_storage.client_order_id + 1;
             receiving_amount = coin::value(&coin_x);
+            receiving_asset_id = type_name::into_string(type_name::get<X>());
             transfer::public_transfer(coin_x, receiver);
             process_left_coin(left_coin_y, receiver);
         } else {
@@ -2077,6 +2113,15 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"All"),
+                receiving_asset_id,
+                receiving_amount
+            }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
@@ -2125,6 +2170,8 @@ module omniswap::wormhole_facet {
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_x);
+        let receiving_asset_id = type_name::into_string(type_name::get<X>());
+
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
 
@@ -2153,6 +2200,7 @@ module omniswap::wormhole_facet {
             );
 
             receiving_amount = coin::value(&coin_y);
+            receiving_asset_id = type_name::into_string(type_name::get<Y>());
             transfer::public_transfer(coin_y, receiver);
             process_left_coin(left_coin_x, receiver);
         } else {
@@ -2165,6 +2213,15 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"All"),
+                receiving_asset_id,
+                receiving_amount
+            }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
@@ -2213,6 +2270,8 @@ module omniswap::wormhole_facet {
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_y);
+        let receiving_asset_id = type_name::into_string(type_name::get<Y>());
+
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
 
@@ -2241,6 +2300,8 @@ module omniswap::wormhole_facet {
             );
 
             receiving_amount = coin::value(&coin_x);
+            receiving_asset_id = type_name::into_string(type_name::get<X>());
+
             transfer::public_transfer(coin_x, receiver);
             process_left_coin(left_coin_y, receiver);
         } else {
@@ -2253,6 +2314,15 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"All"),
+                receiving_asset_id,
+                receiving_amount
+            }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
@@ -2303,6 +2373,8 @@ module omniswap::wormhole_facet {
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_x);
+        let receiving_asset_id = type_name::into_string(type_name::get<X>());
+
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
 
@@ -2332,6 +2404,8 @@ module omniswap::wormhole_facet {
             );
 
             receiving_amount = coin::value(&coin_y);
+            receiving_asset_id = type_name::into_string(type_name::get<Y>());
+
             transfer::public_transfer(coin_y, receiver);
             process_left_coin(left_coin_x, receiver);
         } else {
@@ -2344,6 +2418,15 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"All"),
+                receiving_asset_id,
+                receiving_amount
+            }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
@@ -2394,6 +2477,8 @@ module omniswap::wormhole_facet {
 
         let receiver = serde::deserialize_address(&cross::so_receiver(so_data));
         let receiving_amount = coin::value(&coin_y);
+        let receiving_asset_id = type_name::into_string(type_name::get<Y>());
+
         if (vector::length(&swap_data_dst) > 0) {
             assert!(vector::length(&swap_data_dst) == 1, ESWAP_LENGTH);
 
@@ -2423,6 +2508,8 @@ module omniswap::wormhole_facet {
             );
 
             receiving_amount = coin::value(&coin_x);
+            receiving_asset_id = type_name::into_string(type_name::get<X>());
+
             transfer::public_transfer(coin_x, receiver);
             process_left_coin(left_coin_y, receiver);
         } else {
@@ -2435,6 +2522,15 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"All"),
+                receiving_asset_id,
+                receiving_amount
+            }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
@@ -2493,6 +2589,15 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"Part"),
+                receiving_asset_id: type_name::into_string(type_name::get<X>()),
+                receiving_amount
+            }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
@@ -2550,6 +2655,15 @@ module omniswap::wormhole_facet {
                 actual_receiving_amount: receiving_amount
             }
         );
+
+        event::emit(
+            RelayerEvnet {
+                status: ascii::string(b"Part"),
+                receiving_asset_id: type_name::into_string(type_name::get<X>()),
+                receiving_amount
+            }
+        );
+
         event::emit(DstAmount {
             so_fee
         });
