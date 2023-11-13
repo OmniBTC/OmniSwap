@@ -2341,7 +2341,7 @@ networks:
   bevm-main:
     bridges:
       bool:
-        chainid: 534352
+        chainid: 1501
         router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
         factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
         messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
