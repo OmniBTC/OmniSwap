@@ -1836,6 +1836,11 @@ networks:
             decimals: 18
             pool_address: "0x2a6e088056e94badd431640aa254cb74ad7c23a3"
             token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          wbtc:
+            pool_id: 7
+            decimals: 8
+            pool_address: "0xfcd68ec4c59747abcb7faf705873856676d57e47"
+            token_address: "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f"
       celer:
         chainid: 42161
         message_bus: "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f"
@@ -2333,6 +2338,28 @@ networks:
             decimals: 18
             pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
             token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+  bevm-main:
+    bridges:
+      bool:
+        chainid: 1501
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 10000000000000
+        pools:
+          wbtc:
+            pool_id: 1
+            decimals: 18
+            feeRatio: 0
+            pool_address: "0x2d958bf57b35fbe5ae865c7956338d02e0b30562"
+            token_address: "0x09ff8e49d0ea411a3422ed95e8f5497d4241f532"
+    swap:
+      - IUniswapV2Router02:
+          name: BSwapV2
+          router: "0xC7Dd38D6D161e2a440617508308639B2d701F633"
+          factory: "0x356FD03E73ce821d5F7dFea51d1cB336EeFd67b1"
+          token_list: ""
 
 wallets:
   from_key: ${PRIVATE_KEY}

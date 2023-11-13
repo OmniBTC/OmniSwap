@@ -29,6 +29,7 @@ def main():
 
 
 def deploy_contracts(account):
+    print(f"account:{account.address}")
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("1 gwei")
     if "arbitrum-test" in network.show_active():
@@ -42,8 +43,8 @@ def deploy_contracts(account):
         # CCTPFacet,
         # CelerFacet,
         # MultiChainFacet,
-        WormholeFacet,
-        # BoolFacet,
+        # WormholeFacet,
+        BoolFacet,
         WithdrawFacet,
         OwnershipFacet,
         GenericSwapFacet,
@@ -56,13 +57,13 @@ def deploy_contracts(account):
     print("deploy SoDiamond.sol...")
     SoDiamond.deploy(account, DiamondCutFacet[-1], {"from": account})
 
-    so_fee = 1e-3
+    # so_fee = 0
 
     # print("deploy LibSoFeeStargateV1.sol...")
     # transfer_for_gas = 30000
     # LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {"from": account})
 
-    ray = 1e27
+    # ray = 1e27
 
     # print("deploy LibSoFeeCelerV1.sol...")
     # LibSoFeeCelerV1.deploy(int(so_fee * ray), {"from": account})
@@ -70,9 +71,9 @@ def deploy_contracts(account):
     # print("deploy LibSoFeeMultiChainV1.sol...")
     # LibSoFeeMultiChainV1.deploy(int(so_fee * ray), {"from": account})
 
-    print("deploy LibSoFeeWormholeV1.sol...")
-
-    LibSoFeeWormholeV1.deploy(int(so_fee * ray), {"from": account})
+    # print("deploy LibSoFeeWormholeV1.sol...")
+    #
+    # LibSoFeeWormholeV1.deploy(int(so_fee * ray), {"from": account})
     #
     # print("deploy LibSoFeeBoolV1.sol...")
 
@@ -81,7 +82,7 @@ def deploy_contracts(account):
     # print("deploy LibSoFeeCCTPV1.sol...")
     # LibSoFeeCCTPV1.deploy(int(so_fee * ray), {"from": account})
 
-    print("deploy LibCorrectSwapV1...")
-    LibCorrectSwapV1.deploy({"from": account})
-
-    print("deploy end!")
+    # print("deploy LibCorrectSwapV1...")
+    # LibCorrectSwapV1.deploy({"from": account})
+    #
+    # print("deploy end!")
