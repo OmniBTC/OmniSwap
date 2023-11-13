@@ -242,24 +242,19 @@ def initialize_bool(account, so_diamond):
     proxy_bool.initBoolSwap(get_bool_router(), get_bool_chainid(), {"from": account})
 
 
-def batch_set_bool_allowed_address(account, so_diamond):
-    networks = ['optimism-main', 'arbitrum-main']
-    cur_net = network.show_active()
+def batch_set_bool_allowed_address(account=get_account(), so_diamond=SoDiamond[-1]):
     bool_facet = Contract.from_abi(
         "BoolFacet", so_diamond.address, BoolFacet.abi
     )
-    print("set bool allowed addresses...")
 
     pool_addresses = []
     allow = []
-    for net in networks:
-        if net == cur_net:
-            continue
-        pools = get_bool_pools()
-        for pool in pools:
-            pool_addresses.append(pools[pool]["pool_address"])
-            allow.append(True)
-
+    pools = get_bool_pools()
+    for pool in pools:
+        pool_addresses.append(pools[pool]["pool_address"])
+        allow.append(True)
+    assert len(pool_addresses), "pool_addresses is zero"
+    print(f"set bool allowed {len(pool_addresses)} addresses...")
     bool_facet.batchSetBoolAllowedAddresses(pool_addresses, allow, {"from": account})
 
 
