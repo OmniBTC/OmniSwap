@@ -108,18 +108,18 @@ def main():
     #     initialize_multichain(account, so_diamond)
     # except Exception as e:
     #     print(f"initialize_multichain fail:{e}")
-    try:
-        initialize_wormhole(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_wormhole fail: {e}")
-    try:
-        initialize_wormhole_fee(account)
-    except Exception as e:
-        print(f"initialize_wormhole_fee fail: {e}")
-    try:
-        initialize_dex_manager(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_dex_manager fail:{e}")
+    # try:
+    #     initialize_wormhole(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_wormhole fail: {e}")
+    # try:
+    #     initialize_wormhole_fee(account)
+    # except Exception as e:
+    #     print(f"initialize_wormhole_fee fail: {e}")
+    # try:
+    #     initialize_dex_manager(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_dex_manager fail:{e}")
     # initialize_little_token_for_stargate()
     # batch_set_bool_allowed_address(account, so_diamond)
 
@@ -197,9 +197,9 @@ def initialize_cut(account, so_diamond):
         # CelerFacet,
         # MultiChainFacet,
         # StargateFacet,
-        # BoolFacet,
+        BoolFacet,
         # CCTPFacet,
-        WormholeFacet,
+        # WormholeFacet,
         WithdrawFacet,
         GenericSwapFacet,
         SerdeFacet,
@@ -643,10 +643,11 @@ def redeploy_bool():
     ray = 1e27
     basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
     basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
-    print(f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
+    print(f"LibSoFeeBoolV2 deploy Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
     LibSoFeeBoolV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
 
     # 2. add bool's lib so fee to diamond
+    print(f"LibSoFeeBoolV2 register...")
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
@@ -786,8 +787,6 @@ def add_dex(swap_info):
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     swap_type = list(swap_info.keys())[0]
-    if swap_type not in ["IOpenOceanExchange", "IUniswapV2Exchange"]:
-        return
     print(f"Add router for:{swap_info[swap_type]['name']}")
     proxy_dex.addDex(
         swap_info[swap_type]["router"], {"from": get_account()}
