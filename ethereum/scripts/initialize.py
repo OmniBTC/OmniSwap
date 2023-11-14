@@ -80,10 +80,11 @@ def main():
     account = get_account()
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond Address:{so_diamond}")
-    try:
-        initialize_cut(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_cut fail:{e}")
+    initialize_cut(account, so_diamond)
+    # try:
+    #
+    # except Exception as e:
+    #     print(f"initialize_cut fail:{e}")
     # try:
     #     initialize_stargate(account, so_diamond)
     # except Exception as e:
@@ -197,7 +198,7 @@ def initialize_cut(account, so_diamond):
         # CelerFacet,
         # MultiChainFacet,
         # StargateFacet,
-        BoolFacet,
+        # BoolFacet,
         # CCTPFacet,
         # WormholeFacet,
         WithdrawFacet,
@@ -579,7 +580,7 @@ def redeploy_generic_swap():
 
     # 1. deploy bool's lib so fee
 
-    so_fee = 1e-4
+    so_fee = 3e-4
     ray = 1e27
     basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
     basic_fee = 0
