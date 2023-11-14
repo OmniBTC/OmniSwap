@@ -36,7 +36,7 @@ def deploy_contracts(account):
         priority_fee("1 gwei")
         max_fee("1.25 gwei")
     deploy_facets = [
-        DiamondCutFacet,
+        # DiamondCutFacet,
         DiamondLoupeFacet,
         DexManagerFacet,
         # StargateFacet,
@@ -44,7 +44,7 @@ def deploy_contracts(account):
         # CelerFacet,
         # MultiChainFacet,
         # WormholeFacet,
-        BoolFacet,
+        # BoolFacet,
         WithdrawFacet,
         OwnershipFacet,
         GenericSwapFacet,

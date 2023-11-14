@@ -2308,6 +2308,8 @@ networks:
             - 1101 # zkevm-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
+  opbnb-main:
+    chainid: 204
   linea-main:
     bridges:
       bool:
