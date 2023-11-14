@@ -3,7 +3,7 @@ dotenv: .env
 
 devnet:
   omnibtc_chainid: 30006
-  rpc_url: "https://api.devnet.solana.com"
+  rpc_url: "https://solana-devnet.g.alchemy.com/v2/VaTALh1zwDTmrzIkcN_zPJG4QCym--nR"
   program:
     SoDiamond: "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
     Wormhole: "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5"
@@ -94,6 +94,8 @@ devnet:
         "EofptCXfgVxRk1vxBLNP1Zk6SSPBiPdkYWVPgTLzbzGR",
         # omniswap bsc(4) foreign_contract
         "FV2SB6pUGWABHxmnoVUxxdTVctzY7puAQon38sJ8oNm",
+        # usdcet
+        "A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM"
       ]
 
 
