@@ -5,6 +5,7 @@ use wormhole_anchor_sdk::wormhole;
 use crate::{
 	cross::{NormalizedSoData, NormalizedSwapData, NormalizedWormholeData},
 	cross_request::CrossRequest,
+	dex::WhirlpoolProgram,
 	instructions::relayer_fee::EstRelayerFee,
 	state::SenderConfig,
 	ForeignContract, PriceManager, SoFeeConfig,
@@ -106,9 +107,15 @@ pub fn handler(
 	swap_data_dst: Vec<u8>,
 ) -> Result<u64> {
 	let mut parsed_wormhole_data =
-		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
-	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
-	let _parsed_swap_data_src = NormalizedSwapData::decode_normalized_swap_data(&swap_data_src)?;
+		NormalizedWormholeData::decode_compact_wormhole_data(&wormhole_data)?;
+	let parsed_so_data = NormalizedSoData::decode_compact_so_data(&so_data)?;
+
+	let mut parsed_swap_data_src =
+		NormalizedSwapData::decode_compact_swap_data_src(&swap_data_src)?;
+	for swap_data_src in parsed_swap_data_src.as_mut_slice() {
+		swap_data_src.reset_swap_src(WhirlpoolProgram.as_ref())
+	}
+
 	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
 
 	let (relayer_fee, wormhole_fee, _) = EstRelayerFee::estimate_fee(
@@ -129,8 +136,8 @@ pub fn handler(
 
 	request.payer = ctx.accounts.payer.key();
 	request.owner = ctx.accounts.config.key();
-	request.so_data = so_data;
-	request.swap_data_src = swap_data_src;
+	request.so_data = NormalizedSoData::encode_normalized_so_data(&parsed_so_data);
+	request.swap_data_src = NormalizedSwapData::encode_normalized_swap_data(&parsed_swap_data_src);
 	request.wormhole_data = fix_wormhole_data;
 	request.swap_data_dst = swap_data_dst;
 
