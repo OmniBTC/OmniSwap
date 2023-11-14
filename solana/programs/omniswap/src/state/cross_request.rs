@@ -16,8 +16,7 @@ pub struct CrossRequest {
 }
 
 impl CrossRequest {
-	/// Reserve for retry requests
-	pub const MAXIMUM_SIZE: usize = 1000;
+	pub const MAXIMUM_SIZE: usize = 1100;
 	pub const MINIMUM_SIZE: usize = 8 // discriminator
 		+ 32 // owner
 		+ 32 // bump
@@ -28,6 +27,12 @@ impl CrossRequest {
 
 	pub const SEED_PREFIX: &'static [u8; 7] = b"request";
 	pub fn dst_chain_id(&self) -> Result<u16> {
+		if let Ok(wormhole_data) =
+			NormalizedWormholeData::decode_compact_wormhole_data(&self.wormhole_data)
+		{
+			return Ok(wormhole_data.dst_wormhole_chain_id)
+		}
+
 		let wormhole_data =
 			NormalizedWormholeData::decode_normalized_wormhole_data(&self.wormhole_data)?;
 
