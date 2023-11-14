@@ -5,8 +5,6 @@ use anchor_lang::{
 
 use crate::{constants::DELIMITER, error::SoSwapError};
 
-declare_id!("whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc");
-
 pub const MAX_SQRT_PRICE_X64: u128 = 79226673515401279992447579055;
 pub const MIN_SQRT_PRICE_X64: u128 = 4295048016;
 

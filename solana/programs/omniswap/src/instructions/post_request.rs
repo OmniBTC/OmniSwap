@@ -5,7 +5,6 @@ use wormhole_anchor_sdk::wormhole;
 use crate::{
 	cross::{NormalizedSoData, NormalizedSwapData, NormalizedWormholeData},
 	cross_request::CrossRequest,
-	dex::WhirlpoolProgram,
 	instructions::relayer_fee::EstRelayerFee,
 	state::SenderConfig,
 	ForeignContract, PriceManager, SoFeeConfig,
@@ -110,11 +109,7 @@ pub fn handler(
 		NormalizedWormholeData::decode_compact_wormhole_data(&wormhole_data)?;
 	let parsed_so_data = NormalizedSoData::decode_compact_so_data(&so_data)?;
 
-	let mut parsed_swap_data_src =
-		NormalizedSwapData::decode_compact_swap_data_src(&swap_data_src)?;
-	for swap_data_src in parsed_swap_data_src.as_mut_slice() {
-		swap_data_src.reset_swap_src(WhirlpoolProgram.as_ref())
-	}
+	let parsed_swap_data_src = NormalizedSwapData::decode_compact_swap_data_src(&swap_data_src)?;
 
 	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
 

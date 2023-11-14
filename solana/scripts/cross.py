@@ -366,7 +366,7 @@ class SwapData:
             serde.serialize_u64(data, swap_len)
 
         for d in swap_data_list:
-            # skip callTo
+            serde.serialize_vector_with_length(data, d.callTo)
             # skip approveTo
             serde.serialize_vector_with_length(data, d.sendingAssetId)
             serde.serialize_vector_with_length(data, d.receivingAssetId)
@@ -451,6 +451,12 @@ class SwapData:
 
         while index < data_len:
             next_len = 8 + serde.get_vector_length(data[index : index + 8])
+            callTo = serde.deserialize_vector_with_length(
+                data[index : index + next_len]
+            )
+            index = index + next_len
+
+            next_len = 8 + serde.get_vector_length(data[index : index + 8])
             sendingAssetId = serde.deserialize_vector_with_length(
                 data[index : index + next_len]
             )
@@ -474,8 +480,8 @@ class SwapData:
 
             swap_data_list.append(
                 SwapData(
-                    bytes(),
-                    bytes(),
+                    callTo,
+                    callTo,
                     sendingAssetId,
                     receivingAssetId,
                     amount,
@@ -499,10 +505,6 @@ class SwapData:
 
     def pool_address(self):
         return self.callTo
-
-    def reset_swap_src(self, call_to: bytes):
-        self.callTo = call_to
-        self.approveTo = call_to
 
 
 class WormholeData:
@@ -736,15 +738,10 @@ def test_swap_data():
     assert decode_swap_data_src == swap_data_src
 
     compact_data = SwapData.encode_compact_src(swap_data_src)
-    assert len(compact_data) == 124, len(compact_data)
+    assert len(compact_data) == 164, len(compact_data)
     decode_compact_swap_data_src = SwapData.decode_compact_src(compact_data)
 
     assert len(decode_compact_swap_data_src) == 1, len(decode_compact_swap_data_src)
-    decode_compact_swap_data_src[0].reset_swap_src(
-        bytes.fromhex(
-            "0e03685f8e909053e458121c66f5a76aedc7706aa11c82f8aa952a8f2b7879a9"
-        )
-    )
 
     assert decode_compact_swap_data_src == decode_swap_data_src
 

@@ -298,7 +298,7 @@ impl NormalizedSwapData {
 		};
 
 		for d in swap_data {
-			// skip call_to
+			serde::serialize_vector_with_length(&mut data, &d.call_to);
 			// skip approve_to
 			serde::serialize_vector_with_length(&mut data, &d.sending_asset_id);
 			serde::serialize_vector_with_length(&mut data, &d.receiving_asset_id);
@@ -328,6 +328,10 @@ impl NormalizedSwapData {
 
 		while index < data_len {
 			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
+			let call_to = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+			index += next_len;
+
+			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
 			let sending_asset_id =
 				serde::deserialize_vector_with_length(&data[index..index + next_len])?;
 			index += next_len;
@@ -346,8 +350,8 @@ impl NormalizedSwapData {
 			index += next_len;
 
 			swap_data.push(NormalizedSwapData {
-				call_to: vec![],
-				approve_to: vec![],
+				call_to: call_to.clone(),
+				approve_to: call_to,
 				sending_asset_id,
 				receiving_asset_id,
 				from_amount: U256::from(from_amount),
@@ -364,11 +368,6 @@ impl NormalizedSwapData {
 
 	pub fn reset_from_amount(&mut self, from_amount: U256) {
 		self.from_amount = from_amount
-	}
-
-	pub fn reset_swap_src(&mut self, call_to: &[u8]) {
-		self.call_to = call_to.to_vec();
-		self.approve_to = call_to.to_vec();
 	}
 }
 
@@ -587,15 +586,9 @@ pub mod test {
 		assert_eq!(NormalizedSwapData::decode_normalized_swap_data(&data)?, swap_data_src);
 
 		let compact_data = NormalizedSwapData::encode_compact_swap_data_src(&swap_data_src);
-		assert_eq!(124, compact_data.len());
+		assert_eq!(164, compact_data.len());
 
-		let mut decode_compact_data =
-			NormalizedSwapData::decode_compact_swap_data_src(&compact_data)?;
-		for swap_data in decode_compact_data.as_mut_slice() {
-			swap_data.reset_swap_src(
-				hex!("0e03685f8e909053e458121c66f5a76aedc7706aa11c82f8aa952a8f2b7879a9").as_slice(),
-			)
-		}
+		let decode_compact_data = NormalizedSwapData::decode_compact_swap_data_src(&compact_data)?;
 
 		assert_eq!(swap_data_src, decode_compact_data);
 
