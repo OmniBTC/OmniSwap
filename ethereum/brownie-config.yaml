@@ -2308,7 +2308,33 @@ networks:
             - 1101 # zkevm-main
             - 42161 # arbitrum-main
             - 43114 # avax-main
+  opbnb-main:
+    chainid: 204
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    swap:
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   linea-main:
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    swap:
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
     bridges:
       bool:
         chainid: 59144
@@ -2324,6 +2350,20 @@ networks:
             pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
             token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
   scroll-main:
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    swap:
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
     bridges:
       bool:
         chainid: 534352
