@@ -374,6 +374,10 @@ impl NormalizedSwapData {
 
 impl NormalizedWormholeData {
 	pub fn parse_chain_id(data: &[u8]) -> Result<u16, SoSwapError> {
+		if let Ok(wormhole_data) = NormalizedWormholeData::decode_compact_wormhole_data(data) {
+			return Ok(wormhole_data.dst_wormhole_chain_id)
+		}
+
 		let wormdole_data = Self::decode_normalized_wormhole_data(data)?;
 		Ok(wormdole_data.dst_wormhole_chain_id)
 	}
