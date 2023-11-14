@@ -131,7 +131,7 @@ async def omniswap_send_wrapped_token():
         destinationChainId=dst_omnibtc_chain,
         receivingAssetId=dst_final_token,
         amount=src_from_amount,
-    ).encode_normalized()
+    ).encode_compact()
 
     # This value will be automatically corrected
     # on the chain when post_request is called
@@ -141,7 +141,7 @@ async def omniswap_send_wrapped_token():
         dstMaxGasPriceInWeiForRelayer=100000,
         wormholeFee=default_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
-    ).encode_normalized()
+    ).encode_compact()
 
     request_key, _total_fee = await post_cross_requset(
         dst_wormhole_chain,
@@ -286,7 +286,7 @@ async def omniswap_send_native_token():
         destinationChainId=dst_omnibtc_chain,
         receivingAssetId=dst_final_token,
         amount=src_from_amount,
-    ).encode_normalized()
+    ).encode_compact()
 
     # This value will be automatically corrected
     # on the chain when post_request is called
@@ -298,7 +298,7 @@ async def omniswap_send_native_token():
         dstMaxGasPriceInWeiForRelayer=dst_gas_price,
         wormholeFee=default_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
-    ).encode_normalized()
+    ).encode_compact()
 
     data_len = len(so_data) + len(wormhole_data)
     print(f"data_len={data_len}")
@@ -462,9 +462,9 @@ async def omniswap_send_native_token_with_whirlpool():
         destinationChainId=dst_omnibtc_chain,
         receivingAssetId=dst_final_token,
         amount=src_from_amount,
-    ).encode_normalized()
+    ).encode_compact()
 
-    swap_data_src = SwapData.encode_normalized(
+    swap_data_src = SwapData.encode_compact_src(
         [
             SwapData(
                 callTo=bytes(quote_config["whirlpool"]),
@@ -472,7 +472,7 @@ async def omniswap_send_native_token_with_whirlpool():
                 sendingAssetId=bytes(src_from_token),
                 receivingAssetId=bytes(src_bridge_native_token),
                 fromAmount=quote_config["amount_in"],
-                callData=bytes(),
+                callData=bytes(f"Whirlpool,{quote_config['min_amount_out']}", "ascii"),
                 swapType="Whirlpool",
                 swapFuncName="swap",
                 swapPath=["TEST", "USDC"],
@@ -490,7 +490,7 @@ async def omniswap_send_native_token_with_whirlpool():
         dstMaxGasPriceInWeiForRelayer=dst_gas_price,
         wormholeFee=default_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
-    ).encode_normalized()
+    ).encode_compact()
 
     data_len = len(so_data) + len(wormhole_data) + len(swap_data_src)
     print(f"data_len={data_len}")
@@ -500,7 +500,6 @@ async def omniswap_send_native_token_with_whirlpool():
         so_data=so_data,
         swap_data_src=swap_data_src,
         wormhole_data=wormhole_data,
-        simulate=True,
     )
 
     # ExceededMaxInstructions
@@ -666,9 +665,9 @@ async def omniswap_send_wrapped_token_with_whirlpool():
         destinationChainId=dst_omnibtc_chain,
         receivingAssetId=dst_final_token,
         amount=src_from_amount,
-    ).encode_normalized()
+    ).encode_compact()
 
-    swap_data_src = SwapData.encode_normalized(
+    swap_data_src = SwapData.encode_compact_src(
         [
             SwapData(
                 callTo=bytes(quote_config["whirlpool"]),
@@ -692,7 +691,7 @@ async def omniswap_send_wrapped_token_with_whirlpool():
         dstMaxGasPriceInWeiForRelayer=100000,
         wormholeFee=default_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
-    ).encode_normalized()
+    ).encode_compact()
 
     request_key, _total_fee = await post_cross_requset(
         dst_wormhole_chain,
@@ -847,7 +846,7 @@ async def omniswap_send_native_token_sol():
         destinationChainId=dst_omnibtc_chain,
         receivingAssetId=dst_final_token,
         amount=src_from_amount,
-    ).encode_normalized()
+    ).encode_compact()
 
     # This value will be automatically corrected
     # on the chain when post_request is called
@@ -859,7 +858,7 @@ async def omniswap_send_native_token_sol():
         dstMaxGasPriceInWeiForRelayer=dst_gas_price,
         wormholeFee=default_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
-    ).encode_normalized()
+    ).encode_compact()
 
     request_key, _total_fee = await post_cross_requset(
         dst_wormhole_chain,
@@ -1042,9 +1041,9 @@ async def omniswap_send_sol_wsol_usdc():
         destinationChainId=dst_omnibtc_chain,
         receivingAssetId=dst_final_token,
         amount=src_from_amount,
-    ).encode_normalized()
+    ).encode_compact()
 
-    swap_data_src = SwapData.encode_normalized(
+    swap_data_src = SwapData.encode_compact_src(
         [
             SwapData(
                 callTo=bytes(quote_config["whirlpool"]),
@@ -1070,7 +1069,7 @@ async def omniswap_send_sol_wsol_usdc():
         dstMaxGasPriceInWeiForRelayer=dst_gas_price,
         wormholeFee=default_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
-    ).encode_normalized()
+    ).encode_compact()
 
     request_key, _total_fee = await post_cross_requset(
         dst_wormhole_chain,
@@ -1262,9 +1261,9 @@ async def omniswap_send_sol_wsol_bsc():
         destinationChainId=dst_omnibtc_chain,
         receivingAssetId=dst_final_token,
         amount=src_from_amount,
-    ).encode_normalized()
+    ).encode_compact()
 
-    swap_data_src = SwapData.encode_normalized(
+    swap_data_src = SwapData.encode_compact_src(
         [
             SwapData(
                 callTo=bytes(quote_config["whirlpool"]),
@@ -1288,7 +1287,7 @@ async def omniswap_send_sol_wsol_bsc():
         dstMaxGasPriceInWeiForRelayer=100000,
         wormholeFee=default_wormhole_fee,
         dstSoDiamond=dst_so_diamond_padding,
-    ).encode_normalized()
+    ).encode_compact()
 
     request_key, _total_fee = await post_cross_requset(
         dst_wormhole_chain,
@@ -1373,7 +1372,7 @@ async def omniswap_send_sol_wsol_bsc():
     print(tx_sig.value)
 
 
-asyncio.run(omniswap_send_native_token())
+# asyncio.run(omniswap_send_native_token())
 # asyncio.run(omniswap_send_wrapped_token())
 # asyncio.run(omniswap_send_native_token_with_whirlpool())
-# asyncio.run(omniswap_send_sol_wsol_bsc())
+asyncio.run(omniswap_send_sol_wsol_bsc())
