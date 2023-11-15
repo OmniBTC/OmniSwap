@@ -8,7 +8,7 @@ from brownie import (
     interface
 )
 from scripts.helpful_scripts import get_account
-# from web3_input_decoder import decode_function
+from web3_input_decoder import decode_function
 
 account = get_account()
 
