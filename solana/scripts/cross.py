@@ -164,12 +164,12 @@ class SoData:
 
     def encode_compact(self):
         data = bytearray()
-        serde.serialize_vector_with_length(data, self.transactionId)
-        serde.serialize_vector_with_length(data, self.receiver)
+        serde.serialize_vector_with_compact_length(data, self.transactionId)
+        serde.serialize_vector_with_compact_length(data, self.receiver)
         serde.serialize_u16(data, self.sourceChainId)
-        serde.serialize_vector_with_length(data, self.sendingAssetId)
+        serde.serialize_vector_with_compact_length(data, self.sendingAssetId)
         serde.serialize_u16(data, self.destinationChainId)
-        serde.serialize_vector_with_length(data, self.receivingAssetId)
+        serde.serialize_vector_with_compact_length(data, self.receivingAssetId)
         serde.serialize_u64(data, self.amount)
 
         return bytes(data)
@@ -234,22 +234,24 @@ class SoData:
 
         index = 0
 
-        next_len = 8 + serde.get_vector_length(data[index : index + 8])
-        transactionId = serde.deserialize_vector_with_length(
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        transactionId = serde.deserialize_vector_with_compact_length(
             data[index : index + next_len]
         )
         index = index + next_len
 
-        next_len = 8 + serde.get_vector_length(data[index : index + 8])
-        receiver = serde.deserialize_vector_with_length(data[index : index + next_len])
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        receiver = serde.deserialize_vector_with_compact_length(
+            data[index : index + next_len]
+        )
         index = index + next_len
 
         next_len = 2
         sourceChainId = serde.deserialize_u16(data[index : index + next_len])
         index = index + next_len
 
-        next_len = 8 + serde.get_vector_length(data[index : index + 8])
-        sendingAssetId = serde.deserialize_vector_with_length(
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        sendingAssetId = serde.deserialize_vector_with_compact_length(
             data[index : index + next_len]
         )
         index = index + next_len
@@ -258,8 +260,8 @@ class SoData:
         destinationChainId = serde.deserialize_u16(data[index : index + next_len])
         index = index + next_len
 
-        next_len = 8 + serde.get_vector_length(data[index : index + 8])
-        receivingAssetId = serde.deserialize_vector_with_length(
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        receivingAssetId = serde.deserialize_vector_with_compact_length(
             data[index : index + next_len]
         )
         index = index + next_len
@@ -363,15 +365,15 @@ class SwapData:
         swap_len = len(swap_data_list)
 
         if swap_len > 0:
-            serde.serialize_u64(data, swap_len)
+            serde.serialize_u8(data, swap_len)
 
         for d in swap_data_list:
-            serde.serialize_vector_with_length(data, d.callTo)
+            serde.serialize_vector_with_compact_length(data, d.callTo)
             # skip approveTo
-            serde.serialize_vector_with_length(data, d.sendingAssetId)
-            serde.serialize_vector_with_length(data, d.receivingAssetId)
+            serde.serialize_vector_with_compact_length(data, d.sendingAssetId)
+            serde.serialize_vector_with_compact_length(data, d.receivingAssetId)
             serde.serialize_u64(data, d.fromAmount)
-            serde.serialize_vector_with_length(data, d.callData)
+            serde.serialize_vector_with_compact_length(data, d.callData)
 
         return bytes(data)
 
@@ -445,25 +447,25 @@ class SwapData:
         index = 0
         swap_data_list = []
 
-        next_len = 8
-        _swap_len = serde.deserialize_u64(data[index : index + next_len])
+        next_len = 1
+        _swap_len = serde.deserialize_u8(data[index : index + next_len])
         index = index + next_len
 
         while index < data_len:
-            next_len = 8 + serde.get_vector_length(data[index : index + 8])
-            callTo = serde.deserialize_vector_with_length(
+            next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+            callTo = serde.deserialize_vector_with_compact_length(
                 data[index : index + next_len]
             )
             index = index + next_len
 
-            next_len = 8 + serde.get_vector_length(data[index : index + 8])
-            sendingAssetId = serde.deserialize_vector_with_length(
+            next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+            sendingAssetId = serde.deserialize_vector_with_compact_length(
                 data[index : index + next_len]
             )
             index = index + next_len
 
-            next_len = 8 + serde.get_vector_length(data[index : index + 8])
-            receivingAssetId = serde.deserialize_vector_with_length(
+            next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+            receivingAssetId = serde.deserialize_vector_with_compact_length(
                 data[index : index + next_len]
             )
             index = index + next_len
@@ -472,8 +474,8 @@ class SwapData:
             amount = serde.deserialize_u64(data[index : index + next_len])
             index = index + next_len
 
-            next_len = 8 + serde.get_vector_length(data[index : index + 8])
-            callData = serde.deserialize_vector_with_length(
+            next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+            callData = serde.deserialize_vector_with_compact_length(
                 data[index : index + next_len]
             )
             index = index + next_len
@@ -553,7 +555,7 @@ class WormholeData:
         serde.serialize_u16(data, self.dstWormholeChainId)
         serde.serialize_u64(data, self.dstMaxGasPriceInWeiForRelayer)
         serde.serialize_u64(data, self.wormholeFee)
-        serde.serialize_vector_with_length(data, self.dstSoDiamond)
+        serde.serialize_vector_with_compact_length(data, self.dstSoDiamond)
 
         return data
 
@@ -611,8 +613,8 @@ class WormholeData:
         wormholeFee = serde.deserialize_u64(data[index : index + next_len])
         index = index + next_len
 
-        next_len = 8 + serde.get_vector_length(data[index : index + 8])
-        dstSoDiamond = serde.deserialize_vector_with_length(
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        dstSoDiamond = serde.deserialize_vector_with_compact_length(
             data[index : index + next_len]
         )
         index = index + next_len
@@ -642,7 +644,7 @@ def test_wormhole_data():
     assert wormhole_data == decode_wormhole_data
 
     compact_data = wormhole_data.encode_compact()
-    assert len(compact_data) == 46, len(compact_data)
+    assert len(compact_data) == 39, len(compact_data)
 
     decode_wormhole_data = wormhole_data.decode_compact(compact_data)
     assert wormhole_data == decode_wormhole_data
@@ -673,7 +675,7 @@ def test_so_data():
     assert so_data == decode_so_data
 
     compact_data = so_data.encode_compact()
-    assert len(compact_data) == 142, len(compact_data)
+    assert len(compact_data) == 114, len(compact_data)
 
     decode_so_data = so_data.decode_compact(compact_data)
     assert so_data == decode_so_data
@@ -738,7 +740,7 @@ def test_swap_data():
     assert decode_swap_data_src == swap_data_src
 
     compact_data = SwapData.encode_compact_src(swap_data_src)
-    assert len(compact_data) == 164, len(compact_data)
+    assert len(compact_data) == 129, len(compact_data)
     decode_compact_swap_data_src = SwapData.decode_compact_src(compact_data)
 
     assert len(decode_compact_swap_data_src) == 1, len(decode_compact_swap_data_src)
@@ -751,10 +753,10 @@ if __name__ == "__main__":
     test_so_data()
     test_swap_data()
 
-    print(
-        list(
-            padding_hex_to_bytes(
-                "84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc", padding="left"
-            )
-        )
-    )
+    # print(
+    #     list(
+    #         padding_hex_to_bytes(
+    #             "84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc", padding="left"
+    #         )
+    #     )
+    # )
