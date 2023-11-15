@@ -129,12 +129,12 @@ impl NormalizedSoData {
 
 	pub fn encode_compact_so_data(so_data: &NormalizedSoData) -> Vec<u8> {
 		let mut data = Vec::<u8>::new();
-		serde::serialize_vector_with_length(&mut data, &so_data.transaction_id);
-		serde::serialize_vector_with_length(&mut data, &so_data.receiver);
+		serde::serialize_vector_with_compact_length(&mut data, &so_data.transaction_id);
+		serde::serialize_vector_with_compact_length(&mut data, &so_data.receiver);
 		serde::serialize_u16(&mut data, so_data.source_chain_id);
-		serde::serialize_vector_with_length(&mut data, &so_data.sending_asset_id);
+		serde::serialize_vector_with_compact_length(&mut data, &so_data.sending_asset_id);
 		serde::serialize_u16(&mut data, so_data.destination_chain_id);
-		serde::serialize_vector_with_length(&mut data, &so_data.receiving_asset_id);
+		serde::serialize_vector_with_compact_length(&mut data, &so_data.receiving_asset_id);
 		serde::serialize_u64(&mut data, so_data.amount.as_u64());
 		data
 	}
@@ -145,30 +145,32 @@ impl NormalizedSoData {
 		let mut index = 0;
 		let mut next_len;
 
-		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
-		let transaction_id = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+		next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
+		let transaction_id =
+			serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 		index += next_len;
 
-		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
-		let receiver = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+		next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
+		let receiver =
+			serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 		index += next_len;
 
 		next_len = 2;
 		let source_chain_id = serde::deserialize_u16(&data[index..index + next_len])?;
 		index += next_len;
 
-		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
+		next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
 		let sending_asset_id =
-			serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+			serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 		index += next_len;
 
 		next_len = 2;
 		let destination_chain_id = serde::deserialize_u16(&data[index..index + next_len])?;
 		index += next_len;
 
-		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
+		next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
 		let receiving_asset_id =
-			serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+			serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 		index += next_len;
 
 		next_len = 8;
@@ -294,16 +296,16 @@ impl NormalizedSwapData {
 
 		let swap_len = swap_data.len();
 		if swap_len > 0 {
-			serde::serialize_u64(&mut data, swap_len as u64)
+			serde::serialize_u8(&mut data, swap_len as u8)
 		};
 
 		for d in swap_data {
-			serde::serialize_vector_with_length(&mut data, &d.call_to);
+			serde::serialize_vector_with_compact_length(&mut data, &d.call_to);
 			// skip approve_to
-			serde::serialize_vector_with_length(&mut data, &d.sending_asset_id);
-			serde::serialize_vector_with_length(&mut data, &d.receiving_asset_id);
+			serde::serialize_vector_with_compact_length(&mut data, &d.sending_asset_id);
+			serde::serialize_vector_with_compact_length(&mut data, &d.receiving_asset_id);
 			serde::serialize_u64(&mut data, d.from_amount.as_u64());
-			serde::serialize_vector_with_length(&mut data, &d.call_data);
+			serde::serialize_vector_with_compact_length(&mut data, &d.call_data);
 		}
 
 		data
@@ -322,31 +324,33 @@ impl NormalizedSwapData {
 		let mut next_len;
 		let mut swap_data = Vec::<NormalizedSwapData>::new();
 
-		next_len = 8;
-		let _swap_len = serde::deserialize_u64(&data[index..index + next_len])?;
+		next_len = 1;
+		let _swap_len = serde::deserialize_u8(&data[index..index + next_len])?;
 		index += next_len;
 
 		while index < data_len {
-			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
-			let call_to = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+			next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
+			let call_to =
+				serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 			index += next_len;
 
-			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
+			next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
 			let sending_asset_id =
-				serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+				serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 			index += next_len;
 
-			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
+			next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
 			let receiving_asset_id =
-				serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+				serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 			index += next_len;
 
 			next_len = 8;
 			let from_amount = serde::deserialize_u64(&data[index..index + next_len])?;
 			index += next_len;
 
-			next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
-			let call_data = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+			next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
+			let call_data =
+				serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 			index += next_len;
 
 			swap_data.push(NormalizedSwapData {
@@ -373,11 +377,7 @@ impl NormalizedSwapData {
 
 impl NormalizedWormholeData {
 	pub fn parse_chain_id(data: &[u8]) -> Result<u16, SoSwapError> {
-		if let Ok(wormhole_data) = NormalizedWormholeData::decode_compact_wormhole_data(data) {
-			return Ok(wormhole_data.dst_wormhole_chain_id)
-		}
-
-		let wormdole_data = Self::decode_normalized_wormhole_data(data)?;
+		let wormdole_data = Self::decode_compact_wormhole_data(data)?;
 		Ok(wormdole_data.dst_wormhole_chain_id)
 	}
 
@@ -434,7 +434,7 @@ impl NormalizedWormholeData {
 			wormhole_data.dst_max_gas_price_in_wei_for_relayer.as_u64(),
 		);
 		serde::serialize_u64(&mut data, wormhole_data.wormhole_fee.as_u64());
-		serde::serialize_vector_with_length(&mut data, &wormhole_data.dst_so_diamond);
+		serde::serialize_vector_with_compact_length(&mut data, &wormhole_data.dst_so_diamond);
 		data
 	}
 
@@ -456,8 +456,9 @@ impl NormalizedWormholeData {
 		let wormhole_fee = serde::deserialize_u64(&data[index..index + next_len])?;
 		index += next_len;
 
-		next_len = (8 + serde::get_vector_length(&data[index..index + 8])?) as usize;
-		let dst_so_diamond = serde::deserialize_vector_with_length(&data[index..index + next_len])?;
+		next_len = (1 + serde::get_vector_compact_length(&data[index..index + 1])?) as usize;
+		let dst_so_diamond =
+			serde::deserialize_vector_with_compact_length(&data[index..index + next_len])?;
 		index += next_len;
 
 		if index != data_len {
@@ -496,7 +497,7 @@ pub mod test {
 		assert_eq!(NormalizedWormholeData::decode_normalized_wormhole_data(&data)?, wormhole_data);
 
 		let compact_data = NormalizedWormholeData::encode_compact_wormhole_data(&wormhole_data);
-		assert_eq!(46, compact_data.len());
+		assert_eq!(39, compact_data.len());
 		assert_eq!(
 			NormalizedWormholeData::decode_compact_wormhole_data(&compact_data)?,
 			wormhole_data
@@ -527,7 +528,7 @@ pub mod test {
 		assert_eq!(NormalizedSoData::decode_normalized_so_data(&data)?, so_data);
 
 		let compact_data = NormalizedSoData::encode_compact_so_data(&so_data);
-		assert_eq!(142, compact_data.len());
+		assert_eq!(114, compact_data.len());
 		assert_eq!(NormalizedSoData::decode_compact_so_data(&compact_data)?, so_data);
 
 		Ok(())
@@ -586,7 +587,7 @@ pub mod test {
 		assert_eq!(NormalizedSwapData::decode_normalized_swap_data(&data)?, swap_data_src);
 
 		let compact_data = NormalizedSwapData::encode_compact_swap_data_src(&swap_data_src);
-		assert_eq!(164, compact_data.len());
+		assert_eq!(129, compact_data.len());
 
 		let decode_compact_data = NormalizedSwapData::decode_compact_swap_data_src(&compact_data)?;
 
