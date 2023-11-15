@@ -16,7 +16,7 @@ pub struct CrossRequest {
 }
 
 impl CrossRequest {
-	pub const MAXIMUM_SIZE: usize = 1100;
+	pub const MAXIMUM_SIZE: usize = 1200;
 	pub const MINIMUM_SIZE: usize = 8 // discriminator
 		+ 32 // owner
 		+ 32 // bump
