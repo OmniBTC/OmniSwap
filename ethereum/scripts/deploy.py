@@ -16,7 +16,8 @@ from brownie import (
     StargateFacet,
     LibSoFeeStargateV1,
     WormholeFacet,
-    LibSoFeeWormholeV1
+    LibSoFeeWormholeV1,
+    Multicall3
 )
 from brownie.network import priority_fee, max_fee
 
@@ -26,6 +27,10 @@ from scripts.helpful_scripts import get_account
 def main():
     account = get_account()
     deploy_contracts(account)
+
+
+def deploy_multicall(account=get_account()):
+    Multicall3.deploy({"from": account})
 
 
 def deploy_contracts(account):
