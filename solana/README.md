@@ -25,7 +25,7 @@ tsc scripts/test_dex/get_whirlpool_quote_config.ts --esModuleInterop  --skipLibC
 tsc scripts/test_dex/postvaa.ts --esModuleInterop  --skipLibCheck
 ```
 
-## extand address-lookup-table
+## extend address-lookup-table
 (test_usdc_pool)
 ```bash
 solana address-lookup-table extend  8K1NLm2WvUT9inQGsRjF3vrq5wUMtRbPRcWgNpUNNBFC \
