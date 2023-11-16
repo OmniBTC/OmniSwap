@@ -2439,7 +2439,6 @@ contract CorrectOneInch is ICorrectSwap {
 }
 
 contract CorrectOpenOceanFactory {
-
     constructor(LibCorrectSwapV2 libCorrectSwapV2) {
         // OpenOcean
         bytes4[] memory sigs = new bytes4[](5);
@@ -2451,7 +2450,6 @@ contract CorrectOpenOceanFactory {
         address correctOpenOcean = address(new CorrectOpenOcean());
         libCorrectSwapV2.setCorrectSwap(sigs, correctOpenOcean);
     }
-
 }
 
 contract CorrectOpenOcean is ICorrectSwap {
