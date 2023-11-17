@@ -44,8 +44,8 @@ async def call_omniswap_estimate_relayer_fee():
 
     src_fee, consume_value, dst_max_gas = await omniswap_estimate_relayer_fee(
         dst_wormhole_chain_id=bsc_wormhole_chain_id,
-        wormhole_data=wormhole_data.encode_normalized(),
-        so_data=so_data.encode_normalized(),
+        wormhole_data=wormhole_data.encode_compact(),
+        so_data=so_data.encode_compact(),
         swap_data_dst=bytes(),
         network="devnet",
     )

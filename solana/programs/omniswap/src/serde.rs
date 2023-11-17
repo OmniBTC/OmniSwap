@@ -66,8 +66,39 @@ pub fn serialize_vector_with_length(buf: &mut Vec<u8>, v: &[u8]) {
 	serialize_vector(buf, v);
 }
 
+pub fn serialize_vector_with_compact_length(buf: &mut Vec<u8>, v: &[u8]) {
+	let len = v.len();
+
+	if len == 0 {
+		return
+	};
+
+	serialize_u8(buf, len as u8);
+	serialize_vector(buf, v);
+}
+
 pub fn get_vector_length(buf: &[u8]) -> Result<u64, SoSwapError> {
 	deserialize_u64(&buf[0..8])
+}
+
+pub fn get_vector_compact_length(buf: &[u8]) -> Result<u8, SoSwapError> {
+	deserialize_u8(&buf[0..1])
+}
+
+pub fn deserialize_vector_with_compact_length(buf: &[u8]) -> Result<Vec<u8>, SoSwapError> {
+	let buf_len = buf.len();
+	if buf_len == 0 {
+		return Ok(Vec::new())
+	}
+
+	let data_len = deserialize_u8(&buf[0..1])?;
+	let total_len = (data_len + 1) as usize;
+
+	if buf_len != total_len {
+		return Err(SoSwapError::InvalidDataLength)
+	}
+
+	Ok(buf[1..total_len].to_vec())
 }
 
 pub fn deserialize_vector_with_length(buf: &[u8]) -> Result<Vec<u8>, SoSwapError> {
@@ -206,6 +237,10 @@ pub mod test {
 		assert_eq!(data, vec![0, 0, 0, 0, 0, 0, 0, 8, 1, 2, 3, 4, 5, 6, 7, 8]);
 
 		let mut data = Vec::<u8>::new();
+		serialize_vector_with_compact_length(&mut data, &mut vec![1, 2, 3, 4, 5, 6, 7, 8]);
+		assert_eq!(data, vec![8, 1, 2, 3, 4, 5, 6, 7, 8]);
+
+		let mut data = Vec::<u8>::new();
 		serialize_u256_with_hex_str(
 			&mut data,
 			U256::from(1339673755198158349044581307228491536u128)
@@ -270,6 +305,9 @@ pub mod test {
 
 		let data =
 			deserialize_vector_with_length(&vec![0, 0, 0, 0, 0, 0, 0, 8, 1, 2, 3, 4, 5, 6, 7, 8])?;
+		assert_eq!(data, vec![1, 2, 3, 4, 5, 6, 7, 8]);
+
+		let data = deserialize_vector_with_compact_length(&vec![8, 1, 2, 3, 4, 5, 6, 7, 8])?;
 		assert_eq!(data, vec![1, 2, 3, 4, 5, 6, 7, 8]);
 
 		let data = deserialize_u256_with_hex_str(&vec![

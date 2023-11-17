@@ -162,6 +162,18 @@ class SoData:
 
         return bytes(data)
 
+    def encode_compact(self):
+        data = bytearray()
+        serde.serialize_vector_with_compact_length(data, self.transactionId)
+        serde.serialize_vector_with_compact_length(data, self.receiver)
+        serde.serialize_u16(data, self.sourceChainId)
+        serde.serialize_vector_with_compact_length(data, self.sendingAssetId)
+        serde.serialize_u16(data, self.destinationChainId)
+        serde.serialize_vector_with_compact_length(data, self.receivingAssetId)
+        serde.serialize_u64(data, self.amount)
+
+        return bytes(data)
+
     @classmethod
     def decode_normalized(cls, data: bytes):
         data_len = len(data)
@@ -201,6 +213,61 @@ class SoData:
 
         next_len = 32
         amount = serde.deserialize_u256(data[index : index + next_len])
+        index = index + next_len
+
+        assert index == data_len, "EINVALID_LENGTH"
+
+        return SoData(
+            transactionId,
+            receiver,
+            sourceChainId,
+            sendingAssetId,
+            destinationChainId,
+            receivingAssetId,
+            amount,
+        )
+
+    @classmethod
+    def decode_compact(cls, data: bytes):
+        data_len = len(data)
+        assert data_len > 0, "EINVALID_LENGTH"
+
+        index = 0
+
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        transactionId = serde.deserialize_vector_with_compact_length(
+            data[index : index + next_len]
+        )
+        index = index + next_len
+
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        receiver = serde.deserialize_vector_with_compact_length(
+            data[index : index + next_len]
+        )
+        index = index + next_len
+
+        next_len = 2
+        sourceChainId = serde.deserialize_u16(data[index : index + next_len])
+        index = index + next_len
+
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        sendingAssetId = serde.deserialize_vector_with_compact_length(
+            data[index : index + next_len]
+        )
+        index = index + next_len
+
+        next_len = 2
+        destinationChainId = serde.deserialize_u16(data[index : index + next_len])
+        index = index + next_len
+
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        receivingAssetId = serde.deserialize_vector_with_compact_length(
+            data[index : index + next_len]
+        )
+        index = index + next_len
+
+        next_len = 8
+        amount = serde.deserialize_u64(data[index : index + next_len])
         index = index + next_len
 
         assert index == data_len, "EINVALID_LENGTH"
@@ -293,6 +360,24 @@ class SwapData:
         return bytes(data)
 
     @classmethod
+    def encode_compact_src(cls, swap_data_list):
+        data = bytearray()
+        swap_len = len(swap_data_list)
+
+        if swap_len > 0:
+            serde.serialize_u8(data, swap_len)
+
+        for d in swap_data_list:
+            serde.serialize_vector_with_compact_length(data, d.callTo)
+            # skip approveTo
+            serde.serialize_vector_with_compact_length(data, d.sendingAssetId)
+            serde.serialize_vector_with_compact_length(data, d.receivingAssetId)
+            serde.serialize_u64(data, d.fromAmount)
+            serde.serialize_vector_with_compact_length(data, d.callData)
+
+        return bytes(data)
+
+    @classmethod
     def decode_normalized(cls, data: bytes):
         data_len = len(data)
         assert data_len > 0, "EINVALID_LENGTH"
@@ -343,6 +428,62 @@ class SwapData:
                 SwapData(
                     callTo,
                     approveTo,
+                    sendingAssetId,
+                    receivingAssetId,
+                    amount,
+                    callData,
+                )
+            )
+
+        assert index == data_len, "EINVALID_LENGTH"
+
+        return swap_data_list
+
+    @classmethod
+    def decode_compact_src(cls, data: bytes):
+        data_len = len(data)
+        assert data_len > 0, "EINVALID_LENGTH"
+
+        index = 0
+        swap_data_list = []
+
+        next_len = 1
+        _swap_len = serde.deserialize_u8(data[index : index + next_len])
+        index = index + next_len
+
+        while index < data_len:
+            next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+            callTo = serde.deserialize_vector_with_compact_length(
+                data[index : index + next_len]
+            )
+            index = index + next_len
+
+            next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+            sendingAssetId = serde.deserialize_vector_with_compact_length(
+                data[index : index + next_len]
+            )
+            index = index + next_len
+
+            next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+            receivingAssetId = serde.deserialize_vector_with_compact_length(
+                data[index : index + next_len]
+            )
+            index = index + next_len
+
+            next_len = 8
+            amount = serde.deserialize_u64(data[index : index + next_len])
+            index = index + next_len
+
+            next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+            callData = serde.deserialize_vector_with_compact_length(
+                data[index : index + next_len]
+            )
+            index = index + next_len
+
+            swap_data_list.append(
+                SwapData(
+                    callTo,
+                    callTo,
                     sendingAssetId,
                     receivingAssetId,
                     amount,
@@ -408,6 +549,16 @@ class WormholeData:
 
         return data
 
+    def encode_compact(self):
+        data = bytearray()
+
+        serde.serialize_u16(data, self.dstWormholeChainId)
+        serde.serialize_u64(data, self.dstMaxGasPriceInWeiForRelayer)
+        serde.serialize_u64(data, self.wormholeFee)
+        serde.serialize_vector_with_compact_length(data, self.dstSoDiamond)
+
+        return data
+
     @classmethod
     def decode_normalized(cls, data: bytes):
         data_len = len(data)
@@ -441,6 +592,39 @@ class WormholeData:
             dstWormholeChainId, dstMaxGasPriceInWeiForRelayer, wormholeFee, dstSoDiamond
         )
 
+    @classmethod
+    def decode_compact(cls, data: bytes):
+        data_len = len(data)
+        assert data_len > 0, "EINVALID_LENGTH"
+
+        index = 0
+
+        next_len = 2
+        dstWormholeChainId = serde.deserialize_u16(data[index : index + next_len])
+        index = index + next_len
+
+        next_len = 8
+        dstMaxGasPriceInWeiForRelayer = serde.deserialize_u64(
+            data[index : index + next_len]
+        )
+        index = index + next_len
+
+        next_len = 8
+        wormholeFee = serde.deserialize_u64(data[index : index + next_len])
+        index = index + next_len
+
+        next_len = 1 + serde.get_vector_compact_length(data[index : index + 1])
+        dstSoDiamond = serde.deserialize_vector_with_compact_length(
+            data[index : index + next_len]
+        )
+        index = index + next_len
+
+        assert index == data_len, "EINVALID_LENGTH"
+
+        return WormholeData(
+            dstWormholeChainId, dstMaxGasPriceInWeiForRelayer, wormholeFee, dstSoDiamond
+        )
+
 
 def test_wormhole_data():
     wormhole_data = WormholeData(
@@ -448,6 +632,8 @@ def test_wormhole_data():
     )
 
     encode_data = wormhole_data.encode_normalized()
+    assert len(encode_data) == 94, len(encode_data)
+
     expect_data = bytes.fromhex(
         "00010000000000000000000000000000000000000000000000000000000000002710000000000000000000000000000000000000000000000000000000000000095500000000000000142da7e3a7f21cce79efeb66f3b082196ea0a8b9af"
     )
@@ -455,6 +641,12 @@ def test_wormhole_data():
     assert expect_data == encode_data, encode_data.hex()
 
     decode_wormhole_data = wormhole_data.decode_normalized(encode_data)
+    assert wormhole_data == decode_wormhole_data
+
+    compact_data = wormhole_data.encode_compact()
+    assert len(compact_data) == 39, len(compact_data)
+
+    decode_wormhole_data = wormhole_data.decode_compact(compact_data)
     assert wormhole_data == decode_wormhole_data
 
 
@@ -477,8 +669,15 @@ def test_so_data():
     )
 
     assert expect_data == encode_data, encode_data.hex()
+    assert len(encode_data) == 166, len(encode_data)
 
     decode_so_data = so_data.decode_normalized(encode_data)
+    assert so_data == decode_so_data
+
+    compact_data = so_data.encode_compact()
+    assert len(compact_data) == 114, len(compact_data)
+
+    decode_so_data = so_data.decode_compact(compact_data)
     assert so_data == decode_so_data
 
 
@@ -516,16 +715,48 @@ def test_swap_data():
     decode_swap_data_list = SwapData.decode_normalized(encode_data)
     assert swap_data_list == decode_swap_data_list
 
+    swap_data_src = [
+        SwapData(
+            bytes.fromhex(
+                "0e03685f8e909053e458121c66f5a76aedc7706aa11c82f8aa952a8f2b7879a9"
+            ),
+            bytes.fromhex(
+                "0e03685f8e909053e458121c66f5a76aedc7706aa11c82f8aa952a8f2b7879a9"
+            ),
+            bytes.fromhex(
+                "3b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea7"
+            ),
+            bytes.fromhex(
+                "10a72302b3fed346d77240c165c64c7aafa5012ada611aad6ddd14829c9bd02d"
+            ),
+            8900000000,
+            b"Whirlpool,8900000000",
+        ),
+    ]
+
+    encode_data = SwapData.encode_normalized(swap_data_src)
+    assert len(encode_data) == 228, len(encode_data)
+    decode_swap_data_src = SwapData.decode_normalized(encode_data)
+    assert decode_swap_data_src == swap_data_src
+
+    compact_data = SwapData.encode_compact_src(swap_data_src)
+    assert len(compact_data) == 129, len(compact_data)
+    decode_compact_swap_data_src = SwapData.decode_compact_src(compact_data)
+
+    assert len(decode_compact_swap_data_src) == 1, len(decode_compact_swap_data_src)
+
+    assert decode_compact_swap_data_src == decode_swap_data_src
+
 
 if __name__ == "__main__":
     test_wormhole_data()
     test_so_data()
     test_swap_data()
 
-    print(
-        list(
-            padding_hex_to_bytes(
-                "84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc", padding="left"
-            )
-        )
-    )
+    # print(
+    #     list(
+    #         padding_hex_to_bytes(
+    #             "84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc", padding="left"
+    #         )
+    #     )
+    # )

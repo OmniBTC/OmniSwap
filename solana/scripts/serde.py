@@ -44,9 +44,22 @@ def serialize_vector_with_length(buf: bytearray, v: bytes):
     serialize_vector(buf, v)
 
 
+def serialize_vector_with_compact_length(buf: bytearray, v: bytes):
+    length = len(v)
+    if length == 0:
+        return
+    serialize_u8(buf, length)
+    serialize_vector(buf, v)
+
+
 def get_vector_length(buf: bytes):
     assert len(buf) >= 8, "EINVALID_LENGTH"
     return deserialize_u64(buf[0:8])
+
+
+def get_vector_compact_length(buf: bytes):
+    assert len(buf) >= 1, "EINVALID_LENGTH"
+    return deserialize_u8(buf[0:1])
 
 
 def deserialize_vector_with_length(buf: bytes):
@@ -56,6 +69,15 @@ def deserialize_vector_with_length(buf: bytes):
     if data_len == 0:
         return bytes()
     return buf[8 : 8 + data_len]
+
+
+def deserialize_vector_with_compact_length(buf: bytes):
+    assert len(buf) >= 1, "EINVALID_LENGTH"
+    data_len = deserialize_u8(buf[0:1])
+
+    if data_len == 0:
+        return bytes()
+    return buf[1 : 1 + data_len]
 
 
 def deserialize_u8(buf: bytes):
@@ -156,6 +178,10 @@ def test_serialize():
     buf = bytearray()
     serialize_vector_with_length(buf, bytes([1, 2, 3, 4, 5, 6, 7, 8]))
     assert list(buf) == [0, 0, 0, 0, 0, 0, 0, 8, 1, 2, 3, 4, 5, 6, 7, 8], list(buf)
+
+    buf = bytearray()
+    serialize_vector_with_compact_length(buf, bytes([1, 2, 3, 4, 5, 6, 7, 8]))
+    assert list(buf) == [8, 1, 2, 3, 4, 5, 6, 7, 8], list(buf)
 
     buf = bytearray()
     serialize_u256_with_hex_str(
@@ -279,6 +305,9 @@ def test_deserialize():
     data = deserialize_vector_with_length(
         bytes([0, 0, 0, 0, 0, 0, 0, 8, 1, 2, 3, 4, 5, 6, 7, 8])
     )
+    assert [1, 2, 3, 4, 5, 6, 7, 8] == list(data), list(data)
+
+    data = deserialize_vector_with_compact_length(bytes([8, 1, 2, 3, 4, 5, 6, 7, 8]))
     assert [1, 2, 3, 4, 5, 6, 7, 8] == list(data), list(data)
 
     data = deserialize_u256_with_hex_str(
