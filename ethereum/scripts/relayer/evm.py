@@ -159,7 +159,7 @@ def process_vaa(
                 f"Parse signed vaa for emitterChainId:{emitterChainId}, "
                 f"sequence:{sequence} dst_max_gas_price: {dst_max_gas_price} lower 0.5 for "
                 f"{estimate_gas_price}, pending")
-            # return False
+            return False
         dst_max_gas_price = min(estimate_gas_price, dst_max_gas_price)
     except Exception as e:
         local_logger.error(
