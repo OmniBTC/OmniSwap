@@ -364,18 +364,17 @@ contract BoolFacet is
                 "NotEnough"
             );
             return false;
-        } else {
-            require(
-                LibAsset.getOwnBalance(currentAssetId) >= amount,
-                "NotEnough"
-            );
-            if (!LibAsset.isNativeAsset(currentAssetId)) {
-                try IWETH(currentAssetId).withdraw(amount) {} catch {
-                    revert("WithdrawErr");
-                }
+        } else if (!LibAsset.isNativeAsset(currentAssetId)) {
+            try IWETH(currentAssetId).withdraw(amount) {} catch {
+                revert("WithdrawErr");
             }
             require(expectAssetId == NATIVE_ADDRESS_IN_BS, "WrongConfig");
             return true;
+        } else {
+            try IWETH(expectAssetId).deposit{value: amount}() {} catch {
+                revert("DepositErr");
+            }
+            return false;
         }
     }
 

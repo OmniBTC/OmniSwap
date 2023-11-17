@@ -70,9 +70,9 @@ pub fn handler(
 	wormhole_data: Vec<u8>,
 	swap_data_dst: Vec<u8>,
 ) -> Result<(u64, u64, u128)> {
-	let parsed_so_data = NormalizedSoData::decode_normalized_so_data(&so_data)?;
+	let parsed_so_data = NormalizedSoData::decode_compact_so_data(&so_data)?;
 	let parsed_wormhole_data =
-		NormalizedWormholeData::decode_normalized_wormhole_data(&wormhole_data)?;
+		NormalizedWormholeData::decode_compact_wormhole_data(&wormhole_data)?;
 	let parsed_swap_data_dst = NormalizedSwapData::decode_normalized_swap_data(&swap_data_dst)?;
 
 	EstRelayerFee::estimate_fee(&ctx, &parsed_so_data, &parsed_wormhole_data, &parsed_swap_data_dst)

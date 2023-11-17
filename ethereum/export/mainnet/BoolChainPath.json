@@ -108,6 +108,21 @@
                 "PoolAddress": "0x2a6e088056e94badd431640aa254cb74ad7c23a3",
                 "PoolId": 6,
                 "TokenName": "ETH"
+            },
+            {
+                "Address": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
+                "ChainPath": [
+                    {
+                        "Address": "0x09ff8e49d0ea411a3422ed95e8f5497d4241f532",
+                        "ChainId": 1501,
+                        "Decimal": 18,
+                        "PoolId": 1
+                    }
+                ],
+                "Decimal": 8,
+                "PoolAddress": "0xfcd68ec4c59747abcb7faf705873856676d57e47",
+                "PoolId": 7,
+                "TokenName": "WBTC"
             }
         ]
     },
@@ -227,6 +242,28 @@
                 "PoolAddress": "0x2D958BF57b35fbE5AE865C7956338d02e0B30562",
                 "PoolId": 1,
                 "TokenName": "ETH"
+            }
+        ]
+    },
+    "bevm-main": {
+        "BoolFactory": "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924",
+        "BoolRouter": "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d",
+        "ChainId": 1501,
+        "SupportTokens": [
+            {
+                "Address": "0x09ff8e49d0ea411a3422ed95e8f5497d4241f532",
+                "ChainPath": [
+                    {
+                        "Address": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
+                        "ChainId": 42161,
+                        "Decimal": 8,
+                        "PoolId": 7
+                    }
+                ],
+                "Decimal": 18,
+                "PoolAddress": "0x2d958bf57b35fbe5ae865c7956338d02e0b30562",
+                "PoolId": 1,
+                "TokenName": "WBTC"
             }
         ]
     },

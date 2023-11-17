@@ -9,14 +9,12 @@ from brownie import (
     WormholeFacet,
     interface,
 )
-from scripts.helpful_scripts import (
-    get_account,
-    to_hex_str,
-    change_network
-)
+from scripts.helpful_scripts import get_account, to_hex_str, change_network
 from solders.pubkey import Pubkey
 
-sys.path.append(Path(__file__).parent.parent.parent.joinpath("solana/scripts").as_posix())
+sys.path.append(
+    Path(__file__).parent.parent.parent.joinpath("solana/scripts").as_posix()
+)
 from get_quote_config import get_whirlpool_quote_config
 
 
@@ -25,30 +23,36 @@ class SolanaSwapType(Enum):
 
 
 def usdc_token_approve(amount: int, aprrove_address: str):
-    token = Contract.from_abi("", "0x51a3cc54eA30Da607974C5D07B8502599801AC08", interface.IERC20.abi)
+    token = Contract.from_abi(
+        "", "0x51a3cc54eA30Da607974C5D07B8502599801AC08", interface.IERC20.abi
+    )
 
     token.approve(aprrove_address, amount, {"from": get_account()})
 
 
 def bsc_token_approve(amount: int, aprrove_address: str):
-    token = Contract.from_abi("", "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1", interface.IERC20.abi)
+    token = Contract.from_abi(
+        "", "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1", interface.IERC20.abi
+    )
 
     token.approve(aprrove_address, amount, {"from": get_account()})
 
 
 def wsol_token_approve(amount: int, aprrove_address: str):
-    token = Contract.from_abi("", "0x30f19eBba919954FDc020B8A20aEF13ab5e02Af0", interface.IERC20.abi)
+    token = Contract.from_abi(
+        "", "0x30f19eBba919954FDc020B8A20aEF13ab5e02Af0", interface.IERC20.abi
+    )
 
     token.approve(aprrove_address, amount, {"from": get_account()})
 
 
 def attest_token_bsc():
     change_network("bsc-test")
-    token_bridge = Contract.from_abi("", "0x9dcF9D205C9De35334D646BeE44b2D2859712A09", interface.IWormholeBridge.abi)
+    token_bridge = Contract.from_abi(
+        "", "0x9dcF9D205C9De35334D646BeE44b2D2859712A09", interface.IWormholeBridge.abi
+    )
     token_bridge.attestToken(
-        "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1",
-        0,
-        {"from": get_account()}
+        "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1", 0, {"from": get_account()}
     )
 
 
@@ -68,14 +72,14 @@ class View:
 
 class SoData(View):
     def __init__(
-            self,
-            transactionId,
-            receiver,
-            sourceChainId,
-            sendingAssetId,
-            destinationChainId,
-            receivingAssetId,
-            amount,
+        self,
+        transactionId,
+        receiver,
+        sourceChainId,
+        sendingAssetId,
+        destinationChainId,
+        receivingAssetId,
+        amount,
     ):
         # unique identification id
         self.transactionId = transactionId
@@ -123,10 +127,10 @@ class SoData(View):
 
     @classmethod
     def create_usdc(
-            cls,
-            receiving_token: str,
-            receiver: str,
-            amount: int,
+        cls,
+        receiving_token: str,
+        receiver: str,
+        amount: int,
     ):
         return SoData(
             transactionId=cls.generate_random_bytes32(),
@@ -140,10 +144,10 @@ class SoData(View):
 
     @classmethod
     def create_wsol(
-            cls,
-            receiving_token: str,
-            receiver: str,
-            amount: int,
+        cls,
+        receiving_token: str,
+        receiver: str,
+        amount: int,
     ):
         return SoData(
             transactionId=cls.generate_random_bytes32(),
@@ -157,10 +161,10 @@ class SoData(View):
 
     @classmethod
     def create_bsc(
-            cls,
-            receiving_token: str,
-            receiver: str,
-            amount: int,
+        cls,
+        receiving_token: str,
+        receiver: str,
+        amount: int,
     ):
         return SoData(
             transactionId=cls.generate_random_bytes32(),
@@ -175,13 +179,13 @@ class SoData(View):
 
 class SwapData(View):
     def __init__(
-            self,
-            callTo,
-            approveTo,
-            sendingAssetId,
-            receivingAssetId,
-            fromAmount,
-            callData,
+        self,
+        callTo,
+        approveTo,
+        sendingAssetId,
+        receivingAssetId,
+        fromAmount,
+        callData,
     ):
         # The swap address
         self.callTo = callTo
@@ -216,9 +220,10 @@ def cross_swap_wrapped_via_wormhole():
     usdc_token_approve(one_usdc, so_diamond)
 
     so_data = SoData.create_usdc(
-        receiving_token="0x" + b58decode("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU").hex(),
+        receiving_token="0x"
+        + b58decode("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU").hex(),
         receiver="0x" + b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
-        amount=one_usdc
+        amount=one_usdc,
     )
     print("SoData\n", so_data)
     so_data = so_data.format_to_contract()
@@ -227,12 +232,12 @@ def cross_swap_wrapped_via_wormhole():
     swap_data_dst = []
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    dst_diamond_address = (
+        "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    )
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
-    proxy_diamond = Contract.from_abi(
-        "WormholeFacet", so_diamond, WormholeFacet.abi
-    )
+    proxy_diamond = Contract.from_abi("WormholeFacet", so_diamond, WormholeFacet.abi)
 
     relayer_fee = proxy_diamond.estimateRelayerFee(
         so_data, wormhole_data, swap_data_dst
@@ -284,12 +289,11 @@ def complete_swap_via_wormhole():
     change_network("bsc-test")
     so_diamond = "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
 
-    proxy_diamond = Contract.from_abi(
-        "WormholeFacet", so_diamond, WormholeFacet.abi
-    )
+    proxy_diamond = Contract.from_abi("WormholeFacet", so_diamond, WormholeFacet.abi)
 
     vaa = bytes.fromhex(
-        "01000000000100188e22c56b28db8091058ffd7868870ee32a5c6b625520a7ec05b0937204077e1ee025f82fc1460abe79e089b13018421d4898af177b63be79e56f3acc015ec60165435f030000000000013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca980000000000006419200300000000000000000000000000000000000000000000000000000000000f42403b442cb3912157f13a933d0134282d032b5ffecd01a2dbf1b7790608df002ea7000100000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc00043636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa8430502540be400030aed9820de6a7d097b4b5ee01095479082008a3e6ea626ada6260429a746de0c9a79170014caf084133cbdbe27490d3afb0da220a40c32e3071451a3cc54ea30da607974c5d07b8502599801ac08")
+        "0100000000010010308ad8336be558813df5cf5e18061b32038cfa03038c0dbce2c7bf16658e1b445fb0e13121003a5313a80de61991007d4f75cf5ea9304c57629b5feb9210b50065535fc40000000000013b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca980000000000006475200300000000000000000000000000000000000000000000000000000000000fe9050000000000000000000000008ce306d8a34c99b23d3054072ba7fc013684e8a1000400000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc00043636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843030186a0030aed9820e33ce38ac6a04c1522ebeced0638b14d9b48d7bdb9128ddad911ac23289353c514caf084133cbdbe27490d3afb0da220a40c32e307148ce306d8a34c99b23d3054072ba7fc013684e8a1"
+    )
 
     proxy_diamond.completeSoSwap(vaa, {"from": get_account()})
 
@@ -304,7 +308,7 @@ def cross_swap_wrapped_wsol():
     so_data = SoData.create_wsol(
         receiving_token="0x" + bytes([0] * 32).hex(),
         receiver="0x" + b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
-        amount=wsol_amount
+        amount=wsol_amount,
     )
     print("SoData\n", so_data)
     so_data = so_data.format_to_contract()
@@ -313,12 +317,12 @@ def cross_swap_wrapped_wsol():
     swap_data_dst = []
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    dst_diamond_address = (
+        "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    )
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
-    proxy_diamond = Contract.from_abi(
-        "WormholeFacet", so_diamond, WormholeFacet.abi
-    )
+    proxy_diamond = Contract.from_abi("WormholeFacet", so_diamond, WormholeFacet.abi)
 
     relayer_fee = proxy_diamond.estimateRelayerFee(
         so_data, wormhole_data, swap_data_dst
@@ -351,9 +355,10 @@ def cross_swap_wrapped_usdc_test_whirlpool():
     usdc_token_approve(one_usdc, so_diamond)
 
     so_data = SoData.create_usdc(
-        receiving_token="0x" + b58decode("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS").hex(),
+        receiving_token="0x"
+        + b58decode("281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS").hex(),
         receiver="0x" + b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
-        amount=one_usdc
+        amount=one_usdc,
     )
     print("SoData\n", so_data)
     so_data = so_data.format_to_contract()
@@ -378,21 +383,20 @@ def cross_swap_wrapped_usdc_test_whirlpool():
             sendingAssetId="0x" + sendingAssetId.hex(),
             receivingAssetId="0x" + receivingAssetId.hex(),
             fromAmount=quote_config["amount_in"],
-            callData="0x" + bytes(
-                f"Whirlpool,{quote_config['min_amount_out']}", "ascii"
-            ).hex(),
+            callData="0x"
+            + bytes(f"Whirlpool,{quote_config['min_amount_out']}", "ascii").hex(),
         ).format_to_contract()
     ]
     print("swap_data_dst\n", swap_data_dst)
 
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    dst_diamond_address = (
+        "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    )
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
-    proxy_diamond = Contract.from_abi(
-        "WormholeFacet", so_diamond, WormholeFacet.abi
-    )
+    proxy_diamond = Contract.from_abi("WormholeFacet", so_diamond, WormholeFacet.abi)
 
     relayer_fee = proxy_diamond.estimateRelayerFee(
         so_data, wormhole_data, swap_data_dst
@@ -429,7 +433,7 @@ def cross_swap_wrapped_usdc_wsol_whirlpool():
     so_data = SoData.create_usdc(
         receiving_token="0x" + bytes([0] * 32).hex(),
         receiver="0x" + b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
-        amount=usdc_amount
+        amount=usdc_amount,
     )
     print("SoData\n", so_data)
     so_data = so_data.format_to_contract()
@@ -453,21 +457,20 @@ def cross_swap_wrapped_usdc_wsol_whirlpool():
             sendingAssetId="0x" + sendingAssetId.hex(),
             receivingAssetId="0x" + receivingAssetId.hex(),
             fromAmount=quote_config["amount_in"],
-            callData="0x" + bytes(
-                f"Whirlpool,{quote_config['min_amount_out']}", "ascii"
-            ).hex(),
+            callData="0x"
+            + bytes(f"Whirlpool,{quote_config['min_amount_out']}", "ascii").hex(),
         ).format_to_contract()
     ]
     print("swap_data_dst\n", swap_data_dst)
 
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    dst_diamond_address = (
+        "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    )
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
-    proxy_diamond = Contract.from_abi(
-        "WormholeFacet", so_diamond, WormholeFacet.abi
-    )
+    proxy_diamond = Contract.from_abi("WormholeFacet", so_diamond, WormholeFacet.abi)
 
     relayer_fee = proxy_diamond.estimateRelayerFee(
         so_data, wormhole_data, swap_data_dst
@@ -498,9 +501,10 @@ def cross_swap_native_bsc():
     bsc_token_approve(one_bsc * 100, so_diamond)
 
     so_data = SoData.create_bsc(
-        receiving_token="0x" + b58decode("xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz").hex(),
+        receiving_token="0x"
+        + b58decode("xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz").hex(),
         receiver="0x" + b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
-        amount=one_bsc * 100
+        amount=one_bsc * 100,
     )
     print("SoData\n", so_data)
     so_data = so_data.format_to_contract()
@@ -509,12 +513,12 @@ def cross_swap_native_bsc():
     swap_data_dst = []
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    dst_diamond_address = (
+        "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    )
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
-    proxy_diamond = Contract.from_abi(
-        "WormholeFacet", so_diamond, WormholeFacet.abi
-    )
+    proxy_diamond = Contract.from_abi("WormholeFacet", so_diamond, WormholeFacet.abi)
 
     relayer_fee = proxy_diamond.estimateRelayerFee(
         so_data, wormhole_data, swap_data_dst
@@ -549,7 +553,7 @@ def cross_swap_native_bsc_wsol_whirlpool():
     so_data = SoData.create_bsc(
         receiving_token="0x" + bytes([0] * 32).hex(),
         receiver="0x" + b58decode("4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9").hex(),
-        amount=one_bsc
+        amount=one_bsc,
     )
     print("SoData\n", so_data)
     so_data = so_data.format_to_contract()
@@ -576,21 +580,20 @@ def cross_swap_native_bsc_wsol_whirlpool():
             sendingAssetId="0x" + sendingAssetId.hex(),
             receivingAssetId="0x" + receivingAssetId.hex(),
             fromAmount=quote_config["amount_in"],
-            callData="0x" + bytes(
-                f"Whirlpool,{quote_config['min_amount_out']}", "ascii"
-            ).hex(),
+            callData="0x"
+            + bytes(f"Whirlpool,{quote_config['min_amount_out']}", "ascii").hex(),
         ).format_to_contract()
     ]
     print("swap_data_dst\n", swap_data_dst)
 
     input_eth_amount = 0
     dstMaxGasPriceInWeiForRelayer = 1
-    dst_diamond_address = "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    dst_diamond_address = (
+        "0x" + b58decode("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY").hex()
+    )
     wormhole_data = [1, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
 
-    proxy_diamond = Contract.from_abi(
-        "WormholeFacet", so_diamond, WormholeFacet.abi
-    )
+    proxy_diamond = Contract.from_abi("WormholeFacet", so_diamond, WormholeFacet.abi)
 
     relayer_fee = proxy_diamond.estimateRelayerFee(
         so_data, wormhole_data, swap_data_dst
@@ -619,4 +622,4 @@ def main():
     # cross_swap_wrapped_usdc_test_whirlpool()
     # cross_swap_wrapped_usdc_wsol_whirlpool()
     # cross_swap_native_bsc()
-    cross_swap_native_bsc_wsol_whirlpool()
+    # cross_swap_native_bsc_wsol_whirlpool()

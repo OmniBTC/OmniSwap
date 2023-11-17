@@ -1,15 +1,15 @@
-import { Wallet } from "zksync-web3";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+import {Wallet} from "zksync-web3";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {Deployer} from "@matterlabs/hardhat-zksync-deploy";
 import * as dotenv from "dotenv";
-import { readFileSync, writeFileSync } from "fs";
+import {readFileSync, writeFileSync} from "fs";
 
 const DEPLOYED = "deployed.json"
 
 // An example of a deploy script that will deploy.
 export default async function (hre: HardhatRuntimeEnvironment) {
     console.log(`Running deploy script for the contracts`);
-    dotenv.config({path:"../.env"});
+    dotenv.config({path: "../.env"});
 
     // Initialize the wallet.
 
@@ -22,7 +22,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
     let deployed = function (path) {
         try {
-            return JSON.parse(readFileSync(path,'utf8'))
+            return JSON.parse(readFileSync(path, 'utf8'))
         } catch {
             return {}
         }
@@ -81,12 +81,50 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 //     deployed["LibSoFeeGenericV2"] = LibSoFeeGenericV2
 //     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
 
-    /// LibCorrectSwapV1
-    artifact = await deployer.loadArtifact("LibCorrectSwapV1");
-    contract = await deployer.deploy(artifact, []);
-    const LibCorrectSwapV1 = contract.address;
-    console.log(`${artifact.contractName} was deployed to ${LibCorrectSwapV1}`);
-    deployed["LibCorrectSwapV1"] = LibCorrectSwapV1
-    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+//     /// LibCorrectSwapV1
+//     artifact = await deployer.loadArtifact("LibCorrectSwapV1");
+//     contract = await deployer.deploy(artifact, []);
+//     const LibCorrectSwapV1 = contract.address;
+//     console.log(`${artifact.contractName} was deployed to ${LibCorrectSwapV1}`);
+//     deployed["LibCorrectSwapV1"] = LibCorrectSwapV1
+//     writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+
+    // artifact = await deployer.loadArtifact("LibCorrectSwapV2");
+    // contract = await deployer.deploy(artifact, []);
+    // const LibCorrectSwapV2 = contract.address;
+    // console.log(`${artifact.contractName} was deployed to ${LibCorrectSwapV2}`);
+    // deployed["LibCorrectSwapV2"] = LibCorrectSwapV2
+    // writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+
+    const factorys = [
+        // "CorrectUniswapV2Factory",
+        // "CorrectUniswapV3Factory",
+        // "CorrectSyncswapFactory",
+        // "CorrectMuteswapFactory",
+        // "CorrectQuickswapV3Factory",
+        // "CorrectAerodromeFactory",
+        // "CorrectBalancerV2Factory",
+        // "CorrectCurveFactory",
+        // "CorrectWombatFactory",
+        // "CorrectTraderJoeFactory",
+        // "CorrectGMXV1Factory",
+        // "CorrectPearlFiFactory",
+        // "CorrectIZiSwapFactory",
+        // "CorrectCamelotFactory",
+        // "CorrectKyberswapFactory",
+        "CorrectOneInchFactory",
+        "CorrectOpenOceanFactory",
+    ]
+
+    for (let i = 0; i < factorys.length; i++) {
+        artifact = await deployer.loadArtifact(factorys[i]);
+        contract = await deployer.deploy(artifact, ["0x4B0492bCc5316257153c087735198D5B6e57D42d"]);
+        const contract_addr = contract.address;
+        console.log(`${artifact.contractName} was deployed to ${contract_addr}`);
+        // deployed[factorys[i]] = contract_addr
+        // writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+    }
+
+
 }
 
