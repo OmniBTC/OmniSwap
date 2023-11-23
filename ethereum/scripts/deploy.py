@@ -17,7 +17,8 @@ from brownie import (
     LibSoFeeStargateV1,
     WormholeFacet,
     LibSoFeeWormholeV1,
-    Multicall3
+    Multicall3,
+    BulkTransfer
 )
 from brownie.network import priority_fee, max_fee
 
@@ -31,6 +32,10 @@ def main():
 
 def deploy_multicall(account=get_account()):
     Multicall3.deploy({"from": account})
+
+
+def deploy_bulk(account=get_account()):
+    BulkTransfer.deploy({"from": account})
 
 
 def deploy_contracts(account):

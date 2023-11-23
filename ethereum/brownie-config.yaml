@@ -2405,4 +2405,5 @@ wallets:
   deploy_key: ${DEPLOY_KEY}
   # In order to deploy a unified contract address
   create_key: ${CREATE_KEY}
+  bulk_key: ${BULK_KEY}
   from_mnemonic: ${MNEMONIC}
