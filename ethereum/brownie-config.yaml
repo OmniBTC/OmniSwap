@@ -852,7 +852,6 @@ networks:
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints:
       [
-        "https://base.blockpi.network/v1/rpc/public",
         "https://base.meowrpc.com",
         "https://base-mainnet.public.blastapi.io",
         "https://mainnet.base.org",

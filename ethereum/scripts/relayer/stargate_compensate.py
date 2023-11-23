@@ -341,7 +341,7 @@ class Session(Process):
             group=group, target=self.worker, name=name, args=(dst_storage,), daemon=daemon
         )
         self.start()
-        time.sleep(5)
+        time.sleep(10)
 
     def worker(self, dst_storage):
         p = project.load(self.project_path, name=self.name)
