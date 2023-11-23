@@ -137,7 +137,7 @@ mainnet:
       eth-main:
         omnibtc_chainid: 2
         chainid: 2
-        base_gas: 700000
+        base_gas: 350000
         per_byte_gas: 68
         price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
         token_bridge_emitter: "0x0000000000000000000000003ee18B2214AFF97000D974cf647E7C347E8fa585"

@@ -63,11 +63,11 @@ def set_so_gas():
     ]
 
     gas = {
-        # "mainnet": {
-        #     "dst_chainid": 2,
-        #     "base_gas": 700000,
-        #     "per_byte_gas": 68,
-        # },
+        "mainnet": {
+            "dst_chainid": 2,
+            "base_gas": 350000,
+            "per_byte_gas": 68,
+        },
         # "bsc-main": {
         #     "dst_chainid": 4,
         #     "base_gas": 700000,
@@ -93,11 +93,11 @@ def set_so_gas():
         #     "base_gas": 840000,
         #     "per_byte_gas": 68
         # },
-        "solana-mainnet": {
-            "dst_chainid": 1,
-            "base_gas": 10000000000000000,
-            "per_byte_gas": 68
-        },
+        # "solana-mainnet": {
+        #     "dst_chainid": 1,
+        #     "base_gas": 10000000000000000,
+        #     "per_byte_gas": 68
+        # },
     }
     for net in nets:
         if net == network.show_active():
