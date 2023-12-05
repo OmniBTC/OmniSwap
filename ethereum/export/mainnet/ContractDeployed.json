@@ -126,7 +126,8 @@
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
-    "LibCorrectSwapV2": "0x802D063d912D99b0b3e31ABAc2f93943A743B929"
+    "LibCorrectSwapV2": "0x802D063d912D99b0b3e31ABAc2f93943A743B929",
+    "BulkTransfer": "0x1cc046Cd4BF83421E3C744e14c09F8b9aD8C82b3"
   },
   "polygon-main": {
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
