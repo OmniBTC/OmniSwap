@@ -224,7 +224,7 @@ networks:
     omnibtc_chainid: 30003
     chainid: 97
     SoDiamond: "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
-    endpoints: ["https://bsc-testnet.blockpi.network/v1/rpc/public", "https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com"]
+    endpoints: ["https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com"]
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
@@ -1146,7 +1146,6 @@ networks:
         "https://bsc-dataseed.binance.org/",
         "https://bsc.publicnode.com",
         "https://bsc-dataseed1.ninicoin.io/",
-        "https://bsc.blockpi.network/v1/rpc/public",
         "https://bsc-dataseed4.ninicoin.io/",
         "https://bsc-dataseed3.defibit.io/",
         "https://bsc.meowrpc.com",
@@ -1372,7 +1371,6 @@ networks:
         "https://avax.meowrpc.com",
         "https://endpoints.omniatech.io/v1/avax/mainnet/public",
         "https://rpc.ankr.com/avalanche",
-        "https://avalanche.blockpi.network/v1/rpc/public",
         "https://avalanche.api.onfinality.io/public/ext/bc/C/rpc",
         "https://api.avax.network/ext/bc/C/rpc",
         "https://avalanche-c-chain.publicnode.com",
@@ -1586,7 +1584,6 @@ networks:
         "https://poly-rpc.gateway.pokt.network/",
         "https://polygon.drpc.org",
         "https://polygon-bor.publicnode.com",
-        "https://polygon.blockpi.network/v1/rpc/public",
         "https://rpc-mainnet.maticvigil.com",
         "https://polygon.api.onfinality.io/public",
         "https://polygon-rpc.com",
@@ -1795,7 +1792,6 @@ networks:
     endpoints:
       [
         "https://arbitrum.api.onfinality.io/public",
-        "https://arbitrum.blockpi.network/v1/rpc/public",
         "https://arb1.arbitrum.io/rpc",
         "https://arb-mainnet-public.unifra.io",
         "https://endpoints.omniatech.io/v1/arbitrum/one/public",
@@ -1992,7 +1988,6 @@ networks:
         "https://optimism-mainnet.public.blastapi.io",
         "https://optimism.publicnode.com",
         "https://optimism.meowrpc.com",
-        "https://optimism.blockpi.network/v1/rpc/public",
         "https://rpc.ankr.com/optimism",
         "https://mainnet.optimism.io/",
         "https://opt-mainnet.g.alchemy.com/v2/LBDzNc9dpFyypmYMY82EjRYKeB2jdGyh",
