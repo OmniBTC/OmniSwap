@@ -2394,6 +2394,8 @@ networks:
           router: "0xC7Dd38D6D161e2a440617508308639B2d701F633"
           factory: "0x356FD03E73ce821d5F7dFea51d1cB336EeFd67b1"
           token_list: ""
+  manta-main:
+    chainx_bridge: "0xc91a8e500E814990b06BDb4fC10745124fdBE748"
 
 wallets:
   from_key: ${PRIVATE_KEY}
