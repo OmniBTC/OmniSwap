@@ -21,8 +21,9 @@ def main():
     acc = get_account()
     amount = int(1 / 1e8 * 1e18)
 
-    count = 999
-    for _ in range(count):
+    start = acc.nonce
+    end = 1000
+    for _ in range(start, end):
         swap_id = f"0x{secrets.token_bytes(32).hex()}"
         swap_id = swap_id[:-4] + "cccc"
         chainx_bridge.swap_out(
