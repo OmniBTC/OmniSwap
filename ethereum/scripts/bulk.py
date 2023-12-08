@@ -31,7 +31,7 @@ def bulk():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/op_account_20231123.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/op_account_20231208.json"))
 
     data = list(zip(*data))
 
@@ -40,7 +40,7 @@ def bulk():
     # op
     token_addr = "0x4200000000000000000000000000000000000042"
     token = Contract.from_abi("Token", token_addr, MockToken.abi)
-    # token.approve(BulkTransfer[-1].address, sum_balance, {"from": acc})
+    token.approve(BulkTransfer[-1].address, sum_balance, {"from": acc})
 
     interval = 500
     has_send = []
