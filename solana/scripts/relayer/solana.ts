@@ -579,8 +579,8 @@ async function processV2(
 
             if (hasProcess.has(hasKey)) {
                 const processInfo = hasProcess.get(hasKey);
-                if (currentTimeStamp <= processInfo.lastTimestamp + 10 * 60) {
-                    logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} inner 10min has process, pending...`);
+                if (currentTimeStamp <= processInfo.lastTimestamp + 3 * 60) {
+                    logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} inner 3min has process, pending...`);
                     continue
                 } else if (processInfo.count >= 5) {
                     logWithTimestamp(`emitterChainId:${d["srcWormholeChainId"]} sequence:${d["sequence"]} has retry 5th, refuse`);
