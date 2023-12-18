@@ -379,7 +379,6 @@ async function processVaa(
         return false;
     }
     const hasKey = `${sequence}@${emitterChainId}`;
-    console.log(hasPostVaa.get(hasKey))
     if (!hasPostVaa.has(hasKey) || !hasPostVaa.get(hasKey)) {
         try {
             const payAddress = payer.publicKey.toString();
