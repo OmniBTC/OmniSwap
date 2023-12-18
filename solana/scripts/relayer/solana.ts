@@ -22,7 +22,7 @@ import {
 import {createObjectCsvWriter} from 'csv-writer';
 import * as dotenv from 'dotenv';
 import {ethers} from 'ethers';
-import {postVaaSolana} from "@certusone/wormhole-sdk";
+import {postVaaSolanaWithRetry} from "@certusone/wormhole-sdk";
 
 
 const ARGS = process.argv.slice(2);
@@ -171,6 +171,7 @@ WORMHOLE_CHAIN_ID_TO_NET = Object.keys(NET_TO_WORMHOLE_CHAIN_ID).reduce((returnV
     return returnValue;
 }, {})
 const fromBlockDict = new PersistentDictionary("./cache/latestFromBlock.json");
+const hasPostVaa = new Map<string, boolean>();
 
 function getRandomWormholeUrl() {
     const randomIndex: number = Math.floor(Math.random() * WORMHOLE_URL.length);
@@ -365,10 +366,10 @@ async function processVaa(
     let payload: ParsedOmniswapPayload;
     try {
         payload = parseVaaToOmniswapPayload(vaa);
-        // if (payload.dstMaxGasPrice !== 1) {
-        //     logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstMaxGasPrice ${payload.dstMaxGasPrice}!=1000000000000`)
-        //     return false;
-        // }
+        if (payload.dstMaxGasPrice !== 1) {
+            logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstMaxGasPrice ${payload.dstMaxGasPrice}!=1000000000000`)
+            return false;
+        }
         if (payload.to.toString("hex") !== remove0x(dstSoDiamond)) {
             logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId} sequence:${sequence} dstSoDiamond:${payload.to.toString("hex")}!=${dstSoDiamond}`)
             return false;
@@ -377,25 +378,33 @@ async function processVaa(
         logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
         return false;
     }
-    try {
-        const payAddress = payer.publicKey.toString();
-        await postVaaSolana(
-            connection,
-            async (transaction) => {
-                transaction.partialSign(payer);
-                return transaction;
-            },
-            CORE_BRIDGE_PID,
-            payAddress,
-            vaa
-        );
-        logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} finish`)
-    } catch (error) {
-        logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+    const hasKey = `${sequence}@${emitterChainId}`;
+    if (!hasPostVaa.has(hasKey) || !hasPostVaa.get(hasKey)) {
+        const maxRetries = 3;
+        try {
+            const payAddress = payer.publicKey.toString();
+            logWithTimestamp(`PostVaaSolana...`)
+            const result = await postVaaSolanaWithRetry(
+                connection,
+                async (transaction) => {
+                    transaction.partialSign(payer);
+                    return transaction;
+                },
+                CORE_BRIDGE_PID,
+                payAddress,
+                vaa,
+                maxRetries
+            );
+            logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} finish, result: ${JSON.stringify(result)}`)
+        } catch (error) {
+            logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+        }
+        hasPostVaa.set(hasKey, true)
     }
 
     if (skipVerify || payload.swapDataList.length === 0) {
         try {
+            logWithTimestamp(`RedeemNativeWithoutSwap...`)
             const ix = await createCompleteSoSwapNativeWithoutSwap(
                 connection,
                 OMNISWAP_PID,
@@ -411,10 +420,14 @@ async function processVaa(
             recordGas(extrinsicHash, dstTx);
             return true;
         } catch (error) {
+            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+                hasPostVaa.set(hasKey, false)
+            }
             logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
         }
 
         try {
+            logWithTimestamp(`RedeemWrappedWithoutSwap...`)
             const ix = await createCompleteSoSwapWrappedWithoutSwap(
                 connection,
                 OMNISWAP_PID,
@@ -430,10 +443,14 @@ async function processVaa(
             recordGas(extrinsicHash, dstTx);
             return true;
         } catch (error) {
+            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+                hasPostVaa.set(hasKey, false)
+            }
             logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
         }
     } else if (payload.swapDataList.length === 1) {
         try {
+            logWithTimestamp(`RedeemNativeWithSwap...`)
             const ix = await createCompleteSoSwapNativeWithWhirlpool(
                 connection,
                 OMNISWAP_PID,
@@ -448,10 +465,14 @@ async function processVaa(
             recordGas(extrinsicHash, dstTx);
             return true;
         } catch (error) {
+            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+                hasPostVaa.set(hasKey, false)
+            }
             logWithTimestamp(`RedeemNativeWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
         }
 
         try {
+            logWithTimestamp(`RedeemWrappedWithSwap...`)
             const ix = await createCompleteSoSwapWrappedWithWhirlpool(
                 connection,
                 OMNISWAP_PID,
@@ -466,6 +487,9 @@ async function processVaa(
             recordGas(extrinsicHash, dstTx);
             return true;
         } catch (error) {
+            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+                hasPostVaa.set(hasKey, false)
+            }
             logWithTimestamp(`RedeemWrappedWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
         }
     }

@@ -31,7 +31,7 @@ def bulk():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/op_account_20231123.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/op_account_20231208.json"))
 
     data = list(zip(*data))
 
@@ -40,7 +40,7 @@ def bulk():
     # op
     token_addr = "0x4200000000000000000000000000000000000042"
     token = Contract.from_abi("Token", token_addr, MockToken.abi)
-    # token.approve(BulkTransfer[-1].address, sum_balance, {"from": acc})
+    token.approve(BulkTransfer[-1].address, sum_balance, {"from": acc})
 
     interval = 500
     has_send = []
@@ -51,3 +51,26 @@ def bulk():
         BulkTransfer[-1].batchTransferToken(token.address, d0, d1, {"from": acc})
         has_send.extend(d0)
 
+
+def bulk_eth():
+    acc = get_account("bulk_key")
+    print(f"Acc:{acc.address}")
+
+    data = read_json(Path(__file__).parent.joinpath("data/op_account_20231215.json"))
+
+    data = list(zip(*data))
+
+    sum_balance = int(sum(data[1]) + 1)
+    print(f"Sum balance:{sum_balance}, len:{len(data[0])}")
+
+    interval = 500
+    has_send = []
+    for i in range(0, len(data[0]), interval):
+        d0 = list(data[0][i:i + interval])
+        d1 = list(data[1][i:i + interval])
+        assert len(set(has_send) & set(d0)) == 0
+        BulkTransfer[-1].batchTransferETH(d0, d1,
+                                          {"from": acc,
+                                           "value": sum(d1)})
+        print(f"Send value:{sum(d1)}")
+        has_send.extend(d0)

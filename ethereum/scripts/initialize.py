@@ -1,5 +1,7 @@
+import functools
 import os
 
+import ccxt
 from brownie import (
     DiamondCutFacet,
     SoDiamond,
@@ -263,9 +265,9 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_cctp = Contract.from_abi("CCTPFacet", so_diamond.address, CCTPFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init cctp...")
-    proxy_cctp.initCCTP(
-        get_cctp_token_messenger(), get_cctp_message_transmitter(), {"from": account}
-    )
+    # proxy_cctp.initCCTP(
+    #     get_cctp_token_messenger(), get_cctp_message_transmitter(), {"from": account}
+    # )
 
     dst_domain_info = {
         "mainnet": 0,
@@ -283,19 +285,19 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" not in k}
 
     dstBaseGasInfo = {
-        2951600: ["optimism-main"],
-        4500000: ["arbitrum-main", "base-main"],
-        1575000: ["avax-main"],
-        551250: ["mainnet"]
+        6493520: ["optimism-main"],
+        # 4500000: ["arbitrum-main", "base-main"],
+        # 1575000: ["avax-main"],
+        # 551250: ["mainnet"]
     }
     for dstBaseGas, nets in dstBaseGasInfo.items():
         dst_domain = [dst_domains[net] for net in nets]
         print(f"Set dst net:{nets} base gas:{dstBaseGas} ")
         proxy_cctp.setCCTPBaseGas(dst_domain, dstBaseGas, {"from": account})
 
-    dstGasPerBytes = 68
-    print(f"Set dst net:{list(dst_domains.keys())} gas per bytes:{dstGasPerBytes}")
-    proxy_cctp.setCCTPGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
+    # dstGasPerBytes = 68
+    # print(f"Set dst net:{list(dst_domains.keys())} gas per bytes:{dstGasPerBytes}")
+    # proxy_cctp.setCCTPGasPerBytes(list(dst_domains.values()), dstGasPerBytes, {"from": account})
 
 
 def initialize_celer(account, so_diamond):
@@ -644,7 +646,8 @@ def redeploy_bool():
     ray = 1e27
     basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
     basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
-    print(f"LibSoFeeBoolV2 deploy Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
+    print(
+        f"LibSoFeeBoolV2 deploy Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
     LibSoFeeBoolV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
 
     # 2. add bool's lib so fee to diamond
@@ -905,6 +908,36 @@ def reset_so_fee():
         print("LibSoFeeWormholeV1 is", LibSoFeeWormholeV1[-1].soFee() / 1e27)
     except:
         print(f"LibSoFeeWormholeV1 error")
+
+
+@functools.lru_cache()
+def get_prices(
+        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
+):
+    api = ccxt.kucoin()
+    prices = {}
+
+    for symbol in symbols:
+        result = api.fetch_ticker(symbol=symbol)
+        price = result["close"]
+        print(f"Symbol:{symbol}, price:{price}")
+        prices[symbol] = price
+    return prices
+
+
+def set_basic_fee():
+    account = get_account()
+    so_fee = int(0.0002 * 1e18)
+    data = get_prices()
+    if network.show_active() == "bsc-main":
+        so_fee *= data["ETH/USDT"] / data["BNB/USDT"]
+    elif network.show_active() == "avax-main":
+        so_fee *= data["ETH/USDT"] / data["BNB/USDT"]
+    elif network.show_active() == "polygon-main":
+        so_fee *= data["ETH/USDT"] / data["MATIC/USDT"]
+    print("Set so fee", so_fee / 1e18)
+    LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
+    LibSoFeeBoolV2[-1].setBasicFee(so_fee, {"from": account})
 
 
 def reset_basic_fee():

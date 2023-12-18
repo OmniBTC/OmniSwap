@@ -499,7 +499,7 @@ def process_v2(
             elif estimate_gas > gas_limit:
                 local_logger.warning(f"Src txid:{data.src_txid} estimate gas:{estimate_gas} > "
                                      f"gas limit:{gas_limit}, refuse relay")
-                continue
+                # continue
             else:
                 local_logger.info(f"Gas limit is {gas_limit} for transaction")
             if not is_compensate:
