@@ -65,7 +65,7 @@ def set_so_gas():
     gas = {
         "mainnet": {
             "dst_chainid": 2,
-            "base_gas": 350000,
+            "base_gas": 600000,
             "per_byte_gas": 68,
         },
         # "bsc-main": {
