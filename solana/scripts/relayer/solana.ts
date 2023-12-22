@@ -353,6 +353,64 @@ const sendAndConfirmIx = async (
     return await connection.sendTransaction(tx);
 }
 
+async function processVaaWithoutSwap(
+    connection: Connection,
+    payer: Keypair,
+    dstSoDiamond,
+    vaa: Buffer,
+    emitterChainId,
+    sequence,
+    extrinsicHash,
+    skipVerify: boolean,
+    hasKey
+){
+    try {
+        logWithTimestamp(`RedeemNativeWithoutSwap...`)
+        const ix = await createCompleteSoSwapNativeWithoutSwap(
+            connection,
+            OMNISWAP_PID,
+            payer,
+            TOKEN_BRIDGE_PID,
+            CORE_BRIDGE_PID,
+            vaa,
+            BENEFICIARY,
+            skipVerify
+        );
+        const dstTx = await sendAndConfirmIx(connection, payer, ix);
+        logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
+        recordGas(extrinsicHash, dstTx);
+        return true;
+    } catch (error) {
+        if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+            hasPostVaa.set(hasKey, false)
+        }
+        logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+    }
+
+    try {
+        logWithTimestamp(`RedeemWrappedWithoutSwap...`)
+        const ix = await createCompleteSoSwapWrappedWithoutSwap(
+            connection,
+            OMNISWAP_PID,
+            payer,
+            TOKEN_BRIDGE_PID,
+            CORE_BRIDGE_PID,
+            vaa,
+            BENEFICIARY,
+            skipVerify
+        );
+        const dstTx = await sendAndConfirmIx(connection, payer, ix);
+        logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
+        recordGas(extrinsicHash, dstTx);
+        return true;
+    } catch (error) {
+        if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+            hasPostVaa.set(hasKey, false)
+        }
+        logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+    }
+}
+
 async function processVaa(
     connection: Connection,
     payer: Keypair,
@@ -403,51 +461,17 @@ async function processVaa(
     }
 
     if (skipVerify || payload.swapDataList.length === 0) {
-        try {
-            logWithTimestamp(`RedeemNativeWithoutSwap...`)
-            const ix = await createCompleteSoSwapNativeWithoutSwap(
-                connection,
-                OMNISWAP_PID,
-                payer,
-                TOKEN_BRIDGE_PID,
-                CORE_BRIDGE_PID,
-                vaa,
-                BENEFICIARY,
-                skipVerify
-            );
-            const dstTx = await sendAndConfirmIx(connection, payer, ix);
-            logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
-            recordGas(extrinsicHash, dstTx);
-            return true;
-        } catch (error) {
-            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
-                hasPostVaa.set(hasKey, false)
-            }
-            logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-        }
-
-        try {
-            logWithTimestamp(`RedeemWrappedWithoutSwap...`)
-            const ix = await createCompleteSoSwapWrappedWithoutSwap(
-                connection,
-                OMNISWAP_PID,
-                payer,
-                TOKEN_BRIDGE_PID,
-                CORE_BRIDGE_PID,
-                vaa,
-                BENEFICIARY,
-                skipVerify
-            );
-            const dstTx = await sendAndConfirmIx(connection, payer, ix);
-            logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} success: ${dstTx}`)
-            recordGas(extrinsicHash, dstTx);
-            return true;
-        } catch (error) {
-            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
-                hasPostVaa.set(hasKey, false)
-            }
-            logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-        }
+        await processVaaWithoutSwap(
+            connection,
+            payer,
+            dstSoDiamond,
+            vaa,
+            emitterChainId,
+            sequence,
+            extrinsicHash,
+            skipVerify,
+            hasKey
+        );
     } else if (payload.swapDataList.length === 1) {
         try {
             logWithTimestamp(`RedeemNativeWithSwap...`)
@@ -469,6 +493,19 @@ async function processVaa(
                 hasPostVaa.set(hasKey, false)
             }
             logWithTimestamp(`RedeemNativeWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+            if (JSON.stringify(error).includes("AmountOutBelowMinimum")){
+                await processVaaWithoutSwap(
+                    connection,
+                    payer,
+                    dstSoDiamond,
+                    vaa,
+                    emitterChainId,
+                    sequence,
+                    extrinsicHash,
+                    skipVerify,
+                    hasKey
+                );
+            }
         }
 
         try {
@@ -491,6 +528,19 @@ async function processVaa(
                 hasPostVaa.set(hasKey, false)
             }
             logWithTimestamp(`RedeemWrappedWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
+            if (JSON.stringify(error).includes("AmountOutBelowMinimum")){
+                await processVaaWithoutSwap(
+                    connection,
+                    payer,
+                    dstSoDiamond,
+                    vaa,
+                    emitterChainId,
+                    sequence,
+                    extrinsicHash,
+                    skipVerify,
+                    hasKey
+                );
+            }
         }
     }
 
