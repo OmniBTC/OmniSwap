@@ -386,9 +386,9 @@ def process_v1(
                 else:
                     has_process[has_key] = time.time()
 
-                # if dst_storage[dst_domain].qsize() > 1000:
-                #     # Avoid mem leak
-                #     clear_queue(dst_storage[dst_domain])
+                if dst_storage[dst_domain].qsize() > 1000:
+                    # Avoid mem leak
+                    clear_queue(dst_storage[dst_domain])
 
                 dst_storage[dst_domain].put(data.to_dict())
                 local_logger.info(f"Put {dst_net} item for txid: {data.src_txid}")
@@ -499,8 +499,7 @@ def process_v2(
             elif estimate_gas > gas_limit:
                 local_logger.warning(f"Src txid:{data.src_txid} estimate gas:{estimate_gas} > "
                                      f"gas limit:{gas_limit}, refuse relay")
-                gas_limit = estimate_gas
-                # continue
+                continue
             else:
                 local_logger.info(f"Gas limit is {gas_limit} for transaction")
             if not is_compensate:
