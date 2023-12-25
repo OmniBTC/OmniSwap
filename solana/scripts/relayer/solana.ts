@@ -107,7 +107,7 @@ if (NET !== "solana-mainnet") {
     LOOKUP_TABLE_KEY = new PublicKey("ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8")
 } else {
     WORMHOLE_URL = [
-        "https://wormhole-v2-mainnet-api.certus.one",
+        "https://api.wormholescan.io",
         "https://wormhole-v2-mainnet-api.mcf.rocks",
         "https://wormhole-v2-mainnet-api.chainlayer.network",
         "https://wormhole-v2-mainnet-api.staking.fund",
