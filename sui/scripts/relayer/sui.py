@@ -60,7 +60,7 @@ NET_TO_WORMHOLE_CHAIN_ID = {
 }
 
 WORMHOLE_GUARDIAN_RPC = [
-    "https://wormhole-v2-mainnet-api.certus.one",
+    "https://api.wormholescan.io",
     "https://wormhole-v2-mainnet-api.mcf.rocks",
     "https://wormhole-v2-mainnet-api.chainlayer.network",
     "https://wormhole-v2-mainnet-api.staking.fund",

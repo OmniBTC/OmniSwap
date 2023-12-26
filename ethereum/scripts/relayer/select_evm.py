@@ -41,7 +41,7 @@ if NET == "mainnet":
         "solana-mainnet": 1,
     }
     WORMHOLE_GUARDIAN_RPC = [
-        "https://wormhole-v2-mainnet-api.certus.one",
+        "https://api.wormholescan.io",
         "https://wormhole-v2-mainnet-api.mcf.rocks",
         "https://wormhole-v2-mainnet-api.chainlayer.network",
         "https://wormhole-v2-mainnet-api.staking.fund",
