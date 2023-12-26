@@ -436,6 +436,10 @@ async function processVaa(
         logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
         return false;
     }
+    if (payload.soReceiver == ""){
+        logWithTimestamp(`emitterChainId:${emitterChainId}, sequence:${sequence} not soReceiver`)
+        return false;
+    }
     const hasKey = `${sequence}@${emitterChainId}`;
     if (!hasPostVaa.has(hasKey) || !hasPostVaa.get(hasKey)) {
         const maxRetries = 3;
