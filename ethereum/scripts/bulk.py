@@ -31,8 +31,7 @@ def bulk():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/op_account_20231208.json"))
-
+    data = read_json(Path(__file__).parent.joinpath("data/op_account_20231228.json"))
     data = list(zip(*data))
 
     sum_balance = int(sum(data[1]) + 1)
@@ -48,6 +47,7 @@ def bulk():
         d0 = list(data[0][i:i + interval])
         d1 = list(data[1][i:i + interval])
         assert len(set(has_send) & set(d0)) == 0
+        print(f"Bulk op:{round(sum(d1)/1e18, 2)}")
         BulkTransfer[-1].batchTransferToken(token.address, d0, d1, {"from": acc})
         has_send.extend(d0)
 
