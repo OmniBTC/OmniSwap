@@ -317,9 +317,9 @@ TOKEN_BRIDGE_EMITTER_ADDRESS = {
 
 def get_wormhole_url(related_net):
     if "main" not in related_net:
-        return "https://wormhole-v2-testnet-api.certus.one"
+        return "https://api.testnet.wormholescan.io"
     else:
-        return "https://wormhole-v2-mainnet-api.certus.one"
+        return "https://api.wormholescan.io"
 
 
 def format_emitter_address(addr):
@@ -348,7 +348,7 @@ def get_signed_vaa_by_wormhole(
 
 
 def process_aptos_pending():
-    file_name = 'query_aptos_pending-2023-06-19.csv'
+    file_name = 'query_aptos_pending-2024-01-02_93738.csv'
     pending_data = get_pending_data()
     csv_datas = []
     with open(file_name, 'r') as f:
