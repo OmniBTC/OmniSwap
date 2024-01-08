@@ -99,7 +99,7 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
-    SOLANA_URL = "https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/";
+    SOLANA_URL = ["https://sparkling-wild-hexagon.solana-devnet.discover.quiknode.pro/2129a56170ae922c0d50ec36a09a6f683ab5a466/"];
     OMNISWAP_PID = new PublicKey("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
     // OMNISWAP_PID base58decode
     SODIAMOND = "0x3636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843"
@@ -158,7 +158,8 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
-    SOLANA_URL = "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj";
+    SOLANA_URL = ["https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj",
+                "https://solana-mainnet.g.alchemy.com/v2/7D-QdovVWLr7utZ-hNhEJU0cUwotpY_l"];
     OMNISWAP_PID = new PublicKey("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
     // OMNISWAP_PID base58decode
     SODIAMOND = "0x3636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843"
@@ -176,6 +177,11 @@ const hasPostVaa = new Map<string, boolean>();
 function getRandomWormholeUrl() {
     const randomIndex: number = Math.floor(Math.random() * WORMHOLE_URL.length);
     return WORMHOLE_URL[randomIndex]
+}
+
+function getRandomSolanaUrl() {
+    const randomIndex: number = Math.floor(Math.random() * SOLANA_URL.length);
+    return SOLANA_URL[randomIndex]
 }
 
 function remove0x(addr) {
@@ -587,15 +593,15 @@ async function processV2(
     dstWormholeChainId,
     dstSoDiamond,
 ) {
-    const connection = new Connection(
-        SOLANA_URL,
-        "confirmed"
-    );
     let payer: Keypair = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.RELAYER_KEY)));
     const hasProcess = new Map<string, ProcessInfo>();
     const pendingInterval = 30;
     let lastPendingTime = 0;
     while (true) {
+        const connection = new Connection(
+            getRandomSolanaUrl(),
+            "confirmed"
+        );
         const currentTimeStamp: number = Math.floor(Date.now() / 1000);
         if (currentTimeStamp < lastPendingTime + pendingInterval) {
             continue;

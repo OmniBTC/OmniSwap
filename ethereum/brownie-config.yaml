@@ -1585,7 +1585,6 @@ networks:
         "https://polygon.drpc.org",
         "https://polygon-bor.publicnode.com",
         "https://rpc-mainnet.maticvigil.com",
-        "https://polygon.api.onfinality.io/public",
         "https://polygon-rpc.com",
         "https://rpc.ankr.com/polygon/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125",
       ]
