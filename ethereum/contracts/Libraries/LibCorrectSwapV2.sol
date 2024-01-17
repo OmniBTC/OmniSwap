@@ -5,6 +5,7 @@ pragma solidity 0.8.13;
 import {ICorrectSwap} from "../Interfaces/ICorrectSwap.sol";
 import {IUniswapV2Router01} from "../Interfaces/UniswapV2/IUniswapV2Router01.sol";
 import {IUniswapV2Router01AVAX} from "../Interfaces/UniswapV2/IUniswapV2Router01AVAX.sol";
+import {INetswapRouter01} from "../Interfaces/UniswapV2/INetswapRouter01.sol";
 import {ISwapRouter} from "../Interfaces/UniswapV3/ISwapRouter.sol";
 import {ISyncSwapRouter} from "../Interfaces/Syncswap/ISyncSwapRouter.sol";
 import {IMuteRouter} from "../Interfaces/Mute/IMuteRouter.sol";
@@ -226,17 +227,25 @@ library LibSwapFuncSigs {
         IUniswapV2Exchange.callUniswapWithPermit.selector;
     bytes4 internal constant _FUNC52 =
         IUniswapV2Exchange.callUniswapToWithPermit.selector;
+
+    // Netswap
+    bytes4 internal constant _FUNC53 =
+        INetswapRouter01.swapExactMetisForTokens.selector;
+    bytes4 internal constant _FUNC54 =
+        INetswapRouter01.swapExactTokensForMetis.selector;
 }
 
 contract CorrectUniswapV2Factory {
     constructor(LibCorrectSwapV2 libCorrectSwapV2) {
         // UniswapV2
-        bytes4[] memory sigs = new bytes4[](5);
+        bytes4[] memory sigs = new bytes4[](7);
         sigs[0] = LibSwapFuncSigs._FUNC1;
         sigs[1] = LibSwapFuncSigs._FUNC2;
         sigs[2] = LibSwapFuncSigs._FUNC3;
         sigs[3] = LibSwapFuncSigs._FUNC4;
         sigs[4] = LibSwapFuncSigs._FUNC5;
+        sigs[5] = LibSwapFuncSigs._FUNC53;
+        sigs[6] = LibSwapFuncSigs._FUNC54;
         address correctUniswapV2 = address(new CorrectUniswapV2());
         libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV2);
     }
@@ -254,6 +263,10 @@ contract CorrectUniswapV2 is ICorrectSwap {
         IUniswapV2Router01AVAX.swapExactTokensForAVAX.selector;
     bytes4 private constant _FUNC5 =
         IUniswapV2Router01.swapExactTokensForTokens.selector;
+    bytes4 private constant _FUNC53 =
+        INetswapRouter01.swapExactMetisForTokens.selector;
+    bytes4 private constant _FUNC54 =
+        INetswapRouter01.swapExactTokensForMetis.selector;
 
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
@@ -262,9 +275,9 @@ contract CorrectUniswapV2 is ICorrectSwap {
     {
         bytes4 sig = bytes4(_data[:4]);
 
-        if (sig == _FUNC1 || sig == _FUNC2) {
+        if (sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53) {
             return _data;
-        } else if (sig == _FUNC3 || sig == _FUNC4 || _FUNC5 == sig) {
+        } else if (sig == _FUNC3 || sig == _FUNC4 || _FUNC5 == sig || sig == _FUNC54) {
             return basicCorrectSwap(_data, _amount);
         } else {
             revert("correctUniswapV2 error");
@@ -278,7 +291,7 @@ contract CorrectUniswapV2 is ICorrectSwap {
         returns (uint256, bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC1 || sig == _FUNC2) {
+        if (sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53) {
             (
                 uint256 _amountOutMin,
                 address[] memory _path,
@@ -295,7 +308,7 @@ contract CorrectUniswapV2 is ICorrectSwap {
                     _deadline
                 )
             );
-        } else if (sig == _FUNC3 || sig == _FUNC4 || sig == _FUNC5) {
+        } else if (sig == _FUNC3 || sig == _FUNC4 || sig == _FUNC5 || sig == _FUNC54) {
             (
                 uint256 _amount,
                 uint256 _amountOutMin,

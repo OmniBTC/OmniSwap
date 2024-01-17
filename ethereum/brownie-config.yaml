@@ -2395,6 +2395,77 @@ networks:
           token_list: ""
   manta-main:
     chainx_bridge: "0xc91a8e500E814990b06BDb4fC10745124fdBE748"
+  metis-main:
+    omnibtc_chainid: 1088
+    chainid: 1088
+    SoDiamond: ""
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://metis-pokt.nodies.app",
+      ]
+    stargate:
+      router: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+      chainid: 151
+      poolid:
+        usdt: 19
+        metis: 17
+    token:
+      weth:
+        address: "0x4200000000000000000000000000000000000006"
+        decimal: 18
+      usdt:
+        address: "0xbB06DCA3AE6887fAbF931640f67cab3e3a16F4dC"
+        decimal: 6
+    swap:
+      - ISwapRouter:
+          name: SushiswapV3
+          router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
+          token_list: ""
+          quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
+      - IUniswapV2Router02:
+          name: BaseswapV2
+          router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
+          token_list: ""
+      - IAerodrome:
+          name: Aerodrome
+          router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
+          token_list: ""
+      - ISwapRouter02:
+          name: UniswapV3
+          router: "0x2626664c2603336E57B271c5C0b26F421741e481"
+          token_list: ""
+          quoterv2: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a"
+      - IUniswapV2Router02:
+          name: AlienbaseV2
+          router: "0x8c1A3cF8f83074169FE5D7aD50B978e1cD6b37c7"
+          token_list: ""
+      - ISwapRouter:
+          name: SwapBasedV3
+          router: "0xD58f563A7D6150a2575C74065CB18f53EC2e9D07"
+          token_list: ""
+          quoter: "0x64F477C68049B554113Bab6526038bcF5643136c"
+      - IUniswapV2Router02:
+          name: SwapBasedV2
+          router: "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066"
+          token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
 
 wallets:
   from_key: ${PRIVATE_KEY}
