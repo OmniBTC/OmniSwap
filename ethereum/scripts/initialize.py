@@ -69,6 +69,7 @@ from scripts.helpful_scripts import (
     get_cctp_token_messenger,
     get_cctp_message_transmitter, read_json
 )
+from scripts.deploy_libcorrectswapv2 import deploy_correct_swaps
 
 if "arbitrum" in network.show_active():
     priority_fee("1 gwei")
@@ -87,10 +88,10 @@ def main():
     #
     # except Exception as e:
     #     print(f"initialize_cut fail:{e}")
-    # try:
-    #     initialize_stargate(account, so_diamond)
-    # except Exception as e:
-    #     print(f"initialize_stargate fail:{e}")
+    try:
+        initialize_stargate(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_stargate fail:{e}")
     # try:
     #     initialize_bool(account, so_diamond)
     # except Exception as e:
@@ -119,10 +120,10 @@ def main():
     #     initialize_wormhole_fee(account)
     # except Exception as e:
     #     print(f"initialize_wormhole_fee fail: {e}")
-    # try:
-    #     initialize_dex_manager(account, so_diamond)
-    # except Exception as e:
-    #     print(f"initialize_dex_manager fail:{e}")
+    try:
+        initialize_dex_manager(account, so_diamond)
+    except Exception as e:
+        print(f"initialize_dex_manager fail:{e}")
     # initialize_little_token_for_stargate()
     # batch_set_bool_allowed_address(account, so_diamond)
 
@@ -199,7 +200,7 @@ def initialize_cut(account, so_diamond):
         OwnershipFacet,
         # CelerFacet,
         # MultiChainFacet,
-        # StargateFacet,
+        StargateFacet,
         # BoolFacet,
         # CCTPFacet,
         # WormholeFacet,
@@ -397,34 +398,26 @@ def initialize_wormhole(account=get_account(), so_diamond=SoDiamond[-1]):
         )
 
 
-def initialize_dex_manager(account, so_diamond):
+def initialize_dex_manager(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", so_diamond.address, DexManagerFacet.abi
     )
     net = network.show_active()
     print(f"network:{net}, init dex manager...")
-    dexs = []
-    sigs = []
-    proxy_dex.addCorrectSwap(LibCorrectSwapV1[-1].address, {"from": account})
-    swap_info = get_swap_info()
-    for swap_type in swap_info:
-        cur_swap = swap_info[swap_type]
-        dexs.append(cur_swap["router"])
-        reg_funcs = get_method_signature_by_abi(getattr(interface, swap_type).abi)
-        for sig in reg_funcs.values():
-            sigs.append(sig.hex() + "0" * 56)
-    proxy_dex.batchAddDex(dexs, {"from": account})
-    proxy_dex.batchSetFunctionApprovalBySignature(sigs, True, {"from": account})
-    # register fee lib
-    # proxy_dex.addFee(
-    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
-    # )
+    add_dexs()
+
+    deploy_correct_swaps()
+
+    print(f"network:{net}, add fee")
+    proxy_dex.addFee(
+        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
+    )
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
     # )
-    proxy_dex.addFee(
-        get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
-    )
+    # proxy_dex.addFee(
+    #     get_wormhole_bridge(), LibSoFeeWormholeV1[-1].address, {"from": account}
+    # )
     # proxy_dex.addFee(
     #     get_multichain_router(), LibSoFeeMultiChainV1[-1].address, {"from": account}
     # )
@@ -949,6 +942,8 @@ def reset_basic_fee():
         so_fee *= 183
     elif network.show_active() == "polygon-main":
         so_fee *= 3000
+    elif network.show_active() == "metis-main":
+        so_fee *= 25
 
     LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
     proxy = Contract.from_abi(

@@ -120,8 +120,13 @@ def soSwapViaStargate(
         so_data, stargate_data, dst_swap_data
     )
 
+    try:
+        basic_fee = proxy_diamond.getStargateBasicFee()
+    except:
+        basic_fee = 0
+
     print(
-        f"stargate cross fee: {stargate_cross_fee / get_token_decimal('eth')}, "
+        f"stargate cross fee: {stargate_cross_fee / get_token_decimal('eth')}, basic_fee:{basic_fee} "
         f"input eth: {input_eth_amount / get_token_decimal('eth')}"
     )
     proxy_diamond.soSwapViaStargate(
@@ -129,7 +134,10 @@ def soSwapViaStargate(
         src_swap_data,
         stargate_data,
         dst_swap_data,
-        {"from": get_account(), "value": int(stargate_cross_fee + input_eth_amount)
+        {"from": get_account(),
+         "value": int(stargate_cross_fee + input_eth_amount + basic_fee),
+         # "gas_limit": 1000000,
+         # "allow_revert": True
          },
     )
 
