@@ -25,13 +25,13 @@ from brownie import (
 from scripts.helpful_scripts import get_account
 
 
-def deploy_correct_swaps(account):
+def deploy_correct_swaps(account=get_account()):
     print("deploy LibCorrectSwapV2...")
     _lib = LibCorrectSwapV2.deploy({"from": account})
 
     factorys = [
-        # CorrectUniswapV2Factory,
-        # CorrectUniswapV3Factory,
+        CorrectUniswapV2Factory,
+        CorrectUniswapV3Factory,
         # CorrectSyncswapFactory,
         # CorrectMuteswapFactory,
         # CorrectQuickswapV3Factory,
@@ -44,21 +44,21 @@ def deploy_correct_swaps(account):
         # CorrectPearlFiFactory,
         # CorrectIZiSwapFactory,
         # CorrectCamelotFactory,
-        CorrectKyberswapFactory,
+        # CorrectKyberswapFactory,
         # CorrectOneInchFactory,
-        CorrectOpenOceanFactory,
+        # CorrectOpenOceanFactory,
     ]
 
     for k, factory in enumerate(factorys):
         print(f"deploy {k}/{len(factorys)} {factory._name}.sol...")
         factory.deploy(LibCorrectSwapV2[-1].address, {"from": account})
 
-
-def main():
-    account = get_account()
-    deploy_correct_swaps(account)
-
+    print("addCorrectSwap...")
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addCorrectSwap(LibCorrectSwapV2[-1].address, {"from": account})
+
+
+def main():
+    deploy_correct_swaps()
