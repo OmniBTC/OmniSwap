@@ -14,15 +14,15 @@ from brownie import (
     CCTPFacet,
     LibSoFeeCCTPV1,
     StargateFacet,
-    LibSoFeeStargateV1,
+    LibSoFeeStargateV2,
     WormholeFacet,
     LibSoFeeWormholeV1,
     Multicall3,
-    BulkTransfer
+    BulkTransfer, config, Contract
 )
 from brownie.network import priority_fee, max_fee
 
-from scripts.helpful_scripts import get_account
+from scripts.helpful_scripts import get_account, get_stargate_router
 
 
 def main():
@@ -46,10 +46,10 @@ def deploy_contracts(account):
         priority_fee("1 gwei")
         max_fee("1.25 gwei")
     deploy_facets = [
-        # DiamondCutFacet,
+        DiamondCutFacet,
         DiamondLoupeFacet,
         DexManagerFacet,
-        # StargateFacet,
+        StargateFacet,
         # CCTPFacet,
         # CelerFacet,
         # MultiChainFacet,
@@ -67,11 +67,23 @@ def deploy_contracts(account):
     print("deploy SoDiamond.sol...")
     SoDiamond.deploy(account, DiamondCutFacet[-1], {"from": account})
 
-    # so_fee = 0
-
-    # print("deploy LibSoFeeStargateV1.sol...")
-    # transfer_for_gas = 30000
-    # LibSoFeeStargateV1.deploy(int(so_fee * 1e18), transfer_for_gas, {"from": account})
+    so_fee = 0
+    transfer_for_gas = 40000
+    basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    basic_fee = int(0.0002 * 1e18)
+    if network.show_active() == "bsc-main":
+        basic_fee *= 8
+    elif network.show_active() == "avax-main":
+        basic_fee *= 183
+    elif network.show_active() == "polygon-main":
+        basic_fee *= 3000
+    elif network.show_active() == "metis-main":
+        basic_fee *= 25
+    print(f"deploy LibSoFeeStargateV2.sol so_fee:{so_fee}, basic_fee:{basic_fee} "
+          f"basic_beneficiary:{basic_beneficiary}...")
+    LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
+                              basic_fee, basic_beneficiary,
+                              {"from": account})
 
     # ray = 1e27
 
@@ -95,4 +107,4 @@ def deploy_contracts(account):
     # print("deploy LibCorrectSwapV1...")
     # LibCorrectSwapV1.deploy({"from": account})
     #
-    # print("deploy end!")
+    print("deploy end!")

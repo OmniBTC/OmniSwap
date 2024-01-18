@@ -949,6 +949,8 @@ def reset_basic_fee():
         so_fee *= 183
     elif network.show_active() == "polygon-main":
         so_fee *= 3000
+    elif network.show_active() == "metis-main":
+        so_fee *= 25
 
     LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
     proxy = Contract.from_abi(
