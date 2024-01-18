@@ -2406,13 +2406,13 @@ networks:
         "https://metis-pokt.nodies.app",
       ]
     stargate:
-      router: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 151
       poolid:
         usdt: 19
         metis: 17
     token:
-      wmetis:
+      weth:
         address: "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000"
         decimal: 18
       usdt:
