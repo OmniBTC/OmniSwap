@@ -2395,6 +2395,40 @@ networks:
           token_list: ""
   manta-main:
     chainx_bridge: "0xc91a8e500E814990b06BDb4fC10745124fdBE748"
+  metis-main:
+    omnibtc_chainid: 1088
+    chainid: 1088
+    SoDiamond: "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://metis-pokt.nodies.app",
+      ]
+    stargate:
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
+      chainid: 151
+      poolid:
+        usdt: 19
+        metis: 17
+    token:
+      weth:
+        address: "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000"
+        decimal: 18
+      usdt:
+        address: "0xbB06DCA3AE6887fAbF931640f67cab3e3a16F4dC"
+        decimal: 6
+    swap:
+      - INetswapRouter02:
+          name: Netswap
+          router: "0x1E876cCe41B7b844FDe09E38Fa1cf00f213bFf56"
+          token_list: ""
+          quoterv2: ""
+      - ISwapRouter:
+          name: Wagmi
+          router: "0x8Fb7a8cb6c4DCf820762397aDF80A27a777cFedC"
+          token_list: ""
+          quoter: "0x2Dc123Ff6757fcEa46c025758E93bd8b98710cEA"
 
 wallets:
   from_key: ${PRIVATE_KEY}

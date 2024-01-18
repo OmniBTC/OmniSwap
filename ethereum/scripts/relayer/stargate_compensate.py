@@ -60,6 +60,11 @@ SUPPORTED_EVM = [
         "dstNet": "base-main",
         "dstChainId": 8453
     },
+    {
+        "dstSoDiamond": "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66",
+        "dstNet": "metis-main",
+        "dstChainId": 1088
+    },
 ]
 
 
