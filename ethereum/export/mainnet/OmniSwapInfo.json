@@ -682,7 +682,20 @@
         "TokenName": "MAI"
       },
       {
-        "ChainPath": [],
+        "ChainPath": [
+          [
+            101,
+            19
+          ],
+          [
+            102,
+            19
+          ],
+          [
+            151,
+            19
+          ]
+        ],
         "Decimal": 6,
         "PoolId": 19,
         "TokenAddress": "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
@@ -1465,7 +1478,20 @@
         "TokenName": "Metis"
       },
       {
-        "ChainPath": [],
+        "ChainPath": [
+          [
+            101,
+            19
+          ],
+          [
+            106,
+            19
+          ],
+          [
+            151,
+            19
+          ]
+        ],
         "Decimal": 18,
         "PoolId": 19,
         "TokenAddress": "0x55d398326f99059fF775485246999027B3197955",
@@ -2241,7 +2267,20 @@
         "TokenName": "Metis"
       },
       {
-        "ChainPath": [],
+        "ChainPath": [
+          [
+            102,
+            19
+          ],
+          [
+            106,
+            19
+          ],
+          [
+            151,
+            19
+          ]
+        ],
         "Decimal": 6,
         "PoolId": 19,
         "TokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
