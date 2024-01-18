@@ -2412,8 +2412,8 @@ networks:
         usdt: 19
         metis: 17
     token:
-      weth:
-        address: "0x4200000000000000000000000000000000000006"
+      wmetis:
+        address: "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000"
         decimal: 18
       usdt:
         address: "0xbB06DCA3AE6887fAbF931640f67cab3e3a16F4dC"
@@ -2421,7 +2421,7 @@ networks:
     swap:
       - INetswapRouter02:
           name: Netswap
-          router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
+          router: "0x1E876cCe41B7b844FDe09E38Fa1cf00f213bFf56"
           token_list: ""
           quoterv2: ""
       - ISwapRouter:
