@@ -14,17 +14,17 @@ from aptos_sdk.account_address import AccountAddress
 from aptos_sdk.authenticator import Authenticator, Ed25519Authenticator, \
     MultiAgentAuthenticator
 from aptos_sdk.bcs import Deserializer, Serializer
-from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload, SignedTransaction, \
-    RawTransaction
-from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U128Tag, U64Tag, U8Tag, BoolTag
-from dotenv import load_dotenv
+from aptos_sdk.transactions import EntryFunction, ModuleId, TransactionArgument, TransactionPayload, \
+    SignedTransaction, RawTransaction
+from aptos_sdk.type_tag import TypeTag, StructTag, AccountAddressTag, U256Tag, U128Tag, U64Tag, U16Tag, U8Tag, BoolTag
+from dotenv import dotenv_values
 from aptos_sdk.account import Account
 from aptos_sdk.client import RestClient, FaucetClient, ApiError
 
 import yaml
 import toml
 
-Tag = Union[BoolTag, U8Tag, U64Tag, U128Tag, AccountAddressTag, StructTag]
+Tag = Union[BoolTag, U8Tag, U16Tag, U64Tag, U128Tag, U256Tag, AccountAddressTag, StructTag]
 
 
 class VectorTag(metaclass=abc.ABCMeta):
@@ -58,6 +58,11 @@ class VectorBoolTag(VectorTag):
 
 class VectorU8Tag(VectorTag):
     def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
         assert isinstance(list(value), list), "value must sequence"
         super().__init__([U8Tag(v) for v in value])
 
@@ -65,8 +70,27 @@ class VectorU8Tag(VectorTag):
         return deserializer.sequence(U8Tag.deserialize)
 
 
+class VectorU16Tag(VectorTag):
+    def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
+        assert isinstance(list(value), list), "value must sequence"
+        super().__init__([U16Tag(v) for v in value])
+
+    def deserialize(deserializer: Deserializer) -> VectorU16Tag:
+        return deserializer.sequence(U16Tag.deserialize)
+
+
 class VectorU64Tag(VectorTag):
     def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
         assert isinstance(list(value), list), "value must sequence"
         super().__init__([U64Tag(v) for v in value])
 
@@ -76,11 +100,30 @@ class VectorU64Tag(VectorTag):
 
 class VectorU128Tag(VectorTag):
     def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
         assert isinstance(list(value), list), "value must sequence"
         super().__init__([U128Tag(v) for v in value])
 
     def deserialize(deserializer: Deserializer) -> VectorU128Tag:
         return deserializer.sequence(U128Tag.deserialize)
+
+
+class VectorU256Tag(VectorTag):
+    def __init__(self, value):
+        if isinstance(value, str):
+            try:
+                value = list(bytes.fromhex(value[2:])) if value[:2] == "0x" else value
+            except:
+                pass
+        assert isinstance(list(value), list), "value must sequence"
+        super().__init__([U256Tag(v) for v in value])
+
+    def deserialize(deserializer: Deserializer) -> VectorU256Tag:
+        return deserializer.sequence(U256Tag.deserialize)
 
 
 class VectorAccountAddressTag(VectorTag):
@@ -124,10 +167,14 @@ class ArgumentABI:
             return BoolTag
         elif variant == TypeTag.U8:
             return U8Tag
+        elif variant == TypeTag.U16:
+            return U16Tag
         elif variant == TypeTag.U64:
             return U64Tag
         elif variant == TypeTag.U128:
             return U128Tag
+        elif variant == TypeTag.U256:
+            return U256Tag
         elif variant == TypeTag.ACCOUNT_ADDRESS:
             return AccountAddressTag
         elif variant == TypeTag.SIGNER:
@@ -144,10 +191,14 @@ class ArgumentABI:
             return VectorBoolTag
         elif tag == U8Tag:
             return VectorU8Tag
+        elif tag == U16Tag:
+            return VectorU16Tag
         elif tag == U64Tag:
             return VectorU64Tag
         elif tag == U128Tag:
             return VectorU128Tag
+        elif tag == U256Tag:
+            return VectorU256Tag
         elif tag == AccountAddressTag:
             return VectorAccountAddressTag
         elif tag == VectorTag:
@@ -234,10 +285,15 @@ class AptosPackage:
         with self.config_path.open() as fp:
             self.config = yaml.safe_load(fp)
         try:
-            load_dotenv(self.project_path.joinpath(self.config["dotenv"]))
-            self.private_key = os.getenv("PRIVATE_KEY")
-            if self.private_key is None:
+            env = dotenv_values(self.project_path.joinpath(self.config["dotenv"]))
+            self.private_key = None
+            if env.get("PRIVATE_KEY_APTOS", None) is not None:
+                self.private_key = env.get("PRIVATE_KEY_APTOS")
+            elif env.get("PRIVATE_KEY", None) is not None:
+                self.private_key = env.get("PRIVATE_KEY")
+            else:
                 raise EnvironmentError
+
         except Exception as e:
             raise e
         self.account = Account.load_key(self.private_key)
@@ -338,6 +394,9 @@ class AptosPackage:
         # # # # # Compile
         view = f"Compile {self.package_name}"
         print("\n" + "-" * 50 + view + "-" * 50)
+        test_cmd = f"aptos move test --package-dir {self.package_path} {self.replace_address}"
+        print(test_cmd)
+        os.system(test_cmd)
         compile_cmd = f"aptos move compile --included-artifacts all --save-metadata --package-dir " \
                       f"{self.package_path} {self.replace_address}"
         print(compile_cmd)
@@ -364,7 +423,7 @@ class AptosPackage:
         assert key in self.abis, f"key not found in abi"
         return functools.partial(self.submit_bcs_transaction, self.abis[key])
 
-    def create_single_signer_bcs_transaction(
+    def create_bcs_signed_transaction(
             self, sender: Account,
             payload: TransactionPayload,
             max_gas_amount: int = 500000,
@@ -415,7 +474,7 @@ class AptosPackage:
             gas_unit_price=100,
             return_types="storage",
             **kwargs,
-    ) -> Union[list|int]:
+    ) -> Union[list | int]:
         """
         return_types: storage|gas
             storage: return storage changes
@@ -441,6 +500,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(kwargs[function_arg.name]))
                     else:
                         value = function_arg.type_tag(kwargs[function_arg.name])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        if isinstance(kwargs[function_arg.name][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(kwargs[function_arg.name][j])))
+                        else:
+                            value.append(AccountAddressTag(kwargs[function_arg.name][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        value.append(kwargs[function_arg.name][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
@@ -459,6 +531,19 @@ class AptosPackage:
                         value = function_arg.type_tag(AccountAddress.from_hex(args[i]))
                     else:
                         value = function_arg.type_tag(args[i])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        if isinstance(args[i][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(args[i][j])))
+                        else:
+                            value.append(AccountAddressTag(args[i][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        value.append(args[i][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         args[i]), f"Param {function_arg} not match"
@@ -480,7 +565,7 @@ class AptosPackage:
         need_gas_price = self.estimate_gas_price()
         if need_gas_price < gas_unit_price:
             gas_unit_price = int(need_gas_price)
-        signed_transaction = self.create_single_signer_bcs_transaction(
+        signed_transaction = self.create_bcs_signed_transaction(
             sender=self.account,
             payload=TransactionPayload(payload),
             max_gas_amount=int(max_gas_amount),
@@ -488,8 +573,11 @@ class AptosPackage:
         )
         try:
             result = self.simulate_submit_bcs_transaction(signed_transaction)
+            if return_types is None:
+                return result
             if not result[0]["success"]:
                 assert False, result
+
             if return_types == "gas":
                 if "gas_used" in result[0]:
                     return result[0]["gas_used"]
@@ -526,6 +614,24 @@ class AptosPackage:
                     assert StructTag.from_str(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
                     value = StructTag.from_str(kwargs[function_arg.name])
+                elif function_arg.type_tag == AccountAddressTag:
+                    if isinstance(kwargs[function_arg.name], str):
+                        value = function_arg.type_tag(AccountAddress.from_hex(kwargs[function_arg.name]))
+                    else:
+                        value = function_arg.type_tag(kwargs[function_arg.name])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        if isinstance(kwargs[function_arg.name][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(kwargs[function_arg.name][j])))
+                        else:
+                            value.append(AccountAddressTag(kwargs[function_arg.name][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(kwargs[function_arg.name])):
+                        value.append(kwargs[function_arg.name][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         kwargs[function_arg.name]), f"Param {function_arg} not match"
@@ -539,6 +645,24 @@ class AptosPackage:
                     assert StructTag.from_str(
                         args[i]), f"Param {function_arg} not match"
                     value = StructTag.from_str(args[i])
+                elif function_arg.type_tag == AccountAddressTag:
+                    if isinstance(args[i], str):
+                        value = function_arg.type_tag(AccountAddress.from_hex(args[i]))
+                    else:
+                        value = function_arg.type_tag(args[i])
+                elif function_arg.type_tag == VectorAccountAddressTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        if isinstance(args[i][j], str):
+                            value.append(AccountAddressTag(AccountAddress.from_hex(args[i][j])))
+                        else:
+                            value.append(AccountAddressTag(args[i][j]))
+                    value = function_arg.type_tag(value)
+                elif function_arg.type_tag == VectorBoolTag:
+                    value = []
+                    for j in range(len(args[i])):
+                        value.append(args[i][j])
+                    value = function_arg.type_tag(value)
                 else:
                     assert function_arg.type_tag(
                         args[i]), f"Param {function_arg} not match"
@@ -560,7 +684,7 @@ class AptosPackage:
         need_gas_price = self.estimate_gas_price()
         if need_gas_price < gas_unit_price:
             gas_unit_price = int(need_gas_price)
-        signed_transaction = self.create_single_signer_bcs_transaction(
+        signed_transaction = self.create_bcs_signed_transaction(
             sender=self.account,
             payload=TransactionPayload(payload),
             max_gas_amount=int(max_gas_amount),
@@ -570,15 +694,18 @@ class AptosPackage:
             result = self.simulate_submit_bcs_transaction(signed_transaction)
             if not result[0]["success"]:
                 assert False, result
-            if "gas_used" in result[0]:
-                signed_transaction = self.create_single_signer_bcs_transaction(
-                    sender=self.account,
-                    payload=TransactionPayload(payload),
-                    max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),
-                    gas_unit_price=int(gas_unit_price)
-                )
+            # if "gas_used" in result[0]:
+            #     signed_transaction = self.create_single_signer_bcs_transaction(
+            #         sender=self.account,
+            #         payload=TransactionPayload(payload),
+            #         max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),
+            #         gas_unit_price=int(gas_unit_price)
+            #     )
         except Exception as e:
-            assert False, f"Simulate fail:\n {e}"
+            if "MISSING_DEPENDENCY" not in str(e):
+                assert False, f"Simulate fail:\n {e}"
+            else:
+                print(f"Simulate warning:MISSING_DEPENDENCY")
 
         txn_hash = self.rest_client.submit_bcs_transaction(signed_transaction)
         print(
@@ -621,7 +748,7 @@ class AptosPackage:
             transaction_arguments,
         )
 
-        signed_transaction = self.rest_client.create_single_signer_bcs_transaction(
+        signed_transaction = self.rest_client.create_bcs_signed_transaction(
             sender, TransactionPayload(payload)
         )
 
@@ -631,7 +758,7 @@ class AptosPackage:
             if not result[0]["success"]:
                 assert False, result
             if "gas_used" in result[0]:
-                signed_transaction = self.create_single_signer_bcs_transaction(
+                signed_transaction = self.create_bcs_signed_transaction(
                     sender=self.account,
                     payload=TransactionPayload(payload),
                     max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),
@@ -686,17 +813,36 @@ class AptosPackage:
 
     def account_resources(self,
                           account_addr: Union[str, AccountAddress],
+                          limit=None,
+                          cursor=None
                           ):
         if isinstance(account_addr, str):
             account_addr = AccountAddress.from_hex(account_addr)
+        data = []
+        is_cursor = False
+        if cursor is not None:
+            data.append(f"start={cursor}")
+            is_cursor = True
+
+        if limit is not None:
+            data.append(f"limit={int(limit)}")
+            is_cursor = True
+
+        if len(data):
+            data = "?" + "&".join(data)
+
         response = self.rest_client.client.get(
-            f"{self.rest_client.base_url}/accounts/{account_addr}/resources"
+            f"{self.rest_client.base_url}/accounts/{account_addr}/resources{data}"
         )
+
         if response.status_code == 404:
             return None
         if response.status_code >= 400:
             raise ApiError(f"{response.text} - {account_addr}", response.status_code)
-        return response.json()
+        if is_cursor:
+            return response.json(), response.headers.get('x-aptos-cursor', None)
+        else:
+            return response.json()
 
     def register_coin(self, asset_id):
         """Register the receiver account to receive transfers for the new coin."""
@@ -708,7 +854,7 @@ class AptosPackage:
                 asset_id))],
             [],
         )
-        signed_transaction = self.create_single_signer_bcs_transaction(
+        signed_transaction = self.create_bcs_signed_transaction(
             self.account, TransactionPayload(payload)
         )
 
@@ -718,7 +864,7 @@ class AptosPackage:
             if not result[0]["success"]:
                 assert False, result
             if "gas_used" in result[0]:
-                signed_transaction = self.create_single_signer_bcs_transaction(
+                signed_transaction = self.create_bcs_signed_transaction(
                     sender=self.account,
                     payload=TransactionPayload(payload),
                     max_gas_amount=int(int(result[0]["gas_used"]) * 1.1),
@@ -757,3 +903,14 @@ class AptosPackage:
         if response.status_code >= 400:
             raise ApiError(response.text, response.status_code)
         return response.json()
+
+
+def get_account_balance(node_url, account_address, coin_type):
+    rest_client = RestClient(node_url)
+    resource_type = f"0x1::coin::CoinStore<{coin_type}>"
+    response = rest_client.client.get(
+        f"{node_url}/accounts/{account_address}/resource/{resource_type}"
+    )
+    if response.status_code >= 400:
+        raise ApiError(f"{response.text} - {account_address}", response.status_code)
+    return int(response.json()["data"]["coin"]["value"])

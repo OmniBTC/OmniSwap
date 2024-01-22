@@ -1,0 +1,554 @@
+{
+    "arbitrum-main": {
+        "ChainId": "42161",
+        "FAST_ROUTER_V7": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3",
+        "SupportToken": {
+            "ETH": {
+                "AnyAddress": "0x758d08864fb6cce3062667225ca10b8f00496cc2",
+                "AnyDecimal": 18,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0xb3c381871ba849e9d4d1f096baf7a48415d56c25",
+                        "AnyDecimal": 18,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x5fcb9de282af6122ce3518cde28b7089c9f97b26",
+                        "AnyDecimal": 18,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x4200000000000000000000000000000000000006",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xc22d2b2be62a741d5c616a713b88ca597b709390",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x106a4cb3db8abe4fff73263dea55e56770ce62f3",
+                        "AnyDecimal": 18,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a",
+                        "AnyDecimal": 18,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab",
+                        "UnderlyingDecimal": 18
+                    }
+                ],
+                "UnderlyingAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                "UnderlyingDecimal": 18
+            },
+            "USDC": {
+                "AnyAddress": "0xa9cad0165c155f3998b0001b3ef30bca0aa6b591",
+                "AnyDecimal": 6,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0x007eb026dfb445f9a94ed5242d646a9a406e0694",
+                        "AnyDecimal": 6,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0x2823d10da533d9ee873fed7b16f4a962b2b7f181",
+                        "AnyDecimal": 6,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xff4e21a5dc31dad11ec93fbeffbef41a4e5070ec",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x8d59c725f558a6739285580290b4eab602e2e0e5",
+                        "AnyDecimal": 6,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xc15fe51adc41e377ac64c2a695f66de26c97afe6",
+                        "AnyDecimal": 6,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+                        "UnderlyingDecimal": 6
+                    }
+                ],
+                "UnderlyingAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                "UnderlyingDecimal": 6
+            }
+        }
+    },
+    "avax-main": {
+        "ChainId": "43114",
+        "FAST_ROUTER_V7": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3",
+        "SupportToken": {
+            "USDC.e": {
+                "AnyAddress": "0xc15fe51adc41e377ac64c2a695f66de26c97afe6",
+                "AnyDecimal": 6,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0x007eb026dfb445f9a94ed5242d646a9a406e0694",
+                        "AnyDecimal": 6,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0x2823d10da533d9ee873fed7b16f4a962b2b7f181",
+                        "AnyDecimal": 6,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xff4e21a5dc31dad11ec93fbeffbef41a4e5070ec",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x8d59c725f558a6739285580290b4eab602e2e0e5",
+                        "AnyDecimal": 6,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xa9cad0165c155f3998b0001b3ef30bca0aa6b591",
+                        "AnyDecimal": 6,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                        "UnderlyingDecimal": 6
+                    }
+                ],
+                "UnderlyingAddress": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+                "UnderlyingDecimal": 6
+            },
+            "WETH.e": {
+                "AnyAddress": "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a",
+                "AnyDecimal": 18,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0xb3c381871ba849e9d4d1f096baf7a48415d56c25",
+                        "AnyDecimal": 18,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x5fcb9de282af6122ce3518cde28b7089c9f97b26",
+                        "AnyDecimal": 18,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x4200000000000000000000000000000000000006",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xc22d2b2be62a741d5c616a713b88ca597b709390",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x106a4cb3db8abe4fff73263dea55e56770ce62f3",
+                        "AnyDecimal": 18,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x758d08864fb6cce3062667225ca10b8f00496cc2",
+                        "AnyDecimal": 18,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                        "UnderlyingDecimal": 18
+                    }
+                ],
+                "UnderlyingAddress": "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab",
+                "UnderlyingDecimal": 18
+            }
+        }
+    },
+    "bsc-main": {
+        "ChainId": "56",
+        "FAST_ROUTER_V7": "0x400b971099e0ebfda2c03a3063739cb5398734a6",
+        "SupportToken": {
+            "ETH": {
+                "AnyAddress": "0xc22d2b2be62a741d5c616a713b88ca597b709390",
+                "AnyDecimal": 18,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0xb3c381871ba849e9d4d1f096baf7a48415d56c25",
+                        "AnyDecimal": 18,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x5fcb9de282af6122ce3518cde28b7089c9f97b26",
+                        "AnyDecimal": 18,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x4200000000000000000000000000000000000006",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x106a4cb3db8abe4fff73263dea55e56770ce62f3",
+                        "AnyDecimal": 18,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x758d08864fb6cce3062667225ca10b8f00496cc2",
+                        "AnyDecimal": 18,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a",
+                        "AnyDecimal": 18,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab",
+                        "UnderlyingDecimal": 18
+                    }
+                ],
+                "UnderlyingAddress": "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+                "UnderlyingDecimal": 18
+            },
+            "USDC": {
+                "AnyAddress": "0xff4e21a5dc31dad11ec93fbeffbef41a4e5070ec",
+                "AnyDecimal": 18,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0x007eb026dfb445f9a94ed5242d646a9a406e0694",
+                        "AnyDecimal": 6,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0x2823d10da533d9ee873fed7b16f4a962b2b7f181",
+                        "AnyDecimal": 6,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0x8d59c725f558a6739285580290b4eab602e2e0e5",
+                        "AnyDecimal": 6,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xa9cad0165c155f3998b0001b3ef30bca0aa6b591",
+                        "AnyDecimal": 6,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xc15fe51adc41e377ac64c2a695f66de26c97afe6",
+                        "AnyDecimal": 6,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+                        "UnderlyingDecimal": 6
+                    }
+                ],
+                "UnderlyingAddress": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+                "UnderlyingDecimal": 18
+            }
+        }
+    },
+    "mainnet": {
+        "ChainId": "1",
+        "FAST_ROUTER_V7": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3",
+        "SupportToken": {
+            "ETH": {
+                "AnyAddress": "0xb3c381871ba849e9d4d1f096baf7a48415d56c25",
+                "AnyDecimal": 18,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0x5fcb9de282af6122ce3518cde28b7089c9f97b26",
+                        "AnyDecimal": 18,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x4200000000000000000000000000000000000006",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xc22d2b2be62a741d5c616a713b88ca597b709390",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x106a4cb3db8abe4fff73263dea55e56770ce62f3",
+                        "AnyDecimal": 18,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x758d08864fb6cce3062667225ca10b8f00496cc2",
+                        "AnyDecimal": 18,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a",
+                        "AnyDecimal": 18,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab",
+                        "UnderlyingDecimal": 18
+                    }
+                ],
+                "UnderlyingAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                "UnderlyingDecimal": 18
+            },
+            "USDC": {
+                "AnyAddress": "0x007eb026dfb445f9a94ed5242d646a9a406e0694",
+                "AnyDecimal": 6,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0x2823d10da533d9ee873fed7b16f4a962b2b7f181",
+                        "AnyDecimal": 6,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xff4e21a5dc31dad11ec93fbeffbef41a4e5070ec",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x8d59c725f558a6739285580290b4eab602e2e0e5",
+                        "AnyDecimal": 6,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xa9cad0165c155f3998b0001b3ef30bca0aa6b591",
+                        "AnyDecimal": 6,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xc15fe51adc41e377ac64c2a695f66de26c97afe6",
+                        "AnyDecimal": 6,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+                        "UnderlyingDecimal": 6
+                    }
+                ],
+                "UnderlyingAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                "UnderlyingDecimal": 6
+            }
+        }
+    },
+    "optimism-main": {
+        "ChainId": "10",
+        "FAST_ROUTER_V7": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3",
+        "SupportToken": {
+            "OETH": {
+                "AnyAddress": "0x5fcb9de282af6122ce3518cde28b7089c9f97b26",
+                "AnyDecimal": 18,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0xb3c381871ba849e9d4d1f096baf7a48415d56c25",
+                        "AnyDecimal": 18,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xc22d2b2be62a741d5c616a713b88ca597b709390",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x106a4cb3db8abe4fff73263dea55e56770ce62f3",
+                        "AnyDecimal": 18,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x758d08864fb6cce3062667225ca10b8f00496cc2",
+                        "AnyDecimal": 18,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a",
+                        "AnyDecimal": 18,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab",
+                        "UnderlyingDecimal": 18
+                    }
+                ],
+                "UnderlyingAddress": "0x4200000000000000000000000000000000000006",
+                "UnderlyingDecimal": 18
+            },
+            "USDC": {
+                "AnyAddress": "0x2823d10da533d9ee873fed7b16f4a962b2b7f181",
+                "AnyDecimal": 6,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0x007eb026dfb445f9a94ed5242d646a9a406e0694",
+                        "AnyDecimal": 6,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xff4e21a5dc31dad11ec93fbeffbef41a4e5070ec",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x8d59c725f558a6739285580290b4eab602e2e0e5",
+                        "AnyDecimal": 6,
+                        "ChainId": "137",
+                        "UnderlyingAddress": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xa9cad0165c155f3998b0001b3ef30bca0aa6b591",
+                        "AnyDecimal": 6,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xc15fe51adc41e377ac64c2a695f66de26c97afe6",
+                        "AnyDecimal": 6,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+                        "UnderlyingDecimal": 6
+                    }
+                ],
+                "UnderlyingAddress": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+                "UnderlyingDecimal": 6
+            }
+        }
+    },
+    "polygon-main": {
+        "ChainId": "137",
+        "FAST_ROUTER_V7": "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3",
+        "SupportToken": {
+            "USDC": {
+                "AnyAddress": "0x8d59c725f558a6739285580290b4eab602e2e0e5",
+                "AnyDecimal": 6,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0x007eb026dfb445f9a94ed5242d646a9a406e0694",
+                        "AnyDecimal": 6,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0x2823d10da533d9ee873fed7b16f4a962b2b7f181",
+                        "AnyDecimal": 6,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xff4e21a5dc31dad11ec93fbeffbef41a4e5070ec",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xa9cad0165c155f3998b0001b3ef30bca0aa6b591",
+                        "AnyDecimal": 6,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+                        "UnderlyingDecimal": 6
+                    },
+                    {
+                        "AnyAddress": "0xc15fe51adc41e377ac64c2a695f66de26c97afe6",
+                        "AnyDecimal": 6,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+                        "UnderlyingDecimal": 6
+                    }
+                ],
+                "UnderlyingAddress": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                "UnderlyingDecimal": 6
+            },
+            "WETH": {
+                "AnyAddress": "0x106a4cb3db8abe4fff73263dea55e56770ce62f3",
+                "AnyDecimal": 18,
+                "ChainPath": [
+                    {
+                        "AnyAddress": "0xb3c381871ba849e9d4d1f096baf7a48415d56c25",
+                        "AnyDecimal": 18,
+                        "ChainId": "1",
+                        "UnderlyingAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x5fcb9de282af6122ce3518cde28b7089c9f97b26",
+                        "AnyDecimal": 18,
+                        "ChainId": "10",
+                        "UnderlyingAddress": "0x4200000000000000000000000000000000000006",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xc22d2b2be62a741d5c616a713b88ca597b709390",
+                        "AnyDecimal": 18,
+                        "ChainId": "56",
+                        "UnderlyingAddress": "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0x758d08864fb6cce3062667225ca10b8f00496cc2",
+                        "AnyDecimal": 18,
+                        "ChainId": "42161",
+                        "UnderlyingAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+                        "UnderlyingDecimal": 18
+                    },
+                    {
+                        "AnyAddress": "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a",
+                        "AnyDecimal": 18,
+                        "ChainId": "43114",
+                        "UnderlyingAddress": "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab",
+                        "UnderlyingDecimal": 18
+                    }
+                ],
+                "UnderlyingAddress": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+                "UnderlyingDecimal": 18
+            }
+        }
+    }
+}

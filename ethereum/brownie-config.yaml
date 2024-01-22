@@ -68,7 +68,7 @@ networks:
       chainid: 22
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         goerli:
           dst_chainid: 2
@@ -89,8 +89,10 @@ networks:
   goerli:
     omnibtc_chainid: 30002
     chainid: 5
-    SoDiamond: "0x12479EEF3EF33687f6b79d59aC6E387C7bc75A3F"
+    SoDiamond: "0x43bBc3Be3FD1a26F62CA319E2eDEB5aB40d0e1D8"
     stargate:
+      # https://stargateprotocol.gitbook.io/stargate/developers/contract-addresses/testnet
+      router: "0x7612aE2a34E5A363E137De748801FB4c86499152"
       # Will be deployed soon
       chainid: 10121
       poolid:
@@ -101,7 +103,7 @@ networks:
       token_bridge: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7"
       wormhole: "0x706abc4E45D419950511e474C7B9Ed348A4a716c"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         bsc-test:
           dst_chainid: 4
@@ -119,12 +121,41 @@ networks:
           dst_chainid: 10
           base_gas: 700000
           per_byte_gas: 68
+    bridges:
+      bool:
+        chainid: 5
+        router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"
+        factory: "0xb4955284d44A910dD98c22B0D3a015E7860CA121"
+        messenger: "0xF68F872F0DDE0Ec1Ba8c28EeD9d0674760aA8eB1"
+        pools:
+          eth:
+            pool_id: 3
+            decimals: 18
+            pool_address: "0x6111a6d2f39e19e761e16dea79599d9c83da0e1f"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x57402f6846bee23fe86bc320155301c122c30cc3"
+            token_address: "0x21259854f492703fe55e1f6623b474dd35b3d388"
+          usdt:
+            pool_id: 4
+            decimals: 6
+            pool_address: "0x00443234cdc48a5f56dbc52297eb80cb51ed4242"
+            token_address: "0xd12270aef00fc2bf2b7c0bcab8ad2868a7d987c3"
     oracle:
       eth:
         chainid: 2
+        celer_chainid: 5
         currency: USD
         address: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
     token:
+      bool-usdt:
+        address: "0xd12270aef00fc2bf2b7c0bcab8ad2868a7d987c3"
+        decimal: 6
+      bool-usdc:
+        address: "0x21259854f492703fe55e1f6623b474dd35b3d388"
+        decimal: 6
       usdt:
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 18
@@ -162,6 +193,23 @@ networks:
         # wormhole aptos wrapped coin. todo! need to fix
         address: "0x3b10Cb8830a10E41A00d41C34beD8C58D5A1De78"
         decimal: 8
+      celer:
+        chainid: 5
+        message_bus: "0xF25170F86E4291a99a9A560032Fe9948b8BcFBB2"
+        token:
+          usdc:
+            address: "0xCbE56b00d173A26a5978cE90Db2E33622fD95A28"
+            decimal: 6
+          weth:
+            address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 5 # goerli
+            - 43113 # avax-test
+        oracle:
+        # manual set avax/eth ratio
     swap:
       ISwapRouter:
         name: UniswapV3
@@ -175,13 +223,14 @@ networks:
   bsc-test:
     omnibtc_chainid: 30003
     chainid: 97
-    SoDiamond: "0xFeEE07da1B3513BdfD5440562e962dfAac19566F"
+    SoDiamond: "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
+    endpoints: ["https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com"]
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
       wormhole: "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-test:
           dst_chainid: 6
@@ -198,6 +247,14 @@ networks:
         ftm-test:
           dst_chainid: 10
           base_gas: 700000
+          per_byte_gas: 68
+        sui-testnet:
+          dst_chainid: 21
+          base_gas: 60000
+          per_byte_gas: 68
+        solana-devnet:
+          dst_chainid: 1
+          base_gas: 50000
           per_byte_gas: 68
     oracle:
       bsc:
@@ -217,7 +274,41 @@ networks:
       chainid: 10102
       poolid:
         usdt: 2
+    bridges:
+      bool:
+        chainid: 97
+        router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"
+        factory: "0xb4955284d44A910dD98c22B0D3a015E7860CA121"
+        messenger: "0xF68F872F0DDE0Ec1Ba8c28EeD9d0674760aA8eB1"
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x57402f6846bee23fe86bc320155301c122c30cc3"
+            token_address: "0xe96f749be8eaa6b60c0588f779524ecd7f3b1e51"
+          usdt:
+            pool_id: 3
+            decimals: 6
+            pool_address: "0x6111a6d2f39e19e761e16dea79599d9c83da0e1f"
+            token_address: "0xdea405c2d4a575053d4819bd02dc2eb9856e30dd"
+      multichain:
+        chainid: 97
+        fast_router: "0xaB9c7c8326B7e90339c23766EDAdF36C17c83ba2"
+        token:
+          test:
+            address: "0x75A2df47F2c30cc90B27f3c83C86e42B01466410"
+            decimal: 18
+            anytoken: "0x0c03988027d7ae2b1dacb8CB0afce698a906DEe9"
+          routerNative:
+            address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
+            decimal: 18
     token:
+      bool-usdc:
+        address: "0xe96f749be8eaa6b60c0588f779524ecd7f3b1e51"
+        decimal: 6
+      bool-usdt:
+        address: "0xdea405c2d4a575053d4819bd02dc2eb9856e30dd"
+        decimal: 6
       usdt:
         address: "0xF49E250aEB5abDf660d643583AdFd0be41464EfD"
         decimal: 18
@@ -238,6 +329,9 @@ networks:
         decimal: 6
       ftm-usdc:
         address: "0xc95CEe06CF296479eBfA379e62D79C491fEc875D"
+        decimal: 6
+      sui-usdc:
+        address: "0x6c6eCdeBffe8D7eADC59c35d82E3930934ABd42F"
         decimal: 6
       wbtc:
         address: "0x0ecacbE08B4E2AA71B8f71ECe35A7EbF815607E8"
@@ -271,13 +365,13 @@ networks:
   avax-test:
     omnibtc_chainid: 30004
     chainid: 43113
-    SoDiamond: "0xBb032459B39547908eDB8E690c030Dc4F31DA673"
+    SoDiamond: "0x7969921f69c612C3D93D0cea133a571ff84753D3"
     wormhole:
       chainid: 6
       token_bridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756"
       wormhole: "0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         bsc-test:
           dst_chainid: 4
@@ -295,22 +389,66 @@ networks:
           dst_chainid: 2
           base_gas: 700000
           per_byte_gas: 68
+        sui-testnet:
+          dst_chainid: 21
+          base_gas: 60000
+          per_byte_gas: 68
     oracle:
       avax:
         chainid: 6
+        celer_chainid: 43113
         currency: USD
         address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
       matic:
         chainid: 5
+        celer_chainid: 80001
         currency: USD
         address: "0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0"
+      eth:
+        celer_chainid: 5
+        currency: USD
+        address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     stargate:
       router: "0x13093E05Eb890dfA6DacecBdE51d24DabAb2Faa1"
       chainid: 10106
       poolid:
         usdc: 1
+    bridges:
+      cctp:
+        domain_id: 1
+        token_messenger: "0xeb08f243e5d3fcff26a9e38ae5520a669f4019d0"
+        message_transmitter: "0xa9fb1b3009dcb79e2fe346c16a604b8fa8ae0a79"
+      celer:
+        chainid: 43113
+        message_bus: "0xE9533976C590200E32d95C53f06AE12d292cFc47"
+        token:
+          usdc:
+            address: "0x2979a1cb90EEB9e75d7fB4f9813FCC40E4a7fD8b"
+            decimal: 6
+          weth:
+            # Different from DexLot's weth
+            # Just for celer test
+            address: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 5 # goerli
+            - 43113 # avax-test
+        oracle:
+          avax:
+            chainid: 43113
+            pair: AVAXUSD
+            address: "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
+          eth:
+            chainid: 5
+            pair: ETHUSD
+            address: "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
     token:
       usdc:
+        address: "0x5425890298aed601595a70AB815c96711a31Bc65"
+        decimal: 6
+      test-usdc:
         address: "0x4A0D1092E9df255cf95D72834Ea9255132782318"
         decimal: 6
       weth:
@@ -362,7 +500,7 @@ networks:
       token_bridge: "0x377D55a7928c046E18eEbb61977e714d2a76472a"
       wormhole: "0x0CBE91CF822c73C2315FB05100C2F714765d5c20"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-test:
           dst_chainid: 6
@@ -380,6 +518,10 @@ networks:
           dst_chainid: 10
           base_gas: 700000
           per_byte_gas: 68
+        sui-testnet:
+          dst_chainid: 21
+          base_gas: 60000
+          per_byte_gas: 68
     oracle:
       matic:
         chainid: 5
@@ -390,7 +532,38 @@ networks:
       chainid: 10109
       poolid:
         usdc: 1
+    bridges:
+      bool:
+        chainid: 80001
+        router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"
+        factory: "0xb4955284d44A910dD98c22B0D3a015E7860CA121"
+        messenger: "0xF68F872F0DDE0Ec1Ba8c28EeD9d0674760aA8eB1"
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x57402f6846bee23fe86bc320155301c122c30cc3"
+            token_address: "0x3b65b11a7ed7cd6ce1d2ee279389a1668435396a"
+          usdt:
+            pool_id: 3
+            decimals: 6
+            pool_address: "0x6111a6d2f39e19e761e16dea79599d9c83da0e1f"
+            token_address: "0xef35d9be5222cdcf2b8afbb62c1b11afd3b31a65"
+      multichain:
+        chainid: 80001
+        fast_router: "0x8E680018D67C57889083c23786C225F730C54Fb5"
+        token:
+          test:
+            address: "0x29b46EF6DeE70Cbe051895E77DeE19Dba23a282c"
+            decimal: 18
+            anytoken: "0xb576C9403f39829565BD6051695E2AC7Ecf850E2"
     token:
+      bool-usdc:
+        address: "0x3b65b11a7ed7cd6ce1d2ee279389a1668435396a"
+        decimal: 6
+      bool-usdt:
+        address: "0xef35d9be5222cdcf2b8afbb62c1b11afd3b31a65"
+        decimal: 6
       usdc:
         address: "0x742DfA5Aa70a8212857966D491D67B09Ce7D6ec7"
         decimal: 6
@@ -415,6 +588,7 @@ networks:
         router: "0x8954AfA98594b838bda56FE4C12a09D7739D179b"
         token_list: ""
   arbitrum-test:
+    SoDiamond: "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
     omnibtc_chainid: 30006
     chainid: 421611
     stargate:
@@ -423,9 +597,30 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      bool:
+        chainid: 97
+        router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"
+        factory: "0xb4955284d44A910dD98c22B0D3a015E7860CA121"
+        messenger: "0xF68F872F0DDE0Ec1Ba8c28EeD9d0674760aA8eB1"
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x57402f6846bee23fe86bc320155301c122c30cc3"
+            token_address: "0xe96f749be8eaa6b60c0588f779524ecd7f3b1e51"
+          usdt:
+            pool_id: 3
+            decimals: 6
+            pool_address: "0x6111a6d2f39e19e761e16dea79599d9c83da0e1f"
+            token_address: "0xdea405c2d4a575053d4819bd02dc2eb9856e30dd"
+      cctp:
+        domain_id: 3
+        token_messenger: "0x12dcfd3fe2e9eac2859fd1ed86d2ab8c5a2f9352"
+        message_transmitter: "0x109bc137cb64eab7c0b1dddd1edf341467dc2d35"
     token:
       usdc:
-        address: "0x1EA8Fb2F671620767f41559b663b86B1365BBc3d"
+        address: "0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63"
         decimal: 6
       weth:
         address: "0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681"
@@ -449,7 +644,35 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    bridges:
+      bool:
+        chainid: 420
+        router: "0x480CdE28DBc04EcAc2d6C503FEEFC2CCCe240288"
+        factory: "0xb4955284d44A910dD98c22B0D3a015E7860CA121"
+        messenger: "0xF68F872F0DDE0Ec1Ba8c28EeD9d0674760aA8eB1"
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x57402f6846bee23fe86bc320155301c122c30cc3"
+            token_address: "0xdce304c25e394b8b7a5d02905948a3b7455ffbc6"
+          eth:
+            pool_id: 3
+            decimals: 18
+            pool_address: "0x6111a6d2f39e19e761e16dea79599d9c83da0e1f"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          usdt:
+            pool_id: 4
+            decimals: 6
+            pool_address: "0x00443234cdc48a5f56dbc52297eb80cb51ed4242"
+            token_address: "0x1dd556884319b89861baff509c4ae09065e9dc03"
     token:
+      bool-usdt:
+        address: "0x1dd556884319b89861baff509c4ae09065e9dc03"
+        decimal: 6
+      bool-usdc:
+        address: "0xdce304c25e394b8b7a5d02905948a3b7455ffbc6"
+        decimal: 6
       usdc:
         address: "0x567f39d9e6d02078F357658f498F80eF087059aa"
         decimal: 6
@@ -469,7 +692,7 @@ networks:
       chainid: 10
       token_bridge: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         avax-test:
           dst_chainid: 6
@@ -518,24 +741,49 @@ networks:
         name: UniswapV2
         router: "0x6D481b9F59b22B6eB097b986fC06E438d585c039"
         token_list: ""
-  aptos-mainnet:
-    omnibtc_chainid: 1
-    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
-    node_url: https://aptos.coming.chat/v1
-    faucet_url: https://faucet.mainnet.aptoslabs.com
-    wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
-    replace_address:
-      deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
-      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
-      wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
-      liquidswap: "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12"
-      #      liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
-      omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+  sui-mainnet:
+    node_url: https://sui-mainnet-endpoint.blockvision.org:443
+    SoDiamond: "0x201a8b38e099b17078f6b9d3826e4d784c8c5656a4d484e7c8f6f57e439fdd2f"
+    Relayer: "0xc36fd9ac18938017bc880d6f86c3323324597c561a66f12f4c69948f40dacd90"
+    objects:
+      Clock: "0x0000000000000000000000000000000000000000000000000000000000000006"
+      FacetManager: "0xce23885d1f0c19ad582a64b042904f352f3ff1d46991d8a528e02da2275db9c2"
+      FacetStorage: "0xf00feec4856093bf41a968947da8cb35f91c304a2df4051f11759fbf7fb7abf0"
+      PriceManager: "0x6c85d499a88237a50d9da06133c9f93e75699602d0b8d035f1dea5f95376dd18"
+      WormholeFee: "0x7f1473487136446d064565294ea445a97c391db1731831eca6ca427802c36a4a"
+      TokenBridgeState: "0xc57508ee0d4595e5a8728974a4a93a787d38f339757230d441e895422c07aba9"
+      WormholeState: "0xaeab97f96cf9877fee2883315d459552b2b921edc16d7ceac6eab944dd88919c"
+      # cetus
+      GlobalConfig: "0xdaa46292632c3c4d8f31f23ea0f9b36a28ff3677e9684980e4438403a67a3d8f"
+      Pools: "0xf699e7f2276f5c9a75944b37a0c5b5d9ddfd2471bf6242483b03ab2887d198d0"
+    omnibtc_chainid: 21
+    packages:
+      CetusScripts: "0x2eeaab737b37137b94bfa8f841f92e36a153641119da3456dec1926b9960d9be"
+      CetusClmm: "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb"
+      IntegerMate: "0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a5a6f5b7f57"
+      MoveSTL: "0xbe21a06129308e0495431d12286127897aff07a8ade3970495a4404d97f9eaaa"
+      DeepBook: "0x000000000000000000000000000000000000000000000000000000000000dee9"
+      OmniSwap: "0x47989e1f044f37b797ed052aba94874872b5dfd2d0d2afb1278f967d0d895867"
+      TokenBridge:
+        origin: "0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d"
+        latest: "0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d"
+      Wormhole:
+        origin: "0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a"
+        latest: "0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a"
+    tokens:
+      usdc:
+        address: 0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN
+        decimal: 6
+      usdt:
+        address: 0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN
+        decimal: 6
+      weth:
+        address: 0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN
+        decimal: 8
     wormhole:
-      chainid: 22
-      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      chainid: 21
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -553,12 +801,158 @@ networks:
           dst_chainid: 6
           base_gas: 700000
           per_byte_gas: 68
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 10000
+          per_byte_gas: 10
+  aptos-mainnet:
+    omnibtc_chainid: 1
+    SoDiamond: "0x0000000000000000000000000000000000000000000000000000000000000002"
+    node_url: https://fullnode.mainnet.aptoslabs.com/v1
+    faucet_url: https://faucet.mainnet.aptoslabs.com
+    wormhole_facet_resource: "0xa9c0783a24dc2eda3c34847abaeb0ebc2d153e3715edb114cd0cc3d5fcc5a1c2"
+    replace_address:
+      deployer: "0x0108bc32f7de18a5f6e1e7d6ee7aff9f5fc858d0d87ac0da94dd8d2a5d267d6b"
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
+      liquidswap: "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12"
+      #      liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
+      omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
+    wormhole:
+      chainid: 22
+      token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
+      actual_reserve: 1.1
+      estimate_reserve: 1.11
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 700000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 700000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 700000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
+          per_byte_gas: 68
+  base-main:
+    omnibtc_chainid: 8453
+    chainid: 8453
+    SoDiamond: "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://base.meowrpc.com",
+        "https://base-mainnet.public.blastapi.io",
+        "https://mainnet.base.org",
+      ]
+    stargate:
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
+      chainid: 184
+      poolid:
+        usdc: 1
+        weth: 13
+    token:
+      weth:
+        address: "0x4200000000000000000000000000000000000006"
+        decimal: 18
+      usdc:
+        # bridge: 0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA
+        # circle: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+        address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+        decimal: 6
+    swap:
+      - ISwapRouter:
+          name: SushiswapV3
+          router: "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f"
+          token_list: ""
+          quoterv2: "0xb1E835Dc2785b52265711e17fCCb0fd018226a6e"
+      - IUniswapV2Router02:
+          name: BaseswapV2
+          router: "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86"
+          token_list: ""
+      - IAerodrome:
+          name: Aerodrome
+          router: "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43"
+          token_list: ""
+      - ISwapRouter02:
+          name: UniswapV3
+          router: "0x2626664c2603336E57B271c5C0b26F421741e481"
+          token_list: ""
+          quoterv2: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a"
+      - IUniswapV2Router02:
+          name: AlienbaseV2
+          router: "0x8c1A3cF8f83074169FE5D7aD50B978e1cD6b37c7"
+          token_list: ""
+      - ISwapRouter:
+          name: SwapBasedV3
+          router: "0xD58f563A7D6150a2575C74065CB18f53EC2e9D07"
+          token_list: ""
+          quoter: "0x64F477C68049B554113Bab6526038bcF5643136c"
+      - IUniswapV2Router02:
+          name: SwapBasedV2
+          router: "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066"
+          token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+    bridges:
+      bool:
+        chainid: 8453
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      cctp:
+        domain_id: 6
+        token_messenger: "0x1682Ae6375C4E4A97e4B583BC394c861A46D8962"
+        message_transmitter: "0xAD09780d193884d503182aD4588450C416D6F9D4"
+        token_minter: "0xe45B133ddc64bE80252b0e9c75A8E74EF280eEd6"
   mainnet:
     omnibtc_chainid: 2
     chainid: 1
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://rpc.ankr.com/eth/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125",
+        "https://eth.llamarpc.com",
+        "https://ethereum.publicnode.com",
+        "https://1rpc.io/eth",
+      ]
     stargate:
-      router: "0x8731d54E9D02c286767d56ac03e8037C07e01e98"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 101
       poolid:
         usdc: 1
@@ -570,7 +964,7 @@ networks:
       token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
       wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         bsc-main:
           dst_chainid: 4
@@ -586,16 +980,86 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
+          base_gas: 10000
+          per_byte_gas: 10
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
           per_byte_gas: 68
-        arbitrum-main:
-          dst_chainid: 23
+    bridges:
+      celer:
+        chainid: 1
+        message_bus: "0x4066d196a423b2b3b8b054f4f40efb47a74e200c"
+        token:
+          usdc:
+            address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+            decimal: 6
+          usdt:
+            address: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+            decimal: 6
+          weth:
+            address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+            decimal: 18
+        gas:
           base_gas: 700000
-          per_byte_gas: 68
-    #        ftm-main:
-    #          dst_chainid: 10
-    #          base_gas: 700000
-    #          per_byte_gas: 68
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+      multichain:
+        chainid: 1
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC:
+            address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            decimal: 6
+            anytoken: "0x007eb026dfb445f9a94ed5242d646a9a406e0694"
+          ETH:
+            address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            decimal: 18
+            anytoken: "0xb3c381871ba849e9d4d1f096baf7a48415d56c25"
+      cctp:
+        domain_id: 0
+        token_messenger: "0xbd3fa81b58ba92a82136038b25adec7066af3155"
+        message_transmitter: "0x0a992d191deec32afe36203ad87d7d289a738f81"
+        token_minter: "0xc4922d64a24675e16e1586e3e3aa56c06fabe907"
     oracle:
       eth:
         chainid: 2
@@ -613,14 +1077,6 @@ networks:
         chainid: 6
         currency: USD
         address: "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7"
-      arbitrum:
-        chainid: 23
-        currency: USD
-        address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
-    #      ftm:
-    #        chainid: 10
-    #        currency: ETH
-    #        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
     token:
       weth:
         address: "0xf1277d1Ed8AD466beddF92ef448A132661956621"
@@ -642,21 +1098,81 @@ networks:
         address: "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6"
         decimal: 18
     swap:
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: ""
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: UniswapV2
-        router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
-        token_list: "https://tokens.uniswap.org/"
+      - ICurveFi:
+          name: Curve
+          router: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
+          token_list: ""
+      - ISwapRouter:
+          name: UniswapV3
+          router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+          token_list: ""
+          quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      - IUniswapV2Router02:
+          name: UniswapV2
+          router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+          token_list: "https://tokens.uniswap.org/"
+      - IVault:
+          name: BalancerV2
+          router: "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+          token_list: ""
+          quoter: "0xE39B5e3B6D74016b2F6A9673D7d7493B6DF549d5"
+      - IUniswapV2Router02:
+          name: SushiSwapV2
+          router: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+          token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   bsc-main:
     omnibtc_chainid: 3
     chainid: 56
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://bsc-mainnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3",
+        "https://bsc-dataseed2.binance.org/",
+        "https://bsc-dataseed.binance.org/",
+        "https://bsc.publicnode.com",
+        "https://bsc-dataseed1.ninicoin.io/",
+        "https://bsc-dataseed4.ninicoin.io/",
+        "https://bsc-dataseed3.defibit.io/",
+        "https://bsc.meowrpc.com",
+        "https://bsc-rpc.gateway.pokt.network",
+        "https://bscrpc.com",
+        "https://bsc-dataseed3.ninicoin.io/",
+        "https://bsc-mainnet.public.blastapi.io",
+        "https://binance.nodereal.io",
+        "https://bsc.rpc.blxrbdn.com/",
+        "https://bsc-dataseed1.binance.org/",
+        "https://bsc-dataseed2.defibit.io/",
+        "https://bsc-dataseed2.ninicoin.io/",
+        "https://bsc-dataseed4.defibit.io/",
+        "https://endpoints.omniatech.io/v1/bsc/mainnet/public",
+        "https://bsc-dataseed3.binance.org/",
+        "https://rpc-bsc.48.club",
+        "https://bsc-dataseed1.defibit.io/",
+        "https://rpc.ankr.com/bsc",
+        "https://koge-rpc-bsc.48.club",
+        "https://bsc-dataseed4.binance.org/",
+        "https://bnb.api.onfinality.io/public",
+      ]
     stargate:
-      router: "0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 102
       poolid:
         usdt: 2
@@ -665,7 +1181,7 @@ networks:
       token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
       wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -681,16 +1197,99 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
+          base_gas: 10000
+          per_byte_gas: 10
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
           per_byte_gas: 68
-        arbitrum-main:
-          dst_chainid: 23
+    bridges:
+      bool:
+        chainid: 56
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 1363636363636363
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 18
+            pool_address: "0x09135a91f6cb6ed6dbdd947fc09a533b4f7ab84d"
+            token_address: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
+          usdt:
+            pool_id: 3
+            decimals: 18
+            pool_address: "0xAff2Aa237A3d9cAc177eC4202bF9700C3430000C"
+            token_address: "0x55d398326f99059fF775485246999027B3197955"
+      celer:
+        chainid: 56
+        message_bus: "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b"
+        token:
+          usdc:
+            address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+            decimal: 18
+          usdt:
+            address: "0x55d398326f99059fF775485246999027B3197955"
+            decimal: 18
+          weth:
+            address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8"
+            decimal: 18
+        gas:
           base_gas: 700000
-          per_byte_gas: 68
-    #        ftm-main:
-    #          dst_chainid: 10
-    #          base_gas: 700000
-    #          per_byte_gas: 68
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x7CA57b0cA6367191c94C8914d7Df09A57655905f"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
+      multichain:
+        chainid: 56
+        fast_router: "0x400b971099e0ebfda2c03a3063739cb5398734a6"
+        token:
+          USDC:
+            address: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"
+            decimal: 18
+            anytoken: "0xff4e21a5dc31dad11ec93fbeffbef41a4e5070ec"
+          ETH:
+            address: "0x2170ed0880ac9a755fd29b2688956bd959f933f8"
+            decimal: 18
+            anytoken: "0xc22d2b2be62a741d5c616a713b88ca597b709390"
     oracle:
       eth:
         chainid: 2
@@ -708,14 +1307,6 @@ networks:
         chainid: 6
         currency: USD
         address: "0x5974855ce31EE8E1fff2e76591CbF83D7110F151"
-      arbitrum:
-        chainid: 23
-        currency: USD
-        address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
-    #      ftm:
-    #        chainid: 10
-    #        currency: USD
-    #        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
     token:
       usdt:
         address: "0x55d398326f99059fF775485246999027B3197955"
@@ -729,17 +1320,66 @@ networks:
       weth:
         address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
         decimal: 18
+      USDC_ETH_WORMHOLE:
+        address: "0xB04906e95AB5D797aDA81508115611fee694c2b3"
+        decimal: 6
     swap:
-      IUniswapV2Router02:
-        name: PancakeSwapV2
-        router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
-        token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
+      - IWombatRouter:
+          name: WombatExchange
+          router: "0x19609B03C976CCA288fbDae5c21d4290e9a4aDD7"
+          token_list: ""
+      - IUniswapV2Router02:
+          name: BiSwap
+          router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
+          token_list: ""
+      - IPearlRouter:
+          name: THENA
+          router: "0xd4ae6eCA985340Dd434D38F470aCCce4DC78D109"
+          token_list: ""
+      - IUniswapV2Router02:
+          name: PancakeSwapV2
+          router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
+          token_list: "https://tokens.pancakeswap.finance/pancakeswap-top-100.json"
+      - ISwapRouter:
+          name: PancakeSwapV3
+          router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+          token_list: ""
+          quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   avax-main:
     omnibtc_chainid: 4
     chainid: 43114
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://ava-mainnet.public.blastapi.io/ext/bc/C/rpc",
+        "https://avalanche.public-rpc.com",
+        "https://avax.meowrpc.com",
+        "https://endpoints.omniatech.io/v1/avax/mainnet/public",
+        "https://rpc.ankr.com/avalanche",
+        "https://avalanche.api.onfinality.io/public/ext/bc/C/rpc",
+        "https://api.avax.network/ext/bc/C/rpc",
+        "https://avalanche-c-chain.publicnode.com",
+      ]
     stargate:
-      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 106
       poolid:
         usdc: 1
@@ -749,7 +1389,7 @@ networks:
       token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
       wormhole: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -765,16 +1405,105 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
+          base_gas: 10000
+          per_byte_gas: 10
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
           per_byte_gas: 68
-        arbitrum-main:
-          dst_chainid: 23
+    bridges:
+      bool:
+        chainid: 43114
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 27322404371584700
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x09135a91F6cB6ED6DBdd947FC09a533B4F7AB84D"
+            token_address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E"
+          usdt:
+            pool_id: 1
+            decimals: 6
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
+      celer:
+        chainid: 43114
+        message_bus: "0x5a926eeeafc4d217add17e9641e8ce23cd01ad57"
+        token:
+          usdc:
+            address: "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664"
+            decimal: 6
+          usdt:
+            address: "0xc7198437980c041c805A1EDcbA50c1Ce5db95118"
+            decimal: 6
+          weth:
+            address: "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB"
+            decimal: 18
+        gas:
           base_gas: 700000
-          per_byte_gas: 68
-    #        ftm-main:
-    #          dst_chainid: 10
-    #          base_gas: 700000
-    #          per_byte_gas: 68
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x0A77230d17318075983913bC2145DB16C7366156"
+
+          # BNBUSD by manual
+
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x1db18D41E4AD2403d9f52b5624031a2D9932Fd73"
+
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+      multichain:
+        chainid: 43114
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC.e:
+            address: "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664"
+            decimal: 6
+            anytoken: "0xc15fe51adc41e377ac64c2a695f66de26c97afe6"
+          WETH.e:
+            address: "0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab"
+            decimal: 18
+            anytoken: "0xce3b0d4e4e4285e55c0bfb294112caf19682eb8a"
+      cctp:
+        domain_id: 1
+        token_messenger: "0x6b25532e1060ce10cc3b0a99e5683b91bfde6982"
+        message_transmitter: "0x8186359af5f57fbb40c6b14a588d2a59c0c29880"
+        token_minter: "0x420f5035fd5dc62a167e7e7f08b604335ae272b8"
     oracle:
       eth:
         chainid: 2
@@ -788,14 +1517,6 @@ networks:
         chainid: 6
         currency: USD
         address: "0x0A77230d17318075983913bC2145DB16C7366156"
-      arbitrum:
-        chainid: 23
-        currency: USD
-        address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
-    #      ftm:
-    #        chainid: 10
-    #        currency: USD
-    #        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
     token:
       weth:
         address: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
@@ -807,20 +1528,71 @@ networks:
         address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7"
         decimal: 6
     swap:
-      IUniswapV2Router02AVAX:
-        name: PangolinV2
-        router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
-        token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
-  #      IUniswapV2Router02AVAX:
-  #        name: TraderJoeV2
-  #        router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
-  #        token_list: ""
+      - IVault:
+          name: BalancerV2
+          router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
+          token_list: ""
+      - ICurveFi:
+          name: Curve
+          router: "0x1da20Ac34187b2d9c74F729B85acB225D3341b25"
+          token_list: ""
+      - IGMXV1Router:
+          name: GMXV1
+          router: "0x5F719c2F1095F7B9fc68a68e35B51194f4b6abe8"
+          token_list: ""
+      - ILBRouter:
+          name: Trader Joe
+          router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
+          token_list: ""
+      - IUniswapV2Router02AVAX:
+          name: PangolinV2
+          router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
+          token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
+      - IUniswapV2Router02AVAX:
+          name: TraderJoeV2
+          router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
+          token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   polygon-main:
     omnibtc_chainid: 5
     chainid: 137
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://gateway.tenderly.co/public/polygon",
+        "https://rpc.ankr.com/polygon",
+        "https://polygon.meowrpc.com",
+        "https://polygon.gateway.tenderly.co",
+        "https://polygon-mainnet.public.blastapi.io",
+        "https://rpc-mainnet.matic.quiknode.pro",
+        "https://polygon.rpc.blxrbdn.com/",
+        "https://endpoints.omniatech.io/v1/matic/mainnet/public",
+        "https://poly-rpc.gateway.pokt.network/",
+        "https://polygon.drpc.org",
+        "https://polygon-bor.publicnode.com",
+        "https://rpc-mainnet.maticvigil.com",
+        "https://polygon-rpc.com",
+        "https://rpc.ankr.com/polygon/f880d87e7b62ba10d94f8d84ddb621f617332be75d41e1238e9bc1af590d0125",
+      ]
     stargate:
-      router: "0x45A01E4e04F14f7A4a6702c74187c5F6222033cd"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 109
       poolid:
         usdc: 1
@@ -830,7 +1602,7 @@ networks:
       token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
       wormhole: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -846,16 +1618,99 @@ networks:
           per_byte_gas: 68
         aptos-mainnet:
           dst_chainid: 22
-          base_gas: 80000
+          base_gas: 10000
+          per_byte_gas: 10
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
           per_byte_gas: 68
-        arbitrum-main:
-          dst_chainid: 23
+    bridges:
+      bool:
+        chainid: 137
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 526315789473684160
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x09135a91F6cB6ED6DBdd947FC09a533B4F7AB84D"
+            token_address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+          usdt:
+            pool_id: 1
+            decimals: 6
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
+      celer:
+        chainid: 137
+        message_bus: "0xaFDb9C40C7144022811F034EE07Ce2E110093fe6"
+        token:
+          usdc:
+            address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+            decimal: 6
+          usdt:
+            address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+            decimal: 6
+          weth:
+            address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"
+            decimal: 18
+        gas:
           base_gas: 700000
-          per_byte_gas: 68
-    #        ftm-main:
-    #          dst_chainid: 10
-    #          base_gas: 700000
-    #          per_byte_gas: 68
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x82a6c4AF830caa6c97bb504425f6A66165C2c26e"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
+      multichain:
+        chainid: 137
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC:
+            address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
+            decimal: 6
+            anytoken: "0x8d59c725f558a6739285580290b4eab602e2e0e5"
+          WETH:
+            address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+            decimal: 18
+            anytoken: "0x106a4cb3db8abe4fff73263dea55e56770ce62f3"
     oracle:
       eth:
         chainid: 2
@@ -873,14 +1728,6 @@ networks:
         chainid: 6
         currency: USD
         address: "0xe01eA2fbd8D76ee323FbEd03eB9a8625EC981A10"
-      arbitrum:
-        chainid: 23
-        currency: USD
-        address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
-    #      ftm:
-    #        chainid: 10
-    #        currency: USD
-    #        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
     token:
       weth:
         address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
@@ -897,80 +1744,183 @@ networks:
       AptosCoin_WORMHOLE:
         address: "0xa4ef199d3ad524E9C3C51Ac46B303B103A307Cef"
         decimal: 8
+      USDC_ETH_WORMHOLE:
+        address: "0x4318CB63A2b8edf2De971E2F17F77097e499459D"
+        decimal: 6
     swap:
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: ""
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: QuickswapV2
-        router: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"
-        token_list: "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json"
+      - ICurveFi:
+          name: Curve
+          router: "0x1d8b86e3D88cDb2d34688e87E72F388Cb541B7C8"
+          token_list: ""
+      - IPearlRouter:
+          name: PearlFi
+          router: "0xcC25C0FD84737F44a7d38649b69491BBf0c7f083"
+          token_list: ""
+      - ISwapRouter:
+          name: UniswapV3
+          router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+          token_list: ""
+          quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      - IUniswapV2Router02:
+          name: QuickswapV2
+          router: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"
+          token_list: "https://unpkg.com/quickswap-default-token-list@1.2.38/build/quickswap-default.swap_tokenlist.json"
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   arbitrum-main:
     omnibtc_chainid: 6
     chainid: 42161
     SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    Claim:
+      v0: "0x88F453111fE710b36b5b193971b8E7e7576be397"
+      v1: "0xee2174cb3bc411A31Dd10363067E0B6Cf0aB0D37"
+      v2: "0x941ECfC6f02d037aF921fDC7431C78785638acDE"
+    endpoints:
+      [
+        "https://arbitrum.api.onfinality.io/public",
+        "https://arb1.arbitrum.io/rpc",
+        "https://arb-mainnet-public.unifra.io",
+        "https://endpoints.omniatech.io/v1/arbitrum/one/public",
+        "https://arbitrum.meowrpc.com",
+        "https://arbitrum-one.publicnode.com",
+        "https://rpc.arb1.arbitrum.gateway.fm",
+        "https://arbitrum-one.public.blastapi.io",
+        "https://rpc.ankr.com/arbitrum",
+      ]
     stargate:
-      router: "0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 110
       poolid:
         usdc: 1
         weth: 13
-    wormhole:
-      chainid: 23
-      token_bridge: "0x0b2402144Bb366A632D14B83F244D2e0e21bD39c"
-      wormhole: "0xa5f208e072434bc67592e4c49c1b991ba79bca46"
-      actual_reserve: 1.1
-      estimate_reserve: 1.2
-      gas:
-        mainnet:
-          dst_chainid: 2
+    bridges:
+      bool:
+        chainid: 42161
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          usdc:
+            pool_id: 5
+            decimals: 6
+            pool_address: "0x3c18d6bf6c0aab40a977d29e4b235f23f5441b7b"
+            token_address: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+          usdt:
+            pool_id: 4
+            decimals: 6
+            pool_address: "0xbc428bade5483db3815cafc2966ef0da8a57b120"
+            token_address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+          eth:
+            pool_id: 6
+            decimals: 18
+            pool_address: "0x2a6e088056e94badd431640aa254cb74ad7c23a3"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          wbtc:
+            pool_id: 7
+            decimals: 8
+            pool_address: "0xfcd68ec4c59747abcb7faf705873856676d57e47"
+            token_address: "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f"
+      celer:
+        chainid: 42161
+        message_bus: "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f"
+        token:
+          usdc:
+            address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+            decimal: 6
+          usdt:
+            address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+            decimal: 6
+          weth:
+            address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+            decimal: 18
+        actual_reserve: 1.1
+        estimate_reserve: 1.11
+        gas:
           base_gas: 700000
-          per_byte_gas: 68
-        bsc-main:
-          dst_chainid: 4
-          base_gas: 700000
-          per_byte_gas: 68
-        polygon-main:
-          dst_chainid: 5
-          base_gas: 700000
-          per_byte_gas: 68
-        avax-main:
-          dst_chainid: 6
-          base_gas: 700000
-          per_byte_gas: 68
-        aptos-mainnet:
-          dst_chainid: 22
-          base_gas: 80000
-          per_byte_gas: 68
-    oracle:
-      eth:
-        chainid: 2
-        currency: USD
-        address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
-      bsc:
-        chainid: 4
-        currency: USD
-        address: "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A"
-      polygon:
-        chainid: 5
-        currency: USD
-        address: "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
-      avax:
-        chainid: 6
-        currency: USD
-        address: "0x8bf61728eeDCE2F32c456454d87B5d6eD6150208"
-      arbitrum:
-        chainid: 23
-        currency: USD
-        address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x8bf61728eeDCE2F32c456454d87B5d6eD6150208"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x52099D4523531f678Dfc568a7B1e5038aadcE1d6"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+      multichain:
+        chainid: 42161
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC:
+            address: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+            decimal: 6
+            anytoken: "0xa9cad0165c155f3998b0001b3ef30bca0aa6b591"
+          ETH:
+            address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+            decimal: 18
+            anytoken: "0x758d08864fb6cce3062667225ca10b8f00496cc2"
+      cctp:
+        domain_id: 3
+        token_messenger: "0x19330d10D9Cc8751218eaf51E8885D058642E08A"
+        message_transmitter: "0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca"
+        token_minter: "0xE7Ed1fa7f45D05C508232aa32649D89b73b8bA48"
     token:
       usdt:
         address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
         decimal: 6
       usdc:
-        address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+        # bridge usdc: 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8
+        # circle usdc:
+        address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
         decimal: 6
       weth:
         address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
@@ -979,41 +1929,215 @@ networks:
         address: "0x5979D7b546E38E414F7E9822514be443A4800529"
         decimal: 18
     swap:
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: ""
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: SushiswapV2
-        router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
-        token_list: ""
+      - IVault:
+          name: BalancerV2
+          router: "0xba12222222228d8ba445958a75a0704d566bf2c8"
+          token_list: ""
+      - ILBRouter:
+          name: TraderJoe
+          router: "0xb4315e873dBcf96Ffd0acd8EA43f689D8c20fB30"
+          token_list: ""
+      - IGMXV1Router:
+          name: GMXV1
+          router: "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064"
+          token_list: ""
+      - ISwapRouter:
+          name: UniswapV3
+          router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+          token_list: ""
+          quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      - IUniswapV2Router02:
+          name: SushiswapV2
+          router: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
+          token_list: ""
+      - ICamelotRouter:
+          name: CamelotV2
+          router: "0xc873fEcbd354f5A56E00E710B90EF4201db2448d"
+          token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   optimism-main:
     omnibtc_chainid: 7
     chainid: 10
+    SoDiamond: "0x2967e7bb9daa5711ac332caf874bd47ef99b3820"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     stargate:
-      router: "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b"
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 111
       poolid:
         usdc: 1
         weth: 13
+    endpoints:
+      [
+        "https://optimism.api.onfinality.io/public",
+        "https://endpoints.omniatech.io/v1/op/mainnet/public",
+        "https://optimism-mainnet.public.blastapi.io",
+        "https://optimism.publicnode.com",
+        "https://optimism.meowrpc.com",
+        "https://rpc.ankr.com/optimism",
+        "https://mainnet.optimism.io/",
+        "https://opt-mainnet.g.alchemy.com/v2/LBDzNc9dpFyypmYMY82EjRYKeB2jdGyh",
+        "https://opt-mainnet.g.alchemy.com/v2/rhahhrkYMnD5HDZuGA83z6WkcTs_Yihi",
+      ]
+    bridges:
+      bool:
+        chainid: 10
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          usdc:
+            pool_id: 7
+            decimals: 6
+            pool_address: "0xfcd68ec4c59747abcb7faf705873856676d57e47"
+            token_address: "0x7f5c764cbc14f9669b88837ca1490cca17c31607"
+          usdt:
+            pool_id: 6
+            decimals: 6
+            pool_address: "0x2a6e088056e94badd431640aa254cb74ad7c23a3"
+            token_address: "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58"
+          eth:
+            pool_id: 8
+            decimals: 18
+            pool_address: "0x0571edf989d899851b441546b266f7b632c8ec3f"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      celer:
+        chainid: 10
+        message_bus: "0x0D71D18126E03646eb09FEc929e2ae87b7CAE69d"
+        token:
+          usdc:
+            address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+            decimal: 6
+          usdt:
+            address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
+            decimal: 6
+          weth:
+            address: "0x4200000000000000000000000000000000000006"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+        oracle:
+          eth:
+            chainid: 1
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          optimism:
+            chainid: 10
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          arbitrum:
+            chainid: 42161
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          avax:
+            chainid: 43114
+            pair: AVAXUSD
+            address: "0x5087Dc69Fd3907a016BD42B38022F7f024140727"
+          bsc:
+            chainid: 56
+            pair: BNBUSD
+            address: "0xD38579f7cBD14c22cF1997575eA8eF7bfe62ca2c"
+          polygon:
+            chainid: 137
+            pair: MATICUSD
+            address: "0x0ded608AFc23724f614B76955bbd9dFe7dDdc828"
+          zksync:
+            chainid: 324
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+          zkevm:
+            chainid: 1011
+            pair: ETHUSD
+            address: "0x13e3Ee699D1909E989722E753853AE30b17e08c5"
+      multichain:
+        chainid: 10
+        fast_router: "0x1633D66Ca91cE4D81F63Ea047B7B19Beb92dF7f3"
+        token:
+          USDC:
+            address: "0x7f5c764cbc14f9669b88837ca1490cca17c31607"
+            decimal: 6
+            anytoken: "0x2823d10da533d9ee873fed7b16f4a962b2b7f181"
+          OETH:
+            address: "0x4200000000000000000000000000000000000006"
+            decimal: 18
+            anytoken: "0x5fcb9de282af6122ce3518cde28b7089c9f97b26"
+      cctp:
+        domain_id: 2
+        token_messenger: "0x2B4069517957735bE00ceE0fadAE88a26365528f"
+        message_transmitter: "0x4d41f22c5a0e5c74090899e5a8fb597a8842b3e8"
+        token_minter: "0x33E76C5C31cb928dc6FE6487AB3b2C0769B1A1e3"
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"
         decimal: 18
       usdc:
-        address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+        # bridge usdc: 0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+        # circle usdc: 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85
+        address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
         decimal: 6
     swap:
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: ZipSwapV2
-        router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
-        token_list: ""
+      - ICurveFi:
+          name: Curve
+          router: "0x1337bedc9d22ecbe766df105c9623922a27963ec"
+          token_list: ""
+      - ISwapRouter:
+          name: UniswapV3
+          router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+          token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
+          quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+      - IUniswapV2Router02:
+          name: ZipSwapV2
+          router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
+          token_list: ""
+      - IVelodrome:
+          name: Velodrome
+          router: "0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858"
+          token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
   ftm-main:
     omnibtc_chainid: 8
     chainid: 250
@@ -1026,7 +2150,7 @@ networks:
       chainid: 10
       token_bridge: "0x7C9Fc5741288cDFdD83CeB07f3ea7e22618D79D2"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -1070,6 +2194,260 @@ networks:
         name: SpookyswapV2
         router: "0xF491e7B69E4244ad4002BC14e878a34207E38c29"
         token_list: "https://docs.spooky.fi/Resources/ftm-token-addresses"
+  zksync2-main:
+    chainid: 324
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    bridges:
+      bool:
+        chainid: 324
+        router: "0x62e78B9C9A6d55C0B9dB554097DB4B9bd4dE6f4d"
+        factory: "0xEAef1354819Fe385937f83a7a7eD017f36Ef6f56"
+        messenger: "0x2Ff16760321af33A1D7b8bf7477fad0258eAE819"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x45310aDb1688a31F8e690dc4D56E0408214580C0"
+            token_address: "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4"
+          usdt:
+            pool_id: 3
+            decimals: 6
+            pool_address: "0xCfB8DFBdc45A26F9E0d928C233AC812EEF2D844D"
+            token_address: "0x493257fd37edb34451f62edf8d2a0c418852ba4c"
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x4Ee556c8076985F111F56e54B254fd045BB52848"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+    token:
+      weth:
+        address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
+        decimal: 18
+    swap:
+      - ISyncSwapRouter:
+          name: SyncSwap
+          router: "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295"
+          token_list: ""
+      - IMuteRouter:
+          name: MuteIO
+          router: "0x8B791913eB07C32779a16750e3868aA8495F5964"
+          token_list: ""
+      - ISwapRouter:
+          name: MaverickProtocol
+          router: "0x39E098A153Ad69834a9Dac32f0FCa92066aD03f4"
+          token_list: ""
+      - IiZiSwap:
+          name: iZiSwap
+          router: "0x943ac2310D9BC703d6AB5e5e76876e212100f894"
+          token_list: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x3F95eF3f2eAca871858dbE20A93c01daF6C2e923"
+          token_list: ""
+      - IAggregationRouterV5:
+          name: OneInch
+          router: "0x6e2B76966cbD9cF4cC2Fa0D76d24d5241E0ABC2F"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x36A1aCbbCAfca2468b85011DDD16E7Cb4d673230"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x36A1aCbbCAfca2468b85011DDD16E7Cb4d673230"
+          token_list: ""
+  zkevm-main:
+    chainid: 1101
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    token:
+      weth:
+        address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
+        decimal: 18
+    swap:
+      - IQuickSwapRouter:
+          name: QuickSwapV3
+          router: "0xF6Ad3CcF71Abb3E12beCf6b3D2a74C963859ADCd"
+          token_list: ""
+          quoter: "0x55BeE1bD3Eb9986f6d2d963278de09eE92a3eF1D"
+          factory: "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57"
+      - ISwapRouter:
+          name: PancakeSwapV3
+          router: "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+          token_list: ""
+          quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997"
+          factory: "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865"
+      - IVault:
+          name: BalancerV2
+          router: "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
+          token_list: ""
+          quoter: "0x809B79b53F18E9bc08A961ED4678B901aC93213a"
+          factory: ""
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6dd434082EAB5Cd134B33719ec1FF05fE985B97b"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6dd434082EAB5Cd134B33719ec1FF05fE985B97b"
+          token_list: ""
+    bridges:
+      celer:
+        chainid: 1101
+        message_bus: "0x9Bb46D5100d2Db4608112026951c9C965b233f4D"
+        token:
+          weth:
+            address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9"
+            decimal: 18
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 1101 # zkevm-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+  opbnb-main:
+    chainid: 204
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    swap:
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+  linea-main:
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    swap:
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+    bridges:
+      bool:
+        chainid: 59144
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+  scroll-main:
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    swap:
+      - IMetaAggregationRouterV2:
+          name: KyberSwap
+          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
+          token_list: ""
+      - IOpenOceanExchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+      - IUniswapV2Exchange:
+          name: OpenOcean
+          router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+          token_list: ""
+    bridges:
+      bool:
+        chainid: 534352
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        pools:
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x2D958BF57b35fbE5AE865C7956338d02e0B30562"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+  bevm-main:
+    bridges:
+      bool:
+        chainid: 1501
+        router: "0x54162F457d1d5C4d07f067d6B8DB510586AeEE1d"
+        factory: "0x9F7eEf04bf6f7d573829DbC97122ee4Ca9ab3924"
+        messenger: "0x10E82B34E757Cf4fdEFC0E9Fc8CCA4e5b9749bcE"
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 10000000000000
+        pools:
+          wbtc:
+            pool_id: 1
+            decimals: 18
+            feeRatio: 0
+            pool_address: "0x2d958bf57b35fbe5ae865c7956338d02e0b30562"
+            token_address: "0x09ff8e49d0ea411a3422ed95e8f5497d4241f532"
+    swap:
+      - IUniswapV2Router02:
+          name: BSwapV2
+          router: "0xC7Dd38D6D161e2a440617508308639B2d701F633"
+          factory: "0x356FD03E73ce821d5F7dFea51d1cB336EeFd67b1"
+          token_list: ""
+  manta-main:
+    chainx_bridge: "0xc91a8e500E814990b06BDb4fC10745124fdBE748"
+  metis-main:
+    omnibtc_chainid: 1088
+    chainid: 1088
+    SoDiamond: "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://metis-pokt.nodies.app",
+      ]
+    stargate:
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
+      chainid: 151
+      poolid:
+        usdt: 19
+        metis: 17
+    token:
+      weth:
+        address: "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000"
+        decimal: 18
+      usdt:
+        address: "0xbB06DCA3AE6887fAbF931640f67cab3e3a16F4dC"
+        decimal: 6
+    swap:
+      - INetswapRouter02:
+          name: Netswap
+          router: "0x1E876cCe41B7b844FDe09E38Fa1cf00f213bFf56"
+          token_list: ""
+          quoterv2: ""
+      - ISwapRouter:
+          name: Wagmi
+          router: "0x8Fb7a8cb6c4DCf820762397aDF80A27a777cFedC"
+          token_list: ""
+          quoter: "0x2Dc123Ff6757fcEa46c025758E93bd8b98710cEA"
+
 wallets:
   from_key: ${PRIVATE_KEY}
+  deploy_key: ${DEPLOY_KEY}
+  # In order to deploy a unified contract address
+  create_key: ${CREATE_KEY}
+  bulk_key: ${BULK_KEY}
   from_mnemonic: ${MNEMONIC}

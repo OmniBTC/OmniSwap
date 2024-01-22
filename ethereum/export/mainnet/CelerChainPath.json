@@ -1,0 +1,824 @@
+{
+    "arbitrum-main": {
+        "Bridge": "0x1619DE6B6B20eD217a58d00f37B9d47C7663feca",
+        "CelerChainId": "42161",
+        "MessageBus": "0x3ad9d0648cdaa2426331e894e980d0a5ed16257f",
+        "SupportToken": {
+            "USDC": {
+                "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+                "ChainPath": [
+                    {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+                        "CelerChainId": 324,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "USDT": {
+                "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                "ChainPath": [
+                    {
+                        "Address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x55d398326f99059fF775485246999027B3197955",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "WETH": {
+                "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+                "ChainPath": [
+                    {
+                        "Address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "CelerChainId": 1,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4200000000000000000000000000000000000006",
+                        "CelerChainId": 10,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                        "CelerChainId": 137,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+                        "CelerChainId": 324,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+                        "CelerChainId": 1101,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+                        "CelerChainId": 43114,
+                        "Decimal": 18
+                    }
+                ],
+                "Decimal": 18
+            }
+        }
+    },
+    "avax-main": {
+        "Bridge": "0xef3c714c9425a8F3697A9C969Dc1af30ba82e5d4",
+        "CelerChainId": "43114",
+        "MessageBus": "0x5a926eeeafc4d217add17e9641e8ce23cd01ad57",
+        "SupportToken": {
+            "USDC": {
+                "Address": "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+                "ChainPath": [
+                    {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+                        "CelerChainId": 324,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "USDT": {
+                "Address": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+                "ChainPath": [
+                    {
+                        "Address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x55d398326f99059fF775485246999027B3197955",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "WETH": {
+                "Address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+                "ChainPath": [
+                    {
+                        "Address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "CelerChainId": 1,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4200000000000000000000000000000000000006",
+                        "CelerChainId": 10,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                        "CelerChainId": 137,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+                        "CelerChainId": 324,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+                        "CelerChainId": 1101,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+                        "CelerChainId": 42161,
+                        "Decimal": 18
+                    }
+                ],
+                "Decimal": 18
+            }
+        }
+    },
+    "bsc-main": {
+        "Bridge": "0xdd90E5E87A2081Dcf0391920868eBc2FFB81a1aF",
+        "CelerChainId": "56",
+        "MessageBus": "0x95714818fdd7a5454f73da9c777b3ee6ebaeea6b",
+        "SupportToken": {
+            "USDC": {
+                "Address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+                "ChainPath": [
+                    {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+                        "CelerChainId": 324,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 18
+            },
+            "USDT": {
+                "Address": "0x55d398326f99059fF775485246999027B3197955",
+                "ChainPath": [
+                    {
+                        "Address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 18
+            },
+            "WETH": {
+                "Address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                "ChainPath": [
+                    {
+                        "Address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "CelerChainId": 1,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4200000000000000000000000000000000000006",
+                        "CelerChainId": 10,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                        "CelerChainId": 137,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+                        "CelerChainId": 324,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+                        "CelerChainId": 1101,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+                        "CelerChainId": 42161,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+                        "CelerChainId": 43114,
+                        "Decimal": 18
+                    }
+                ],
+                "Decimal": 18
+            }
+        }
+    },
+    "mainnet": {
+        "Bridge": "0x5427FEFA711Eff984124bFBB1AB6fbf5E3DA1820",
+        "CelerChainId": "1",
+        "MessageBus": "0x4066d196a423b2b3b8b054f4f40efb47a74e200c",
+        "SupportToken": {
+            "USDC": {
+                "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                "ChainPath": [
+                    {
+                        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+                        "CelerChainId": 324,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "USDT": {
+                "Address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                "ChainPath": [
+                    {
+                        "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x55d398326f99059fF775485246999027B3197955",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "WETH": {
+                "Address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                "ChainPath": [
+                    {
+                        "Address": "0x4200000000000000000000000000000000000006",
+                        "CelerChainId": 10,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                        "CelerChainId": 137,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+                        "CelerChainId": 324,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+                        "CelerChainId": 1101,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+                        "CelerChainId": 42161,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+                        "CelerChainId": 43114,
+                        "Decimal": 18
+                    }
+                ],
+                "Decimal": 18
+            }
+        }
+    },
+    "optimism-main": {
+        "Bridge": "0x9D39Fc627A6d9d9F8C831c16995b209548cc3401",
+        "CelerChainId": "10",
+        "MessageBus": "0x0D71D18126E03646eb09FEc929e2ae87b7CAE69d",
+        "SupportToken": {
+            "USDC": {
+                "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                "ChainPath": [
+                    {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+                        "CelerChainId": 324,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "USDT": {
+                "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                "ChainPath": [
+                    {
+                        "Address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x55d398326f99059fF775485246999027B3197955",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "WETH": {
+                "Address": "0x4200000000000000000000000000000000000006",
+                "ChainPath": [
+                    {
+                        "Address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "CelerChainId": 1,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                        "CelerChainId": 137,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+                        "CelerChainId": 324,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+                        "CelerChainId": 1101,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+                        "CelerChainId": 42161,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+                        "CelerChainId": 43114,
+                        "Decimal": 18
+                    }
+                ],
+                "Decimal": 18
+            }
+        }
+    },
+    "polygon-main": {
+        "Bridge": "0x88DCDC47D2f83a99CF0000FDF667A468bB958a78",
+        "CelerChainId": "137",
+        "MessageBus": "0xaFDb9C40C7144022811F034EE07Ce2E110093fe6",
+        "SupportToken": {
+            "USDC": {
+                "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                "ChainPath": [
+                    {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+                        "CelerChainId": 324,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "USDT": {
+                "Address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                "ChainPath": [
+                    {
+                        "Address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x55d398326f99059fF775485246999027B3197955",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "WETH": {
+                "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                "ChainPath": [
+                    {
+                        "Address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "CelerChainId": 1,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4200000000000000000000000000000000000006",
+                        "CelerChainId": 10,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+                        "CelerChainId": 324,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+                        "CelerChainId": 1101,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+                        "CelerChainId": 42161,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+                        "CelerChainId": 43114,
+                        "Decimal": 18
+                    }
+                ],
+                "Decimal": 18
+            }
+        }
+    },
+    "zkevm-main": {
+        "Bridge": "0xD46F8E428A06789B5884df54E029e738277388D1",
+        "CelerChainId": "1101",
+        "MessageBus": "0x9Bb46D5100d2Db4608112026951c9C965b233f4D",
+        "SupportToken": {
+            "WETH": {
+                "Address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+                "ChainPath": [
+                    {
+                        "Address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "CelerChainId": 1,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4200000000000000000000000000000000000006",
+                        "CelerChainId": 10,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                        "CelerChainId": 137,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+                        "CelerChainId": 324,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+                        "CelerChainId": 42161,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+                        "CelerChainId": 43114,
+                        "Decimal": 18
+                    }
+                ],
+                "Decimal": 18
+            }
+        }
+    },
+    "zksync2-main": {
+        "Bridge": "0x54069e96C4247b37C2fbd9559CA99f08CD1CD66c",
+        "CelerChainId": "324",
+        "MessageBus": "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2",
+        "SupportToken": {
+            "USDC": {
+                "Address": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+                "ChainPath": [
+                    {
+                        "Address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        "CelerChainId": 1,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                        "CelerChainId": 10,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                        "CelerChainId": 137,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+                        "CelerChainId": 42161,
+                        "Decimal": 6
+                    },
+                    {
+                        "Address": "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664",
+                        "CelerChainId": 43114,
+                        "Decimal": 6
+                    }
+                ],
+                "Decimal": 6
+            },
+            "WETH": {
+                "Address": "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
+                "ChainPath": [
+                    {
+                        "Address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                        "CelerChainId": 1,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4200000000000000000000000000000000000006",
+                        "CelerChainId": 10,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                        "CelerChainId": 56,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                        "CelerChainId": 137,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+                        "CelerChainId": 1101,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+                        "CelerChainId": 42161,
+                        "Decimal": 18
+                    },
+                    {
+                        "Address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+                        "CelerChainId": 43114,
+                        "Decimal": 18
+                    }
+                ],
+                "Decimal": 18
+            }
+        }
+    }
+}

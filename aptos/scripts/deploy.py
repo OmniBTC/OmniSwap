@@ -1,5 +1,5 @@
 from scripts.serde_aptos import get_serde_facet
-from scripts.struct import omniswap_aptos_path, hex_str_to_vector_u8
+from scripts.serde_struct import omniswap_aptos_path, hex_str_to_vector_u8
 import aptos_brownie
 
 
@@ -20,7 +20,7 @@ def setup_mock(net: str = "aptos-testnet"):
 
 
 def main():
-    net = "aptos-testnet"
+    net = "aptos-mainnet"
     print(f"Current aptos network:{net}")
     # deploy
     package = aptos_brownie.AptosPackage(
@@ -28,6 +28,10 @@ def main():
         network=net
     )
     package.publish_package()
+
+    # set relayer
+    relayer = "0x3b52fa49ef6577001619c56ba56c5c51d493fba0671dc15a7f41a99103e0e299"
+    package["wormhole_facet::set_relayer"](relayer)
 
     # initialize
     # # fee
@@ -44,6 +48,8 @@ def main():
         package["so_fee_wormhole::set_price_ratio"](5, int(1 / 7 * ratio_decimal))
         package["so_fee_wormhole::initialize"](6)
         package["so_fee_wormhole::set_price_ratio"](6, int(20 / 7 * ratio_decimal))
+        package["so_fee_wormhole::initialize"](21)
+        package["so_fee_wormhole::set_price_ratio"](21, int(0.1 / 7 * ratio_decimal))
     except:
         pass
     # # wormhole
@@ -85,3 +91,7 @@ def main():
         )
 
     # setup_mock(package.network)
+
+
+if __name__ == "__main__":
+    main()

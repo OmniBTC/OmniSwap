@@ -71,6 +71,7 @@ module omniswap::so_fee_wormhole {
         })
     }
 
+    #[legacy_entry_fun]
     public entry fun update_price_ratio(chain_id: u64): u64 acquires PriceManager {
         get_price_ratio(chain_id)
     }
@@ -84,6 +85,7 @@ module omniswap::so_fee_wormhole {
         manager.price_data.last_update_timestamp = timestamp::now_seconds();
     }
 
+    #[legacy_entry_fun]
     public entry fun get_price_ratio(chain_id: u64): u64 acquires PriceManager {
         assert!(is_initialize(chain_id), EHAS_INITIALIZE);
         let manager = borrow_global_mut<PriceManager>(get_resource_address(chain_id));

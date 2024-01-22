@@ -1,0 +1,84 @@
+# exclude SafeMath when calculating test coverage
+# https://eth-brownie.readthedocs.io/en/v1.10.3/config.html#exclude_paths
+reports:
+  exclude_contracts:
+    - SafeMath
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.6.0
+  - Uniswap/v3-core@1.0.0
+compiler:
+  solc:
+    version: 0.8.13
+    remappings:
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.6.0"
+      - "@uniswap/v3-core=Uniswap/v3-core@1.0.0"
+# automatically fetch contract sources from Etherscan
+autofetch_sources: True
+dotenv: ../.env
+networks:
+  default: zksync2-test
+  zksync2-main:
+    bridges:
+      bool:
+        chainid: 324
+        router: "0x62e78B9C9A6d55C0B9dB554097DB4B9bd4dE6f4d"
+        factory: "0xEAef1354819Fe385937f83a7a7eD017f36Ef6f56"
+        messenger: "0x2Ff16760321af33A1D7b8bf7477fad0258eAE819"
+        pools:
+          usdc:
+            pool_id: 2
+            decimals: 6
+            pool_address: "0x45310aDb1688a31F8e690dc4D56E0408214580C0"
+            token_address: "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4"
+          usdt:
+            pool_id: 3
+            decimals: 6
+            pool_address: "0xCfB8DFBdc45A26F9E0d928C233AC812EEF2D844D"
+            token_address: "0x493257fd37edb34451f62edf8d2a0c418852ba4c"
+          eth:
+            pool_id: 1
+            decimals: 18
+            pool_address: "0x4Ee556c8076985F111F56e54B254fd045BB52848"
+            token_address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      celer:
+        chainid: 324
+        message_bus: "0x9a98a376D30f2c9A0A7332715c15D940dE3da0e2"
+        token:
+          usdc:
+            address: "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4"
+            decimal: 6
+          weth:
+            address: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91"
+            decimal: 18
+
+        gas:
+          base_gas: 700000
+          dst_chainid:
+            - 1 # mainnet
+            - 10 # optimism-main
+            - 56 # bsc-main
+            - 137 # polygon-main
+            - 324 # zksync2-main
+            - 42161 # arbitrum-main
+            - 43114 # avax-main
+
+    swap:
+      ISyncSwapRouter:
+        name: SyncSwap
+        router: "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295"
+        token_list: ""
+      IMuteRouter:
+        name: MuteIO
+        router: "0x8B791913eB07C32779a16750e3868aA8495F5964"
+        token_list: ""
+      ISwapRouter:
+        name: MaverickProtocol
+        router: "0x39E098A153Ad69834a9Dac32f0FCa92066aD03f4"
+        token_list: ""
+      IiZiSwapPool:
+        name: iZiSwap
+        router: "0x943ac2310D9BC703d6AB5e5e76876e212100f894"
+        token_list: ""
+wallets:
+  from_key: ${PRIVATE_KEY}
+  from_mnemonic: ${MNEMONIC}

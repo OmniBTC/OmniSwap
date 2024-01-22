@@ -1,0 +1,9 @@
+[package]
+name = 'MoveSTL'
+version = '1.0.0'
+[dependencies.AptosFramework]
+git = 'https://github.com/aptos-labs/aptos-core.git'
+rev = 'main'
+subdir = 'aptos-move/framework/aptos-framework'
+[addresses]
+move_stl = "0x1234"

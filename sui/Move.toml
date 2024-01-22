@@ -1,0 +1,36 @@
+[package]
+name = "OmniSwap"
+version = "0.1.0"
+
+[addresses]
+sui = "0x2"
+omniswap = "0x0"
+wormhole = "0x5306f64e312b581766351c07af79c72fcb1cd25147157fdc2f8ad76de9a3fb6a"
+token_bridge = "0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d"
+cetus_clmm = "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb"
+omniswap_mock = "0x0"
+deepbook = "0xdee9"
+
+[dependencies.Sui]
+git = "https://github.com/MystenLabs/sui.git"
+subdir = "crates/sui-framework/packages/sui-framework"
+rev = "cc4ad6d8a3f05ad8641e977fad228e09a77453b8"
+override = true
+
+[dependencies.DeepBook]
+git = "https://github.com/MystenLabs/sui.git"
+subdir = "crates/sui-framework/packages/deepbook"
+rev = "cc4ad6d8a3f05ad8641e977fad228e09a77453b8"
+
+[dependencies.Wormhole]
+git = "https://github.com/OmniBTC/wormhole.git"
+subdir = "sui/wormhole"
+rev = "fcfe551da0f46b704b76b09ae11dca3dd9387837"
+
+[dependencies.TokenBridge]
+git = "https://github.com/OmniBTC/wormhole.git"
+subdir = "sui/token_bridge"
+rev = "fcfe551da0f46b704b76b09ae11dca3dd9387837"
+
+[dependencies.CetusClmm]
+local = "cetus/cetus-clmm-interface/sui/clmmpool"

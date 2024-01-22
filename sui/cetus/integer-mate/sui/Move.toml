@@ -1,0 +1,13 @@
+[package]
+name = "IntegerMate"
+version = "1.0.0"
+published-at = "0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a5a6f5b7f57"
+
+[addresses]
+sui = "0x2"
+integer_mate = "0x714a63a0dba6da4f017b42d5d0fb78867f18bcde904868e51d951a5a6f5b7f57"
+
+[dependencies.Sui]
+git = "https://github.com/MystenLabs/sui.git"
+subdir = "crates/sui-framework/packages/sui-framework"
+rev = "09b2081498366df936abae26eea4b2d5cafb2788"
