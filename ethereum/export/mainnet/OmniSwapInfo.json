@@ -540,6 +540,18 @@
                         "DstWormholeChainId": 2,
                         "SrcTokenAddress": "0xf2717122Dfdbe988ae811E7eFB157aAa07Ff9D0F",
                         "SrcWormholeChainId": 23
+                    },
+                    {
+                        "DstTokenAddress": "0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87",
+                        "DstWormholeChainId": 24,
+                        "SrcTokenAddress": "0xf2717122Dfdbe988ae811E7eFB157aAa07Ff9D0F",
+                        "SrcWormholeChainId": 23
+                    },
+                    {
+                        "DstTokenAddress": "0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b",
+                        "DstWormholeChainId": 30,
+                        "SrcTokenAddress": "0xf2717122Dfdbe988ae811E7eFB157aAa07Ff9D0F",
+                        "SrcWormholeChainId": 23
                     }
                 ],
                 "Decimal": 18,
@@ -1342,7 +1354,36 @@
                 "Type": "IUniswapV2Router02"
             }
         ],
-        "WETH": "0x4200000000000000000000000000000000000006"
+        "WETH": "0x4200000000000000000000000000000000000006",
+        "WormholeBridge": "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627",
+        "WormholeChainId": 30,
+        "WormholeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b",
+                        "SrcWormholeChainId": 30
+                    },
+                    {
+                        "DstTokenAddress": "0xf2717122Dfdbe988ae811E7eFB157aAa07Ff9D0F",
+                        "DstWormholeChainId": 23,
+                        "SrcTokenAddress": "0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b",
+                        "SrcWormholeChainId": 30
+                    },
+                    {
+                        "DstTokenAddress": "0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87",
+                        "DstWormholeChainId": 24,
+                        "SrcTokenAddress": "0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b",
+                        "SrcWormholeChainId": 30
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "wstETHeth"
+            }
+        ]
     },
     "bsc-main": {
         "ChainId": 56,
@@ -2448,6 +2489,18 @@
                         "DstWormholeChainId": 23,
                         "SrcTokenAddress": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
                         "SrcWormholeChainId": 2
+                    },
+                    {
+                        "DstTokenAddress": "0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87",
+                        "DstWormholeChainId": 24,
+                        "SrcTokenAddress": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                        "SrcWormholeChainId": 2
+                    },
+                    {
+                        "DstTokenAddress": "0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b",
+                        "DstWormholeChainId": 30,
+                        "SrcTokenAddress": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                        "SrcWormholeChainId": 2
                     }
                 ],
                 "Decimal": 18,
@@ -3125,7 +3178,36 @@
                 "Type": "IVelodrome"
             }
         ],
-        "WETH": "0x4200000000000000000000000000000000000006"
+        "WETH": "0x4200000000000000000000000000000000000006",
+        "WormholeBridge": "0x1D68124e65faFC907325e3EDbF8c4d84499DAa8b",
+        "WormholeChainId": 24,
+        "WormholeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "DstTokenAddress": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+                        "DstWormholeChainId": 2,
+                        "SrcTokenAddress": "0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87",
+                        "SrcWormholeChainId": 24
+                    },
+                    {
+                        "DstTokenAddress": "0xf2717122Dfdbe988ae811E7eFB157aAa07Ff9D0F",
+                        "DstWormholeChainId": 23,
+                        "SrcTokenAddress": "0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87",
+                        "SrcWormholeChainId": 24
+                    },
+                    {
+                        "DstTokenAddress": "0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b",
+                        "DstWormholeChainId": 30,
+                        "SrcTokenAddress": "0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87",
+                        "SrcWormholeChainId": 24
+                    }
+                ],
+                "Decimal": 18,
+                "NativeToken": false,
+                "TokenName": "wstETHeth"
+            }
+        ]
     },
     "polygon-main": {
         "ChainId": 137,

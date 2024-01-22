@@ -862,6 +862,33 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    wormhole:
+      chainid: 30
+      token_bridge: "0x8d2de8d2f73F1F4cAB472AC9A881C9b123C79627"
+      wormhole: "0xbebdb6C8ddC678FfA9f8748f85C815C556Dd8ac6"
+      actual_reserve: 1.1
+      estimate_reserve: 1.11
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 700000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 700000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 10000
+          per_byte_gas: 10
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
+          per_byte_gas: 68
     token:
       weth:
         address: "0x4200000000000000000000000000000000000006"
@@ -2013,6 +2040,33 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    wormhole:
+      chainid: 24
+      token_bridge: "0x1D68124e65faFC907325e3EDbF8c4d84499DAa8b"
+      wormhole: "0xEe91C335eab126dF5fDB3797EA9d6aD93aeC9722"
+      actual_reserve: 1.1
+      estimate_reserve: 1.11
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 700000
+          per_byte_gas: 68
+        polygon-main:
+          dst_chainid: 5
+          base_gas: 700000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 10000
+          per_byte_gas: 10
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
+          per_byte_gas: 68
     endpoints:
       [
         "https://optimism.api.onfinality.io/public",

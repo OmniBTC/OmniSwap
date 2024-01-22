@@ -17,7 +17,8 @@ root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 ether = 1e18
 amount = 0.001 * ether
 
-support_networks = ["avax-main", "bsc-main", "polygon-main", "mainnet"]
+support_networks = ["avax-main", "bsc-main", "polygon-main",
+                    "mainnet", "optimism-main", "arbitrum-main", "base-main"]
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -66,6 +67,15 @@ def get_usdt_address(net):
 
     try:
         return config["networks"][net]["token"]["usdt"]["address"]
+    except Exception:
+        return None
+
+
+def get_wst_eth_address(net):
+    from brownie import config
+
+    try:
+        return config["networks"][net]["token"]["wstETH"]["address"]
     except Exception:
         return None
 
@@ -191,6 +201,7 @@ def get_all_warpped_token():
         weth = get_weth_address(net)
         usdc_address = get_usdc_address(net)
         usdt_address = get_usdt_address(net)
+        wst_eth_address = get_wst_eth_address(net)
         wrapped_eth = token_bridge.wrappedAsset(wormhole_chain_id, weth)
 
         chain_path.append(
@@ -201,6 +212,23 @@ def get_all_warpped_token():
                 "DstTokenAddress": zero_address(),
             }
         )
+
+        if wst_eth_address != None:
+            wrapped_wst_eth_token = token_bridge.wrappedAsset(
+                wormhole_chain_id, wst_eth_address
+            )
+            if wrapped_wst_eth_token != zero_address():
+                chain_path.append(
+                    {
+                        "SrcWormholeChainId": src_wormhole_chain_id,
+                        "SrcTokenAddress": wrapped_wst_eth_token,
+                        "DstWormholeChainId": wormhole_chain_id,
+                        "DstTokenAddress": wst_eth_address,
+                    }
+                )
+                print(
+                    f"{net}: wst_eth [{wst_eth_address}] -> {current_net}: wst_eth [{wrapped_wst_eth_token}]"
+                )
 
         if usdc_address != None:
             wrapped_usdc_token = token_bridge.wrappedAsset(
