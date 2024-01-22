@@ -1,4 +1,5 @@
 import os
+import pprint
 from brownie import Contract
 from scripts.helpful_scripts import Session, get_account, get_account_address, get_token_address, get_wormhole_bridge, get_wormhole_chainid, zero_address
 from scripts.swap import SoData, src_session, dst_session
@@ -10,7 +11,7 @@ ether = 1e18
 amount = 0.001 * ether
 
 support_networks = ["avax-main", "bsc-main",
-                    "polygon-main", "mainnet"]
+                    "polygon-main", "mainnet", "arbitrum-main"]
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -60,6 +61,14 @@ def get_usdt_address(net):
         return None
 
 
+def get_wsteth_address(net):
+    from brownie import config
+    try:
+        return config["networks"][net]["token"]["wstETH"]["address"]
+    except Exception:
+        return None
+
+
 def get_weth_address(net):
     from brownie import config
     try:
@@ -81,6 +90,8 @@ def get_net_from_wormhole_chainid(chainid):
         return "ftm-main"
     elif chainid == 22:
         return "aptos-mainnet"
+    elif chainid == 23:
+        return "arbitrum-main"
 
 
 def get_native_token_name(net):
@@ -153,11 +164,21 @@ def get_all_warpped_token():
         weth = get_weth_address(net)
         usdc_address = get_usdc_address(net)
         usdt_address = get_usdt_address(net)
+        wsteth_address = get_wsteth_address(net)
         wrapped_eth = token_bridge.wrappedAsset(
             wormhole_chain_id, weth)
 
         chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_eth,
                           "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": zero_address()})
+
+        if wsteth_address != None:
+            wrapped_steth_token = token_bridge.wrappedAsset(
+                wormhole_chain_id, wsteth_address)
+            if wrapped_steth_token != zero_address():
+                chain_path.append({"SrcWormholeChainId": src_wormhole_chain_id, "SrcTokenAddress": wrapped_steth_token,
+                                   "DstWormholeChainId": wormhole_chain_id, "DstTokenAddress": wsteth_address})
+                print(
+                    f'{net}: wsteth [{wsteth_address}] -> {current_net}: wsteth [{wrapped_steth_token}]')
 
         if usdc_address != None:
             wrapped_usdc_token = token_bridge.wrappedAsset(

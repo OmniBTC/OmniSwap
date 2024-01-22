@@ -529,7 +529,7 @@ networks:
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       wormhole: "0x5bc11445584a763c1fa7ed39081f1b920954da14e04b32440cba863d03e19625"
       liquidswap: "0x190d44266241744264b964a37b8f09863167a12d3e70cda39376cfb4e3561e12"
-#      liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
+      #      liquidswap_pool_account: "0x05a97986a9d031c4567e15b797be516910cfcb4156312482efc6a19c0a30c948"
       omniswap: "0x8304621d9c0f6f20b3b5d1bcf44def4ac5c8bf7c11a1ce80b53778532396312b"
     wormhole:
       chainid: 22
@@ -592,10 +592,10 @@ networks:
           dst_chainid: 23
           base_gas: 700000
           per_byte_gas: 68
-#        ftm-main:
-#          dst_chainid: 10
-#          base_gas: 700000
-#          per_byte_gas: 68
+    #        ftm-main:
+    #          dst_chainid: 10
+    #          base_gas: 700000
+    #          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -617,13 +617,16 @@ networks:
         chainid: 23
         currency: USD
         address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
-#      ftm:
-#        chainid: 10
-#        currency: ETH
-#        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
+    #      ftm:
+    #        chainid: 10
+    #        currency: ETH
+    #        address: "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b"
     token:
       weth:
         address: "0xf1277d1Ed8AD466beddF92ef448A132661956621"
+        decimal: 18
+      wstETH:
+        address: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
         decimal: 18
       # stargate and wormhole use different weth address
       # weth:
@@ -684,10 +687,10 @@ networks:
           dst_chainid: 23
           base_gas: 700000
           per_byte_gas: 68
-#        ftm-main:
-#          dst_chainid: 10
-#          base_gas: 700000
-#          per_byte_gas: 68
+    #        ftm-main:
+    #          dst_chainid: 10
+    #          base_gas: 700000
+    #          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -709,10 +712,10 @@ networks:
         chainid: 23
         currency: USD
         address: "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e"
-#      ftm:
-#        chainid: 10
-#        currency: USD
-#        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
+    #      ftm:
+    #        chainid: 10
+    #        currency: USD
+    #        address: "0xe2A47e87C0f4134c8D06A41975F6860468b2F925"
     token:
       usdt:
         address: "0x55d398326f99059fF775485246999027B3197955"
@@ -768,10 +771,10 @@ networks:
           dst_chainid: 23
           base_gas: 700000
           per_byte_gas: 68
-#        ftm-main:
-#          dst_chainid: 10
-#          base_gas: 700000
-#          per_byte_gas: 68
+    #        ftm-main:
+    #          dst_chainid: 10
+    #          base_gas: 700000
+    #          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -789,10 +792,10 @@ networks:
         chainid: 23
         currency: USD
         address: "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
-#      ftm:
-#        chainid: 10
-#        currency: USD
-#        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
+    #      ftm:
+    #        chainid: 10
+    #        currency: USD
+    #        address: "0x2dD517B2f9ba49CedB0573131FD97a5AC19ff648"
     token:
       weth:
         address: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"
@@ -808,10 +811,10 @@ networks:
         name: PangolinV2
         router: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106"
         token_list: "https://raw.githubusercontent.com/pangolindex/tokenlists/main/pangolin.swap_tokenlist.json"
-#      IUniswapV2Router02AVAX:
-#        name: TraderJoeV2
-#        router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
-#        token_list: ""
+  #      IUniswapV2Router02AVAX:
+  #        name: TraderJoeV2
+  #        router: "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"
+  #        token_list: ""
   polygon-main:
     omnibtc_chainid: 5
     chainid: 137
@@ -849,10 +852,10 @@ networks:
           dst_chainid: 23
           base_gas: 700000
           per_byte_gas: 68
-#        ftm-main:
-#          dst_chainid: 10
-#          base_gas: 700000
-#          per_byte_gas: 68
+    #        ftm-main:
+    #          dst_chainid: 10
+    #          base_gas: 700000
+    #          per_byte_gas: 68
     oracle:
       eth:
         chainid: 2
@@ -874,10 +877,10 @@ networks:
         chainid: 23
         currency: USD
         address: "0xF9680D99D6C9589e2a93a78A04A279e509205945"
-#      ftm:
-#        chainid: 10
-#        currency: USD
-#        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
+    #      ftm:
+    #        chainid: 10
+    #        currency: USD
+    #        address: "0x58326c0F831b2Dbf7234A4204F28Bba79AA06d5f"
     token:
       weth:
         address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
@@ -971,6 +974,9 @@ networks:
         decimal: 6
       weth:
         address: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+        decimal: 18
+      wstETH:
+        address: "0x5979D7b546E38E414F7E9822514be443A4800529"
         decimal: 18
     swap:
       ISwapRouter:
