@@ -94,6 +94,10 @@ def get_net_from_wormhole_chainid(chainid):
         return "aptos-mainnet"
     elif chainid == 21:
         return "sui-mainnet"
+    elif chainid == 23:
+        return "arbitrum-main"
+    elif chainid == 24:
+        return "optimism-main"
     elif chainid == 1:
         return "solana-mainnet"
     elif chainid == 30:
@@ -136,9 +140,11 @@ def so_swap_via_wormhole(
     # usdt.approve(proxy_diamond.address, amount, {"from": account})
     so_data = so_data.format_to_contract()
     dstMaxGasPriceInWeiForRelayer = 25000000000
-    wormhole_data = [dst_chainid, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
+    wormhole_data = [dst_chainid,
+                     dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
     # value = wormhole_fee + input_eth_amount + relayer_fee
-    relayer_fee = proxy_diamond.estimateRelayerFee(so_data, wormhole_data, dst_swap)
+    relayer_fee = proxy_diamond.estimateRelayerFee(
+        so_data, wormhole_data, dst_swap)
     print(f"relayer fee:{relayer_fee}")
     wormhole_fee = proxy_diamond.getWormholeMessageFee()
     msg_value = wormhole_fee + relayer_fee + amount
@@ -283,7 +289,8 @@ def main(src_net="avax-main", dst_net="polygon-main"):
         net=dst_net, project_path=root_path, name=dst_net, daemon=False
     )
 
-    dst_diamond_address = dst_session.put_task(get_dst_diamond, with_project=True)
+    dst_diamond_address = dst_session.put_task(
+        get_dst_diamond, with_project=True)
 
     dst_chainid = dst_session.put_task(get_dst_chainid, with_project=True)
 

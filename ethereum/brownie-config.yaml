@@ -1809,6 +1809,33 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    wormhole:
+      chainid: 23
+      token_bridge: "0x0b2402144Bb366A632D14B83F244D2e0e21bD39c"
+      wormhole: "0xa5f208e072434bC67592E4C49C1B991BA79BCA46"
+      actual_reserve: 1.1
+      estimate_reserve: 1.11
+      gas:
+        mainnet:
+          dst_chainid: 2
+          base_gas: 700000
+          per_byte_gas: 68
+        bsc-main:
+          dst_chainid: 4
+          base_gas: 700000
+          per_byte_gas: 68
+        avax-main:
+          dst_chainid: 6
+          base_gas: 700000
+          per_byte_gas: 68
+        aptos-mainnet:
+          dst_chainid: 22
+          base_gas: 10000
+          per_byte_gas: 10
+        sui-mainnet:
+          dst_chainid: 21
+          base_gas: 210000
+          per_byte_gas: 68
     bridges:
       bool:
         chainid: 42161
