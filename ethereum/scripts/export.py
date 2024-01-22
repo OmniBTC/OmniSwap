@@ -150,7 +150,8 @@ def get_stragate_pool_infos():
 
 def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
     from brownie import project, Contract
-    p = project.load(project_path=Path(__file__).parent.parent, raise_if_loaded=False)
+    p = project.load(project_path=Path(
+        __file__).parent.parent, raise_if_loaded=False)
     p.load_config()
     if "aptos" in net1 or "aptos" in net2:
         return
@@ -172,7 +173,8 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
         )
         if "ChainPath" not in src_pool_info:
             src_pool_info["ChainPath"] = []
-        src_pool_info["ChainPath"] = [tuple(d) for d in src_pool_info["ChainPath"]]
+        src_pool_info["ChainPath"] = [tuple(d)
+                                      for d in src_pool_info["ChainPath"]]
         for dst_pool_info in omni_swap_infos[net2]["StargatePool"]:
             flag = False
             try:
@@ -184,7 +186,8 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
                 pass
             if not flag:
                 continue
-            tp = (omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"])
+            tp = (omni_swap_infos[net2]
+                  ["StargateChainId"], dst_pool_info["PoolId"])
             if tp not in src_pool_info["ChainPath"]:
                 src_pool_info["ChainPath"].append(
                     tp
@@ -220,7 +223,8 @@ def get_stargate_chain_path():
     pt = ProcessExecutor(executor=len(nets))
     funcs = []
     for net1 in nets:
-        funcs.append(functools.partial(get_stargate_net_chain_path, omni_swap_infos, net1, nets))
+        funcs.append(functools.partial(
+            get_stargate_net_chain_path, omni_swap_infos, net1, nets))
     pt.run(funcs)
     # write_file(mainnet_swap_file, omni_swap_infos)
 
@@ -257,7 +261,8 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
         if chain_path["SrcTokenAddress"] == zero_address():
             weth_chain_path.append(chain_path)
         elif chain_path["DstTokenAddress"] == zero_address():
-            dst_net = get_net_from_wormhole_chainid(chain_path["DstWormholeChainId"])
+            dst_net = get_net_from_wormhole_chainid(
+                chain_path["DstWormholeChainId"])
             dst_native_token = get_native_token_name(dst_net)
             net_support_token.append(
                 {
@@ -297,7 +302,8 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
 
     wrapped_tokens = []
     for wrapped_token in wrapped_chain_path:
-        erc20 = Contract.from_abi("ERC20", wrapped_token["SrcTokenAddress"], ERC20.abi)
+        erc20 = Contract.from_abi(
+            "ERC20", wrapped_token["SrcTokenAddress"], ERC20.abi)
         if not wrapped_tokens:
             wrapped_tokens.append(
                 {
@@ -362,11 +368,11 @@ def reexport_wormhole_chainpath():
     support_tokens = {}
     native_tokens = []
     all_networks = list(omni_swap_infos.keys())
-    networks = []
-    for net in all_networks:
-        if "WormholeSupportToken" in omni_swap_infos[net]:
-            networks.append(net)
-
+    networks = [
+        net
+        for net in all_networks
+        if "WormholeSupportToken" in omni_swap_infos[net]
+    ]
     print(networks)
 
     for net in networks:
@@ -384,7 +390,8 @@ def reexport_wormhole_chainpath():
 
             for path in native_token["ChainPath"]:
                 # todo! add mapping wormhole chain id -> chain name
-                dst_net = get_net_from_wormhole_chainid(path["DstWormholeChainId"])
+                dst_net = get_net_from_wormhole_chainid(
+                    path["DstWormholeChainId"])
                 if dst_net == net:
                     wrapped_chain_paths.append(
                         {
@@ -395,25 +402,24 @@ def reexport_wormhole_chainpath():
                         }
                     )
 
-            if len(wrapped_chain_paths) > 0:
+            if wrapped_chain_paths:
                 src_token_address = wrapped_chain_paths[0]["SrcTokenAddress"]
                 src_wormhole_chain_id = wrapped_chain_paths[0]["SrcWormholeChainId"]
-                for path in native_token["ChainPath"]:
-                    if src_wormhole_chain_id != path["DstWormholeChainId"]:
-                        wrapped_chain_paths.append(
-                            {
-                                "DstTokenAddress": path["DstTokenAddress"],
-                                "DstWormholeChainId": path["DstWormholeChainId"],
-                                "SrcTokenAddress": src_token_address,
-                                "SrcWormholeChainId": src_wormhole_chain_id,
-                            }
-                        )
-
+                wrapped_chain_paths.extend(
+                    {
+                        "DstTokenAddress": path["DstTokenAddress"],
+                        "DstWormholeChainId": path["DstWormholeChainId"],
+                        "SrcTokenAddress": src_token_address,
+                        "SrcWormholeChainId": src_wormhole_chain_id,
+                    }
+                    for path in native_token["ChainPath"]
+                    if src_wormhole_chain_id != path["DstWormholeChainId"]
+                )
                 token_name = native_token["TokenName"]
                 native_net = get_net_from_wormhole_chainid(
                     native_token["ChainPath"][0]["SrcWormholeChainId"]
                 )
-                if token_name in ["USDT", "USDC"]:
+                if token_name in ["USDT", "USDC", "wstETH"]:
                     net_suffix = "eth"
                     if native_net != "mainnet":
                         net_suffix = native_net.split("-")[0]
@@ -547,7 +553,8 @@ def export(*arg):
                 )
                 if swap_type not in swap_types:
                     write_file(
-                        os.path.join(root_path, f"export/abi/{swap_type}.json"),
+                        os.path.join(
+                            root_path, f"export/abi/{swap_type}.json"),
                         getattr(interface, swap_type).abi,
                     )
                 swap_types[swap_type] = True
@@ -626,12 +633,14 @@ def export_so_diamond_abi():
     for c in contrats:
         so_diamond_abi += c.abi
 
-    write_file(os.path.join(root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
+    write_file(os.path.join(
+        root_path, "export/abi/SoDiamond.json"), so_diamond_abi)
 
 
 def export_stargate_abi():
     write_file(
-        os.path.join(root_path, "export/abi/IStargate.json"), interface.IStargate.abi
+        os.path.join(
+            root_path, "export/abi/IStargate.json"), interface.IStargate.abi
     )
 
 
@@ -666,7 +675,8 @@ def export_swap_abi(networks):
             for swap_type in swap_info:
                 if swap_type not in swap_types:
                     write_file(
-                        os.path.join(root_path, f"export/abi/{swap_type}.json"),
+                        os.path.join(
+                            root_path, f"export/abi/{swap_type}.json"),
                         getattr(interface, swap_type).abi,
                     )
                 swap_types[swap_type] = True

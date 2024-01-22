@@ -17,7 +17,8 @@ root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 ether = 1e18
 amount = 0.001 * ether
 
-support_networks = ["avax-main", "bsc-main", "polygon-main", "mainnet"]
+support_networks = ["avax-main", "bsc-main", "polygon-main",
+                    "mainnet", "optimism-main", "arbitrum-main", "base-main"]
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -70,6 +71,15 @@ def get_usdt_address(net):
         return None
 
 
+def get_wst_eth_address(net):
+    from brownie import config
+
+    try:
+        return config["networks"][net]["token"]["wstETH"]["address"]
+    except Exception:
+        return None
+
+
 def get_weth_address(net):
     from brownie import config
 
@@ -94,6 +104,10 @@ def get_net_from_wormhole_chainid(chainid):
         return "aptos-mainnet"
     elif chainid == 21:
         return "sui-mainnet"
+    elif chainid == 23:
+        return "arbitrum-main"
+    elif chainid == 24:
+        return "optimism-main"
     elif chainid == 1:
         return "solana-mainnet"
     elif chainid == 30:
@@ -136,9 +150,11 @@ def so_swap_via_wormhole(
     # usdt.approve(proxy_diamond.address, amount, {"from": account})
     so_data = so_data.format_to_contract()
     dstMaxGasPriceInWeiForRelayer = 25000000000
-    wormhole_data = [dst_chainid, dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
+    wormhole_data = [dst_chainid,
+                     dstMaxGasPriceInWeiForRelayer, 0, dst_diamond_address]
     # value = wormhole_fee + input_eth_amount + relayer_fee
-    relayer_fee = proxy_diamond.estimateRelayerFee(so_data, wormhole_data, dst_swap)
+    relayer_fee = proxy_diamond.estimateRelayerFee(
+        so_data, wormhole_data, dst_swap)
     print(f"relayer fee:{relayer_fee}")
     wormhole_fee = proxy_diamond.getWormholeMessageFee()
     msg_value = wormhole_fee + relayer_fee + amount
@@ -185,6 +201,7 @@ def get_all_warpped_token():
         weth = get_weth_address(net)
         usdc_address = get_usdc_address(net)
         usdt_address = get_usdt_address(net)
+        wst_eth_address = get_wst_eth_address(net)
         wrapped_eth = token_bridge.wrappedAsset(wormhole_chain_id, weth)
 
         chain_path.append(
@@ -195,6 +212,23 @@ def get_all_warpped_token():
                 "DstTokenAddress": zero_address(),
             }
         )
+
+        if wst_eth_address != None:
+            wrapped_wst_eth_token = token_bridge.wrappedAsset(
+                wormhole_chain_id, wst_eth_address
+            )
+            if wrapped_wst_eth_token != zero_address():
+                chain_path.append(
+                    {
+                        "SrcWormholeChainId": src_wormhole_chain_id,
+                        "SrcTokenAddress": wrapped_wst_eth_token,
+                        "DstWormholeChainId": wormhole_chain_id,
+                        "DstTokenAddress": wst_eth_address,
+                    }
+                )
+                print(
+                    f"{net}: wst_eth [{wst_eth_address}] -> {current_net}: wst_eth [{wrapped_wst_eth_token}]"
+                )
 
         if usdc_address != None:
             wrapped_usdc_token = token_bridge.wrappedAsset(
@@ -283,7 +317,8 @@ def main(src_net="avax-main", dst_net="polygon-main"):
         net=dst_net, project_path=root_path, name=dst_net, daemon=False
     )
 
-    dst_diamond_address = dst_session.put_task(get_dst_diamond, with_project=True)
+    dst_diamond_address = dst_session.put_task(
+        get_dst_diamond, with_project=True)
 
     dst_chainid = dst_session.put_task(get_dst_chainid, with_project=True)
 
