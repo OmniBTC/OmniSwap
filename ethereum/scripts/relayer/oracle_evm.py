@@ -142,7 +142,7 @@ def set_celer_bnb_price_on_avax(ratio):
     )
 
     if old_ratio < ratio or ratio * 1.03 < old_ratio:
-        LibSoFeeCelerV1[-1].setPriceRatio(dst_celer_id, ratio, {"from": get_account("deploy_key")})
+        LibSoFeeCelerV1[-1].setPriceRatio(dst_celer_id, ratio, {"from": get_account()})
 
 
 def set_so_price_for_test():
