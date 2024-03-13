@@ -72,18 +72,9 @@ library LibAsset {
         if (address(assetId) == NATIVE_ASSETID) return;
         if (spender == NULL_ADDRESS) revert NullAddrIsNotAValidSpender();
         uint256 allowance = assetId.allowance(address(this), spender);
-        if (allowance > amount) {
-            SafeERC20.safeDecreaseAllowance(
-                IERC20(assetId),
-                spender,
-                allowance - amount
-            );
-        } else if (allowance < amount) {
-            SafeERC20.safeIncreaseAllowance(
-                IERC20(assetId),
-                spender,
-                amount - allowance
-            );
+        if (allowance != amount) {
+            SafeERC20.safeApprove(IERC20(assetId), spender, 0);
+            SafeERC20.safeApprove(IERC20(assetId), spender, amount);
         }
     }
 
