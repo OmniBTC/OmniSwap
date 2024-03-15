@@ -158,8 +158,11 @@ if (NET !== "solana-mainnet") {
     TOKEN_BRIDGE_PID = new PublicKey("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
-    SOLANA_URL = ["https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj",
-                "https://solana-mainnet.g.alchemy.com/v2/7D-QdovVWLr7utZ-hNhEJU0cUwotpY_l"];
+    SOLANA_URL = [
+        // "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj",
+        // "https://solana-mainnet.g.alchemy.com/v2/7D-QdovVWLr7utZ-hNhEJU0cUwotpY_l",
+        "https://api.mainnet-beta.solana.com"
+    ];
     OMNISWAP_PID = new PublicKey("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
     // OMNISWAP_PID base58decode
     SODIAMOND = "0x3636a3d9e02dccb121118909a4c7fcfbb292b61c774638ce0b093c2441bfa843"
@@ -369,7 +372,7 @@ async function processVaaWithoutSwap(
     extrinsicHash,
     skipVerify: boolean,
     hasKey
-){
+) {
     try {
         logWithTimestamp(`RedeemNativeWithoutSwap...`)
         const ix = await createCompleteSoSwapNativeWithoutSwap(
@@ -387,7 +390,7 @@ async function processVaaWithoutSwap(
         recordGas(extrinsicHash, dstTx);
         return true;
     } catch (error) {
-        if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+        if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")) {
             hasPostVaa.set(hasKey, false)
         }
         logWithTimestamp(`RedeemNativeWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
@@ -410,7 +413,7 @@ async function processVaaWithoutSwap(
         recordGas(extrinsicHash, dstTx);
         return true;
     } catch (error) {
-        if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+        if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")) {
             hasPostVaa.set(hasKey, false)
         }
         logWithTimestamp(`RedeemWrappedWithoutSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
@@ -442,7 +445,7 @@ async function processVaa(
         logWithTimestamp(`Parse signed vaa for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${error}`)
         return false;
     }
-    if (payload.soReceiver == ""){
+    if (payload.soReceiver == "") {
         logWithTimestamp(`emitterChainId:${emitterChainId}, sequence:${sequence} not soReceiver`)
         return false;
     }
@@ -499,11 +502,11 @@ async function processVaa(
             recordGas(extrinsicHash, dstTx);
             return true;
         } catch (error) {
-            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")) {
                 hasPostVaa.set(hasKey, false)
             }
             logWithTimestamp(`RedeemNativeWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-            if (JSON.stringify(error).includes("AmountOutBelowMinimum")){
+            if (JSON.stringify(error).includes("AmountOutBelowMinimum")) {
                 await processVaaWithoutSwap(
                     connection,
                     payer,
@@ -534,11 +537,11 @@ async function processVaa(
             recordGas(extrinsicHash, dstTx);
             return true;
         } catch (error) {
-            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")){
+            if (JSON.stringify(error).includes("vaa. Error Code: AccountNotInitialized")) {
                 hasPostVaa.set(hasKey, false)
             }
             logWithTimestamp(`RedeemWrappedWithSwap for emitterChainId:${emitterChainId}, sequence:${sequence} error: ${JSON.stringify(error)}`)
-            if (JSON.stringify(error).includes("AmountOutBelowMinimum")){
+            if (JSON.stringify(error).includes("AmountOutBelowMinimum")) {
                 await processVaaWithoutSwap(
                     connection,
                     payer,
