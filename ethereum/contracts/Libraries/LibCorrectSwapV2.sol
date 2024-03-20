@@ -276,6 +276,10 @@ contract CorrectUniswapV2 is ICorrectSwap {
         INetswapRouter01.swapExactMetisForTokens.selector;
     bytes4 private constant _FUNC54 =
         INetswapRouter01.swapExactTokensForMetis.selector;
+    bytes4 internal constant _FUNC55 =
+        IMerchantMoeRouter.swapExactNativeForTokens.selector;
+    bytes4 internal constant _FUNC56 =
+        IMerchantMoeRouter.swapExactTokensForNative.selector;
 
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
@@ -284,10 +288,16 @@ contract CorrectUniswapV2 is ICorrectSwap {
     {
         bytes4 sig = bytes4(_data[:4]);
 
-        if (sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53) {
+        if (
+            sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53 || sig == _FUNC55
+        ) {
             return _data;
         } else if (
-            sig == _FUNC3 || sig == _FUNC4 || _FUNC5 == sig || sig == _FUNC54
+            sig == _FUNC3 ||
+            sig == _FUNC4 ||
+            _FUNC5 == sig ||
+            sig == _FUNC54 ||
+            sig == _FUNC56
         ) {
             return basicCorrectSwap(_data, _amount);
         } else {
@@ -302,7 +312,9 @@ contract CorrectUniswapV2 is ICorrectSwap {
         returns (uint256, bytes memory)
     {
         bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53) {
+        if (
+            sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53 || sig == _FUNC55
+        ) {
             (
                 uint256 _amountOutMin,
                 address[] memory _path,
@@ -320,7 +332,11 @@ contract CorrectUniswapV2 is ICorrectSwap {
                 )
             );
         } else if (
-            sig == _FUNC3 || sig == _FUNC4 || sig == _FUNC5 || sig == _FUNC54
+            sig == _FUNC3 ||
+            sig == _FUNC4 ||
+            sig == _FUNC5 ||
+            sig == _FUNC54 ||
+            sig == _FUNC56
         ) {
             (
                 uint256 _amount,
