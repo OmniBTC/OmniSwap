@@ -2446,7 +2446,7 @@ networks:
       ]
     stargate:
       router: "0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97"
-      chainid: 151
+      chainid: 181
       poolid:
         usdc: 1
         usdt: 2
