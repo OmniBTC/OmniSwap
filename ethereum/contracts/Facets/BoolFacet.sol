@@ -327,21 +327,17 @@ contract BoolFacet is
         );
     }
 
-    function _getBoolSwapPoolByPoolId(uint32 poolId)
-        private
-        view
-        returns (address)
-    {
+    function _getBoolSwapPoolByPoolId(
+        uint32 poolId
+    ) private view returns (address) {
         Storage storage s = getStorage();
         address factory = s.boolSwapFactory;
         return IBoolSwapFactory(factory).fetchPool(poolId);
     }
 
-    function _getBoolSwapTokenByPoolId(uint32 poolId)
-        private
-        view
-        returns (address)
-    {
+    function _getBoolSwapTokenByPoolId(
+        uint32 poolId
+    ) private view returns (address) {
         return IBoolSwapPool(_getBoolSwapPoolByPoolId(poolId)).token();
     }
 
@@ -427,7 +423,9 @@ contract BoolFacet is
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function decodeBoolSwapPayload(bytes memory stargatePayload)
+    function decodeBoolSwapPayload(
+        bytes memory stargatePayload
+    )
         public
         pure
         returns (

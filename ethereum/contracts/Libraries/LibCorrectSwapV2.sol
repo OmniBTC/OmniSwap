@@ -16,6 +16,7 @@ import {IVault} from "../Interfaces/Balancer/IVault.sol";
 import {ICurveFi} from "../Interfaces/Curve/ICurveFi.sol";
 import {IWombatRouter} from "../Interfaces/Wormbat/IWombatRouter.sol";
 import {ILBRouter} from "../Interfaces/TraderJoe/ILBRouter.sol";
+import {IMoeRouter} from "../Interfaces/MerchantMoe/IMoeRouter.sol";
 import {IGMXV1Router} from "../Interfaces/GMX/IGMXV1Router.sol";
 import {IPearlRouter} from "../Interfaces/Pearl/IPearlRouter.sol";
 import {IiZiSwap} from "../Interfaces/Iziswap/IiZiSwap.sol";
@@ -42,20 +43,20 @@ contract LibCorrectSwapV2 is ICorrectSwap {
     // External Method
 
     // @dev Set correct swap
-    function setCorrectSwap(bytes4[] memory _sigs, address _correctSwapAddr)
-        external
-        onlyOwner
-    {
+    function setCorrectSwap(
+        bytes4[] memory _sigs,
+        address _correctSwapAddr
+    ) external onlyOwner {
         for (uint256 i = 0; i < _sigs.length; i++) {
             _correctSwap[_sigs[i]] = _correctSwapAddr;
         }
     }
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_correctSwap[sig] == address(0)) {
             revert("not support");
@@ -73,11 +74,10 @@ contract LibCorrectSwapV2 is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_correctSwap[sig] == address(0)) {
             revert("not support");
@@ -233,12 +233,18 @@ library LibSwapFuncSigs {
         INetswapRouter01.swapExactMetisForTokens.selector;
     bytes4 internal constant _FUNC54 =
         INetswapRouter01.swapExactTokensForMetis.selector;
+
+    // MerchantMoe
+    bytes4 internal constant _FUNC55 =
+        IMoeRouter.swapExactNativeForTokens.selector;
+    bytes4 internal constant _FUNC56 =
+        IMoeRouter.swapExactTokensForNative.selector;
 }
 
 contract CorrectUniswapV2Factory {
     constructor(LibCorrectSwapV2 libCorrectSwapV2) {
         // UniswapV2
-        bytes4[] memory sigs = new bytes4[](7);
+        bytes4[] memory sigs = new bytes4[](9);
         sigs[0] = LibSwapFuncSigs._FUNC1;
         sigs[1] = LibSwapFuncSigs._FUNC2;
         sigs[2] = LibSwapFuncSigs._FUNC3;
@@ -246,6 +252,8 @@ contract CorrectUniswapV2Factory {
         sigs[4] = LibSwapFuncSigs._FUNC5;
         sigs[5] = LibSwapFuncSigs._FUNC53;
         sigs[6] = LibSwapFuncSigs._FUNC54;
+        sigs[7] = LibSwapFuncSigs._FUNC55;
+        sigs[8] = LibSwapFuncSigs._FUNC56;
         address correctUniswapV2 = address(new CorrectUniswapV2());
         libCorrectSwapV2.setCorrectSwap(sigs, correctUniswapV2);
     }
@@ -267,17 +275,29 @@ contract CorrectUniswapV2 is ICorrectSwap {
         INetswapRouter01.swapExactMetisForTokens.selector;
     bytes4 private constant _FUNC54 =
         INetswapRouter01.swapExactTokensForMetis.selector;
+    bytes4 internal constant _FUNC55 =
+        IMoeRouter.swapExactNativeForTokens.selector;
+    bytes4 internal constant _FUNC56 =
+        IMoeRouter.swapExactTokensForNative.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
 
-        if (sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53) {
+        if (
+            sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53 || sig == _FUNC55
+        ) {
             return _data;
-        } else if (sig == _FUNC3 || sig == _FUNC4 || _FUNC5 == sig || sig == _FUNC54) {
+        } else if (
+            sig == _FUNC3 ||
+            sig == _FUNC4 ||
+            sig == _FUNC5 ||
+            sig == _FUNC54 ||
+            sig == _FUNC56
+        ) {
             return basicCorrectSwap(_data, _amount);
         } else {
             revert("correctUniswapV2 error");
@@ -285,13 +305,14 @@ contract CorrectUniswapV2 is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
-        if (sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53) {
+        if (
+            sig == _FUNC1 || sig == _FUNC2 || sig == _FUNC53 || sig == _FUNC55
+        ) {
             (
                 uint256 _amountOutMin,
                 address[] memory _path,
@@ -308,7 +329,13 @@ contract CorrectUniswapV2 is ICorrectSwap {
                     _deadline
                 )
             );
-        } else if (sig == _FUNC3 || sig == _FUNC4 || sig == _FUNC5 || sig == _FUNC54) {
+        } else if (
+            sig == _FUNC3 ||
+            sig == _FUNC4 ||
+            sig == _FUNC5 ||
+            sig == _FUNC54 ||
+            sig == _FUNC56
+        ) {
             (
                 uint256 _amount,
                 uint256 _amountOutMin,
@@ -335,11 +362,10 @@ contract CorrectUniswapV2 is ICorrectSwap {
         revert("fix uniswap v2 amount fail!");
     }
 
-    function basicCorrectSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function basicCorrectSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             ,
             uint256 _amountOutMin,
@@ -380,10 +406,10 @@ contract CorrectUniswapV3 is ICorrectSwap {
     bytes4 private constant _FUNC15 = ISwapRouter02.exactInput.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC6 == sig) {
             return exactInput(_data, _amount);
@@ -395,11 +421,10 @@ contract CorrectUniswapV3 is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC6) {
             ISwapRouter.ExactInputParams memory params = abi.decode(
@@ -422,11 +447,10 @@ contract CorrectUniswapV3 is ICorrectSwap {
         revert("fix uniswap v3 amount fail!");
     }
 
-    function exactInput(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function exactInput(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         ISwapRouter.ExactInputParams memory params = abi.decode(
             _data[4:],
             (ISwapRouter.ExactInputParams)
@@ -436,11 +460,10 @@ contract CorrectUniswapV3 is ICorrectSwap {
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
     }
 
-    function exactInputV2(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function exactInputV2(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         ISwapRouter02.ExactInputParams memory params = abi.decode(
             _data[4:],
             (ISwapRouter02.ExactInputParams)
@@ -466,10 +489,10 @@ contract CorrectSyncswap is ICorrectSwap {
     bytes4 private constant _FUNC7 = ISyncSwapRouter.swap.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC7 == sig) {
             return syncSwap(_data, _amount);
@@ -479,11 +502,10 @@ contract CorrectSyncswap is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC7) {
             (
@@ -508,11 +530,10 @@ contract CorrectSyncswap is ICorrectSwap {
         revert("fix syncswap amount fail!");
     }
 
-    function syncSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function syncSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             ISyncSwapRouter.SwapPath[] memory _paths,
             uint256 _amountOutMin,
@@ -565,10 +586,10 @@ contract CorrectMuteswap is ICorrectSwap {
         IMuteRouter.swapExactTokensForTokens.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC8 == sig) {
             return _data;
@@ -580,11 +601,10 @@ contract CorrectMuteswap is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC8) {
             (
@@ -637,11 +657,10 @@ contract CorrectMuteswap is ICorrectSwap {
         revert("fix muteswap amount fail!");
     }
 
-    function muteSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function muteSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             ,
             uint256 _amountOutMin,
@@ -682,10 +701,10 @@ contract CorrectQuickswapV3 is ICorrectSwap {
     bytes4 private constant _FUNC11 = IQuickSwapRouter.exactInput.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC11 == sig) {
             return quickExactInput(_data, _amount);
@@ -695,11 +714,10 @@ contract CorrectQuickswapV3 is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC11) {
             IQuickSwapRouter.ExactInputParams memory params = abi.decode(
@@ -714,11 +732,10 @@ contract CorrectQuickswapV3 is ICorrectSwap {
         revert("fix quickswapv3 amount fail!");
     }
 
-    function quickExactInput(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function quickExactInput(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         IQuickSwapRouter.ExactInputParams memory params = abi.decode(
             _data[4:],
             (IQuickSwapRouter.ExactInputParams)
@@ -749,10 +766,10 @@ contract CorrectAerodrome is ICorrectSwap {
         IAerodrome.swapExactTokensForTokens.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC12 == sig) {
             return _data;
@@ -764,11 +781,10 @@ contract CorrectAerodrome is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC12) {
             (
@@ -817,11 +833,10 @@ contract CorrectAerodrome is ICorrectSwap {
         revert("fix Aerodrome amount fail!");
     }
 
-    function aerodrome(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function aerodrome(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             ,
             uint256 _amountOutMin,
@@ -860,10 +875,10 @@ contract CorrectBalancerV2 is ICorrectSwap {
     bytes4 private constant _FUNC16 = IVault.swap.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC16 == sig) {
             return balancerV2SingleSwap(_data, _amount);
@@ -873,11 +888,10 @@ contract CorrectBalancerV2 is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC16) {
             (
@@ -907,11 +921,10 @@ contract CorrectBalancerV2 is ICorrectSwap {
         revert("fix Aerodrome amount fail!");
     }
 
-    function balancerV2SingleSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function balancerV2SingleSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             IVault.SingleSwap memory singleSwap,
             IVault.FundManagement memory funds,
@@ -950,10 +963,10 @@ contract CorrectCurve is ICorrectSwap {
     bytes4 private constant _FUNC18 = ICurveFi.exchange_underlying.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC17 == sig) {
             return curveExchange(_data, _amount);
@@ -965,11 +978,10 @@ contract CorrectCurve is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC17) {
             (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
@@ -1006,11 +1018,10 @@ contract CorrectCurve is ICorrectSwap {
         revert("fix Curve amount fail!");
     }
 
-    function curveExchange(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function curveExchange(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
             _data[4:],
             (int128, int128, uint256, uint256)
@@ -1019,11 +1030,10 @@ contract CorrectCurve is ICorrectSwap {
         return abi.encodeWithSelector(bytes4(_data[:4]), i, j, dx, min_dy);
     }
 
-    function curveExchangeUnderlying(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function curveExchangeUnderlying(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (int128 i, int128 j, uint256 dx, uint256 min_dy) = abi.decode(
             _data[4:],
             (int128, int128, uint256, uint256)
@@ -1055,10 +1065,10 @@ contract CorrectWombat is ICorrectSwap {
         IWombatRouter.swapExactNativeForTokens.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC21 == sig) {
             return _data;
@@ -1070,11 +1080,10 @@ contract CorrectWombat is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC19 || sig == _FUNC20) {
             (
@@ -1127,11 +1136,10 @@ contract CorrectWombat is ICorrectSwap {
         revert("fix wombat amount fail!");
     }
 
-    function wombatSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function wombatSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address[] memory _tokenPath,
             address[] memory _poolPath,
@@ -1179,10 +1187,10 @@ contract CorrectTraderJoe is ICorrectSwap {
         ILBRouter.swapExactNATIVEForTokens.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC24 == sig) {
             return _data;
@@ -1194,11 +1202,10 @@ contract CorrectTraderJoe is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC22 || sig == _FUNC23) {
             (
@@ -1249,11 +1256,10 @@ contract CorrectTraderJoe is ICorrectSwap {
         revert("fix TradeJoe amount fail!");
     }
 
-    function traderJoeSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function traderJoeSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             ,
             uint256 _amountOutMin,
@@ -1296,10 +1302,10 @@ contract CorrectGMXV1 is ICorrectSwap {
     bytes4 private constant _FUNC27 = IGMXV1Router.swapETHToTokens.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC27 == sig) {
             return _data;
@@ -1311,11 +1317,10 @@ contract CorrectGMXV1 is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC25 || sig == _FUNC26) {
             (
@@ -1353,11 +1358,10 @@ contract CorrectGMXV1 is ICorrectSwap {
         revert("fix GMXV1 amount fail!");
     }
 
-    function GMXV1Swap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function GMXV1Swap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (address[] memory _path, , uint256 _minOut, address _receiver) = abi
             .decode(_data[4:], (address[], uint256, uint256, address));
 
@@ -1394,10 +1398,10 @@ contract CorrectPearlFi is ICorrectSwap {
         IPearlRouter.swapExactETHForTokens.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC30 == sig) {
             return _data;
@@ -1409,11 +1413,10 @@ contract CorrectPearlFi is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC28 || sig == _FUNC29) {
             (
@@ -1464,11 +1467,10 @@ contract CorrectPearlFi is ICorrectSwap {
         revert("fix PearlFi amount fail!");
     }
 
-    function pearlFiSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function pearlFiSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             ,
             uint256 _amountOutMin,
@@ -1507,10 +1509,10 @@ contract CorrectIZiSwap is ICorrectSwap {
     bytes4 private constant _FUNC31 = IiZiSwap.swapAmount.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC31 == sig) {
             return iZiSwap(_data, _amount);
@@ -1520,11 +1522,10 @@ contract CorrectIZiSwap is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC31) {
             IiZiSwap.SwapAmountParams memory params = abi.decode(
@@ -1539,11 +1540,10 @@ contract CorrectIZiSwap is ICorrectSwap {
         revert("fix iZiSwap amount fail!");
     }
 
-    function iZiSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function iZiSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         IiZiSwap.SwapAmountParams memory params = abi.decode(
             _data[4:],
             (IiZiSwap.SwapAmountParams)
@@ -1582,10 +1582,10 @@ contract CorrectCamelot is ICorrectSwap {
             .selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC33 == sig) {
             return _data;
@@ -1597,11 +1597,10 @@ contract CorrectCamelot is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC33) {
             (
@@ -1654,11 +1653,10 @@ contract CorrectCamelot is ICorrectSwap {
         revert("fix Camelot amount fail!");
     }
 
-    function camelot(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function camelot(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             ,
             uint256 _amountOutMin,
@@ -1705,10 +1703,10 @@ contract CorrectKyberswap is ICorrectSwap {
         IMetaAggregationRouterV2.swapSimpleMode.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC35 == sig || _FUNC36 == sig) {
             return kyberswap(_data, _amount);
@@ -1720,11 +1718,10 @@ contract CorrectKyberswap is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC35 || sig == _FUNC36) {
             IMetaAggregationRouterV2.SwapExecutionParams memory params = abi
@@ -1768,11 +1765,10 @@ contract CorrectKyberswap is ICorrectSwap {
         revert("fix KyberSwap amount fail!");
     }
 
-    function kyberswap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function kyberswap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         IMetaAggregationRouterV2.SwapExecutionParams memory params = abi.decode(
             _data[4:],
             (IMetaAggregationRouterV2.SwapExecutionParams)
@@ -1781,11 +1777,10 @@ contract CorrectKyberswap is ICorrectSwap {
         return abi.encodeWithSelector(bytes4(_data[:4]), params);
     }
 
-    function kyberswapSimple(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function kyberswapSimple(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address caller,
             IMetaAggregationRouterV2.SwapDescriptionV2 memory desc,
@@ -1852,10 +1847,10 @@ contract CorrectOneInch is ICorrectSwap {
         IOneInchUnoswapV3Router.uniswapV3SwapToWithPermit.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC38 == sig) {
             return oneInchGenericSwap(_data, _amount);
@@ -1883,11 +1878,10 @@ contract CorrectOneInch is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        pure
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external pure returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (sig == _FUNC38) {
             (
@@ -2152,11 +2146,10 @@ contract CorrectOneInch is ICorrectSwap {
         revert("fix 1inch amount fail!");
     }
 
-    function oneInchGenericSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function oneInchGenericSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address executor,
             IOneInchGenericRouter.SwapDescription memory desc,
@@ -2177,11 +2170,10 @@ contract CorrectOneInch is ICorrectSwap {
             );
     }
 
-    function oneInchClipperSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function oneInchClipperSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address clipperExchange,
             address srcToken,
@@ -2219,11 +2211,10 @@ contract CorrectOneInch is ICorrectSwap {
             );
     }
 
-    function oneInchClipperSwapTo(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function oneInchClipperSwapTo(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address clipperExchange,
             address payable recipient,
@@ -2311,11 +2302,10 @@ contract CorrectOneInch is ICorrectSwap {
             );
     }
 
-    function oneInchUnoswapSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function oneInchUnoswapSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address srcToken,
             uint256 amount,
@@ -2333,11 +2323,10 @@ contract CorrectOneInch is ICorrectSwap {
             );
     }
 
-    function oneInchUnoswapSwapTo(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function oneInchUnoswapSwapTo(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address payable recipient,
             address srcToken,
@@ -2388,11 +2377,10 @@ contract CorrectOneInch is ICorrectSwap {
             );
     }
 
-    function oneInchUniswapV3Swap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function oneInchUniswapV3Swap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (uint256 amount, uint256 minReturn, uint256[] memory pools) = abi
             .decode(_data[4:], (uint256, uint256, uint256[]));
         amount = _amount;
@@ -2400,11 +2388,10 @@ contract CorrectOneInch is ICorrectSwap {
             abi.encodeWithSelector(bytes4(_data[:4]), amount, minReturn, pools);
     }
 
-    function oneInchUniswapV3SwapTo(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function oneInchUniswapV3SwapTo(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address payable recipient,
             uint256 amount,
@@ -2477,10 +2464,10 @@ contract CorrectOpenOcean is ICorrectSwap {
         IUniswapV2Exchange.callUniswapToWithPermit.selector;
 
     // @dev Correct input of destination chain swapData
-    function correctSwap(bytes calldata _data, uint256 _amount)
-        external
-        returns (bytes memory)
-    {
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC48 == sig) {
             return openOceanSwap(_data, _amount);
@@ -2498,11 +2485,10 @@ contract CorrectOpenOcean is ICorrectSwap {
     }
 
     // @dev Fix min amount
-    function fixMinAmount(bytes calldata _data, uint256 _deltaMinAmount)
-        external
-        pure
-        returns (uint256, bytes memory)
-    {
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external pure returns (uint256, bytes memory) {
         bytes4 sig = bytes4(_data[:4]);
         if (_FUNC48 == sig) {
             (
@@ -2615,11 +2601,10 @@ contract CorrectOpenOcean is ICorrectSwap {
         revert("fix openocean amount fail!");
     }
 
-    function openOceanSwap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function openOceanSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             IOpenOceanCaller caller,
             IOpenOceanExchange.SwapDescription memory desc,
@@ -2636,11 +2621,10 @@ contract CorrectOpenOcean is ICorrectSwap {
         return abi.encodeWithSelector(bytes4(_data[:4]), caller, desc, calls);
     }
 
-    function openOceanCallUniswap(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function openOceanCallUniswap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address srcToken,
             uint256 amount,
@@ -2658,11 +2642,10 @@ contract CorrectOpenOcean is ICorrectSwap {
             );
     }
 
-    function openOceanCallUniswapTo(bytes calldata _data, uint256 _amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function openOceanCallUniswapTo(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
         (
             address srcToken,
             uint256 amount,

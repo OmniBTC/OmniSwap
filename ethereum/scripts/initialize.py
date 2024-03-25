@@ -905,7 +905,7 @@ def reset_so_fee():
 
 @functools.lru_cache()
 def get_prices(
-        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
+        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT", "MNT/USDT")
 ):
     api = ccxt.kucoin()
     prices = {}
@@ -928,6 +928,8 @@ def set_basic_fee():
         so_fee *= data["ETH/USDT"] / data["BNB/USDT"]
     elif network.show_active() == "polygon-main":
         so_fee *= data["ETH/USDT"] / data["MATIC/USDT"]
+    elif network.show_active() == "mantle-main":
+        so_fee *= data["ETH/USDT"] / data["MNT/USDT"]
     print("Set so fee", so_fee / 1e18)
     LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
     LibSoFeeBoolV2[-1].setBasicFee(so_fee, {"from": account})

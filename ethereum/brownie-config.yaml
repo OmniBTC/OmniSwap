@@ -224,7 +224,7 @@ networks:
     omnibtc_chainid: 30003
     chainid: 97
     SoDiamond: "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
-    endpoints: ["https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com"]
+    endpoints: [ "https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com" ]
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
@@ -2429,7 +2429,54 @@ networks:
           router: "0x8Fb7a8cb6c4DCf820762397aDF80A27a777cFedC"
           token_list: ""
           quoter: "0x2Dc123Ff6757fcEa46c025758E93bd8b98710cEA"
-
+  mantle-main:
+    omnibtc_chainid: 5000
+    chainid: 5000
+    SoDiamond: "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0xcb86D65149a45504F2fb2D6206FBD298c979076c"
+    endpoints:
+      [
+        "https://mantle-rpc.publicnode.com",
+        "https://mantle-mainnet.public.blastapi.io",
+        "https://mantle.drpc.org",
+        "https://rpc.ankr.com/mantle",
+        "https://1rpc.io/mantle",
+        "https://rpc.mantle.xyz"
+      ]
+    stargate:
+      router: "0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97"
+      chainid: 181
+      poolid:
+        usdc: 1
+        usdt: 2
+        meth: 22
+    token:
+      wmnt:
+        address: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8"
+        decimal: 18
+      weth:
+        address: "0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111"
+        decimal: 18
+      meth:
+        address: "0xcDA86A272531e8640cD7F1a92c01839911B90bb0"
+        decimal: 18
+      usdt:
+        address: "0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9"
+        decimal: 6
+      usdc:
+        address: "0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE"
+        decimal: 6
+    swap:
+      - IMoeRouter:
+          name: Merchant Moe
+          router: "0xeaEE7EE68874218c3558b40063c42B82D3E7232a"
+          token_list: ""
+      - ISwapRouter:
+          name: Agni
+          router: "0x319B69888b0d11cEC22caA5034e25FfFBDc88421"
+          token_list: ""
+          quoterv2: "0x9488C05a7b75a6FefdcAE4f11a33467bcBA60177"
 wallets:
   from_key: ${PRIVATE_KEY}
   deploy_key: ${DEPLOY_KEY}

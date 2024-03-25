@@ -37,15 +37,15 @@ interface ILBLegacyRouter {
 
     function oldFactory() external view returns (address);
 
-    function getIdFromPrice(ILBLegacyPair LBPair, uint256 price)
-        external
-        view
-        returns (uint24);
+    function getIdFromPrice(
+        ILBLegacyPair LBPair,
+        uint256 price
+    ) external view returns (uint24);
 
-    function getPriceFromId(ILBLegacyPair LBPair, uint24 id)
-        external
-        view
-        returns (uint256);
+    function getPriceFromId(
+        ILBLegacyPair LBPair,
+        uint24 id
+    ) external view returns (uint256);
 
     function getSwapIn(
         ILBLegacyPair lbPair,
@@ -66,11 +66,15 @@ interface ILBLegacyRouter {
         uint16 binStep
     ) external returns (ILBLegacyPair pair);
 
-    function addLiquidity(LiquidityParameters calldata liquidityParameters)
+    function addLiquidity(
+        LiquidityParameters calldata liquidityParameters
+    )
         external
         returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
 
-    function addLiquidityAVAX(LiquidityParameters calldata liquidityParameters)
+    function addLiquidityAVAX(
+        LiquidityParameters calldata liquidityParameters
+    )
         external
         payable
         returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
@@ -176,11 +180,7 @@ interface ILBLegacyRouter {
         uint256 deadline
     ) external payable returns (uint256 amountOut);
 
-    function sweep(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) external;
+    function sweep(IERC20 token, address to, uint256 amount) external;
 
     function sweepLBToken(
         ILBToken _lbToken,

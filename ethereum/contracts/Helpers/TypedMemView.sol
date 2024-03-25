@@ -100,11 +100,9 @@ library TypedMemView {
      * @return      first - The top 16 bytes
      * @return      second - The bottom 16 bytes
      */
-    function encodeHex(uint256 _b)
-        internal
-        pure
-        returns (uint256 first, uint256 second)
-    {
+    function encodeHex(
+        uint256 _b
+    ) internal pure returns (uint256 first, uint256 second) {
         for (uint8 i = 31; i > 15; ) {
             uint8 _byte = uint8(_b >> (i * 8));
             first |= byteHex(_byte);
@@ -244,11 +242,10 @@ library TypedMemView {
      * @param _expected The expected type
      * @return          bool - True if the memview is of the expected type
      */
-    function isType(bytes29 memView, uint40 _expected)
-        internal
-        pure
-        returns (bool)
-    {
+    function isType(
+        bytes29 memView,
+        uint40 _expected
+    ) internal pure returns (bool) {
         return typeOf(memView) == _expected;
     }
 
@@ -259,11 +256,10 @@ library TypedMemView {
      * @param _expected The expected type
      * @return          bytes29 - The view with validated type
      */
-    function assertType(bytes29 memView, uint40 _expected)
-        internal
-        pure
-        returns (bytes29)
-    {
+    function assertType(
+        bytes29 memView,
+        uint40 _expected
+    ) internal pure returns (bytes29) {
         if (!isType(memView, _expected)) {
             (, uint256 g) = encodeHex(uint256(typeOf(memView)));
             (, uint256 e) = encodeHex(uint256(_expected));
@@ -286,11 +282,10 @@ library TypedMemView {
      * @param _newType  The new type
      * @return          newView - The new view with the specified type
      */
-    function castTo(bytes29 memView, uint40 _newType)
-        internal
-        pure
-        returns (bytes29 newView)
-    {
+    function castTo(
+        bytes29 memView,
+        uint40 _newType
+    ) internal pure returns (bytes29 newView) {
         // then | in the new type
         uint256 _typeShift = SHIFT_TO_TYPE;
         uint256 _typeBits = 40;
@@ -363,11 +358,10 @@ library TypedMemView {
      * @param newType   The type
      * @return          bytes29 - The memory view
      */
-    function ref(bytes memory arr, uint40 newType)
-        internal
-        pure
-        returns (bytes29)
-    {
+    function ref(
+        bytes memory arr,
+        uint40 newType
+    ) internal pure returns (bytes29) {
         uint256 _len = arr.length;
 
         uint256 _loc;
@@ -398,11 +392,10 @@ library TypedMemView {
      * @param right     The second view
      * @return          bool - True if the 5-byte type flag is equal
      */
-    function sameType(bytes29 left, bytes29 right)
-        internal
-        pure
-        returns (bool)
-    {
+    function sameType(
+        bytes29 left,
+        bytes29 right
+    ) internal pure returns (bool) {
         return (left ^ right) >> SHIFT_TO_TYPE == 0;
     }
 
@@ -632,11 +625,10 @@ library TypedMemView {
      * @param _index    The index
      * @return          address - The address
      */
-    function indexAddress(bytes29 memView, uint256 _index)
-        internal
-        pure
-        returns (address)
-    {
+    function indexAddress(
+        bytes29 memView,
+        uint256 _index
+    ) internal pure returns (address) {
         return address(uint160(indexUint(memView, _index, 20)));
     }
 
@@ -718,11 +710,10 @@ library TypedMemView {
      * @param right     The second view
      * @return          bool - True if the underlying memory is equal
      */
-    function untypedEqual(bytes29 left, bytes29 right)
-        internal
-        pure
-        returns (bool)
-    {
+    function untypedEqual(
+        bytes29 left,
+        bytes29 right
+    ) internal pure returns (bool) {
         return
             (loc(left) == loc(right) && len(left) == len(right)) ||
             keccak(left) == keccak(right);
@@ -734,11 +725,10 @@ library TypedMemView {
      * @param right     The second view
      * @return          bool - False if the underlying memory is equal
      */
-    function untypedNotEqual(bytes29 left, bytes29 right)
-        internal
-        pure
-        returns (bool)
-    {
+    function untypedNotEqual(
+        bytes29 left,
+        bytes29 right
+    ) internal pure returns (bool) {
         return !untypedEqual(left, right);
     }
 
@@ -762,11 +752,10 @@ library TypedMemView {
      * @param right     The second view
      * @return          bool - True if the types are not the same
      */
-    function notEqual(bytes29 left, bytes29 right)
-        internal
-        pure
-        returns (bool)
-    {
+    function notEqual(
+        bytes29 left,
+        bytes29 right
+    ) internal pure returns (bool) {
         return !equal(left, right);
     }
 
@@ -781,11 +770,10 @@ library TypedMemView {
      * @param _newLoc   The new location
      * @return          written - the unsafe memory reference
      */
-    function unsafeCopyTo(bytes29 memView, uint256 _newLoc)
-        private
-        view
-        returns (bytes29 written)
-    {
+    function unsafeCopyTo(
+        bytes29 memView,
+        uint256 _newLoc
+    ) private view returns (bytes29 written) {
         require(notNull(memView), "TypedMemView/copyTo - Null pointer deref");
         require(
             isValid(memView),
@@ -847,11 +835,10 @@ library TypedMemView {
      * @param _location The location in memory to which to copy & concatenate
      * @return          unsafeView - The conjoined view pointing to the new memory
      */
-    function unsafeJoin(bytes29[] memory memViews, uint256 _location)
-        private
-        view
-        returns (bytes29 unsafeView)
-    {
+    function unsafeJoin(
+        bytes29[] memory memViews,
+        uint256 _location
+    ) private view returns (bytes29 unsafeView) {
         assembly {
             // solhint-disable-previous-line no-inline-assembly
             let ptr := mload(0x40)
@@ -877,11 +864,9 @@ library TypedMemView {
      * @param memViews  The views
      * @return          bytes32 - The keccak256 digest
      */
-    function joinKeccak(bytes29[] memory memViews)
-        internal
-        view
-        returns (bytes32)
-    {
+    function joinKeccak(
+        bytes29[] memory memViews
+    ) internal view returns (bytes32) {
         uint256 ptr;
         assembly {
             // solhint-disable-previous-line no-inline-assembly
@@ -895,11 +880,9 @@ library TypedMemView {
      * @param memViews  The views
      * @return          bytes32 - The sha256 digest
      */
-    function joinSha2(bytes29[] memory memViews)
-        internal
-        view
-        returns (bytes32)
-    {
+    function joinSha2(
+        bytes29[] memory memViews
+    ) internal view returns (bytes32) {
         uint256 ptr;
         assembly {
             // solhint-disable-previous-line no-inline-assembly
@@ -913,11 +896,9 @@ library TypedMemView {
      * @param memViews  The views
      * @return          ret - The new byte array
      */
-    function join(bytes29[] memory memViews)
-        internal
-        view
-        returns (bytes memory ret)
-    {
+    function join(
+        bytes29[] memory memViews
+    ) internal view returns (bytes memory ret) {
         uint256 ptr;
         assembly {
             // solhint-disable-previous-line no-inline-assembly

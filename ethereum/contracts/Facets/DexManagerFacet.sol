@@ -128,9 +128,10 @@ contract DexManagerFacet {
     /// @notice Adds/removes a specific function signature to/from the allowlist
     /// @param signature the function signature to allow/disallow
     /// @param approval whether the function signature should be allowed
-    function setFunctionApprovalBySignature(bytes32 signature, bool approval)
-        external
-    {
+    function setFunctionApprovalBySignature(
+        bytes32 signature,
+        bool approval
+    ) external {
         LibDiamond.enforceIsContractOwner();
         appStorage.dexFuncSignatureAllowList[signature] = approval;
         emit FunctionSignatureApprovalChanged(signature, approval);
@@ -157,11 +158,9 @@ contract DexManagerFacet {
     /// @notice Returns whether a function signature is approved
     /// @param signature the function signature to query
     /// @return approved Approved or not
-    function isFunctionApproved(bytes32 signature)
-        public
-        view
-        returns (bool approved)
-    {
+    function isFunctionApproved(
+        bytes32 signature
+    ) public view returns (bool approved) {
         return appStorage.dexFuncSignatureAllowList[signature];
     }
 

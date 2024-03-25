@@ -16,18 +16,15 @@ contract ChainXBridge {
         uint256 estGas
     );
 
-		// 2023.05.23
-		// 最初版本是合约生成swapid,后来改为从链下传入,忘了删掉了
+    // 2023.05.23
+    // 最初版本是合约生成swapid,后来改为从链下传入,忘了删掉了
     // 为保持统一,这个就留下了
     modifier autoIncreaseNonce() {
         nonce = nonce + 1;
         _;
     }
 
-    constructor(
-        address _cold,
-        uint64 _chainId
-    ){
+    constructor(address _cold, uint64 _chainId) {
         require(_cold != address(0), "InvalidCold");
         require(_chainId != 0, "InvalidChainId");
 
@@ -51,7 +48,10 @@ contract ChainXBridge {
         require(sent, "Failed to send Ether");
         uint256 new_balance = cold.balance;
 
-        require(new_balance > old_balance && new_balance == old_balance + amount, "Unexpect");
+        require(
+            new_balance > old_balance && new_balance == old_balance + amount,
+            "Unexpect"
+        );
 
         emit SwapOut(
             swapID,

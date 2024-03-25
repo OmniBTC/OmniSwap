@@ -112,10 +112,10 @@ interface IStargatePool {
 
     function getChainPathsLength() external view returns (uint256);
 
-    function getChainPath(uint16 _dstChainId, uint256 _dstPoolId)
-        external
-        view
-        returns (ChainPath memory);
+    function getChainPath(
+        uint16 _dstChainId,
+        uint256 _dstPoolId
+    ) external view returns (ChainPath memory);
 
     function convertRate() external view returns (uint256);
 

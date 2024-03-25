@@ -56,10 +56,10 @@ interface IVelodrome {
     /// @param tokenB   Address of token to sort
     /// @return token0  Lower address value between tokenA and tokenB
     /// @return token1  Higher address value between tokenA and tokenB
-    function sortTokens(address tokenA, address tokenB)
-        external
-        pure
-        returns (address token0, address token1);
+    function sortTokens(
+        address tokenA,
+        address tokenB
+    ) external pure returns (address token0, address token1);
 
     /// @notice Calculate the address of a pool by its' factory.
     ///         Used by all Router functions containing a `Route[]` or `_factory` argument.
@@ -99,10 +99,10 @@ interface IVelodrome {
     ) external view returns (uint256 reserveA, uint256 reserveB);
 
     /// @notice Perform chained getAmountOut calculations on any number of pools
-    function getAmountsOut(uint256 amountIn, Route[] memory routes)
-        external
-        view
-        returns (uint256[] memory amounts);
+    function getAmountsOut(
+        uint256 amountIn,
+        Route[] memory routes
+    ) external view returns (uint256[] memory amounts);
 
     // **** ADD LIQUIDITY ****
 
@@ -126,11 +126,7 @@ interface IVelodrome {
     )
         external
         view
-        returns (
-            uint256 amountA,
-            uint256 amountB,
-            uint256 liquidity
-        );
+        returns (uint256 amountA, uint256 amountB, uint256 liquidity);
 
     /// @notice Quote the amount of liquidity removed from a Pool
     /// @param tokenA       .
@@ -171,13 +167,7 @@ interface IVelodrome {
         uint256 amountBMin,
         address to,
         uint256 deadline
-    )
-        external
-        returns (
-            uint256 amountA,
-            uint256 amountB,
-            uint256 liquidity
-        );
+    ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
 
     /// @notice Add liquidity of a token and WETH (transferred as ETH) to a Pool
     /// @param token                .
@@ -201,11 +191,7 @@ interface IVelodrome {
     )
         external
         payable
-        returns (
-            uint256 amountToken,
-            uint256 amountETH,
-            uint256 liquidity
-        );
+        returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
 
     // **** REMOVE LIQUIDITY ****
 

@@ -66,9 +66,10 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     /// @dev Set CCTP's token bridge address and message transmitter address
     /// @param _tokenMessenger cctp token bridge
     /// @param _messageTransmitter cctp message protocol
-    function initCCTP(address _tokenMessenger, address _messageTransmitter)
-        external
-    {
+    function initCCTP(
+        address _tokenMessenger,
+        address _messageTransmitter
+    ) external {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
         s.tokenMessenger = _tokenMessenger;
@@ -240,7 +241,9 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
     // 7. length + sendingAssetId(SwapData)
     // 8. length + receivingAssetId(SwapData)
     // 9. length + callData(SwapData)
-    function decodeCCTPPayload(bytes memory cctpPayload)
+    function decodeCCTPPayload(
+        bytes memory cctpPayload
+    )
         public
         pure
         returns (
@@ -319,11 +322,9 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
         return (data.soData, data.swapDataDst);
     }
 
-    function decodeCCTPMessage(bytes memory message)
-        public
-        view
-        returns (LibMessageCCTP.CCTPMessage memory)
-    {
+    function decodeCCTPMessage(
+        bytes memory message
+    ) public view returns (LibMessageCCTP.CCTPMessage memory) {
         LibMessageCCTP.CCTPMessage memory data;
         bytes29 _msg = TypedMemView.ref(message, 0);
         data._msgVersion = LibMessageCCTP._version(_msg);

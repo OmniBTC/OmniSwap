@@ -79,6 +79,8 @@ def deploy_contracts(account):
         basic_fee *= 3000
     elif network.show_active() == "metis-main":
         basic_fee *= 25
+    elif network.show_active() == "mantle-main":
+        basic_fee *= 4500
     print(f"deploy LibSoFeeStargateV2.sol so_fee:{so_fee}, basic_fee:{basic_fee} "
           f"basic_beneficiary:{basic_beneficiary}...")
     LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,

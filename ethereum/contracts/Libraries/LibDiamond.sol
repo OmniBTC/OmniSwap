@@ -212,9 +212,10 @@ library LibDiamond {
         }
     }
 
-    function addFacet(DiamondStorage storage ds, address _facetAddress)
-        internal
-    {
+    function addFacet(
+        DiamondStorage storage ds,
+        address _facetAddress
+    ) internal {
         enforceHasContractCode(
             _facetAddress,
             "LibDiamondCut: New facet has no code"
@@ -268,8 +269,8 @@ library LibDiamond {
                 .facetFunctionSelectors[_facetAddress]
                 .functionSelectors[lastSelectorPosition];
             ds.facetFunctionSelectors[_facetAddress].functionSelectors[
-                    selectorPosition
-                ] = lastSelector;
+                selectorPosition
+            ] = lastSelector;
             ds
                 .selectorToFacetAndPosition[lastSelector]
                 .functionSelectorPosition = uint96(selectorPosition);
@@ -301,9 +302,10 @@ library LibDiamond {
         }
     }
 
-    function initializeDiamondCut(address _init, bytes memory _calldata)
-        internal
-    {
+    function initializeDiamondCut(
+        address _init,
+        bytes memory _calldata
+    ) internal {
         if (_init == address(0)) {
             require(
                 _calldata.length == 0,

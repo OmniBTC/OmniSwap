@@ -18,11 +18,7 @@ contract Claim is ReentrancyGuard, Pausable, Ownable {
     // Whether claimed
     mapping(uint256 => uint256) private claimedBitMap;
 
-    constructor(
-        uint256 _start,
-        IERC20 _token,
-        bytes32 _merkleRoot
-    ) {
+    constructor(uint256 _start, IERC20 _token, bytes32 _merkleRoot) {
         require(_start > block.timestamp, "StartErr");
 
         start = _start;

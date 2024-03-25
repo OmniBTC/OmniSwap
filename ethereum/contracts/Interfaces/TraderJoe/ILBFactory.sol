@@ -122,7 +122,9 @@ interface ILBFactory is IPendingOwnable {
         uint256 binStep
     ) external view returns (LBPairInformation memory);
 
-    function getPreset(uint256 binStep)
+    function getPreset(
+        uint256 binStep
+    )
         external
         view
         returns (
@@ -146,10 +148,10 @@ interface ILBFactory is IPendingOwnable {
         view
         returns (uint256[] memory openBinStep);
 
-    function getAllLBPairs(IERC20 tokenX, IERC20 tokenY)
-        external
-        view
-        returns (LBPairInformation[] memory LBPairsBinStep);
+    function getAllLBPairs(
+        IERC20 tokenX,
+        IERC20 tokenY
+    ) external view returns (LBPairInformation[] memory LBPairsBinStep);
 
     function setLBPairImplementation(address lbPairImplementation) external;
 

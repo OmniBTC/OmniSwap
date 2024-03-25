@@ -39,20 +39,20 @@ interface ILBToken {
 
     function totalSupply(uint256 id) external view returns (uint256);
 
-    function balanceOf(address account, uint256 id)
-        external
-        view
-        returns (uint256);
+    function balanceOf(
+        address account,
+        uint256 id
+    ) external view returns (uint256);
 
-    function balanceOfBatch(address[] calldata accounts, uint256[] calldata ids)
-        external
-        view
-        returns (uint256[] memory);
+    function balanceOfBatch(
+        address[] calldata accounts,
+        uint256[] calldata ids
+    ) external view returns (uint256[] memory);
 
-    function isApprovedForAll(address owner, address spender)
-        external
-        view
-        returns (bool);
+    function isApprovedForAll(
+        address owner,
+        address spender
+    ) external view returns (bool);
 
     function approveForAll(address spender, bool approved) external;
 
