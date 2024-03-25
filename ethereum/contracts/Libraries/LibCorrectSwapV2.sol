@@ -237,9 +237,9 @@ library LibSwapFuncSigs {
 
     // MerchantMoe
     bytes4 internal constant _FUNC55 =
-        IMerchantMoeRouter.swapExactNativeForTokens.selector;
+        IMoeRouter.swapExactNativeForTokens.selector;
     bytes4 internal constant _FUNC56 =
-        IMerchantMoeRouter.swapExactTokensForNative.selector;
+        IMoeRouter.swapExactTokensForNative.selector;
 }
 
 contract CorrectUniswapV2Factory {
@@ -277,9 +277,9 @@ contract CorrectUniswapV2 is ICorrectSwap {
     bytes4 private constant _FUNC54 =
         INetswapRouter01.swapExactTokensForMetis.selector;
     bytes4 internal constant _FUNC55 =
-        IMerchantMoeRouter.swapExactNativeForTokens.selector;
+        IMoeRouter.swapExactNativeForTokens.selector;
     bytes4 internal constant _FUNC56 =
-        IMerchantMoeRouter.swapExactTokensForNative.selector;
+        IMoeRouter.swapExactTokensForNative.selector;
 
     // @dev Correct input of destination chain swapData
     function correctSwap(bytes calldata _data, uint256 _amount)
@@ -295,7 +295,7 @@ contract CorrectUniswapV2 is ICorrectSwap {
         } else if (
             sig == _FUNC3 ||
             sig == _FUNC4 ||
-            _FUNC5 == sig ||
+            sig == _FUNC5 ||
             sig == _FUNC54 ||
             sig == _FUNC56
         ) {
