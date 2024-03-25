@@ -2932,14 +2932,14 @@
                 "RouterAddress": "0xeaEE7EE68874218c3558b40063c42B82D3E7232a",
                 "TokenList": "",
                 "Type": "IMoeRouter"
-              },
-              {
+            },
+            {
                 "Name": "Agni",
                 "QuoterAddressForUniswapV3": "0x9488C05a7b75a6FefdcAE4f11a33467bcBA60177",
                 "RouterAddress": "0x319B69888b0d11cEC22caA5034e25FfFBDc88421",
                 "TokenList": "",
                 "Type": "ISwapRouter"
-              }
+            }
         ],
         "WETH": ""
     },

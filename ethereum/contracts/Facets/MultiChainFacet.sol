@@ -259,7 +259,9 @@ contract MultiChainFacet is Swapper, ReentrancyGuard, IMultiChainAnycallProxy {
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function decodeMultiChainPayload(bytes memory multiChainPayload)
+    function decodeMultiChainPayload(
+        bytes memory multiChainPayload
+    )
         public
         pure
         returns (

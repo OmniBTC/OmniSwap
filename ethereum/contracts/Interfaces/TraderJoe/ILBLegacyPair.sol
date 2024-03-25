@@ -200,11 +200,7 @@ interface ILBLegacyPair is ILBLegacyToken {
     function getReservesAndId()
         external
         view
-        returns (
-            uint256 reserveX,
-            uint256 reserveY,
-            uint256 activeId
-        );
+        returns (uint256 reserveX, uint256 reserveY, uint256 activeId);
 
     function getGlobalFees()
         external
@@ -229,7 +225,9 @@ interface ILBLegacyPair is ILBLegacyToken {
             uint256 max
         );
 
-    function getOracleSampleFrom(uint256 timeDelta)
+    function getOracleSampleFrom(
+        uint256 timeDelta
+    )
         external
         view
         returns (
@@ -240,24 +238,24 @@ interface ILBLegacyPair is ILBLegacyToken {
 
     function feeParameters() external view returns (FeeParameters memory);
 
-    function findFirstNonEmptyBinId(uint24 id_, bool sentTokenY)
-        external
-        view
-        returns (uint24 id);
+    function findFirstNonEmptyBinId(
+        uint24 id_,
+        bool sentTokenY
+    ) external view returns (uint24 id);
 
-    function getBin(uint24 id)
-        external
-        view
-        returns (uint256 reserveX, uint256 reserveY);
+    function getBin(
+        uint24 id
+    ) external view returns (uint256 reserveX, uint256 reserveY);
 
-    function pendingFees(address account, uint256[] memory ids)
-        external
-        view
-        returns (uint256 amountX, uint256 amountY);
+    function pendingFees(
+        address account,
+        uint256[] memory ids
+    ) external view returns (uint256 amountX, uint256 amountY);
 
-    function swap(bool sentTokenY, address to)
-        external
-        returns (uint256 amountXOut, uint256 amountYOut);
+    function swap(
+        bool sentTokenY,
+        address to
+    ) external returns (uint256 amountXOut, uint256 amountYOut);
 
     function flashLoan(
         address receiver,
@@ -287,9 +285,10 @@ interface ILBLegacyPair is ILBLegacyToken {
 
     function increaseOracleLength(uint16 newSize) external;
 
-    function collectFees(address account, uint256[] calldata ids)
-        external
-        returns (uint256 amountX, uint256 amountY);
+    function collectFees(
+        address account,
+        uint256[] calldata ids
+    ) external returns (uint256 amountX, uint256 amountY);
 
     function collectProtocolFees()
         external

@@ -49,19 +49,13 @@ interface IWormhole {
         uint8 consistencyLevel
     ) external payable returns (uint64 sequence);
 
-    function parseAndVerifyVM(bytes calldata encodedVM)
-        external
-        view
-        returns (
-            VM memory vm,
-            bool valid,
-            string memory reason
-        );
+    function parseAndVerifyVM(
+        bytes calldata encodedVM
+    ) external view returns (VM memory vm, bool valid, string memory reason);
 
-    function verifyVM(VM memory vm)
-        external
-        view
-        returns (bool valid, string memory reason);
+    function verifyVM(
+        VM memory vm
+    ) external view returns (bool valid, string memory reason);
 
     function verifySignatures(
         bytes32 hash,
@@ -69,24 +63,21 @@ interface IWormhole {
         GuardianSet memory guardianSet
     ) external pure returns (bool valid, string memory reason);
 
-    function parseVM(bytes memory encodedVM)
-        external
-        pure
-        returns (VM memory vm);
+    function parseVM(
+        bytes memory encodedVM
+    ) external pure returns (VM memory vm);
 
-    function getGuardianSet(uint32 index)
-        external
-        view
-        returns (GuardianSet memory);
+    function getGuardianSet(
+        uint32 index
+    ) external view returns (GuardianSet memory);
 
     function getCurrentGuardianSetIndex() external view returns (uint32);
 
     function getGuardianSetExpiry() external view returns (uint32);
 
-    function governanceActionIsConsumed(bytes32 hash)
-        external
-        view
-        returns (bool);
+    function governanceActionIsConsumed(
+        bytes32 hash
+    ) external view returns (bool);
 
     function isInitialized(address impl) external view returns (bool);
 

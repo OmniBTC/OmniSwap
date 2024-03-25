@@ -76,9 +76,10 @@ contract Swapper is ISo {
         return swapBalance;
     }
 
-    function libSwap(bytes32 transactionId, LibSwap.SwapData memory _swapData)
-        external
-    {
+    function libSwap(
+        bytes32 transactionId,
+        LibSwap.SwapData memory _swapData
+    ) external {
         require(msg.sender == address(this), "NotDiamond");
         LibSwap.swap(transactionId, _swapData);
     }
@@ -149,10 +150,9 @@ contract Swapper is ISo {
 
     /// @dev Find swap slice
     /// @param swapData Array of data used to execute swaps
-    function _getSwapAmount(LibSwap.SwapData[] memory swapData)
-        internal
-        returns (uint256)
-    {
+    function _getSwapAmount(
+        LibSwap.SwapData[] memory swapData
+    ) internal returns (uint256) {
         address sendingAssetId = swapData[0].sendingAssetId;
         uint256 amount;
         for (uint256 i = 0; i < swapData.length; i++) {
@@ -184,14 +184,7 @@ contract Swapper is ISo {
         uint256 deltaFromAmount,
         uint256 deltaMinAmount,
         address correctSwap
-    )
-        private
-        returns (
-            bool,
-            uint256,
-            uint256
-        )
-    {
+    ) private returns (bool, uint256, uint256) {
         CacheSwapInnerParam memory cache;
         cache.currentSwapData = swapData[startIndex];
         cache.fromAmount = cache.currentSwapData.fromAmount;
@@ -273,10 +266,9 @@ contract Swapper is ISo {
 
     /// @dev Find swap slice
     /// @param swapData Array of data used to execute swaps
-    function _findSwapSlice(LibSwap.SwapData[] calldata swapData)
-        private
-        returns (uint256[] memory)
-    {
+    function _findSwapSlice(
+        LibSwap.SwapData[] calldata swapData
+    ) private returns (uint256[] memory) {
         address sendingAssetId = swapData[0].sendingAssetId;
         uint256 sliceLength = 0;
         for (uint256 i = 0; i < swapData.length; i++) {

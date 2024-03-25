@@ -4,11 +4,10 @@ pragma solidity 0.8.13;
 library LibBytes {
     // solhint-disable no-inline-assembly
 
-    function concat(bytes memory _preBytes, bytes memory _postBytes)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function concat(
+        bytes memory _preBytes,
+        bytes memory _postBytes
+    ) internal pure returns (bytes memory) {
         bytes memory tempBytes;
 
         assembly {
@@ -82,9 +81,10 @@ library LibBytes {
         return tempBytes;
     }
 
-    function concatStorage(bytes storage _preBytes, bytes memory _postBytes)
-        internal
-    {
+    function concatStorage(
+        bytes storage _preBytes,
+        bytes memory _postBytes
+    ) internal {
         assembly {
             // Read the first 32 bytes of _preBytes storage, which is the length
             // of the array. (We don't need to use the offset into the slot
@@ -311,11 +311,10 @@ library LibBytes {
         return tempBytes;
     }
 
-    function toAddress(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (address)
-    {
+    function toAddress(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (address) {
         require(_bytes.length >= _start + 20, "toAddress_outOfBounds");
         address tempAddress;
 
@@ -329,11 +328,10 @@ library LibBytes {
         return tempAddress;
     }
 
-    function toUint8(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint8)
-    {
+    function toUint8(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint8) {
         require(_bytes.length >= _start + 1, "toUint8_outOfBounds");
         uint8 tempUint;
 
@@ -344,11 +342,10 @@ library LibBytes {
         return tempUint;
     }
 
-    function toUint16(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint16)
-    {
+    function toUint16(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint16) {
         require(_bytes.length >= _start + 2, "toUint16_outOfBounds");
         uint16 tempUint;
 
@@ -359,11 +356,10 @@ library LibBytes {
         return tempUint;
     }
 
-    function toUint32(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint32)
-    {
+    function toUint32(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint32) {
         require(_bytes.length >= _start + 4, "toUint32_outOfBounds");
         uint32 tempUint;
 
@@ -374,11 +370,10 @@ library LibBytes {
         return tempUint;
     }
 
-    function toUint64(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint64)
-    {
+    function toUint64(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint64) {
         require(_bytes.length >= _start + 8, "toUint64_outOfBounds");
         uint64 tempUint;
 
@@ -389,11 +384,10 @@ library LibBytes {
         return tempUint;
     }
 
-    function toUint96(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint96)
-    {
+    function toUint96(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint96) {
         require(_bytes.length >= _start + 12, "toUint96_outOfBounds");
         uint96 tempUint;
 
@@ -404,11 +398,10 @@ library LibBytes {
         return tempUint;
     }
 
-    function toUint128(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint128)
-    {
+    function toUint128(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint128) {
         require(_bytes.length >= _start + 16, "toUint128_outOfBounds");
         uint128 tempUint;
 
@@ -419,11 +412,10 @@ library LibBytes {
         return tempUint;
     }
 
-    function toUint256(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint256)
-    {
+    function toUint256(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint256) {
         require(_bytes.length >= _start + 32, "toUint256_outOfBounds");
         uint256 tempUint;
 
@@ -434,11 +426,10 @@ library LibBytes {
         return tempUint;
     }
 
-    function toBytes32(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function toBytes32(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (bytes32) {
         require(_bytes.length >= _start + 32, "toBytes32_outOfBounds");
         bytes32 tempBytes32;
 
@@ -449,11 +440,10 @@ library LibBytes {
         return tempBytes32;
     }
 
-    function equal(bytes memory _preBytes, bytes memory _postBytes)
-        internal
-        pure
-        returns (bool)
-    {
+    function equal(
+        bytes memory _preBytes,
+        bytes memory _postBytes
+    ) internal pure returns (bool) {
         bool success = true;
 
         assembly {
@@ -496,11 +486,10 @@ library LibBytes {
         return success;
     }
 
-    function equalStorage(bytes storage _preBytes, bytes memory _postBytes)
-        internal
-        view
-        returns (bool)
-    {
+    function equalStorage(
+        bytes storage _preBytes,
+        bytes memory _postBytes
+    ) internal view returns (bool) {
         bool success = true;
 
         assembly {

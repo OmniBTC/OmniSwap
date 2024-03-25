@@ -97,10 +97,10 @@ interface IVelodromeFactory {
     function setCustomFee(address _pool, uint256 _fee) external;
 
     /// @notice Returns fee for a pool, as custom fees are possible.
-    function getFee(address _pool, bool _stable)
-        external
-        view
-        returns (uint256);
+    function getFee(
+        address _pool,
+        bool _stable
+    ) external view returns (uint256);
 
     /// @notice Create a pool given two tokens and if they're stable/volatile
     /// @dev token order does not matter

@@ -111,7 +111,9 @@ interface IQuickPool {
      * In addition, these values are only relative and must be used only in comparison to previous snapshots for
      * a specific position.
      */
-    function ticks(int24 tick)
+    function ticks(
+        int24 tick
+    )
         external
         view
         returns (
@@ -139,7 +141,9 @@ interface IQuickPool {
      * Returns fees0 The computed amount of token0 owed to the position as of the last mint/burn/poke;
      * Returns fees1 The computed amount of token1 owed to the position as of the last mint/burn/poke
      */
-    function positions(bytes32 key)
+    function positions(
+        bytes32 key
+    )
         external
         view
         returns (
@@ -165,7 +169,9 @@ interface IQuickPool {
      * Returns averageTick Time-weighted average tick;
      * Returns volumePerLiquidityCumulative Cumulative swap volume per liquidity for the life of the pool as of the timepoint timestamp;
      */
-    function timepoints(uint256 index)
+    function timepoints(
+        uint256 index
+    )
         external
         view
         returns (
@@ -207,7 +213,9 @@ interface IQuickPool {
      * @return volatilityCumulatives Cumulative standard deviation as of each `secondsAgos`
      * @return volumePerAvgLiquiditys Cumulative swap volume per liquidity as of each `secondsAgos`
      */
-    function getTimepoints(uint32[] calldata secondsAgos)
+    function getTimepoints(
+        uint32[] calldata secondsAgos
+    )
         external
         view
         returns (
@@ -228,7 +236,10 @@ interface IQuickPool {
      * @return innerSecondsSpentPerLiquidity The snapshot of seconds per liquidity for the range
      * @return innerSecondsSpent The snapshot of the number of seconds during which the price was in this range
      */
-    function getInnerCumulatives(int24 bottomTick, int24 topTick)
+    function getInnerCumulatives(
+        int24 bottomTick,
+        int24 topTick
+    )
         external
         view
         returns (
@@ -268,11 +279,7 @@ interface IQuickPool {
         bytes calldata data
     )
         external
-        returns (
-            uint256 amount0,
-            uint256 amount1,
-            uint128 liquidityActual
-        );
+        returns (uint256 amount0, uint256 amount1, uint128 liquidityActual);
 
     /**
      * @notice Collects tokens owed to a position

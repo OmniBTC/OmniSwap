@@ -10,17 +10,13 @@ abstract contract BoolSwapPathConverter {
     mapping(uint32 => uint32) private _fromCToB;
     mapping(uint32 => uint32) private _fromBToC;
 
-    function fromConsumerToBool(uint32 consumerChainId)
-        external
-        view
-        returns (uint32 boolChainId)
-    {}
+    function fromConsumerToBool(
+        uint32 consumerChainId
+    ) external view returns (uint32 boolChainId) {}
 
-    function fromBoolToConsumer(uint32 boolChainId)
-        external
-        view
-        returns (uint32 consumerChainId)
-    {}
+    function fromBoolToConsumer(
+        uint32 boolChainId
+    ) external view returns (uint32 consumerChainId) {}
 
     /** Permission Required Functions (should override this) */
     function updatePathPair(

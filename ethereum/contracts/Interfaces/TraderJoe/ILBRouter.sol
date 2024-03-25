@@ -136,15 +136,15 @@ interface ILBRouter {
 
     function getWNATIVE() external view returns (IWNATIVE);
 
-    function getIdFromPrice(ILBPair LBPair, uint256 price)
-        external
-        view
-        returns (uint24);
+    function getIdFromPrice(
+        ILBPair LBPair,
+        uint256 price
+    ) external view returns (uint24);
 
-    function getPriceFromId(ILBPair LBPair, uint24 id)
-        external
-        view
-        returns (uint256);
+    function getPriceFromId(
+        ILBPair LBPair,
+        uint24 id
+    ) external view returns (uint256);
 
     function getSwapIn(
         ILBPair LBPair,
@@ -153,11 +153,7 @@ interface ILBRouter {
     )
         external
         view
-        returns (
-            uint128 amountIn,
-            uint128 amountOutLeft,
-            uint128 fee
-        );
+        returns (uint128 amountIn, uint128 amountOutLeft, uint128 fee);
 
     function getSwapOut(
         ILBPair LBPair,
@@ -166,11 +162,7 @@ interface ILBRouter {
     )
         external
         view
-        returns (
-            uint128 amountInLeft,
-            uint128 amountOut,
-            uint128 fee
-        );
+        returns (uint128 amountInLeft, uint128 amountOut, uint128 fee);
 
     function createLBPair(
         IERC20 tokenX,
@@ -179,7 +171,9 @@ interface ILBRouter {
         uint16 binStep
     ) external returns (ILBPair pair);
 
-    function addLiquidity(LiquidityParameters calldata liquidityParameters)
+    function addLiquidity(
+        LiquidityParameters calldata liquidityParameters
+    )
         external
         returns (
             uint256 amountXAdded,
@@ -296,11 +290,7 @@ interface ILBRouter {
         uint256 deadline
     ) external payable returns (uint256 amountOut);
 
-    function sweep(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) external;
+    function sweep(IERC20 token, address to, uint256 amount) external;
 
     function sweepLBToken(
         ILBToken _lbToken,

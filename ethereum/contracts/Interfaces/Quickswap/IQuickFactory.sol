@@ -74,10 +74,10 @@ interface IQuickFactory {
      *  @param tokenB The contract address of the other token
      *  @return pool The pool address
      */
-    function poolByPair(address tokenA, address tokenB)
-        external
-        view
-        returns (address pool);
+    function poolByPair(
+        address tokenA,
+        address tokenB
+    ) external view returns (address pool);
 
     /**
      *  @notice Creates a pool for the given two tokens and fee
@@ -88,9 +88,10 @@ interface IQuickFactory {
      *  are invalid.
      *  @return pool The address of the newly created pool
      */
-    function createPool(address tokenA, address tokenB)
-        external
-        returns (address pool);
+    function createPool(
+        address tokenA,
+        address tokenB
+    ) external returns (address pool);
 
     /**
      *  @notice Updates the owner of the factory

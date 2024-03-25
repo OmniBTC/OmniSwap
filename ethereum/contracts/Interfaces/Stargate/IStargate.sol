@@ -115,10 +115,9 @@ interface IStargate {
 
     function stargateBridge() external view returns (address);
 
-    function stargateEthVaults(uint256 _srcPoolId)
-        external
-        view
-        returns (address);
+    function stargateEthVaults(
+        uint256 _srcPoolId
+    ) external view returns (address);
 
     function cachedSwapLookup(
         uint16 _srcChainId,

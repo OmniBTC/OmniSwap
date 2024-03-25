@@ -57,15 +57,13 @@ interface IMetaAggregationRouterV2 {
         bool isBps
     );
 
-    function swapGeneric(SwapExecutionParams calldata execution)
-        external
-        payable
-        returns (uint256 returnAmount, uint256 gasUsed);
+    function swapGeneric(
+        SwapExecutionParams calldata execution
+    ) external payable returns (uint256 returnAmount, uint256 gasUsed);
 
-    function swap(SwapExecutionParams calldata execution)
-        external
-        payable
-        returns (uint256 returnAmount, uint256 gasUsed);
+    function swap(
+        SwapExecutionParams calldata execution
+    ) external payable returns (uint256 returnAmount, uint256 gasUsed);
 
     function swapSimpleMode(
         address caller,

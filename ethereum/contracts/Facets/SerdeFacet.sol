@@ -12,67 +12,51 @@ import "../Libraries/LibSwap.sol";
 contract SerdeFacet {
     using LibBytes for bytes;
 
-    function encodeNormalizedSoData(ISo.NormalizedSoData memory data)
-        external
-        pure
-        returns (bytes memory)
-    {
+    function encodeNormalizedSoData(
+        ISo.NormalizedSoData memory data
+    ) external pure returns (bytes memory) {
         return LibCross.encodeNormalizedSoData(data);
     }
 
-    function decodeNormalizedSoData(bytes memory soData)
-        external
-        pure
-        returns (ISo.NormalizedSoData memory)
-    {
+    function decodeNormalizedSoData(
+        bytes memory soData
+    ) external pure returns (ISo.NormalizedSoData memory) {
         return LibCross.decodeNormalizedSoData(soData);
     }
 
-    function encodeNormalizedSwapData(LibSwap.NormalizedSwapData[] memory data)
-        external
-        pure
-        returns (bytes memory)
-    {
+    function encodeNormalizedSwapData(
+        LibSwap.NormalizedSwapData[] memory data
+    ) external pure returns (bytes memory) {
         return LibCross.encodeNormalizedSwapData(data);
     }
 
-    function decodeNormalizedSwapData(bytes memory swapData)
-        external
-        pure
-        returns (LibSwap.NormalizedSwapData[] memory)
-    {
+    function decodeNormalizedSwapData(
+        bytes memory swapData
+    ) external pure returns (LibSwap.NormalizedSwapData[] memory) {
         return LibCross.decodeNormalizedSwapData(swapData);
     }
 
-    function normalizeSoData(ISo.SoData memory soData)
-        external
-        pure
-        returns (ISo.NormalizedSoData memory)
-    {
+    function normalizeSoData(
+        ISo.SoData memory soData
+    ) external pure returns (ISo.NormalizedSoData memory) {
         return LibCross.normalizeSoData(soData);
     }
 
-    function denormalizeSoData(ISo.NormalizedSoData memory data)
-        external
-        pure
-        returns (ISo.SoData memory)
-    {
+    function denormalizeSoData(
+        ISo.NormalizedSoData memory data
+    ) external pure returns (ISo.SoData memory) {
         return LibCross.denormalizeSoData(data);
     }
 
-    function normalizeSwapData(LibSwap.SwapData[] memory swapData)
-        external
-        pure
-        returns (LibSwap.NormalizedSwapData[] memory)
-    {
+    function normalizeSwapData(
+        LibSwap.SwapData[] memory swapData
+    ) external pure returns (LibSwap.NormalizedSwapData[] memory) {
         return LibCross.normalizeSwapData(swapData);
     }
 
-    function denormalizeSwapData(LibSwap.NormalizedSwapData[] memory data)
-        external
-        pure
-        returns (LibSwap.SwapData[] memory)
-    {
+    function denormalizeSwapData(
+        LibSwap.NormalizedSwapData[] memory data
+    ) external pure returns (LibSwap.SwapData[] memory) {
         return LibCross.denormalizeSwapData(data);
     }
 
@@ -80,11 +64,9 @@ contract SerdeFacet {
         return abi.encodePacked(data);
     }
 
-    function denormalizeU256(bytes memory data)
-        external
-        pure
-        returns (uint256)
-    {
+    function denormalizeU256(
+        bytes memory data
+    ) external pure returns (uint256) {
         return data.toUint256(0);
     }
 }

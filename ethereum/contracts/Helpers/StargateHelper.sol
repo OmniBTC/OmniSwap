@@ -12,11 +12,10 @@ contract StargateHelper {
         LibSwap.NormalizedSwapData[] swapDataDst;
     }
 
-    function tryFindStargatePayload(bytes memory inputData, address soDiamond)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function tryFindStargatePayload(
+        bytes memory inputData,
+        address soDiamond
+    ) external view returns (uint256, bytes memory) {
         if (inputData.length < 41) {
             return (0, bytes(""));
         }
@@ -45,11 +44,9 @@ contract StargateHelper {
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function findStargatePayload(bytes memory stargatePayload)
-        external
-        view
-        returns (uint256, bytes memory)
-    {
+    function findStargatePayload(
+        bytes memory stargatePayload
+    ) external view returns (uint256, bytes memory) {
         CachePayload memory data;
         uint256 index;
         uint256 nextLen;
