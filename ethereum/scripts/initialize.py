@@ -929,7 +929,7 @@ def set_basic_fee():
     elif network.show_active() == "polygon-main":
         so_fee *= data["ETH/USDT"] / data["MATIC/USDT"]
     elif network.show_active() == "mantle-main":
-        so_fee *= data["ETH/USDT"] / data["MATIC/USDT"]
+        so_fee *= data["ETH/USDT"] / data["MNT/USDT"]
     print("Set so fee", so_fee / 1e18)
     LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
     LibSoFeeBoolV2[-1].setBasicFee(so_fee, {"from": account})
