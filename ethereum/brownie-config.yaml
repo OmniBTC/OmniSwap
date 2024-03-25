@@ -2432,9 +2432,9 @@ networks:
   mantle-main:
     omnibtc_chainid: 5000
     chainid: 5000
-    SoDiamond: ""
+    SoDiamond: "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
-    StargateHelper: ""
+    StargateHelper: "0xcb86D65149a45504F2fb2D6206FBD298c979076c"
     endpoints:
       [
         "https://mantle-rpc.publicnode.com",
