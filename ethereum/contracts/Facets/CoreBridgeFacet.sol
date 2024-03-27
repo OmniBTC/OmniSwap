@@ -53,14 +53,21 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
         bytes adapterParams;
     }
 
-
     /// Events ///
 
-    event CoreBridgeInitialized(address bridge, uint16 chainId, uint16 coreChainId);
+    event CoreBridgeInitialized(
+        address bridge,
+        uint16 chainId,
+        uint16 coreChainId
+    );
 
     /// Init ///
 
-    function initCoreBridge(address bridge, uint16 chainId, uint16 coreChainId) external {
+    function initCoreBridge(
+        address bridge,
+        uint16 chainId,
+        uint16 coreChainId
+    ) external {
         LibDiamond.enforceIsContractOwner();
         if (bridge == address(0)) revert InvalidConfig();
         Storage storage s = getStorage();
@@ -123,20 +130,29 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
         cache.bridgeFee = getCoreBridgeFee(coreBridgeData.remoteChainId);
 
         _startBridge(cache);
-        
+
         emit SoTransferStarted(soData.transactionId);
     }
 
     /// Public Methods ///
 
-    function getCoreBridgeFee(uint16 remoteChainId) public view returns (uint256) {
+    function getCoreBridgeFee(
+        uint16 remoteChainId
+    ) public view returns (uint256) {
         Storage storage s = getStorage();
 
         uint256 fee;
         if (s.coreLzChainId == s.srcLzChainId) {
-            (fee,) = IWrappedTokenBridge(s.bridge).estimateBridgeFee(remoteChainId, false, "");
+            (fee, ) = IWrappedTokenBridge(s.bridge).estimateBridgeFee(
+                remoteChainId,
+                false,
+                ""
+            );
         } else {
-            (fee,) = IOriginalTokenBridge(s.bridge).estimateBridgeFee(false, "");
+            (fee, ) = IOriginalTokenBridge(s.bridge).estimateBridgeFee(
+                false,
+                ""
+            );
         }
 
         return fee;
@@ -177,7 +193,6 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
         }
     }
 
-
     /// Private Methods ///
 
     function _calBridgeSoFee(SoData memory soData) private returns (uint256) {
@@ -204,9 +219,7 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
     }
 
     /// @dev Conatains the business logic for the bridge via CoreBridge
-    function _startBridge(
-        CacheBridge memory cache
-    ) private {
+    function _startBridge(CacheBridge memory cache) private {
         Storage storage s = getStorage();
         address bridge = s.bridge;
 
@@ -237,7 +250,9 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
             // Bridge from others to core
             if (cache.bridgeToken == address(0x0)) {
                 // Bridge from others to core
-                IOriginalTokenBridge(bridge).bridgeNative{value: cache.bridgeFee}(
+                IOriginalTokenBridge(bridge).bridgeNative{
+                    value: cache.bridgeFee
+                }(
                     cache.bridgeAmount,
                     cache.to,
                     cache.lzTxParams,
