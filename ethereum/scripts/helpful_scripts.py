@@ -83,7 +83,7 @@ def get_method_signature_by_abi(abi):
         func_name = d["name"]
         func_prototype = get_func_prototype(d["inputs"])
         func_prototype = f"{func_name}({func_prototype})"
-        result[func_name] = Web3.sha3(text=func_prototype)[0:4]
+        result[func_name] = Web3.keccak(text=func_prototype)[0:4]
     return result
 
 
@@ -95,7 +95,7 @@ def get_event_signature_by_abi(abi):
         func_name = d["name"]
         func_prototype = get_func_prototype(d["inputs"])
         func_prototype = f"{func_name}({func_prototype})"
-        result[func_name] = Web3.sha3(text=func_prototype)
+        result[func_name] = Web3.keccak(text=func_prototype)
     return result
 
 
@@ -151,14 +151,14 @@ class TaskType:
 
 class Session(Process):
     def __init__(
-            self,
-            net: str,
-            project_path: Union[Path, str, None],
-            group=None,
-            name=None,
-            kwargs={},
-            *,
-            daemon=None,
+        self,
+        net: str,
+        project_path: Union[Path, str, None],
+        group=None,
+        name=None,
+        kwargs={},
+        *,
+        daemon=None,
     ):
         self.net = net
         self.project_path = project_path
@@ -213,7 +213,7 @@ class PersistentDictionary:
 
     def load_data(self):
         if os.path.exists(self.filename):
-            with open(self.filename, 'r') as file:
+            with open(self.filename, "r") as file:
                 try:
                     return json.load(file)
                 except json.JSONDecodeError:
@@ -222,7 +222,7 @@ class PersistentDictionary:
             return {}
 
     def save_data(self):
-        with open(self.filename, 'w') as file:
+        with open(self.filename, "w") as file:
             json.dump(self.data, file)
 
     def get(self, key, default=None):
@@ -254,19 +254,19 @@ def get_current_net_info():
 
 
 def get_cctp_info():
-    return get_current_net_info()['bridges']['cctp']
+    return get_current_net_info()["bridges"]["cctp"]
 
 
 def get_cctp_token_messenger():
-    return get_cctp_info()['token_messenger']
+    return get_cctp_info()["token_messenger"]
 
 
 def get_cctp_domain_id():
-    return get_cctp_info()['domain_id']
+    return get_cctp_info()["domain_id"]
 
 
 def get_cctp_message_transmitter():
-    return get_cctp_info()['message_transmitter']
+    return get_cctp_info()["message_transmitter"]
 
 
 def get_wormhole_info():
@@ -313,7 +313,10 @@ def get_bool_pool_id_by_token(token_address: str):
     for pool in pools:
         if pools[pool]["token_address"] == token_address:
             return pools[pool]["pool_id"]
-    if "optimism" in network.show_active() and token_address == "0x4200000000000000000000000000000000000006":
+    if (
+        "optimism" in network.show_active()
+        and token_address == "0x4200000000000000000000000000000000000006"
+    ):
         return pools["eth"]["pool_id"]
     raise ValueError("Bool pool id not found")
 
@@ -403,6 +406,22 @@ def get_stargate_pool_id(token_name: str):
     return get_stargate_info()["poolid"][token_name]
 
 
+def get_corebridge_core_chain_id(net):
+    return config["networks"][net]["corebridge"]["chainid"]
+
+
+def get_corebridge_info():
+    return get_current_net_info()["corebridge"]
+
+
+def get_corebridge_chain_id():
+    return get_corebridge_info()["chainid"]
+
+
+def get_corebridge_bridge():
+    return get_corebridge_info()["bridge"]
+
+
 def get_swap_info():
     return get_current_net_info()["swap"]
 
@@ -420,7 +439,7 @@ def get_token_address(token_name: str):
 
 def get_token_decimal(token_name: str):
     if token_name == "eth":
-        return 10 ** 18
+        return 10**18
     else:
         return 10 ** get_token_info(token_name)["decimal"]
 
@@ -438,7 +457,7 @@ def get_bridge_token_address(bridge: str, token_name: str):
 
 def get_bridge_token_decimal(bridge: str, token_name: str):
     if token_name == "eth":
-        return 10 ** 18
+        return 10**18
     else:
         return 10 ** get_bridge_token_info(bridge, token_name)["decimal"]
 

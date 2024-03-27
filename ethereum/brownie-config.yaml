@@ -220,10 +220,21 @@ networks:
         name: UniswapV2
         router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
         token_list: ""
+  core-test:
+    chainid: 1115
+    SoDiamond: "0xAab181c0D699199299D94D47Bb7DEE4359272A2E"
+    endpoints: []
+    corebridge:
+      bridge: "0x6Df303Ec922627DC2a1b371A0116df1e1eec8c7A"
+      chainid: 10153
+    token:
+      core-usdc:
+        address: "0x6Df303Ec922627DC2a1b371A0116df1e1eec8c7A"
+        decimal: 6
   bsc-test:
     omnibtc_chainid: 30003
     chainid: 97
-    SoDiamond: "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
+    SoDiamond: "0x39E1e3E155F6Fe9392371DF29EAF050C1596D4CB"
     endpoints: [ "https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com" ]
     wormhole:
       chainid: 4
@@ -274,6 +285,9 @@ networks:
       chainid: 10102
       poolid:
         usdt: 2
+    corebridge:
+      bridge: "0xFbDaE4aBfB672C630a22219Bed27bc4ee2546488"
+      chainid: 10102
     bridges:
       bool:
         chainid: 97
@@ -303,6 +317,9 @@ networks:
             address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
             decimal: 18
     token:
+      core-usdc:
+        address: "0x6795cbCF57760947b34eFf59E7465611B80A615b"
+        decimal: 18
       bool-usdc:
         address: "0xe96f749be8eaa6b60c0588f779524ecd7f3b1e51"
         decimal: 6
