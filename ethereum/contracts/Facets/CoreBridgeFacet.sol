@@ -119,9 +119,8 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
             zroPaymentAddress: address(0)
         });
         cache.adapterParams = bytes("");
-        // omniswap fee
-        cache.bridgeFee = _calBridgeFee(soData);
-        // todo: add core bridge fee
+        // core bridge fee
+        cache.bridgeFee = getCoreBridgeFee(coreBridgeData.remoteChainId);
 
         _startBridge(cache);
         
@@ -130,17 +129,17 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
 
     /// Public Methods ///
 
-    /// todo: query core bridge fee
-
-    /// @dev Get so fee
-    function getCoreBridgeSoFee(uint256 amount) public view returns (uint256) {
+    function getCoreBridgeFee(uint16 remoteChainId) public view returns (uint256) {
         Storage storage s = getStorage();
-        address soFee = appStorage.gatewaySoFeeSelectors[s.bridge];
-        if (soFee == address(0x0)) {
-            return 0;
+
+        uint256 fee;
+        if (s.coreLzChainId == s.srcLzChainId) {
+            (fee,) = IWrappedTokenBridge(s.bridge).estimateBridgeFee(remoteChainId, false, "");
         } else {
-            return ILibSoFeeV2(soFee).getFees(amount);
+            (fee,) = IOriginalTokenBridge(s.bridge).estimateBridgeFee(false, "");
         }
+
+        return fee;
     }
 
     /// @dev Get basic beneficiary
@@ -181,7 +180,7 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
 
     /// Private Methods ///
 
-    function _calBridgeFee(SoData memory soData) private returns (uint256) {
+    function _calBridgeSoFee(SoData memory soData) private returns (uint256) {
         uint256 soBasicFee = getCoreBridgeBasicFee();
         address soBasicBeneficiary = getCoreBridgeBasicBeneficiary();
         if (soBasicBeneficiary == address(0x0)) {
@@ -213,6 +212,14 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
 
         if (cache.bridgeToken == address(0)) {
             cache.bridgeFee = cache.bridgeFee + cache.bridgeAmount;
+        }
+
+        if (cache.bridgeToken != address(0)) {
+            LibAsset.safeApproveERC20(
+                IERC20(cache.bridgeToken),
+                bridge,
+                cache.bridgeAmount
+            );
         }
 
         if (s.srcLzChainId == s.coreLzChainId) {
