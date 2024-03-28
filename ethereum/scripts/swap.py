@@ -7,6 +7,7 @@ from brownie import Contract, web3
 from brownie.project.main import Project
 from scripts.helpful_scripts import (
     get_account,
+    get_corebridge_core_chain_id,
     get_wormhole_chainid,
     zero_address,
     combine_bytes,
@@ -17,6 +18,7 @@ from scripts.helpful_scripts import (
     get_chain_id,
     get_stargate_pool_id,
     get_stargate_chain_id,
+    get_corebridge_chain_id,
     get_account_address,
     get_swap_info,
     to_hex_str,
@@ -134,11 +136,57 @@ def soSwapViaStargate(
         src_swap_data,
         stargate_data,
         dst_swap_data,
-        {"from": get_account(),
-         "value": int(stargate_cross_fee + input_eth_amount + basic_fee),
-         # "gas_limit": 1000000,
-         # "allow_revert": True
-         },
+        {
+            "from": get_account(),
+            "value": int(stargate_cross_fee + input_eth_amount + basic_fee),
+            # "gas_limit": 1000000,
+            # "allow_revert": True
+        },
+    )
+
+
+def soSwapViaCoreBridge(
+    so_data,
+    src_swap_data,
+    corebridge_data,
+    input_eth_amount: int,
+    p: Project = None,
+):
+    proxy_diamond = Contract.from_abi(
+        "CoreBridgeFacet", p["SoDiamond"][-1].address, p["CoreBridgeFacet"].abi
+    )
+
+    if src_swap_data is None:
+        src_swap_data = []
+    else:
+        src_swap_data = [src_swap_data.format_to_contract()]
+
+    so_data = so_data.format_to_contract()
+    print(so_data)
+    print(corebridge_data)
+
+    corebridge_cross_fee = proxy_diamond.getCoreBridgeFee(corebridge_data[1])
+
+    try:
+        basic_fee = proxy_diamond.getCoreBridgeBasicFee()
+    except:
+        basic_fee = 0
+
+    print(
+        f"corebridge cross fee: {corebridge_cross_fee / get_token_decimal('eth')}, basic_fee:{basic_fee} "
+        f"input eth: {input_eth_amount / get_token_decimal('eth')}"
+    )
+    proxy_diamond.soSwapViaCoreBridge(
+        so_data,
+        src_swap_data,
+        corebridge_data,
+        {
+            "from": get_account(),
+            "value": int(corebridge_cross_fee + input_eth_amount + basic_fee),
+            "gas_price": "30 gwei",
+            # "gas_limit": 1000000,
+            # "allow_revert": True
+        },
     )
 
 
@@ -200,12 +248,12 @@ class SoData(View):
             SoData: Information for recording and tracking cross-chain transactions
         """
         return [
-            to_hex_str(self.transactionId),
-            to_hex_str(self.receiver),
+            self.transactionId,
+            self.receiver,
             self.sourceChainId if self.sourceChainId < 65535 else 0,
-            to_hex_str(self.sendingAssetId),
+            self.sendingAssetId,
             self.destinationChainId if self.destinationChainId < 65535 else 0,
-            to_hex_str(self.receivingAssetId),
+            self.receivingAssetId,
             self.amount,
         ]
 
@@ -646,11 +694,15 @@ class SwapData(View):
         assert len(p) > 0
         assert (len(p) - 3) % 2 == 0, "p length not right"
         p = [
-            padding_to_bytes(
-                web3.toHex(int(p[i] * uniswap_v3_fee_decimal)), padding="left", length=3
+            (
+                padding_to_bytes(
+                    web3.toHex(int(p[i] * uniswap_v3_fee_decimal)),
+                    padding="left",
+                    length=3,
+                )
+                if (i + 1) % 2 == 0
+                else get_token_address(p[i])
             )
-            if (i + 1) % 2 == 0
-            else get_token_address(p[i])
             for i in range(len(p))
         ]
         return combine_bytes(p)
@@ -955,6 +1007,77 @@ def cross_swap_via_wormhole(
     )
 
 
+def cross_swap_via_corebridge(
+    src_session,
+    dst_session,
+    inputAmount,
+    sourceTokenName,  # corebridge
+    destinationTokenName,  # corebridge
+    sourceSwapType,
+    sourceSwapFunc,
+    sourceSwapPath,
+    bridgeTokenName,
+):
+    print(
+        f"{'-' * 100}\nSwap from: network {src_session.net}, token {sourceTokenName} "
+        f"-> corebridge {sourceTokenName} -> {bridgeTokenName} to: network "
+        f"{dst_session.net}, token: {destinationTokenName}"
+    )
+    src_diamond_address = src_session.put_task(
+        get_contract_address, args=("SoDiamond",), with_project=True
+    )
+    dst_diamond_address = dst_session.put_task(
+        get_contract_address, args=("SoDiamond",), with_project=True
+    )
+    print(
+        f"Source diamond address: {src_diamond_address}. Destination diamond address: {dst_diamond_address}"
+    )
+    so_data = SoData.create(
+        src_session,
+        dst_session,
+        src_session.put_task(get_account_address),
+        amount=inputAmount,
+        sendingTokenName=sourceTokenName,
+        receiveTokenName=destinationTokenName,
+    )
+    print("SoData\n", so_data)
+
+    if sourceSwapType is not None:
+        src_swap_data = src_session.put_task(
+            SwapData.create,
+            args=(sourceSwapType, sourceSwapFunc, inputAmount, sourceSwapPath),
+            with_project=True,
+        )
+        print("SourceSwapData:\n", src_swap_data)
+    else:
+        src_swap_data = None
+    bridge_token = src_session.put_task(func=get_token_address, args=(bridgeTokenName,))
+
+    remote_chain_id = get_corebridge_core_chain_id(dst_session.net)
+    corebridge_data = [bridge_token, remote_chain_id, get_account_address(), False]
+
+    if sourceTokenName != "eth":
+        src_session.put_task(
+            token_approve,
+            args=(
+                sourceTokenName,
+                src_session.put_task(
+                    get_contract_address, args=("SoDiamond",), with_project=True
+                ),
+                inputAmount,
+            ),
+            with_project=True,
+        )
+        input_eth_amount = 0
+    else:
+        input_eth_amount = inputAmount
+    src_session.put_task(
+        soSwapViaCoreBridge,
+        args=(so_data, src_swap_data, corebridge_data, input_eth_amount),
+        with_project=True,
+    )
+
+
 def cross_swap_via_stargate(
     src_session,
     dst_session,
@@ -1134,7 +1257,7 @@ def single_swap(
     )
 
 
-def main(src_net="bsc-main", dst_net="optimism-main", bridge="stargate"):
+def main(src_net="bsc-test", dst_net="core-test", bridge="corebridge"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1180,6 +1303,21 @@ def main(src_net="bsc-main", dst_net="optimism-main", bridge="stargate"):
         #                         destinationSwapFunc=SwapFunc.swapExactETHForTokens,
         #                         destinationSwapPath=("weth", "usdt"),
         #                         slippage=0.01)
+
+    elif bridge == "corebridge":
+        cross_swap_via_corebridge(
+            src_session=src_session,
+            dst_session=dst_session,
+            inputAmount=int(
+                1 * src_session.put_task(get_token_decimal, args=("core-usdc",))
+            ),
+            sourceTokenName="core-usdc",
+            destinationTokenName="core-usdc",
+            sourceSwapType=None,
+            sourceSwapFunc=None,
+            sourceSwapPath=(),
+            bridgeTokenName="core-usdc",
+        )
 
     elif bridge == "wormhole":
         # wormhole swap
