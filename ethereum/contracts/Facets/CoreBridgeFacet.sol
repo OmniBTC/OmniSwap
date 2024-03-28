@@ -100,6 +100,8 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
             LibAsset.depositAsset(soData.sendingAssetId, soData.amount);
         }
 
+        _capBridgeSoFee();
+
         cache.bridgeToken = coreBridgeData.bridgeToken;
 
         if (swapDataSrc.length == 0) {
@@ -135,6 +137,12 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
     }
 
     /// Public Methods ///
+
+    function estimateBridgeFee(
+        uint16 remoteChainId
+    ) public view returns (uint256) {
+        return getCoreBridgeFee(remoteChainId) + getCoreBridgeBasicFee();
+    }
 
     function getCoreBridgeFee(
         uint16 remoteChainId
@@ -180,41 +188,21 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
         }
     }
 
-    /// @dev Get amount from bridge before so fee
-    function getAmountBeforeSoFee(
-        uint256 amount
-    ) public view returns (uint256) {
-        Storage storage s = getStorage();
-        address soFee = appStorage.gatewaySoFeeSelectors[s.bridge];
-        if (soFee == address(0x0)) {
-            return amount;
-        } else {
-            return ILibSoFeeV2(soFee).getRestoredAmount(amount);
-        }
-    }
-
     /// Private Methods ///
 
-    function _calBridgeSoFee(SoData memory soData) private returns (uint256) {
+    function _capBridgeSoFee() private {
         uint256 soBasicFee = getCoreBridgeBasicFee();
         address soBasicBeneficiary = getCoreBridgeBasicBeneficiary();
         if (soBasicBeneficiary == address(0x0)) {
             soBasicFee = 0;
         }
+
         if (soBasicFee > 0) {
             LibAsset.transferAsset(
                 address(0x0),
                 payable(soBasicBeneficiary),
                 soBasicFee
             );
-        }
-
-        require(msg.value >= soBasicFee, "NotEnoughFee");
-        if (LibAsset.isNativeAsset(soData.sendingAssetId)) {
-            require(msg.value > soData.amount + soBasicFee, "NotEnoughAmt");
-            return msg.value.sub(soData.amount).sub(soBasicFee);
-        } else {
-            return msg.value.sub(soBasicFee);
         }
     }
 
@@ -248,7 +236,7 @@ contract CoreBridgeFacet is Swapper, ReentrancyGuard {
             );
         } else {
             // Bridge from others to core
-            if (cache.bridgeToken == address(0x0)) {
+            if (cache.bridgeToken == address(0)) {
                 // Bridge from others to core
                 IOriginalTokenBridge(bridge).bridgeNative{
                     value: cache.bridgeFee
