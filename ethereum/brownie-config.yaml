@@ -976,6 +976,9 @@ networks:
         usdt: 2
         usdd: 11
         weth: 13
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 101
     wormhole:
       chainid: 2
       token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
@@ -1190,6 +1193,9 @@ networks:
       chainid: 102
       poolid:
         usdt: 2
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 102
     wormhole:
       chainid: 4
       token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
@@ -1398,6 +1404,9 @@ networks:
       poolid:
         usdc: 1
         usdt: 2
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 106
     wormhole:
       chainid: 6
       token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
@@ -1611,6 +1620,9 @@ networks:
       poolid:
         usdc: 1
         usdt: 2
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 109
     wormhole:
       chainid: 5
       token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
@@ -1823,6 +1835,9 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 110
     bridges:
       bool:
         chainid: 42161
@@ -1997,6 +2012,9 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 111
     endpoints:
       [
         "https://optimism.api.onfinality.io/public",
@@ -2494,6 +2512,36 @@ networks:
           router: "0x319B69888b0d11cEC22caA5034e25FfFBDc88421"
           token_list: ""
           quoterv2: "0x9488C05a7b75a6FefdcAE4f11a33467bcBA60177"
+  core-main:
+    omnibtc_chainid: 1116
+    chainid: 1116
+    SoDiamond: ""
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    endpoints: 
+      [
+        "https://rpc.coredao.org",
+        "https://core.public.infstones.com",
+        "https://1rpc.io/core",
+        "https://rpc.ankr.com/core",
+        "https://rpc-core.icecreamswap.com",
+        "https://core.drpc.org"
+      ]
+    corebridge:
+      bridge: "0xA4218e1F39DA4AaDaC971066458Db56e901bcbdE"
+      chainid: 153
+    token:
+      usdc:
+        address: "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9"
+        decimal: 6
+      usdt:
+        address: "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1"
+        decimal: 6
+      weth:
+        address: "0xeAB3aC417c4d6dF6b143346a46fEe1B847B50296"
+        decimal: 18
+      wbtc:
+        address: "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd"
+        decimal: 8
 wallets:
   from_key: ${PRIVATE_KEY}
   deploy_key: ${DEPLOY_KEY}
