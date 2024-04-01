@@ -1721,6 +1721,78 @@ networks:
   #        name: ZipSwapV2
   #        router: "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
   #        token_list: ""
+  metis-main:
+    omnibtc_chainid: 1088
+    chainid: 1088
+    SoDiamond: ""
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
+    endpoints:
+      [
+        "https://metis-pokt.nodies.app",
+      ]
+    stargate:
+      router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
+      chainid: 151
+      poolid:
+        usdt: 19
+        metis: 17
+    bridges:
+      connext:
+        chainid: 1088
+        domain_id: 1835365481
+        basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+        basic_fee: 200000000000000
+        connext: "0x6B142227A277CE62808E0Df93202483547Ec0188"
+        token:
+          usdc:
+            key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c"
+            address: "0xEA32A96608495e54156Ae48931A7c20f0dcc1a21"
+            decimal: 6
+          usdt:
+            key: "0x9e79219debefdf827d33c85c1bc250b0ba1f2821d37ccae57e96a42c70a442ec"
+            address: "0xbB06DCA3AE6887fAbF931640f67cab3e3a16F4dC"
+            decimal: 6
+          weth:
+            key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
+            address: "0x420000000000000000000000000000000000000a"
+            decimal: 18
+          next-usdc:
+            key: "0x6d9af4a33ed4034765652ab0f44205952bc6d92198d3ef78fe3fb2b078d0941c"
+            address: "0x9ac9aD5A82Ccd0Ab7584a037A7A2334Dc3715Be2"
+            decimal: 6
+          next-usdt:
+            key: "0x9e79219debefdf827d33c85c1bc250b0ba1f2821d37ccae57e96a42c70a442ec"
+            address: "0xa6A8d22D5da43C9f6E5cF7b4e50941784e70F688	"
+            decimal: 6
+          next-weth:
+            key: "0x12acadfa38ab02479ae587196a9043ee4d8bf52fcb96b7f8d2ba240f03bcd08a"
+            address: "0x3883B5Bdd61BA1b687de69eE50c9738D5ec501E9"
+            decimal: 18
+        gas:
+          execute: 2000000
+          executeL1: 0
+    token:
+      weth:
+        address: "0x420000000000000000000000000000000000000a"
+        decimal: 18
+      usdt:
+        address: "0xbB06DCA3AE6887fAbF931640f67cab3e3a16F4dC"
+        decimal: 6
+      usdc:
+        address: "0xEA32A96608495e54156Ae48931A7c20f0dcc1a21"
+        decimal: 6
+    swap:
+      - INetswapRouter02:
+          name: Netswap
+          router: "0x1E876cCe41B7b844FDe09E38Fa1cf00f213bFf56"
+          token_list: ""
+          quoterv2: ""
+      - ISwapRouter:
+          name: Wagmi
+          router: "0x8Fb7a8cb6c4DCf820762397aDF80A27a777cFedC"
+          token_list: ""
+          quoter: "0x2Dc123Ff6757fcEa46c025758E93bd8b98710cEA"
   ftm-main:
     omnibtc_chainid: 8
     chainid: 250
