@@ -19,7 +19,7 @@ from brownie import config
 from scripts.helpful_scripts import change_network
 
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-connext_bridge_token_file = os.path.join(root_path, "export/ConnextChainPath.json")
+connext_bridge_token_file = os.path.join(root_path, "export/mainnet/ConnextChainPath.json")
 
 
 def write_file(file: str, data):
@@ -38,7 +38,7 @@ def read_json(file):
 
 def export_connext_info():
     deployed_contract = read_json(str(Path(__file__).parent.parent.joinpath("export/mainnet/ContractDeployed.json")))
-    support_networks = ['arbitrum-main', 'optimism-main', 'polygon-main', 'bsc-main']
+    support_networks = ['arbitrum-main', 'optimism-main', 'polygon-main', 'bsc-main', "metis-main"]
 
     connext_bridge_token_info = {}
     for network in support_networks:
