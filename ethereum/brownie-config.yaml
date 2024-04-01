@@ -1770,7 +1770,7 @@ networks:
             address: "0x3883B5Bdd61BA1b687de69eE50c9738D5ec501E9"
             decimal: 18
         gas:
-          execute: 2000000
+          execute: 300000
           executeL1: 0
     token:
       weth:
