@@ -235,7 +235,11 @@ networks:
     omnibtc_chainid: 30003
     chainid: 97
     SoDiamond: "0x39E1e3E155F6Fe9392371DF29EAF050C1596D4CB"
-    endpoints: [ "https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com" ]
+    endpoints:
+      [
+        "https://api.zan.top/node/v1/bsc/testnet/public",
+        "https://bsc-testnet.publicnode.com",
+      ]
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
@@ -2436,10 +2440,7 @@ networks:
     SoDiamond: "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
-    endpoints:
-      [
-        "https://metis-pokt.nodies.app",
-      ]
+    endpoints: ["https://metis-pokt.nodies.app"]
     stargate:
       router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 151
@@ -2477,7 +2478,7 @@ networks:
         "https://mantle.drpc.org",
         "https://rpc.ankr.com/mantle",
         "https://1rpc.io/mantle",
-        "https://rpc.mantle.xyz"
+        "https://rpc.mantle.xyz",
       ]
     stargate:
       router: "0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97"
@@ -2517,14 +2518,14 @@ networks:
     chainid: 1116
     SoDiamond: ""
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
-    endpoints: 
+    endpoints:
       [
         "https://rpc.coredao.org",
         "https://core.public.infstones.com",
         "https://1rpc.io/core",
         "https://rpc.ankr.com/core",
         "https://rpc-core.icecreamswap.com",
-        "https://core.drpc.org"
+        "https://core.drpc.org",
       ]
     corebridge:
       bridge: "0xA4218e1F39DA4AaDaC971066458Db56e901bcbdE"
@@ -2542,6 +2543,11 @@ networks:
       wbtc:
         address: "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd"
         decimal: 8
+    swap:
+      - IUniswapV2Router02:
+          name: GlyphExchange
+          router: "0x4ddDD324F205e5989bAF8aD0FFCa41f4E5d9841D"
+          token_list: ""
 wallets:
   from_key: ${PRIVATE_KEY}
   deploy_key: ${DEPLOY_KEY}
