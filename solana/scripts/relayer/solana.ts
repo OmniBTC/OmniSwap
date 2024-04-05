@@ -22,7 +22,7 @@ import {
 import {createObjectCsvWriter} from 'csv-writer';
 import * as dotenv from 'dotenv';
 import {ethers} from 'ethers';
-import {postVaaSolanaWithRetry} from "@certusone/wormhole-sdk";
+import {postVaaSolana} from "@certusone/wormhole-sdk";
 
 
 const ARGS = process.argv.slice(2);
@@ -451,11 +451,11 @@ async function processVaa(
     }
     const hasKey = `${sequence}@${emitterChainId}`;
     if (!hasPostVaa.has(hasKey) || !hasPostVaa.get(hasKey)) {
-        const maxRetries = 3;
+        const maxRetries = 10;
         try {
             const payAddress = payer.publicKey.toString();
             logWithTimestamp(`PostVaaSolana...`)
-            const result = await postVaaSolanaWithRetry(
+            const result = await postVaaSolana(
                 connection,
                 async (transaction) => {
                     transaction.partialSign(payer);
@@ -464,7 +464,9 @@ async function processVaa(
                 CORE_BRIDGE_PID,
                 payAddress,
                 vaa,
-                maxRetries
+                {
+                    maxRetries
+                }
             );
             logWithTimestamp(`PostVaaSolana for emitterChainId:${emitterChainId}, sequence:${sequence} finish, result: ${JSON.stringify(result)}`)
         } catch (error) {
