@@ -3,6 +3,7 @@ import {
     Connection,
     Keypair,
     PublicKey,
+    Transaction,
     TransactionInstruction,
     TransactionMessage,
     VersionedTransaction
@@ -38,6 +39,8 @@ if (dotenv.config({path: ENV_FILE}).error) {
 if (process.env.RELAYER_KEY == null) {
     throw new Error(".env RELAYER_KEY not found")
 }
+
+const DEFAULT_PRIORITY_FEE_PERCENTILE = 0.9;
 
 const NET = "solana-mainnet";
 let SOLANA_EMITTER_CHAIN: number;
@@ -159,9 +162,9 @@ if (NET !== "solana-mainnet") {
     SOLANA_EMITTER_CHAIN = 1;
     PENDING_URL = "https://crossswap.coming.chat/v1/getUnSendTransferFromWormhole"
     SOLANA_URL = [
-        // "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj",
-        // "https://solana-mainnet.g.alchemy.com/v2/7D-QdovVWLr7utZ-hNhEJU0cUwotpY_l",
-        "https://api.mainnet-beta.solana.com"
+        "https://solana-mainnet.g.alchemy.com/v2/rXqEm4i3ls_fF0BvJKdxUcVofs-6J9gj",
+        "https://solana-mainnet.g.alchemy.com/v2/7D-QdovVWLr7utZ-hNhEJU0cUwotpY_l",
+        // "https://api.mainnet-beta.solana.com"
     ];
     OMNISWAP_PID = new PublicKey("4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY");
     // OMNISWAP_PID base58decode
@@ -350,10 +353,21 @@ const sendAndConfirmIx = async (
     const lookup_table = (await connection.getAddressLookupTable(LOOKUP_TABLE_KEY)).value
 
     const ix0 = ComputeBudgetProgram.setComputeUnitLimit({units: 1200_000});
+
+    const priorityFee = await determinePriorityFee(
+        connection
+    );
+
+    logWithTimestamp(`Set priorityFee:${priorityFee}`)
+
+    const ix1 = ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee,
+    })
+
     const message0 = new TransactionMessage(
         {
             payerKey: payer.publicKey,
-            instructions: [ix0, ix],
+            instructions: [ix0, ix1, ix],
             recentBlockhash: blockhash,
         }
     ).compileToV0Message([lookup_table]);
@@ -420,6 +434,116 @@ async function processVaaWithoutSwap(
     }
 }
 
+export async function createPriorityFeeInstructions(
+    connection: Connection,
+    transaction: Transaction,
+    lockedWritableAccounts: PublicKey[] = [],
+    feePercentile: number = DEFAULT_PRIORITY_FEE_PERCENTILE,
+    minPriorityFee: number = 0,
+): Promise<TransactionInstruction[]> {
+    if (lockedWritableAccounts.length === 0) {
+        lockedWritableAccounts = transaction.instructions
+            .flatMap((ix) => ix.keys)
+            .map((k) => (k.isWritable ? k.pubkey : null))
+            .filter((k) => k !== null) as PublicKey[];
+    }
+    return await determineComputeBudget(
+        connection,
+        transaction,
+        lockedWritableAccounts,
+        feePercentile,
+        minPriorityFee,
+    );
+}
+
+export async function determineComputeBudget(
+    connection: Connection,
+    transaction: Transaction,
+    lockedWritableAccounts: PublicKey[] = [],
+    feePercentile: number = DEFAULT_PRIORITY_FEE_PERCENTILE,
+    minPriorityFee: number = 0,
+): Promise<TransactionInstruction[]> {
+    let computeBudget = 250_000;
+    let priorityFee = 1;
+
+    try {
+        const simulateResponse = await connection.simulateTransaction(transaction);
+
+        if (simulateResponse.value.err) {
+            console.error(
+                `Error simulating Solana transaction: ${simulateResponse.value.err}`,
+            );
+        }
+
+        if (simulateResponse?.value?.unitsConsumed) {
+            // Set compute budget to 120% of the units used in the simulated transaction
+            computeBudget = Math.round(simulateResponse.value.unitsConsumed * 1.2);
+        }
+    } catch (e) {
+        console.error(
+            `Failed to calculate compute unit limit for Solana transaction: ${e}`,
+        );
+    }
+
+    try {
+        priorityFee = await determinePriorityFee(
+            connection,
+            lockedWritableAccounts,
+            feePercentile,
+        );
+        logWithTimestamp(`Set priorityFee:${priorityFee}`)
+    } catch (e) {
+        console.error(
+            `Failed to calculate compute unit price for Solana transaction: ${e}`,
+        );
+        return [];
+    }
+    priorityFee = Math.max(priorityFee, minPriorityFee);
+
+    return [
+        ComputeBudgetProgram.setComputeUnitLimit({
+            units: computeBudget,
+        }),
+        ComputeBudgetProgram.setComputeUnitPrice({
+            microLamports: priorityFee,
+        }),
+    ];
+}
+
+async function determinePriorityFee(
+    connection: Connection,
+    lockedWritableAccounts: PublicKey[] = [],
+    percentile: number = DEFAULT_PRIORITY_FEE_PERCENTILE,
+): Promise<number> {
+    // https://twitter.com/0xMert_/status/1768669928825962706
+
+    let fee = 3; // Set fee to 1 microlamport by default
+
+    try {
+        const recentFeesResponse = await connection.getRecentPrioritizationFees({
+            lockedWritableAccounts,
+        });
+
+        if (recentFeesResponse) {
+            // Get 75th percentile fee paid in recent slots
+            const recentFees = recentFeesResponse
+                .map((dp) => dp.prioritizationFee)
+                .filter((dp) => dp > 0)
+                .sort((a, b) => a - b);
+
+            if (recentFees.length > 0) {
+                const medianFee =
+                    recentFees[Math.floor(recentFees.length * percentile)];
+                fee = Math.max(fee, medianFee!);
+            }
+        }
+    } catch (e) {
+        console.error('Error fetching Solana recent fees', e);
+    }
+
+    return fee;
+}
+
 async function processVaa(
     connection: Connection,
     payer: Keypair,
@@ -458,6 +582,11 @@ async function processVaa(
             const result = await postVaaSolana(
                 connection,
                 async (transaction) => {
+                    transaction.add(...(await createPriorityFeeInstructions(
+                        connection,
+                        transaction,
+                        [],
+                    )))
                     transaction.partialSign(payer);
                     return transaction;
                 },
