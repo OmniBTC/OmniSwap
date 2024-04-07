@@ -20,6 +20,7 @@ try:
         WithdrawFacet,
         OwnershipFacet,
         GenericSwapFacet,
+        CoreBridgeFacet,
         interface,
         Contract,
         ERC20,
@@ -618,6 +619,7 @@ def export_so_diamond_abi():
         CelerFacet,
         MultiChainFacet,
         BoolFacet,
+        CoreBridgeFacet,
         # libs
         LibSwap,
     ]

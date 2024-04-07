@@ -220,11 +220,26 @@ networks:
         name: UniswapV2
         router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
         token_list: ""
+  core-test:
+    chainid: 1115
+    SoDiamond: "0xAab181c0D699199299D94D47Bb7DEE4359272A2E"
+    endpoints: []
+    corebridge:
+      bridge: "0x6Df303Ec922627DC2a1b371A0116df1e1eec8c7A"
+      chainid: 10153
+    token:
+      core-usdc:
+        address: "0x6Df303Ec922627DC2a1b371A0116df1e1eec8c7A"
+        decimal: 6
   bsc-test:
     omnibtc_chainid: 30003
     chainid: 97
-    SoDiamond: "0x84B7cA95aC91f8903aCb08B27F5b41A4dE2Dc0fc"
-    endpoints: [ "https://api.zan.top/node/v1/bsc/testnet/public", "https://bsc-testnet.publicnode.com" ]
+    SoDiamond: "0x39E1e3E155F6Fe9392371DF29EAF050C1596D4CB"
+    endpoints:
+      [
+        "https://api.zan.top/node/v1/bsc/testnet/public",
+        "https://bsc-testnet.publicnode.com",
+      ]
     wormhole:
       chainid: 4
       token_bridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
@@ -274,6 +289,9 @@ networks:
       chainid: 10102
       poolid:
         usdt: 2
+    corebridge:
+      bridge: "0xFbDaE4aBfB672C630a22219Bed27bc4ee2546488"
+      chainid: 10102
     bridges:
       bool:
         chainid: 97
@@ -303,6 +321,9 @@ networks:
             address: "0xae13d989dac2f0debff460ac112a837c89baa7cd"
             decimal: 18
     token:
+      core-usdc:
+        address: "0x6795cbCF57760947b34eFf59E7465611B80A615b"
+        decimal: 18
       bool-usdc:
         address: "0xe96f749be8eaa6b60c0588f779524ecd7f3b1e51"
         decimal: 6
@@ -959,6 +980,9 @@ networks:
         usdt: 2
         usdd: 11
         weth: 13
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 101
     wormhole:
       chainid: 2
       token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
@@ -1173,6 +1197,9 @@ networks:
       chainid: 102
       poolid:
         usdt: 2
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 102
     wormhole:
       chainid: 4
       token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
@@ -1381,6 +1408,9 @@ networks:
       poolid:
         usdc: 1
         usdt: 2
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 106
     wormhole:
       chainid: 6
       token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
@@ -1594,6 +1624,9 @@ networks:
       poolid:
         usdc: 1
         usdt: 2
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 109
     wormhole:
       chainid: 5
       token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
@@ -1806,6 +1839,9 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 110
     bridges:
       bool:
         chainid: 42161
@@ -1980,6 +2016,9 @@ networks:
       poolid:
         usdc: 1
         weth: 13
+    corebridge:
+      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      chainid: 111
     endpoints:
       [
         "https://optimism.api.onfinality.io/public",
@@ -2401,10 +2440,7 @@ networks:
     SoDiamond: "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
-    endpoints:
-      [
-        "https://metis-pokt.nodies.app",
-      ]
+    endpoints: ["https://metis-pokt.nodies.app"]
     stargate:
       router: "0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9"
       chainid: 151
@@ -2442,7 +2478,7 @@ networks:
         "https://mantle.drpc.org",
         "https://rpc.ankr.com/mantle",
         "https://1rpc.io/mantle",
-        "https://rpc.mantle.xyz"
+        "https://rpc.mantle.xyz",
       ]
     stargate:
       router: "0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97"
@@ -2477,6 +2513,47 @@ networks:
           router: "0x319B69888b0d11cEC22caA5034e25FfFBDc88421"
           token_list: ""
           quoterv2: "0x9488C05a7b75a6FefdcAE4f11a33467bcBA60177"
+  core-main:
+    omnibtc_chainid: 1116
+    chainid: 1116
+    SoDiamond: "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66"
+    basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    endpoints:
+      [
+        "https://rpc.coredao.org",
+        "https://core.public.infstones.com",
+        "https://1rpc.io/core",
+        "https://rpc.ankr.com/core",
+        "https://rpc-core.icecreamswap.com",
+        "https://core.drpc.org",
+      ]
+    corebridge:
+      bridge: "0xA4218e1F39DA4AaDaC971066458Db56e901bcbdE"
+      chainid: 153
+    token:
+      usdc:
+        address: "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9"
+        decimal: 6
+      usdt:
+        address: "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1"
+        decimal: 6
+      weth:
+        address: "0xeAB3aC417c4d6dF6b143346a46fEe1B847B50296"
+        decimal: 18
+      wbtc:
+        address: "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd"
+        decimal: 8
+      btc.b:
+        address: "0x2297aEbD383787A160DD0d9F71508148769342E3"
+        decimal: 8
+      btcb:
+        address: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c"
+        decimal: 18
+    swap:
+      - IUniswapV2Router02:
+          name: GlyphExchange
+          router: "0x4ddDD324F205e5989bAF8aD0FFCa41f4E5d9841D"
+          token_list: ""
 wallets:
   from_key: ${PRIVATE_KEY}
   deploy_key: ${DEPLOY_KEY}
