@@ -295,7 +295,9 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function decodeConnextPayload(bytes memory stargatePayload)
+    function decodeConnextPayload(
+        bytes memory stargatePayload
+    )
         public
         pure
         returns (

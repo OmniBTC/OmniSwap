@@ -29,10 +29,9 @@ contract LibSoFeeConnextV2 is ILibSoFeeV2, Ownable, ReentrancyGuard {
         soBasicBeneficiary = _soBasicBeneficiary;
     }
 
-    function setBasicBeneficiary(address _soBasicBeneficiary)
-        external
-        onlyOwner
-    {
+    function setBasicBeneficiary(
+        address _soBasicBeneficiary
+    ) external onlyOwner {
         soBasicBeneficiary = _soBasicBeneficiary;
     }
 
@@ -44,23 +43,17 @@ contract LibSoFeeConnextV2 is ILibSoFeeV2, Ownable, ReentrancyGuard {
         soFee = _soFee;
     }
 
-    function getRestoredAmount(uint256 _amountIn)
-        external
-        view
-        override
-        returns (uint256 r)
-    {
+    function getRestoredAmount(
+        uint256 _amountIn
+    ) external view override returns (uint256 r) {
         // calculate the amount to be restored
         r = _amountIn.mul(RAY).div((RAY - soFee));
         return r;
     }
 
-    function getFees(uint256 _amountIn)
-        external
-        view
-        override
-        returns (uint256 s)
-    {
+    function getFees(
+        uint256 _amountIn
+    ) external view override returns (uint256 s) {
         // calculate the so fee
         s = _amountIn.mul(soFee).div(RAY);
         return s;
