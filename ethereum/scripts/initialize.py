@@ -33,6 +33,7 @@ from brownie import (
     LibSoFeeGenericV2,
     OwnershipFacet,
     config,
+    LibSoFeeCoreBridgeV2
 )
 from brownie.network import priority_fee, max_fee, gas_price
 
@@ -660,6 +661,39 @@ def redeploy_stargate():
     initialize_stargate(account, SoDiamond[-1])
 
 
+def redeploy_corebridge():
+    account = get_account()
+
+    print("deploy LibSoFeeCoreBridgeV2.sol...")
+    so_fee = 1e-3
+    basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    basic_fee = 0
+    LibSoFeeCoreBridgeV2.deploy(int(so_fee * 1e18),
+                                basic_fee, basic_beneficiary,
+                                {"from": account})
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    print("addFee...")
+    proxy_dex.addFee(
+        get_corebridge_bridge(), LibSoFeeCoreBridgeV2[-1].address, {"from": account}
+    )
+
+    # try:
+    #     print("Remove cut...")
+    #     remove_facet(CoreBridgeFacet)
+    # except Exception as e:
+    #     print(f"Remove err:{e}")
+    #
+    # print("Deploy stargate...")
+    # CoreBridgeFacet.deploy({"from": account})
+    # print("Add cut...")
+    # add_cut([CoreBridgeFacet])
+    # print("Initialize stargate...")
+    # initialize_corebridge(account, SoDiamond[-1])
+
+
 def redeploy_bool():
     account = get_account()
 
@@ -942,16 +976,16 @@ def reset_so_fee():
 
 @functools.lru_cache()
 def get_prices(
-    symbols=(
-        "ETH/USDT",
-        "BNB/USDT",
-        "MATIC/USDT",
-        "AVAX/USDT",
-        "APT/USDT",
-        "SUI/USDT",
-        "SOL/USDT",
-        "MNT/USDT",
-    )
+        symbols=(
+                "ETH/USDT",
+                "BNB/USDT",
+                "MATIC/USDT",
+                "AVAX/USDT",
+                "APT/USDT",
+                "SUI/USDT",
+                "SOL/USDT",
+                "MNT/USDT",
+        )
 ):
     api = ccxt.kucoin()
     prices = {}
@@ -976,7 +1010,10 @@ def set_basic_fee():
         so_fee *= data["ETH/USDT"] / data["MATIC/USDT"]
     elif network.show_active() == "mantle-main":
         so_fee *= data["ETH/USDT"] / data["MNT/USDT"]
+    elif network.show_active() == "core-main":
+        so_fee *= 1400
     print("Set so fee", so_fee / 1e18)
+    LibSoFeeCoreBridgeV2[-1].setBasicFee(so_fee, {"from": account})
     LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
     LibSoFeeBoolV2[-1].setBasicFee(so_fee, {"from": account})
 
