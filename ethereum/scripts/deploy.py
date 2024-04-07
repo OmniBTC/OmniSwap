@@ -10,6 +10,8 @@ from brownie import (
     SerdeFacet,
     BoolFacet,
     LibSoFeeBoolV1,
+    BoolFacet,
+    LibSoFeeBoolV1,
     network,
     CCTPFacet,
     LibSoFeeCCTPV1,

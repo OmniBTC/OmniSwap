@@ -15,11 +15,13 @@ from brownie import (
     network,
     interface,
     LibSoFeeStargateV2,
+    LibSoFeeStargateV2,
     MockToken,
     LibCorrectSwapV1,
     WormholeFacet,
     SerdeFacet,
     LibSoFeeWormholeV1,
+    BoolFacet,
     BoolFacet,
     web3,
     CelerFacet,
@@ -37,6 +39,7 @@ from brownie import (
     ConnextFacet,
     config,
 )
+from brownie.network import priority_fee, max_fee
 from brownie.network import priority_fee, max_fee
 
 FacetCutAction_ADD = 0
@@ -77,15 +80,26 @@ from scripts.deploy_libcorrectswapv2 import deploy_correct_swaps
 if "arbitrum" in network.show_active():
     priority_fee("1 gwei")
     max_fee("1.25 gwei")
+from scripts.deploy_libcorrectswapv2 import deploy_correct_swaps
+
+if "arbitrum" in network.show_active():
+    priority_fee("1 gwei")
+    max_fee("1.25 gwei")
 
 
 def main():
     if network.show_active() in ["rinkeby", "goerli"]:
         priority_fee("1 gwei")
 
+
     account = get_account()
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond Address:{so_diamond}")
+    initialize_cut(account, so_diamond)
+    # try:
+    #
+    # except Exception as e:
+    #     print(f"initialize_cut fail:{e}")
     initialize_cut(account, so_diamond)
     # try:
     #

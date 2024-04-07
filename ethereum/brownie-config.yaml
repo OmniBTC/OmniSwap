@@ -593,6 +593,7 @@ networks:
         token_list: ""
   arbitrum-test:
     SoDiamond: "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
+    SoDiamond: "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449"
     omnibtc_chainid: 30006
     chainid: 421611
     stargate:
@@ -2211,6 +2212,9 @@ networks:
         # bridge usdc: 0x7F5c764cBc14f9669B88837ca1490cCa17c31607
         # circle usdc: 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85
         address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+        # bridge usdc: 0x7F5c764cBc14f9669B88837ca1490cCa17c31607
+        # circle usdc: 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85
+        address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
         decimal: 6
       usdt:
         address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
@@ -2255,7 +2259,7 @@ networks:
   metis-main:
     omnibtc_chainid: 1088
     chainid: 1088
-    SoDiamond: ""
+    SoDiamond: "0xaa09eF5707307C112f2A517c95B5E6475c41d1e7"
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
     StargateHelper: "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1"
     endpoints:
