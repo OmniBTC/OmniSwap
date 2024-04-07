@@ -19,6 +19,8 @@ With the help of OmniSwap:
 - [x] **[Wormhole](https://wormhole.com/)**: Wormhole is a universal interoperability protocol, xAsset allows tokens to circulate across chains.
 - [x] cBridge
 - [x] Multichain
+- [x] Connext
+- [x] CCTP
 
 ## Chain
 
@@ -30,6 +32,8 @@ With the help of OmniSwap:
 - [x] Avalanche
 - [x] Aptos
 - [x] Sui
+- [x] Zksync
+- [x] Polygon-zkevm
 
 # Acknowledge
 Many thanks to [Wormhole](https://wormhole.com/) and [Stargate](https://stargate.finance/) for the secure and reliable lower layer construction. Many thanks, of course, to the authors and contributors of [EIP-2535: Diamonds, Multi-Facet Proxy](https://eips.ethereum.org/EIPS/eip-2535).

@@ -50,7 +50,7 @@ module cetus_clmm::position {
         amount_owned: u64,
     }
 
-    public fun liquidity(position_nft: &Position): u128 {
+    public fun liquidity(_position_nft: &Position): u128 {
         abort 0
     }
 }

@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ILibSoFee} from "../Interfaces/ILibSoFee.sol";
 import {ILibPrice} from "../Interfaces/ILibPrice.sol";
-import {IAggregatorV3Interface} from "../Interfaces/IAggregatorV3Interface.sol";
+import {IAggregatorV3Interface} from "../Interfaces/Chainlink/IAggregatorV3Interface.sol";
 import {ReentrancyGuard} from "../Helpers/ReentrancyGuard.sol";
 
 contract LibSoFeeWormholeV1 is ILibSoFee, ILibPrice, Ownable, ReentrancyGuard {
@@ -76,10 +76,10 @@ contract LibSoFeeWormholeV1 is ILibSoFee, ILibPrice, Ownable, ReentrancyGuard {
         emit UpdatePriceConfig(_chainId, _chainlink, _interval);
     }
 
-    function setPriceInterval(uint16 _chainId, uint256 _interval)
-        external
-        onlyOwner
-    {
+    function setPriceInterval(
+        uint16 _chainId,
+        uint256 _interval
+    ) external onlyOwner {
         priceConfig[_chainId].interval = _interval;
         emit UpdatePriceInterval(_chainId, _interval);
     }
@@ -99,19 +99,17 @@ contract LibSoFeeWormholeV1 is ILibSoFee, ILibPrice, Ownable, ReentrancyGuard {
                 return priceData[_chainId].currentPriceRatio;
             }
             if (_config.chainlink[i].flag) {
-                _ratio = _ratio.mul(10**_decimals).div(uint256(_price));
+                _ratio = _ratio.mul(10 ** _decimals).div(uint256(_price));
             } else {
-                _ratio = _ratio.mul(uint256(_price)).div(10**_decimals);
+                _ratio = _ratio.mul(uint256(_price)).div(10 ** _decimals);
             }
         }
         return _ratio;
     }
 
-    function getPriceRatio(uint16 _chainId)
-        public
-        view
-        returns (uint256, bool)
-    {
+    function getPriceRatio(
+        uint16 _chainId
+    ) public view returns (uint256, bool) {
         PriceConfig memory _config = priceConfig[_chainId];
         if (_config.chainlink.length == 0) {
             return (priceData[_chainId].currentPriceRatio, false);
@@ -147,23 +145,17 @@ contract LibSoFeeWormholeV1 is ILibSoFee, ILibPrice, Ownable, ReentrancyGuard {
         emit UpdatePriceRatio(msg.sender, _ratio);
     }
 
-    function getRestoredAmount(uint256 _amountIn)
-        external
-        view
-        override
-        returns (uint256 r)
-    {
+    function getRestoredAmount(
+        uint256 _amountIn
+    ) external view override returns (uint256 r) {
         // calculate the amount to be restored
         r = _amountIn.mul(RAY).div((RAY - soFee));
         return r;
     }
 
-    function getFees(uint256 _amountIn)
-        external
-        view
-        override
-        returns (uint256 s)
-    {
+    function getFees(
+        uint256 _amountIn
+    ) external view override returns (uint256 s) {
         // calculate the so fee
         s = _amountIn.mul(soFee).div(RAY);
         return s;

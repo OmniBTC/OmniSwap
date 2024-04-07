@@ -1,0 +1,242 @@
+
+dotenv: .env
+
+devnet:
+  omnibtc_chainid: 30006
+  rpc_url: "https://api.devnet.solana.com"
+  program:
+    SoDiamond: "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
+    Wormhole: "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5"
+    TokenBridge: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe"
+    Whirlpools: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+  wormhole:
+    chainid: 1
+    # 1.1
+    actual_reserve: 110000000
+    # 1.2
+    estimate_reserve: 120000000
+    dst_chain:
+      bsc-test:
+        omnibtc_chainid: 30003
+        chainid: 4
+        base_gas: 700000
+        per_byte_gas: 68
+        price_manager: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
+        token_bridge_emitter: "0x0000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09"
+        omniswap_emitter: "0x00000000000000000000000084b7ca95ac91f8903acb08b27f5b41a4de2dc0fc"
+  token:
+    TEST:
+      mint: "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS"
+      decimals: 9
+    USDC:
+      mint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+      erc20: "0x51a3cc54eA30Da607974C5D07B8502599801AC08"
+      decimals: 6
+    WrappedBSC:
+      mint: "xxtdhpCgop5gZSeCkRRHqiVu7hqEC9MKkd1xMRUZqrz"
+      erc20: "0x8CE306D8A34C99b23d3054072ba7fc013684e8a1"
+      decimals: 8
+    WSOL:
+      mint: "So11111111111111111111111111111111111111112"
+      erc20: "0x30f19eBba919954FDc020B8A20aEF13ab5e02Af0"
+      decimals: 9
+
+  pools:
+    Whirlpool-TEST-USDC: "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV"
+    Whirlpool-BSC-TEST: "AxoxjuJnpvTeqmwwjJLnuMuYLGNP1kg3orMjSuj3KBmc"
+    Whirlpool-WSOL-BSC: "6TLSV3E9aTNzJtY4DejLdhGb4wkTfM65gA3cwMESFrpY"
+    Whirlpool-WSOL-USDC: "3kWvtnrDnxesGYFy86mNs14S1oUQmB2X175SrT94bvzd"
+
+  lookup_table:
+      key: "ESxWFjHVo2oes1eAQiwkAUHNTTUT9Xm5zsSrE7QStYX8"
+      addresses: [
+        # token_bridge_config
+        "8PFZNjn19BBYVHNp4H31bEW7eAmu78Yf2RKV8EeA461K",
+        # token_bridge_authority_signer
+        "3VFdJkFuzrcwCwdxhKRETGxrDtUVAipNmYcLvRBDcQeH",
+        # token_bridge_custody_signer
+        "H9pUTqZoRyFdaedRezhykA1aTMq7vbqRHYVhpHZK2QbC",
+        # token_bridge_mint_authority
+        "rRsXLHe7sBHdyKU3KY3wbcgWvoT1Ntqudf6e9PKusgb",
+        # wormhole_bridge
+        "6bi4JGDoRwUs9TYBuvoA7dUVyikTJDrJsJU1ew6KVLiu",
+        # token_bridge_emitter
+        "4yttKWzRoNYS2HekxDfcZYmfQqnVWpKiJ8eydYRuFRgs",
+        # wormhole_fee_collector
+        "7s3a1ycs16d6SNDumaRtjcoyMaTDZPavzgsmS3uUZYWX",
+        # token_bridge_sequence
+        "9QzqZZvhxoHzXbNY9y2hyAUfJUzDwyDb7fbDs9RXwH3",
+        # Rent
+        "SysvarRent111111111111111111111111111111111",
+        # Clock
+        "SysvarC1ock11111111111111111111111111111111",
+        # ComputeBudget
+        "ComputeBudget111111111111111111111111111111",
+        # System
+        "11111111111111111111111111111111",
+        # whirlpool_program
+        "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
+        # test_usdc_pool
+        "b3D36rfrihrvLmwfvAzbnX9qF1aJ4hVguZFmjqsxVbV",
+        # test token
+        "281LhxeKQ2jaFDx9HAHcdrU9CpedSH7hx5PuRrM7e1FS",
+        # usdc token
+        "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+        # test_usdc_pool vault_a
+        "3dycP3pym3q6DgUpZRviaavaScwrrCuC6QyLhiLfSXge",
+        # test_usdc_pool vault_b
+        "969UqMJSqvgxmNuAWZx91PAnLJU825qJRAAcEVQMWASg",
+        # omniswap sender config
+        "GR7xDWrbWcEYsnz1e5WDfy3iXvPw5tmWjeV8MY1sVHCp",
+        # omniswap fee config
+        "EcZK7hAyxzjeCL1zM9FKWeWcdziF4pFHiUCJ5r2886TP",
+        # omniswap bsc(4) price manage
+        "EofptCXfgVxRk1vxBLNP1Zk6SSPBiPdkYWVPgTLzbzGR",
+        # omniswap bsc(4) foreign_contract
+        "FV2SB6pUGWABHxmnoVUxxdTVctzY7puAQon38sJ8oNm",
+        # usdcet
+        "A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM"
+      ]
+
+
+  # fee_collector
+  beneficiary: "vQkE51MXJiwqtbwf562XWChNKZTgh6L2jHPpupoCKjS"
+  redeemer_proxy: "4q2wPZMys1zCoAVpNmhgmofb6YM9MqLXmV25LdtEMAf9"
+  # ray = 100_000_000
+  # 0.3 %
+  so_fee_by_ray: 300_000
+
+
+mainnet:
+  omnibtc_chainid: 10
+  rpc_url: "https://api.mainnet-beta.solana.com"
+  beneficiary: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+  redeemer_proxy: "BQKfrMULH23qiSBt1S9CNvybSoshx5h4WNzd9wEw8G5U"
+  so_fee_by_ray: 0
+  program:
+    SoDiamond: "4edLhT4MAausnqaxvB4ezcVG1adFnGw1QUMTvDMp4JVY"
+    Wormhole: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth"
+    TokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb"
+    Whirlpools: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+  wormhole:
+    chainid: 1
+    # 1.1
+    actual_reserve: 110000000
+    # 1.11
+    estimate_reserve: 111000000
+    dst_chain:
+      bsc-main:
+        omnibtc_chainid: 3
+        chainid: 4
+        base_gas: 700000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0x000000000000000000000000B6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
+        omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
+
+      eth-main:
+        omnibtc_chainid: 2
+        chainid: 2
+        base_gas: 350000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0x0000000000000000000000003ee18B2214AFF97000D974cf647E7C347E8fa585"
+        omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
+
+      polygon-main:
+        omnibtc_chainid: 5
+        chainid: 5
+        base_gas: 2800000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0x0000000000000000000000005a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
+        omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
+
+      avax-main:
+        omnibtc_chainid: 6
+        chainid: 6
+        base_gas: 1400000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0x0000000000000000000000000e082F06FF657D94310cB8cE8B0D9a04541d8052"
+        omniswap_emitter: "0x0000000000000000000000002967e7bb9daa5711ac332caf874bd47ef99b3820"
+
+      aptos-mainnet:
+        omnibtc_chainid: 22
+        chainid: 22
+        base_gas: 700000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0x0000000000000000000000000000000000000000000000000000000000000001"
+        omniswap_emitter: "0x0000000000000000000000000000000000000000000000000000000000000002"
+
+      sui-mainnet:
+        omnibtc_chainid: 21
+        chainid: 21
+        base_gas: 840000000000000
+        per_byte_gas: 68
+        price_manager: "8LC49giae4hkSV6bS5dXP9G7jwvVAtShDsGQrKKycQc3"
+        token_bridge_emitter: "0xccceeb29348f71bdd22ffef43a2a19c1f5b5e17c5cca5411529120182672ade5"
+        omniswap_emitter: "0x201a8b38e099b17078f6b9d3826e4d784c8c5656a4d484e7c8f6f57e439fdd2f"
+
+  lookup_table:
+    # https://explorer.solana.com/address/8K1NLm2WvUT9inQGsRjF3vrq5wUMtRbPRcWgNpUNNBFC/entries
+    key: "8K1NLm2WvUT9inQGsRjF3vrq5wUMtRbPRcWgNpUNNBFC"
+    addresses: [
+      # token_bridge_config
+      "DapiQYH3BGonhN8cngWcXQ6SrqSm3cwysoznoHr6Sbsx",
+      # token_bridge_authority_signer
+      "7oPa2PHQdZmjSPqvpZN7MQxnC7Dcf3uL4oLqknGLk2S3",
+      # token_bridge_custody_signer
+      "GugU1tP7doLeTw9hQP51xRJyS8Da1fWxuiy2rVrnMD2m",
+      # token_bridge_mint_authority
+      "BCD75RNBHrJJpW4dXVagL5mPjzRLnVZq4YirJdjEYMV7",
+      # wormhole_bridge
+      "2yVjuQwpsvdsrywzsJJVs9Ueh4zayyo5DYJbBNc3DDpn",
+      # token_bridge_emitter
+      "Gv1KWf8DT1jKv5pKBmGaTmVszqa56Xn8YGx2Pg7i7qAk",
+      # wormhole_fee_collector
+      "9bFNrXNb2WTx8fMHXCheaZqkLZ3YCCaiqTftHxeintHy",
+      # token_bridge_sequence
+      "GF2ghkjwsR9CHkGk1RvuZrApPZGBZynxMm817VNi51Nf",
+      # Rent
+      "SysvarRent111111111111111111111111111111111",
+      # Clock
+      "SysvarC1ock11111111111111111111111111111111",
+      # ComputeBudget
+      "ComputeBudget111111111111111111111111111111",
+      # System
+      "11111111111111111111111111111111",
+      # whirlpool_program
+      "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
+      # token_program
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      # Wormhole Core Bridge
+      "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",
+      # Wormhole token Bridge
+      "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
+      # omniswap sender config
+      "5BHn4v7pxd44L7eBqJLw39ixLLxP8gs2ds3xXagKCj67",
+      # omniswap redeem config
+      "3nJzsfLtAVUaXyMb2NNMw357pFYGpM54qewNE3DiNaX8",
+      # omniswap so_fee config
+      "A2UVxxSt3AEefNkXANUdrCenvSqeyV6QKzuyxuT2Ai2X",
+      # omniswap eth(2) config
+      "CUCqvvz9TsoeBHwd9Lcv97fu3VM71vcSFTS3TKyuSA79",
+      # omniswap bsc(4) config
+      "HjZJTQPJGVQmbDuYwZgmaGeHhF1X9cAxzfmr5CKkqwpd",
+      # omniswap polygon(5) config
+      "2Huv2NXqzEpmyooRQp8XY3gPq6FwfYpey9ma8TAKSShU",
+      # omniswap avax(6) config
+      "6WyPZoehvC4EUbwwJ4wfK7HkuD1gHDKDbvHW6LCJNy4q",
+      # omniswap aptos(22) config
+      "27uqhhEafgVV3jv2qPavr6uKu1mdbxxxvMXjhLfbBALq",
+      # omniswap sui(21) config
+      "2fCfP7g2QoYu6jaLdaTrWAURUV679SjdTGVf14JXkqpu"
+    ]
+
+
+solana-wallet:
+  Owner: ${TEST_OWNER}
+  Proxy: ${TEST_REDEEM_PROXY}
+  PriceManager: ${TEST_PRICE_MANAGER}

@@ -1,7 +1,8 @@
 #[test_only]
 module omniswap::swap_tests {
 
-    use deepbook::clob::{Self, USD, Pool};
+    use deepbook::clob_v2::{Self, Pool, USD};
+    use deepbook::custodian_v2;
     use omniswap::cross;
     use omniswap::swap;
     use sui::clock::Clock;
@@ -14,27 +15,30 @@ module omniswap::swap_tests {
     const REFERENCE_MAKER_REBATE_RATE: u64 = 2500000;
     const FLOAT_SCALING: u64 = 1000000000;
 
+
     #[test]
-    public fun test_swap_for_base_asset_by_deepbook() {
+    public fun test_swap_for_base_asset_by_deepbook_v2() {
         let sender = @0xA;
 
         let scenario_val = test_scenario::begin(sender);
         let scenario = &mut scenario_val;
 
-        clob::setup_test(REFERENCE_TAKER_FEE_RATE, REFERENCE_MAKER_REBATE_RATE, scenario, sender);
+        clob_v2::setup_test(REFERENCE_TAKER_FEE_RATE, REFERENCE_MAKER_REBATE_RATE, scenario, sender);
 
         test_scenario::next_tx(scenario, sender);
         {
             let pool = test_scenario::take_shared<Pool<SUI, USD>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
-            let account_cap = clob::create_account(ctx);
+            let account_cap = clob_v2::create_account(ctx);
             let base_coin = coin::mint_for_testing<SUI>(1000, ctx);
-            clob::deposit_base<SUI, USD>(&mut pool, base_coin, &account_cap);
-            clob::place_limit_order<SUI, USD>(
+            clob_v2::deposit_base<SUI, USD>(&mut pool, base_coin, &account_cap);
+            clob_v2::place_limit_order<SUI, USD>(
                 &mut pool,
+                1,
                 1 * FLOAT_SCALING,
                 1000,
+                0,
                 false,
                 1000,
                 0,
@@ -53,19 +57,22 @@ module omniswap::swap_tests {
             let pool = test_scenario::take_shared<Pool<SUI, USD>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
+            let account_cap = clob_v2::create_account(ctx);
             let quote_coin = coin::mint_for_testing<USD>(1000, ctx);
             let swap_data = cross::construct_swap_data(
                 x"dee9",
                 x"dee9",
-                b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
+                b"000000000000000000000000000000000000000000000000000000000000dee9::clob_v2::USD",
                 b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
                 1000,
-                b"DeepBook,0"
+                b"DeepBookV2,0"
             );
 
-            let (base_coin, left_quote_coin, swap_value) = swap::swap_for_base_asset_by_deepbook<SUI, USD>(
+            let (base_coin, left_quote_coin, swap_value) = swap::swap_for_base_asset_by_deepbook_v2<SUI, USD>(
                 &mut pool,
                 quote_coin,
+                &account_cap,
+                1,
                 swap_data,
                 &clock,
                 ctx
@@ -80,6 +87,8 @@ module omniswap::swap_tests {
             coin::burn_for_testing(base_coin);
             coin::burn_for_testing(left_quote_coin);
 
+            custodian_v2::delete_account_cap(account_cap);
+
             test_scenario::return_shared(pool);
             test_scenario::return_shared(clock);
         };
@@ -88,26 +97,28 @@ module omniswap::swap_tests {
     }
 
     #[test]
-    public fun test_swap_for_quote_asset_by_deepbook() {
+    public fun test_swap_for_quote_asset_by_deepbook_v2() {
         let sender = @0xA;
 
         let scenario_val = test_scenario::begin(sender);
         let scenario = &mut scenario_val;
 
-        clob::setup_test(REFERENCE_TAKER_FEE_RATE, REFERENCE_MAKER_REBATE_RATE, scenario, sender);
+        clob_v2::setup_test(REFERENCE_TAKER_FEE_RATE, REFERENCE_MAKER_REBATE_RATE, scenario, sender);
 
         test_scenario::next_tx(scenario, sender);
         {
             let pool = test_scenario::take_shared<Pool<SUI, USD>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
-            let account_cap = clob::create_account(ctx);
+            let account_cap = clob_v2::create_account(ctx);
             let quote_coin = coin::mint_for_testing<USD>(1000, ctx);
-            clob::deposit_quote<SUI, USD>(&mut pool, quote_coin, &account_cap);
-            clob::place_limit_order<SUI, USD>(
+            clob_v2::deposit_quote<SUI, USD>(&mut pool, quote_coin, &account_cap);
+            clob_v2::place_limit_order<SUI, USD>(
                 &mut pool,
+                1,
                 1 * FLOAT_SCALING,
                 1000,
+                0,
                 true,
                 1000,
                 0,
@@ -126,19 +137,22 @@ module omniswap::swap_tests {
             let pool = test_scenario::take_shared<Pool<SUI, USD>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
+            let account_cap = clob_v2::create_account(ctx);
             let base_coin = coin::mint_for_testing<SUI>(1000, ctx);
             let swap_data = cross::construct_swap_data(
                 x"dee9",
                 x"dee9",
                 b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-                b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
+                b"000000000000000000000000000000000000000000000000000000000000dee9::clob_v2::USD",
                 1000,
-                b"DeepBook,0"
+                b"DeepBookV2,0"
             );
 
-            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook<SUI, USD>(
+            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook_v2<SUI, USD>(
                 &mut pool,
                 base_coin,
+                &account_cap,
+                0,
                 swap_data,
                 &clock,
                 ctx
@@ -149,8 +163,11 @@ module omniswap::swap_tests {
             assert!(coin::value(&left_base_coin) == 0, 202);
             assert!(swap_value == 1000 - fee, 203);
 
+
             coin::burn_for_testing(quote_coin);
             coin::burn_for_testing(left_base_coin);
+
+            custodian_v2::delete_account_cap(account_cap);
 
             test_scenario::return_shared(pool);
             test_scenario::return_shared(clock);
@@ -166,20 +183,22 @@ module omniswap::swap_tests {
         let scenario_val = test_scenario::begin(sender);
         let scenario = &mut scenario_val;
 
-        clob::setup_test(REFERENCE_TAKER_FEE_RATE, REFERENCE_MAKER_REBATE_RATE, scenario, sender);
+        clob_v2::setup_test(REFERENCE_TAKER_FEE_RATE, REFERENCE_MAKER_REBATE_RATE, scenario, sender);
 
         test_scenario::next_tx(scenario, sender);
         {
             let pool = test_scenario::take_shared<Pool<SUI, USD>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
-            let account_cap = clob::create_account(ctx);
+            let account_cap = clob_v2::create_account(ctx);
             let quote_coin = coin::mint_for_testing<USD>(1000, ctx);
-            clob::deposit_quote<SUI, USD>(&mut pool, quote_coin, &account_cap);
-            clob::place_limit_order<SUI, USD>(
+            clob_v2::deposit_quote<SUI, USD>(&mut pool, quote_coin, &account_cap);
+            clob_v2::place_limit_order<SUI, USD>(
                 &mut pool,
+                1,
                 1 * FLOAT_SCALING,
                 1000,
+                0,
                 true,
                 1000,
                 0,
@@ -198,19 +217,22 @@ module omniswap::swap_tests {
             let pool = test_scenario::take_shared<Pool<SUI, USD>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
+            let account_cap = clob_v2::create_account(ctx);
             let base_coin = coin::mint_for_testing<SUI>(10000, ctx);
             let swap_data = cross::construct_swap_data(
                 x"dee9",
                 x"dee9",
                 b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-                b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
+                b"000000000000000000000000000000000000000000000000000000000000dee9::clob_v2::USD",
                 10000,
-                b"DeepBook,9000"
+                b"DeepBookV2,9000"
             );
 
-            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook<SUI, USD>(
+            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook_v2<SUI, USD>(
                 &mut pool,
                 base_coin,
+                &account_cap,
+                1,
                 swap_data,
                 &clock,
                 ctx
@@ -223,6 +245,8 @@ module omniswap::swap_tests {
 
             coin::burn_for_testing(quote_coin);
             coin::burn_for_testing(left_base_coin);
+
+            custodian_v2::delete_account_cap(account_cap);
 
             test_scenario::return_shared(pool);
             test_scenario::return_shared(clock);
@@ -239,20 +263,22 @@ module omniswap::swap_tests {
         let scenario_val = test_scenario::begin(sender);
         let scenario = &mut scenario_val;
 
-        clob::setup_test(REFERENCE_TAKER_FEE_RATE, REFERENCE_MAKER_REBATE_RATE, scenario, sender);
+        clob_v2::setup_test(REFERENCE_TAKER_FEE_RATE, REFERENCE_MAKER_REBATE_RATE, scenario, sender);
 
         test_scenario::next_tx(scenario, sender);
         {
             let pool = test_scenario::take_shared<Pool<SUI, USD>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
-            let account_cap = clob::create_account(ctx);
+            let account_cap = clob_v2::create_account(ctx);
             let quote_coin = coin::mint_for_testing<USD>(1000, ctx);
-            clob::deposit_quote<SUI, USD>(&mut pool, quote_coin, &account_cap);
-            clob::place_limit_order<SUI, USD>(
+            clob_v2::deposit_quote<SUI, USD>(&mut pool, quote_coin, &account_cap);
+            clob_v2::place_limit_order<SUI, USD>(
                 &mut pool,
+                1,
                 1 * FLOAT_SCALING,
                 1000,
+                0,
                 true,
                 1000,
                 0,
@@ -271,19 +297,22 @@ module omniswap::swap_tests {
             let pool = test_scenario::take_shared<Pool<SUI, USD>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
+            let account_cap = clob_v2::create_account(ctx);
             let base_coin = coin::mint_for_testing<SUI>(1000, ctx);
             let swap_data = cross::construct_swap_data(
                 x"dee9",
                 x"dee9",
                 b"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-                b"000000000000000000000000000000000000000000000000000000000000dee9::clob::USD",
+                b"000000000000000000000000000000000000000000000000000000000000dee9::clob_v2::USD",
                 1000,
-                b"DeepBook,1000"
+                b"DeepBookV2,1000"
             );
 
-            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook<SUI, USD>(
+            let (left_base_coin, quote_coin, swap_value) = swap::swap_for_quote_asset_by_deepbook_v2<SUI, USD>(
                 &mut pool,
                 base_coin,
+                &account_cap,
+                1,
                 swap_data,
                 &clock,
                 ctx
@@ -296,6 +325,8 @@ module omniswap::swap_tests {
 
             coin::burn_for_testing(quote_coin);
             coin::burn_for_testing(left_base_coin);
+
+            custodian_v2::delete_account_cap(account_cap);
 
             test_scenario::return_shared(pool);
             test_scenario::return_shared(clock);

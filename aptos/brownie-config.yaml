@@ -43,7 +43,7 @@ networks:
       chainid: 22
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -143,7 +143,7 @@ networks:
       chainid: 22
       token_bridge: "0x576410486a2da45eee6c949c995670112ddf2fbeedab20350d506328eefc9d4f"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         goerli:
           dst_chainid: 2
@@ -222,7 +222,7 @@ networks:
       token_bridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"
       wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         bsc-main:
           dst_chainid: 4
@@ -305,7 +305,7 @@ networks:
       token_bridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7"
       wormhole: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -384,7 +384,7 @@ networks:
       token_bridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE"
       wormhole: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2
@@ -471,7 +471,7 @@ networks:
       token_bridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052"
       wormhole: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c"
       actual_reserve: 1.1
-      estimate_reserve: 1.2
+      estimate_reserve: 1.11
       gas:
         mainnet:
           dst_chainid: 2

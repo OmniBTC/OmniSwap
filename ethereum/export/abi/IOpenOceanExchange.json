@@ -1,0 +1,1804 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IOpenOceanCaller",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "contract IERC20",
+              "name": "srcToken",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IERC20",
+              "name": "dstToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "srcReceiver",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "dstReceiver",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minReturnAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "guaranteedAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "flags",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "referrer",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "permit",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct IOpenOceanExchange.SwapDescription",
+          "name": "desc",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "target",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "gasLimit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct IOpenOceanCaller.CallDescription[]",
+          "name": "calls",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "returnAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "allSourcePaths": {
+    "4": "/home/hacpy/.brownie/packages/OpenZeppelin/openzeppelin-contracts@4.6.0/contracts/token/ERC20/IERC20.sol",
+    "79": "contracts/Interfaces/OpenOcean/IOpenOceanExchange.sol"
+  },
+  "ast": {
+    "absolutePath": "contracts/Interfaces/OpenOcean/IOpenOceanExchange.sol",
+    "exportedSymbols": {
+      "IERC20": [
+        45705
+      ],
+      "IOpenOceanCaller": [
+        20991
+      ],
+      "IOpenOceanExchange": [
+        21030
+      ],
+      "IUniswapV2Exchange": [
+        21099
+      ]
+    },
+    "id": 21100,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 20967,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:23:79"
+      },
+      {
+        "absolutePath": "/home/hacpy/.brownie/packages/OpenZeppelin/openzeppelin-contracts@4.6.0/contracts/token/ERC20/IERC20.sol",
+        "file": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "id": 20968,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 21100,
+        "sourceUnit": 45706,
+        "src": "64:56:79",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IOpenOceanCaller",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "id": 20991,
+        "linearizedBaseContracts": [
+          20991
+        ],
+        "name": "IOpenOceanCaller",
+        "nameLocation": "132:16:79",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "IOpenOceanCaller.CallDescription",
+            "id": 20977,
+            "members": [
+              {
+                "constant": false,
+                "id": 20970,
+                "mutability": "mutable",
+                "name": "target",
+                "nameLocation": "196:6:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 20977,
+                "src": "188:14:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 20969,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "188:7:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 20972,
+                "mutability": "mutable",
+                "name": "gasLimit",
+                "nameLocation": "220:8:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 20977,
+                "src": "212:16:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 20971,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "212:7:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 20974,
+                "mutability": "mutable",
+                "name": "value",
+                "nameLocation": "246:5:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 20977,
+                "src": "238:13:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 20973,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "238:7:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 20976,
+                "mutability": "mutable",
+                "name": "data",
+                "nameLocation": "267:4:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 20977,
+                "src": "261:10:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 20975,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "261:5:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "CallDescription",
+            "nameLocation": "162:15:79",
+            "nodeType": "StructDefinition",
+            "scope": 20991,
+            "src": "155:123:79",
+            "visibility": "public"
+          },
+          {
+            "functionSelector": "0c7e1209",
+            "id": 20983,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "makeCall",
+            "nameLocation": "293:8:79",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 20981,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20980,
+                  "mutability": "mutable",
+                  "name": "desc",
+                  "nameLocation": "325:4:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20983,
+                  "src": "302:27:79",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_CallDescription_$20977_memory_ptr",
+                    "typeString": "struct IOpenOceanCaller.CallDescription"
+                  },
+                  "typeName": {
+                    "id": 20979,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 20978,
+                      "name": "CallDescription",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 20977,
+                      "src": "302:15:79"
+                    },
+                    "referencedDeclaration": 20977,
+                    "src": "302:15:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_CallDescription_$20977_storage_ptr",
+                      "typeString": "struct IOpenOceanCaller.CallDescription"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "301:29:79"
+            },
+            "returnParameters": {
+              "id": 20982,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "339:0:79"
+            },
+            "scope": 20991,
+            "src": "284:56:79",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "a8920d2b",
+            "id": 20990,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "makeCalls",
+            "nameLocation": "355:9:79",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 20988,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20987,
+                  "mutability": "mutable",
+                  "name": "desc",
+                  "nameLocation": "390:4:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20990,
+                  "src": "365:29:79",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_CallDescription_$20977_memory_ptr_$dyn_memory_ptr",
+                    "typeString": "struct IOpenOceanCaller.CallDescription[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 20985,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 20984,
+                        "name": "CallDescription",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 20977,
+                        "src": "365:15:79"
+                      },
+                      "referencedDeclaration": 20977,
+                      "src": "365:15:79",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_CallDescription_$20977_storage_ptr",
+                        "typeString": "struct IOpenOceanCaller.CallDescription"
+                      }
+                    },
+                    "id": 20986,
+                    "nodeType": "ArrayTypeName",
+                    "src": "365:17:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_CallDescription_$20977_storage_$dyn_storage_ptr",
+                      "typeString": "struct IOpenOceanCaller.CallDescription[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "364:31:79"
+            },
+            "returnParameters": {
+              "id": 20989,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "412:0:79"
+            },
+            "scope": 20991,
+            "src": "346:67:79",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 21100,
+        "src": "122:293:79",
+        "usedErrors": []
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IOpenOceanExchange",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "id": 21030,
+        "linearizedBaseContracts": [
+          21030
+        ],
+        "name": "IOpenOceanExchange",
+        "nameLocation": "427:18:79",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "IOpenOceanExchange.SwapDescription",
+            "id": 21014,
+            "members": [
+              {
+                "constant": false,
+                "id": 20994,
+                "mutability": "mutable",
+                "name": "srcToken",
+                "nameLocation": "492:8:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "485:15:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_contract$_IERC20_$45705",
+                  "typeString": "contract IERC20"
+                },
+                "typeName": {
+                  "id": 20993,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 20992,
+                    "name": "IERC20",
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 45705,
+                    "src": "485:6:79"
+                  },
+                  "referencedDeclaration": 45705,
+                  "src": "485:6:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$45705",
+                    "typeString": "contract IERC20"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 20997,
+                "mutability": "mutable",
+                "name": "dstToken",
+                "nameLocation": "517:8:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "510:15:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_contract$_IERC20_$45705",
+                  "typeString": "contract IERC20"
+                },
+                "typeName": {
+                  "id": 20996,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 20995,
+                    "name": "IERC20",
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 45705,
+                    "src": "510:6:79"
+                  },
+                  "referencedDeclaration": 45705,
+                  "src": "510:6:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$45705",
+                    "typeString": "contract IERC20"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 20999,
+                "mutability": "mutable",
+                "name": "srcReceiver",
+                "nameLocation": "543:11:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "535:19:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 20998,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "535:7:79",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21001,
+                "mutability": "mutable",
+                "name": "dstReceiver",
+                "nameLocation": "572:11:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "564:19:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 21000,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "564:7:79",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21003,
+                "mutability": "mutable",
+                "name": "amount",
+                "nameLocation": "601:6:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "593:14:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 21002,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "593:7:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21005,
+                "mutability": "mutable",
+                "name": "minReturnAmount",
+                "nameLocation": "625:15:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "617:23:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 21004,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "617:7:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21007,
+                "mutability": "mutable",
+                "name": "guaranteedAmount",
+                "nameLocation": "658:16:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "650:24:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 21006,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "650:7:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21009,
+                "mutability": "mutable",
+                "name": "flags",
+                "nameLocation": "692:5:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "684:13:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 21008,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "684:7:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21011,
+                "mutability": "mutable",
+                "name": "referrer",
+                "nameLocation": "715:8:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "707:16:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 21010,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "707:7:79",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21013,
+                "mutability": "mutable",
+                "name": "permit",
+                "nameLocation": "739:6:79",
+                "nodeType": "VariableDeclaration",
+                "scope": 21014,
+                "src": "733:12:79",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 21012,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "733:5:79",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SwapDescription",
+            "nameLocation": "459:15:79",
+            "nodeType": "StructDefinition",
+            "scope": 21030,
+            "src": "452:300:79",
+            "visibility": "public"
+          },
+          {
+            "functionSelector": "90411a32",
+            "id": 21029,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swap",
+            "nameLocation": "767:4:79",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 21025,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21017,
+                  "mutability": "mutable",
+                  "name": "caller",
+                  "nameLocation": "798:6:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21029,
+                  "src": "781:23:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IOpenOceanCaller_$20991",
+                    "typeString": "contract IOpenOceanCaller"
+                  },
+                  "typeName": {
+                    "id": 21016,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21015,
+                      "name": "IOpenOceanCaller",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 20991,
+                      "src": "781:16:79"
+                    },
+                    "referencedDeclaration": 20991,
+                    "src": "781:16:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IOpenOceanCaller_$20991",
+                      "typeString": "contract IOpenOceanCaller"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21020,
+                  "mutability": "mutable",
+                  "name": "desc",
+                  "nameLocation": "839:4:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21029,
+                  "src": "814:29:79",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SwapDescription_$21014_calldata_ptr",
+                    "typeString": "struct IOpenOceanExchange.SwapDescription"
+                  },
+                  "typeName": {
+                    "id": 21019,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21018,
+                      "name": "SwapDescription",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 21014,
+                      "src": "814:15:79"
+                    },
+                    "referencedDeclaration": 21014,
+                    "src": "814:15:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SwapDescription_$21014_storage_ptr",
+                      "typeString": "struct IOpenOceanExchange.SwapDescription"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21024,
+                  "mutability": "mutable",
+                  "name": "calls",
+                  "nameLocation": "897:5:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21029,
+                  "src": "853:49:79",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_CallDescription_$20977_calldata_ptr_$dyn_calldata_ptr",
+                    "typeString": "struct IOpenOceanCaller.CallDescription[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 21022,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 21021,
+                        "name": "IOpenOceanCaller.CallDescription",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 20977,
+                        "src": "853:32:79"
+                      },
+                      "referencedDeclaration": 20977,
+                      "src": "853:32:79",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_CallDescription_$20977_storage_ptr",
+                        "typeString": "struct IOpenOceanCaller.CallDescription"
+                      }
+                    },
+                    "id": 21023,
+                    "nodeType": "ArrayTypeName",
+                    "src": "853:34:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_CallDescription_$20977_storage_$dyn_storage_ptr",
+                      "typeString": "struct IOpenOceanCaller.CallDescription[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "771:137:79"
+            },
+            "returnParameters": {
+              "id": 21028,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21027,
+                  "mutability": "mutable",
+                  "name": "returnAmount",
+                  "nameLocation": "943:12:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21029,
+                  "src": "935:20:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21026,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "935:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "934:22:79"
+            },
+            "scope": 21030,
+            "src": "758:199:79",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 21100,
+        "src": "417:542:79",
+        "usedErrors": []
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IUniswapV2Exchange",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "id": 21099,
+        "linearizedBaseContracts": [
+          21099
+        ],
+        "name": "IUniswapV2Exchange",
+        "nameLocation": "971:18:79",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "functionSelector": "8980041a",
+            "id": 21045,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "callUniswap",
+            "nameLocation": "1005:11:79",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 21041,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21033,
+                  "mutability": "mutable",
+                  "name": "srcToken",
+                  "nameLocation": "1033:8:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21045,
+                  "src": "1026:15:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$45705",
+                    "typeString": "contract IERC20"
+                  },
+                  "typeName": {
+                    "id": 21032,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21031,
+                      "name": "IERC20",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 45705,
+                      "src": "1026:6:79"
+                    },
+                    "referencedDeclaration": 45705,
+                    "src": "1026:6:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IERC20_$45705",
+                      "typeString": "contract IERC20"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21035,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "1059:6:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21045,
+                  "src": "1051:14:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21034,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1051:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21037,
+                  "mutability": "mutable",
+                  "name": "minReturn",
+                  "nameLocation": "1083:9:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21045,
+                  "src": "1075:17:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21036,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1075:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21040,
+                  "mutability": "mutable",
+                  "name": "pools",
+                  "nameLocation": "1121:5:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21045,
+                  "src": "1102:24:79",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bytes32_$dyn_calldata_ptr",
+                    "typeString": "bytes32[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 21038,
+                      "name": "bytes32",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1102:7:79",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "id": 21039,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1102:9:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_bytes32_$dyn_storage_ptr",
+                      "typeString": "bytes32[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1016:116:79"
+            },
+            "returnParameters": {
+              "id": 21044,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21043,
+                  "mutability": "mutable",
+                  "name": "returnAmount",
+                  "nameLocation": "1167:12:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21045,
+                  "src": "1159:20:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21042,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1159:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1158:22:79"
+            },
+            "scope": 21099,
+            "src": "996:185:79",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "6b58f2f0",
+            "id": 21062,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "callUniswapTo",
+            "nameLocation": "1196:13:79",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 21058,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21048,
+                  "mutability": "mutable",
+                  "name": "srcToken",
+                  "nameLocation": "1226:8:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21062,
+                  "src": "1219:15:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$45705",
+                    "typeString": "contract IERC20"
+                  },
+                  "typeName": {
+                    "id": 21047,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21046,
+                      "name": "IERC20",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 45705,
+                      "src": "1219:6:79"
+                    },
+                    "referencedDeclaration": 45705,
+                    "src": "1219:6:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IERC20_$45705",
+                      "typeString": "contract IERC20"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21050,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "1252:6:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21062,
+                  "src": "1244:14:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21049,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1244:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21052,
+                  "mutability": "mutable",
+                  "name": "minReturn",
+                  "nameLocation": "1276:9:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21062,
+                  "src": "1268:17:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21051,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1268:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21055,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21062,
+                  "src": "1295:18:79",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bytes32_$dyn_calldata_ptr",
+                    "typeString": "bytes32[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 21053,
+                      "name": "bytes32",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1295:7:79",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "id": 21054,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1295:9:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_bytes32_$dyn_storage_ptr",
+                      "typeString": "bytes32[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21057,
+                  "mutability": "mutable",
+                  "name": "recipient",
+                  "nameLocation": "1351:9:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21062,
+                  "src": "1335:25:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address_payable",
+                    "typeString": "address payable"
+                  },
+                  "typeName": {
+                    "id": 21056,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1335:15:79",
+                    "stateMutability": "payable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address_payable",
+                      "typeString": "address payable"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1209:157:79"
+            },
+            "returnParameters": {
+              "id": 21061,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21060,
+                  "mutability": "mutable",
+                  "name": "returnAmount",
+                  "nameLocation": "1401:12:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21062,
+                  "src": "1393:20:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21059,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1393:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1392:22:79"
+            },
+            "scope": 21099,
+            "src": "1187:228:79",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "d57360fc",
+            "id": 21079,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "callUniswapWithPermit",
+            "nameLocation": "1430:21:79",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 21075,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21065,
+                  "mutability": "mutable",
+                  "name": "srcToken",
+                  "nameLocation": "1468:8:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21079,
+                  "src": "1461:15:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$45705",
+                    "typeString": "contract IERC20"
+                  },
+                  "typeName": {
+                    "id": 21064,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21063,
+                      "name": "IERC20",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 45705,
+                      "src": "1461:6:79"
+                    },
+                    "referencedDeclaration": 45705,
+                    "src": "1461:6:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IERC20_$45705",
+                      "typeString": "contract IERC20"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21067,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "1494:6:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21079,
+                  "src": "1486:14:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21066,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1486:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21069,
+                  "mutability": "mutable",
+                  "name": "minReturn",
+                  "nameLocation": "1518:9:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21079,
+                  "src": "1510:17:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21068,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1510:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21072,
+                  "mutability": "mutable",
+                  "name": "pools",
+                  "nameLocation": "1556:5:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21079,
+                  "src": "1537:24:79",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bytes32_$dyn_calldata_ptr",
+                    "typeString": "bytes32[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 21070,
+                      "name": "bytes32",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1537:7:79",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "id": 21071,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1537:9:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_bytes32_$dyn_storage_ptr",
+                      "typeString": "bytes32[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21074,
+                  "mutability": "mutable",
+                  "name": "permit",
+                  "nameLocation": "1586:6:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21079,
+                  "src": "1571:21:79",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 21073,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1571:5:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1451:147:79"
+            },
+            "returnParameters": {
+              "id": 21078,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21077,
+                  "mutability": "mutable",
+                  "name": "returnAmount",
+                  "nameLocation": "1625:12:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21079,
+                  "src": "1617:20:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21076,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1617:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1616:22:79"
+            },
+            "scope": 21099,
+            "src": "1421:218:79",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "22dca3d7",
+            "id": 21098,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "callUniswapToWithPermit",
+            "nameLocation": "1654:23:79",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 21094,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21082,
+                  "mutability": "mutable",
+                  "name": "srcToken",
+                  "nameLocation": "1694:8:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21098,
+                  "src": "1687:15:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$45705",
+                    "typeString": "contract IERC20"
+                  },
+                  "typeName": {
+                    "id": 21081,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21080,
+                      "name": "IERC20",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 45705,
+                      "src": "1687:6:79"
+                    },
+                    "referencedDeclaration": 45705,
+                    "src": "1687:6:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IERC20_$45705",
+                      "typeString": "contract IERC20"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21084,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "1720:6:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21098,
+                  "src": "1712:14:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21083,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1712:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21086,
+                  "mutability": "mutable",
+                  "name": "minReturn",
+                  "nameLocation": "1744:9:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21098,
+                  "src": "1736:17:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21085,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1736:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21089,
+                  "mutability": "mutable",
+                  "name": "pools",
+                  "nameLocation": "1782:5:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21098,
+                  "src": "1763:24:79",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bytes32_$dyn_calldata_ptr",
+                    "typeString": "bytes32[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 21087,
+                      "name": "bytes32",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1763:7:79",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "id": 21088,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1763:9:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_bytes32_$dyn_storage_ptr",
+                      "typeString": "bytes32[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21091,
+                  "mutability": "mutable",
+                  "name": "permit",
+                  "nameLocation": "1812:6:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21098,
+                  "src": "1797:21:79",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 21090,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1797:5:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21093,
+                  "mutability": "mutable",
+                  "name": "recipient",
+                  "nameLocation": "1844:9:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21098,
+                  "src": "1828:25:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address_payable",
+                    "typeString": "address payable"
+                  },
+                  "typeName": {
+                    "id": 21092,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1828:15:79",
+                    "stateMutability": "payable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address_payable",
+                      "typeString": "address payable"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1677:182:79"
+            },
+            "returnParameters": {
+              "id": 21097,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21096,
+                  "mutability": "mutable",
+                  "name": "returnAmount",
+                  "nameLocation": "1886:12:79",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21098,
+                  "src": "1878:20:79",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21095,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1878:7:79",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1877:22:79"
+            },
+            "scope": 21099,
+            "src": "1645:255:79",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 21100,
+        "src": "961:941:79",
+        "usedErrors": []
+      }
+    ],
+    "src": "39:1864:79"
+  },
+  "bytecode": "",
+  "bytecodeSha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "compiler": {
+    "evm_version": "istanbul",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "version": "0.8.13+commit.abaa5c0e"
+  },
+  "contractName": "IOpenOceanExchange",
+  "coverageMap": {
+    "branches": {},
+    "statements": {}
+  },
+  "dependencies": [
+    "OpenZeppelin/openzeppelin-contracts@4.6.0/IERC20",
+    "IOpenOceanCaller"
+  ],
+  "deployedBytecode": "",
+  "deployedSourceMap": "",
+  "language": "Solidity",
+  "natspec": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "offset": [
+    417,
+    959
+  ],
+  "opcodes": "",
+  "pcMap": {},
+  "sha1": "9bf7266c1483faaf0590d592aaffe783e1f50db7",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.0;\n\nimport \"@openzeppelin/contracts/token/ERC20/IERC20.sol\";\n\ninterface IOpenOceanCaller {\n    struct CallDescription {\n        uint256 target;\n        uint256 gasLimit;\n        uint256 value;\n        bytes data;\n    }\n\n    function makeCall(CallDescription memory desc) external;\n\n    function makeCalls(CallDescription[] memory desc) external payable;\n}\n\ninterface IOpenOceanExchange {\n    struct SwapDescription {\n        IERC20 srcToken;\n        IERC20 dstToken;\n        address srcReceiver;\n        address dstReceiver;\n        uint256 amount;\n        uint256 minReturnAmount;\n        uint256 guaranteedAmount;\n        uint256 flags;\n        address referrer;\n        bytes permit;\n    }\n\n    function swap(\n        IOpenOceanCaller caller,\n        SwapDescription calldata desc,\n        IOpenOceanCaller.CallDescription[] calldata calls\n    ) external payable returns (uint256 returnAmount);\n}\n\ninterface IUniswapV2Exchange {\n    function callUniswap(\n        IERC20 srcToken,\n        uint256 amount,\n        uint256 minReturn,\n        bytes32[] calldata pools\n    ) external payable returns (uint256 returnAmount);\n\n    function callUniswapTo(\n        IERC20 srcToken,\n        uint256 amount,\n        uint256 minReturn,\n        bytes32[] calldata, /* pools */\n        address payable recipient\n    ) external payable returns (uint256 returnAmount);\n\n    function callUniswapWithPermit(\n        IERC20 srcToken,\n        uint256 amount,\n        uint256 minReturn,\n        bytes32[] calldata pools,\n        bytes calldata permit\n    ) external returns (uint256 returnAmount);\n\n    function callUniswapToWithPermit(\n        IERC20 srcToken,\n        uint256 amount,\n        uint256 minReturn,\n        bytes32[] calldata pools,\n        bytes calldata permit,\n        address payable recipient\n    ) external returns (uint256 returnAmount);\n}\n",
+  "sourceMap": "",
+  "sourcePath": "contracts/Interfaces/OpenOcean/IOpenOceanExchange.sol",
+  "type": "interface"
+}

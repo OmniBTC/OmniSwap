@@ -8,8 +8,8 @@ import "../Libraries/LibBytes.sol";
 import "../Libraries/LibCross.sol";
 import "../Libraries/LibCelerMessageSender.sol";
 import "../Interfaces/ISo.sol";
-import "../Interfaces/ICelerMessageBus.sol";
-import "../Interfaces/ICelerBridge.sol";
+import "../Interfaces/Celer/ICelerMessageBus.sol";
+import "../Interfaces/Celer/ICelerBridge.sol";
 import "../Interfaces/ILibSoFee.sol";
 import "../Interfaces/ILibPriceV2.sol";
 import "../Helpers/Swapper.sol";
@@ -164,9 +164,10 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     /// @dev Sets the scale to be used when calculating executor fees
     /// @param actualReserve percentage of actual use of executor fees, expressed as RAY
     /// @param estimateReserve estimated percentage of use at the time of call, expressed as RAY
-    function setCelerReserve(uint256 actualReserve, uint256 estimateReserve)
-        external
-    {
+    function setCelerReserve(
+        uint256 actualReserve,
+        uint256 estimateReserve
+    ) external {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
 
@@ -179,9 +180,10 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     /// @dev Set the minimum gas to be spent on the destination chain
     /// @param dstChainIds  a batch of destination chain id
     /// @param dstBaseGas  base gas for destination chain
-    function setBaseGas(uint64[] calldata dstChainIds, uint256 dstBaseGas)
-        external
-    {
+    function setBaseGas(
+        uint64[] calldata dstChainIds,
+        uint256 dstBaseGas
+    ) external {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
 
@@ -379,15 +381,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         ISo.NormalizedSoData calldata soData,
         CelerData calldata celerData,
         LibSwap.NormalizedSwapData[] calldata swapDataDst
-    )
-        public
-        returns (
-            bool,
-            uint256,
-            uint256,
-            uint256
-        )
-    {
+    ) public returns (bool, uint256, uint256, uint256) {
         CacheCheck memory data;
         Storage storage s = getStorage();
 
@@ -497,7 +491,9 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     // 7. length + sendingAssetId(SwapData)
     // 8. length + receivingAssetId(SwapData)
     // 9. length + callData(SwapData)
-    function decodeCelerPayload(bytes memory celerPayload)
+    function decodeCelerPayload(
+        bytes memory celerPayload
+    )
         public
         pure
         returns (
@@ -586,15 +582,7 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
         ISo.NormalizedSoData calldata soDataNo,
         LibSwap.NormalizedSwapData[] calldata swapDataDstNo,
         bool is_actual
-    )
-        public
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
-    {
+    ) public view returns (uint256, uint256, uint256) {
         CacheEstimate memory c;
         Storage storage s = getStorage();
 
@@ -634,20 +622,17 @@ contract CelerFacet is Swapper, ReentrancyGuard, CelerMessageReceiver {
     }
 
     /// @dev Calculate celer message fee
-    function getCelerMessageFee1(address messageBus, bytes memory message)
-        public
-        view
-        returns (uint256)
-    {
+    function getCelerMessageFee1(
+        address messageBus,
+        bytes memory message
+    ) public view returns (uint256) {
         return ICelerMessageBus(messageBus).calcFee(message);
     }
 
     /// @dev Calculate celer message fee
-    function getCelerMessageFee2(bytes memory message)
-        public
-        view
-        returns (uint256)
-    {
+    function getCelerMessageFee2(
+        bytes memory message
+    ) public view returns (uint256) {
         Storage storage s = getStorage();
         return getCelerMessageFee1(s.messageBus, message);
     }
