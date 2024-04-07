@@ -3,7 +3,8 @@ import os
 import time
 from random import choice
 
-from brownie import Contract, web3
+from brownie import Contract, web3, network
+from brownie.network import priority_fee, max_fee, gas_price
 from brownie.project.main import Project
 from scripts.helpful_scripts import (
     get_account,
@@ -30,6 +31,12 @@ root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 src_session: Session = None
 dst_session: Session = None
+
+if "core" in network.show_active():
+    # need to use the old fee calculation model
+    priority_fee(None)
+    max_fee(None)
+    gas_price("30 gwei")
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -1257,7 +1264,7 @@ def single_swap(
     )
 
 
-def main(src_net="bsc-test", dst_net="core-test", bridge="corebridge"):
+def main(src_net="core-main", dst_net="bsc-main", bridge="corebridge"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1309,14 +1316,14 @@ def main(src_net="bsc-test", dst_net="core-test", bridge="corebridge"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                1 * src_session.put_task(get_token_decimal, args=("core-usdc",))
+                1 * src_session.put_task(get_token_decimal, args=("usdt",))
             ),
-            sourceTokenName="core-usdc",
-            destinationTokenName="core-usdc",
+            sourceTokenName="usdt",
+            destinationTokenName="usdt",
             sourceSwapType=None,
             sourceSwapFunc=None,
             sourceSwapPath=(),
-            bridgeTokenName="core-usdc",
+            bridgeTokenName="usdt",
         )
 
     elif bridge == "wormhole":
