@@ -1,0 +1,28 @@
+[package]
+name = "omniswap"
+version = "0.3.1"
+description = "www.omnibtc.finance"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "omniswap"
+
+[features]
+mainnet = ["wormhole-anchor-sdk/mainnet"]
+testnet = ["wormhole-anchor-sdk/solana-devnet"]
+
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = ["testnet"]
+
+[dependencies]
+anchor-lang = { version = "0.28.0", features = ["init-if-needed"]}
+anchor-spl = "0.28.0"
+spl-math = { version = "0.2.0", features = ["no-entrypoint"] }
+wormhole-anchor-sdk = { path = "../../modules/wormhole-anchor-sdk", default-features = false, features = ["token-bridge"]}
+
+[dev-dependencies]
+hex-literal = "0.4.1"

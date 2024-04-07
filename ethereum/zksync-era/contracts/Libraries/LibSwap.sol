@@ -54,7 +54,7 @@ library LibSwap {
             : 0;
 
         if (!LibAsset.isNativeAsset(fromAssetId)) {
-            LibAsset.maxApproveERC20(
+            LibAsset.safeApproveERC20(
                 IERC20(fromAssetId),
                 _swapData.approveTo,
                 fromAmount

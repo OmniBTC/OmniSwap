@@ -143,3 +143,11 @@ bug/
 sui.log.*
 /ethereum/zksync-era/artifacts-zk/
 /ethereum/zksync-era/cache-zk/
+
+.anchor
+target
+**/*.rs.bk
+test-ledger
+.yarn
+*/.env
+**pycache**

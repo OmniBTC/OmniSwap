@@ -30,6 +30,16 @@ def get_wormhole_facet():
     )
 
 
+def get_cctp_facet():
+    contract_name = "CCTPFacet"
+    net = network.show_active()
+    return Contract.from_abi(
+        contract_name,
+        config["networks"][net]["SoDiamond"],
+        omniswap_ethereum_project[contract_name].abi,
+    )
+
+
 @functools.lru_cache()
 def get_stargate_facet():
     contract_name = "StargateFacet"
@@ -37,6 +47,17 @@ def get_stargate_facet():
     return Contract.from_abi(
         contract_name,
         config["networks"][net]["SoDiamond"],
+        omniswap_ethereum_project[contract_name].abi,
+    )
+
+
+@functools.lru_cache()
+def get_stargate_helper_facet():
+    contract_name = "StargateHelper"
+    net = network.show_active()
+    return Contract.from_abi(
+        contract_name,
+        config["networks"][net]["StargateHelper"],
         omniswap_ethereum_project[contract_name].abi,
     )
 

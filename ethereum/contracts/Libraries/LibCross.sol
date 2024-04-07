@@ -8,11 +8,9 @@ import {LibBytes} from "../Libraries/LibBytes.sol";
 library LibCross {
     using LibBytes for bytes;
 
-    function normalizeSoData(ISo.SoData memory soData)
-        internal
-        pure
-        returns (ISo.NormalizedSoData memory)
-    {
+    function normalizeSoData(
+        ISo.SoData memory soData
+    ) internal pure returns (ISo.NormalizedSoData memory) {
         ISo.NormalizedSoData memory data;
         data.transactionId = abi.encodePacked(soData.transactionId);
         data.receiver = abi.encodePacked(soData.receiver);
@@ -33,11 +31,9 @@ library LibCross {
         }
     }
 
-    function denormalizeSoData(ISo.NormalizedSoData memory data)
-        internal
-        pure
-        returns (ISo.SoData memory)
-    {
+    function denormalizeSoData(
+        ISo.NormalizedSoData memory data
+    ) internal pure returns (ISo.SoData memory) {
         return
             ISo.SoData({
                 transactionId: data.transactionId.toBytes32(0),
@@ -50,11 +46,9 @@ library LibCross {
             });
     }
 
-    function normalizeSwapData(LibSwap.SwapData[] memory swapData)
-        internal
-        pure
-        returns (LibSwap.NormalizedSwapData[] memory)
-    {
+    function normalizeSwapData(
+        LibSwap.SwapData[] memory swapData
+    ) internal pure returns (LibSwap.NormalizedSwapData[] memory) {
         LibSwap.NormalizedSwapData[]
             memory data = new LibSwap.NormalizedSwapData[](swapData.length);
 
@@ -74,11 +68,9 @@ library LibCross {
         return data;
     }
 
-    function denormalizeSwapData(LibSwap.NormalizedSwapData[] memory data)
-        internal
-        pure
-        returns (LibSwap.SwapData[] memory)
-    {
+    function denormalizeSwapData(
+        LibSwap.NormalizedSwapData[] memory data
+    ) internal pure returns (LibSwap.SwapData[] memory) {
         LibSwap.SwapData[] memory swapData = new LibSwap.SwapData[](
             data.length
         );
@@ -95,11 +87,9 @@ library LibCross {
         return swapData;
     }
 
-    function encodeNormalizedSoData(ISo.NormalizedSoData memory data)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function encodeNormalizedSoData(
+        ISo.NormalizedSoData memory data
+    ) internal pure returns (bytes memory) {
         bytes memory encodeData = abi.encodePacked(
             uint64(data.transactionId.length),
             data.transactionId,
@@ -121,11 +111,9 @@ library LibCross {
         return encodeData;
     }
 
-    function decodeNormalizedSoData(bytes memory soData)
-        internal
-        pure
-        returns (ISo.NormalizedSoData memory)
-    {
+    function decodeNormalizedSoData(
+        bytes memory soData
+    ) internal pure returns (ISo.NormalizedSoData memory) {
         ISo.NormalizedSoData memory data;
         uint256 index;
         uint256 nextLen;
@@ -167,11 +155,9 @@ library LibCross {
         return data;
     }
 
-    function encodeNormalizedSwapData(LibSwap.NormalizedSwapData[] memory data)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function encodeNormalizedSwapData(
+        LibSwap.NormalizedSwapData[] memory data
+    ) internal pure returns (bytes memory) {
         bytes memory encodeData = bytes("");
 
         if (data.length > 0) {
@@ -204,11 +190,9 @@ library LibCross {
         return encodeData;
     }
 
-    function decodeNormalizedSwapData(bytes memory swapData)
-        internal
-        pure
-        returns (LibSwap.NormalizedSwapData[] memory)
-    {
+    function decodeNormalizedSwapData(
+        bytes memory swapData
+    ) internal pure returns (LibSwap.NormalizedSwapData[] memory) {
         uint256 index;
         uint256 nextLen;
 
@@ -255,11 +239,9 @@ library LibCross {
         return data;
     }
 
-    function serializeU256WithHexStr(uint256 data)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function serializeU256WithHexStr(
+        uint256 data
+    ) internal pure returns (bytes memory) {
         bytes memory encodeData = abi.encodePacked(uint8(data & 0xFF));
         data = data >> 8;
 
@@ -272,11 +254,9 @@ library LibCross {
         return encodeData;
     }
 
-    function deserializeU256WithHexStr(bytes memory data)
-        internal
-        pure
-        returns (uint256)
-    {
+    function deserializeU256WithHexStr(
+        bytes memory data
+    ) internal pure returns (uint256) {
         uint256 buf = 0;
         for (uint256 i = 0; i < data.length; i++) {
             buf = (buf << 8) + data.toUint8(i);

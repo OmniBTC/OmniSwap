@@ -3,10 +3,10 @@ module omniswap::wormhole_facet_tests {
     use std::type_name;
     use std::vector;
 
-    use deepbook::clob::{Self, Pool};
+    use deepbook::clob_v2::{Self, Pool};
     use omniswap::cross::{Self, NormalizedSwapData};
     use omniswap::so_fee_wormhole::{Self, PriceManager};
-    use omniswap::wormhole_facet::{Self, WormholeFacetManager, WormholeFee, Storage};
+    use omniswap::wormhole_facet::{Self, DeepbookV2Storage, Storage, WormholeFacetManager, WormholeFee};
     use sui::address;
     use sui::clock::{Self, Clock};
     use sui::coin;
@@ -88,12 +88,26 @@ module omniswap::wormhole_facet_tests {
         };
     }
 
+    public fun setup_deepbook_v2_storage(scenario: &mut Scenario) {
+        let sender = test_scenario::sender(scenario);
+        test_scenario::next_tx(scenario, sender);
+        {
+            let wormhole_facet_manager = test_scenario::take_shared<WormholeFacetManager>(scenario);
+            let ctx = test_scenario::ctx(scenario);
+
+            wormhole_facet::init_deepbook_v2(&mut wormhole_facet_manager, ctx);
+
+            test_scenario::return_shared(wormhole_facet_manager);
+        };
+    }
+
+
     public fun setup_swap_for_base_asset_by_deepbook(scenario: &mut Scenario) {
         let sender = test_scenario::sender(scenario);
         test_scenario::next_tx(scenario, sender);
         {
             let ctx = test_scenario::ctx(scenario);
-            clob::create_pool<COIN_NATIVE_4, COIN_NATIVE_10>(
+            clob_v2::create_pool<COIN_NATIVE_4, COIN_NATIVE_10>(
                 1 * FLOAT_SCALING,
                 1,
                 coin::mint_for_testing<SUI>(FEE_AMOUNT_FOR_CREATE_POOL, ctx),
@@ -106,14 +120,16 @@ module omniswap::wormhole_facet_tests {
             let pool = test_scenario::take_shared<Pool<COIN_NATIVE_4, COIN_NATIVE_10>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
-            let account_cap = clob::create_account(ctx);
+            let account_cap = clob_v2::create_account(ctx);
             let base_coin = coin::mint_for_testing<COIN_NATIVE_4>(1000, ctx);
 
-            clob::deposit_base<COIN_NATIVE_4, COIN_NATIVE_10>(&mut pool, base_coin, &account_cap);
-            clob::place_limit_order<COIN_NATIVE_4, COIN_NATIVE_10>(
+            clob_v2::deposit_base<COIN_NATIVE_4, COIN_NATIVE_10>(&mut pool, base_coin, &account_cap);
+            clob_v2::place_limit_order<COIN_NATIVE_4, COIN_NATIVE_10>(
                 &mut pool,
+                1,
                 1 * FLOAT_SCALING,
                 1000,
+                0,
                 false,
                 1000,
                 0,
@@ -133,7 +149,7 @@ module omniswap::wormhole_facet_tests {
         test_scenario::next_tx(scenario, sender);
         {
             let ctx = test_scenario::ctx(scenario);
-            clob::create_pool<COIN_NATIVE_4, COIN_NATIVE_10>(
+            clob_v2::create_pool<COIN_NATIVE_4, COIN_NATIVE_10>(
                 1 * FLOAT_SCALING,
                 1,
                 coin::mint_for_testing<SUI>(FEE_AMOUNT_FOR_CREATE_POOL, ctx),
@@ -146,14 +162,16 @@ module omniswap::wormhole_facet_tests {
             let pool = test_scenario::take_shared<Pool<COIN_NATIVE_4, COIN_NATIVE_10>>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
             let ctx = test_scenario::ctx(scenario);
-            let account_cap = clob::create_account(ctx);
+            let account_cap = clob_v2::create_account(ctx);
             let quote_coin = coin::mint_for_testing<COIN_NATIVE_10>(1000, ctx);
 
-            clob::deposit_quote<COIN_NATIVE_4, COIN_NATIVE_10>(&mut pool, quote_coin, &account_cap);
-            clob::place_limit_order<COIN_NATIVE_4, COIN_NATIVE_10>(
+            clob_v2::deposit_quote<COIN_NATIVE_4, COIN_NATIVE_10>(&mut pool, quote_coin, &account_cap);
+            clob_v2::place_limit_order<COIN_NATIVE_4, COIN_NATIVE_10>(
                 &mut pool,
+                1,
                 1 * FLOAT_SCALING,
                 1000,
+                0,
                 true,
                 1000,
                 0,
@@ -262,18 +280,20 @@ module omniswap::wormhole_facet_tests {
     }
 
     #[test]
-    public fun test_so_swap_for_deepbook_base_asset() {
+    public fun test_so_swap_for_deepbook_v2_base_asset() {
         let sender = @0xA;
         let scenario_val = test_scenario::begin(sender);
         let scenario = &mut scenario_val;
 
         setup_facet(scenario);
         setup_swap_for_base_asset_by_deepbook(scenario);
+        setup_deepbook_v2_storage(scenario);
 
         test_scenario::next_tx(scenario, sender);
         {
             let wormhole_state = test_scenario::take_shared<WormholeState>(scenario);
             let facet_storage = test_scenario::take_shared<Storage>(scenario);
+            let deepbook_v2_storage = test_scenario::take_shared<DeepbookV2Storage>(scenario);
             let price_manager = test_scenario::take_shared<PriceManager>(scenario);
             let token_bridge_state = test_scenario::take_shared<TokenBridgeState>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
@@ -306,7 +326,7 @@ module omniswap::wormhole_facet_tests {
                 get_asset_id<COIN_NATIVE_10>(),
                 get_asset_id<COIN_NATIVE_4>(),
                 100,
-                b"DeepBook,0"
+                b"DeepBookV2,0"
             );
 
             let src_swap_data = vector[swap_data];
@@ -332,25 +352,27 @@ module omniswap::wormhole_facet_tests {
                 x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
             );
 
-            wormhole_facet::so_swap_for_deepbook_base_asset<COIN_NATIVE_4, COIN_NATIVE_10>(
+            wormhole_facet::so_swap_for_deepbook_v2_base_asset<COIN_NATIVE_4, COIN_NATIVE_10>(
+                &mut facet_storage,
+                &mut wormhole_fee,
+                &mut price_manager,
+                &mut pool,
                 &mut wormhole_state,
                 &mut token_bridge_state,
-                &mut facet_storage,
-                &clock,
-                &mut price_manager,
-                &mut wormhole_fee,
-                &mut pool,
+                &mut deepbook_v2_storage,
                 cross::encode_normalized_so_data(so_data),
                 cross::encode_normalized_swap_data(src_swap_data),
                 wormhole_facet::encode_normalized_wormhole_data(wormhole_data),
                 cross::encode_normalized_swap_data(dst_swap_data),
                 vector[input_coin],
                 vector[fee_coin],
+                &clock,
                 ctx
             );
 
             test_scenario::return_shared(wormhole_state);
             test_scenario::return_shared(facet_storage);
+            test_scenario::return_shared(deepbook_v2_storage);
             test_scenario::return_shared(price_manager);
             test_scenario::return_shared(token_bridge_state);
             test_scenario::return_shared(clock);
@@ -362,18 +384,20 @@ module omniswap::wormhole_facet_tests {
     }
 
     #[test]
-    public fun test_so_swap_for_deepbook_quote_asset() {
+    public fun test_so_swap_for_deepbook_v2_quote_asset() {
         let sender = @0xA;
         let scenario_val = test_scenario::begin(sender);
         let scenario = &mut scenario_val;
 
         setup_facet(scenario);
         setup_swap_for_base_asset_by_deepbook(scenario);
+        setup_deepbook_v2_storage(scenario);
 
         test_scenario::next_tx(scenario, sender);
         {
             let wormhole_state = test_scenario::take_shared<WormholeState>(scenario);
             let facet_storage = test_scenario::take_shared<Storage>(scenario);
+            let deepbook_v2_storage = test_scenario::take_shared<DeepbookV2Storage>(scenario);
             let price_manager = test_scenario::take_shared<PriceManager>(scenario);
             let token_bridge_state = test_scenario::take_shared<TokenBridgeState>(scenario);
             let clock = test_scenario::take_shared<Clock>(scenario);
@@ -406,7 +430,7 @@ module omniswap::wormhole_facet_tests {
                 get_asset_id<COIN_NATIVE_4>(),
                 get_asset_id<COIN_NATIVE_10>(),
                 100,
-                b"DeepBook,0"
+                b"DeepBookV2,0"
             );
 
             let src_swap_data = vector[swap_data];
@@ -432,25 +456,27 @@ module omniswap::wormhole_facet_tests {
                 x"2dA7e3a7F21cCE79efeb66f3b082196EA0A8B9af"
             );
 
-            wormhole_facet::so_swap_for_deepbook_quote_asset<COIN_NATIVE_4, COIN_NATIVE_10>(
-                &mut wormhole_state,
-                &mut token_bridge_state,
+            wormhole_facet::so_swap_for_deepbook_v2_quote_asset<COIN_NATIVE_4, COIN_NATIVE_10>(
                 &mut facet_storage,
-                &clock,
-                &mut price_manager,
                 &mut wormhole_fee,
+                &mut price_manager,
                 &mut pool,
+                &mut wormhole_state,
+                &mut deepbook_v2_storage,
+                &mut token_bridge_state,
                 cross::encode_normalized_so_data(so_data),
                 cross::encode_normalized_swap_data(src_swap_data),
                 wormhole_facet::encode_normalized_wormhole_data(wormhole_data),
                 cross::encode_normalized_swap_data(dst_swap_data),
                 vector[input_coin],
                 vector[fee_coin],
+                &clock,
                 ctx
             );
 
             test_scenario::return_shared(wormhole_state);
             test_scenario::return_shared(facet_storage);
+            test_scenario::return_shared(deepbook_v2_storage);
             test_scenario::return_shared(price_manager);
             test_scenario::return_shared(token_bridge_state);
             test_scenario::return_shared(clock);

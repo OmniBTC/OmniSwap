@@ -41,7 +41,7 @@ brownie networks add ZkSyncEra zksync2-test host="https://testnet.era.zksync.dev
 brownie networks add ZkSyncEra zksync2-main host="https://mainnet.era.zksync.io" name=zksync2-main chainid=324
 ```
 
-## Ignore Compile Warings
+## Ignore Compile Warnings
 
 - [x] `extcodesize`
     ```txt

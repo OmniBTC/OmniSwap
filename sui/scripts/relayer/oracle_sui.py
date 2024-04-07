@@ -33,25 +33,65 @@ def set_so_gas_for_test():
 
 
 def set_so_gas():
-    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "aptos-mainnet"]
+    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "aptos-mainnet", "solana-mainnet"]
     storage = sui_project.network_config["objects"]["FacetStorage"]
-    facet_manager = sui_project.network_config["objects"]["WormholeFacetManager"]
+    facet_manager = sui_project.network_config["objects"]["FacetManager"]
+    gas = {
+        "mainnet": {
+            "dst_chainid": 2,
+            "base_gas": 350000,
+            "per_byte_gas": 68,
+        },
+        # "bsc-main": {
+        #     "dst_chainid": 4,
+        #     "base_gas": 700000,
+        #     "per_byte_gas": 68
+        # },
+        # "polygon-main": {
+        #     "dst_chainid": 5,
+        #     "base_gas": 2800000,
+        #     "per_byte_gas": 68
+        # },
+        # "avax-main": {
+        #     "dst_chainid": 6,
+        #     "base_gas": 1400000,
+        #     "per_byte_gas": 68
+        # },
+        # "aptos-mainnet": {
+        #     "dst_chainid": 22,
+        #     "base_gas": 40000,
+        #     "per_byte_gas": 10
+        # },
+        # "sui-mainnet": {
+        #     "dst_chainid": 21,
+        #     "base_gas": 840000,
+        #     "per_byte_gas": 68
+        # },
+        # "solana-mainnet": {
+        #     "dst_chainid": 1,
+        #     "base_gas": 10000000000000000,
+        #     "per_byte_gas": 68
+        # }
+    }
 
     for net in nets:
-        base_gas = sui_project.network_config["wormhole"]["gas"][net]["base_gas"]
-        gas_per_bytes = sui_project.network_config["wormhole"]["gas"][net]["per_byte_gas"]
+        if net not in gas:
+            continue
+        base_gas = gas[net]["base_gas"]
+        gas_per_bytes = gas[net]["per_byte_gas"]
+        dst_chainid = gas[net]["dst_chainid"]
         print(f"Set wormhole gas for:{net}, bas_gas:{base_gas}, gas_per_bytes:{gas_per_bytes}")
         sui_package.wormhole_facet.set_wormhole_gas(
             storage,
             facet_manager,
-            sui_project.network_config["wormhole"]["gas"][net]["dst_chainid"],
+            dst_chainid,
             base_gas,
             gas_per_bytes
         )
 
 
 @functools.lru_cache()
-def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT")):
+def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")):
     api = ccxt.kucoin()
     prices = {}
 
@@ -121,7 +161,7 @@ def set_so_price():
     ratio_decimal = 1e8
     multiply = 1.2
 
-    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "aptos-mainnet"]
+    nets = ["mainnet", "bsc-main", "avax-main", "polygon-main", "aptos-mainnet", "solana-mainnet"]
     clock = sui_project.network_config["objects"]["Clock"]
     price_manager = sui_project.network_config["objects"]["PriceManager"]
 
@@ -166,6 +206,15 @@ def set_so_price():
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             sui_package.so_fee_wormhole.set_price_ratio(clock, price_manager, wormhole_chain_id, ratio)
 
+    if "solana-mainnet" in nets:
+        wormhole_chain_id = 1
+        old_ratio = int(get_price_ratio(sui_package, price_manager, wormhole_chain_id))
+        ratio = int(prices["SOL/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
+        print(f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} "
+              f"percent: {ratio / old_ratio if old_ratio > 0 else 0}")
+        if old_ratio < ratio or ratio * 1.1 < old_ratio:
+            sui_package.so_fee_wormhole.set_price_ratio(clock, price_manager, wormhole_chain_id, ratio)
+
 
 if __name__ == "__main__":
-    set_so_price()
+    set_so_gas()

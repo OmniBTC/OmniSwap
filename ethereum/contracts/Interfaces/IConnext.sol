@@ -124,9 +124,9 @@ interface IConnext {
         uint256 _relayerFee
     ) external returns (bytes32);
 
-    function execute(ExecuteArgs calldata _args)
-        external
-        returns (bytes32 transferId);
+    function execute(
+        ExecuteArgs calldata _args
+    ) external returns (bytes32 transferId);
 
     function forceUpdateSlippage(
         TransferInfo calldata _params,
@@ -137,15 +137,13 @@ interface IConnext {
 
     function bumpTransfer(bytes32 _transferId) external payable;
 
-    function routedTransfers(bytes32 _transferId)
-        external
-        view
-        returns (address[] memory);
+    function routedTransfers(
+        bytes32 _transferId
+    ) external view returns (address[] memory);
 
-    function transferStatus(bytes32 _transferId)
-        external
-        view
-        returns (DestinationTransferStatus);
+    function transferStatus(
+        bytes32 _transferId
+    ) external view returns (DestinationTransferStatus);
 
     function remote(uint32 _domain) external view returns (address);
 
@@ -153,10 +151,9 @@ interface IConnext {
 
     function nonce() external view returns (uint256);
 
-    function approvedSequencers(address _sequencer)
-        external
-        view
-        returns (bool);
+    function approvedSequencers(
+        address _sequencer
+    ) external view returns (bool);
 
     function xAppConnectionManager() external view returns (address);
 
@@ -168,34 +165,30 @@ interface IConnext {
 
     function getRouterApproval(address _router) external view returns (bool);
 
-    function getRouterRecipient(address _router)
-        external
-        view
-        returns (address);
+    function getRouterRecipient(
+        address _router
+    ) external view returns (address);
 
     function getRouterOwner(address _router) external view returns (address);
 
-    function getProposedRouterOwner(address _router)
-        external
-        view
-        returns (address);
+    function getProposedRouterOwner(
+        address _router
+    ) external view returns (address);
 
-    function getProposedRouterOwnerTimestamp(address _router)
-        external
-        view
-        returns (uint256);
+    function getProposedRouterOwnerTimestamp(
+        address _router
+    ) external view returns (uint256);
 
     function maxRoutersPerTransfer() external view returns (uint256);
 
-    function routerBalances(address _router, address _asset)
-        external
-        view
-        returns (uint256);
+    function routerBalances(
+        address _router,
+        address _asset
+    ) external view returns (uint256);
 
-    function getRouterApprovalForPortal(address _router)
-        external
-        view
-        returns (bool);
+    function getRouterApprovalForPortal(
+        address _router
+    ) external view returns (bool);
 
     function initializeRouter(address _owner, address _recipient) external;
 
@@ -211,9 +204,10 @@ interface IConnext {
         address _router
     ) external payable;
 
-    function addRouterLiquidity(uint256 _amount, address _local)
-        external
-        payable;
+    function addRouterLiquidity(
+        uint256 _amount,
+        address _local
+    ) external payable;
 
     function removeRouterLiquidityFor(
         TokenId memory _canonical,
@@ -229,13 +223,11 @@ interface IConnext {
     ) external;
 
     // ============ TOKEN_FACET ==============
-    function adoptedToCanonical(address _adopted)
-        external
-        view
-        returns (TokenId memory);
+    function adoptedToCanonical(
+        address _adopted
+    ) external view returns (TokenId memory);
 
-    function approvedAssets(TokenId calldata _canonical)
-        external
-        view
-        returns (bool);
+    function approvedAssets(
+        TokenId calldata _canonical
+    ) external view returns (bool);
 }

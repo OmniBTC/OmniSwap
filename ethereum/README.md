@@ -77,5 +77,7 @@ brownie networks modify polygon-test host=https://matic-mumbai.chainstacklabs.co
 
 ~~~shell
 brownie networks add Arbitrum arbitrum-test host=https://rinkeby.arbitrum.io/rpc name=Testnet chainid=421611
+
+brownie networks add Polygon zkevm-main host="https://zkevm-rpc.com" name="zkevm-main" chainid=1101
 ~~~
 

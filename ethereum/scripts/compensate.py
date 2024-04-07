@@ -16,7 +16,7 @@ from brownie import (
     config,
 )
 
-from scripts.helpful_scripts import get_account, get_stargate_router
+from scripts.helpful_scripts import get_account, get_stargate_router, change_network
 
 
 def is_weth(net, token: str):
@@ -125,6 +125,81 @@ def compensate_v3():
             withdraw_contract.withdraw(
                 actual_token_addr, receiver, received_amt, {"from": account}
             )
+
+
+def compensate_v4():
+    cmd = "curl --silent https://api.celerscan.com/scan/searchByTxHash?tx={tx}"
+    receivers = {
+        "0x80f6b7733c2361aad41923be52bdf896a63cb4cb065cb3046873e1d15d3d8471": "0x226B957018D22D68f11F9adB46873E982D0f080e",
+    }
+    account = get_account()
+    withdraw_contract = Contract.from_abi(
+        "WithdrawFacet", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820", WithdrawFacet.abi
+    )
+    for src_txid in receivers:
+        cur_cmd = cmd.replace("{tx}", src_txid)
+        with os.popen(cur_cmd) as f:
+            result = json.load(f)
+            result = result["txSearchInfo"][0]
+        if len(result["transfer"]) == 0:
+            continue
+        received_amt = int(result["transfer"][0]["received_amt"])
+        dst_token_addr = result["transfer"][0]["dst_token_addr"]
+        dst_chain_id = result["transfer"][0]["dst_chain_id"]
+        src_chain_id = result["base_info"]["src_chain_id"]
+        src_net = get_net(src_chain_id)
+        dst_net = get_net(dst_chain_id)
+        receiver = receivers[src_txid]
+        is_weth_flag = is_weth(dst_net, dst_token_addr)
+        actual_token_addr = zero_address() if is_weth_flag else dst_token_addr
+        print(
+            f"src: {src_net}, {src_txid}, dst: {dst_net}, "
+            f"received_amt:{received_amt}, dst_token_addr:{dst_token_addr}, "
+            f"receiver:{receiver}, is_weth:{is_weth_flag}, actual_token_addr:{actual_token_addr}\n"
+        )
+        withdraw_contract.withdraw(
+            actual_token_addr, receiver, received_amt, {"from": account}
+        )
+
+
+def compensate_v5():
+    change_network("zksync2-main")
+
+    cmd = "curl --silent https://api.celerscan.com/scan/searchByTxHash?tx={tx}"
+    receivers = {
+        "0x5c0ef9497024799567c2531dc9aa69d256eed23dd7389b6eea9fce5243ef95b8": "0xcf8bA4670664407820a6da53BC0cF607ec4166Ea",
+    }
+    account = get_account()
+    withdraw_contract = Contract.from_abi(
+        "WithdrawFacet", "0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577", WithdrawFacet.abi
+    )
+
+    for src_txid in receivers:
+        cur_cmd = cmd.replace("{tx}", src_txid)
+        with os.popen(cur_cmd) as f:
+            result = json.load(f)
+            result = result["txSearchInfo"][0]
+        if len(result["transfer"]) == 0:
+            continue
+        if (
+            result["transfer"][0]["xfer_status"] != 6
+            or result["transfer"][0]["refund_tx"] == ""
+        ):
+            continue
+
+        refund_tx = result["transfer"][0]["refund_tx"]
+        refund_amt = int(result["transfer"][0]["refund_amt"])
+        src_chain_id = result["base_info"]["src_chain_id"]
+        src_net = get_net(src_chain_id)
+        receiver = receivers[src_txid]
+        actual_token_addr = zero_address()
+        print(
+            f"src: {src_net}, src_tx:{src_txid}, refund_tx:{refund_tx}\n"
+            f"receiver:{receiver}, actual_token_addr:{actual_token_addr}, refund_amt:{refund_amt}\n"
+        )
+        # withdraw_contract.withdraw(
+        #     actual_token_addr, receiver, refund_amt, {"from": account}
+        # )
 
 
 def withdraw():

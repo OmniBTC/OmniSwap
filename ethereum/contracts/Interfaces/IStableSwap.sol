@@ -83,15 +83,15 @@ interface IStableSwap {
 
     function getToken(bytes32 key, uint8 index) external view returns (IERC20);
 
-    function getTokenIndex(bytes32 key, address tokenAddress)
-        external
-        view
-        returns (uint8);
+    function getTokenIndex(
+        bytes32 key,
+        address tokenAddress
+    ) external view returns (uint8);
 
-    function getTokenBalance(bytes32 key, uint8 index)
-        external
-        view
-        returns (uint256);
+    function getTokenBalance(
+        bytes32 key,
+        uint8 index
+    ) external view returns (uint256);
 
     function getVirtualPrice(bytes32 key) external view returns (uint256);
 
@@ -130,10 +130,10 @@ interface IStableSwap {
         bool deposit
     ) external view returns (uint256);
 
-    function calculateRemoveLiquidity(bytes32 key, uint256 amount)
-        external
-        view
-        returns (uint256[] memory);
+    function calculateRemoveLiquidity(
+        bytes32 key,
+        uint256 amount
+    ) external view returns (uint256[] memory);
 
     function calculateRemoveLiquidityOneToken(
         bytes32 key,

@@ -295,7 +295,9 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function decodeConnextPayload(bytes memory stargatePayload)
+    function decodeConnextPayload(
+        bytes memory stargatePayload
+    )
         public
         pure
         returns (
@@ -485,7 +487,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         address bridge = s.connext;
 
         // Give Connext approval to bridge tokens
-        LibAsset.maxApproveERC20(
+        LibAsset.safeApproveERC20(
             IERC20(connextData.bridgeToken),
             bridge,
             bridgeAmount

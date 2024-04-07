@@ -33,6 +33,7 @@ class SuiSwapType(Enum):
     OmniswapMock = "OmniswapMock"
     DeepBook = "DeepBook"
     Cetus = "Cetus"
+    DeepBookV2 = "DeepBookV2"
 
 
 @functools.lru_cache()
@@ -276,6 +277,7 @@ def cross_swap(
         receiver=receiver,
         amount=input_amount,
     )
+    print(so_data)
     so_data = so_data.format_to_contract()
 
     # construct src data
@@ -284,7 +286,7 @@ def cross_swap(
         dst_swap_data = generate_dst_swap_data(
             dst_swap_type, dst_path, input_amount, dst_pool_ids
         )
-
+        print(dst_swap_data)
         dst_swap_data = [d.format_to_contract() for d in dst_swap_data]
 
     # construct src data
@@ -399,10 +401,26 @@ def cross_for_mainnet():
         input_amount=100000,
         src_router=SwapType.IUniswapV2Router02,
         src_func=SwapFunc.swapExactTokensForTokens,
-        dst_swap_type=SuiSwapType.Cetus,
-        dst_pool_id=sui_project.network_config["pools"]["Wormhole-USDC-SUI"]["pool_id"],
+        dst_swap_type=SuiSwapType.DeepBookV2,
+        dst_pool_ids=[sui_project.network_config["pools"]["DeepBook-SUI-USDC-V2"]["pool_id"]
+                      ],
     )
+
+    # cross_swap(
+    #     omniswap,
+    #     src_path=["USDC_ETH_WORMHOLE"],
+    #     dst_path=["Wormhole-USDC", "SUI", "Wormhole-USDC"],
+    #     receiver="0x65859958bd62e30aa0571f9712962f59098d1eb29f73b091d9d71317d8e67497",
+    #     dst_so_diamond=sui_project.config["networks"][dst_net]["SoDiamond"],
+    #     input_amount=100000,
+    #     src_router=SwapType.IUniswapV2Router02,
+    #     src_func=SwapFunc.swapExactTokensForTokens,
+    #     dst_swap_type=SuiSwapType.DeepBookV2,
+    #     dst_pool_ids=[sui_project.network_config["pools"]["DeepBook-SUI-USDC-V2"]["pool_id"],
+    #                   sui_project.network_config["pools"]["DeepBook-SUI-USDC-V2"]["pool_id"]
+    #                   ],
+    # )
 
 
 if __name__ == "__main__":
-    cross_for_testnet()
+    cross_for_mainnet()
