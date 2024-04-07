@@ -665,9 +665,9 @@ def redeploy_corebridge():
     account = get_account()
 
     print("deploy LibSoFeeCoreBridgeV2.sol...")
-    so_fee = 1e-3
+    so_fee = 0
     basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
-    basic_fee = 0
+    basic_fee = int(0.0002 * 1e18)
     LibSoFeeCoreBridgeV2.deploy(int(so_fee * 1e18),
                                 basic_fee, basic_beneficiary,
                                 {"from": account})
@@ -680,18 +680,18 @@ def redeploy_corebridge():
         get_corebridge_bridge(), LibSoFeeCoreBridgeV2[-1].address, {"from": account}
     )
 
-    # try:
-    #     print("Remove cut...")
-    #     remove_facet(CoreBridgeFacet)
-    # except Exception as e:
-    #     print(f"Remove err:{e}")
-    #
-    # print("Deploy stargate...")
-    # CoreBridgeFacet.deploy({"from": account})
-    # print("Add cut...")
-    # add_cut([CoreBridgeFacet])
-    # print("Initialize stargate...")
-    # initialize_corebridge(account, SoDiamond[-1])
+    try:
+        print("Remove cut...")
+        remove_facet(CoreBridgeFacet)
+    except Exception as e:
+        print(f"Remove err:{e}")
+
+    print("Deploy stargate...")
+    CoreBridgeFacet.deploy({"from": account})
+    print("Add cut...")
+    add_cut([CoreBridgeFacet])
+    print("Initialize stargate...")
+    initialize_corebridge(account, SoDiamond[-1])
 
 
 def redeploy_bool():
@@ -1014,8 +1014,8 @@ def set_basic_fee():
         so_fee *= 1400
     print("Set so fee", so_fee / 1e18)
     LibSoFeeCoreBridgeV2[-1].setBasicFee(so_fee, {"from": account})
-    LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
-    LibSoFeeBoolV2[-1].setBasicFee(so_fee, {"from": account})
+    # LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
+    # LibSoFeeBoolV2[-1].setBasicFee(so_fee, {"from": account})
 
 
 def reset_basic_fee():
