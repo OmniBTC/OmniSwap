@@ -2543,6 +2543,12 @@ networks:
       wbtc:
         address: "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd"
         decimal: 8
+      btc.b:
+        address: "0x2297aEbD383787A160DD0d9F71508148769342E3"
+        decimal: 8
+      btcb:
+        address: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c"
+        decimal: 18
     swap:
       - IUniswapV2Router02:
           name: GlyphExchange
