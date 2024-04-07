@@ -232,7 +232,7 @@
             "execute": 300000,
             "executeL1": 0
         },
-        "SoDiamond": "",
+        "SoDiamond": "0xaa09eF5707307C112f2A517c95B5E6475c41d1e7",
         "SupportTokens": [
             {
                 "Address": "0xEA32A96608495e54156Ae48931A7c20f0dcc1a21",
