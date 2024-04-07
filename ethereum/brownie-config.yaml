@@ -2252,19 +2252,6 @@ networks:
           name: OpenOcean
           router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
           token_list: ""
-      ISwapRouter:
-        name: UniswapV3
-        router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-        token_list: "https://static.optimism.io/optimism.swap_tokenlist.json"
-        quoter: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-      IUniswapV2Router02:
-        name: ZipSwapV2
-        router: "0xE6Df0BB08e5A97b40B21950a0A51b94c4DbA0Ff6"
-        token_list: ""
-  #      IUniswapV2Router02:
-  #        name: ZipSwapV2
-  #        router: "0x9c12939390052919aF3155f41Bf4160Fd3666A6f"
-  #        token_list: ""
   metis-main:
     omnibtc_chainid: 1088
     chainid: 1088

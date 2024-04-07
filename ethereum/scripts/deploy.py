@@ -20,7 +20,9 @@ from brownie import (
     Multicall3,
     ConnextFacet,
     LibSoFeeConnextV1,
-    BulkTransfer, config, Contract
+    BulkTransfer,
+    config,
+    Contract,
 )
 from brownie.network import priority_fee, max_fee
 
@@ -82,13 +84,19 @@ def deploy_contracts(account):
         basic_fee *= 25
     elif network.show_active() == "mantle-main":
         basic_fee *= 4500
-    print(f"deploy LibSoFeeStargateV2.sol so_fee:{so_fee}, basic_fee:{basic_fee} "
-          f"basic_beneficiary:{basic_beneficiary}...")
-    LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
-                              basic_fee, basic_beneficiary,
-                              {"from": account})
+    print(
+        f"deploy LibSoFeeStargateV2.sol so_fee:{so_fee}, basic_fee:{basic_fee} "
+        f"basic_beneficiary:{basic_beneficiary}..."
+    )
+    LibSoFeeStargateV2.deploy(
+        int(so_fee * 1e18),
+        transfer_for_gas,
+        basic_fee,
+        basic_beneficiary,
+        {"from": account},
+    )
 
-    # ray = 1e27
+    ray = 1e27
 
     # print("deploy LibSoFeeStargateV1.sol...")
     # transfer_for_gas = 30000
