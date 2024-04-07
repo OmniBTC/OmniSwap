@@ -487,7 +487,7 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
         address bridge = s.connext;
 
         // Give Connext approval to bridge tokens
-        LibAsset.maxApproveERC20(
+        LibAsset.safeApproveERC20(
             IERC20(connextData.bridgeToken),
             bridge,
             bridgeAmount
