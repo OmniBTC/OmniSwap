@@ -50,5 +50,18 @@
         "SerdeFacet": "0x595000d9242B1bd8f42cFC16991520fd57c9a86e",
         "SoDiamond": "0xA0285339CefD73AB948614E0a45E03ED1882BD03",
         "WithdrawFacet": "0x76376C35a5C3B850676e5Fb32b576651B675de3C"
+    },
+    "metis-main": {
+        "ConnextFacet": "0x26836d098165eEa90c2b50270B642dd95204F12E",
+        "DexManagerFacet": "0xFA922726D1F5630CDbe17A8B026C099d2c273D8E",
+        "DiamondCutFacet": "0xf1F4cEcF031fBcC8D3F22cE5d7673ab213B05d1c",
+        "DiamondLoupeFacet": "0x4968c247852f7fd2C50eCb4E2ED5780fF9375f78",
+        "GenericSwapFacet": "0x9ce889ebEFb27d15489aBD51A677B881D2B4CF5A",
+        "LibCorrectSwapV2": "0xe6F4Df4b18a8401cbf612e1E3d12002716eEDb33",
+        "LibSoFeeConnextV2": "0xbb9220B732f5028607838447a67d937C6a6a099f",
+        "OwnershipFacet": "0x90c7AA3675141F4a14d4AB8BC3fE89e3E673A090",
+        "SerdeFacet": "0xA1483B55355c9B02A1aA9883fB60c201743e3Dd1",
+        "SoDiamond": "0xaa09eF5707307C112f2A517c95B5E6475c41d1e7",
+        "WithdrawFacet": "0xd89C044df7Bd1984e466f9De5EC1929B7feB648C"
     }
 }

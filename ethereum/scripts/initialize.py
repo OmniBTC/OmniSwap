@@ -412,17 +412,17 @@ def initialize_wormhole(account=get_account(), so_diamond=SoDiamond[-1]):
 
 
 def initialize_dex_manager(account=get_account(), so_diamond=SoDiamond[-1]):
-    proxy_dex = Contract.from_abi(
-        "DexManagerFacet", so_diamond.address, DexManagerFacet.abi
-    )
+    # proxy_dex = Contract.from_abi(
+    #     "DexManagerFacet", so_diamond.address, DexManagerFacet.abi
+    # )
     net = network.show_active()
     print(f"network:{net}, init dex manager...")
     add_dexs()
 
     deploy_correct_swaps()
 
-    print(f"network:{net}, add fee")
-    proxy_dex.addFee(get_connext(), LibSoFeeConnextV1[-1].address, {"from": account})
+    # print(f"network:{net}, add fee")
+    # proxy_dex.addFee(get_connext(), LibSoFeeConnextV1[-1].address, {"from": account})
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
     # )
@@ -1016,6 +1016,9 @@ def reset_basic_fee():
         proxy.getStargateBasicFee() / 1e18,
         proxy.getStargateBasicBeneficiary(),
     )
+
+    # LibSoFeeConnextV2[-1].setBasicFee(so_fee, {"from": account})
+
     reset_so_fee()
 
 

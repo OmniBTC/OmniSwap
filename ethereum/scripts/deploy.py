@@ -70,33 +70,33 @@ def deploy_contracts(account):
     print("deploy SoDiamond.sol...")
     SoDiamond.deploy(account, DiamondCutFacet[-1], {"from": account})
 
-    so_fee = 0
-    transfer_for_gas = 40000
-    basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
-    basic_fee = int(0.0002 * 1e18)
-    if network.show_active() == "bsc-main":
-        basic_fee *= 8
-    elif network.show_active() == "avax-main":
-        basic_fee *= 183
-    elif network.show_active() == "polygon-main":
-        basic_fee *= 3000
-    elif network.show_active() == "metis-main":
-        basic_fee *= 25
-    elif network.show_active() == "mantle-main":
-        basic_fee *= 4500
-    print(
-        f"deploy LibSoFeeStargateV2.sol so_fee:{so_fee}, basic_fee:{basic_fee} "
-        f"basic_beneficiary:{basic_beneficiary}..."
-    )
-    LibSoFeeStargateV2.deploy(
-        int(so_fee * 1e18),
-        transfer_for_gas,
-        basic_fee,
-        basic_beneficiary,
-        {"from": account},
-    )
+    # so_fee = 0
+    # transfer_for_gas = 40000
+    # basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    # basic_fee = int(0.0002 * 1e18)
+    # if network.show_active() == "bsc-main":
+    #     basic_fee *= 8
+    # elif network.show_active() == "avax-main":
+    #     basic_fee *= 183
+    # elif network.show_active() == "polygon-main":
+    #     basic_fee *= 3000
+    # elif network.show_active() == "metis-main":
+    #     basic_fee *= 25
+    # elif network.show_active() == "mantle-main":
+    #     basic_fee *= 4500
+    # print(
+    #     f"deploy LibSoFeeStargateV2.sol so_fee:{so_fee}, basic_fee:{basic_fee} "
+    #     f"basic_beneficiary:{basic_beneficiary}..."
+    # )
+    # LibSoFeeStargateV2.deploy(
+    #     int(so_fee * 1e18),
+    #     transfer_for_gas,
+    #     basic_fee,
+    #     basic_beneficiary,
+    #     {"from": account},
+    # )
 
-    ray = 1e27
+    # ray = 1e27
 
     # print("deploy LibSoFeeStargateV1.sol...")
     # transfer_for_gas = 30000
@@ -112,11 +112,11 @@ def deploy_contracts(account):
     #
     # LibSoFeeWormholeV1.deploy(int(so_fee * ray), {"from": account})
 
-    print("deploy LibSoFeeConnextV1.sol...")
+    # print("deploy LibSoFeeConnextV1.sol...")
+    #
+    # LibSoFeeConnextV1.deploy(int(so_fee * ray), {"from": account})
 
-    LibSoFeeConnextV1.deploy(int(so_fee * ray), {"from": account})
-
-    print("deploy LibCorrectSwapV1...")
-    LibCorrectSwapV1.deploy({"from": account})
+    # print("deploy LibCorrectSwapV1...")
+    # LibCorrectSwapV1.deploy({"from": account})
 
     print("deploy end!")
