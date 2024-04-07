@@ -34,7 +34,8 @@ from brownie import (
     config,
     LibSoFeeConnextV1,
     LibSoFeeConnextV2,
-    ConnextFacet, config
+    ConnextFacet,
+    config,
 )
 from brownie.network import priority_fee, max_fee
 
@@ -152,7 +153,7 @@ def initialize_wormhole_fee(account):
 
     if network.show_active() == "bsc-test":
         # sol / bnb
-        LibSoFeeWormholeV1[-1].setPriceRatio(1, 1e26, {'from': account})
+        LibSoFeeWormholeV1[-1].setPriceRatio(1, 1e26, {"from": account})
 
 
 def initialize_celer_fee(account):
@@ -234,18 +235,14 @@ def initialize_stargate(account=get_account(), so_diamond=SoDiamond[-1]):
 
 
 def initialize_bool(account, so_diamond):
-    proxy_bool = Contract.from_abi(
-        "BoolFacet", so_diamond.address, BoolFacet.abi
-    )
+    proxy_bool = Contract.from_abi("BoolFacet", so_diamond.address, BoolFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init bool...")
     proxy_bool.initBoolSwap(get_bool_router(), get_bool_chainid(), {"from": account})
 
 
 def batch_set_bool_allowed_address(account=get_account(), so_diamond=SoDiamond[-1]):
-    bool_facet = Contract.from_abi(
-        "BoolFacet", so_diamond.address, BoolFacet.abi
-    )
+    bool_facet = Contract.from_abi("BoolFacet", so_diamond.address, BoolFacet.abi)
 
     pool_addresses = []
     allow = []
@@ -274,7 +271,7 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         "base-main": 6,
         "goerli": 0,
         "avax-test": 1,
-        "arbitrum-test": 3
+        "arbitrum-test": 3,
     }
     if "main" in net:
         dst_domains = {k: v for k, v in dst_domain_info.items() if "main" in k}
@@ -316,7 +313,9 @@ def initialize_celer(account, so_diamond):
 
 
 def initialize_connext(account, so_diamond):
-    proxy_connext = Contract.from_abi("ConnextFacet", so_diamond.address, ConnextFacet.abi)
+    proxy_connext = Contract.from_abi(
+        "ConnextFacet", so_diamond.address, ConnextFacet.abi
+    )
 
     proxy_connext.initConnext(get_connext(), {"from": account})
 
@@ -326,7 +325,9 @@ def set_connext_allowed_address(diamonds: list):
         diamonds = [diamonds]
     account = get_account()
     so_diamond = SoDiamond[-1]
-    proxy_connext = Contract.from_abi("ConnextFacet", so_diamond.address, ConnextFacet.abi)
+    proxy_connext = Contract.from_abi(
+        "ConnextFacet", so_diamond.address, ConnextFacet.abi
+    )
     allows = [True] * len(diamonds)
     proxy_connext.batchSetConnextAllowedAddresses(diamonds, allows, {"from": account})
 
@@ -421,9 +422,7 @@ def initialize_dex_manager(account=get_account(), so_diamond=SoDiamond[-1]):
     deploy_correct_swaps()
 
     print(f"network:{net}, add fee")
-    proxy_dex.addFee(
-        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
-    )
+    proxy_dex.addFee(get_connext(), LibSoFeeConnextV1[-1].address, {"from": account})
     # proxy_dex.addFee(
     #     get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
     # )
@@ -576,10 +575,7 @@ def reset_generic_fee():
     account = get_account()
     so_fee = 3 * 1e-4
     ray = 1e27
-    LibSoFeeGenericV2[-1].setFee(
-        int(so_fee * ray),
-        {"from": account}
-    )
+    LibSoFeeGenericV2[-1].setFee(int(so_fee * ray), {"from": account})
 
 
 def redeploy_generic_swap():
@@ -591,16 +587,18 @@ def redeploy_generic_swap():
     ray = 1e27
     basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
     basic_fee = 0
-    print(f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
-    LibSoFeeGenericV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
+    print(
+        f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}"
+    )
+    LibSoFeeGenericV2.deploy(
+        int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account}
+    )
 
     # 2. add bool's lib so fee to diamond
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
-    proxy_dex.addFee(
-        zero_address(), LibSoFeeGenericV2[-1].address, {"from": account}
-    )
+    proxy_dex.addFee(zero_address(), LibSoFeeGenericV2[-1].address, {"from": account})
 
     remove_facet(GenericSwapFacet)
     GenericSwapFacet.deploy({"from": account})
@@ -614,18 +612,24 @@ def redeploy_connext():
 
     so_fee = 1e-3
     ray = 1e27
-    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["connext"]["basic_beneficiary"]
-    basic_fee = config["networks"][network.show_active()]["bridges"]["connext"]["basic_fee"]
-    print(f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
-    LibSoFeeConnextV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
+    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["connext"][
+        "basic_beneficiary"
+    ]
+    basic_fee = config["networks"][network.show_active()]["bridges"]["connext"][
+        "basic_fee"
+    ]
+    print(
+        f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}"
+    )
+    LibSoFeeConnextV2.deploy(
+        int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account}
+    )
 
     # 2. add connext's lib so fee to diamond
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
-    proxy_dex.addFee(
-        get_connext(), LibSoFeeConnextV2[-1].address, {"from": account}
-    )
+    proxy_dex.addFee(get_connext(), LibSoFeeConnextV2[-1].address, {"from": account})
 
     try:
         remove_facet(ConnextFacet)
@@ -679,20 +683,25 @@ def redeploy_bool():
 
     so_fee = 0
     ray = 1e27
-    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"]["basic_beneficiary"]
-    basic_fee = config["networks"][network.show_active()]["bridges"]["bool"]["basic_fee"]
+    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"][
+        "basic_beneficiary"
+    ]
+    basic_fee = config["networks"][network.show_active()]["bridges"]["bool"][
+        "basic_fee"
+    ]
     print(
-        f"LibSoFeeBoolV2 deploy Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}")
-    LibSoFeeBoolV2.deploy(int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account})
+        f"LibSoFeeBoolV2 deploy Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}"
+    )
+    LibSoFeeBoolV2.deploy(
+        int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account}
+    )
 
     # 2. add bool's lib so fee to diamond
     print(f"LibSoFeeBoolV2 register...")
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
-    proxy_dex.addFee(
-        get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account}
-    )
+    proxy_dex.addFee(get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account})
 
     try:
         remove_facet(BoolFacet)
@@ -700,7 +709,7 @@ def redeploy_bool():
         pass
 
     # 3. deploy BoolFacet
-    BoolFacet.deploy({'from': account})
+    BoolFacet.deploy({"from": account})
     add_cut([BoolFacet])
     initialize_bool(account, SoDiamond[-1])
     batch_set_bool_allowed_address(account, SoDiamond[-1])
@@ -827,13 +836,14 @@ def add_dex(swap_info):
     )
     swap_type = list(swap_info.keys())[0]
     print(f"Add router for:{swap_info[swap_type]['name']}")
-    proxy_dex.addDex(
-        swap_info[swap_type]["router"], {"from": get_account()}
-    )
+    proxy_dex.addDex(swap_info[swap_type]["router"], {"from": get_account()})
     try:
         print(f"Add sig for {swap_type}")
         proxy_dex.batchSetFunctionApprovalBySignature(
-            [v + "0" * 56 for v in list(getattr(interface, swap_type).selectors.keys())],
+            [
+                v + "0" * 56
+                for v in list(getattr(interface, swap_type).selectors.keys())
+            ],
             True,
             {"from": get_account()},
         )
@@ -930,6 +940,7 @@ def reset_so_fee():
         print("LibSoFeeBoolV2 is", LibSoFeeBoolV2[-1].soFee() / 1e27)
     except:
         import traceback
+
         traceback.print_exc()
         print(f"LibSoFeeBoolV2 error")
     try:
@@ -947,7 +958,16 @@ def reset_so_fee():
 
 @functools.lru_cache()
 def get_prices(
-        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT", "MNT/USDT")
+    symbols=(
+        "ETH/USDT",
+        "BNB/USDT",
+        "MATIC/USDT",
+        "AVAX/USDT",
+        "APT/USDT",
+        "SUI/USDT",
+        "SOL/USDT",
+        "MNT/USDT",
+    )
 ):
     api = ccxt.kucoin()
     prices = {}
@@ -990,10 +1010,12 @@ def reset_basic_fee():
         so_fee *= 25
 
     LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
-    proxy = Contract.from_abi(
-        "StargateFacet", SoDiamond[-1].address, StargateFacet.abi
+    proxy = Contract.from_abi("StargateFacet", SoDiamond[-1].address, StargateFacet.abi)
+    print(
+        "Cur basicFee is",
+        proxy.getStargateBasicFee() / 1e18,
+        proxy.getStargateBasicBeneficiary(),
     )
-    print("Cur basicFee is", proxy.getStargateBasicFee() / 1e18, proxy.getStargateBasicBeneficiary())
     reset_so_fee()
 
 
@@ -1030,7 +1052,7 @@ def transferOwnershipForFee():
     account = get_account("deploy_key")
     owner_account = get_account()
     owner = owner_account.address
-    print(f'owner: {owner}')
+    print(f"owner: {owner}")
     try:
         LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
         print(f"LibSoFeeStargateV2 success")
@@ -1058,7 +1080,18 @@ def transferOwnershipForFee():
 def init_token_for_stargate():
     root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     mainnet_swap_file = os.path.join(root_path, "export/mainnet/OmniSwapInfo.json")
-    token_name = ["USDC", "USDT", "ETH", "BUSD", "USDD", "MAI", "DAI", "FRAX", "WOO", "LUSD"]
+    token_name = [
+        "USDC",
+        "USDT",
+        "ETH",
+        "BUSD",
+        "USDD",
+        "MAI",
+        "DAI",
+        "FRAX",
+        "WOO",
+        "LUSD",
+    ]
     net = network.show_active()
     data = read_json(mainnet_swap_file)
     # todo
