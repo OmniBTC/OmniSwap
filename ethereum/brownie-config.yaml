@@ -1409,7 +1409,7 @@ networks:
         usdc: 1
         usdt: 2
     corebridge:
-      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      bridge: "0x29d096cd18c0da7500295f082da73316d704031a"
       chainid: 106
     wormhole:
       chainid: 6
@@ -1840,7 +1840,7 @@ networks:
         usdc: 1
         weth: 13
     corebridge:
-      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      bridge: "0x29d096cd18c0da7500295f082da73316d704031a"
       chainid: 110
     bridges:
       bool:
@@ -2017,7 +2017,7 @@ networks:
         usdc: 1
         weth: 13
     corebridge:
-      bridge: "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233"
+      bridge: "0x29d096cd18c0da7500295f082da73316d704031a"
       chainid: 111
     endpoints:
       [

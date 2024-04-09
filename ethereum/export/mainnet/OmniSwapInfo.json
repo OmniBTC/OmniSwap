@@ -275,7 +275,7 @@
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 110,
         "CoreBridgeChainId": 110,
-        "CoreBridgeContract": "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
+        "CoreBridgeContract": "0x29d096cd18c0da7500295f082da73316d704031a",
         "CoreBridgeSupportToken": [
             {
                 "ChainPath": [
@@ -593,7 +593,7 @@
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 106,
         "CoreBridgeChainId": 106,
-        "CoreBridgeContract": "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
+        "CoreBridgeContract": "0x29d096cd18c0da7500295f082da73316d704031a",
         "CoreBridgeSupportToken": [
             {
                 "ChainPath": [
@@ -3176,7 +3176,7 @@
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 111,
         "CoreBridgeChainId": 111,
-        "CoreBridgeContract": "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
+        "CoreBridgeContract": "0x29d096cd18c0da7500295f082da73316d704031a",
         "CoreBridgeSupportToken": [
             {
                 "ChainPath": [
