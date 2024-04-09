@@ -4653,7 +4653,7 @@
     "core-main": {
         "ChainId": 1116,
         "OmniBtcChainId": 1116,
-        "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
+        "SoDiamond": "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66",
         "CoreBridgeChainId": 153,
         "CoreBridgeContract": "0xA4218e1F39DA4AaDaC971066458Db56e901bcbdE",
         "CoreBridgeSupportToken": [
