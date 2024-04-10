@@ -136,7 +136,7 @@ def soSwapViaStargate(
         basic_fee = 0
 
     print(
-        f"stargate cross fee: {stargate_cross_fee / get_token_decimal('eth')}, basic_fee:{basic_fee} "
+        f"stargate cross fee: {stargate_cross_fee / get_token_decimal('eth')}, basic_fee:{basic_fee / get_token_decimal('eth')} "
         f"input eth: {input_eth_amount / get_token_decimal('eth')}"
     )
     proxy_diamond.soSwapViaStargate(
@@ -346,7 +346,7 @@ class StargateData(View):
             self.dstStargatePoolId,
             self.minAmount,
             self.dstGasForSgReceive,
-            to_hex_str(self.dstSoDiamond),
+            self.dstSoDiamond,
         ]
 
     @classmethod
@@ -1148,6 +1148,8 @@ def cross_swap_via_stargate(
     else:
         src_swap_data = None
 
+    print("SourceSwapData:\n", src_swap_data)
+
     if destinationSwapType is not None:
         dst_swap_data: SwapData = dst_session.put_task(
             SwapData.create,
@@ -1161,6 +1163,8 @@ def cross_swap_via_stargate(
         )
     else:
         dst_swap_data: SwapData = None
+
+    print("DestinationSwapData:\n", dst_swap_data)
 
     dst_gas_for_sgReceive = dst_session.put_task(
         estimate_for_gas,
@@ -1204,6 +1208,24 @@ def cross_swap_via_stargate(
             with_project=True,
         )
         print("DestinationSwapData:\n", dst_swap_data)
+        
+    send_token = dst_session.put_task(func=get_token_address, args=(destinationStargateToken,))
+    receive_token = dst_session.put_task(
+        func=get_token_address, args=(destinationTokenName,)
+    )
+
+    router_address, swap_calldata = kyber_calldata(
+        dst_session.net,
+        dst_diamond_address,
+        dst_diamond_address,
+        send_token,
+        receive_token,
+        dst_swap_min_amount,
+    )
+
+    dst_swap_data.callTo = router_address
+    dst_swap_data.approveTo = router_address
+    dst_swap_data.callData = swap_calldata
 
     if sourceTokenName != "eth":
         src_session.put_task(
@@ -1277,7 +1299,7 @@ def single_swap(
     )
 
 
-def main(src_net="arbitrum-main", dst_net="core-main", bridge="corebridge"):
+def main(src_net="optimism-main", dst_net="arbitrum-main", bridge="stargate"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1293,18 +1315,18 @@ def main(src_net="arbitrum-main", dst_net="core-main", bridge="corebridge"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                1e-4 * src_session.put_task(get_token_decimal, args=("eth",))
+                0.1 * src_session.put_task(get_token_decimal, args=("usdc",))
             ),
-            sourceTokenName="eth",  # stargate
-            destinationTokenName="usdc",  # stargate
-            sourceSwapType=SwapType.IUniswapV2Router02,
-            sourceSwapFunc=SwapFunc.swapExactETHForTokens,
-            sourceSwapPath=("weth", "usdt"),
-            sourceStargateToken="usdt",
+            sourceTokenName="usdc",  # stargate
+            destinationTokenName="usdt",  # stargate
+            sourceSwapType=None,
+            sourceSwapFunc=None,
+            sourceSwapPath=("usdc"),
+            sourceStargateToken="usdc",
             destinationStargateToken="usdc",
-            destinationSwapType=None,
-            destinationSwapFunc=None,
-            destinationSwapPath=("usdc", "usdc"),
+            destinationSwapType=SwapType.IUniswapV2Router02,
+            destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
+            destinationSwapPath=("usdc", "usdt"),
             slippage=0.001,
         )
 
