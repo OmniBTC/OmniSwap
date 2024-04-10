@@ -1164,6 +1164,26 @@ def cross_swap_via_stargate(
     else:
         dst_swap_data: SwapData = None
 
+    send_token = dst_session.put_task(
+        func=get_token_address, args=(destinationStargateToken,)
+    )
+    receive_token = dst_session.put_task(
+        func=get_token_address, args=(destinationTokenName,)
+    )
+
+    router_address, swap_calldata = kyber_calldata(
+        dst_session.net,
+        dst_diamond_address,
+        dst_diamond_address,
+        send_token,
+        receive_token,
+        inputAmount,
+    )
+
+    dst_swap_data.callTo = router_address
+    dst_swap_data.approveTo = router_address
+    dst_swap_data.callData = swap_calldata
+
     print("DestinationSwapData:\n", dst_swap_data)
 
     dst_gas_for_sgReceive = dst_session.put_task(
@@ -1197,35 +1217,34 @@ def cross_swap_via_stargate(
     print("StargateData:\n", stargate_data)
 
     if dst_swap_data is not None:
-        dst_swap_data.callData = dst_session.put_task(
-            SwapData.reset_min_amount,
-            args=(
-                dst_swap_data.callData,
-                dst_swap_data.swapType,
-                dst_swap_data.swapFuncName,
-                dst_swap_min_amount,
-            ),
-            with_project=True,
+        send_token = dst_session.put_task(
+            func=get_token_address, args=(destinationStargateToken,)
         )
+        receive_token = dst_session.put_task(
+            func=get_token_address, args=(destinationTokenName,)
+        )
+
+        router_address, swap_calldata = kyber_calldata(
+            dst_session.net,
+            dst_diamond_address,
+            dst_diamond_address,
+            send_token,
+            receive_token,
+            stargate_min_amount,
+        )
+
+        dst_swap_data.callData = swap_calldata
+        # dst_swap_data.callData = dst_session.put_task(
+        #     SwapData.reset_min_amount,
+        #     args=(
+        #         dst_swap_data.callData,
+        #         dst_swap_data.swapType,
+        #         dst_swap_data.swapFuncName,
+        #         dst_swap_min_amount,
+        #     ),
+        #     with_project=True,
+        # )
         print("DestinationSwapData:\n", dst_swap_data)
-        
-    send_token = dst_session.put_task(func=get_token_address, args=(destinationStargateToken,))
-    receive_token = dst_session.put_task(
-        func=get_token_address, args=(destinationTokenName,)
-    )
-
-    router_address, swap_calldata = kyber_calldata(
-        dst_session.net,
-        dst_diamond_address,
-        dst_diamond_address,
-        send_token,
-        receive_token,
-        dst_swap_min_amount,
-    )
-
-    dst_swap_data.callTo = router_address
-    dst_swap_data.approveTo = router_address
-    dst_swap_data.callData = swap_calldata
 
     if sourceTokenName != "eth":
         src_session.put_task(
