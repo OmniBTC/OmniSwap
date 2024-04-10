@@ -1988,10 +1988,6 @@ networks:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
           token_list: ""
-      - IMetaAggregationRouterV2:
-          name: KyberSwap
-          router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
-          token_list: ""
       - IAggregationRouterV5:
           name: OneInch
           router: "0x1111111254EEB25477B68fb85Ed929f73A960582"
@@ -2136,6 +2132,9 @@ networks:
         # bridge usdc: 0x7F5c764cBc14f9669B88837ca1490cCa17c31607
         # circle usdc: 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85
         address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+        decimal: 6
+      usdt:
+        address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
         decimal: 6
     swap:
       - ICurveFi:

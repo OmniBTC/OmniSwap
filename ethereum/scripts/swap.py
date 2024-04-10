@@ -6,6 +6,7 @@ from random import choice
 from brownie import Contract, web3, network
 from brownie.network import priority_fee, max_fee, gas_price
 from brownie.project.main import Project
+from scripts.kyberswap import kyber_calldata
 from scripts.helpful_scripts import (
     get_account,
     get_corebridge_core_chain_id,
@@ -163,21 +164,13 @@ def soSwapViaCoreBridge(
         "CoreBridgeFacet", p["SoDiamond"][-1].address, p["CoreBridgeFacet"].abi
     )
 
-    if src_swap_data is None:
-        src_swap_data = []
-    else:
-        src_swap_data = [src_swap_data.format_to_contract()]
-
     so_data = so_data.format_to_contract()
     print(so_data)
     print(corebridge_data)
 
     corebridge_cross_fee = proxy_diamond.getCoreBridgeFee(corebridge_data[1])
 
-    try:
-        basic_fee = proxy_diamond.getCoreBridgeBasicFee()
-    except:
-        basic_fee = 0
+    basic_fee = proxy_diamond.getCoreBridgeBasicFee()
 
     print(
         f"corebridge cross fee: {corebridge_cross_fee / get_token_decimal('eth')}, basic_fee:{basic_fee} "
@@ -190,9 +183,9 @@ def soSwapViaCoreBridge(
         {
             "from": get_account(),
             "value": int(corebridge_cross_fee + input_eth_amount + basic_fee),
-            "gas_price": "30 gwei",
+            # "gas_price": "30 gwei",
             # "gas_limit": 1000000,
-            # "allow_revert": True
+            # "allow_revert": True,
         },
     )
 
@@ -517,12 +510,12 @@ class SwapData(View):
     def format_to_contract(self):
         """Returns the data used to pass into the contract interface"""
         return [
-            to_hex_str(self.callTo),
-            to_hex_str(self.approveTo),
-            to_hex_str(self.sendingAssetId, False),
-            to_hex_str(self.receivingAssetId, False),
+            self.callTo,
+            self.approveTo,
+            self.sendingAssetId,
+            self.receivingAssetId,
             self.fromAmount,
-            to_hex_str(self.callData),
+            self.callData,
         ]
 
     @classmethod
@@ -703,7 +696,7 @@ class SwapData(View):
         p = [
             (
                 padding_to_bytes(
-                    web3.toHex(int(p[i] * uniswap_v3_fee_decimal)),
+                    web3.to_hex(int(p[i] * uniswap_v3_fee_decimal)),
                     padding="left",
                     length=3,
                 )
@@ -1056,8 +1049,28 @@ def cross_swap_via_corebridge(
             with_project=True,
         )
         print("SourceSwapData:\n", src_swap_data)
+        src_swap_data = [src_swap_data.format_to_contract()]
     else:
-        src_swap_data = None
+        src_swap_data = []
+
+    send_token = src_session.put_task(func=get_token_address, args=(sourceTokenName,))
+    receive_token = src_session.put_task(
+        func=get_token_address, args=(destinationTokenName,)
+    )
+
+    router_address, swap_calldata = kyber_calldata(
+        src_session.net,
+        src_diamond_address,
+        src_diamond_address,
+        send_token,
+        receive_token,
+        inputAmount,
+    )
+
+    src_swap_data[0][0] = router_address
+    src_swap_data[0][1] = router_address
+    src_swap_data[0][-1] = swap_calldata
+
     bridge_token = src_session.put_task(func=get_token_address, args=(bridgeTokenName,))
 
     remote_chain_id = get_corebridge_core_chain_id(dst_session.net)
@@ -1264,7 +1277,7 @@ def single_swap(
     )
 
 
-def main(src_net="core-main", dst_net="bsc-main", bridge="corebridge"):
+def main(src_net="arbitrum-main", dst_net="core-main", bridge="corebridge"):
     global src_session
     global dst_session
     src_session = Session(
@@ -1316,14 +1329,14 @@ def main(src_net="core-main", dst_net="bsc-main", bridge="corebridge"):
             src_session=src_session,
             dst_session=dst_session,
             inputAmount=int(
-                1 * src_session.put_task(get_token_decimal, args=("usdt",))
+                0.5 * src_session.put_task(get_token_decimal, args=("usdt",))
             ),
             sourceTokenName="usdt",
-            destinationTokenName="usdt",
-            sourceSwapType=None,
-            sourceSwapFunc=None,
-            sourceSwapPath=(),
-            bridgeTokenName="usdt",
+            destinationTokenName="usdc",
+            sourceSwapType=SwapType.IUniswapV2Router02,
+            sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+            sourceSwapPath=("usdt", "usdc"),
+            bridgeTokenName="usdc",
         )
 
     elif bridge == "wormhole":
@@ -1356,10 +1369,10 @@ def main(src_net="core-main", dst_net="bsc-main", bridge="corebridge"):
                 0.01 * src_session.put_task(get_token_decimal, args=("usdt",))
             ),
             sendingTokenName="usdt",
-            receiveTokenName="eth",
+            receiveTokenName="usdc",
             sourceSwapType=SwapType.IUniswapV2Router02,
-            sourceSwapFunc=SwapFunc.swapExactTokensForETH,
-            sourceSwapPath=("usdt", "weth"),
+            sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
+            sourceSwapPath=("usdt", "usdc"),
         )
 
         # dst_session = Session(
