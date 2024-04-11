@@ -2376,6 +2376,10 @@ networks:
         address: "0x224D8Fd7aB6AD4c6eb4611Ce56EF35Dec2277F03"
         decimal: 18
     swap:
+      - ILynexRouter:
+          name: Lynex
+          router: "0x610D2f07b7EdC67565160F587F37636194C34E74"
+          token_list: ""
       - IMetaAggregationRouterV2:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"

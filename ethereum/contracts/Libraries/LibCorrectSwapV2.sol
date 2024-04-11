@@ -24,6 +24,7 @@ import {ICamelotRouter} from "../Interfaces/Camelot/ICamelotRouter.sol";
 import {IMetaAggregationRouterV2} from "../Interfaces/Kyberswap/IMetaAggregationRouterV2.sol";
 import {IOneInchGenericRouter, IOneInchClipperRouter, IOneInchUnoswapRouter, IOneInchUnoswapV3Router} from "../Interfaces/OneInch/IAggregationRouterV5.sol";
 import {IOpenOceanExchange, IOpenOceanCaller, IUniswapV2Exchange} from "../Interfaces/OpenOcean/IOpenOceanExchange.sol";
+import {ILynexRouter} from "../Interfaces/Lynex/ILynexRouter.sol";
 
 contract LibCorrectSwapV2 is ICorrectSwap {
     address public owner;
@@ -239,6 +240,14 @@ library LibSwapFuncSigs {
         IMoeRouter.swapExactNativeForTokens.selector;
     bytes4 internal constant _FUNC56 =
         IMoeRouter.swapExactTokensForNative.selector;
+
+    // Lynex
+    bytes4 internal constant _FUNC57 =
+        ILynexRouter.swapExactETHForTokens.selector;
+    bytes4 internal constant _FUNC58 =
+        ILynexRouter.swapExactTokensForETH.selector;
+    bytes4 internal constant _FUNC59 =
+        ILynexRouter.swapExactTokensForTokens.selector;
 }
 
 contract CorrectUniswapV2Factory {
@@ -2719,6 +2728,123 @@ contract CorrectOpenOcean is ICorrectSwap {
                 pools,
                 permit,
                 recipient
+            );
+    }
+}
+
+contract CorrectLynexFactory {
+    constructor(LibCorrectSwapV2 libCorrectSwapV2) {
+        // Lynex
+        bytes4[] memory sigs = new bytes4[](3);
+        sigs[0] = LibSwapFuncSigs._FUNC55;
+        sigs[0] = LibSwapFuncSigs._FUNC56;
+        sigs[0] = LibSwapFuncSigs._FUNC57;
+        address correctLynex = address(new CorrectLynex());
+        libCorrectSwapV2.setCorrectSwap(sigs, correctLynex);
+    }
+}
+
+contract CorrectLynex is ICorrectSwap {
+    // Lynex
+    bytes4 internal constant _FUNC57 =
+        ILynexRouter.swapExactETHForTokens.selector;
+    bytes4 internal constant _FUNC58 =
+        ILynexRouter.swapExactTokensForETH.selector;
+    bytes4 internal constant _FUNC59 =
+        ILynexRouter.swapExactTokensForTokens.selector;
+
+    // @dev Correct input of destination chain swapData
+    function correctSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) external returns (bytes memory) {
+        bytes4 sig = bytes4(_data[:4]);
+
+        if (sig == _FUNC57) {
+            return _data;
+        } else if (sig == _FUNC58 || sig == _FUNC59) {
+            return basicCorrectSwap(_data, _amount);
+        } else {
+            revert("correctLynex error");
+        }
+    }
+
+    // @dev Fix min amount
+    function fixMinAmount(
+        bytes calldata _data,
+        uint256 _deltaMinAmount
+    ) external view returns (uint256, bytes memory) {
+        bytes4 sig = bytes4(_data[:4]);
+        if (sig == _FUNC57) {
+            (
+                uint256 _amountOutMin,
+                ILynexRouter.route[] memory _path,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, ILynexRouter.route[], address, uint256)
+                );
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
+            );
+        } else if (sig == _FUNC58 || sig == _FUNC59) {
+            (
+                uint256 _amount,
+                uint256 _amountOutMin,
+                ILynexRouter.route[] memory _path,
+                address _to,
+                uint256 _deadline
+            ) = abi.decode(
+                    _data[4:],
+                    (uint256, uint256, ILynexRouter.route[], address, uint256)
+                );
+            return (
+                _amountOutMin,
+                abi.encodeWithSelector(
+                    sig,
+                    _amount,
+                    _amountOutMin + _deltaMinAmount,
+                    _path,
+                    _to,
+                    _deadline
+                )
+            );
+        }
+
+        revert("fix lynex swap amount fail!");
+    }
+
+    function basicCorrectSwap(
+        bytes calldata _data,
+        uint256 _amount
+    ) internal pure returns (bytes memory) {
+        (
+            ,
+            uint256 _amountOutMin,
+            ILynexRouter.route[] memory _path,
+            address _to,
+            uint256 _deadline
+        ) = abi.decode(
+                _data[4:],
+                (uint256, uint256, ILynexRouter.route[], address, uint256)
+            );
+
+        return
+            abi.encodeWithSelector(
+                bytes4(_data[:4]),
+                _amount,
+                _amountOutMin,
+                _path,
+                _to,
+                _deadline
             );
     }
 }

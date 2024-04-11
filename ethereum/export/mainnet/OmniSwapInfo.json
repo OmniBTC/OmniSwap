@@ -2367,6 +2367,13 @@
         "StargateRouter": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
         "UniswapRouter": [
             {
+                "Name": "Lynex",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x610D2f07b7EdC67565160F587F37636194C34E74",
+                "TokenList": "",
+                "Type": "ILynexRouter"
+            },
+            {
                 "Name": "KyberSwap",
                 "QuoterAddressForUniswapV3": "",
                 "RouterAddress": "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5",
