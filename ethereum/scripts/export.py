@@ -102,7 +102,7 @@ def get_stragate_pool_infos():
     stargate_router = Contract.from_abi(
         "IStargate", stargate_router_address, interface.IStargate.abi
     )
-    bridge_address = stargate_router.stargateBridge()
+    bridge_address = stargate_router.bridge()
     bridge = Contract.from_abi(
         "IStargateBridge", bridge_address, interface.IStargateBridge.abi
     )
