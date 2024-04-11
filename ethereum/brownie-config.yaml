@@ -2353,7 +2353,19 @@ networks:
           router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
           token_list: ""
   linea-main:
+    chainid: 59144
+    SoDiamond: ""
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: ""
+    stargate:
+      router: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+      chainid: 183
+      poolid:
+        weth: 13
+    tokens:
+      sgeth:
+        address: "0x224D8Fd7aB6AD4c6eb4611Ce56EF35Dec2277F03"
+        decimal: 18
     swap:
       - IMetaAggregationRouterV2:
           name: KyberSwap
