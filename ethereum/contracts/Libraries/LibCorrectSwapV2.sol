@@ -2736,9 +2736,9 @@ contract CorrectLynexFactory {
     constructor(LibCorrectSwapV2 libCorrectSwapV2) {
         // Lynex
         bytes4[] memory sigs = new bytes4[](3);
-        sigs[0] = LibSwapFuncSigs._FUNC55;
-        sigs[0] = LibSwapFuncSigs._FUNC56;
         sigs[0] = LibSwapFuncSigs._FUNC57;
+        sigs[1] = LibSwapFuncSigs._FUNC58;
+        sigs[2] = LibSwapFuncSigs._FUNC59;
         address correctLynex = address(new CorrectLynex());
         libCorrectSwapV2.setCorrectSwap(sigs, correctLynex);
     }
