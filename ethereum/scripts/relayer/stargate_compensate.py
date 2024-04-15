@@ -70,6 +70,11 @@ SUPPORTED_EVM = [
         "dstNet": "mantle-main",
         "dstChainId": 5000
     },
+{
+        "dstSoDiamond": "0x6e166933CACB57b40f5C5D1a2D275aD997A7D318",
+        "dstNet": "linea-main",
+        "dstChainId": 59144
+    },
 ]
 
 
