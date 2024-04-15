@@ -2353,8 +2353,33 @@ networks:
           router: "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
           token_list: ""
   linea-main:
+    omnibtc_chainid: 59144
+    chainid: 59144
+    SoDiamond: ""
     basic_beneficiary: "0xD4c56833A6D4C83A81972dA7e0eDA924F0729989"
+    StargateHelper: ""
+    endpoints:
+      [
+        "https://linea.blockpi.network/v1/rpc/public",
+        "https://1rpc.io/linea",
+        "https://linea.drpc.org",
+        "https://linea.decubate.com",
+        "https://rpc.linea.build",
+      ]
+    stargate:
+      router: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+      chainid: 183
+      poolid:
+        weth: 13
+    tokens:
+      sgeth:
+        address: "0x224D8Fd7aB6AD4c6eb4611Ce56EF35Dec2277F03"
+        decimal: 18
     swap:
+      - ILynexRouter:
+          name: Lynex
+          router: "0x610D2f07b7EdC67565160F587F37636194C34E74"
+          token_list: ""
       - IMetaAggregationRouterV2:
           name: KyberSwap
           router: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5"
