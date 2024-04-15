@@ -630,22 +630,22 @@ def redeploy_generic_swap():
 def redeploy_stargate():
     account = get_account()
 
-    # print("deploy LibSoFeeStargateV2.sol...")
-    # so_fee = 1e-3
-    # transfer_for_gas = 40000
-    # basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
-    # basic_fee = 0
-    # LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
-    #                           basic_fee, basic_beneficiary,
-    #                           {"from": account})
-    #
-    # proxy_dex = Contract.from_abi(
-    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    # )
-    # print("addFee...")
-    # proxy_dex.addFee(
-    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
-    # )
+    print("deploy LibSoFeeStargateV2.sol...")
+    so_fee = 0
+    transfer_for_gas = 40000
+    basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    basic_fee = 0.0002
+    LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
+                              basic_fee, basic_beneficiary,
+                              {"from": account})
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    print("addFee...")
+    proxy_dex.addFee(
+        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
+    )
 
     try:
         print("Remove cut...")
