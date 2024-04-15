@@ -1,0 +1,1144 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "stable",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ILynexRouter.route[]",
+          "name": "routes",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "getAmountsOut",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOutMin",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "stable",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ILynexRouter.route[]",
+          "name": "routes",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "swapExactETHForTokens",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOutMin",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "stable",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ILynexRouter.route[]",
+          "name": "routes",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "swapExactTokensForETH",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOutMin",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "stable",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ILynexRouter.route[]",
+          "name": "routes",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "swapExactTokensForTokens",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "allSourcePaths": {
+    "12": "contracts/Interfaces/Lynex/ILynexRouter.sol"
+  },
+  "ast": {
+    "absolutePath": "contracts/Interfaces/Lynex/ILynexRouter.sol",
+    "exportedSymbols": {
+      "ILynexRouter": [
+        73
+      ]
+    },
+    "id": 74,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1,
+        "literals": [
+          "solidity",
+          "0.8",
+          ".13"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:12"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "ILynexRouter",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "id": 73,
+        "linearizedBaseContracts": [
+          73
+        ],
+        "name": "ILynexRouter",
+        "nameLocation": "67:12:12",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "ILynexRouter.route",
+            "id": 8,
+            "members": [
+              {
+                "constant": false,
+                "id": 3,
+                "mutability": "mutable",
+                "name": "from",
+                "nameLocation": "117:4:12",
+                "nodeType": "VariableDeclaration",
+                "scope": 8,
+                "src": "109:12:12",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 2,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "109:7:12",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 5,
+                "mutability": "mutable",
+                "name": "to",
+                "nameLocation": "139:2:12",
+                "nodeType": "VariableDeclaration",
+                "scope": 8,
+                "src": "131:10:12",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 4,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "131:7:12",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 7,
+                "mutability": "mutable",
+                "name": "stable",
+                "nameLocation": "156:6:12",
+                "nodeType": "VariableDeclaration",
+                "scope": 8,
+                "src": "151:11:12",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 6,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "151:4:12",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "route",
+            "nameLocation": "93:5:12",
+            "nodeType": "StructDefinition",
+            "scope": 73,
+            "src": "86:83:12",
+            "visibility": "public"
+          },
+          {
+            "functionSelector": "9881fcb4",
+            "id": 20,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getAmountsOut",
+            "nameLocation": "184:13:12",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 15,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 10,
+                  "mutability": "mutable",
+                  "name": "amountIn",
+                  "nameLocation": "212:8:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20,
+                  "src": "207:13:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "207:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 14,
+                  "mutability": "mutable",
+                  "name": "routes",
+                  "nameLocation": "245:6:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20,
+                  "src": "230:21:12",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_route_$8_memory_ptr_$dyn_memory_ptr",
+                    "typeString": "struct ILynexRouter.route[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 12,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 11,
+                        "name": "route",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 8,
+                        "src": "230:5:12"
+                      },
+                      "referencedDeclaration": 8,
+                      "src": "230:5:12",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_route_$8_storage_ptr",
+                        "typeString": "struct ILynexRouter.route"
+                      }
+                    },
+                    "id": 13,
+                    "nodeType": "ArrayTypeName",
+                    "src": "230:7:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_route_$8_storage_$dyn_storage_ptr",
+                      "typeString": "struct ILynexRouter.route[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "197:60:12"
+            },
+            "returnParameters": {
+              "id": 19,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 18,
+                  "mutability": "mutable",
+                  "name": "amounts",
+                  "nameLocation": "295:7:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20,
+                  "src": "281:21:12",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 16,
+                      "name": "uint",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "281:4:12",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 17,
+                    "nodeType": "ArrayTypeName",
+                    "src": "281:6:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "280:23:12"
+            },
+            "scope": 73,
+            "src": "175:129:12",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "f41766d8",
+            "id": 38,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapExactTokensForTokens",
+            "nameLocation": "319:24:12",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 33,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 22,
+                  "mutability": "mutable",
+                  "name": "amountIn",
+                  "nameLocation": "358:8:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 38,
+                  "src": "353:13:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "353:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 24,
+                  "mutability": "mutable",
+                  "name": "amountOutMin",
+                  "nameLocation": "381:12:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 38,
+                  "src": "376:17:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 23,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "376:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 28,
+                  "mutability": "mutable",
+                  "name": "routes",
+                  "nameLocation": "420:6:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 38,
+                  "src": "403:23:12",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_route_$8_calldata_ptr_$dyn_calldata_ptr",
+                    "typeString": "struct ILynexRouter.route[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 26,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 25,
+                        "name": "route",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 8,
+                        "src": "403:5:12"
+                      },
+                      "referencedDeclaration": 8,
+                      "src": "403:5:12",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_route_$8_storage_ptr",
+                        "typeString": "struct ILynexRouter.route"
+                      }
+                    },
+                    "id": 27,
+                    "nodeType": "ArrayTypeName",
+                    "src": "403:7:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_route_$8_storage_$dyn_storage_ptr",
+                      "typeString": "struct ILynexRouter.route[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 30,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nameLocation": "444:2:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 38,
+                  "src": "436:10:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 29,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "436:7:12",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 32,
+                  "mutability": "mutable",
+                  "name": "deadline",
+                  "nameLocation": "461:8:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 38,
+                  "src": "456:13:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 31,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "456:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "343:132:12"
+            },
+            "returnParameters": {
+              "id": 37,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 36,
+                  "mutability": "mutable",
+                  "name": "amounts",
+                  "nameLocation": "508:7:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 38,
+                  "src": "494:21:12",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 34,
+                      "name": "uint",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "494:4:12",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 35,
+                    "nodeType": "ArrayTypeName",
+                    "src": "494:6:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "493:23:12"
+            },
+            "scope": 73,
+            "src": "310:207:12",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "67ffb66a",
+            "id": 54,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapExactETHForTokens",
+            "nameLocation": "532:21:12",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 49,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 40,
+                  "mutability": "mutable",
+                  "name": "amountOutMin",
+                  "nameLocation": "568:12:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 54,
+                  "src": "563:17:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 39,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "563:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 44,
+                  "mutability": "mutable",
+                  "name": "routes",
+                  "nameLocation": "607:6:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 54,
+                  "src": "590:23:12",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_route_$8_calldata_ptr_$dyn_calldata_ptr",
+                    "typeString": "struct ILynexRouter.route[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 42,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 41,
+                        "name": "route",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 8,
+                        "src": "590:5:12"
+                      },
+                      "referencedDeclaration": 8,
+                      "src": "590:5:12",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_route_$8_storage_ptr",
+                        "typeString": "struct ILynexRouter.route"
+                      }
+                    },
+                    "id": 43,
+                    "nodeType": "ArrayTypeName",
+                    "src": "590:7:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_route_$8_storage_$dyn_storage_ptr",
+                      "typeString": "struct ILynexRouter.route[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 46,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nameLocation": "631:2:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 54,
+                  "src": "623:10:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 45,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "623:7:12",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 48,
+                  "mutability": "mutable",
+                  "name": "deadline",
+                  "nameLocation": "648:8:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 54,
+                  "src": "643:13:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 47,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "643:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "553:109:12"
+            },
+            "returnParameters": {
+              "id": 53,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 52,
+                  "mutability": "mutable",
+                  "name": "amounts",
+                  "nameLocation": "703:7:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 54,
+                  "src": "689:21:12",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 50,
+                      "name": "uint",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "689:4:12",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 51,
+                    "nodeType": "ArrayTypeName",
+                    "src": "689:6:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "688:23:12"
+            },
+            "scope": 73,
+            "src": "523:189:12",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "18a13086",
+            "id": 72,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "swapExactTokensForETH",
+            "nameLocation": "727:21:12",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 67,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 56,
+                  "mutability": "mutable",
+                  "name": "amountIn",
+                  "nameLocation": "763:8:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 72,
+                  "src": "758:13:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 55,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "758:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 58,
+                  "mutability": "mutable",
+                  "name": "amountOutMin",
+                  "nameLocation": "786:12:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 72,
+                  "src": "781:17:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 57,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "781:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 62,
+                  "mutability": "mutable",
+                  "name": "routes",
+                  "nameLocation": "825:6:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 72,
+                  "src": "808:23:12",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_route_$8_calldata_ptr_$dyn_calldata_ptr",
+                    "typeString": "struct ILynexRouter.route[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 60,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 59,
+                        "name": "route",
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 8,
+                        "src": "808:5:12"
+                      },
+                      "referencedDeclaration": 8,
+                      "src": "808:5:12",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_route_$8_storage_ptr",
+                        "typeString": "struct ILynexRouter.route"
+                      }
+                    },
+                    "id": 61,
+                    "nodeType": "ArrayTypeName",
+                    "src": "808:7:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_route_$8_storage_$dyn_storage_ptr",
+                      "typeString": "struct ILynexRouter.route[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 64,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nameLocation": "849:2:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 72,
+                  "src": "841:10:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 63,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "841:7:12",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 66,
+                  "mutability": "mutable",
+                  "name": "deadline",
+                  "nameLocation": "866:8:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 72,
+                  "src": "861:13:12",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 65,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "861:4:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "748:132:12"
+            },
+            "returnParameters": {
+              "id": 71,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 70,
+                  "mutability": "mutable",
+                  "name": "amounts",
+                  "nameLocation": "913:7:12",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 72,
+                  "src": "899:21:12",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 68,
+                      "name": "uint",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "899:4:12",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 69,
+                    "nodeType": "ArrayTypeName",
+                    "src": "899:6:12",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "898:23:12"
+            },
+            "scope": 73,
+            "src": "718:204:12",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 74,
+        "src": "57:867:12",
+        "usedErrors": []
+      }
+    ],
+    "src": "32:893:12"
+  },
+  "bytecode": "",
+  "bytecodeSha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "compiler": {
+    "evm_version": "istanbul",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "version": "0.8.13+commit.abaa5c0e"
+  },
+  "contractName": "ILynexRouter",
+  "coverageMap": {
+    "branches": {},
+    "statements": {}
+  },
+  "dependencies": [],
+  "deployedBytecode": "",
+  "deployedSourceMap": "",
+  "language": "Solidity",
+  "natspec": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "offset": [
+    57,
+    924
+  ],
+  "opcodes": "",
+  "pcMap": {},
+  "sha1": "3fea2ad8459147d45e9036beb3c0a29eda70b066",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.13;\n\ninterface ILynexRouter {\n    struct route {\n        address from;\n        address to;\n        bool stable;\n    }\n\n    function getAmountsOut(\n        uint amountIn,\n        route[] memory routes\n    ) external view returns (uint[] memory amounts);\n\n    function swapExactTokensForTokens(\n        uint amountIn,\n        uint amountOutMin,\n        route[] calldata routes,\n        address to,\n        uint deadline\n    ) external returns (uint[] memory amounts);\n\n    function swapExactETHForTokens(\n        uint amountOutMin,\n        route[] calldata routes,\n        address to,\n        uint deadline\n    ) external payable returns (uint[] memory amounts);\n\n    function swapExactTokensForETH(\n        uint amountIn,\n        uint amountOutMin,\n        route[] calldata routes,\n        address to,\n        uint deadline\n    ) external returns (uint[] memory amounts);\n}\n",
+  "sourceMap": "",
+  "sourcePath": "contracts/Interfaces/Lynex/ILynexRouter.sol",
+  "type": "interface"
+}
