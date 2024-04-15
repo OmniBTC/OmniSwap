@@ -1,5 +1,6 @@
 {
   "arbitrum-main": {
+    "CorrectKyberswapFactory": "0x26836d098165eEa90c2b50270B642dd95204F12E",
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
     "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0x206b7075C6b12E3A9B4C6A85C8bc848d6EfF435c",
@@ -27,6 +28,7 @@
     "LibCorrectSwapV2": "0x802D063d912D99b0b3e31ABAc2f93943A743B929"
   },
   "avax-main": {
+    "CorrectKyberswapFactory": "0x0ca34E4FC0Ef98eDe19fB1F2221b409048e9dE84",
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
     "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0x5AB267E44F1A9c5CA11950cfD33DC8F61b135E62",
@@ -57,6 +59,7 @@
     "LibCorrectSwapV2": "0xB9496408E1c36AcED889261c4ec616aa2f213B8C"
   },
   "bsc-main": {
+    "CorrectKyberswapFactory": "0x23EcB70e0696B8Fc2409Fc3976F8506AfA39Ed2c",
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
     "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0xA96cacCf2e4366F0028CC3Dde8668Dd1E36B7904",
@@ -110,6 +113,7 @@
     "WormholeFacet": "0x681bC51FC82bbA792e94e6187B82859f1E982C24"
   },
   "optimism-main": {
+    "CorrectKyberswapFactory": "0xaDdE46A97A855C8590BE53c703eC3f9ddA1FD960",
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
     "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0xAc7DCE61Faa5B130B4D3396530EDcE4bf9c68519",
@@ -138,6 +142,7 @@
     "BulkTransfer": "0x1cc046Cd4BF83421E3C744e14c09F8b9aD8C82b3"
   },
   "polygon-main": {
+    "CorrectKyberswapFactory": "0xd89C044df7Bd1984e466f9De5EC1929B7feB648C",
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
     "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "BoolFacet": "0x7e9b2df5519b88A361A117bc796162F4c0144051",
@@ -183,6 +188,7 @@
     "LibCorrectSwapV2": "0x4B0492bCc5316257153c087735198D5B6e57D42d"
   },
   "zkevm-main": {
+    "CorrectKyberswapFactory": "0xD5F0a41b0Ff245b69d2E9E72758a51612c6102c5",
     "CelerFacet": "0xba661e8482D62d3B33751961780df04Aab373eA5",
     "DexManagerFacet": "0x0917923Af85aB3aDab081e3B8825fccEddBB889c",
     "DiamondCutFacet": "0xDAE4Db475ACA613a5e2DC5fC304dA7e962B3cEaD",
@@ -198,6 +204,7 @@
     "LibCorrectSwapV2": "0x908dAaf6CDdB8D617F81C2c786511eE307F6aEA1"
   },
   "base-main": {
+    "CorrectKyberswapFactory": "0x0ca34E4FC0Ef98eDe19fB1F2221b409048e9dE84",
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
     "StargateHelper": "0x34bDbE3669799d12D599f69e6c4BCC0a795657a1",
     "DexManagerFacet": "0xAD85421c47e9B830602deb83fCF149c2A1f0e8A9",
@@ -235,6 +242,7 @@
     "BulkTransfer": "0xbb9220B732f5028607838447a67d937C6a6a099f"
   },
   "linea-main": {
+    "CorrectKyberswapFactory": "0x62435173203A235c7336FA640DcDE6c20D857630",
     "DiamondCutFacet": "0x1f0d7E0C10Adf20ae9621431a53151ed6F4361E3",
     "DiamondLoupeFacet": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "DexManagerFacet": "0xd9E092DDbA7d74bAe4c190CBDEFA3357457473c2",
@@ -247,6 +255,7 @@
     "LibCorrectSwapV2": "0x8BE4EeB0C9A906D9094C5c5B745bC95e79f3Db8B"
   },
   "scroll-main": {
+    "CorrectKyberswapFactory": "0x62435173203A235c7336FA640DcDE6c20D857630",
     "DiamondCutFacet": "0x1f0d7E0C10Adf20ae9621431a53151ed6F4361E3",
     "DiamondLoupeFacet": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "DexManagerFacet": "0xd9E092DDbA7d74bAe4c190CBDEFA3357457473c2",
@@ -259,6 +268,7 @@
     "LibCorrectSwapV2": "0x8BE4EeB0C9A906D9094C5c5B745bC95e79f3Db8B"
   },
   "opbnb-main": {
+    "CorrectKyberswapFactory": "0x62435173203A235c7336FA640DcDE6c20D857630",
     "DiamondCutFacet": "0x1f0d7E0C10Adf20ae9621431a53151ed6F4361E3",
     "DiamondLoupeFacet": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "DexManagerFacet": "0xd9E092DDbA7d74bAe4c190CBDEFA3357457473c2",
