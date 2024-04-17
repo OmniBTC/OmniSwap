@@ -18,6 +18,7 @@ from brownie import (
     StargateFacet,
     LibSoFeeStargateV2,
     WormholeFacet,
+    CoreBridgeFacet,
     LibSoFeeWormholeV1,
     Multicall3,
     ConnextFacet,
@@ -26,7 +27,7 @@ from brownie import (
     config,
     Contract,
 )
-from brownie.network import priority_fee, max_fee
+from brownie.network import priority_fee, max_fee, gas_price, gas_limit
 
 from scripts.helpful_scripts import get_account, get_stargate_router
 
@@ -51,6 +52,11 @@ def deploy_contracts(account):
     if "arbitrum-test" in network.show_active():
         priority_fee("1 gwei")
         max_fee("1.25 gwei")
+    if "core" in network.show_active():
+        # need to use the old fee calculation model
+        priority_fee(None)
+        max_fee(None)
+        gas_price("30 gwei")
     deploy_facets = [
         DiamondCutFacet,
         DiamondLoupeFacet,

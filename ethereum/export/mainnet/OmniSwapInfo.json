@@ -271,6 +271,54 @@
     },
     "arbitrum-main": {
         "ChainId": 42161,
+        "CoreBridgeChainId": 110,
+        "CoreBridgeContract": "0x29d096cd18c0da7500295f082da73316d704031a",
+        "CoreBridgeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3",
+                "TokenName": "BTC.b"
+            }
+        ],
         "OmniBtcChainId": 6,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 110,
@@ -391,6 +439,10 @@
                     ],
                     [
                         111,
+                        13
+                    ],
+                    [
+                        183,
                         13
                     ]
                 ],
@@ -541,6 +593,32 @@
     },
     "avax-main": {
         "ChainId": 43114,
+        "CoreBridgeChainId": 106,
+        "CoreBridgeContract": "0x29d096cd18c0da7500295f082da73316d704031a",
+        "CoreBridgeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x152b9d0FdC40C096757F570A51E494bd4b943E50",
+                "TokenName": "BTC.b"
+            }
+        ],
         "OmniBtcChainId": 4,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 106,
@@ -1268,6 +1346,10 @@
                     [
                         111,
                         13
+                    ],
+                    [
+                        183,
+                        13
                     ]
                 ],
                 "Decimal": 18,
@@ -1349,6 +1431,54 @@
     },
     "bsc-main": {
         "ChainId": 56,
+        "CoreBridgeChainId": 102,
+        "CoreBridgeContract": "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
+        "CoreBridgeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9"
+                    }
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1"
+                    }
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x55d398326f99059fF775485246999027B3197955",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3",
+                "TokenName": "BTC.b"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x7A6888c85eDBA8E38F6C7E0485212da602761C08"
+                    }
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
+                "TokenName": "BTCB"
+            }
+        ],
         "OmniBtcChainId": 3,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 102,
@@ -2052,8 +2182,274 @@
             }
         ]
     },
+    "core-main": {
+        "ChainId": 1116,
+        "CoreBridgeChainId": 153,
+        "CoreBridgeContract": "0xA4218e1F39DA4AaDaC971066458Db56e901bcbdE",
+        "CoreBridgeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 101,
+                        "RemoteTokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+                    },
+                    {
+                        "RemoteChainId": 110,
+                        "RemoteTokenAddress": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+                    },
+                    {
+                        "RemoteChainId": 111,
+                        "RemoteTokenAddress": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+                    },
+                    {
+                        "RemoteChainId": 102,
+                        "RemoteTokenAddress": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+                    },
+                    {
+                        "RemoteChainId": 109,
+                        "RemoteTokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+                    },
+                    {
+                        "RemoteChainId": 106,
+                        "RemoteTokenAddress": "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 101,
+                        "RemoteTokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+                    },
+                    {
+                        "RemoteChainId": 110,
+                        "RemoteTokenAddress": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+                    },
+                    {
+                        "RemoteChainId": 111,
+                        "RemoteTokenAddress": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
+                    },
+                    {
+                        "RemoteChainId": 102,
+                        "RemoteTokenAddress": "0x55d398326f99059fF775485246999027B3197955"
+                    },
+                    {
+                        "RemoteChainId": 109,
+                        "RemoteTokenAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 101,
+                        "RemoteTokenAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+                    }
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0xeAB3aC417c4d6dF6b143346a46fEe1B847B50296",
+                "TokenName": "WETH"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 101,
+                        "RemoteTokenAddress": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+                    },
+                    {
+                        "RemoteChainId": 110,
+                        "RemoteTokenAddress": "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f"
+                    },
+                    {
+                        "RemoteChainId": 111,
+                        "RemoteTokenAddress": "0x68f180fcCe6836688e9084f035309E29Bf0A2095"
+                    },
+                    {
+                        "RemoteChainId": 109,
+                        "RemoteTokenAddress": "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 101,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    },
+                    {
+                        "RemoteChainId": 110,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    },
+                    {
+                        "RemoteChainId": 111,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    },
+                    {
+                        "RemoteChainId": 102,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    },
+                    {
+                        "RemoteChainId": 109,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    },
+                    {
+                        "RemoteChainId": 106,
+                        "RemoteTokenAddress": "0x152b9d0FdC40C096757F570A51E494bd4b943E50"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3",
+                "TokenName": "BTC.b"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 102,
+                        "RemoteTokenAddress": "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c"
+                    }
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0x7A6888c85eDBA8E38F6C7E0485212da602761C08",
+                "TokenName": "BTCB"
+            }
+        ],
+        "OmniBtcChainId": 1116,
+        "SoDiamond": "0x0B77E63db1cd9F4f7cdAfb4a1C39f6ABEB764B66",
+        "UniswapRouter": [
+            {
+                "Name": "GlyphExchange",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x4ddDD324F205e5989bAF8aD0FFCa41f4E5d9841D",
+                "TokenList": "",
+                "Type": "IUniswapV2Router02"
+            }
+        ]
+    },
+    "linea-main": {
+        "ChainId": 59144,
+        "SoDiamond": "0x6e166933CACB57b40f5C5D1a2D275aD997A7D318",
+        "StargateChainId": 183,
+        "StargatePool": [
+            {
+                "ChainPath": [
+                    [
+                        110,
+                        13
+                    ],
+                    [
+                        184,
+                        13
+                    ],
+                    [
+                        101,
+                        13
+                    ],
+                    [
+                        111,
+                        13
+                    ]
+                ],
+                "Decimal": 18,
+                "PoolId": 13,
+                "TokenAddress": "0x224D8Fd7aB6AD4c6eb4611Ce56EF35Dec2277F03",
+                "TokenName": "SGETH"
+            }
+        ],
+        "StargateRouter": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+        "UniswapRouter": [
+            {
+                "Name": "Lynex",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x610D2f07b7EdC67565160F587F37636194C34E74",
+                "TokenList": "",
+                "Type": "ILynexRouter"
+            },
+            {
+                "Name": "KyberSwap",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5",
+                "TokenList": "",
+                "Type": "IMetaAggregationRouterV2"
+            },
+            {
+                "Name": "OpenOcean",
+                "QuoterAddressForUniswapV3": "",
+                "RouterAddress": "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64",
+                "TokenList": "",
+                "Type": "IOpenOceanExchange"
+            }
+        ]
+    },
     "mainnet": {
         "ChainId": 1,
+        "CoreBridgeChainId": 101,
+        "CoreBridgeContract": "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
+        "CoreBridgeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0xeAB3aC417c4d6dF6b143346a46fEe1B847B50296"
+                    }
+                ],
+                "Decimal": 18,
+                "TokenAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                "TokenName": "WETH"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3",
+                "TokenName": "BTC.b"
+            }
+        ],
         "OmniBtcChainId": 2,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 101,
@@ -2186,6 +2582,10 @@
                     ],
                     [
                         111,
+                        13
+                    ],
+                    [
+                        183,
                         13
                     ]
                 ],
@@ -2991,6 +3391,54 @@
     },
     "optimism-main": {
         "ChainId": 10,
+        "CoreBridgeChainId": 111,
+        "CoreBridgeContract": "0x29d096cd18c0da7500295f082da73316d704031a",
+        "CoreBridgeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x68f180fcCe6836688e9084f035309E29Bf0A2095",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3",
+                "TokenName": "BTC.b"
+            }
+        ],
         "OmniBtcChainId": 7,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 111,
@@ -3063,6 +3511,10 @@
                     ],
                     [
                         101,
+                        13
+                    ],
+                    [
+                        183,
                         13
                     ]
                 ],
@@ -3227,6 +3679,54 @@
     },
     "polygon-main": {
         "ChainId": 137,
+        "CoreBridgeChainId": 109,
+        "CoreBridgeContract": "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
+        "CoreBridgeSupportToken": [
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                "TokenName": "USDC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1"
+                    }
+                ],
+                "Decimal": 6,
+                "TokenAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                "TokenName": "USDT"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x5832f53d147b3d6Cd4578B9CBD62425C7ea9d0Bd"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6",
+                "TokenName": "WBTC"
+            },
+            {
+                "ChainPath": [
+                    {
+                        "RemoteChainId": 153,
+                        "RemoteTokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3"
+                    }
+                ],
+                "Decimal": 8,
+                "TokenAddress": "0x2297aEbD383787A160DD0d9F71508148769342E3",
+                "TokenName": "BTC.b"
+            }
+        ],
         "OmniBtcChainId": 5,
         "SoDiamond": "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820",
         "StargateChainId": 109,

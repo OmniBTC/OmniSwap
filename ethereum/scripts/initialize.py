@@ -51,6 +51,9 @@ from scripts.helpful_scripts import (
     get_bool_router,
     get_bool_chainid,
     get_account,
+    get_corebridge_bridge,
+    get_corebridge_chain_id,
+    get_corebridge_core_chain_id,
     get_method_signature_by_abi,
     get_native_oracle_address,
     get_oracles,
@@ -85,6 +88,17 @@ from scripts.deploy_libcorrectswapv2 import deploy_correct_swaps
 if "arbitrum" in network.show_active():
     priority_fee("1 gwei")
     max_fee("1.25 gwei")
+from scripts.deploy_libcorrectswapv2 import deploy_correct_swaps
+
+if "arbitrum" in network.show_active():
+    priority_fee("1 gwei")
+    max_fee("1.25 gwei")
+
+if "core" in network.show_active():
+    # need to use the old fee calculation model
+    priority_fee(None)
+    max_fee(None)
+    gas_price("30 gwei")
 
 
 def main():
@@ -133,10 +147,10 @@ def main():
     #     initialize_wormhole_fee(account)
     # except Exception as e:
     #     print(f"initialize_wormhole_fee fail: {e}")
-    try:
-        initialize_dex_manager(account, so_diamond)
-    except Exception as e:
-        print(f"initialize_dex_manager fail:{e}")
+    # try:
+    #     initialize_dex_manager(account, so_diamond)
+    # except Exception as e:
+    #     print(f"initialize_dex_manager fail:{e}")
     # initialize_little_token_for_stargate()
 
 
@@ -167,6 +181,7 @@ def initialize_wormhole_fee(account):
 
     if network.show_active() == "bsc-test":
         # sol / bnb
+        LibSoFeeWormholeV1[-1].setPriceRatio(1, 1e26, {"from": account})
         LibSoFeeWormholeV1[-1].setPriceRatio(1, 1e26, {"from": account})
 
 
@@ -237,6 +252,25 @@ def initialize_cut(account, so_diamond):
     proxy_cut.diamondCut(register_data, zero_address(), b"", {"from": account})
 
 
+def initialize_corebridge(account=get_account(), so_diamond=SoDiamond[-1]):
+    proxy_corebridge = Contract.from_abi(
+        "CoreBridgeFacet", so_diamond.address, CoreBridgeFacet.abi
+    )
+    net = network.show_active()
+
+    if "test" in net:
+        core_chianid = get_corebridge_core_chain_id("core-test")
+    else:
+        core_chianid = get_corebridge_core_chain_id("core-main")
+    print(f"network:{net}, init corebridge...")
+    proxy_corebridge.initCoreBridge(
+        get_corebridge_bridge(),
+        get_corebridge_chain_id(),
+        core_chianid,
+        {"from": account},
+    )
+
+
 def initialize_stargate(account=get_account(), so_diamond=SoDiamond[-1]):
     proxy_stargate = Contract.from_abi(
         "StargateFacet", so_diamond.address, StargateFacet.abi
@@ -250,12 +284,14 @@ def initialize_stargate(account=get_account(), so_diamond=SoDiamond[-1]):
 
 def initialize_bool(account, so_diamond):
     proxy_bool = Contract.from_abi("BoolFacet", so_diamond.address, BoolFacet.abi)
+    proxy_bool = Contract.from_abi("BoolFacet", so_diamond.address, BoolFacet.abi)
     net = network.show_active()
     print(f"network:{net}, init bool...")
     proxy_bool.initBoolSwap(get_bool_router(), get_bool_chainid(), {"from": account})
 
 
 def batch_set_bool_allowed_address(account=get_account(), so_diamond=SoDiamond[-1]):
+    bool_facet = Contract.from_abi("BoolFacet", so_diamond.address, BoolFacet.abi)
     bool_facet = Contract.from_abi("BoolFacet", so_diamond.address, BoolFacet.abi)
 
     pool_addresses = []
@@ -285,6 +321,7 @@ def initialize_cctp(account=get_account(), so_diamond=SoDiamond[-1]):
         "base-main": 6,
         "goerli": 0,
         "avax-test": 1,
+        "arbitrum-test": 3,
         "arbitrum-test": 3,
     }
     if "main" in net:
@@ -590,6 +627,7 @@ def reset_generic_fee():
     so_fee = 3 * 1e-4
     ray = 1e27
     LibSoFeeGenericV2[-1].setFee(int(so_fee * ray), {"from": account})
+    LibSoFeeGenericV2[-1].setFee(int(so_fee * ray), {"from": account})
 
 
 def redeploy_generic_swap():
@@ -607,11 +645,18 @@ def redeploy_generic_swap():
     LibSoFeeGenericV2.deploy(
         int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account}
     )
+    print(
+        f"Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}"
+    )
+    LibSoFeeGenericV2.deploy(
+        int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account}
+    )
 
     # 2. add bool's lib so fee to diamond
     proxy_dex = Contract.from_abi(
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
+    proxy_dex.addFee(zero_address(), LibSoFeeGenericV2[-1].address, {"from": account})
     proxy_dex.addFee(zero_address(), LibSoFeeGenericV2[-1].address, {"from": account})
 
     remove_facet(GenericSwapFacet)
@@ -659,22 +704,22 @@ def redeploy_connext():
 def redeploy_stargate():
     account = get_account()
 
-    # print("deploy LibSoFeeStargateV2.sol...")
-    # so_fee = 1e-3
-    # transfer_for_gas = 40000
-    # basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
-    # basic_fee = 0
-    # LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
-    #                           basic_fee, basic_beneficiary,
-    #                           {"from": account})
-    #
-    # proxy_dex = Contract.from_abi(
-    #     "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
-    # )
-    # print("addFee...")
-    # proxy_dex.addFee(
-    #     get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
-    # )
+    print("deploy LibSoFeeStargateV2.sol...")
+    so_fee = 0
+    transfer_for_gas = 40000
+    basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    basic_fee = 0.0002
+    LibSoFeeStargateV2.deploy(int(so_fee * 1e18), transfer_for_gas,
+                              basic_fee, basic_beneficiary,
+                              {"from": account})
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    print("addFee...")
+    proxy_dex.addFee(
+        get_stargate_router(), LibSoFeeStargateV2[-1].address, {"from": account}
+    )
 
     try:
         print("Remove cut...")
@@ -690,6 +735,39 @@ def redeploy_stargate():
     initialize_stargate(account, SoDiamond[-1])
 
 
+def redeploy_corebridge():
+    account = get_account()
+
+    print("deploy LibSoFeeCoreBridgeV2.sol...")
+    so_fee = 0
+    basic_beneficiary = config["networks"][network.show_active()]["basic_beneficiary"]
+    basic_fee = int(0.0002 * 1e18)
+    LibSoFeeCoreBridgeV2.deploy(int(so_fee * 1e18),
+                                basic_fee, basic_beneficiary,
+                                {"from": account})
+
+    proxy_dex = Contract.from_abi(
+        "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
+    )
+    print("addFee...")
+    proxy_dex.addFee(
+        get_corebridge_bridge(), LibSoFeeCoreBridgeV2[-1].address, {"from": account}
+    )
+
+    try:
+        print("Remove cut...")
+        remove_facet(CoreBridgeFacet)
+    except Exception as e:
+        print(f"Remove err:{e}")
+
+    print("Deploy stargate...")
+    CoreBridgeFacet.deploy({"from": account})
+    print("Add cut...")
+    add_cut([CoreBridgeFacet])
+    print("Initialize stargate...")
+    initialize_corebridge(account, SoDiamond[-1])
+
+
 def redeploy_bool():
     account = get_account()
 
@@ -703,7 +781,18 @@ def redeploy_bool():
     basic_fee = config["networks"][network.show_active()]["bridges"]["bool"][
         "basic_fee"
     ]
+    basic_beneficiary = config["networks"][network.show_active()]["bridges"]["bool"][
+        "basic_beneficiary"
+    ]
+    basic_fee = config["networks"][network.show_active()]["bridges"]["bool"][
+        "basic_fee"
+    ]
     print(
+        f"LibSoFeeBoolV2 deploy Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}"
+    )
+    LibSoFeeBoolV2.deploy(
+        int(so_fee * ray), basic_fee, basic_beneficiary, {"from": account}
+    )
         f"LibSoFeeBoolV2 deploy Net:{network.show_active()} basic_beneficiary:{basic_beneficiary} basic_fee:{basic_fee}"
     )
     LibSoFeeBoolV2.deploy(
@@ -716,6 +805,7 @@ def redeploy_bool():
         "DexManagerFacet", SoDiamond[-1].address, DexManagerFacet.abi
     )
     proxy_dex.addFee(get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account})
+    proxy_dex.addFee(get_bool_router(), LibSoFeeBoolV2[-1].address, {"from": account})
 
     try:
         remove_facet(BoolFacet)
@@ -723,6 +813,7 @@ def redeploy_bool():
         pass
 
     # 3. deploy BoolFacet
+    BoolFacet.deploy({"from": account})
     BoolFacet.deploy({"from": account})
     add_cut([BoolFacet])
     initialize_bool(account, SoDiamond[-1])
@@ -851,9 +942,14 @@ def add_dex(swap_info):
     swap_type = list(swap_info.keys())[0]
     print(f"Add router for:{swap_info[swap_type]['name']}")
     proxy_dex.addDex(swap_info[swap_type]["router"], {"from": get_account()})
+    proxy_dex.addDex(swap_info[swap_type]["router"], {"from": get_account()})
     try:
         print(f"Add sig for {swap_type}")
         proxy_dex.batchSetFunctionApprovalBySignature(
+            [
+                v + "0" * 56
+                for v in list(getattr(interface, swap_type).selectors.keys())
+            ],
             [
                 v + "0" * 56
                 for v in list(getattr(interface, swap_type).selectors.keys())
@@ -955,6 +1051,7 @@ def reset_so_fee():
     except:
         import traceback
 
+
         traceback.print_exc()
         print(f"LibSoFeeBoolV2 error")
     try:
@@ -1006,9 +1103,12 @@ def set_basic_fee():
         so_fee *= data["ETH/USDT"] / data["MATIC/USDT"]
     elif network.show_active() == "mantle-main":
         so_fee *= data["ETH/USDT"] / data["MNT/USDT"]
+    elif network.show_active() == "core-main":
+        so_fee *= 1400
     print("Set so fee", so_fee / 1e18)
-    LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
-    LibSoFeeBoolV2[-1].setBasicFee(so_fee, {"from": account})
+    LibSoFeeCoreBridgeV2[-1].setBasicFee(so_fee, {"from": account})
+    # LibSoFeeStargateV2[-1].setBasicFee(so_fee, {"from": account})
+    # LibSoFeeBoolV2[-1].setBasicFee(so_fee, {"from": account})
 
 
 def reset_basic_fee():
@@ -1070,6 +1170,7 @@ def transferOwnershipForFee():
     owner_account = get_account()
     owner = owner_account.address
     print(f"owner: {owner}")
+    print(f"owner: {owner}")
     try:
         LibSoFeeStargateV2[-1].transferOwnership(owner, {"from": account})
         print(f"LibSoFeeStargateV2 success")
@@ -1097,6 +1198,18 @@ def transferOwnershipForFee():
 def init_token_for_stargate():
     root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     mainnet_swap_file = os.path.join(root_path, "export/mainnet/OmniSwapInfo.json")
+    token_name = [
+        "USDC",
+        "USDT",
+        "ETH",
+        "BUSD",
+        "USDD",
+        "MAI",
+        "DAI",
+        "FRAX",
+        "WOO",
+        "LUSD",
+    ]
     token_name = [
         "USDC",
         "USDT",

@@ -20,6 +20,7 @@ try:
         WithdrawFacet,
         OwnershipFacet,
         GenericSwapFacet,
+        CoreBridgeFacet,
         interface,
         Contract,
         ERC20,
@@ -35,7 +36,8 @@ try:
         LibSoFeeCelerV1,
         MultiChainFacet,
         LibSoFeeMultiChainV1,
-        BoolFacet, project
+        BoolFacet,
+        project,
     )
 except:
     pass
@@ -101,7 +103,7 @@ def get_stragate_pool_infos():
     stargate_router = Contract.from_abi(
         "IStargate", stargate_router_address, interface.IStargate.abi
     )
-    bridge_address = stargate_router.stargateBridge()
+    bridge_address = stargate_router.bridge()
     bridge = Contract.from_abi(
         "IStargateBridge", bridge_address, interface.IStargateBridge.abi
     )
@@ -150,6 +152,7 @@ def get_stragate_pool_infos():
 
 def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
     from brownie import project, Contract
+
     p = project.load(project_path=Path(__file__).parent.parent, raise_if_loaded=False)
     p.load_config()
     if "aptos" in net1 or "aptos" in net2:
@@ -186,9 +189,7 @@ def get_stargate_pair_chain_path(omni_swap_infos, net1, net2):
                 continue
             tp = (omni_swap_infos[net2]["StargateChainId"], dst_pool_info["PoolId"])
             if tp not in src_pool_info["ChainPath"]:
-                src_pool_info["ChainPath"].append(
-                    tp
-                )
+                src_pool_info["ChainPath"].append(tp)
     with lock:
         data = read_json(mainnet_swap_file)
         data[net1]["StargatePool"] = omni_swap_infos[net1]["StargatePool"]
@@ -208,6 +209,7 @@ def get_stargate_net_chain_path(omni_swap_infos, net1, nets):
             get_stargate_pair_chain_path(omni_swap_infos, net1, net2)
         except:
             import traceback
+
             err = traceback.format_exc()
             print(f"{net1} -- {net2} err:{err}")
 
@@ -220,7 +222,9 @@ def get_stargate_chain_path():
     pt = ProcessExecutor(executor=len(nets))
     funcs = []
     for net1 in nets:
-        funcs.append(functools.partial(get_stargate_net_chain_path, omni_swap_infos, net1, nets))
+        funcs.append(
+            functools.partial(get_stargate_net_chain_path, omni_swap_infos, net1, nets)
+        )
     pt.run(funcs)
     # write_file(mainnet_swap_file, omni_swap_infos)
 
@@ -250,8 +254,8 @@ def get_wormhole_chain_path(net, wormhole_chain_path):
     wrapped_chain_path = []
     for chain_path in net_chain_path:
         if (
-                chain_path["SrcTokenAddress"] == zero_address()
-                and chain_path["DstTokenAddress"] == zero_address()
+            chain_path["SrcTokenAddress"] == zero_address()
+            and chain_path["DstTokenAddress"] == zero_address()
         ):
             continue
         if chain_path["SrcTokenAddress"] == zero_address():
