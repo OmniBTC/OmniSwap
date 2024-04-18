@@ -1,6 +1,7 @@
 {
     "arbitrum-main": {
-        "ConnextFacet": "0xf2Fe7c625DDD5D3380bca922f2761e05D92A11dc",
+        "ConnextFacet": "0x034D65Ee0e2A883d6193fC428dC0AD6bb1c164D0",
+        "LibCorrectSwapV2": "0x129dCf4E809Bd3B6e2466e158e06ecC8129f50cE",
         "DexManagerFacet": "0x869dA70C63bD97812295EB8970986262FDE74321",
         "DiamondCutFacet": "0x4aC44314EcE683b36ce54019721095711DaFf9e8",
         "DiamondLoupeFacet": "0x66E96A95a903468807b96ac6e4a4ff0968aA56E7",
@@ -13,7 +14,8 @@
         "WithdrawFacet": "0x5AB267E44F1A9c5CA11950cfD33DC8F61b135E62"
     },
     "bsc-main": {
-        "ConnextFacet": "0x03B3B201fFbc253d469501c0CA4f8064fc5eBf5c",
+        "ConnextFacet": "0x4283Fec959D75048103Af184CA9eb04166b0239A",
+        "LibCorrectSwapV2": "0xCd08e0Cb32FB4331341E377F8C47f180034a4a66",
         "DexManagerFacet": "0xF0Dc73B552EBa9526Ba1f96F0Ab1f6a41002d5c4",
         "DiamondCutFacet": "0x652B1c2e014F715f396BE499CEE42Ea9DeE10e4B",
         "DiamondLoupeFacet": "0x75798cEEfA8D1c5922537cfE3b26B083BcA7567e",
@@ -26,7 +28,8 @@
         "WithdrawFacet": "0x6914dA48e010f754CE30E15055e999f23F640E96"
     },
     "optimism-main": {
-        "ConnextFacet": "0x3177D291386899F0674Ef494015E132e54b7A973",
+        "ConnextFacet": "0x1B1fA79A0B6217B005b17a991b6852E91B4c7A5f",
+        "LibCorrectSwapV2": "0xD192746B811665B4cf9FDA89089712A0B796f06d",
         "DexManagerFacet": "0x66619cb2a51fbd9FF8EDA47BE3299Bf781A4b899",
         "DiamondCutFacet": "0x092d731Fdc945Cf1532d161E45245AD5382DdD92",
         "DiamondLoupeFacet": "0xd83abdff88b99Eea6ab706e513986478F3e163Bb",
@@ -39,7 +42,8 @@
         "WithdrawFacet": "0xB0A1656C29437DbC2a9f463482A58cc88FdaF72F"
     },
     "polygon-main": {
-        "ConnextFacet": "0x0E5B57F3eA77FF6752e4ff074BF50fb57167DA5f",
+        "ConnextFacet": "0x4283Fec959D75048103Af184CA9eb04166b0239A",
+        "LibCorrectSwapV2": "0xCd08e0Cb32FB4331341E377F8C47f180034a4a66",
         "DexManagerFacet": "0xCC10Fe65683641Cb38fF0c7f8e16Dc1D5a06638e",
         "DiamondCutFacet": "0x1252Fc9cb3D181e5aee5a4Ad10C7e71088c754Ab",
         "DiamondLoupeFacet": "0xCE54C7547D1C209aeF74EE4f81dC2370835411d8",
@@ -52,12 +56,12 @@
         "WithdrawFacet": "0x76376C35a5C3B850676e5Fb32b576651B675de3C"
     },
     "metis-main": {
-        "ConnextFacet": "0x26836d098165eEa90c2b50270B642dd95204F12E",
+        "ConnextFacet": "0x3Fc8d34f170a4347fAd2f231e19935158441c2aB",
+        "LibCorrectSwapV2": "0xf545858e37766d15bFeA49282C0D722338c8457B",
         "DexManagerFacet": "0xFA922726D1F5630CDbe17A8B026C099d2c273D8E",
         "DiamondCutFacet": "0xf1F4cEcF031fBcC8D3F22cE5d7673ab213B05d1c",
         "DiamondLoupeFacet": "0x4968c247852f7fd2C50eCb4E2ED5780fF9375f78",
         "GenericSwapFacet": "0x9ce889ebEFb27d15489aBD51A677B881D2B4CF5A",
-        "LibCorrectSwapV2": "0xe6F4Df4b18a8401cbf612e1E3d12002716eEDb33",
         "LibSoFeeConnextV2": "0xbb9220B732f5028607838447a67d937C6a6a099f",
         "OwnershipFacet": "0x90c7AA3675141F4a14d4AB8BC3fE89e3E673A090",
         "SerdeFacet": "0xA1483B55355c9B02A1aA9883fB60c201743e3Dd1",
