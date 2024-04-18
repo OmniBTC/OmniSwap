@@ -943,14 +943,9 @@ def add_dex(swap_info):
     swap_type = list(swap_info.keys())[0]
     print(f"Add router for:{swap_info[swap_type]['name']}")
     proxy_dex.addDex(swap_info[swap_type]["router"], {"from": get_account()})
-    proxy_dex.addDex(swap_info[swap_type]["router"], {"from": get_account()})
     try:
         print(f"Add sig for {swap_type}")
         proxy_dex.batchSetFunctionApprovalBySignature(
-            [
-                v + "0" * 56
-                for v in list(getattr(interface, swap_type).selectors.keys())
-            ],
             [
                 v + "0" * 56
                 for v in list(getattr(interface, swap_type).selectors.keys())
