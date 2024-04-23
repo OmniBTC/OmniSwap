@@ -184,6 +184,10 @@ contract ConnextFacet is Swapper, ReentrancyGuard, IXReceiver {
             swapDataDstNo
         );
         uint256 amount = LibAsset.getOwnBalance(token);
+
+        amount = amount.div(10);
+        require(amount > 0, "LittleAmount");
+        
         this.remoteConnextSwap(token, amount, soData, swapDataDst);
     }
 

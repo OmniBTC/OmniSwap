@@ -9,7 +9,8 @@ from brownie import Contract, web3
 from brownie.project.main import Project
 from retrying import retry
 
-from helpful_scripts import (
+from scripts.kyberswap import kyber_calldata
+from scripts.helpful_scripts import (
     get_account,
     zero_address,
     combine_bytes,
@@ -20,7 +21,10 @@ from helpful_scripts import (
     get_chain_id,
     get_swap_info,
     to_hex_str,
-    get_account_address, get_connext_domain_id, get_connext_execute_gas, get_connext_execute_l1_gas,
+    get_account_address,
+    get_connext_domain_id,
+    get_connext_execute_gas,
+    get_connext_execute_l1_gas,
 )
 
 uniswap_v3_fee_decimal = 1e6
@@ -29,9 +33,6 @@ root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 src_session: Session = None
 dst_session: Session = None
-
-kucoin = ccxt.kucoin()
-kucoin.load_markets()
 
 
 def get_contract(contract_name: str, p: Project = None):
@@ -43,7 +44,7 @@ def get_contract_address(contract_name: str, p: Project = None):
 
 
 def token_approve(
-        token_name: str, aprrove_address: str, amount: int, p: Project = None
+    token_name: str, aprrove_address: str, amount: int, p: Project = None
 ):
     token = Contract.from_abi(
         token_name.upper(), get_token_address(token_name), p.interface.IERC20.abi
@@ -51,40 +52,26 @@ def token_approve(
     token.approve(aprrove_address, amount, {"from": get_account()})
 
 
-@retry
-def get_token_price(token):
-    if token == "eth":
-        return float(kucoin.fetch_ticker("ETH/USDT")['close'])
-    elif token == "bnb":
-        return float(kucoin.fetch_ticker("BNB/USDT")['close'])
-    elif token == "matic":
-        return float(kucoin.fetch_ticker("MATIC/USDT")['close'])
-    elif token == "apt":
-        return float(kucoin.fetch_ticker("APT/USDT")['close'])
-    elif token == "sui":
-        return float(kucoin.fetch_ticker("SUI/USDT")['close'])
-
-
 def get_token_amount_decimal(token):
-    if token in ['eth', 'matic', 'bnb']:
+    if token in ["eth", "matic", "bnb"]:
         return 18
-    elif token == 'apt':
+    elif token == "apt":
         return 8
-    elif token == 'sui':
+    elif token == "sui":
         return 9
 
 
 def get_network_token(network):
-    return 'matic' if 'polygon' in network else 'eth'
+    return "matic" if "polygon" in network else "eth"
 
 
-def get_fee_value(amount, token='sui'):
+def get_fee_value(amount, token="sui"):
     price = get_token_price(token)
     decimal = get_token_amount_decimal(token)
     return price * amount / pow(10, decimal)
 
 
-def get_fee_amount(value, token='sui'):
+def get_fee_amount(value, token="sui"):
     price = get_token_price(token)
     decimal = get_token_amount_decimal(token)
     return int(value / price * pow(10, decimal))
@@ -106,14 +93,14 @@ class View:
 
 class SoData(View):
     def __init__(
-            self,
-            transactionId,
-            receiver,
-            sourceChainId,
-            sendingAssetId,
-            destinationChainId,
-            receivingAssetId,
-            amount,
+        self,
+        transactionId,
+        receiver,
+        sourceChainId,
+        sendingAssetId,
+        destinationChainId,
+        receivingAssetId,
+        amount,
     ):
         # unique identification id
         self.transactionId = transactionId
@@ -137,12 +124,12 @@ class SoData(View):
             SoData: Information for recording and tracking cross-chain transactions
         """
         return [
-            to_hex_str(self.transactionId),
-            to_hex_str(self.receiver),
-            self.sourceChainId if self.sourceChainId < 65535 else 0,
-            to_hex_str(self.sendingAssetId),
+            self.transactionId,
+            self.receiver,
+            self.sourceChainId,
+            self.sendingAssetId,
             self.destinationChainId if self.destinationChainId < 65535 else 0,
-            to_hex_str(self.receivingAssetId),
+            self.receivingAssetId,
             self.amount,
         ]
 
@@ -161,13 +148,13 @@ class SoData(View):
 
     @classmethod
     def create(
-            cls,
-            src_session,
-            dst_session,
-            receiver: str,
-            amount: int,
-            sendingTokenName: str,
-            receiveTokenName: str,
+        cls,
+        src_session,
+        dst_session,
+        receiver: str,
+        amount: int,
+        sendingTokenName: str,
+        receiveTokenName: str,
     ):
         """Create SoData class
 
@@ -198,14 +185,14 @@ class SoData(View):
 
 class ConnextData(View):
     def __init__(
-            self,
-            dstDomain,
-            dstSoDiamond,
-            bridgeToken,
-            slippage,
-            isNative,
-            relayFee,
-            receiveLocal
+        self,
+        dstDomain,
+        dstSoDiamond,
+        bridgeToken,
+        slippage,
+        isNative,
+        relayFee,
+        receiveLocal,
     ):
         self.dstDomain = dstDomain
         self.dstSoDiamond = dstSoDiamond
@@ -224,7 +211,7 @@ class ConnextData(View):
             self.slippage,
             self.isNative,
             self.relayFee,
-            self.receiveLocal
+            self.receiveLocal,
         ]
 
 
@@ -251,17 +238,17 @@ class SwapData(View):
     """Constructing data for calling UniswapLike"""
 
     def __init__(
-            self,
-            callTo,
-            approveTo,
-            sendingAssetId,
-            receivingAssetId,
-            fromAmount,
-            callData,
-            swapType: str = None,
-            swapFuncName: str = None,
-            swapPath: list = None,
-            swapEncodePath: list = None,
+        self,
+        callTo,
+        approveTo,
+        sendingAssetId,
+        receivingAssetId,
+        fromAmount,
+        callData,
+        swapType: str = None,
+        swapFuncName: str = None,
+        swapPath: list = None,
+        swapEncodePath: list = None,
     ):
         # The swap address
         self.callTo = callTo
@@ -283,22 +270,22 @@ class SwapData(View):
     def format_to_contract(self):
         """Returns the data used to pass into the contract interface"""
         return [
-            to_hex_str(self.callTo),
-            to_hex_str(self.approveTo),
-            to_hex_str(self.sendingAssetId, False),
-            to_hex_str(self.receivingAssetId, False),
+            self.callTo,
+            self.approveTo,
+            self.sendingAssetId,
+            self.receivingAssetId,
             self.fromAmount,
-            to_hex_str(self.callData),
+            self.callData,
         ]
 
     @classmethod
     def create(
-            cls,
-            swapType: str,
-            swapFuncName: str,
-            fromAmount: int,
-            swapPath: list,
-            p: Project = None,
+        cls,
+        swapType: str,
+        swapFuncName: str,
+        fromAmount: int,
+        swapPath: list,
+        p: Project = None,
     ):
         """Create SwapData class
 
@@ -317,7 +304,10 @@ class SwapData(View):
         """
         if swapFuncName not in vars(SwapFunc):
             raise ValueError("Not support")
-        swap_info = get_swap_info()[swapType]
+        swap_info = None
+        for v in get_swap_info():
+            if swapType in v:
+                swap_info = v[swapType]
         swap_contract = Contract.from_abi(
             swapType, swap_info["router"], getattr(p.interface, swapType).abi
         )
@@ -347,7 +337,7 @@ class SwapData(View):
                 fromAmount,
                 minAmount,
                 path,
-                p["SoDiamond"][-1].address,
+                "0x8d18dfcea276dc3f5d76270f9f544cb74b39c4eb",
                 int(time.time() + 3000),
             )
         elif swapFuncName == SwapFunc.exactInput:
@@ -385,11 +375,11 @@ class SwapData(View):
 
     @staticmethod
     def reset_min_amount(
-            callData: str,
-            swapType: str,
-            swapFuncName: str,
-            minAmount: int,
-            p: Project = None,
+        callData: str,
+        swapType: str,
+        swapFuncName: str,
+        minAmount: int,
+        p: Project = None,
     ):
         """Resetting the min amount of dst swap based on the results of the overall slippage calculation
 
@@ -406,7 +396,10 @@ class SwapData(View):
         Returns:
             callData: Calldata after setting min amount
         """
-        swap_info = get_swap_info()[swapType]
+        swap_info = None
+        for v in get_swap_info():
+            if swapType in v:
+                swap_info = v[swapType]
         swap_contract = Contract.from_abi(
             swapType, swap_info["router"], getattr(p.interface, swapType).abi
         )
@@ -415,7 +408,7 @@ class SwapData(View):
             params[4] = minAmount
             return getattr(swap_contract, swapFuncName).encode_input(params)
         elif swapType.startswith("IUniswapV2") and swapFuncName.startswith(
-                "swapExactTokens"
+            "swapExactTokens"
         ):
             (fromAmount, _, path, to, deadline) = getattr(
                 swap_contract, swapFuncName
@@ -424,8 +417,8 @@ class SwapData(View):
                 fromAmount, minAmount, path, to, deadline
             )
         elif swapType.startswith("IUniswapV2") and (
-                swapFuncName.startswith("swapExactETH")
-                or swapFuncName.startswith("swapExactAVAX")
+            swapFuncName.startswith("swapExactETH")
+            or swapFuncName.startswith("swapExactAVAX")
         ):
             (_, path, to, deadline) = getattr(swap_contract, swapFuncName).decode_input(
                 callData
@@ -453,11 +446,15 @@ class SwapData(View):
         assert len(p) > 0
         assert (len(p) - 3) % 2 == 0, "p length not right"
         p = [
-            padding_to_bytes(
-                web3.toHex(int(p[i] * uniswap_v3_fee_decimal)), padding="left", length=3
+            (
+                padding_to_bytes(
+                    web3.toHex(int(p[i] * uniswap_v3_fee_decimal)),
+                    padding="left",
+                    length=3,
+                )
+                if (i + 1) % 2 == 0
+                else get_token_address(p[i])
             )
-            if (i + 1) % 2 == 0
-            else get_token_address(p[i])
             for i in range(len(p))
         ]
         return combine_bytes(p)
@@ -549,18 +546,23 @@ class SwapData(View):
 
 def estimate_dst_gas(so_data, bridge_token, dst_swap_data, p: Project = None):
     from brownie import network
+
     account = get_account()
     proxy_diamond = Contract.from_abi(
-        "ConnextFacet", p["SoDiamond"][-1].address, p["ConnextFacet"].abi
+        "ConnextFacet",
+        "0x8D18DFCeA276DC3f5d76270F9F544cb74b39c4Eb",
+        p["ConnextFacet"].abi,
     )
 
     estimate_gas = proxy_diamond.xReceiveForGas.estimate_gas(
         so_data.format_to_contract(),
         bridge_token,
         [] if dst_swap_data is None else [dst_swap_data.format_to_contract()],
-        {"from": account}
+        {"from": account},
     )
     net = network.show_active()
+
+    print("estimate_gas", estimate_gas)
 
     execute_gas = get_connext_execute_gas()
     executeL1_gas = get_connext_execute_l1_gas()
@@ -570,10 +572,14 @@ def estimate_dst_gas(so_data, bridge_token, dst_swap_data, p: Project = None):
     gelato_url = f"https://relay.gelato.digital/oracles/{chain_id}/estimate?paymentToken=0x0000000000000000000000000000000000000000&gasLimit={gas_amount}&gasLimitL1={executeL1_gas}&isHighPriority=false"
     dst_relayer_fee = requests.get(gelato_url)
     print("dst_relayer_fee", dst_relayer_fee)
-    return get_fee_value(int(dst_relayer_fee.json()['estimatedFee']), get_network_token(net))
+    return get_fee_value(
+        int(dst_relayer_fee.json()["estimatedFee"]), get_network_token(net)
+    )
 
 
-def so_swap_via_connext(so_data, src_swap_data, connext_data, dst_swap_data, input_value, p: Project = None):
+def so_swap_via_connext(
+    so_data, src_swap_data, connext_data, dst_swap_data, input_value, p: Project = None
+):
     account = get_account()
     proxy_diamond = Contract.from_abi(
         "ConnextFacet", p["SoDiamond"][-1].address, p["ConnextFacet"].abi
@@ -589,28 +595,24 @@ def so_swap_via_connext(so_data, src_swap_data, connext_data, dst_swap_data, inp
 
 
 def cross_swap_via_connext(
-        src_session,
-        dst_session,
-        inputAmount,
-        sourceTokenName,
-        sourceSwapType,
-        sourceSwapFunc,
-        sourceSwapPath,
-        destinationTokenName,
-        destinationSwapType,
-        destinationSwapFunc,
-        destinationSwapPath,
+    src_session,
+    dst_session,
+    inputAmount,
+    sourceTokenName,
+    sourceSwapType,
+    sourceSwapFunc,
+    sourceSwapPath,
+    destinationTokenName,
+    destinationSwapType,
+    destinationSwapFunc,
+    destinationSwapPath,
 ):
     print(
         f"{'-' * 100}\nSwap from: network {src_session.net}, token: {sourceTokenName}\n"
         f"{dst_session.net}, token: {destinationTokenName}"
     )
-    src_diamond_address = src_session.put_task(
-        get_contract_address, args=("SoDiamond",), with_project=True
-    )
-    dst_diamond_address = dst_session.put_task(
-        get_contract_address, args=("SoDiamond",), with_project=True
-    )
+    src_diamond_address = "0x6b23875dD0D74c767c329C4A927B4408337B65d8"
+    dst_diamond_address = "0x8D18DFCeA276DC3f5d76270F9F544cb74b39c4Eb"
     print(
         f"Source diamond address: {src_diamond_address}. Destination diamond address: {dst_diamond_address}"
     )
@@ -632,6 +634,19 @@ def cross_swap_via_connext(
             with_project=True,
         )
         print("SourceSwapData:\n", src_swap_data)
+        if sourceTokenName != "eth":
+            src_session.put_task(
+                token_approve,
+                args=(
+                    sourceTokenName,
+                    src_diamond_address,
+                    inputAmount,
+                ),
+                with_project=True,
+            )
+            input_eth_amount = 0
+        else:
+            input_eth_amount = inputAmount
     else:
         src_swap_data = None
 
@@ -649,34 +664,18 @@ def cross_swap_via_connext(
     else:
         dst_swap_data: SwapData = None
 
-    if dst_swap_data is not None:
-        dst_swap_data.callData = dst_session.put_task(
-            SwapData.reset_min_amount,
-            args=(
-                dst_swap_data.callData,
-                dst_swap_data.swapType,
-                dst_swap_data.swapFuncName,
-                0,  # todo: slipage cal
-            ),
-            with_project=True,
-        )
-        print("DestinationSwapData:\n", dst_swap_data)
-
-    if sourceTokenName != "eth":
-        src_session.put_task(
-            token_approve,
-            args=(
-                sourceTokenName,
-                src_session.put_task(
-                    get_contract_address, args=("SoDiamond",), with_project=True
-                ),
-                inputAmount,
-            ),
-            with_project=True,
-        )
-        input_eth_amount = 0
-    else:
-        input_eth_amount = inputAmount
+    # if dst_swap_data is not None:
+    #     dst_swap_data.callData = dst_session.put_task(
+    #         SwapData.reset_min_amount,
+    #         args=(
+    #             dst_swap_data.callData,
+    #             dst_swap_data.swapType,
+    #             dst_swap_data.swapFuncName,
+    #             0,  # todo: slipage cal
+    #         ),
+    #         with_project=True,
+    #     )
+    #     print("DestinationSwapData:\n", dst_swap_data)
 
     dst_domain = dst_session.put_task(get_connext_domain_id)
 
@@ -692,7 +691,29 @@ def cross_swap_via_connext(
     if dst_swap_data is not None:
         dst_bridge_token = dst_swap_data.sendingAssetId
     else:
-        dst_bridge_token = dst_session.put_task(get_token_address, args=(destinationTokenName,))
+        dst_bridge_token = dst_session.put_task(
+            get_token_address, args=(destinationTokenName,)
+        )
+
+    send_token = dst_bridge_token
+    receive_token = dst_session.put_task(
+        func=get_token_address, args=(destinationTokenName,)
+    )
+
+    router_address, swap_calldata = kyber_calldata(
+        dst_session.net,
+        dst_diamond_address,
+        dst_diamond_address,
+        send_token,
+        receive_token,
+        inputAmount,
+    )
+
+    dst_swap_data.callTo = router_address
+    dst_swap_data.approveTo = router_address
+    dst_swap_data.callData = swap_calldata
+
+    print("DestinationSwapData:\n", dst_swap_data)
 
     dst_relay_fee = dst_session.put_task(
         estimate_dst_gas,
@@ -711,23 +732,31 @@ def cross_swap_via_connext(
 
     print(f"Input value: {input_value}")
 
-    connext_data = ConnextData(dst_domain, dst_diamond_address, src_bridge_token, 300, True, gas_relay_fee, False)
+    connext_data = ConnextData(
+        dst_domain,
+        dst_diamond_address,
+        src_bridge_token,
+        300,
+        True,
+        gas_relay_fee,
+        False,
+    )
     print(f"ConnextData: {connext_data.format_to_contract()}")
 
-    src_session.put_task(
-        so_swap_via_connext,
-        args=(
-            so_data,
-            src_swap_data,
-            connext_data,
-            dst_swap_data,
-            input_value,
-        ),
-        with_project=True,
-    )
+    # src_session.put_task(
+    #     so_swap_via_connext,
+    #     args=(
+    #         so_data,
+    #         src_swap_data,
+    #         connext_data,
+    #         dst_swap_data,
+    #         input_value,
+    #     ),
+    #     with_project=True,
+    # )
 
 
-def main(src_net="arbitrum-main", dst_net="optimism-main"):
+def main(src_net="optimism-main", dst_net="arbitrum-main"):
     global src_session
     global dst_session
     src_session = Session(
@@ -831,15 +860,15 @@ def main(src_net="arbitrum-main", dst_net="optimism-main"):
     cross_swap_via_connext(
         src_session=src_session,
         dst_session=dst_session,
-        inputAmount=int(0.1*1e6),
+        inputAmount=int(0.1 * 1e6),
         sourceTokenName="usdt",
-        destinationTokenName="usdt",
-        sourceSwapType=SwapType.IUniswapV2Router02,
-        sourceSwapFunc=SwapFunc.swapExactTokensForTokens,
-        sourceSwapPath=("usdt", "weth"),
+        destinationTokenName="usdc",
+        sourceSwapType=None,
+        sourceSwapFunc=None,
+        sourceSwapPath=("usdt", "usdc"),
         destinationSwapType=SwapType.IUniswapV2Router02,
         destinationSwapFunc=SwapFunc.swapExactTokensForTokens,
-        destinationSwapPath=("weth", "usdt"),
+        destinationSwapPath=("usdt", "usdc"),
     )
 
     src_session.terminate()
