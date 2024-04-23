@@ -171,7 +171,7 @@ def bulk_eth():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/op_account_20240220.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/op_account_20240423.json"))
 
     data = list(zip(*data))
 
