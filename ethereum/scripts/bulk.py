@@ -193,7 +193,7 @@ def bulk_ordinals_runes_test():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/20240422-bevm-ordinals-runes-44222.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/20240429-bevm-ordinals-runes-21.json"))
     data = list(zip(*data))
 
     sum_balance = int(sum(data[1]))
@@ -206,7 +206,7 @@ def bulk_ordinals_runes_test():
     # Test
     token_addr = "0x75AE064C1395b54820E6df1406935870d3B6c021"
     token = Contract.from_abi("Token", token_addr, MockToken.abi)
-    # token.approve(bulk_addr, sum_balance, {"from": acc})
+    token.approve(bulk_addr, sum_balance, {"from": acc})
 
     interval = 500
     has_send = []
@@ -233,7 +233,7 @@ def bulk_ordinals_runes_main():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/20240422-bevm-ordinals-runes-44222.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/20240429-bevm-ordinals-runes-21.json"))
     data = list(zip(*data))
 
     sum_balance = int(sum(data[1]))
