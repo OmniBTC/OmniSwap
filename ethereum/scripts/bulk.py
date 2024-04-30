@@ -193,7 +193,7 @@ def bulk_ordinals_runes_test():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/20240429-bevm-ordinals-runes-21.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/20240430-bevm-ordinals-runes-20.json"))
     data = list(zip(*data))
 
     sum_balance = int(sum(data[1]))
@@ -233,7 +233,7 @@ def bulk_ordinals_runes_main():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/20240429-bevm-ordinals-runes-21.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/20240430-bevm-ordinals-runes-20.json"))
     data = list(zip(*data))
 
     sum_balance = int(sum(data[1]))
