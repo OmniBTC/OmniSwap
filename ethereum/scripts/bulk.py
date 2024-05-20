@@ -47,7 +47,7 @@ def bulk():
         d0 = list(data[0][i:i + interval])
         d1 = list(data[1][i:i + interval])
         assert len(set(has_send) & set(d0)) == 0
-        print(f"Bulk op:{round(sum(d1)/1e18, 2)}")
+        print(f"Bulk op:{round(sum(d1) / 1e18, 2)}")
         BulkTransfer[-1].batchTransferToken(token.address, d0, d1, {"from": acc})
         has_send.extend(d0)
 
@@ -130,9 +130,10 @@ def bulk_pcx():
         d0 = list(data[0][i:i + interval])
         d1 = list(data[1][i:i + interval])
         assert len(set(has_send) & set(d0)) == 0
-        print(f"Bulk pcx:{round(sum(d1)/1e8, 2)}")
+        print(f"Bulk pcx:{round(sum(d1) / 1e8, 2)}")
         bulk_trasfer.batchTransferToken(token.address, d0, d1, {"from": acc})
         has_send.extend(d0)
+
 
 def bulk_pcx_test():
     change_network("bevm-test")
@@ -161,7 +162,7 @@ def bulk_pcx_test():
         d0 = list(data[0][i:i + interval])
         d1 = list(data[1][i:i + interval])
         assert len(set(has_send) & set(d0)) == 0
-        print(f"Bulk pcx:{round(sum(d1)/1e8, 2)}")
+        print(f"Bulk pcx:{round(sum(d1) / 1e8, 2)}")
         bulk_trasfer.batchTransferToken(token.address, d0, d1, {"from": acc})
         has_send.extend(d0)
 
@@ -170,7 +171,7 @@ def bulk_eth():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/op_account_20240116.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/op_account_20240423.json"))
 
     data = list(zip(*data))
 
@@ -187,4 +188,30 @@ def bulk_eth():
                                           {"from": acc,
                                            "value": sum(d1)})
         print(f"Send value:{sum(d1)}")
+        has_send.extend(d0)
+
+
+def bulk_bsc_usdt():
+    acc = get_account("bulk_key")
+    print(f"Acc:{acc.address}")
+
+    data = read_json(Path(__file__).parent.joinpath("data/bsc_account_20240221.json"))
+    data = list(zip(*data))
+
+    sum_balance = int(sum(data[1]) + 1)
+    print(f"Sum balance:{sum_balance}, len:{len(data[0])}")
+    # op
+    token_addr = "0x55d398326f99059fF775485246999027B3197955"
+    token = Contract.from_abi("Token", token_addr, MockToken.abi)
+    # token.approve(BulkTransfer[-1].address, sum_balance, {"from": acc})
+
+    interval = 500
+    has_send = []
+    for i in range(0, len(data[0]), interval):
+        d0 = list(data[0][i:i + interval])
+        d1 = list(data[1][i:i + interval])
+        assert len(set(has_send) & set(d0)) == 0
+        print(f"Bulk op:{round(sum(d1) / 1e18, 2)}")
+        # bulk addr: 0xeD4BE9CF9D19056BeA62cac3CdbAA413B7625561
+        BulkTransfer[-1].batchTransferToken(token.address, d0, d1, {"from": acc})
         has_send.extend(d0)

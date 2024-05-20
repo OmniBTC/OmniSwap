@@ -35,9 +35,10 @@ library LibAsset {
     ///         recipient
     /// @param recipient Address to send ether to
     /// @param amount Amount to send to given recipient
-    function transferNativeAsset(address payable recipient, uint256 amount)
-        private
-    {
+    function transferNativeAsset(
+        address payable recipient,
+        uint256 amount
+    ) private {
         if (recipient == NULL_ADDRESS) revert NoTransferToNullAddress();
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, ) = recipient.call{value: amount}("");
@@ -72,18 +73,9 @@ library LibAsset {
         if (address(assetId) == NATIVE_ASSETID) return;
         if (spender == NULL_ADDRESS) revert NullAddrIsNotAValidSpender();
         uint256 allowance = assetId.allowance(address(this), spender);
-        if (allowance > amount) {
-            SafeERC20.safeDecreaseAllowance(
-                IERC20(assetId),
-                spender,
-                allowance - amount
-            );
-        } else if (allowance < amount) {
-            SafeERC20.safeIncreaseAllowance(
-                IERC20(assetId),
-                spender,
-                amount - allowance
-            );
+        if (allowance != amount) {
+            SafeERC20.safeApprove(IERC20(assetId), spender, 0);
+            SafeERC20.safeApprove(IERC20(assetId), spender, amount);
         }
     }
 

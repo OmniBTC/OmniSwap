@@ -49,7 +49,7 @@ interface IUniswapV2Exchange {
         IERC20 srcToken,
         uint256 amount,
         uint256 minReturn,
-        bytes32[] calldata, /* pools */
+        bytes32[] calldata /* pools */,
         address payable recipient
     ) external payable returns (uint256 returnAmount);
 

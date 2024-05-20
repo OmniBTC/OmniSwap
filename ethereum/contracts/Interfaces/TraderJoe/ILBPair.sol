@@ -125,15 +125,14 @@ interface ILBPair is ILBToken {
 
     function getActiveId() external view returns (uint24 activeId);
 
-    function getBin(uint24 id)
-        external
-        view
-        returns (uint128 binReserveX, uint128 binReserveY);
+    function getBin(
+        uint24 id
+    ) external view returns (uint128 binReserveX, uint128 binReserveY);
 
-    function getNextNonEmptyBin(bool swapForY, uint24 id)
-        external
-        view
-        returns (uint24 nextId);
+    function getNextNonEmptyBin(
+        bool swapForY,
+        uint24 id
+    ) external view returns (uint24 nextId);
 
     function getProtocolFees()
         external
@@ -174,7 +173,9 @@ interface ILBPair is ILBToken {
             uint40 firstTimestamp
         );
 
-    function getOracleSampleAt(uint40 lookupTimestamp)
+    function getOracleSampleAt(
+        uint40 lookupTimestamp
+    )
         external
         view
         returns (
@@ -187,27 +188,26 @@ interface ILBPair is ILBToken {
 
     function getIdFromPrice(uint256 price) external view returns (uint24 id);
 
-    function getSwapIn(uint128 amountOut, bool swapForY)
+    function getSwapIn(
+        uint128 amountOut,
+        bool swapForY
+    )
         external
         view
-        returns (
-            uint128 amountIn,
-            uint128 amountOutLeft,
-            uint128 fee
-        );
+        returns (uint128 amountIn, uint128 amountOutLeft, uint128 fee);
 
-    function getSwapOut(uint128 amountIn, bool swapForY)
+    function getSwapOut(
+        uint128 amountIn,
+        bool swapForY
+    )
         external
         view
-        returns (
-            uint128 amountInLeft,
-            uint128 amountOut,
-            uint128 fee
-        );
+        returns (uint128 amountInLeft, uint128 amountOut, uint128 fee);
 
-    function swap(bool swapForY, address to)
-        external
-        returns (bytes32 amountsOut);
+    function swap(
+        bool swapForY,
+        address to
+    ) external returns (bytes32 amountsOut);
 
     function flashLoan(
         ILBFlashLoanCallback receiver,

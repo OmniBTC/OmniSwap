@@ -6,7 +6,7 @@
         "build": "tsc"
     },
     "dependencies": {
-        "@certusone/wormhole-sdk": "^0.10.3",
+        "@certusone/wormhole-sdk": "^0.10.13",
         "@coral-xyz/anchor": "^0.28.0",
         "@orca-so/common-sdk": "^0.3.4",
         "@orca-so/whirlpools-sdk": "^0.11.5",

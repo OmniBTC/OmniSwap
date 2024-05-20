@@ -19,16 +19,14 @@ interface IiZiSwap {
         uint256 deadline;
     }
 
-    function swapAmount(SwapAmountParams calldata params)
-        external
-        payable
-        returns (uint256 cost, uint256 acquire);
+    function swapAmount(
+        SwapAmountParams calldata params
+    ) external payable returns (uint256 cost, uint256 acquire);
 
     /// @notice Swap given amount of target token, usually used in multi-hop case.
-    function swapDesire(SwapDesireParams calldata params)
-        external
-        payable
-        returns (uint256 cost, uint256 acquire);
+    function swapDesire(
+        SwapDesireParams calldata params
+    ) external payable returns (uint256 cost, uint256 acquire);
 
     /// parameters when calling Swap.swap..., grouped together to avoid stake too deep
     struct SwapParams {

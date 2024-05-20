@@ -19,7 +19,8 @@ from brownie import (
     CorrectOpenOceanFactory,
     Contract,
     SoDiamond,
-    DexManagerFacet
+    DexManagerFacet,
+    CorrectLynexFactory
 )
 
 from scripts.helpful_scripts import get_account
@@ -32,6 +33,7 @@ def deploy_correct_swaps(account=get_account()):
     factorys = [
         CorrectUniswapV2Factory,
         CorrectUniswapV3Factory,
+        # CorrectLynexFactory
         # CorrectSyncswapFactory,
         # CorrectMuteswapFactory,
         # CorrectQuickswapV3Factory,

@@ -114,10 +114,9 @@ interface IWormholeBridge {
      * @params encoded The byte array corresponding to the token transfer (not
      *                 the whole VAA, only the payload)
      */
-    function parseTransfer(bytes memory encoded)
-        external
-        pure
-        returns (Transfer memory transfer);
+    function parseTransfer(
+        bytes memory encoded
+    ) external pure returns (Transfer memory transfer);
 
     /*
      * @dev Parse a token transfer with payload (payload id 3).
@@ -125,22 +124,21 @@ interface IWormholeBridge {
      * @params encoded The byte array corresponding to the token transfer (not
      *                 the whole VAA, only the payload)
      */
-    function parseTransferWithPayload(bytes memory encoded)
-        external
-        pure
-        returns (TransferWithPayload memory transfer);
+    function parseTransferWithPayload(
+        bytes memory encoded
+    ) external pure returns (TransferWithPayload memory transfer);
 
     /*
      *  @dev Produce a AssetMeta message for a given token
      */
-    function attestToken(address tokenAddress, uint32 nonce)
-        external
-        payable
-        returns (uint64 sequence);
+    function attestToken(
+        address tokenAddress,
+        uint32 nonce
+    ) external payable returns (uint64 sequence);
 
-    function createWrapped(bytes memory encodedVm)
-        external
-        returns (address token);
+    function createWrapped(
+        bytes memory encodedVm
+    ) external returns (address token);
 
     /// @notice Send eth through portal by first wrapping it to WETH
     function wrapAndTransferETH(
@@ -205,9 +203,9 @@ interface IWormholeBridge {
     ///
     /// @return The byte array representing a BridgeStructs.TransferWithPayload.
     ///
-    function completeTransferWithPayload(bytes memory encodedVm)
-        external
-        returns (bytes memory);
+    function completeTransferWithPayload(
+        bytes memory encodedVm
+    ) external returns (bytes memory);
 
     /// @notice Complete a contract-controlled transfer of WETH, and unwrap to ETH.
     ///
@@ -218,9 +216,9 @@ interface IWormholeBridge {
     ///
     /// @return The byte array representing a BridgeStructs.TransferWithPayload.
     ///
-    function completeTransferAndUnwrapETHWithPayload(bytes memory encodedVm)
-        external
-        returns (bytes memory);
+    function completeTransferAndUnwrapETHWithPayload(
+        bytes memory encodedVm
+    ) external returns (bytes memory);
 
     /// @notice Complete a transfer of an ERC20 token.
     ///
@@ -238,10 +236,9 @@ interface IWormholeBridge {
     ///
     function completeTransferAndUnwrapETH(bytes memory encodedVm) external;
 
-    function governanceActionIsConsumed(bytes32 hash)
-        external
-        view
-        returns (bool);
+    function governanceActionIsConsumed(
+        bytes32 hash
+    ) external view returns (bool);
 
     function isInitialized(address impl) external view returns (bool);
 
@@ -259,10 +256,10 @@ interface IWormholeBridge {
 
     function governanceContract() external view returns (bytes32);
 
-    function wrappedAsset(uint16 tokenChainId, bytes32 tokenAddress)
-        external
-        view
-        returns (address);
+    function wrappedAsset(
+        uint16 tokenChainId,
+        bytes32 tokenAddress
+    ) external view returns (address);
 
     function bridgeContracts(uint16 chainId_) external view returns (bytes32);
 

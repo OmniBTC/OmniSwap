@@ -73,11 +73,9 @@ library LibMessageCCTP {
     }
 
     // @notice Returns _message's destinationDomain field
-    function _destinationDomain(bytes29 _message)
-        internal
-        pure
-        returns (uint32)
-    {
+    function _destinationDomain(
+        bytes29 _message
+    ) internal pure returns (uint32) {
         return uint32(_message.indexUint(DESTINATION_DOMAIN_INDEX, 4));
     }
 
@@ -97,11 +95,9 @@ library LibMessageCCTP {
     }
 
     // @notice Returns _message's destinationCaller field
-    function _destinationCaller(bytes29 _message)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function _destinationCaller(
+        bytes29 _message
+    ) internal pure returns (bytes32) {
         return _message.index(DESTINATION_CALLER_INDEX, 32);
     }
 

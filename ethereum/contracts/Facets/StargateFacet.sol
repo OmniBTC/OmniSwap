@@ -430,11 +430,9 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     }
 
     /// @dev Get amount from stargate before so fee
-    function getAmountBeforeSoFee(uint256 amount)
-        public
-        view
-        returns (uint256)
-    {
+    function getAmountBeforeSoFee(
+        uint256 amount
+    ) public view returns (uint256) {
         Storage storage s = getStorage();
         address soFee = appStorage.gatewaySoFeeSelectors[s.stargate];
         if (soFee == address(0x0)) {
@@ -520,7 +518,9 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     // 6. length + sendingAssetId(SwapData)
     // 7. length + receivingAssetId(SwapData)
     // 8. length + callData(SwapData)
-    function decodeStargatePayload(bytes memory stargatePayload)
+    function decodeStargatePayload(
+        bytes memory stargatePayload
+    )
         public
         pure
         returns (
@@ -670,58 +670,48 @@ contract StargateFacet is Swapper, ReentrancyGuard, IStargateReceiver {
     }
 
     /// @dev Get stargate pool address by poolId
-    function _getStargatePoolByPoolId(uint256 poolId)
-        private
-        view
-        returns (address)
-    {
+    function _getStargatePoolByPoolId(
+        uint256 poolId
+    ) private view returns (address) {
         Storage storage s = getStorage();
         address factory = IStargate(s.stargate).factory();
         return IStargateFactory(factory).getPool(poolId);
     }
 
     /// @dev Get stargate bridge token address by poolId
-    function _getStargateTokenByPoolId(uint256 poolId)
-        private
-        view
-        returns (address)
-    {
+    function _getStargateTokenByPoolId(
+        uint256 poolId
+    ) private view returns (address) {
         return IStargatePool(_getStargatePoolByPoolId(poolId)).token();
     }
 
     /// @dev Get stargate bridge fee library address by poolId
-    function _getStargateFeeLibraryByPoolId(uint256 poolId)
-        private
-        view
-        returns (address)
-    {
+    function _getStargateFeeLibraryByPoolId(
+        uint256 poolId
+    ) private view returns (address) {
         return IStargatePool(_getStargatePoolByPoolId(poolId)).feeLibrary();
     }
 
     /// @dev Get stargate convert rate by poolId
-    function _getStargateConvertRateByPoolId(uint256 poolId)
-        private
-        view
-        returns (uint256)
-    {
+    function _getStargateConvertRateByPoolId(
+        uint256 poolId
+    ) private view returns (uint256) {
         return IStargatePool(_getStargatePoolByPoolId(poolId)).convertRate();
     }
 
     /// @dev Get stargate convert LD to SD poolId
-    function _convertStargateLDToSDByPoolId(uint256 poolId, uint256 amount)
-        private
-        view
-        returns (uint256)
-    {
+    function _convertStargateLDToSDByPoolId(
+        uint256 poolId,
+        uint256 amount
+    ) private view returns (uint256) {
         return amount.div(_getStargateConvertRateByPoolId(poolId));
     }
 
     /// @dev Get stargate convert SD to LD poolId
-    function _convertStargateSDToLDByPoolId(uint256 poolId, uint256 amount)
-        private
-        view
-        returns (uint256)
-    {
+    function _convertStargateSDToLDByPoolId(
+        uint256 poolId,
+        uint256 amount
+    ) private view returns (uint256) {
         return amount.mul(_getStargateConvertRateByPoolId(poolId));
     }
 

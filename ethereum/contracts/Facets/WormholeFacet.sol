@@ -93,9 +93,10 @@ contract WormholeFacet is Swapper {
     /// @dev Set wormhole tokenbridge address and current wormhole chain id
     /// @param tokenBridge wormhole tokenbridge address
     /// @param wormholeChainId current wormhole chain id
-    function initWormhole(address tokenBridge, uint16 wormholeChainId)
-        external
-    {
+    function initWormhole(
+        address tokenBridge,
+        uint16 wormholeChainId
+    ) external {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
         s.tokenBridge = tokenBridge;
@@ -106,9 +107,10 @@ contract WormholeFacet is Swapper {
     /// @dev Sets the scale to be used when calculating relayer fees
     /// @param actualReserve percentage of actual use of relayer fees, expressed as RAY
     /// @param estimateReserve estimated percentage of use at the time of call, expressed as RAY
-    function setWormholeReserve(uint256 actualReserve, uint256 estimateReserve)
-        external
-    {
+    function setWormholeReserve(
+        uint256 actualReserve,
+        uint256 estimateReserve
+    ) external {
         LibDiamond.enforceIsContractOwner();
         Storage storage s = getStorage();
         s.actualReserve = actualReserve;
@@ -411,15 +413,7 @@ contract WormholeFacet is Swapper {
         ISo.NormalizedSoData calldata soData,
         NormalizedWormholeData calldata wormholeData,
         LibSwap.NormalizedSwapData[] calldata swapDataDst
-    )
-        public
-        returns (
-            bool,
-            uint256,
-            uint256,
-            uint256
-        )
-    {
+    ) public returns (bool, uint256, uint256, uint256) {
         CacheCheck memory data;
         Storage storage s = getStorage();
         ILibPrice oracle = ILibPrice(
@@ -507,11 +501,9 @@ contract WormholeFacet is Swapper {
         }
     }
 
-    function encodeNormalizedWormholeData(NormalizedWormholeData memory data)
-        public
-        pure
-        returns (bytes memory)
-    {
+    function encodeNormalizedWormholeData(
+        NormalizedWormholeData memory data
+    ) public pure returns (bytes memory) {
         return
             abi.encodePacked(
                 data.dstWormholeChainId,
@@ -522,11 +514,9 @@ contract WormholeFacet is Swapper {
             );
     }
 
-    function decodeNormalizedWormholeData(bytes memory wormholeData)
-        public
-        pure
-        returns (NormalizedWormholeData memory)
-    {
+    function decodeNormalizedWormholeData(
+        bytes memory wormholeData
+    ) public pure returns (NormalizedWormholeData memory) {
         NormalizedWormholeData memory data;
         uint256 index;
         uint256 nextLen;
@@ -553,11 +543,10 @@ contract WormholeFacet is Swapper {
         return data;
     }
 
-    function getWormholeFinalAmount(address transferToken, uint256 amount)
-        public
-        view
-        returns (uint256)
-    {
+    function getWormholeFinalAmount(
+        address transferToken,
+        uint256 amount
+    ) public view returns (uint256) {
         // query decimals
         (, bytes memory queriedDecimals) = transferToken.staticcall(
             abi.encodeWithSignature("decimals()")
@@ -641,7 +630,9 @@ contract WormholeFacet is Swapper {
     // 8. length + sendingAssetId(SwapData)
     // 9. length + receivingAssetId(SwapData)
     // 10. length + callData(SwapData)
-    function decodeWormholePayload(bytes memory wormholeData)
+    function decodeWormholePayload(
+        bytes memory wormholeData
+    )
         public
         pure
         returns (
@@ -736,13 +727,12 @@ contract WormholeFacet is Swapper {
 
     /// Internal Methods ///
 
-    function _deNormalizeAmount(uint256 amount, uint8 decimals)
-        internal
-        pure
-        returns (uint256)
-    {
+    function _deNormalizeAmount(
+        uint256 amount,
+        uint8 decimals
+    ) internal pure returns (uint256) {
         if (decimals > 8) {
-            amount *= 10**(decimals - 8);
+            amount *= 10 ** (decimals - 8);
         }
         return amount;
     }

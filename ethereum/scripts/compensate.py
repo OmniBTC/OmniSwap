@@ -130,11 +130,11 @@ def compensate_v3():
 def compensate_v4():
     cmd = "curl --silent https://api.celerscan.com/scan/searchByTxHash?tx={tx}"
     receivers = {
-        "0xfb77504425b5e40ebbb3409ca12f518b6ddb00957513111d3ffc59b1c5e5d2bb": "0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577",
+        "0x80f6b7733c2361aad41923be52bdf896a63cb4cb065cb3046873e1d15d3d8471": "0x226B957018D22D68f11F9adB46873E982D0f080e",
     }
     account = get_account()
     withdraw_contract = Contract.from_abi(
-        "WithdrawFacet", "0x4AF9bE5A3464aFDEFc80700b41fcC4d9713E7449", WithdrawFacet.abi
+        "WithdrawFacet", "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820", WithdrawFacet.abi
     )
     for src_txid in receivers:
         cur_cmd = cmd.replace("{tx}", src_txid)

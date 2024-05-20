@@ -149,7 +149,7 @@ def get_deepbook_package_id():
 
 @functools.lru_cache()
 def get_cetus_package_id():
-    return sui_project.network_config["packages"]["CetusClmm"]
+    return sui_project.network_config["packages"]["CetusClmm"]["origin"]
 
 
 @functools.lru_cache()
@@ -262,6 +262,7 @@ def process_vaa(
         final_asset_id = final_asset_id if "0x" == final_asset_id[:2] else "0x" + final_asset_id
         if len(wormhole_data[3]) == 0:
             ty_args = [final_asset_id]
+            cross_asset_id = final_asset_id
             pool_id = None
             reverse = None
             dex_name = None
@@ -272,6 +273,7 @@ def process_vaa(
             dex_config = []
             s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
             s1 = s1 if "0x" == s1[:2] else "0x" + s1
+            cross_asset_id = s1
             s2 = final_asset_id
             pool_id = str(wormhole_data[3][0][0])
             sui_type: str = sui_project.client.sui_getObject(pool_id, {
@@ -308,6 +310,9 @@ def process_vaa(
             dex_name = None
             ty_args = []
             dex_config = []
+            s1 = decode_hex_to_ascii(wormhole_data[3][0][2])
+            s1 = s1 if "0x" == s1[:2] else "0x" + s1
+            cross_asset_id = s1
             for k, d in enumerate(wormhole_data[3]):
                 if str(d[0]) not in pool_id:
                     pool_id.append(str(d[0]))
@@ -477,10 +482,6 @@ def process_vaa(
                     assert final_asset_id is not None
                     local_logger.error(f'Complete so swap for emitterChainId:{emitterChainId}, '
                                        f'sequence:{sequence}, start compensate for error: {e}')
-                    if isinstance(ty_args, list) and len(ty_args) > 0:
-                        cross_asset_id = ty_args[0]
-                    else:
-                        cross_asset_id = final_asset_id
                     result = sui_package.wormhole_facet.complete_so_swap_by_relayer(
                         storage,
                         facet_manager,
@@ -726,7 +727,7 @@ def main():
 
 
 def single_process():
-    change_network("bsc-main")
+    change_network("polygon-main")
     process_v2(21, sui_project.network_config["SoDiamond"])
 
 

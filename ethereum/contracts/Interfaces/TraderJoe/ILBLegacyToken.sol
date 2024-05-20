@@ -34,22 +34,22 @@ interface ILBLegacyToken is IERC165 {
 
     function symbol() external view returns (string memory);
 
-    function balanceOf(address account, uint256 id)
-        external
-        view
-        returns (uint256);
+    function balanceOf(
+        address account,
+        uint256 id
+    ) external view returns (uint256);
 
-    function balanceOfBatch(address[] calldata accounts, uint256[] calldata ids)
-        external
-        view
-        returns (uint256[] memory batchBalances);
+    function balanceOfBatch(
+        address[] calldata accounts,
+        uint256[] calldata ids
+    ) external view returns (uint256[] memory batchBalances);
 
     function totalSupply(uint256 id) external view returns (uint256);
 
-    function isApprovedForAll(address owner, address spender)
-        external
-        view
-        returns (bool);
+    function isApprovedForAll(
+        address owner,
+        address spender
+    ) external view returns (bool);
 
     function setApprovalForAll(address sender, bool approved) external;
 

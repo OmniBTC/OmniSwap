@@ -26,16 +26,19 @@ def main():
         replace_address=dict(
             wormhole=sui_project.network_config['packages']['Wormhole']['origin'],
             token_bridge=sui_project.network_config['packages']['TokenBridge']['origin'],
-            cetus_clmm=cetus_clmm.package_id,
-            move_stl=move_stl.package_id,
-            integer_mate=integer_mate.package_id,
+            cetus_clmm=sui_project.network_config['packages']['CetusClmm']['origin'],
+            move_stl=sui_project.network_config['packages']['MoveSTL']['origin'],
+            integer_mate=sui_project.network_config['packages']['IntegerMate']['origin'],
         ),
         replace_publish_at=dict(
             wormhole=wormhole.package_id,
             token_bridge=token_bridge.package_id,
+            cetus_clmm=cetus_clmm.package_id,
+            move_stl=move_stl.package_id,
+            integer_mate=integer_mate.package_id,
         ),
-        digest=[46, 177, 156, 158, 46, 3, 220, 182, 247, 168, 245, 93, 128, 227, 200, 7, 24, 28, 20, 137, 17, 57, 198,
-                126, 204, 49, 226, 7, 29, 187, 125, 92],
+        digest=[111, 207, 180, 196, 113, 107, 102, 58, 41, 125, 126, 26, 26, 146, 110, 179, 196, 59, 44, 172, 108, 208,
+                234, 76, 129, 251, 253, 8, 181, 3, 7, 159],
         gas_budget=500000000,
     )
     print(f"New package id:{omniswap.package_id}")

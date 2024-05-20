@@ -57,8 +57,8 @@ interface ISyncSwapRouter {
     ) external payable returns (uint256 amountOut);
 
     /// @notice Wrapper function to allow pool deployment to be batched.
-    function createPool(address factory, bytes calldata data)
-        external
-        payable
-        returns (address);
+    function createPool(
+        address factory,
+        bytes calldata data
+    ) external payable returns (address);
 }

@@ -25,10 +25,10 @@ interface IRouterV2 {
     ) external view returns (uint256 reserveA, uint256 reserveB);
 
     // performs chained getAmountOut calculations on any number of pairs
-    function getAmountsOut(uint256 amountIn, route[] memory routes)
-        external
-        view
-        returns (uint256[] memory amounts);
+    function getAmountsOut(
+        uint256 amountIn,
+        route[] memory routes
+    ) external view returns (uint256[] memory amounts);
 
     function swapExactTokensForTokens(
         uint256 amountIn,
