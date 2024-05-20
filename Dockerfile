@@ -3,8 +3,8 @@ FROM comingweb3/coming-ubuntu:arm64
 RUN apt update && apt install -y python3-pip libcurl4-openssl-dev libssl-dev git
 
 # boost local build
-ENV http_proxy "http://172.17.0.1:7890"
-ENV https_proxy "http://172.17.0.1:7890"
+# ENV http_proxy "http://172.17.0.1:7890"
+# ENV https_proxy "http://172.17.0.1:7890"
 
 COPY requirements.txt .
 # init python brownie for eth
@@ -24,8 +24,8 @@ RUN wget https://nodejs.org/dist/v18.16.0/node-v18.16.0-linux-arm64.tar.xz \
     && bash -c "/usr/bin/npm install -g ts-node" \
     && ln -s /usr/local/node-v18.16.0-linux-arm64/bin/ts-node /usr/bin/ts-node
 
-ENV http_proxy ""
-ENV https_proxy ""
+# ENV http_proxy ""
+# ENV https_proxy ""
 
 WORKDIR /OmniSwap
 
