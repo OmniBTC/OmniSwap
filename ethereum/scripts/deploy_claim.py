@@ -109,6 +109,18 @@ def deploy_op():
     Claim.deploy(start, token_address, merkle_root, {"from": account})
 
 
+def deploy_bevm():
+    account = get_account("deploy_key")
+    if "test" in network.show_active():
+        MockToken.deploy("OP", "OP", {"from": account})
+        token_address = MockToken[-1].address
+    else:
+        token_address = "0x041bbB9c16fDBa8C805565D0bB34931e37895EC9"
+    start = int(time.time() + 10)
+    merkle_root = "0x83f3a31e458be02ec0c9996d9bf16c090f3409a19d658bf70e016bca900b725a"
+    Claim.deploy(start, token_address, merkle_root, {"from": account, "gas_price": "0.05 gwei"})
+
+
 def deploy_arb():
     account = get_account("deploy_key")
     if "test" in network.show_active():
