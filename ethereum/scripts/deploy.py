@@ -37,7 +37,7 @@ def deploy_multicall(account=get_account()):
     Multicall3.deploy({"from": account})
 
 
-def deploy_bulk(account=get_account()):
+def deploy_bulk(account=get_account("deploy_key")):
     BulkTransfer.deploy({"from": account})
 
 
