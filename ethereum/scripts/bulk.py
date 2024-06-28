@@ -171,7 +171,7 @@ def bulk_eth():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/op_account_20240528.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/op_account_20240628.json"))
 
     data = list(zip(*data))
 
@@ -195,7 +195,7 @@ def bulk_bevm():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/bevm_account_20240528.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/bevm_account_20240628.json"))
 
     data = list(zip(*data))
 
@@ -211,7 +211,7 @@ def bulk_bevm():
         BulkTransfer[-1].batchTransferETH(d0, d1,
                                           {"from": acc,
                                            "value": sum(d1),
-                                           "gas_price": "0.053 gwei"
+                                           "gas_price": "0.05 gwei"
                                            })
         print(f"Send value:{sum(d1)}")
         has_send.extend(d0)
