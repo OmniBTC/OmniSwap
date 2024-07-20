@@ -7,3 +7,4 @@ requests
 eth-brownie
 aptos-brownie
 ccxt==1.72.64
+anyio>=4.4.0 # not directly required, pinned by Snyk to avoid a vulnerability
