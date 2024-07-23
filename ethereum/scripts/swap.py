@@ -32,11 +32,11 @@ root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 src_session: Session = None
 dst_session: Session = None
 
-if "core" in network.show_active():
-    # need to use the old fee calculation model
-    priority_fee(None)
-    max_fee(None)
-    gas_price("30 gwei")
+# if "core" in network.show_active():
+#     # need to use the old fee calculation model
+#     priority_fee(None)
+#     max_fee(None)
+#     gas_price("30 gwei")
 
 
 def get_contract(contract_name: str, p: Project = None):
