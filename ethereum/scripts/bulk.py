@@ -186,14 +186,13 @@ def is_finalized(url, txid):
 
 def bulk_ordinals_runes_test():
     import time
-    from brownie import web3
 
     change_network("bevm-test-11503")
 
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/20240430-bevm-ordinals-runes-20.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/20240806-bevm-ordinals-runes-141020.json"))
     data = list(zip(*data))
 
     sum_balance = int(sum(data[1]))
@@ -206,7 +205,7 @@ def bulk_ordinals_runes_test():
     # Test
     token_addr = "0x75AE064C1395b54820E6df1406935870d3B6c021"
     token = Contract.from_abi("Token", token_addr, MockToken.abi)
-    token.approve(bulk_addr, sum_balance, {"from": acc})
+    token.approve(bulk_addr, sum_balance, {"from": acc, "gas_price": "0.05 gwei"})
 
     interval = 500
     has_send = []
@@ -214,14 +213,16 @@ def bulk_ordinals_runes_test():
         d0 = list(data[0][i:i + interval])
         d1 = list(data[1][i:i + interval])
         assert len(set(has_send) & set(d0)) == 0
-        gas_price = web3.eth.gas_price + 50000
-        time.sleep(6)
-        print(f"\n\nBulk ordinals-runes:{sum(d1)}, {i}")
-        tx = bulk_trasfer.batchTransferToken(token.address, d0, d1, {"from": acc, "gas_price": gas_price})
+
+        # if i < 1000:
+        #     continue
+
+        print(f"\n\nBulk ordinals-runes:{i}, {sum(d1)}")
+        tx = bulk_trasfer.batchTransferToken(token.address, d0, d1, {"from": acc, "gas_price": "0.05 gwei"})
 
         while not is_finalized("https://testnet.bevm.io", tx.txid):
             print(f"waiting {tx.txid} to finalize...")
-            time.sleep(18)
+            time.sleep(60)
 
         has_send.extend(d0)
 
@@ -233,7 +234,7 @@ def bulk_ordinals_runes_main():
     acc = get_account("bulk_key")
     print(f"Acc:{acc.address}")
 
-    data = read_json(Path(__file__).parent.joinpath("data/20240506-bevm-ordinals-runes-107036.json"))
+    data = read_json(Path(__file__).parent.joinpath("data/20240806-bevm-ordinals-runes-141020.json"))
     data = list(zip(*data))
 
     sum_balance = int(sum(data[1]))
@@ -246,7 +247,7 @@ def bulk_ordinals_runes_main():
     # ORDINALS•RUNES
     token_addr = "0x041bbB9c16fDBa8C805565D0bB34931e37895EC9"
     token = Contract.from_abi("Token", token_addr, MockToken.abi)
-    token.approve(bulk_addr, sum_balance, {"from": acc})
+    token.approve(bulk_addr, sum_balance, {"from": acc, "gas_price": "0.05 gwei"})
 
     interval = 500
     has_send = []
