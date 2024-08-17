@@ -144,6 +144,6 @@ zope.interface==6.1
 zope.lifecycleevent==5.0
 zope.proxy==5.1
 zstandard==0.18.0
-setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
+setuptools>=70.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
 wheel>=0.38.0 # not directly required, pinned by Snyk to avoid a vulnerability
 zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
