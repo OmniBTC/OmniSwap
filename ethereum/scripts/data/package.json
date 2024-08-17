@@ -29,7 +29,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@openzeppelin/contracts": "^4.9.0",
     "@openzeppelin/contracts-upgradeable": "^4.9.0",
-    "@openzeppelin/hardhat-upgrades": "^1.26.0",
+    "@openzeppelin/hardhat-upgrades": "^2.3.3",
     "bignumber.js": "^9.1.1",
     "dotenv": "^16.0.3",
     "fs": "^0.0.1-security",
