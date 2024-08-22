@@ -359,7 +359,7 @@ contract CCTPFacet is Swapper, ReentrancyGuard, IMessageHandler {
             swapDataDstNo
         );
 
-        // cross-chain loss not exist in burn-mint mode
+        // cross-chain loss does not exist in burn-mint mode
         uint256 amount = soData.amount;
 
         uint256 soFee = getCCTPSoFee(amount);
