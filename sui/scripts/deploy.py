@@ -74,7 +74,7 @@ def load_test_coins(is_from_config):
 @functools.lru_cache()
 def load_integer_mate():
     return SuiPackage(
-        sui_project.network_config['packages']['IntegerMate'],
+        sui_project.network_config['packages']['IntegerMate']["latest"],
         package_name="IntegerMate",
     )
 
@@ -82,7 +82,7 @@ def load_integer_mate():
 @functools.lru_cache()
 def load_move_stl():
     return SuiPackage(
-        sui_project.network_config['packages']['MoveSTL'],
+        sui_project.network_config['packages']['MoveSTL']["latest"],
         package_name="MoveSTL",
     )
 
@@ -90,7 +90,7 @@ def load_move_stl():
 @functools.lru_cache()
 def load_cetus_clmm():
     return SuiPackage(
-        sui_project.network_config['packages']['CetusClmm'],
+        sui_project.network_config['packages']['CetusClmm']["latest"],
         package_name="CetusClmm",
     )
 
