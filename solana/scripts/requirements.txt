@@ -11,7 +11,7 @@ backcall==0.2.0
 base58==2.1.1
 based58==0.1.1
 bitarray==2.6.0
-black==22.10.0
+black==24.3.0
 borsh-construct==0.1.0
 cachetools==4.2.4
 certifi==2023.7.22
