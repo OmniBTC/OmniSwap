@@ -1,8 +1,8 @@
-aiohttp==3.8.3
+aiohttp==3.10.2
 aiosignal==1.2.0
 anchorpy==0.18.0
 anchorpy-core==0.1.3
-anyio==4.0.0
+anyio==4.4.0
 asttokens==2.4.0
 async-timeout==4.0.2
 attrs==22.1.0
@@ -11,10 +11,10 @@ backcall==0.2.0
 base58==2.1.1
 based58==0.1.1
 bitarray==2.6.0
-black==22.10.0
+black==24.3.0
 borsh-construct==0.1.0
 cachetools==4.2.4
-certifi==2023.7.22
+certifi==2024.7.4
 cffi==1.16.0
 charset-normalizer==2.1.1
 click==8.1.3
@@ -24,7 +24,7 @@ cytoolz==0.12.0
 dataclassy==0.11.1
 decorator==5.1.1
 eip712==0.1.0
-eth-abi==2.2.0
+eth-abi==5.0.1
 eth-account==0.5.9
 eth-brownie==1.19.3
 eth-event==1.2.3
@@ -104,7 +104,7 @@ python-dotenv==0.16.0
 pythx==1.6.1
 pytools==2023.1.1
 PyYAML==5.4.1
-requests==2.31.0
+requests==2.32.2
 retrying==1.3.4
 rfc3986==1.5.0
 rlp==2.0.1
@@ -126,7 +126,7 @@ traitlets==5.11.2
 typer==0.9.0
 types-cachetools==4.2.10
 typing_extensions==4.4.0
-urllib3==1.26.18
+urllib3==1.26.19
 varint==1.0.2
 vvm==0.1.0
 vyper==0.4.0
