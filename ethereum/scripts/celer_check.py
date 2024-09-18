@@ -34,7 +34,7 @@ def print_price_ratio(network, celer_so_fee):
 
 @functools.lru_cache()
 def get_prices(
-        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
+        symbols=("ETH/USDT", "BNB/USDT", "POL/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
 ):
     api = ccxt.kucoin()
     prices = {}
@@ -70,7 +70,7 @@ def set_price_ratio():
         ratio = int(prices["ETH/USDT"] / prices["AVAX/USDT"] * ray * multiply)
         con.setPriceRatio(1101, ratio, {'from': account})
     elif net in ["polygon-main"]:
-        ratio = int(prices["ETH/USDT"] / prices["MATIC/USDT"] * ray * multiply)
+        ratio = int(prices["ETH/USDT"] / prices["POL/USDT"] * ray * multiply)
         con.setPriceRatio(1101, ratio, {'from': account})
     else:
         raise ValueError

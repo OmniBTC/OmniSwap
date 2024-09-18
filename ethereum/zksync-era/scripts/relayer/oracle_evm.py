@@ -10,7 +10,7 @@ from scripts.helpful_scripts import get_account, change_network
 
 
 @functools.lru_cache()
-def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT")):
+def get_prices(symbols=("ETH/USDT", "BNB/USDT", "POL/USDT", "AVAX/USDT")):
     api = ccxt.kucoin()
     prices = {}
 
@@ -58,7 +58,7 @@ def set_so_prices():
 
     # matic/eth
     dst_celer_id = 137
-    ratio = int(prices["MATIC/USDT"] / prices["ETH/USDT"] * decimal * multiply)
+    ratio = int(prices["POL/USDT"] / prices["ETH/USDT"] * decimal * multiply)
     old_ratio = int(proxy_celer_so_fee.getPriceRatio(dst_celer_id)[0])
     print(
         f"[set_matic_eth_price_ratio]: old: {old_ratio} new: {ratio} percent: { calc_percent(ratio, old_ratio) }"

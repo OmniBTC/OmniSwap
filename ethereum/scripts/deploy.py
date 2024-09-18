@@ -38,7 +38,7 @@ def deploy_multicall(account=get_account()):
 
 
 def deploy_bulk(account=get_account("deploy_key")):
-    BulkTransfer.deploy({"from": account})
+    BulkTransfer.deploy({"from": account, "gas_price": "0.05 gwei"})
 
 
 def deploy_contracts(account):

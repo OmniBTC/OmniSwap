@@ -121,7 +121,7 @@ def get_token_price():
         elif v["dstNet"] in ["bsc-main", "bsc-test"]:
             result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("BNB/USDT")['close'])
         elif v["dstNet"] in ["polygon-main", "polygon-test"]:
-            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("MATIC/USDT")['close'])
+            result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("POL/USDT")['close'])
         elif v["dstNet"] in ["avax-main", "avax-test"]:
             result[v["dstWormholeChainId"]] = float(kucoin.fetch_ticker("AVAX/USDT")['close'])
         else:
