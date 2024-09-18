@@ -120,7 +120,7 @@ def set_so_gas():
 
 @functools.lru_cache()
 def get_prices(
-        symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
+        symbols=("ETH/USDT", "BNB/USDT", "POL/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")
 ):
     api = ccxt.kucoin()
     prices = {}
@@ -223,7 +223,7 @@ def set_so_price_for_test():
         # aptos
         dst_wormhole_id = 22
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["APT/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
+        ratio = int(prices["APT/USDT"] / prices["POL/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
@@ -236,7 +236,7 @@ def set_so_price_for_test():
         # sui
         dst_wormhole_id = 21
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["SUI/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
+        ratio = int(prices["SUI/USDT"] / prices["POL/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} "
             f"percent: {ratio / old_ratio if old_ratio > 0 else old_ratio}"
@@ -311,7 +311,7 @@ def set_so_price_for_celer_zkevm():
 
     # matic/eth
     dst_celer_id = 137
-    ratio = int(prices["MATIC/USDT"] / prices["ETH/USDT"] * decimal * multiply)
+    ratio = int(prices["POL/USDT"] / prices["ETH/USDT"] * decimal * multiply)
     old_ratio = int(proxy_celer_so_fee.getPriceRatio(dst_celer_id)[0])
     print(
         f"[set_matic_eth_price_ratio]: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
@@ -429,7 +429,7 @@ def set_so_price():
         # aptos
         dst_wormhole_id = 22
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["APT/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
+        ratio = int(prices["APT/USDT"] / prices["POL/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for aptos-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
@@ -441,7 +441,7 @@ def set_so_price():
         # sui
         dst_wormhole_id = 21
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["SUI/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
+        ratio = int(prices["SUI/USDT"] / prices["POL/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for sui-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )
@@ -453,7 +453,7 @@ def set_so_price():
         # solana
         dst_wormhole_id = 1
         old_ratio = int(LibSoFeeWormholeV1[-1].getPriceRatio(dst_wormhole_id)[0])
-        ratio = int(prices["SOL/USDT"] / prices["MATIC/USDT"] * decimal * multiply)
+        ratio = int(prices["SOL/USDT"] / prices["POL/USDT"] * decimal * multiply)
         print(
             f"Set price ratio for solana-mainnet: old: {old_ratio} new: {ratio} percent: {calc_percent(ratio, old_ratio)}"
         )

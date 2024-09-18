@@ -979,7 +979,7 @@ def get_prices(
         symbols=(
                 "ETH/USDT",
                 "BNB/USDT",
-                "MATIC/USDT",
+                "POL/USDT",
                 "AVAX/USDT",
                 "APT/USDT",
                 "SUI/USDT",
@@ -1007,7 +1007,7 @@ def set_basic_fee():
     elif network.show_active() == "avax-main":
         so_fee *= data["ETH/USDT"] / data["BNB/USDT"]
     elif network.show_active() == "polygon-main":
-        so_fee *= data["ETH/USDT"] / data["MATIC/USDT"]
+        so_fee *= data["ETH/USDT"] / data["POL/USDT"]
     elif network.show_active() == "mantle-main":
         so_fee *= data["ETH/USDT"] / data["MNT/USDT"]
     elif network.show_active() == "core-main":

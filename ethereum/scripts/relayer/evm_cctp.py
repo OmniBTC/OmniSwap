@@ -34,26 +34,26 @@ SUPPORTED_EVM = [
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "mainnet",
     },
-    {
-        "destinationDomain": 1,
-        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "avax-main",
-    },
-    {
-        "destinationDomain": 2,
-        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-        "dstNet": "optimism-main",
-    },
+    # {
+    #     "destinationDomain": 1,
+    #     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+    #     "dstNet": "avax-main",
+    # },
+    # {
+    #     "destinationDomain": 2,
+    #     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+    #     "dstNet": "optimism-main",
+    # },
     {
         "destinationDomain": 3,
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "arbitrum-main",
     },
-    {
-        "destinationDomain": 6,
-        "dstSoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
-        "dstNet": "base-main",
-    }
+    # {
+    #     "destinationDomain": 6,
+    #     "dstSoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
+    #     "dstNet": "base-main",
+    # }
 ]
 
 # SUPPORTED_EVM = [
@@ -87,7 +87,7 @@ def get_token_price():
         elif v["dstNet"] in ["bsc-main", "bsc-test"]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("BNB/USDT")['close'])
         elif v["dstNet"] in ["polygon-main", "polygon-test"]:
-            result[v["destinationDomain"]] = float(kucoin.fetch_ticker("MATIC/USDT")['close'])
+            result[v["destinationDomain"]] = float(kucoin.fetch_ticker("POL/USDT")['close'])
         elif v["dstNet"] in ["avax-main", "avax-test"]:
             result[v["destinationDomain"]] = float(kucoin.fetch_ticker("AVAX/USDT")['close'])
         else:
@@ -499,7 +499,7 @@ def process_v2(
             elif estimate_gas > gas_limit:
                 local_logger.warning(f"Src txid:{data.src_txid} estimate gas:{estimate_gas} > "
                                      f"gas limit:{gas_limit}, refuse relay")
-                # continue
+                continue
             else:
                 local_logger.info(f"Gas limit is {gas_limit} for transaction")
             if not is_compensate:

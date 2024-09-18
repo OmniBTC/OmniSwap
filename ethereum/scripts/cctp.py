@@ -59,7 +59,7 @@ def get_token_price(token):
     elif token == "bnb":
         return float(kucoin.fetch_ticker("BNB/USDT")['close'])
     elif token == "matic":
-        return float(kucoin.fetch_ticker("MATIC/USDT")['close'])
+        return float(kucoin.fetch_ticker("POL/USDT")['close'])
     elif token == "avax":
         return float(kucoin.fetch_ticker("AVAX/USDT")['close'])
     elif token == "apt":
