@@ -34,26 +34,26 @@ SUPPORTED_EVM = [
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "mainnet",
     },
-    # {
-    #     "destinationDomain": 1,
-    #     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-    #     "dstNet": "avax-main",
-    # },
-    # {
-    #     "destinationDomain": 2,
-    #     "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
-    #     "dstNet": "optimism-main",
-    # },
+    {
+        "destinationDomain": 1,
+        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+        "dstNet": "avax-main",
+    },
+    {
+        "destinationDomain": 2,
+        "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
+        "dstNet": "optimism-main",
+    },
     {
         "destinationDomain": 3,
         "dstSoDiamond": "0x2967e7bb9daa5711ac332caf874bd47ef99b3820",
         "dstNet": "arbitrum-main",
     },
-    # {
-    #     "destinationDomain": 6,
-    #     "dstSoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
-    #     "dstNet": "base-main",
-    # }
+    {
+        "destinationDomain": 6,
+        "dstSoDiamond": "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
+        "dstNet": "base-main",
+    }
 ]
 
 # SUPPORTED_EVM = [
@@ -386,9 +386,9 @@ def process_v1(
                 else:
                     has_process[has_key] = time.time()
 
-                # if dst_storage[dst_domain].qsize() > 1000:
-                #     # Avoid mem leak
-                #     clear_queue(dst_storage[dst_domain])
+                if dst_storage[dst_domain].qsize() > 1000:
+                    # Avoid mem leak
+                    clear_queue(dst_storage[dst_domain])
 
                 dst_storage[dst_domain].put(data.to_dict())
                 local_logger.info(f"Put {dst_net} item for txid: {data.src_txid}")
