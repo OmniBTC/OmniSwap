@@ -519,7 +519,7 @@ contract BoolFacet is
         return boolFee;
     }
 
-    /// @dev Get remain gas for transfer
+    /// @dev Get remaining gas for transfer
     function getBoolTransferGas() public view returns (uint256) {
         Storage storage s = getStorage();
         address soFee = appStorage.gatewaySoFeeSelectors[s.boolSwapRouter];
