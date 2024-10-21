@@ -26,7 +26,7 @@ module test_coins::coins {
 
     struct DAI has drop {}
 
-    struct MATIC has drop {}
+    struct POL has drop {}
 
     struct APT has drop {}
 
@@ -40,7 +40,7 @@ module test_coins::coins {
         bag::add(&mut coins, into_string(get<BNB>()), balance::create_supply(BNB {}));
         bag::add(&mut coins, into_string(get<WBTC>()), balance::create_supply(WBTC {}));
         bag::add(&mut coins, into_string(get<DAI>()), balance::create_supply(DAI {}));
-        bag::add(&mut coins, into_string(get<MATIC>()), balance::create_supply(MATIC {}));
+        bag::add(&mut coins, into_string(get<POL>()), balance::create_supply(POL {}));
         bag::add(&mut coins, into_string(get<APT>()), balance::create_supply(APT {}));
 
         coins

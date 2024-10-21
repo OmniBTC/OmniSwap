@@ -4017,7 +4017,7 @@
                 "Decimal": 18,
                 "NativeToken": true,
                 "TokenAddress": "0x0000000000000000000000000000000000000000",
-                "TokenName": "MATIC"
+                "TokenName": "POL"
             },
             {
                 "ChainPath": [

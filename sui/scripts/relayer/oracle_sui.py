@@ -91,7 +91,7 @@ def set_so_gas():
 
 
 @functools.lru_cache()
-def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")):
+def get_prices(symbols=("ETH/USDT", "BNB/USDT", "POL/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")):
     api = ccxt.kucoin()
     prices = {}
 
@@ -132,7 +132,7 @@ def set_so_price_for_test():
     if "polygon-test" in nets:
         wormhole_chain_id = 5
         old_ratio = int(get_price_ratio(sui_package, price_manager, wormhole_chain_id))
-        ratio = int(prices["MATIC/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
+        ratio = int(prices["POL/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for polygon-main: old: {old_ratio} new: {ratio} "
               f"percent: {ratio / old_ratio if old_ratio > 0 else 0}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
@@ -184,7 +184,7 @@ def set_so_price():
     if "polygon-main" in nets:
         wormhole_chain_id = 5
         old_ratio = int(get_price_ratio(sui_package, price_manager, wormhole_chain_id))
-        ratio = int(prices["MATIC/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
+        ratio = int(prices["POL/USDT"] / prices["SUI/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for polygon-main: old: {old_ratio} new: {ratio} "
               f"percent: {ratio / old_ratio if old_ratio > 0 else 0}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:

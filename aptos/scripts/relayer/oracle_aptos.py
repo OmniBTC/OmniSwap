@@ -72,7 +72,7 @@ def set_so_gas():
 
 
 @functools.lru_cache()
-def get_prices(symbols=("ETH/USDT", "BNB/USDT", "MATIC/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")):
+def get_prices(symbols=("ETH/USDT", "BNB/USDT", "POL/USDT", "AVAX/USDT", "APT/USDT", "SUI/USDT", "SOL/USDT")):
     api = ccxt.kucoin()
     prices = {}
 
@@ -122,7 +122,7 @@ def set_so_price():
         price_manage = package.account_resource(
             price_resource, f"{str(package.account.account_address)}::so_fee_wormhole::PriceManager")
         old_ratio = int(price_manage["data"]["price_data"]["current_price_ratio"])
-        ratio = int(prices["MATIC/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
+        ratio = int(prices["POL/USDT"] / prices["APT/USDT"] * ratio_decimal * multiply)
         print(f"Set price ratio for polygon-main: old: {old_ratio} new: {ratio} percent: {ratio / old_ratio}")
         if old_ratio < ratio or ratio * 1.1 < old_ratio:
             package["so_fee_wormhole::set_price_ratio"](wormhole_chain_id, ratio)

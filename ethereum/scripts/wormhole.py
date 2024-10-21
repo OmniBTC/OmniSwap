@@ -108,7 +108,7 @@ def get_native_token_name(net):
     elif "ftm" in net:
         return "FTM"
     elif "polygon" in net:
-        return "MATIC"
+        return "POL"
     elif "aptos" in net:
         return "APT"
     elif "sui" in net:

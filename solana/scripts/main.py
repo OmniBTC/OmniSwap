@@ -96,7 +96,7 @@ def get_prices(
     symbols=(
         "ETH/USDT",
         "BNB/USDT",
-        "MATIC/USDT",
+        "POL/USDT",
         "AVAX/USDT",
         "APT/USDT",
         "SUI/USDT",
@@ -131,7 +131,7 @@ async def set_price_ratios(network="mainnet"):
     dst_pair = {
         "bsc-main": "BNB/USDT",
         "eth-main": "ETH/USDT",
-        "polygon-main": "MATIC/USDT",
+        "polygon-main": "POL/USDT",
         "avax-main": "AVAX/USDT",
         "aptos-main": "APT/USDT",
         "sui-main": "SUI/USDT",
