@@ -166,6 +166,103 @@ def bulk_pcx_test():
         bulk_trasfer.batchTransferToken(token.address, d0, d1, {"from": acc})
         has_send.extend(d0)
 
+def is_finalized(url, txid):
+    import requests
+    import json
+
+    payload = json.dumps({
+        "jsonrpc": "2.0",
+        "method": "bevm_isTxFinalized",
+        "params": [txid],
+        "id": 1
+    })
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    return json.loads(response.text)["result"]
+
+def bulk_ordinals_runes_test():
+    import time
+    from brownie import web3
+
+    change_network("bevm-test-11503")
+
+    acc = get_account("bulk_key")
+    print(f"Acc:{acc.address}")
+
+    data = read_json(Path(__file__).parent.joinpath("data/20240430-bevm-ordinals-runes-20.json"))
+    data = list(zip(*data))
+
+    sum_balance = int(sum(data[1]))
+    print(f"Sum balance:{sum_balance}, len:{len(data[0])}")
+
+    # Bulk
+    bulk_addr = '0xeEe4e0704CaeF530DcF9E819c44f0607A8523267'
+    bulk_trasfer = Contract.from_abi("BulkTransfer", bulk_addr, BulkTransfer.abi)
+
+    # Test
+    token_addr = "0x75AE064C1395b54820E6df1406935870d3B6c021"
+    token = Contract.from_abi("Token", token_addr, MockToken.abi)
+    token.approve(bulk_addr, sum_balance, {"from": acc})
+
+    interval = 500
+    has_send = []
+    for i in range(0, len(data[0]), interval):
+        d0 = list(data[0][i:i + interval])
+        d1 = list(data[1][i:i + interval])
+        assert len(set(has_send) & set(d0)) == 0
+        gas_price = web3.eth.gas_price + 50000
+        time.sleep(6)
+        print(f"\n\nBulk ordinals-runes:{sum(d1)}, {i}")
+        tx = bulk_trasfer.batchTransferToken(token.address, d0, d1, {"from": acc, "gas_price": gas_price})
+
+        while not is_finalized("https://testnet.bevm.io", tx.txid):
+            print(f"waiting {tx.txid} to finalize...")
+            time.sleep(18)
+
+        has_send.extend(d0)
+
+def bulk_ordinals_runes_main():
+    import time
+
+    change_network("bevm-main-11501")
+
+    acc = get_account("bulk_key")
+    print(f"Acc:{acc.address}")
+
+    data = read_json(Path(__file__).parent.joinpath("data/20240506-bevm-ordinals-runes-107036.json"))
+    data = list(zip(*data))
+
+    sum_balance = int(sum(data[1]))
+    print(f"Sum balance:{sum_balance}, len:{len(data[0])}")
+
+    # Bulk
+    bulk_addr = "0xba661e8482D62d3B33751961780df04Aab373eA5"
+    bulk_trasfer = Contract.from_abi("BulkTransfer", bulk_addr, BulkTransfer.abi)
+
+    # ORDINALS•RUNES
+    token_addr = "0x041bbB9c16fDBa8C805565D0bB34931e37895EC9"
+    token = Contract.from_abi("Token", token_addr, MockToken.abi)
+    token.approve(bulk_addr, sum_balance, {"from": acc})
+
+    interval = 500
+    has_send = []
+    for i in range(0, len(data[0]), interval):
+        d0 = list(data[0][i:i + interval])
+        d1 = list(data[1][i:i + interval])
+        assert len(set(has_send) & set(d0)) == 0
+
+        print(f"\n\nBulk ordinals-runes:{sum(d1)}, {i}")
+        tx = bulk_trasfer.batchTransferToken(token.address, d0, d1, {"from": acc})
+
+        while not is_finalized("https://mainnet.bevm.io", tx.txid):
+            print(f"waiting {tx.txid} to finalize...")
+            time.sleep(60)
+
+        has_send.extend(d0)
 
 def bulk_eth():
     acc = get_account("bulk_key")
