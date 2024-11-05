@@ -288,6 +288,74 @@ def bulk_eth():
         print(f"Send value:{sum(d1)}")
         has_send.extend(d0)
 
+def bulk_gas_bevm_test():
+    import time
+
+    change_network("bevm-test")
+
+    acc = get_account("bulk_key")
+    print(f"Acc:{acc.address}")
+
+    data = read_json(Path(__file__).parent.joinpath("data/20241105-super-bitcoin-winner-67-43550245.json"))
+    data = list(zip(*data))
+
+    sum_balance = int(sum(data[1]))
+    print(f"Sum balance:{sum_balance}, len:{len(data[0])}")
+
+    # Bulk
+    bulk_addr = '0xeEe4e0704CaeF530DcF9E819c44f0607A8523267'
+    bulk_trasfer = Contract.from_abi("BulkTransfer", bulk_addr, BulkTransfer.abi)
+
+    interval = 500
+    has_send = []
+    for i in range(0, len(data[0]), interval):
+        d0 = list(data[0][i:i + interval])
+        d1 = list(data[1][i:i + interval])
+        assert len(set(has_send) & set(d0)) == 0
+
+        print(f"\n\nBulk gas:{i}, {sum(d1)}")
+        tx = bulk_trasfer.batchTransferETH(d0, d1, {"from": acc, "value": sum(d1), "gas_price": "0.05 gwei"})
+
+        while not is_finalized("https://testnet.bevm.io", tx.txid):
+            print(f"waiting {tx.txid} to finalize...")
+            time.sleep(60)
+
+        has_send.extend(d0)
+
+def bulk_gas_bevm_main():
+    import time
+
+    change_network("bevm-main")
+
+    acc = get_account("bulk_key")
+    print(f"Acc:{acc.address}")
+
+    data = read_json(Path(__file__).parent.joinpath("data/20241105-super-bitcoin-winner-67-43550245.json"))
+    data = list(zip(*data))
+
+    sum_balance = int(sum(data[1]))
+    print(f"Sum balance:{sum_balance}, len:{len(data[0])}")
+
+    # Bulk
+    bulk_addr = '0xba661e8482D62d3B33751961780df04Aab373eA5'
+    bulk_trasfer = Contract.from_abi("BulkTransfer", bulk_addr, BulkTransfer.abi)
+
+    interval = 500
+    has_send = []
+    for i in range(0, len(data[0]), interval):
+        d0 = list(data[0][i:i + interval])
+        d1 = list(data[1][i:i + interval])
+        assert len(set(has_send) & set(d0)) == 0
+
+        print(f"\n\nBulk gas:{i}, {sum(d1)}")
+        tx = bulk_trasfer.batchTransferETH(d0, d1, {"from": acc, "value": sum(d1), "gas_price": "0.05 gwei"})
+
+        while not is_finalized("https://rpc-mainnet-1.bevm.io", tx.txid):
+            print(f"waiting {tx.txid} to finalize...")
+            time.sleep(60)
+
+        has_send.extend(d0)
+
 
 def bulk_bsc_usdt():
     acc = get_account("bulk_key")
