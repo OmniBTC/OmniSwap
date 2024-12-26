@@ -104,6 +104,8 @@ class SoDiamondAllowanceChecker:
         if not token_address:
             raise ValueError(f"Unknown token symbol: {token_symbol}")
 
+        print(f"{token_address}\n")
+
         results = {}
         for swap_name, swap_address in self.config.swaps.items():
             allowance = self.check_allowance(token_address, swap_address)
@@ -407,13 +409,13 @@ CORE_CONFIG = ChainConfig(
 )
 
 if __name__ == "__main__":
-    # SoDiamondAllowanceChecker(ETH_CONFIG).show_allowances()
-    # SoDiamondAllowanceChecker(BSC_CONFIG).show_allowances()
-    # SoDiamondAllowanceChecker(BASE_CONFIG).show_allowances()
-    # SoDiamondAllowanceChecker(AVAX_CONFIG).show_allowances()
-    # SoDiamondAllowanceChecker(POL_CONFIG).show_allowances()
-    # SoDiamondAllowanceChecker(ARB_CONFIG).show_allowances()
-    # SoDiamondAllowanceChecker(OP_CONFIG).show_allowances()
+    SoDiamondAllowanceChecker(ETH_CONFIG).show_allowances()
+    SoDiamondAllowanceChecker(BSC_CONFIG).show_allowances()
+    SoDiamondAllowanceChecker(BASE_CONFIG).show_allowances()
+    SoDiamondAllowanceChecker(AVAX_CONFIG).show_allowances()
+    SoDiamondAllowanceChecker(POL_CONFIG).show_allowances()
+    SoDiamondAllowanceChecker(ARB_CONFIG).show_allowances()
+    SoDiamondAllowanceChecker(OP_CONFIG).show_allowances()
     SoDiamondAllowanceChecker(ZKSYNC_CONFIG).show_allowances()
 
     # SoDiamondAllowanceChecker(ZKEVM_CONFIG).show_allowances()
