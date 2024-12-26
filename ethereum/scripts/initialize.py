@@ -1137,22 +1137,19 @@ def add_allowance_facet():
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond Address:{so_diamond}")
 
-    # AllowanceFacet.deploy({"from": account})
+    AllowanceFacet.deploy({"from": account})
 
     print(f"Initialize {AllowanceFacet._name}...")
     reg_facet = AllowanceFacet[-1]
     register_data = []
 
     # clearAllowance: 0x81f30f6e
-    # register_data.append([reg_facet, FacetCutAction_ADD, ["0x81f30f6e"]])
-    # register_data.append([reg_facet, FacetCutAction_REPLACE, ["0x81f30f6e"]])
+    register_data.append([reg_facet, FacetCutAction_ADD, ["0x81f30f6e"]])
 
     # libSwap: 0xdedaee82
-    # register_data.append([reg_facet, FacetCutAction_REPLACE, ["0xdedaee82"]])
-
+    register_data.append([reg_facet, FacetCutAction_REPLACE, ["0xdedaee82"]])
     # executeAndCheckSwaps: 0x3729e48c
     register_data.append([reg_facet, FacetCutAction_REPLACE, ["0x3729e48c"]])
-
     # executeAndCheckSwapsV2: 0x7df28932
     register_data.append([reg_facet, FacetCutAction_REPLACE, ["0x7df28932"]])
 
