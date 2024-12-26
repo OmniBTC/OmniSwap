@@ -314,7 +314,7 @@ ZKSYNC_CONFIG = ChainConfig(
         "USDT": "0x493257fd37edb34451f62edf8d2a0c418852ba4c",
         "USDC": "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
     },
-    so_diamond="0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8",
+    so_diamond="0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577",
     swaps={
         "SyncSwap": "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295",
         "MuteIO": "0x8B791913eB07C32779a16750e3868aA8495F5964",
@@ -356,7 +356,7 @@ LINEA_CONFIG = ChainConfig(
     }
 )
 
-# bevm-canary, scroll
+# bevm-canary, scroll, opbnb
 
 METIS_CONFIG = ChainConfig(
     chain_id=1088,
@@ -407,15 +407,15 @@ CORE_CONFIG = ChainConfig(
 )
 
 if __name__ == "__main__":
-    SoDiamondAllowanceChecker(ETH_CONFIG).show_allowances()
-    SoDiamondAllowanceChecker(BSC_CONFIG).show_allowances()
-    SoDiamondAllowanceChecker(BASE_CONFIG).show_allowances()
-    SoDiamondAllowanceChecker(AVAX_CONFIG).show_allowances()
-    SoDiamondAllowanceChecker(POL_CONFIG).show_allowances()
-    SoDiamondAllowanceChecker(ARB_CONFIG).show_allowances()
-    SoDiamondAllowanceChecker(OP_CONFIG).show_allowances()
+    # SoDiamondAllowanceChecker(ETH_CONFIG).show_allowances()
+    # SoDiamondAllowanceChecker(BSC_CONFIG).show_allowances()
+    # SoDiamondAllowanceChecker(BASE_CONFIG).show_allowances()
+    # SoDiamondAllowanceChecker(AVAX_CONFIG).show_allowances()
+    # SoDiamondAllowanceChecker(POL_CONFIG).show_allowances()
+    # SoDiamondAllowanceChecker(ARB_CONFIG).show_allowances()
+    # SoDiamondAllowanceChecker(OP_CONFIG).show_allowances()
+    SoDiamondAllowanceChecker(ZKSYNC_CONFIG).show_allowances()
 
-    # SoDiamondAllowanceChecker(ZKSYNC_CONFIG).show_allowances()
     # SoDiamondAllowanceChecker(ZKEVM_CONFIG).show_allowances()
     # SoDiamondAllowanceChecker(LINEA_CONFIG).show_allowances()
     # SoDiamondAllowanceChecker(METIS_CONFIG).show_allowances()

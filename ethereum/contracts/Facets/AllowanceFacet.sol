@@ -4,10 +4,11 @@ pragma solidity 0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../Libraries/LibDiamond.sol";
+import {Swapper} from "../Helpers/Swapper.sol";
 
 /// @title Allowance Facet
 /// @notice clears allowance for a token
-contract AllowanceFacet {
+contract AllowanceFacet is Swapper {
     /// Events ///
 
     event LogClear(address indexed token);

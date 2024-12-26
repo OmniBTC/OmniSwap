@@ -1139,22 +1139,16 @@ def add_allowance_facet():
 
     AllowanceFacet.deploy({"from": account})
 
-    register_funcs = {}
-    register_data = []
-
     print(f"Initialize {AllowanceFacet._name}...")
     reg_facet = AllowanceFacet[-1]
-    reg_funcs = get_method_signature_by_abi(AllowanceFacet.abi)
-    for func_name in list(reg_funcs.keys()):
-        if func_name in register_funcs:
-            if reg_funcs[func_name] in register_funcs[func_name]:
-                print(f"function:{func_name} has been register!")
-                del reg_funcs[func_name]
-            else:
-                register_funcs[func_name].append(reg_funcs[func_name])
-        else:
-            register_funcs[func_name] = [reg_funcs[func_name]]
-    register_data.append([reg_facet, FacetCutAction_ADD, list(reg_funcs.values())])
+    register_data = []
+
+    # clearAllowance: 0x81f30f6e
+    # register_data.append([reg_facet, FacetCutAction_ADD, ["0x81f30f6e"]])
+    register_data.append([reg_facet, FacetCutAction_REPLACE, ["0x81f30f6e"]])
+
+    # libSwap: 0xdedaee82
+    register_data.append([reg_facet, FacetCutAction_REPLACE, ["0xdedaee82"]])
 
     proxy_cut = Contract.from_abi(
         "DiamondCutFacet", so_diamond, DiamondCutFacet.abi
