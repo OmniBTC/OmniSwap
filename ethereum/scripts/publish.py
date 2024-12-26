@@ -25,7 +25,7 @@ def worker(net: str = None):
     deployed_contract = [
         # "LibSoFeeGenericV2",
         # "GenericSwapFacet",
-        "StargateFacet"
+        "AllowanceFacet"
         # "LibCorrectSwapV1"
         # "Claim"
         # "CCTPFacet",
@@ -48,7 +48,7 @@ def worker(net: str = None):
 
 
 def main():
-    nets = ["avax-main", "base-main", "optimism-main", "arbitrum-main", "bsc-main", "mainnet", "polygon-main"]
+    nets = ["arbitrum-main"]
     pt = ProcessExecutor(executor=len(nets))
     pt.run([functools.partial(worker, net) for net in nets])
 
