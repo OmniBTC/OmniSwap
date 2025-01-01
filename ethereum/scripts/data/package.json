@@ -34,7 +34,7 @@
     "dotenv": "^16.0.3",
     "fs": "^0.0.1-security",
     "keccak256": "^1.0.6",
-    "merkletreejs": "^0.3.10",
+    "merkletreejs": "^0.4.1",
     "openzeppelin-solidity": "^2.3.0",
     "unix-timestamp": "^1.0.3"
   }
