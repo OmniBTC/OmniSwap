@@ -28,13 +28,13 @@
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@openzeppelin/contracts": "^5.0.2",
-    "@openzeppelin/contracts-upgradeable": "^4.9.0",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@openzeppelin/hardhat-upgrades": "^3.2.0",
     "bignumber.js": "^9.1.1",
     "dotenv": "^16.0.3",
     "fs": "^0.0.1-security",
     "keccak256": "^1.0.6",
-    "merkletreejs": "^0.3.10",
+    "merkletreejs": "^0.4.1",
     "openzeppelin-solidity": "^2.3.0",
     "unix-timestamp": "^1.0.3"
   }

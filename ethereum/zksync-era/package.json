@@ -18,8 +18,8 @@
     "zksync-web3": "^0.14.3"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.6",
+    "@openzeppelin/contracts": "^5.1.0",
     "@uniswap/v3-core": "^1.0.1",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.4.7"
   }
 }
