@@ -131,20 +131,6 @@ def clear_avalanche_allowance(account):
         "AllowanceFacet", so_diamond, AllowanceFacet.abi
     )
 
-    proxy_diamond.clearAllowance(
-        "0x4200000000000000000000000000000000000006",  # WETH
-        [
-            "0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f",  # SushiswapV3
-            "0x327Df1E6de05895d2ab08513aaDD9313Fe505d86",  # BaseswapV2
-            "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43",  # Aerodrome
-            "0x2626664c2603336E57B271c5C0b26F421741e481",  # UniswapV3
-            "0x8c1A3cF8f83074169FE5D7aD50B978e1cD6b37c7",  # AlienbaseV2
-            "0xaaa3b1F1bd7BCc97fD1917c18ADE665C5D31F066",  # SwapBasedV2
-            "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5",  # KyberSwap
-            "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64",  # OpenOcean
-        ],
-        {"from": account}
-    )
 
     proxy_diamond.clearAllowance(
         "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",  # WETH
