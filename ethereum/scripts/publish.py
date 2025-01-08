@@ -48,7 +48,7 @@ def worker(net: str = None):
 
 
 def main():
-    nets = ["arbitrum-main"]
+    nets = [ "base-main", "mainnet"]
     pt = ProcessExecutor(executor=len(nets))
     pt.run([functools.partial(worker, net) for net in nets])
 

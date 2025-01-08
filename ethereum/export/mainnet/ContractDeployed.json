@@ -57,7 +57,8 @@
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
     "WormholeFacet": "0xFc6e7902EcDD5C2Ae7502e2F869f2213B4BF2249",
-    "LibCorrectSwapV2": "0xB9496408E1c36AcED889261c4ec616aa2f213B8C"
+    "LibCorrectSwapV2": "0xB9496408E1c36AcED889261c4ec616aa2f213B8C",
+    "AllowanceFacet": "0x2d5BC7f95E3507fCB9e923D049eea1bbA1554A82"
   },
   "bsc-main": {
     "CorrectKyberswapFactory": "0x23EcB70e0696B8Fc2409Fc3976F8506AfA39Ed2c",
@@ -86,7 +87,8 @@
     "StargateFacet": "0x900A514f459aA8301956059C38F8c01A774c95b7",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
     "WormholeFacet": "0x72335F9a83d6468B7Bdf64e25A511D5A719f3Cf2",
-    "LibCorrectSwapV2": "0x46aa8f8FF3E04b79f87dCBE9eA9ED5BeA800e756"
+    "LibCorrectSwapV2": "0x46aa8f8FF3E04b79f87dCBE9eA9ED5BeA800e756",
+    "AllowanceFacet": "0xCb630b08Fb7A5AC3654CCBD1d63cD1f488329125"
   },
   "mainnet": {
     "ContractDeployerFactory": "0xBb6670E3c93f074338255e429689b7BAaf1D3e96",
@@ -111,7 +113,8 @@
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0xc8DF0654252B27Ccd3Aa73f683306902920446Ac",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
-    "WormholeFacet": "0x681bC51FC82bbA792e94e6187B82859f1E982C24"
+    "WormholeFacet": "0x681bC51FC82bbA792e94e6187B82859f1E982C24",
+    "AllowanceFacet": "0x03aF06c5a63AA733C04435F5a4001ffFCBe287c7"
   },
   "optimism-main": {
     "CorrectKyberswapFactory": "0xaDdE46A97A855C8590BE53c703eC3f9ddA1FD960",
@@ -140,7 +143,8 @@
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
     "LibCorrectSwapV2": "0x802D063d912D99b0b3e31ABAc2f93943A743B929",
-    "BulkTransfer": "0x1cc046Cd4BF83421E3C744e14c09F8b9aD8C82b3"
+    "BulkTransfer": "0x1cc046Cd4BF83421E3C744e14c09F8b9aD8C82b3",
+    "AllowanceFacet": "0x23EcB70e0696B8Fc2409Fc3976F8506AfA39Ed2c"
   },
   "polygon-main": {
     "CorrectKyberswapFactory": "0xd89C044df7Bd1984e466f9De5EC1929B7feB648C",
@@ -169,7 +173,8 @@
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
     "WithdrawFacet": "0xa7487A536968Be0D563901aeb3Fc07B099e2fb04",
     "WormholeFacet": "0x184b4176aebc4598190aa2FFAFFa86c07D2102C7",
-    "LibCorrectSwapV2": "0x933Ce99df42035f25511aaeecCfE8B03175A6b0e"
+    "LibCorrectSwapV2": "0x933Ce99df42035f25511aaeecCfE8B03175A6b0e",
+    "AllowanceFacet": "0x12571c8fDF762eaAA6F465de485841695B646bfF"
   },
   "zksync2-main": {
     "BoolFacet": "0x01765a7309B6C1085d73c1F31424E720cC921457",
@@ -226,7 +231,8 @@
     "LibSoFeeStargateV2": "0x7857E0Ca2b63Ffcaba9c3c92c1553B8DA3492096",
     "StargateFacet": "0x8A29F8A0fdf637771F95e4e6AC84d9Ee017C2C95",
     "LibSoFeeStargateV1": "0xacCA63aA138997602b2771E2aF6B7cfc643aa027",
-    "LibCorrectSwapV2": "0xB9496408E1c36AcED889261c4ec616aa2f213B8C"
+    "LibCorrectSwapV2": "0xB9496408E1c36AcED889261c4ec616aa2f213B8C",
+    "AllowanceFacet": "0xb77E5C6A88710863e99857DeAc3ABb33E49B1576"
   },
   "bevm-main": {
     "DiamondCutFacet": "0x1f0d7E0C10Adf20ae9621431a53151ed6F4361E3",

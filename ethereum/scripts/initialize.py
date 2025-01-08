@@ -1137,7 +1137,7 @@ def add_allowance_facet():
     so_diamond = SoDiamond[-1]
     print(f"SoDiamond Address:{so_diamond}")
 
-    AllowanceFacet.deploy({"from": account})
+    # AllowanceFacet.deploy({"from": account})
 
     print(f"Initialize {AllowanceFacet._name}...")
     reg_facet = AllowanceFacet[-1]
