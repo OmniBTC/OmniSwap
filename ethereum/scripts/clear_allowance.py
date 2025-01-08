@@ -7,8 +7,13 @@ from brownie import (
 from scripts.helpful_scripts import get_account, change_network
 
 
-def clear_ethereum_allowance(proxy_diamond, account):
+def clear_ethereum_allowance(account):
     change_network("ethereum-main")
+
+    so_diamond = "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820"
+    proxy_diamond = Contract.from_abi(
+        "AllowanceFacet", so_diamond, AllowanceFacet.abi
+    )
 
     proxy_diamond.clearAllowance(
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  # USDC
@@ -29,8 +34,13 @@ def clear_ethereum_allowance(proxy_diamond, account):
     )
 
 
-def clear_bsc_allowance(proxy_diamond, account):
+def clear_bsc_allowance(account):
     change_network("bsc-main")
+
+    so_diamond = "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820"
+    proxy_diamond = Contract.from_abi(
+        "AllowanceFacet", so_diamond, AllowanceFacet.abi
+    )
 
     proxy_diamond.clearAllowance(
         "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",  # WETH
@@ -77,8 +87,13 @@ def clear_bsc_allowance(proxy_diamond, account):
     )
 
 
-def clear_base_allowance(proxy_diamond, account):
+def clear_base_allowance(account):
     change_network("base-main")
+
+    so_diamond = "0xfDa613cb7366b1812F2d33fC95D1d4DD3896aeb8"
+    proxy_diamond = Contract.from_abi(
+        "AllowanceFacet", so_diamond, AllowanceFacet.abi
+    )
 
     proxy_diamond.clearAllowance(
         "0x4200000000000000000000000000000000000006",  # WETH
@@ -108,11 +123,13 @@ def clear_base_allowance(proxy_diamond, account):
 
 
 
-def clear_avalanche_allowance(proxy_diamond, account):
+def clear_avalanche_allowance(account):
     change_network("avalanche-main")
 
-    def clear_base_allowance(proxy_diamond, account):
-        change_network("base-main")
+    so_diamond = "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820"
+    proxy_diamond = Contract.from_abi(
+        "AllowanceFacet", so_diamond, AllowanceFacet.abi
+    )
 
     proxy_diamond.clearAllowance(
         "0x4200000000000000000000000000000000000006",  # WETH
@@ -190,8 +207,13 @@ def clear_avalanche_allowance(proxy_diamond, account):
     )
 
 
-def clear_polygon_allowance(proxy_diamond, account):
+def clear_polygon_allowance(account):
     change_network("polygon-main")
+
+    so_diamond = "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820"
+    proxy_diamond = Contract.from_abi(
+        "AllowanceFacet", so_diamond, AllowanceFacet.abi
+    )
 
     proxy_diamond.clearAllowance(
         "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",  # WETH
@@ -227,8 +249,13 @@ def clear_polygon_allowance(proxy_diamond, account):
     )
 
 
-def clear_arbitrum_allowance(proxy_diamond, account):
+def clear_arbitrum_allowance(account):
     change_network("arbitrum-main")
+
+    so_diamond = "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820"
+    proxy_diamond = Contract.from_abi(
+        "AllowanceFacet", so_diamond, AllowanceFacet.abi
+    )
 
     proxy_diamond.clearAllowance(
         "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",  # WBTC
@@ -287,8 +314,13 @@ def clear_arbitrum_allowance(proxy_diamond, account):
     )
 
 
-def clear_optimism_allowance(proxy_diamond, account):
+def clear_optimism_allowance(account):
     change_network("optimism-main")
+
+    so_diamond = "0x2967E7Bb9DaA5711Ac332cAF874BD47ef99B3820"
+    proxy_diamond = Contract.from_abi(
+        "AllowanceFacet", so_diamond, AllowanceFacet.abi
+    )
 
     proxy_diamond.clearAllowance(
         "0x4200000000000000000000000000000000000006",  # WETH
@@ -333,8 +365,13 @@ def clear_optimism_allowance(proxy_diamond, account):
     )
 
 
-def clear_zksync_allowance(proxy_diamond, account):
+def clear_zksync_allowance(account):
     change_network("zksync-main")
+
+    so_diamond = "0x2350D92F6Bf51C202395B10D6b8a6ae0B37bB577"
+    proxy_diamond = Contract.from_abi(
+        "AllowanceFacet", so_diamond, AllowanceFacet.abi
+    )
 
     proxy_diamond.clearAllowance(
         "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",  # WETH
@@ -372,16 +409,12 @@ def clear_zksync_allowance(proxy_diamond, account):
 
 def clear_allowance():
     account = get_account()
-    so_diamond = SoDiamond[-1]
-    proxy_diamond = Contract.from_abi(
-        "AllowanceFacet", so_diamond.address, AllowanceFacet.abi
-    )
 
-    clear_ethereum_allowance(proxy_diamond, account)
-    clear_bsc_allowance(proxy_diamond, account)
-    clear_base_allowance(proxy_diamond, account)
-    clear_avalanche_allowance(proxy_diamond, account)
-    clear_polygon_allowance(proxy_diamond, account)
-    # clear_arbitrum_allowance(proxy_diamond, account)
-    clear_optimism_allowance(proxy_diamond, account)
-    clear_zksync_allowance(proxy_diamond, account)
+    clear_ethereum_allowance(account)
+    clear_bsc_allowance(account)
+    clear_base_allowance(account)
+    clear_avalanche_allowance(account)
+    clear_polygon_allowance(account)
+    # clear_arbitrum_allowance(account)
+    clear_optimism_allowance(account)
+    clear_zksync_allowance(account)
