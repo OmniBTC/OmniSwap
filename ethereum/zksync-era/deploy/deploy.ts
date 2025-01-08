@@ -96,34 +96,41 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     // deployed["LibCorrectSwapV2"] = LibCorrectSwapV2
     // writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
 
-    const factorys = [
-        // "CorrectUniswapV2Factory",
-        // "CorrectUniswapV3Factory",
-        // "CorrectSyncswapFactory",
-        // "CorrectMuteswapFactory",
-        // "CorrectQuickswapV3Factory",
-        // "CorrectAerodromeFactory",
-        // "CorrectBalancerV2Factory",
-        // "CorrectCurveFactory",
-        // "CorrectWombatFactory",
-        // "CorrectTraderJoeFactory",
-        // "CorrectGMXV1Factory",
-        // "CorrectPearlFiFactory",
-        // "CorrectIZiSwapFactory",
-        // "CorrectCamelotFactory",
-        // "CorrectKyberswapFactory",
-        "CorrectOneInchFactory",
-        "CorrectOpenOceanFactory",
-    ]
+    artifact = await deployer.loadArtifact("AllowanceFacet");
+    contract = await deployer.deploy(artifact, []);
+    const AllowanceFacet = contract.address;
+    console.log(`${artifact.contractName} was deployed to ${AllowanceFacet}`);
+    deployed["AllowanceFacet"] = AllowanceFacet
+    writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
 
-    for (let i = 0; i < factorys.length; i++) {
-        artifact = await deployer.loadArtifact(factorys[i]);
-        contract = await deployer.deploy(artifact, ["0x4B0492bCc5316257153c087735198D5B6e57D42d"]);
-        const contract_addr = contract.address;
-        console.log(`${artifact.contractName} was deployed to ${contract_addr}`);
-        // deployed[factorys[i]] = contract_addr
-        // writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
-    }
+    // const factorys = [
+    //     // "CorrectUniswapV2Factory",
+    //     // "CorrectUniswapV3Factory",
+    //     // "CorrectSyncswapFactory",
+    //     // "CorrectMuteswapFactory",
+    //     // "CorrectQuickswapV3Factory",
+    //     // "CorrectAerodromeFactory",
+    //     // "CorrectBalancerV2Factory",
+    //     // "CorrectCurveFactory",
+    //     // "CorrectWombatFactory",
+    //     // "CorrectTraderJoeFactory",
+    //     // "CorrectGMXV1Factory",
+    //     // "CorrectPearlFiFactory",
+    //     // "CorrectIZiSwapFactory",
+    //     // "CorrectCamelotFactory",
+    //     // "CorrectKyberswapFactory",
+    //     "CorrectOneInchFactory",
+    //     "CorrectOpenOceanFactory",
+    // ]
+    //
+    // for (let i = 0; i < factorys.length; i++) {
+    //     artifact = await deployer.loadArtifact(factorys[i]);
+    //     contract = await deployer.deploy(artifact, ["0x4B0492bCc5316257153c087735198D5B6e57D42d"]);
+    //     const contract_addr = contract.address;
+    //     console.log(`${artifact.contractName} was deployed to ${contract_addr}`);
+    //     // deployed[factorys[i]] = contract_addr
+    //     // writeFileSync(DEPLOYED, JSON.stringify(deployed, null, 4))
+    // }
 
 
 }
