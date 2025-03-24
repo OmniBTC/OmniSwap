@@ -40,7 +40,7 @@ contract DexManagerFacet {
     }
 
     /// @notice Register the correct swap impl address for different swap router
-    /// @param correctSwap address that implement the modification of this swap
+    /// @param correctSwap address that implements the modification of this swap
     function addCorrectSwap(address correctSwap) external {
         LibDiamond.enforceIsContractOwner();
         appStorage.correctSwapRouterSelectors = correctSwap;
